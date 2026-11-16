@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "teleport.c safe_teleds() 766-767: with no free non-trap spot, the hero lands on the first trap spot teleok(,,TRUE) accepts. A debug Priest level-teleports to the first level of Vlad's Tower, wishes for a squeaky board under her (spot A, at a dead end between two doors), fills every other spot with '0 yellow mold', #wizkills the mold north of her, steps there (spot B) and wishes for a second squeaky board. ^T to an occupied square says 'Sorry...'; safe_teleds()'s 40 random tries and its ring scan reject both trapped spots and every occupied one, so it uses the remembered trap spot A (766-767) and the board squeaks.",
+  "segments": [
+    {
+      "seed": 3301457,
+      "datetime": "20381201120000",
+      "nethackrc": "OPTIONS=name:Filler,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0016?\n>G\u0017squeaky board\n\u00070 yellow mold\n#wizkill\nk.\u001bk\u0017squeaky board\n\u0014k. "
+    }
+  ]
+}
