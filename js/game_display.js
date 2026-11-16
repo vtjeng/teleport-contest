@@ -30,9 +30,14 @@ function visibleCell(cell) {
 }
 
 // NetHack color (0..15) to ANSI foreground code; NO_COLOR (8) is 39, the
-// default.
+// default. CLR_BLACK (0) is the default too, as the recorder captures it:
+// patch 006's nomux_start_fg(), which every tty term_start_color() reaches,
+// stores it as 8 when use_darkgray is on, and nomux_capture_screen() reads
+// a stored 0 as the default foreground otherwise. Either way
+// frozen/screen-decode.mjs reads the cell back as NO_COLOR, so no C screen
+// ever holds color 0.
 function colorToFg(color) {
-    if (color === 8 || color < 0 || color > 15) return 39;
+    if (color === 0 || color === 8 || color < 0 || color > 15) return 39;
     return color < 8 ? 30 + color : 90 + (color - 8);
 }
 
