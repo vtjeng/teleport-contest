@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Variation of wallify_vault-tame-xorn-eating-on-gold-wall-snarls for a deaf hero: the guard asks for the name in writing and says nothing on leaving, and yelp() uses the deaf verb for MS_ROAR, \"It bluffs!\" (sounds.c 449-451).",
+  "segments": [
+    {
+      "seed": 61724023,
+      "datetime": "20550312093000",
+      "nethackrc": "OPTIONS=name:VaultYelp,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\nOPTIONS=permadeaf\n",
+      "moves": " #wizlevelport\n3\n\u0014  hhJjjj. #polyself\nxorn\n    y#wizwish\n100 gold pieces\nd$#wizwish\nheavy iron ball\ndon #wizgenesis\ntame xorn\n................. VaultYelp\n \u0014llKkkk.  .   "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "vault.c wallify_vault() 666-674: a tame monster on a vault wall square that is being restored yelps (sounds.c yelp()) before rloc() moves it. A Wizard levelports to Dlvl 3 (seed 61724023, which has a vault), teleports into it, becomes a xorn, drops gold and a heavy iron ball on the vault's top-left corner, and creates a tame xorn, which phases into the corner and eats the ball (meating 25). After the guard asks the hero's name, the hero teleports out with no gold; the guard says \"Well, begone.\" and its cleanup repairs the corner: C prints \"It snarls!\" (MS_ROAR, unseen pet) before \"A mysterious force moves the gold into the vault.\"",
+  "segments": [
+    {
+      "seed": 61724023,
+      "datetime": "20550312093000",
+      "nethackrc": "OPTIONS=name:VaultYelp,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": " #wizlevelport\n3\n\u0014  hhJjjj. #polyself\nxorn\n    y#wizwish\n100 gold pieces\nd$#wizwish\nheavy iron ball\ndon #wizgenesis\ntame xorn\n................. VaultYelp\n \u0014llKkkk.  .   "
+    }
+  ]
+}

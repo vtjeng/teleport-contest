@@ -1,8 +1,9 @@
 // vault.c wallify_vault() 666-674: before a damaged vault wall is restored,
 // a monster standing on it is moved away with rloc(), and a tame one first
-// yelps (sounds.c yelp()). No recording reaches it: the pet has to be awake
-// on a dug-out square of the vault wall, away from the guard's own corridor,
-// at the moment the hero and the guard have both left the vault.
+// yelps (sounds.c yelp()). This pins the C order on a constructed state (an
+// opened doorway in the wall); recordings/vault.c/
+// wallify_vault-tame-xorn-eating-on-gold-wall-{snarls,deaf-bluffs} reach the
+// same lines in play, with the pet on a gold-covered corner.
 //
 // Expected values come from reading vault.c and sounds.c, not from recording
 // JavaScript output.
