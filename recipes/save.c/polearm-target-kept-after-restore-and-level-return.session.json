@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "save.c savemonchn() 900-903 and restore.c restmonchn() 451-454. A debug Knight travels to the Dlvl 1 downstairs, walks three squares east, creates a tame red mold beside her, steps back, quaffs a blessed potion of monster detection, searches once, applies her lance at the mold and answers the tame-monster confirmation. The lance misses, but use_pole() has already made the mold svc.context.polearm.hitmon before the to-hit roll. She then saves: the release of the level stores the mold's m_id as svc.context.polearm.m_id, which nothing clears. The second segment restores, keeps no save file, goes down and back up the stairs and applies the lance again. getlev()'s restmonchn() has made the mold the polearm target again, and find_poleable_mon() skips the tame mold, so use_pole() starts the getpos cursor on the mold, which monster detection lets the hero sense (sensemon()). Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4811236,
+      "datetime": "20270614093000",
+      "nethackrc": "OPTIONS=name:Lancelyn,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0006_>.lll\u0007tame red mold\nh\u0017blessed potion of monster detection\nqisab  ll.ySy"
+    },
+    {
+      "seed": 4811237,
+      "datetime": "20270614103000",
+      "nethackrc": "OPTIONS=name:Lancelyn,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": " nhh> < llab\u001b"
+    }
+  ]
+}

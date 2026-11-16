@@ -58,7 +58,7 @@ import { light_globals_init } from './light.js';
 import { shk_globals_init } from './shk.js';
 import { objects_globals_init } from './objects.js';
 import { NON_PM, monst_globals_init } from './monsters.js';
-import { timeout_globals_init } from './timeout.js';
+import { run_timers, timeout_globals_init } from './timeout.js';
 import {
     ttyPlayerNameAndSuffix,
 } from './tty_startup.js';
@@ -76,7 +76,7 @@ import {
     tty_init_nhwindows,
     tty_player_selection,
 } from './wintty.js';
-import { LL_NONE, NHW_MESSAGE, Upolyd } from './const.js';
+import { LL_NONE, NHW_MESSAGE, REST_CURRENT_LEVEL, Upolyd } from './const.js';
 import { dorestore } from './restore.js';
 import { set_savefile_name } from './files.js';
 import { welcomeBackMessage, welcomeHallucinationMessage } from './role_init.js';
@@ -86,6 +86,7 @@ import {
     docrt,
     bot,
     flush_screen,
+    newsym,
     status_initialize,
     reglyph_darkroom,
 } from './display.js';
@@ -610,6 +611,20 @@ export class NethackGame {
             init_vision_globals();
             reglyph_darkroom(g);
             vision_reset();
+
+            // C ref: dorecover():930 run_timers(), "expire all timers that
+            // have gone off while away". A timer can be due at the save: a
+            // corpse taken out of an ice box when about ROT_AGE turns old
+            // gets a ROT_CORPSE delay of zero or less, and a fast hero can
+            // save before the next nh_timeout(). program_state.restoring is
+            // still REST_CURRENT_LEVEL here, so newsym() and bot() stay
+            // suppressed while messages still print.
+            g.program_state.restoring = REST_CURRENT_LEVEL;
+            await run_timers(g, {
+                newsym,
+                message: ttyPline,
+                site: "dorecover()'s run_timers()",
+            });
 
             // C ref: dorecover():931 program_state.restoring = 0 (before
             // docrt). Set up display for the restored game.

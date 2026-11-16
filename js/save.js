@@ -152,11 +152,12 @@ export function saveobjchn(first, state) {
     }
 }
 
-// C ref: save.c savemonchn() (884-915), the inventory pass (897-898) only:
-// each monster's inventory goes through saveobjchn(). The polearm.hitmon
-// reset (900-902) has nothing left to do because do.c goto_level() (1607)
-// has already cleared that pointer, and the ustuck and usteed ids (903-906)
-// serve the saved-game path, which this port restores as an object graph.
+// C ref: save.c savemonchn() (884-915): each monster's inventory goes
+// through saveobjchn() (897-898), and a released monster that is the
+// polearm target hands its m_id to svc.context.polearm (900-903), which
+// restmonchn() matches when the level is read back. The ustuck and usteed
+// ids (904-907) serve the saved-game path, which this port restores as an
+// object graph.
 //
 // When the chain is written (update_file(), 891-894), every priest forgets
 // its temple entry (priest.c forget_temple_entry()), so leaving the level
@@ -167,6 +168,18 @@ export function savemonchn(first, state, { writing = true, releasing = true } = 
     for (let mtmp = first; mtmp; mtmp = mtmp.nmon) {
         if (writing && mtmp.ispriest) forget_temple_entry(mtmp);
         if (releasing && mtmp.minvent) saveobjchn(mtmp.minvent, state);
+        if (releasing) release_polearm_target(mtmp, state);
+    }
+}
+
+// C ref: save.c savemonchn() 900-903. svc.context.polearm.m_id is never
+// cleared afterwards, so restore.js restmonchn() and getlev() point
+// polearm.hitmon back at this monster whenever its level is read again.
+export function release_polearm_target(mtmp, state) {
+    const polearm = state.context?.polearm;
+    if (polearm && mtmp === polearm.hitmon) {
+        polearm.m_id = mtmp.m_id;
+        polearm.hitmon = null;
     }
 }
 
@@ -461,10 +474,16 @@ export async function dosave0(state = game) {
     // writes reset every priest's temple-entry counters
     // (priest.c forget_temple_entry()), so a restored game gives a fresh
     // intone and entry message on the next temple entry. The rest of those
-    // savemonchn() calls has no counterpart in the snapshot below.
+    // savemonchn() calls, apart from the polearm target below, has no
+    // counterpart in the snapshot below.
+    // Both are FREEING writes, so a monster that is the polearm target also
+    // leaves its m_id in svc.context.polearm (save.c 900-903) for restore.c
+    // restmonchn() to match.
     for (const chain of [state.level?.monlist, state.gm?.migrating_mons]) {
-        for (let mtmp = chain; mtmp; mtmp = mtmp.nmon)
+        for (let mtmp = chain; mtmp; mtmp = mtmp.nmon) {
             if (mtmp.ispriest) forget_temple_entry(mtmp);
+            release_polearm_target(mtmp, state);
+        }
     }
 
     // C ref: save.c:168-169 savelev() + savegamestate(). The port serializes
