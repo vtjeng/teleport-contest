@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A Monk in body armour wears a +20 ring of increase accuracy, so u.uhitinc reaches the Monk's spelarmr of 20 and debug-mode ^X reports the suit's to-hit penalty as overcome (insight.c attributes_enlightenment(), the \"overcoming\" branch).",
+  "segments": [
+    {
+      "seed": 6631840,
+      "datetime": "20480311152207",
+      "nethackrc": "OPTIONS=name:Shenlong,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.7.0\nOPTIONS=!autopickup\n",
+      "moves": "\u0017leather armor\n\u0017+20 ring of increase accuracy\nTbWjPkr\u0018>\u001b"
+    }
+  ]
+}
