@@ -886,8 +886,8 @@ function restmon(mtmp, _state) {
 // inventory goes through restobjchn() and gets ocarry back pointers
 // (419-429), the wielded-weapon pointer is re-derived from owornmask
 // (432-444), and shopkeepers and priests get their extension fixups
-// (446-449). polearm.hitmon (452-453) is a graph reference that
-// parseSnapshot() already resolved.
+// (446-449). A monster whose m_id savemonchn() left in
+// svc.context.polearm becomes the polearm target again (451-454).
 export function restmonchn(first, state) {
     for (let mtmp = first; mtmp; mtmp = mtmp.nmon) {
         restmon(mtmp, state);
@@ -914,8 +914,16 @@ export function restmonchn(first, state) {
             restshk(mtmp, false, state);
         if (mtmp.ispriest)
             restpriest(mtmp, false, state);
+        restore_polearm_target(mtmp, state);
     }
     return first;
+}
+
+// C ref: restore.c restmonchn() 451-454, the !ghostly branch.
+function restore_polearm_target(mtmp, state) {
+    const polearm = state.context?.polearm;
+    if (polearm && polearm.m_id && mtmp.m_id === polearm.m_id)
+        polearm.hitmon = mtmp;
 }
 
 // Rebuild state.level.objlist from the level.objects grid when getlev()
@@ -1110,10 +1118,13 @@ export async function getlev(ledger, state = game) {
     // reads each monster's objects through restobjchn() (419-429), then 1166
     // and 1172 restobjchn() for fobj and the buried list. The snapshot keeps
     // the chains and the live monsters keep the fields restmonchn() would
-    // otherwise rebuild, so only restobjchn()'s per-object work runs here.
-    // gb.billobjs (1173) comes back with the level savelev() wrote it with.
-    for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon)
+    // otherwise rebuild, so only restobjchn()'s per-object work and the
+    // polearm target match (451-454) run here. gb.billobjs (1173) comes back
+    // with the level savelev() wrote it with.
+    for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
         if (mtmp.minvent) mtmp.minvent = restobjchn(mtmp.minvent, state);
+        restore_polearm_target(mtmp, state);
+    }
     state.level.objlist = restobjchn(state.level.objlist, state);
     find_lev_obj(state.level.objlist, state, true);
     state.level.buriedobjlist = restobjchn(state.level.buriedobjlist, state);
