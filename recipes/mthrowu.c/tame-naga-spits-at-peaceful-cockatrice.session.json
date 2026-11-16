@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mthrowu.c spitmm() 1049-1054: a pet spits at another monster, so spitmm() sets gm.mtarget to the monster target (1054). A debug Valkyrie creates a peaceful cockatrice (pets never melee it, dogmove.c dog_move touch_petrifies) and a tame guardian naga, whose first attack is AT_SPIT; pet_ranged_attk() puts gb.bhitpos on the pet, so mattackm() only reaches a ranged attack in slot 0 (a tame cobra's second-slot spit never fires). After the hero steps west the naga lines up with the cockatrice and spits venom.",
+  "segments": [
+    {
+      "seed": 4471203,
+      "datetime": "20380311090000",
+      "nethackrc": "OPTIONS=name:Spitter,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0007peaceful cockatrice\n\u0007tame guardian naga\nhhhhssssssssssssssss\u001b"
+    }
+  ]
+}
