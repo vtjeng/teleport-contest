@@ -638,10 +638,12 @@ async function sit_in_water(state, random, rawEnv) {
     const { water_damage } = await import('./trap_water_damage.js');
     if (!random.rn2(10) && state.uarm)
         await water_damage(state.uarm, 'armor', true, { ...rawEnv, state, random });
+    // sit.c:523-524 tests the boots but passes uarm, so this second roll
+    // wets the body armor again (or nothing, without body armor).
     if (!random.rn2(10) && state.uarmf
         && state.uarmf.otyp !== WATER_WALKING_BOOTS) {
         await water_damage(
-            state.uarmf,
+            state.uarm,
             'armor',
             true,
             { ...rawEnv, state, random },

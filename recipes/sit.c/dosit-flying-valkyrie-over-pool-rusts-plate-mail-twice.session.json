@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "sit.c dosit() 520-524: a flying hero (amulet of flying) sitting over a wished pool takes the in_water arm (428-429). The second 1-in-10 test checks the iron shoes but C passes uarm to water_damage(), so on the ninth #sit both tests rust the plate mail: \"Your armor rusts!  Your armor rusts further!\", where rusting the shoes would repeat \"rusts!\".",
+ "segments": [
+  {
+   "seed": 4180336,
+   "datetime": "20450311101500",
+   "nethackrc": "OPTIONS=name:Sitter,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+   "moves": "\u0017plate mail\nWe\u0017iron shoes\nWf\u0017amulet of flying\nPg\u0017pool\n#sit\n#sit\n#sit\n#sit\n#sit\n#sit\n#sit\n#sit\n#sit\n"
+  }
+ ]
+}
