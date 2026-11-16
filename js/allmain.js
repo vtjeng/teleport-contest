@@ -88,7 +88,9 @@ import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
 import { read_wizkit } from './files.js';
 import { obj_delivery } from './dokick.js';
-import { cmdq_clear, dolookaround, failClosedCommandRefusals, rhack } from './cmd.js';
+import {
+    cmdq_clear, dolookaround, end_of_input, failClosedCommandRefusals, rhack,
+} from './cmd.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { canletgo, deferred_goto, dropx, save_currentstate } from './do.js';
 import { glibr } from './do_wear.js';
@@ -1223,6 +1225,12 @@ export async function moveloop_core() {
 // C ref: allmain.c moveloop_core()
 async function moveloop_core_body() {
     const g = game;
+
+    // C ref: allmain.c:181-184. SAFERHANGUP is defined (include/unixconf.h),
+    // so a hangup that readchar_core() deferred inside the previous command
+    // saves the game and ends the program here, before anything else runs.
+    if (g.program_state?.done_hup)
+        await end_of_input(g);
 
     maybe_shuffle_customizations(g);
 

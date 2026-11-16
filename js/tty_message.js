@@ -408,9 +408,11 @@ async function ttyPlineCore(
     message, state, pflags, mixedFirstCell = null, viaVpline = true,
 ) {
     // pline.c:vpline returns before putmesg for an empty format, and
-    // vpline():172-173 discards every message while files.c read_wizkit() is
-    // wishing; tty_putmixed() does not pass through vpline().
-    if (!message || (viaVpline && state.program_state?.wizkit_wishing))
+    // vpline():168-173 discards every message after a hangup and while
+    // files.c read_wizkit() is wishing; tty_putmixed() does not pass through
+    // vpline(), but after a hangup it is windows.c's no-op hup_putstr().
+    if (!message || state.program_state?.done_hup
+        || (viaVpline && state.program_state?.wizkit_wishing))
         return false;
     await emitQueuedNotices(state);
     // pline.c You() and its siblings write "prefix + format" into
