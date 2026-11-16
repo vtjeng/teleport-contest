@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "quest.c finish_quest() line 234, the Deaf early return for a tossed non-quest-artifact special item: a debug Priest creates a peaceful Arch Priest (the Priest quest leader, forced past the doppelganger substitution), wishes for a cheap plastic imitation of the Amulet of Yendor, turns deaf with #wizintrinsic, and throws the fake Amulet at the leader. dothrow.c thitmonst() special_obj_hits_leader() -> the leader catches it and finish_quest() returns at 234 without identifying it or speaking, then hands it back. The final keys dismiss the --More-- and the handed-back message.",
+  "segments": [
+    {
+      "seed": 61770213,
+      "datetime": "20470312094500",
+      "nethackrc": "OPTIONS=name:Tosser,role:Priest,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!tips\n",
+      "moves": " #wizgenesis\npeaceful Arch Priest\ny\u0017cheap plastic imitation of the Amulet of Yendor\n#wizintrinsic\n500j\n tih \u001b"
+    }
+  ]
+}
