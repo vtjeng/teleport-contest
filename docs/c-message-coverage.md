@@ -29,9 +29,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4004 | 64 | 0 |
-| diagnostic | 726 | 361 | 6 | 359 |
+| diagnostic | 726 | 362 | 6 | 358 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4914 | 4368 | 70 | 476 |
+| total | 4914 | 4369 | 70 | 475 |
 
 ## Missing by C file
 
@@ -128,7 +128,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/write.c | yes | 0 | 1 | 0 |
 | src/zap.c | yes | 0 | 9 | 1 |
 | win/tty/topl.c | yes | 0 | 1 | 0 |
-| win/tty/wintty.c | yes | 0 | 4 | 1 |
+| win/tty/wintty.c | yes | 0 | 3 | 1 |
 
 ## Missing gameplay messages
 
@@ -1231,9 +1231,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `process_menu_window()`
   - 1404 panic: `bad menu screen page #`
-
-- `tty_add_menu()`
-  - 2599 impossible: `Menu item too long (`
 
 - `tty_putstatusfield()`
   - 4810 panic: `tty_putstatusfield: Invalid WinDesc`
