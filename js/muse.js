@@ -87,14 +87,11 @@ import {
     TEMPLE,
     Trap_Killed_Mon,
     Has_contents,
-    W_ACCESSORY,
     W_AMUL,
     W_ARM,
     W_ARMH,
-    W_ARMOR,
     W_ARMG,
     W_ARMS,
-    W_SADDLE,
     W_WEP,
     N_DIRS,
     XKILL_NOCONDUCT,
@@ -1209,15 +1206,6 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
     }
 }
 
-function canLetGoWithoutDiscovery(obj, state) {
-    if (!obj) return false;
-    if (obj.owornmask & (W_ARMOR | W_ACCESSORY)) return false;
-    if (obj === state.uwep && mwelded(obj, state)) return false;
-    if (obj.otyp === O.LOADSTONE && obj.cursed) return false;
-    if (obj.otyp === O.LEASH && obj.leashmon) return false;
-    return !(obj.owornmask & W_SADDLE);
-}
-
 // C ref: muse.c find_misc() (2095-2246). Select a miscellaneous item or
 // action for a monster: polymorph trap, gain-level potion, bullwhip disarm,
 // invisibility, speed, polymorph, or container looting. Returns a selection
@@ -1288,9 +1276,12 @@ export function find_misc(monster, rawEnv = {}) {
             && u_at(monster.mux, monster.muy, state)
             && m_next2u(monster, state)
             && !hero?.uswallow
-            && (canLetGoWithoutDiscovery(state.uwep, state)
+            // canletgo() with an empty word answers synchronously and
+            // keeps its silent side effects (bknown of a welded uwep or a
+            // cursed loadstone).
+            && (canletgo(state.uwep, '', state)
                 || (hero?.twoweap
-                    && canLetGoWithoutDiscovery(state.uswapwep, state)))) {
+                    && canletgo(state.uswapwep, '', state)))) {
             selected = { kind: 'bullwhip', object: obj };
         }
         if (selected?.kind === 'make invisible') continue;
