@@ -17,13 +17,13 @@ import test from 'node:test';
 
 import {
     COULD_SEE, CORR, FAINTED, FAINTING, GD_EATGOLD, MON_DETACH,
-    ROOM, ROOMOFFSET, VAULT,
+    ROOM, ROOMOFFSET, STONE, VAULT,
 } from '../js/const.js';
 import { unfaint } from '../js/eat.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mondead, mongone } from '../js/mon.js';
-import { PM_GUARD } from '../js/monsters.js';
+import { PM_GUARD, PM_NEWT } from '../js/monsters.js';
 import {
     findgd, gd_move, gd_sound, grddead, in_fcorridor, invault, newegd,
     vault_gd_watching, vault_summon_gd,
@@ -258,6 +258,45 @@ test('grddead parks a dead guard then removes its fake corridor', async () => {
     assert.equal(egrd.fcbeg, 1, 'fake corridor entry consumed');
     assert.equal(game.level.at(gx, gy).typ, ROOM, 'original terrain restored');
 });
+
+// vault.c:clear_fcorr() 112-114 prints "You are encased in rock." only while
+// (Upolyd ? u.mh : u.uhp) > 0, so a polymorphed hero's form hit points decide.
+// The state below (polymorphed, u.mh 0, u.uhp positive) pins that test; play
+// may not reach it, since done() zeroes both u.uhp and u.mh (end.c 1072-1077)
+// before paygd() -> mongone() -> grddead(). The hero stands on the only
+// fake-corridor square, which reverts to STONE; the guard is already dead
+// (mhp 0), so the hero's presence does not stop the clear (vault.c 69).
+async function encasedMessages({ polymorphed, mh, uhp }) {
+    await startedGame();
+    const { guard: grd, egrd } = guardInCorridor();
+    egrd.fakecorr[0] = {
+        fx: game.u.ux, fy: game.u.uy, ftyp: STONE, flags: 0,
+    };
+    grd.mhp = 0;
+    // PM_NEWT is an arbitrary form other than the Healer's own PM_HUMAN.
+    if (polymorphed) game.u.umonnum = PM_NEWT;
+    game.u.mh = mh;
+    game.u.uhp = uhp;
+    const message = messageCollector();
+    await grddead(grd, game, {
+        message,
+        unsupported: (operation) => { throw new Error(operation); },
+    });
+    return message.messages;
+}
+
+test('clear_fcorr encases a living hero in the reverted corridor', async () => {
+    // uhp 10 is any positive value: the unpolymorphed hero is alive.
+    assert.ok((await encasedMessages({ polymorphed: false, mh: 0, uhp: 10 }))
+        .includes('You are encased in rock.'));
+});
+
+test('clear_fcorr is silent for a polymorphed hero whose form has died',
+    async () => {
+        // mh 0 is a dead form; uhp 10 would wrongly count as alive.
+        assert.ok(!(await encasedMessages({ polymorphed: true, mh: 0, uhp: 10 }))
+            .includes('You are encased in rock.'));
+    });
 
 // mon.c's two active callers both use grddead's return to decide whether the
 // guard can leave the monster chain. These exercise the direct production
