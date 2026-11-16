@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises utf8map.c mixed_to_utf8() (124-129, 136-137) through tty_putmixed() under a UTF-8 symset: a pet name holding an escaped backslash ('\\\\\\\\') prints one backslash and keeps the following letter, as farlook on the kitten shows.",
+  "segments": [
+    {
+      "seed": 7205514,
+      "datetime": "20270826203000",
+      "nethackrc": "OPTIONS=catname:M\\\\q,name:Teodor,role:Wizard,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,!autopickup,!tips,symset:Enhanced1\n",
+      "moves": "\n;m.s"
+    }
+  ]
+}

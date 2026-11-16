@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises role.c genl_player_setup() (2536-2538, 2605): with role and race fixed, '*' in the gender menu takes its Random entry, and 'q' in the alignment menu that follows quits.",
+  "segments": [
+    {
+      "seed": 6602417,
+      "datetime": "20270111074500",
+      "nethackrc": "OPTIONS=name:Ovid,role:monk,race:human,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "n*q"
+    }
+  ]
+}

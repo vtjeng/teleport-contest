@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wizcmds.c wiz_identify() (55-61): when ^I is bound to another command, cmd_from_func() finds no key for #wizidentify, so override_ID falls back to C('I') before the inventory is shown.",
+  "segments": [
+    {
+      "seed": 4472925,
+      "datetime": "20270114160000",
+      "nethackrc": "OPTIONS=name:Nell,role:Healer,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=playmode:debug\nBIND=^I:pray\n",
+      "moves": "\n#wizidentify\n"
+    }
+  ]
+}

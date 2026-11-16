@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises options.c optfn_o_bind_keys() (8332), optfn_o_menu_colors() (8375, 8385) and optfn_o_status_hilites() (8457, 8473): OPTIONS lines that name these OthrOpt entries without a value reach their empty do_set arm and are accepted silently.",
+  "segments": [
+    {
+      "seed": 5512094,
+      "datetime": "20270930064500",
+      "nethackrc": "OPTIONS=name:Odo,role:Barbarian,race:orc,gender:male,align:chaotic,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nOPTIONS=bind keys\nOPTIONS=menu colors\nOPTIONS=status highlight rules\n",
+      "moves": "\n:"
+    }
+  ]
+}

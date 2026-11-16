@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises utf8map.c mixed_to_utf8() (124-129) through tty_putmixed() under a UTF-8 symset: a pet name holding '\\\\G' followed by characters that are not a glyph number keeps the escape as text, as farlook on the pony shows. The variation against mixed-to-utf8-backslash-pair is the \\\\G form.",
+  "segments": [
+    {
+      "seed": 7205533,
+      "datetime": "20270826203000",
+      "nethackrc": "OPTIONS=horsename:R\\Gqq1,name:Mira,role:Knight,race:human,gender:female,!legacy,!tutorial,!splash_screen,!autopickup,!tips,symset:Enhanced1\n",
+      "moves": "\n;m.s"
+    }
+  ]
+}

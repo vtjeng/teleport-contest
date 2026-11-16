@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises cfgfiles.c cnf_line_HACKDIR(), cnf_line_LEVELDIR(), cnf_line_SAVEDIR(), cnf_line_BONESDIR(), cnf_line_DATADIR(), cnf_line_SCOREDIR(), cnf_line_LOCKDIR(), cnf_line_CONFIGDIR() and cnf_line_TROUBLEDIR() (639-758), which on this build only note the statement and accept it silently; cnf_line_QT_TILEWIDTH(), cnf_line_QT_TILEHEIGHT(), cnf_line_QT_FONTSIZE() and cnf_line_QT_COMPACT() (1240-1291), accepted without Qt; and cnf_line_dogname() (779-782), whose name farlook then shows on the pet dog. The variation spells each directory keyword by its four- or five-letter abbreviation (the cnf_line table's minimum lengths) and dogname as DOGNAME.",
+  "segments": [
+    {
+      "seed": 6203871,
+      "datetime": "20270722154010",
+      "nethackrc": "OPTIONS=name:Ferro,role:Ranger,race:elf,gender:male,align:chaotic,pettype:dog,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nHACK=/srv/games\nLEVE=/srv/games/lv\nSAVE=/srv/s\nBONES=/srv/b\nDATA=/srv/d\nSCOR=/srv/sc\nLOCK=/srv/l\nCONF=/srv/c\nTROU=/srv/t\nQT_TILEWIDTH=24\nQT_TILEHEIGHT=24\nQT_FONTSIZE=10\nQT_COMPACT=0\nDOGNAME=Pip of Lantern Hill\n",
+      "moves": "\n;m.s"
+    }
+  ]
+}

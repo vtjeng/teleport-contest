@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c render_status() (5276-5278) on the two-line status: the version field follows several status conditions (Blind, Conf, Hallu, from three wished-for potions) on the second line.",
+  "segments": [
+    {
+      "seed": 1185294,
+      "datetime": "20270909101500",
+      "nethackrc": "OPTIONS=name:Ek,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,showvers,time\n",
+      "moves": "\n\u0017potion of blindness\nqe\u0017potion of hallucination\nqf\u0017potion of confusion\nqgss"
+    }
+  ]
+}

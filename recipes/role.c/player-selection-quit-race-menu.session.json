@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises role.c genl_player_setup() (2431): ESC in the race menu, after the role is fixed by the options, quits the game.",
+  "segments": [
+    {
+      "seed": 4719330,
+      "datetime": "20270111074500",
+      "nethackrc": "OPTIONS=name:Cassia,role:wizard,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "n\u001b"
+    }
+  ]
+}

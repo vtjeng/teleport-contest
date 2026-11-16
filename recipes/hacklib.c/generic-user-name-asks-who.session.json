@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises hacklib.c findword() (681) as tty startup's generic-user test uses it: a name whose part before '-' is a word of sysconf GENERICUSERS ('player' here) is treated as no name, so the game asks 'Who are you?' and takes the typed name.",
+  "segments": [
+    {
+      "seed": 3870226,
+      "datetime": "20270415091200",
+      "nethackrc": "OPTIONS=name:player-two,race:dwarf,gender:female,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "Brynja\ns"
+    }
+  ]
+}
