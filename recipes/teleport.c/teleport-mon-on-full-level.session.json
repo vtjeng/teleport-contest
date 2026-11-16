@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "teleport.c u_teleport_mon() 2283 and 2289, rloc() failing on a full level. A debug Priest wishes for a wand of teleportation and level-teleports to the first level of Vlad's Tower (a small no-teleport level), creates a hostile dust vortex that engulfs her, then fills every spot a dust vortex can occupy with '0 peaceful dust vortex' (^G with quantity 0). Zapping the wand inside the engulfer frees her ('You are no longer inside the dust vortex!'); rloc() finds no spot, so m_into_limbo() sends it away (2283). A second zap east hits peaceful dust vortices, and rloc() fails for each (2289); the angered one engulfs her.",
+  "segments": [
+    {
+      "seed": 3301457,
+      "datetime": "20381201120000",
+      "nethackrc": "OPTIONS=name:Filler,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0017wand of teleportation\n\u0016?\n>G\u0007hostile dust vortex\nmsms \u00070 peaceful dust vortex\nzjl zjl "
+    }
+  ]
+}
