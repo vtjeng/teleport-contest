@@ -84,6 +84,7 @@ import {
     AD_MAGM,
     AD_PEST,
     AD_PHYS,
+    AD_RBRE,
     AD_SPEL,
     AT_ENGL,
     PM_CLERIC,
@@ -650,7 +651,10 @@ export async function explode(
                             env,
                         );
                     } else {
-                        if (xkillFlags) adtyp = AD_PHYS;
+                        // explode.c:578-579. AD_RBRE stays in adtyp for the
+                        // rest of the blast; monkilled() tests -AD_RBRE, so
+                        // the golem still leaves its remains.
+                        if (xkillFlags) adtyp = AD_RBRE;
                         await monkilled(monster, '', adtyp, state, env);
                     }
                     // A recursive monster explosion can end the game in
