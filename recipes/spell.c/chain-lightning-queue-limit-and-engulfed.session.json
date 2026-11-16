@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "spell.c chain lightning limits: propagate_chain_lightning() 961-962 and cast_chain_lightning() 1009-1011. A debug-mode Wizard learns chain lightning, raises Pw with blessed potions of gain energy, loads bigrm-1 with #wizloaddes, creates 120 newts with a counted ^G and casts: the chain through the packed newts fills the 100-entry queue (CHAIN_LIGHTNING_LIMIT). She then creates a fog cloud, waits with m-prefixed searches until it engulfs her, and casts again: the spell returns at once because u.uswallow is set.",
+  "segments": [
+    {
+      "seed": 5512459,
+      "datetime": "20470804101000",
+      "nethackrc": "OPTIONS=name:Arcer,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,playmode:debug,!tips,!verbose\n",
+      "moves": " \u0017blessed spellbook of chain lightning\nro     \u00176 blessed potions of gain energy\nqp qp qp #wizloaddes\nbigrm-1\n 120\u0007newt\n   Zc\u001b   qp qp qp \u0007fog cloud\n  ms  ms  ms  ms  ms  Zc     "
+    }
+  ]
+}
