@@ -2,13 +2,16 @@
 // C ref: src/windows.c, the interface-independent layer between the game and
 // whichever window port is linked in.
 
+import { cmdq_key_char, cmdq_pop } from './cmd.js';
 import {
+    CMDQ_KEY,
     MENU_ITEMFLAGS_SKIPMENUCOLORS,
     PICK_ANY,
 } from './const.js';
 import { map_glyphinfo } from './display.js';
 import { def_char_to_objclass } from './drawing.js';
 import { tty_getlin } from './getline.js';
+import { ttyPline } from './tty_message.js';
 import { ucase } from './hacklib.js';
 import { game } from './gstate.js';
 import { MAXOCLASSES } from './objects.js';
@@ -275,20 +278,42 @@ export async function select_menu(state, spec) {
 
 // C ref: windows.c getlin() (1868-1902), the same wrapper for a typed line.
 //
-// Covers 1897-1900, the arm that reaches the window port.  The command-queue
-// arm at 1873-1895 drains cmdq_pop() into the answer and returns before the
-// prompt is ever drawn; no ported caller of this function queues keys, and
-// js/cmd.js cmdq_pop() has no writer that could feed one, so porting it would
-// add a branch nothing can enter.  program_state.in_getlin, set and cleared
-// around the same call, has no reader in js/ either -- its C readers are the
-// save and hangup paths this port does not run.
+// The command-queue arm (1873-1895) drains cmdq_pop() before the prompt is
+// drawn. Queued keys up to a newline become the answer, which is echoed after
+// the query; the newline ends the answer and is dropped. The first entry that
+// is not a key is popped and discarded, and the loop stops there: with keys
+// already taken the answer is those keys, and with none the prompt follows.
+// The keys come from #repeat (cmd.c do_repeat()), whose CQ_REPEAT can still
+// hold a key that the first run gave an earlier prompt the repeat skips, such
+// as the yn answer doengrave() asked when the square had an engraving.
+// program_state.in_getlin, set and cleared around the window-port call, has
+// no reader in js/ -- its C readers are the save and hangup paths this port
+// does not run.
 //
-// The flag matters here for the reason getline.c:19-23 spells out: the prompt
-// goes out through custompline(), which reaches flush_screen() and therefore
-// bot().  js/getline.js hooked_tty_getlin() ports that flush_screen(1) call,
-// so a status update left pending when the prompt opens waits for the answer
-// instead of repainting underneath it.
+// gb.bot_disabled matters for the reason getline.c:19-23 spells out: the
+// prompt goes out through custompline(), which reaches flush_screen() and
+// therefore bot().  js/getline.js hooked_tty_getlin() ports that
+// flush_screen(1) call, so a status update left pending when the prompt opens
+// waits for the answer instead of repainting underneath it.
 export async function getlin(query, state = game) {
+    // C writes each key into bufp, a newline as its NUL; the answer ends at
+    // the first NUL, so a queued '\0' key cuts it short there too.
+    let buf = '';
+    let got_cmdq = false;
+    let cmdq;
+    while ((cmdq = cmdq_pop(state)) !== null) {
+        if (cmdq.typ !== CMDQ_KEY) break;
+        got_cmdq = true;
+        const key = cmdq_key_char(cmdq);
+        buf += key !== '\n' ? key : '\0';
+        if (key === '\n') break;
+    }
+    if (got_cmdq) {
+        const answer = buf.split('\0')[0];
+        await ttyPline(`${query} ${answer}`, state);
+        return answer;
+    }
+
     state.gb ??= {};
     const old_bot_disabled = bot_disabled_is_set(state);
 

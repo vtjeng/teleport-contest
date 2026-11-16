@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "windows.c getlin() 1873-1895, its command-queue arm, through cmd.c do_repeat(). A Healer engraves x in the dust with her single potion, then engraves again on the same square: getobj() records the potion's letter in CQ_REPEAT, doengrave() asks whether to add to the current engraving and yn_function() records the 'n', which wipes the old text, and an empty answer to the text prompt ends with Never mind, leaving no engraving. ^A repeats the command: getobj() takes the queued letter, the bare square asks no yn question, so getlin() finds the queued 'n' as the engraving text and prints the query with it instead of prompting. Seed, datetime, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 9027716,
+      "datetime": "20370418213005",
+      "nethackrc": "OPTIONS=name:Brann,role:Healer,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "Ef x\nEfn  \n\u0001   :"
+    }
+  ]
+}
