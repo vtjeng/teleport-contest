@@ -181,6 +181,7 @@ import {
     Monnam,
     YMonnam,
     capitalizedMonsterName,
+    mon_nam,
     monsterCommonName,
 } from './do_name.js';
 import { dogfood } from './dogfood.js';
@@ -310,12 +311,15 @@ import {
     remove_monster,
 } from './monst.js';
 import {
+    AD_CLRC,
     AD_CORR,
     AD_DRIN,
     AD_DRST,
     AD_RBRE,
     AD_RUST,
+    AD_SPEL,
     AT_BREA,
+    AT_MAGC,
     AT_WEAP,
     MS_LEADER,
     MZ_SMALL,
@@ -353,7 +357,8 @@ import {
 import { lined_up, m_has_launcher_and_ammo } from './mthrowu.js';
 import { an, bare_artifactname, xnameFresh, yname } from './objnam.js';
 import {
-    find_defensive, find_offensive_steps, searches_for_item, use_defensive,
+    find_defensive, find_misc, find_offensive_steps, searches_for_item,
+    use_defensive, use_misc,
 } from './muse.js';
 import { fracture_rock } from './zap.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -476,6 +481,7 @@ import {
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
 import { stop_occupation } from './allmain.js';
+import { castmu } from './mcastu.js';
 
 
 function movementEnv(env = {}) {
@@ -2285,7 +2291,8 @@ function requireDochugOperation(env, name) {
 }
 
 // C ref: monmove.c dochug(), pre-move AT_WEAP gate. Weapon selection and
-// wield state remain owned by weapon.js through the injected operation.
+// wield state remain owned by weapon.js mon_wield_item(); a caller may
+// replace it.
 export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     if ((monster.mpeaceful && !Conflict(state.u))
@@ -2316,8 +2323,45 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
     }
 
     monster.weapon_check = NEED_HTH_WEAPON;
-    const wieldMonsterItem = requireDochugOperation(rawEnv, 'wieldMonsterItem');
+    const wieldMonsterItem = rawEnv.wieldMonsterItem ?? mon_wield_item;
     return Boolean(await wieldMonsterItem(monster, rawEnv));
+}
+
+// C ref: monmove.c dochug():793-799. find_defensive() or find_misc() picks an
+// item and use_defensive() or use_misc() uses it at once; a nonzero result
+// ends the monster's turn.
+async function use_pre_move_items(monster, env) {
+    const defensive = find_defensive(monster, false, env);
+    if (defensive)
+        return await use_defensive(monster, defensive, env.state, env) !== 0;
+    const misc = find_misc(monster, env);
+    if (misc)
+        return await use_misc(monster, misc, env.state, env) !== 0;
+    return false;
+}
+
+// C ref: monmove.c dochug():895-907. Walk the AT_MAGC attack slots with
+// AD_SPEL or AD_CLRC and call castmu(FALSE, FALSE) for each, stopping at the
+// first M_ATTK_HIT. Most of the time castmu() picks a directed spell and
+// returns at once.
+async function cast_undirected_spell(monster, env) {
+    const { state } = env;
+    const attacks = monster.data?.mattk;
+    if (!attacks) return false;
+    const castEnv = {
+        ...env,
+        monsterName: (mtmp) => capitalizedMonsterName(mtmp, state),
+        monnam: (mtmp) => mon_nam(mtmp, state, env),
+        message: async (text, s) => { await ttyPline(text, s); },
+    };
+    for (const attack of attacks) {
+        if (attack.aatyp === AT_MAGC
+            && (attack.adtyp === AD_SPEL || attack.adtyp === AD_CLRC)) {
+            const result = await castmu(monster, attack, false, false, castEnv);
+            if (result & M_ATTK_HIT) return true;
+        }
+    }
+    return false;
 }
 
 // C ref: monmove.c dochug().  One function for tame and non-tame monsters,
@@ -2342,24 +2386,13 @@ export async function dochug(monster, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     // C captures mdat before movement; a trap may polymorph this monster.
     const preMoveSpecies = monster.data;
-    const preflight = requireDochugOperation(rawEnv, 'preflight');
-    const usePreMoveItems = requireDochugOperation(rawEnv, 'usePreMoveItems');
     const moveMonster = requireDochugOperation(rawEnv, 'moveMonster');
     const attackHero = requireDochugOperation(rawEnv, 'attackHero');
-    const wakeMessage = requireDochugOperation(rawEnv, 'wakeMessage');
-    const monFlee = requireDochugOperation(rawEnv, 'monFlee');
-    const monsterCanSeeHero = requireDochugOperation(
-        rawEnv,
-        'monsterCanSeeHero',
-    );
-    // monmove.c:895-907 walks the AT_MAGC/AD_SPEL/AD_CLRC attack slots and
-    // calls castmu(FALSE, FALSE) for each; the provider answers whether one
-    // returned M_ATTK_HIT.
-    const castUndirectedSpell = requireDochugOperation(
-        rawEnv,
-        'castUndirectedSpell',
-    );
     // C ref: monmove.c:714 and :722. A caller may replace these.
+    const monsterCanSeeHero = rawEnv.monsterCanSeeHero ?? m_canseeu;
+    const usePreMoveItems = rawEnv.usePreMoveItems ?? use_pre_move_items;
+    const castUndirectedSpell = rawEnv.castUndirectedSpell
+        ?? cast_undirected_spell;
     const questStatCheck = rawEnv.questStatCheck ?? quest_stat_check;
     const questTalk = rawEnv.questTalk ?? quest_talk;
     const distanceAndFear = rawEnv.distanceAndFear ?? distfleeck;
@@ -2375,7 +2408,6 @@ export async function dochug(monster, rawEnv = {}) {
     const hallucinating = () => Hallucination(state.u);
 
     // PHASE ONE: pre-movement adjustments.
-    preflight(monster, state);
     // C ref: monmove.c:704-707. m_arrival() clears STRAT_ARRIVE and returns
     // -1, so the `res >= 0` guard never fires and control always falls through.
     if (monster.mstrategy & STRAT_ARRIVE) {
@@ -2399,7 +2431,7 @@ export async function dochug(monster, rawEnv = {}) {
         return 0;             /* other frozen monsters can't do anything */
     }
     if (monster.msleeping
-        && !await disturbMonster(monster, { ...env, wakeMessage })) {
+        && !await disturbMonster(monster, env)) {
         if (hallucinating()) redraw(monster.mx, monster.my);
         return 0;
     }
@@ -2490,7 +2522,7 @@ export async function dochug(monster, rawEnv = {}) {
         if (monster.mstate) return 0;
         setApparentHero(monster, env);
     }
-    let range = await distanceAndFear(monster, { ...env, monFlee });
+    let range = await distanceAndFear(monster, env);
     if (await usePreMoveItems(monster, env)) return 1;
 
     // C ref: monmove.c:802-825, demonic blackmail. This follows the
@@ -2544,7 +2576,7 @@ export async function dochug(monster, rawEnv = {}) {
         const message = rawEnv.message ?? ttyPline;
         await mind_blast(monster, { ...env, random, message });
         setApparentHero(monster, env);
-        range = await distanceAndFear(monster, { ...env, monFlee });
+        range = await distanceAndFear(monster, env);
     }
 
     if (await wieldPreMoveWeapon(monster, range, env)) return 0;
@@ -2601,7 +2633,7 @@ export async function dochug(monster, rawEnv = {}) {
         // C returns before fear/range checks when an escape migrated it.
         if (mon_offmap(monster)) return 1;
         if (status !== MMOVE_DIED) {
-            range = await distanceAndFear(monster, { ...env, monFlee });
+            range = await distanceAndFear(monster, env);
         }
         if (status === MMOVE_DIED) return 1;
         if (status === MMOVE_MOVED) {
