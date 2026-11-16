@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dig.c dig_check() undiggable-trap and Plane of Water arms (232, 227). A debug dwarven Archeologist steps off the up stairs, wishes for a magic portal (a portal to nowhere under her) and applies her pick-axe downward; after a newt interrupts, she continues, and dig() -> dig_check() returns DIGCHECK_FAIL_UNDESTROYABLETRAP, so digcheck_fail_message() says the floor is too hard to dig in. She then wishes for a wand of digging, level-teleports to the Plane of Water with the wizard-mode menu (the Amulet's wish is answered 'nothing') and breaks the wand: apply.c do_break_wand() calls dig_check(BY_OBJECT) for each surrounding spot, which returns DIGCHECK_FAIL_WATERLEVEL. The blast is fatal and debug mode's Die? prompt is answered no. Seed and date chosen independently.",
+  "segments": [
+    {
+      "seed": 6271903,
+      "datetime": "20350914170500",
+      "nethackrc": "OPTIONS=name:Odo,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,suppress_alert:3.7.0\n",
+      "moves": "l\u0017magic portal\nae  >ae>\u0017wand of digging\n\u0016?\n>>K      nothing\naiy      n  "
+    }
+  ]
+}

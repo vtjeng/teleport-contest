@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c trapped_chest_at() steed arm (166-169). As in trap-detect-steed-carries-trapped-box, a debug Knight's pony picks up a wished trapped large box on trap-free Dlvl 1 of seed 9133002. This time he wishes a squeaky board where he stands before forcing the mount, so after a cursed potion of confusion the uncursed scroll of gold detection shows the trap map (the board is away from him). The steed's box puts the trapped-chest symbol on his own spot, so display_trap_map() leaves TER_MON out, and autodescribe at his spot reaches trap_description() -> trapped_chest_at(), which finds no box on the floor or in his inventory and finds it in the steed's inventory.",
+  "segments": [
+    {
+      "seed": 9133002,
+      "datetime": "20370118193000",
+      "nethackrc": "OPTIONS=name:Gawain,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,suppress_alert:3.7.0,!tips\n",
+      "moves": " #levelchange\n30\n\u001b\u0017trapped large box\n dilssssssss\u0017squeaky board\n\u0017cursed potion of confusion\n\u0017uncursed scroll of gold detection\n#ride\nkyqjrk  lh\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c object_detect() buried-container arm (706-707). Dlvl 1 of seed 8812297 has a 'Buried treasure' themed room (themerms.lua buries a chest holding d(3,4) random objects, here including scrolls); the seed came from a port scan of 8812001-8812800 for a buried chest with contents. A debug Wizard wishes for a blessed crystal ball and looks for '?': use_crystal_ball() -> object_detect(NULL, SCROLL_CLASS) finds the scrolls through o_in() on the buried chest and moves each contained scroll's map coordinates to the chest before mapping it.",
+  "segments": [
+    {
+      "seed": 8812297,
+      "datetime": "20370118193000",
+      "nethackrc": "OPTIONS=name:Orrin,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,suppress_alert:3.7.0,!tips\n",
+      "moves": " \u0017blessed crystal ball\nao ?    "
+    }
+  ]
+}
