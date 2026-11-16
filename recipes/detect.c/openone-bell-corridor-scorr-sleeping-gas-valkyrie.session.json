@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c openone() secret-corridor and unseen-trap arms (1766-1769, 1775-1777). A debug Valkyrie teleports into the corridor east of her starting room, wishes a secret corridor under herself, steps south and wishes an (unseen) sleeping gas trap there, steps back north between the two, then wishes for a blessed Bell of Opening and rings it: apply.c use_bell() -> openit() -> do_clear_area(openone) turns the secret corridor into corridor and marks the trap seen. Seed, date, role and trap type were chosen independently of the existing openone-blessed-bell recordings, which already run these lines.",
+  "segments": [
+    {
+      "seed": 7319047,
+      "datetime": "20360302084500",
+      "nethackrc": "OPTIONS=name:Runa,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,suppress_alert:3.7.0,!tips\n",
+      "moves": "\u0014llk.\u0017secret corridor\nj\u0017sleeping gas trap\nk\u0017blessed Bell of Opening\nae"
+    }
+  ]
+}
