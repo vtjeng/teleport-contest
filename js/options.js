@@ -1565,11 +1565,13 @@ function optfn_fruit(result, request, negated, opts, op) {
                 if (!result.flags.made_fruit)
                     original = fruit_from_name(result.svp.pl_fruit, false, result);
                 if (!original && fruitNodeCount(result) >= 100) {
-                    configErrorAdd(
-                        result,
+                    // This arm runs only while !go.opt_initial, from the 'O'
+                    // menu, where config_error_add() has no configuration
+                    // frame and prints with pline() and wait_synch()
+                    // (cfgfiles.c config_erradd() 1557-1563).
+                    return plineConfigErrors(result, [
                         'Doing that so many times isn\'t very fruitful.',
-                    );
-                    return optn_ok;
+                    ]).then(() => optn_ok);
                 }
             }
         }
@@ -9095,15 +9097,22 @@ export async function handle_add_list_remove(state, optname, count, helpers) {
     return (picks.length > 1 && picks[0] === 4 ? picks[1] : picks[0]) - 1;
 }
 
-// C ref: options.c test_regex_pattern(). The temporary matcher is released
-// by JS lifetime before feedback; no game-state matcher is retained.
-export function test_regex_pattern(state, text, errmsg = 'NHregex error') {
+// C ref: options.c test_regex_pattern() (7870-7901). The temporary matcher is
+// released by JS lifetime before feedback; no game-state matcher is retained.
+// Its only callers, handler_menu_colors() and handler_msgtype(), run from the
+// 'O' menu, so its config_error_add() never has a configuration frame: it
+// takes cfgfiles.c config_erradd()'s pline() and wait_synch() arm (1557-1563).
+export async function test_regex_pattern(state, text, errmsg = 'NHregex error') {
     if (text == null) return false;
     errmsg ??= 'NHregex error';
     const regex = regex_init();
     const success = regex_compile(text, regex);
     const error = success ? null : regex_error_desc(regex);
-    if (!success) configErrorAdd(state, `${errmsg}: ${error}`);
+    if (!success) {
+        await plineConfigErrors(
+            state, [vconfig_error_add(`${errmsg}: ${error}`)],
+        );
+    }
     return success;
 }
 
@@ -9122,7 +9131,7 @@ export async function handler_menu_colors(state, helpers) {
                 if (state.iflags.use_menu_color && state.iflags.perm_invent) update_inventory({ state });
                 return optn_ok;
             }
-            if (pattern && test_regex_pattern(state, pattern, 'MENUCOLORS regex')) {
+            if (pattern && await test_regex_pattern(state, pattern, 'MENUCOLORS regex')) {
                 const color = await query_color(state, null, NO_COLOR, helpers);
                 if (color !== -1) {
                     const attr = await query_attr(state, null, 0, helpers);
@@ -9166,7 +9175,7 @@ export async function handler_msgtype(state, helpers) {
         if (action === 0) {
             const pattern = helpers?.getlin ? await helpers.getlin('What new message pattern?') : await getlin('What new message pattern?', state);
             if (pattern?.[0] === '\x1b') return optn_ok;
-            if (pattern && test_regex_pattern(state, pattern, 'MSGTYPE regex')) {
+            if (pattern && await test_regex_pattern(state, pattern, 'MSGTYPE regex')) {
                 const choices = MSGTYPE_NAMES.filter(({ name }) => !['noshow', 'more'].includes(name));
                 const descriptions = ['Show message normally', 'Hide message',
                     'Prompt for more after the message', 'Do not repeat the message'];
