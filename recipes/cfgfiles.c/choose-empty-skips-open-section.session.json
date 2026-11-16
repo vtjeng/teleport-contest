@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cfgfiles.c parse_conf_buf() and handle_config_section(). CHOOSE=lantern picks section [lantern]; inside it, an empty CHOOSE= frees gc.config_section_chosen, choose_random_part(\"\") returns NULL and config_error_add() reports 'No config section to choose' while gc.config_section_current stays 'lantern'. The following OPTIONS=time line therefore takes the 'current section but nothing chosen' skip (cfgfiles.c:575-577), so the status line shows no T: field. Return dismisses the error, then the Valkyrie searches. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 40592217,
+      "datetime": "20380705183326",
+      "nethackrc": "OPTIONS=name:Bertil,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nCHOOSE=lantern\n[lantern]\nCHOOSE=\nOPTIONS=time\n",
+      "moves": "\ns"
+    }
+  ]
+}
