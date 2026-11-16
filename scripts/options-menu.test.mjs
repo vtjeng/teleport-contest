@@ -40,6 +40,7 @@ import {
     H_IBM,
     H_UNK,
     INVOPT_FULL,
+    INVOPT_NONE,
     MENU_PARTIAL,
     PARANOID_BONES,
     PARANOID_PRAY,
@@ -928,6 +929,45 @@ test('perminv_mode handler follows C numeric accelerators and redraw rules',
         // leaves the mode selected but keeps the live window disabled.
         assert.equal(state.iflags.perm_invent, false);
         assert.equal(state.go.opt_need_redraw, true);
+    });
+
+// options.c doset() lists perminv_mode only when wc_supported() finds
+// WC_PERM_INVENT (options.c 9793), which the recorder's tty build lacks, so
+// no input reaches handler_perminv_mode() there and this constructed game
+// drives it through the real tty menu instead. C's `if (n >= 0)` (6060)
+// reports the mode for n == 1 (Return keeps the preselected row) and
+// n == 0 (the '-' menu_deselect_all key clears it, then Return), but not
+// for ESC's n == -1.
+test('perminv_mode handler reports the mode after Return or a cleared row, not ESC',
+    async () => {
+        const topLine = (state) => state.nhDisplay.serialize().split('\n')[0];
+        const outcomes = [];
+        for (const keys of ['\r', '-\r', '\x1b']) {
+            // An independent debug game, settled on its first level; ^R
+            // redraws, so no unacknowledged message waits for --More--
+            // when the menu opens.
+            await runSegment({
+                seed: 3307451,
+                datetime: '20450118154512',
+                nethackrc: 'OPTIONS=name:PermInv,role:Tourist,race:human,'
+                    + 'gender:female,align:neutral\n'
+                    + 'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,'
+                    + '!autopickup,playmode:debug\n',
+                moves: '\u0012',
+            });
+            const state = game;
+            for (const key of keys) state.nhDisplay.pushKey(key.charCodeAt(0));
+            await handler_perminv_mode(state);
+            outcomes.push([keys, state.iflags.perminv_mode, topLine(state)]);
+        }
+        // INVOPT_NONE is the default mode and stays selected in every case.
+        assert.deepEqual(outcomes, [
+            ['\r', INVOPT_NONE,
+                "'perminv_mode' is still 'none' (no permanent inventory window)."],
+            ['-\r', INVOPT_NONE,
+                "'perminv_mode' is still 'none' (no permanent inventory window)."],
+            ['\x1b', INVOPT_NONE, ''],
+        ]);
     });
 
 test('disclosure and object-symbol menu builders preserve C rows', () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Preselected PICK_ONE menus whose C callers act only on select_menu() > 0. handler_menustyle(): '-' clears the preselected row and Return commits nothing (n == 0), so the style is unchanged and the verbose 'is still' line follows. handler_msg_window(): the preselected row's own selector toggles it off (n == 0). handler_sortloot(): ESC (n == -1). handler_whatis_coord() and handler_whatis_filter(): Return keeps the preselected row (n == 1), then picking another row returns both rows and the C tie-break takes the new one. With query_menu set, cmd.c yn_function_menu() asks #pray's confirmation as a menu: the default row's own selector (n == 0) and then Return (n == 1) both answer the default 'n'. A last #optionsfull shows the resulting values on its fifth and sixth pages. Seed, datetime, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5538207,
+      "datetime": "20460611132209",
+      "nethackrc": "OPTIONS=name:Wenna,role:Priest,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,query_menu\n",
+      "moves": "#optionsfull\n:menustyle\n\n-\n#optionsfull\n:msg_window\n\ns#optionsfull\n:sortloot\n\n\u001b#optionsfull\n:whatis_coord\n\n\n#optionsfull\n:whatis_filter\n\n\n#optionsfull\n:whatis_coord\n\nm#optionsfull\n:whatis_filter\n\na#pray\nn#pray\n\n#optionsfull\n>>>>>>\u001bs"
+    }
+  ]
+}

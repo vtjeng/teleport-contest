@@ -779,7 +779,8 @@ function yn_func_menu_opt(win, key, text, def) {
 
 // C ref: cmd.c yn_function_menu(). Returns null when the response set cannot
 // use a menu, otherwise the selected response as a one-character string.
-// Escape and an empty selection return the C default response.
+// Escape (n == -1) and an empty selection (n == 0) return the C default
+// response.
 async function yn_function_menu(query, resp, def, state = game, sharedResp = true) {
     if (!yn_menuable_resp(resp, state, sharedResp)) return null;
 
@@ -798,16 +799,25 @@ async function yn_function_menu(query, resp, def, state = game, sharedResp = tru
     if (resp === ynqchars || resp === ynaqchars || resp === hidespinchars)
         yn_func_menu_opt(items, 'q', 'Quit', def);
 
+    // returnSelections gives select_menu()'s rows in menu order: the
+    // default row stays selected when another is picked (n == 2), and its
+    // own selector toggles it off (n == 0).
     const selected = await select_menu(state, {
         items,
         how: PICK_ONE,
         title: query,
         ...menuTitleStyle(state),
-        cancelValue: byteValue(def),
+        returnSelections: true,
+        cancelValue: null,
         behavior: MENU_BEHAVE_STANDARD,
     });
-    const result = selected === null || selected === undefined
-        ? byteValue(def) : byteValue(selected);
+    let result = byteValue(def);
+    if (selected?.length > 0) {
+        result = selected[0].value;
+        /* two were selected? use the one that wasn't the default */
+        if (selected.length > 1 && result === byteValue(def))
+            result = selected[1].value;
+    }
     await ttyPline(`${query} ${key2txt(result)}`, state);
     clearTtyMessageWindow(state);
     return String.fromCharCode(result);
