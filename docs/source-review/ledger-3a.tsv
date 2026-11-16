@@ -1,0 +1,192 @@
+file	lines	function	js	class	note
+mkroom.c	88-89	do_mkroom	js/mkroom.js do_mkroom	nobehaviour	impossible default
+mkroom.c	105-154	mkshop	js/mkroom.js mkshop	unreachable-config	SHOPTYPE environment variable in wizard mode; the recorder sets no SHOPTYPE. Compared anyway: every dispatch, the shtypes symbol scan and the g/v/-1 fallback match
+mkroom.c	166-168	mkshop	js/mkroom.js mkshop	nobehaviour	impossible
+mkroom.c	175	mkshop	js/mkroom.js mkshop	match	invalid_shop_shape rejection continues the scan
+mkroom.c	229	pick_room	js/mkroom.js pick_room	match	hx < 0 return (unreachable: the scan wraps within nroom)
+mkroom.c	377	fill_zoo	js/mkroom.js fill_zoo	match	zoo/leprechaun hall with no door uses goldlim
+mkroom.c	435	fill_zoo	-	nobehaviour	closing brace
+mkroom.c	445-447	fill_zoo	js/mkroom.js fill_zoo	unreachable-C	SWAMP never reaches fill_zoo (only caller sp_lev.c 2774 lists zoo types); JS has the same branch
+mkroom.c	605	mktemple	js/mkroom.js mktemple	match	pick_room(TRUE) fails
+mkroom.c	631	nexttodoor	js/mkroom.js nexttodoor	match	!isok continue
+mkroom.c	713	somexy	js/room_coordinates.js somexy	match	irregular-room exhaustive scan success
+mkroom.c	725-740	somexy	js/room_coordinates.js somexy	match	subroom rejection loop; try_cnt after break at the 100th try still returns FALSE in both (JS tryCnt < 100)
+mkroom.c	917-1027	cmap_to_type	js/mkroom.js cmap_to_type	match	every case and the STONE default compared
+mkroom.c	1070-1072	invalid_shop_shape	js/mkroom.js invalid_shop_shape	nobehaviour	impossible (JS note_unported, returns true as C)
+mkroom.c	1092-1093	invalid_shop_shape	js/mkroom.js invalid_shop_shape	match	one alternative square rejects the shop
+dungeon.c	101-142	dumpit	-	nobehaviour	DDEBUG stderr dump; no JS counterpart needed
+dungeon.c	243-244	restore_dungeon	-	nobehaviour	panic
+dungeon.c	292-294,322,362-364,391,401,475,640-642,853-854,858,863,919-920,924,929,1038,1047,1218-1293,1833,1883	(dungeon setup panics)	js/dungeon.js	nobehaviour	panic() and impossible() reports for malformed dungeon.lua or missing branches; JS panics at the same sites where present
+dungeon.c	406	level_range	js/dungeon.js level_range	match	randc == -1 (no dungeon.lua entry uses it; unreachable-data)
+dungeon.c	433	parent_dlevel	js/dungeon.js parent_dlevel	match	occupied-level scan break
+dungeon.c	445-446	correct_branch_type	js/dungeon.js correct_branch_type	match	TBR_NO_UP (dungeon.lua has only portal/no_down/stair branches: unreachable-data)
+dungeon.c	452-453	correct_branch_type	js/dungeon.js	nobehaviour	impossible (JS panics; unreachable)
+dungeon.c	478-479	insert_branch	js/dungeon.js insert_branch	match	extracted branch at the list head (JS splice); Knox and dungeon.c 1156 callers never extract the first branch
+dungeon.c	769,774	get_dgn_flags	js/dungeon.js	nobehaviour	impossible for malformed flags
+dungeon.c	949-953	init_dungeon_set_entry	js/dungeon.js init_dungeon_set_entry	match	unreachable-data: dungeon.lua entries are -1, -1, -2
+dungeon.c	970-971	init_dungeon_set_depth	js/dungeon.js init_dungeon_set_depth	match	branch whose end1 is the new dungeon (unreachable-data)
+dungeon.c	1023-1031,1104	init_dungeon_dungeons	js/dungeon.js	unreachable-C	targets: dungeon chance only on bigrm level; MAXLEVEL clamp
+dungeon.c	1415	ledger_to_dnum	js/dungeon.js	nobehaviour	fallthrough return 0 after the scan (impossible)
+dungeon.c	1510-1513	next_level	js/dungeon.js next_level	match	not-at-stairs descent; dodown() reaches it only with a trap, which uescaped_shaft()/dotrap() handles first (unreachable-C, provisional)
+dungeon.c	1571-1576	u_on_newpos	js/dungeon.js	nobehaviour	off-map panic/impossible
+dungeon.c	1809	get_level	js/dungeon.js get_level	match	levnum <= 0 (endgame)
+dungeon.c	1958-1963	goto_hell	js/dungeon.js goto_hell	match	only caller do.c 1282 (trap on the Castle) is preempted by uescaped_shaft()/dotrap() (JS comment at do.js 2398 cites recordings/do.c/fly-through-castle-trap-door-valley); unreachable-C (provisional)
+dungeon.c	1992-1994	assign_rnd_level	js/dungeon.js assign_rnd_level	match	clamps; unreachable-C: the only caller (do.c 1548) requires dunlev < dunlevs-3 and diff in 1..3
+dungeon.c	2009-2010	induced_align	js/dungeon.js induced_align	match	dungeon-wide alignment; random-altar levels in aligned dungeons (Mines, Sokoban, Quest) have none (minetn altars use explicit align[]); unreachable-data (provisional)
+dungeon.c	2125	lev_by_name	js/dungeon.js lev_by_name	match	"hell" typed inside Vlad's Tower
+dungeon.c	2158	lev_by_name	js/dungeon.js lev_by_name	match	both-ends VISITED test of a branch name
+dungeon.c	2197	unreachable_level	js/dungeon.js unreachable_level	match	dummy level
+dungeon.c	2252	br_string	js/dungeon.js br_string	match	unknown default
+dungeon.c	2426	print_dungeon	js/dungeon.js	match	"No portal found." on the expected-portal levels
+dungeon.c	2453	recbranch_mapseen	js/dungeon.js recbranch_mapseen	match	same dnum return
+dungeon.c	2469	recbranch_mapseen	js/dungeon.js recbranch_mapseen	nobehaviour	impossible
+dungeon.c	2893	interest_mapseen	js/dungeon.js	match	notreachable/forgot
+dungeon.c	3054-3056	count_feat_lastseentyp	js/dungeon.js	match	Fort Ludios door with a throne four columns left
+dungeon.c	3099-3112,3119	recalc_mapseen	js/dungeon.js recalc_mapseen	match	targets: unreachable (provisional); compared anyway
+dungeon.c	3372-3373,3383	seen_string	js/dungeon.js seen_string	match	including C strchr(vowels, '\0') being true, which JS ''.includes reproduces
+dungeon.c	3397-3400,3405	br_string2	js/dungeon.js br_string2	match	
+dungeon.c	3435	endgamelevelname	js/dungeon.js endgamelevelname	match	
+dungeon.c	3587,3653,3660	print_mapseen	js/dungeon.js print_mapseen	match	forgot return; completed quest; Fort Ludios annotations and their order
+mkmaze.c	139	set_levltyp_lit	js/mkmaze.js set_levltyp_lit	match	SET_LIT_RANDOM draws rn2(2)
+mkmaze.c	206,250	wall_cleanup,fix_wall_spines	js/mklev.js	nobehaviour	panic on bad bounds
+mkmaze.c	434	put_lregion_here	js/mkmaze.js put_lregion_here	match	oneshot: frees a trapped monster before deltrap()
+mkmaze.c	443,451	put_lregion_here	js/mkmaze.js put_lregion_here	match	LR_TELE label; m_into_limbo() when rloc() fails
+mkmaze.c	594-595	fixup_special	js/mkmaze.js	unreachable-C	numeric "chutes and ladders" portal name: no level defines one (provisional); not compared in detail
+mkmaze.c	666-667	fixup_special	js/mkmaze.js fixup_special	match	Medusa statue re-rolls for stone-resistant or poly_when_stoned species (closing brace lines)
+mkmaze.c	740	migrate_orc	js/mkmaze.js migrate_orc	match	1-in-40 leader one level up
+mkmaze.c	856	stolen_booty	js/mkmaze.js stolen_booty	match	dead monster skipped
+mkmaze.c	969,972-974	create_maze	js/mkmaze.js create_maze	match	clamps (wallthick 5, corrwid 1/5); every caller passes -1 or 1: unreachable-C
+mkmaze.c	1070-1072	pick_vibrasquare_location	js/mklev.js	nobehaviour	debugpline
+mkmaze.c	1080	pick_vibrasquare_location	js/mklev.js pick_vibrasquare_location	match	1000-try break (JS tryCount <= 1000 in the loop condition: same draws)
+mkmaze.c	1086	pick_vibrasquare_location	js/mklev.js	not-compared	coverage artifact: 1087 (inv_pos.y = y) ran 182 times while 1086 shows 0; the assignment is in the JS caller
+mkmaze.c	1140-1156	makemaz	js/mklev.js makemaz	missing-unreachable	UNPROVEN, not changed: JS omits the dungeon-protofile branch; makelevel reaches makemaz("") only for a non-special level of a dungeon with a protofile, and Vlad's Tower (the only one) has all three levels special (targets rank 64 1272). Missing in JS but unreachable
+mkmaze.c	1165-1181	makemaz	-	unreachable-config	SPLEVTYPE environment variable in wizard mode; JS has no counterpart
+mkmaze.c	1194-1195	makemaz	js/mklev.js makemaz	nobehaviour	impossible (JS prints it too)
+mkmaze.c	1215-1217	makemaz	js/mklev.js makemaz	match	procedural invocation level; Gehennom fills through hellfill.lua (sp_lev 1819), so unreachable-data
+mkmaze.c	1339-1350	mazexy	js/mkmaze.js	skip-targets	targets unreachable; NOT COMPARED
+mkmaze.c	1377	get_level_extends	js/mkmaze.js	match	xmin clamp to 0
+mkmaze.c	1471-1473	mkportal	js/mkmaze.js	nobehaviour	impossible
+mkmaze.c	1573,1578-1580	movebubbles	js/mkmaze.js	nobehaviour	panic/impossible
+mkmaze.c	1786-1796	restore_waterlevel	js/mkmaze.js	skip-targets	targets unreachable (impossible); NOT COMPARED
+mkmaze.c	1808-1809,1818-1819	set_wportal,setup_waterlevel	js/mkmaze.js	nobehaviour	impossible/panic (JS throws)
+mkmaze.c	1894-1901	mk_bubble	js/mkmaze.js mk_bubble	match	out-of-bounds return, n clamp (targets unreachable)
+mkmaze.c	1935	maybe_adjust_hero_bubble	js/mkmaze.js	match	no movement return
+mkmaze.c	1981-1997	mv_bubble	js/mkmaze.js mv_bubble	differs-unobservable	C prints pline("bubble xmin: x = %d, xmin = %d") (and ymin/xmax/ymax) when a bubble lies outside the bounds; JS clamps silently (js/mkmaze.js 323-328). Unreachable: mk_bubble() clamps new bubbles inside, moves are at most 1 and bounce at the border; UNPROVEN, not changed
+mkmaze.c	2045,2053-2055,2068,2076-2080	mv_bubble	js/mkmaze.js mv_bubble	match	elemental_clog() when mnearto() fails; impossible default
+mklev.c	79	good_rm_wall_doorpos	js/mklev.js good_rm_wall_doorpos	match	!isok or room not needing joining
+mklev.c	178-180	finddpos	js/mklev.js	nobehaviour	impossible
+mklev.c	241,245	do_room_or_subroom	js/mklev.js do_room_or_subroom	match	edge clamps
+mklev.c	311,331-333	add_room,add_subroom	js/mklev.js	nobehaviour	panic (JS throws)
+mklev.c	379-380,389	makerooms	js/mklev.js	unreachable-C	themerms.lua failing to load
+mklev.c	458	join	js/mklev.js	match	room with hx < 0
+mklev.c	687,690,697	cardinal_nextto_room	js/mklev.js cardinal_nextto_room	match	same four neighbours, same order
+mklev.c	762	makeniche	js/mklev.js makeniche	match	trap door niche becomes ROCKTRAP where !Can_fall_thru (depth 6-24 room levels can all fall through: unreachable-C, provisional)
+mklev.c	959-961,1074-1076,1163-1165	fill_ordinary_room	js/mklev.js	nobehaviour	impossible
+mklev.c	989,998	fill_ordinary_room	js/mklev.js	skip-targets	targets unreachable (rogue level, depth 40+); NOT COMPARED in detail
+mklev.c	1204,1207,1211,1214	chk_okdoor	js/mklev.js chk_okdoor	match	all four rejections
+mklev.c	1261-1263,1272,1339-1340,1348,1423-1427	makelevel	js/mklev.js	skip-targets	targets unreachable (provisional); NOT COMPARED
+mklev.c	1650-1655	topologize	js/mklev.js topologize	missing-unreachable	UNPROVEN, not changed: C topologize() ends by recursing into croom->sbrooms[] (1650-1654); js/mklev.js topologize (7147-7169) has no recursion. Unreachable: sp_lev.c 4087-4089 makes every room that gains a subroom irregular, and topologize() returns at 1613 for an irregular room before the loop (C coverage: 1654 ran 0 times; 1650 ran 960,729 times, equal to 1620). JS experiment: 10,000 level-1 generations made 266 subrooms, 4 of them at the parent's top-left corner (the only case where the parent's early-return test fails), and topologize reached its body for a subroomed parent 0 times; traced seed 704296: the parent has irregular set
+mklev.c	1665	find_branch_room	js/mklev.js find_branch_room	match	no rooms: mazexy()
+mklev.c	1670	find_branch_room	js/mklev.js find_branch_room	nobehaviour	impossible (JS prints it)
+mklev.c	1729	place_branch	-	unreachable-config	debug_fuzzer portal to ucamefrom; JS omits the fuzzer branch
+mklev.c	2050-2059,2090	mktrap	js/mktrap.js	skip-targets	targets unreachable; 2090 compared: 200-try return matches (js/mktrap.js 449)
+mklev.c	2169-2171	mkstairs	js/mklev.js	nobehaviour	impossible
+mklev.c	2226	generate_stairs_find_room	js/mklev.js	match	nroom == 0
+mklev.c	2261,2274	generate_stairs	js/mklev.js	nobehaviour	panic (JS skips when no room)
+mklev.c	2264-2266,2277-2279	generate_stairs	js/mklev.js generate_stairs	match	somexyspace() failure falls back to somex/somey
+mklev.c	2253-2268	generate_stairs	js/mklev.js generate_stairs	differs-unobservable	covered region: JS omits C's `if (!Is_botlevel(&u.uz))` around the down stairs, so on a bottom level it would still draw generate_stairs_find_room()/somexyspace() before mkstairs() returns at the dungeon end. Unreachable: every dungeon's bottom level is a special level (castle, minend, sanctum, quest goal, soko1, knox, tower1, astral/dummy, tut-2), and generate_stairs() runs only for room-and-corridor levels; UNPROVEN, not changed
+mklev.c	2294,2326,2345,2386	mkfount,mksink,mkaltar,mkgrave	js/room_features.js	match	early returns
+mklev.c	2460-2463	mkinvokearea	js/mklev.js	match	trapped hero released; buried ball turned back into punishment
+mklev.c	2521-2525,2575-2577	mkinvpos	js/mklev.js	nobehaviour	panic/impossible
+mklev.c	2583	mkinvpos	js/mklev.js	match	seemimic on a disguised monster in the invocation area
+mklev.c	2608	mkinvk_check_wall	js/mklev.js	match	!isok
+mklev.c	2635	mk_knox_portal	js/mklev.js mk_knox_portal	match	source is end2 on the Knox level
+light.c	76-78	new_light_core	js/light.js	nobehaviour	impossible
+light.c	109-112,119-121	del_light_source	js/light.js	skip-targets	targets unreachable (LS_NONE impossible, default); NOT COMPARED
+light.c	162-163	delete_ls	js/light.js	nobehaviour	impossible
+light.c	287-292	show_transient_light	js/light.js	nobehaviour	impossible
+light.c	307	show_transient_light	js/light.js show_transient_light	match	dead or parked guard (isgd && !mx) skipped (js/light.js 270)
+light.c	391-393	find_mid	js/light.js find_mid	match	mydogs scan; also FM_FMON dead-monster test matches
+light.c	412-417	whereis_mon	js/light.js whereis_mon	skip-targets	targets unreachable; compared anyway: match
+light.c	438-439,445-447,455-459	save_light_sources	js/light.js	nobehaviour	panic/impossible
+light.c	544,549,552,555-559	relink_light_sources	js/light.js	nobehaviour	panic paths (549/552 set the letter for the panic text)
+light.c	578-580,588-592	maybe_write_ls	js/light.js	nobehaviour	impossible
+light.c	642,651-654,678-688,692,700-701	write_ls	js/light.js	skip-targets	targets unreachable (impossible reports, LSF_NEEDS_FIXUP); NOT COMPARED
+light.c	707-715	obj_move_light_source	-	unreachable-C	no caller: grep obj_move_light_source src/*.c finds only the definition (light.c 706)
+light.c	837-838	obj_adjust_light_radius	js/light.js	nobehaviour	impossible
+light.c	874-875	candle_light_range	js/light.js candle_light_range	match	non-candle fallback radius 3; JS spells Is_candle() as TALLOW/WAX
+light.c	927-930	arti_light_description	js/light.js arti_light_description	match	"strangely" default
+vault.c	36-42	free_egd	-	unreachable-C	no caller: grep -rn 'free_egd(' src/ include/ finds only the definition (vault.c 35) and its extern.h declaration
+vault.c	59	clear_fcorr	js/vault.js clear_fcorr	match	guard on another level
+vault.c	83	clear_fcorr	js/vault.js clear_fcorr	match	m_into_limbo() when rloc() fails; tame yelp present
+vault.c	112-114	clear_fcorr	js/vault.js clear_fcorr	differs-unobservable	found reading the enclosing function (covered lines); FIXED anyway (source-faithful, 8bd31dbe5): JS tested state.u.upolyd (no such hero field) for C's Upolyd, so it always used u.uhp. Differs only for a polymorphed hero whose u.mh and u.uhp disagree in sign; the source comment's caller, paygd() from done(), zeroes both first (end.c 1072-1077). Probe .cache/lead/srcreview/r3a/probe/u5 (Unchanging gnome dies on the guard's doorway with gold) matches C both before and after the fix. Constructed test scripts/vault-guard-escort.test.mjs 'clear_fcorr is silent for a polymorphed hero whose form has died' pins the C test and fails on e6cbbf3f3; check 'game code reads only hero fields from state.u' added to scripts/hero-field-on-state.test.mjs (search: 1 real site, 2 harmless fallbacks)
+vault.c	131	blackout	js/vault.js blackout	match	!isok
+vault.c	160	parkguard	js/vault.js parkguard	match	polearm hitmon cleared
+vault.c	212	findgd	js/vault.js findgd	match	parked guard healed
+vault.c	260-262	uleftvault	js/vault.js	nobehaviour	impossible
+vault.c	269	uleftvault	js/vault.js uleftvault	match	"%s becomes irate."
+vault.c	295-296	find_guard_dest	js/vault.js find_guard_dest	match	guard square / fake corridor skipped
+vault.c	311-313	find_guard_dest	js/vault.js find_guard_dest	match	impossible then tele()
+vault.c	350	invault	js/vault.js invault	match	find_guard_dest failure
+vault.c	365,373-378,395,402-403	invault	js/vault.js invault	match	dug-doorway neighbour order and the wall search from the hero's square
+vault.c	496-498	invault	js/vault.js invault	missing-unreachable	UNPROVEN, not changed: stop_occupation() (allmain.c 692-694) already does nomul(0) whenever multi >= 0, so multi > 0 cannot hold; JS omits unmul(), unobservable for that reason
+vault.c	601-607	invault	js/vault.js invault	match	corner types for a guard entering at a dug doorway
+vault.c	671-673	wallify_vault	js/vault.js wallify_vault	DIFFERS	JS moved a tame monster off a damaged vault wall without C's yelp() (vault.c 670-671). Proof: recipes/vault.c/wallify_vault-tame-xorn-eating-on-gold-wall-snarls and -deaf-bluffs (variation) fail on e6cbbf3f3 (stack-sr2) at step 166 (C "It snarls!" / "It bluffs!" missing); constructed test scripts/vault-wallify-pet.test.mjs also fails there; fixed 55045dbe3, recordings a9f8c6b6c
+vault.c	687-689	wallify_vault	js/vault.js wallify_vault	match	rocks freed
+vault.c	744	gd_mv_monaway	js/vault.js gd_mv_monaway	match	m_into_limbo when rloc fails or square still occupied
+vault.c	766-768	gd_pick_corridor_gold	js/vault.js gd_move	nobehaviour	impossible (JS inlines the function in gd_move)
+vault.c	802	gd_pick_corridor_gold	js/vault.js gd_move	match	guard already on the gold
+vault.c	876-881	gd_letknow	js/vault.js gd_letknow	match	"You see %s approaching." / "You are confronted by %s."
+vault.c	902,931	gd_move	js/vault.js gd_move	match	other level; teleported guard
+vault.c	1021-1023	gd_move	js/vault.js gd_move	match	parked guard while hero carries gold
+vault.c	1062	gd_move	js/vault.js	skip-targets	targets unreachable; compared: match
+vault.c	1093,1099-1105	gd_move	js/vault.js gd_move	match	look-around: vault squares skipped, SCORR->CORR else DOOR/D_NODOOR
+vault.c	1147-1151	gd_move	js/vault.js gd_move_nextpos	match	"I don't like this" IS_ROOM case
+vault.c	1168	gd_move	js/vault.js gd_move_proceed	nobehaviour	panic
+vault.c	1175-1181	gd_move	js/vault.js gd_move_proceed	match	stuck guard: new destination or "confused, disappears" (Monnam)
+region.c	88,98-107	create_region	js/region.js	skip-targets	targets unreachable (nrect > 0); NOT COMPARED
+region.c	170-171	add_mon_to_reg	js/region.js	nobehaviour	impossible
+region.c	271-273	free_region	-	unreachable-C	enter/leave messages: no region has one (targets rank 98)
+region.c	310	add_region	js/region.js	match	!isok continue
+region.c	352	remove_region	js/region.js	match	region not found
+region.c	487,493-495,501,506-508,515,520-522	in_out_region	js/region.js	skip-targets	targets unreachable; NOT COMPARED
+region.c	540,546-548,554,559,566,571	m_in_out_region	js/region.js	skip-targets	targets unreachable; NOT COMPARED
+region.c	666,684,724	any_visible_region,visible_region_summary,visible_region_at	js/region.js	match	invisible or expiring regions skipped
+region.c	702	visible_region_summary	js/region.js visible_region_summary	match	"poison gas (%d)" with %5ld ttl and %-16s columns
+region.c	766-768,772-773,824-825,834-836,844-847,916-918	save_regions,rest_regions,region_stats	js/region.js	skip-targets	targets unreachable (region messages, no rects); NOT COMPARED
+region.c	936	reset_region_mids	js/region.js reset_region_mids	match	missing monster dropped by swap with the last
+region.c	1072	expire_gas_cloud	js/region.js expire_gas_cloud	match	pass-1 unblock_point() unless does_block() (js/region.js 495-499)
+region.c	1124	inside_gas_cloud	js/region.js inside_gas_cloud	match	Half_gas_damage: worn wet towel (spe > 0) as youprop.h 405
+region.c	1239-1241	create_gas_cloud	js/region.js	nobehaviour	impossible
+region.c	1391-1394,1400-1401	region_safety	js/region.js region_safety	match	Magical_breathing d(4,4)+4 and "You feel able to breathe."; "The gas cloud has dissipated."
+mkmap.c	279	join_map	js/mklev.js mkmap_join_map_steps	match	room cap goto joinm (labelled break)
+mkmap.c	352	finish_map	js/mklev.js mkmap_finish_map	match	bg_typ TREE lit
+mkmap.c	380-401,413-436	remove_rooms,remove_room	-	unreachable-C	no caller: grep 'remove_rooms(' src/ finds only the definition (mkmap.c 379); JS has none
+dbridge.c	91,105,142	is_ice,is_moat,is_drawbridge_wall	js/dbridge.js	match	!isok returns
+dbridge.c	256-258	create_drawbridge	js/dbridge.js	nobehaviour	impossible, falls through to DB_WEST
+dbridge.c	266	create_drawbridge	js/dbridge.js	match	no wall behind the bridge
+dbridge.c	311	m_to_e	js/dbridge.js m_to_e	match	long worm tail segment
+dbridge.c	367	E_phrase	js/dbridge.js E_phrase	match	no verb
+dbridge.c	383	e_survives_at	js/dbridge.js e_survives_at	match	noncorporeal; JS spells Breathless as breathless(form) beside Amphibious, which already covers magical breathing
+dbridge.c	457,466-467,475	e_died	js/dbridge.js e_died	match	second kill after life-saving with the same corpse type; long worm entity cleared
+dbridge.c	581,588-593	do_entity	js/dbridge.js do_entity	match	"The portcullis misses %s!"; must_jump/relocates
+dbridge.c	662-663	do_entity	js/dbridge.js do_entity	match	standoff: other stays
+dbridge.c	709	do_entity	js/dbridge.js do_entity	match	"You pass through it!"
+dbridge.c	744-745	do_entity	js/dbridge.js do_entity	match	hallucinating: "%s the moat and disappears." with E_phrase drink
+dbridge.c	827,871-873	close_drawbridge,open_drawbridge	js/dbridge.js	match	traps on both squares deleted
+dbridge.c	900	destroy_drawbridge	js/dbridge.js	skip-targets	targets: callers check first; compared: match
+dbridge.c	946	destroy_drawbridge	js/dbridge.js	match	trap on the portcullis square
+dbridge.c	994-995	destroy_drawbridge	js/dbridge.js destroy_drawbridge	match	hallucinating: "%s into some heavy metal!"
+vision.c	612,663-667,672-675	vision_recalc	js/vision.js	skip-targets	targets unreachable (xray/nv range 0, pit on row 0); NOT COMPARED
+vision.c	873-875	block_point	js/vision.js	unreachable-config	DEBUG seethru (explicitdebug) only
+vision.c	980-986,1061-1067	dig_point,fill_point	js/vision.js	skip-targets	targets unreachable (column 0); NOT COMPARED
+vision.c	1833,1968	right_side,left_side	js/vision.js	match	lim_max / lim_min clamps
+vision.c	2048,2129	view_from,do_clear_area	js/vision.js	nobehaviour	panic
+extralev.c	62,68-70,84,104,110-112,126,134	roguecorr	js/extralev.js	skip-targets	targets unreachable (impossible reports)
+extralev.c	270-272	makeroguerooms	js/extralev.js	nobehaviour	impossible
+extralev.c	296	makerogueghost	js/extralev.js makerogueghost	match	no rooms
+stairs.c	131-132	u_on_upstairs	js/stairs.js u_on_upstairs	match	no up stairs: u_on_sstairs(0)
+stairs.c	163-167,171-175	On_stairs_up,On_stairs_dn	-	unreachable-config	only caller is cmd.c 4944-4947, the mouse-click action; tty sessions send no clicks
+rect.c	35	init_rect	js/rect.js	nobehaviour	panic
+rect.c	128	intersect	js/rect.js intersect	match	empty overlap
+rect.c	164-166	add_rect	js/rect.js	nobehaviour	impossible

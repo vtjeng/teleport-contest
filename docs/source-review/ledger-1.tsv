@@ -1,0 +1,306 @@
+file	lines	function	js	class	note
+shk.c	2341-2344,2375-2378,2383-2386	buy_container	-	nobehaviour	impossible (split from compared row)
+shk.c	5028-5033	shopdig	-	skip-targets	targets: cannot run (batch 20); NOT COMPARED
+shk.c	4674-4676	litter_scatter	-	skip-targets	targets unreachable; NOT COMPARED
+shk.c	2234-2236	dopayobj	-	nobehaviour	impossible
+shk.c	2238-2239	dopayobj	js/shk.js	match-text	
+uhitm.c	5639-5641	hmonas	-	skip-targets	targets unreachable; NOT COMPARED
+uhitm.c	5818-5819	hmonas	-	nobehaviour	impossible
+uhitm.c	5086	gulpum	-	skip-targets	targets unreachable; NOT COMPARED
+uhitm.c	4501,4504	mhitm_ad_dgst	-	skip-targets	targets unreachable; NOT COMPARED
+uhitm.c	3993	mhitm_ad_phys	-	nobehaviour	impossible
+uhitm.c	4001,4175-4180	mhitm_ad_phys	-	skip-targets	targets unreachable; NOT COMPARED
+uhitm.c	4396-4402	mhitm_ad_stun	-	skip-targets	targets unreachable for the hero; NOT COMPARED
+trap.c	2422-2442	trapeffect_anti_magic	js/trap_effects.js	match	uncovered lines match; the newsym difference (JS skips newsym when the monster survives) is on covered line 2443-2444, listed as unobservable
+zap.c	198	bhitm	js/zap.js bhitm	match	seemimic on Boing for non-monster disguise
+zap.c	453-455	bhitm	js/zap.js bhitm	differs-minor	JS tests mappearance===STRANGE_OBJECT without M_AP_TYPE==M_AP_OBJECT (is_obj_mappear); only differs for a disguised mimic with M_AP_MONSTER/FURNITURE appearance 0; unproven, likely unreachable
+zap.c	548-550	bhitm	-	nobehaviour	impossible default
+zap.c	583	release_hold	js/zap.js release_hold	nobehaviour	impossible (JS note_unported)
+zap.c	597-598	release_hold	js/zap.js release_hold	match	sticky hero releases
+zap.c	621	probe_objchain	js/zap.js probe_objchain	match	tin known
+zap.c	630	probe_monster	js/zap.js probe_monster	match	notonhead return
+zap.c	740-742	montraits	js/zap.js montraits	match	makemon fail (targets: unreachable)
+zap.c	774	montraits	js/zap.js montraits	match	leader_is_dead reset
+zap.c	816	montraits	js/zap.js montraits	match	bill_p reset
+zap.c	849-852,856	get_container_location	js/zap.js get_container_location	match	nesting/carrier
+zap.c	897-899	revive	js/zap.js revive	nobehaviour	impossible
+zap.c	927-929,936-937	revive	js/zap.js revive	match	container holder switch
+zap.c	989,991	revive	js/zap.js revive	match	free omid/omonst
+zap.c	1015-1017	revive	js/zap.js revive	match	unhide revived hider
+zap.c	1053-1054	revive	js/zap.js revive	match	A corpse is resuscitated.
+zap.c	1078-1080,1083,1085-1087	revive	js/zap.js revive	match	ghost recorporealization
+zap.c	1131-1136	revive	js/zap.js revive	nobehaviour	panic default
+zap.c	1149	revive_egg	js/zap.js revive_egg	match	
+zap.c	1212,1215-1216	unturn_dead	js/zap.js unturn_dead	match	
+zap.c	1481	obj_shudders	js/zap.js obj_shudders	match	
+zap.c	1512,1526-1531,1534-1535	polyuse	js/zap.js polyuse	match	JS clamps minwt at 0 (same loop exit)
+zap.c	1559,1574,1582,1592-1599	create_polymon	js/zap.js create_polymon	match	
+zap.c	1643,1659	do_osshock	js/zap.js do_osshock	match	
+zap.c	1717,1762,1818,1820,1842-1843,1866,1959,1971	poly_obj	js/zap.js poly_obj	match	
+zap.c	2056-2057,2065-2068,2072-2073,2088-2093	stone_to_flesh_obj	js/zap.js stone_to_flesh_obj	match	targets: mostly unreachable
+zap.c	2131,2168-2170,2179,2346,2415-2417	bhito	js/zap.js bhito	skip-targets	targets.md unreachable/impossible; NOT COMPARED
+zap.c	2216,2243-2244,2247-2248	bhito	js/zap.js bhito	match	"JS writes literal ""the "" for the(xname) (same output for boxes)"
+zap.c	2476,2480	bhitpile	js/zap.js bhitpile	match	open lines compared after advisor review
+zap.c	3004-3006	zapyourself	-	nobehaviour	impossible default
+zap.c	3039,3041	lightdamage	js/zap.js lightdamage	match	
+zap.c	3046	lightdamage	js/zap.js lightdamage	differs-unobservable	"JS lacks ordinary=FALSE for scroll/spellbook; only changes losehp() killer text, which a polymorphed (gremlin) hero never shows (losehp in Upolyd ignores it; comment says death is ""killed while stuck in creature form"")"
+zap.c	3066	flashburn	js/zap.js flashburn	match	
+zap.c	3116	zap_steed	js/zap.js zap_steed	match	
+zap.c	3192,3209-3210	cancel_monst	js/zap.js cancel_monst	match	
+zap.c	3253	zap_updown	js/zap.js zap_updown	match	
+zap.c	3466-3467	weffects	-	nobehaviour	impossible
+zap.c	3533	spell_hit_bonus	js/zap.js spell_hit_bonus	match	
+zap.c	3605-3610	maybe_explode_trap	js/zap.js maybe_explode_trap	match	
+zap.c	3753-3757	zap_map	js/zap.js zap_map	match	
+zap.c	3966-3967,4109-4112,4116-4117	bhit	js/zap.js bhit	match	
+zap.c	4183-4186,4193-4194	boomhit	js/zap.js boomhit	match	
+zap.c	4267,4304,4335,4359,4393	zhitm	js/zap.js zhitm	match	
+zap.c	4473-4474	zhitu	js/zap.js zhitu	match	
+zap.c	4645	burn_floor_objects	js/zap_destroy_items.js	match-text	
+zap.c	4809,4815,5012	dobuzz	js/zap.js dobuzz	match	targets: 4815 unreachable, 4809/5012 open; open lines compared after advisor review
+zap.c	5049,5060	melt_ice	js/zap.js melt_ice	match	
+zap.c	5070	melt_ice	-	nobehaviour	impossible
+zap.c	5269-5270,5314-5316,5364-5367,5408,5483-5485	zap_over_floor	js/zap.js zap_over_floor	match	
+zap.c	5530-5532	mon_spell_hits_spot	-	nobehaviour	impossible
+zap.c	5549,5552-5553	fracture_rock	js/zap.js fracture_rock	match	
+zap.c	5599-5601	break_statue	js/zap.js break_statue	match	
+zap.c	5621-5622	destroyable	js/zap_destroy_items.js	match-text	
+zap.c	5667-5668,5670	adtyp_to_prop	js/zap.js	match	
+zap.c	5681	u_adtyp_resistance_obj	js/zap.js	match	
+zap.c	5738-5748	item_what	js/zap.js item_what	match	
+zap.c	5882-5884	maybe_destroy_item	-	nobehaviour	impossible
+zap.c	5895,5926-5927	maybe_destroy_item	js/zap_destroy_items.js	match-text	
+zap.c	6057	destroy_items	-	nobehaviour	impossible
+zap.c	6108,6127-6129,6137	resist	js/zap.js resist	match	
+zap.c	6200	wishcmdassist	js/zap.js wishcmdassist	nobehaviour	create_nhwindow failure
+zap.c	6368	makewish	js/zap.js makewish	nobehaviour	should never happen
+trap.c	96	burnarmor	js/trap_erode_obj.js burnarmor	match	null victim
+trap.c	234-236	erode_obj	-	nobehaviour	impossible
+trap.c	244	erode_obj	js/trap_erode_obj.js erode_obj	match	"strip ""the """
+trap.c	330	erode_obj	js/trap_erode_obj.js erode_obj	match	extract_from_minvent
+trap.c	331-338	erode_obj	-	nobehaviour	impossible
+trap.c	371-373	grease_protect	js/trap_erode_obj.js grease_protect	DIFFERS	"C prints ""%s's %s are protected"" (literal 's) for a seen monster victim; JS uses monsterPossessive()=s_suffix(Monnam), so a monster whose name ends in s gets ""Boris' helmet"" instead of ""Boris's helmet"""
+trap.c	375-376	grease_protect	js/trap_erode_obj.js grease_protect	match	
+trap.c	571-572	maketrap	-	nobehaviour	impossible
+trap.c	644-645,651-653	fall_through	js/trap.js fall_through	match	
+trap.c	766,867-868,876,895	animate_statue	js/trap.js animate_statue	match	
+trap.c	931-932	activate_statue_trap	js/trap.js activate_statue_trap	match	
+trap.c	945,963,966	keep_saddle_with_steedcorpse	js/trap_effects.js	match	
+trap.c	1181-1183	m_harmless_trap	-	nobehaviour	impossible default
+trap.c	1352-1354	trapeffect_rocktrap	js/trap_effects.js	match	
+trap.c	1420-1426,1442	trapeffect_sqky_board	js/trap_effects.js	skip-targets	targets unreachable; NOT COMPARED
+trap.c	1493	trapeffect_bear_trap	js/trap_effects.js	match-text	
+trap.c	1618,1653-1654,1709	trapeffect_rust_trap	js/trap_effects.js	match	
+trap.c	1794	trapeffect_fire_trap	js/trap_effects.js	match	
+trap.c	1855-1856,1882,1884-1885,1979-1982	trapeffect_pit	js/trap_effects.js	match	targets: 1882-1885 unreachable
+trap.c	2020-2024,2048-2051	trapeffect_hole	js/trap_effects.js	skip-targets	targets unreachable; NOT COMPARED
+trap.c	2175-2177,2266-2272	trapeffect_web	js/trap_effects.js	match	
+trap.c	2422-2442	trapeffect_anti_magic	js/trap_effects.js	differs-unobservable	JS skips newsym(trap) when the monster survives and see_it; the monster's square was already drawn by seetrap() when in_sight, and nothing else changed there (unproven)
+trap.c	2466,2470	trapeffect_poly_trap	js/trap_effects.js	match	
+trap.c	2505-2507	trapeffect_poly_trap	-	nobehaviour	impossible
+trap.c	2609-2623	trapeffect_landmine	js/trap_effects.js	skip-targets	targets unreachable (m_in_air); NOT COMPARED
+trap.c	2790-2933	immune_to_trap	js/trap.js	skip-targets	targets: monster lines unreachable, impossible(); NOT COMPARED
+trap.c	2987-2992	trapeffect_selector	-	nobehaviour	impossible default
+trap.c	3118-3128	steedintrap	-	nobehaviour	impossible
+trap.c	3188-3192	blow_up_landmine	js/trap_effects.js	match	
+trap.c	3299-3554	launch_obj	js/trap_effects.js	match	targets: unreachable/open; open lines compared after advisor review
+trap.c	3619-3622	find_random_launch_coord	js/trap.js findRandomLaunchCoordinate	match	map lists no JS: port uses a non-C name (explicitLaunchCoordinate/findRandomLaunchCoordinate); naming, not behaviour
+trap.c	3689	mkroll_launch	js/trap.js makeRollingBoulderLaunch	unreachable-C	only caller (maketrap 512) passes ROLLING_BOULDER_TRAP; JS omits the branch
+trap.c	3754-3760	mintrap	js/trap_effects.js	match	
+trap.c	3847	instapetrify	js/trap.js	match-text	
+trap.c	3902-3909	selftouch	js/trap.js	skip-targets	targets unreachable; NOT COMPARED
+trap.c	3923-3926,3931	mselftouch	js/trap_effects.js	match	
+trap.c	3964-3965	float_up	js/trap.js	match-text	
+trap.c	4089-4090,4133,4137,4165	float_down	js/trap.js	match	
+trap.c	4188,4198-4201	climb_pit	js/trap.js	match	
+trap.c	4245-4252,4292-4295,4311	dofiretrap	js/trap_effects.js	match	
+trap.c	4426,4432,4446-4448	domagictrap	js/trap_effects.js	match	open lines compared after advisor review
+trap.c	4489-4490	fire_damage	js/trap_water_damage.js	match	
+trap.c	4608-4610	lava_damage	js/trap_water_damage.js	match	
+trap.c	4631,4634,4644-4646	acid_damage	js/trap_erode_obj.js	match	
+trap.c	4678-4679	pot_acid_damage	js/trap_water_damage.js	match	
+trap.c	4746-4748	water_damage	js/trap_water_damage.js	match	
+trap.c	5041-5046	rescued_from_terrain	js/trap.js	match	
+trap.c	5138-5141,5149,5182	drown	js/trap.js	match	
+trap.c	5215-5217	drain_en	js/trap_effects.js	match	
+trap.c	5269,5276-5277	could_untrap	js/trap.js	match	
+trap.c	5308,5335	untrap_prob	js/trap.js	match	
+trap.c	5367,5369	cnv_trap_obj	js/trap.js	match	
+trap.c	5463-5469,5486,5489,5506-5507	try_disarm	js/trap.js	match	
+trap.c	5472-5477	try_disarm	js/trap.js	skip-targets	targets unreachable; NOT COMPARED
+trap.c	5544-5546	reward_untrap	js/trap.js	match	
+trap.c	5581-5582	disarm_holdingtrap	js/trap.js	match	
+trap.c	5689-5692	try_lift	js/trap.js	match	
+trap.c	5740,5783	help_monster_out	js/trap.js	match-text	
+trap.c	5832-5833	untrap_box	js/trap.js	match	
+trap.c	6082	untrap	js/trap.js	match-text	
+trap.c	6147-6151,6169	openholdingtrap	js/trap.js	skip-targets	targets unreachable; NOT COMPARED
+trap.c	6197-6198	openholdingtrap	js/trap.js	match	
+trap.c	6220,6222,6230,6235	closeholdingtrap	js/trap.js	match	
+trap.c	6273,6279	openfallingtrap	js/trap.js	match	
+trap.c	6338-6341,6490-6492	chest_trap	-	nobehaviour	impossible
+trap.c	6360-6409	chest_trap	js/trap.js	match	
+trap.c	6543	deltrap	-	nobehaviour	panic
+trap.c	6611	adj_nonconjoined_pit	js/trap.js	match	
+trap.c	6725-6726	thitm	js/trap_effects.js	match	
+trap.c	6803-6805	lava_effects	js/trap.js	nobehaviour	debug recursion guard
+trap.c	6951-6956,6976-6977	lava_effects	js/trap.js	match	
+trap.c	6996,7001,7026-7027	sink_into_lava	js/trap.js	match	
+trap.c	7183	trap_ice_effects	js/trap.js	match	
+uhitm.c	290	attack_checks	js/uhitm.js	match	
+uhitm.c	537	do_attack	js/uhitm.js	match-text	
+uhitm.c	632	known_hitum	js/uhitm.js	match	
+uhitm.c	669-672	hitum_cleave	-	nobehaviour	impossible
+uhitm.c	698,702	hitum_cleave	js/uhitm.js	match	
+uhitm.c	875-878	hmon_hitmon_barehands	js/uhitm.js	match	
+uhitm.c	1021-1025	hmon_hitmon_weapon_melee	js/uhitm.js	skip-targets	targets unreachable; NOT COMPARED
+uhitm.c	1108-1111	hmon_hitmon_potion	js/uhitm.js	match	
+uhitm.c	1178,1197-1201	hmon_hitmon_misc_obj	js/uhitm.js	match	
+uhitm.c	1424,1427	hmon_hitmon_do_hit	js/uhitm.js	match-text	
+uhitm.c	1518	hmon_hitmon_poison	js/uhitm.js	match	
+uhitm.c	1565	hmon_hitmon_jousting	js/uhitm.js	match	
+uhitm.c	1582	hmon_hitmon_stagger	js/uhitm.js	match	
+uhitm.c	1676,1688	hmon_hitmon_msg_silver	js/uhitm.js	match	
+uhitm.c	1719-1723	hmon_hitmon_msg_lightobj	js/uhitm.js	match	
+uhitm.c	1955	mhurtle_to_doom	js/uhitm.js	match	
+uhitm.c	1995	shade_aware	js/uhitm.js	match	
+uhitm.c	2065-2091	m_slips_free	js/uhitm.js	skip-targets	targets unreachable (batch 20); NOT COMPARED
+uhitm.c	2107,2117,2119	joust	js/uhitm.js	match	
+uhitm.c	2162,2164	theft_petrifies	js/uhitm.js	match	
+uhitm.c	2191	steal_it	-	nobehaviour	panic
+uhitm.c	2231-2277	steal_it	js/uhitm.js	match	
+uhitm.c	2322-2325	mhitm_ad_rust	js/uhitm.js	match	
+uhitm.c	2393,2402-2405	mhitm_ad_dcay	js/uhitm.js	match	
+uhitm.c	2426-2434	mhitm_ad_dren	js/uhitm.js	match	
+uhitm.c	2543-2546,2604-2607	mhitm_ad_fire	js/uhitm.js	match	
+uhitm.c	2748-2749,2782	mhitm_ad_acid	js/uhitm.js	match	
+uhitm.c	2808-2811,2828	mhitm_ad_sgld	js/uhitm.js	match	
+uhitm.c	2866,2908,2949-2952	mhitm_ad_tlpt	js/uhitm.js	match	
+uhitm.c	2972,2983,2998	mhitm_ad_blnd	js/uhitm.js	match	
+uhitm.c	3067,3076-3081	mhitm_ad_curs	js/uhitm.js	match	
+uhitm.c	3205,3220,3233,3243,3260,3301	mhitm_ad_drin	js/uhitm.js	match	
+uhitm.c	3350-3421	mhitm_ad_wrap	js/uhitm.js	match	targets open (worm tail etc.); not compared; open lines compared after advisor review
+uhitm.c	3512-3520	mhitm_ad_slee	js/uhitm.js	match	
+uhitm.c	3593	mhitm_ad_slim	js/uhitm.js	match-text	
+uhitm.c	3660	mhitm_ad_slow	js/uhitm.js	match	
+uhitm.c	3696-3700	mhitm_ad_conf	js/uhitm.js	match	
+uhitm.c	3742,3746,3769	mhitm_ad_poly	js/uhitm.js	match	
+uhitm.c	3788	mhitm_ad_famn	js/uhitm.js	match	
+uhitm.c	3819	mhitm_ad_pest	js/uhitm.js	match	
+uhitm.c	3848,3854-3857,3890	mhitm_ad_deth	js/uhitm.js	match	
+uhitm.c	3906,3909	mhitm_ad_halu	js/uhitm.js	match	
+uhitm.c	3933-3936	do_stone_u	js/uhitm.js	match	
+uhitm.c	3954,3966-3971	do_stone_mon	js/uhitm.js	match	
+uhitm.c	3993,4001,4066,4137,4157,4175-4180	mhitm_ad_phys	js/uhitm.js	match	targets: unreachable/open; open lines compared after advisor review
+uhitm.c	4275,4291	mhitm_ad_were	js/uhitm.js	match	
+uhitm.c	4304-4306,4383	mhitm_ad_heal	js/uhitm.js	match-text	
+uhitm.c	4396-4402,4413,4420	mhitm_ad_stun	js/uhitm.js	match	targets unreachable/open; open lines compared after advisor review
+uhitm.c	4439,4451-4452,4487	mhitm_ad_legs	js/uhitm.js	match	
+uhitm.c	4501-4539	mhitm_ad_dgst	js/uhitm.js	match	targets unreachable/open; open lines compared after advisor review
+uhitm.c	4576	mhitm_ad_samu	js/uhitm.js	match	
+uhitm.c	4603,4608	mhitm_ad_dise	js/uhitm.js	match	
+uhitm.c	4640,4730-4735	mhitm_ad_sedu	js/uhitm.js	match	
+uhitm.c	(4657-4669 covered)	mhitm_ad_sedu	js/uhitm.js	DIFFERS-covered	"found while reading the enclosing function: cancelled-seducer branch tests !Blind; JS inlines HBlinded||EBlinded without !BBlinded, so a hero blinded under the Eyes of the Overworld gets no ""tries to charm you"" message. Same inlined convention in js/do.js familiar_level_msg and js/questpgr.js 'x' (3 sites)"
+uhitm.c	4758,4770-4772,4777	mhitm_ad_ssex	js/uhitm.js	match	
+uhitm.c	4829-4830	mhitm_adtyping	js/uhitm.js	match-text	default
+uhitm.c	4924	explum	js/uhitm.js	match-text	
+uhitm.c	5005-5135	gulpum	js/uhitm.js	match	targets unreachable/open; open lines compared after advisor review
+uhitm.c	5240	m_is_steadfast	js/uhitm.js	match	
+uhitm.c	5346,5350-5351,5365,5416	mhitm_knockback	js/uhitm.js	match	
+uhitm.c	5639-5819	hmonas	js/uhitm.js	match	targets unreachable/open; open lines compared after advisor review
+uhitm.c	5899-5900,5941,5996,6052	passive	js/uhitm.js	match	
+uhitm.c	6215-6216	that_is_a_mimic	js/uhitm.js	match	
+uhitm.c	6309-6312	disguised_as_mon	js/uhitm.js	match-text	function never run in C corpus; JS has it
+uhitm.c	6406	flash_hits_mon	js/uhitm.js	match-text	
+uhitm.c	6439	light_hits_gremlin	js/uhitm.js	match	
+shk.c	162-168	money2mon	-	nobehaviour	impossible
+shk.c	191-198	money2u	-	nobehaviour	impossible
+shk.c	206-207	money2u	js/shk.js	match	targets open (52 slots)
+shk.c	249	shkgone	js/shk.js	match	
+shk.c	284-285	replshk	js/shk.js	match	
+shk.c	412	setpaid	js/shk.js	match	
+shk.c	516,528-531,534	call_kops	js/shk.js	match	
+shk.c	614-618	u_left_shop	js/shk.js	match	
+shk.c	650-656	credit_report	js/shk.js	match	
+shk.c	666-682	remote_burglary	js/shk.js	match	function never run in C corpus; JS wired from pickup.js as C pickup.c 1939
+shk.c	759,833-840	u_entered_shop	js/shk.js	skip-targets	targets: bones-only / likely unreachable; NOT COMPARED
+shk.c	926	pick_pick	js/shk.js	match	
+shk.c	970-974	same_price	js/shk.js	match	
+shk.c	977	same_price	-	nobehaviour	impossible
+shk.c	1065-1077	shop_keeper	-	skip-targets	impossible; NOT COMPARED
+shk.c	1095-1098	find_objowner	js/shk.js	match	
+shk.c	1146	onbill	-	nobehaviour	impossible
+shk.c	1231	obfree	js/shk.js obfree_shop_bill	match	
+shk.c	1239-1245,1267-1273	obfree	-	skip-targets	impossible; NOT COMPARED
+shk.c	1310	pay	js/shk.js	match	
+shk.c	1324-1326	home_shk	js/shk.js	unreachable-C	every C caller (1411, 2671, 5319) passes killkops FALSE; JS ignores the argument
+shk.c	1338	angry_shk_exists	js/shk.js	match	
+shk.c	1353-1356	pacify_shk	js/shk.js	match	
+shk.c	1420	make_happy_shk	js/shk.js	match	
+shk.c	1452	hot_pursuit	js/shk.js	match	
+shk.c	1482	make_angry_shk	js/shk.js	match	
+shk.c	1573-1575	make_itemized_bill	-	nobehaviour	impossible
+shk.c	1824-1826,1870-1896,1948	dopay	js/shk.js	match	
+shk.c	1852-1854	dopay	js/shk.js	nobehaviour	debugpline
+shk.c	2133-2135,2151-2153	pay_billed_items	js/shk.js	match-text	
+shk.c	2234-2239	dopayobj	js/shk.js	match-text	2234-2236 impossible
+shk.c	2341-2386	buy_container	js/shk.js	match	impossible / open; impossible() lines excluded; open lines compared
+shk.c	2433,2444-2449	reject_purchase	js/shk.js	match-text	targets open
+shk.c	2467-2471	insufficient_funds	js/shk.js	match	
+shk.c	2637	inherits	js/shk.js	match-text	
+shk.c	2690	set_repo_loc	js/shk.js	match-text	
+shk.c	2737-2743	finish_paybill	js/shk.js	match	
+shk.c	2803	find_oid	js/shk.js	match	
+shk.c	2935-2938	get_cost	-	nobehaviour	impossible
+shk.c	2954,2977	get_cost	js/shk.js	match	
+shk.c	3007,3038	contained_cost	js/shk.js	match	
+shk.c	3080	dropped_container	js/shk.js	match	
+shk.c	3114-3116	special_stock	js/shk.js	match	
+shk.c	3155,3188	set_cost	js/shk.js	match	
+shk.c	3224,3227	gem_learned	js/shk.js	match	
+shk.c	3303	unpaid_cost	-	nobehaviour	impossible
+shk.c	3324-3340	add_one_tobill	js/shk.js	match	targets open; impossible() lines excluded; open lines compared
+shk.c	3369	add_to_billobjs	-	nobehaviour	panic
+shk.c	3371	add_to_billobjs	js/shk.js	match-text	
+shk.c	3396,3405	bill_box_content	js/shk.js	match-text	
+shk.c	3463	billable	js/shk.js	match-text	
+shk.c	3508-3511,3596-3597	addtobill	js/shk.js	match-text	
+shk.c	3522-3524,3559-3561	addtobill	js/shk.js	skip-targets	targets unreachable; NOT COMPARED
+shk.c	3640-3644	splitbill	-	nobehaviour	impossible
+shk.c	3648	splitbill	js/shk.js	match-text	
+shk.c	3687-3689	sub_one_frombill	-	nobehaviour	impossible
+shk.c	3706	subfrombill	js/shk.js	match-text	
+shk.c	3744	stolen_container	js/shk.js	match-text	
+shk.c	3771-3772,3809,3840-3842	stolen_value	js/shk.js	match	
+shk.c	3887	donate_gold	js/shk.js	match-text	
+shk.c	4000-4013	sellobj	js/shk.js	match	keeps C's `robbed -= offer < 0L` precedence quirk
+shk.c	4041	sellobj	js/shk.js	match	
+shk.c	4190-4191	sellobj	-	nobehaviour	impossible
+shk.c	4210-4240	doinvbill	js/shk.js	skip-targets	NOT COMPARED
+shk.c	4340	getprice	js/shk.js	match	
+shk.c	4370,4387	shkcatch	js/shk.js	match-text	
+shk.c	4459	repairable_damage	js/shk.js	match-text	
+shk.c	4512	discard_damage_struct	js/shk.js	match-text	
+shk.c	4674-4701	litter_scatter	js/shk.js	match	impossible() lines excluded; open lines compared
+shk.c	4794,4838	repair_damage	js/shk.js	match-text	
+shk.c	4919-4928	shk_move	js/shk.js	match	messages match; see Hello finding for the covered sibling lines 4907/4916
+shk.c	(4907,4916 covered)	shk_move	js/shk.js	DIFFERS-covered	"C Hello(shkp) says ""Konnichi wa"" to a Samurai when the following shopkeeper is polymorphed (data != PM_SHOPKEEPER); JS passes shopkeeper:true unconditionally. Same in shk_chat 5550/5557 (uncovered). 4 sites; u_entered_shop already derives it"
+shk.c	5003-5007	after_shk_move	js/shk.js	match	
+shk.c	5028-5087	shopdig	js/shk.js	match	impossible() lines excluded; open lines compared
+shk.c	5129	makekops	js/shk.js	match-text	
+shk.c	5146-5147,5165-5168	getcad	js/shk.js	match	
+shk.c	5248-5253,5289-5290,5303,5324-5325	pay_for_damage	js/shk.js	match	
+shk.c	5420	price_quote	js/shk.js	match-text	
+shk.c	5496-5501	shk_embellish	js/shk.js	match-text	
+shk.c	5546-5562	shk_chat	js/shk.js	DIFFERS	Hello(shkp) as in shk_move: JS hardcodes shopkeeper:true
+shk.c	5579-5581	shk_chat	js/shk.js	match	
+shk.c	5614	kops_gone	js/shk.js	match-text	
+shk.c	5635,5649-5650,5655	cost_per_charge	js/shk.js	match	
+shk.c	5700,5702,5716	check_unpaid_usage	js/shk.js	match	
+shk.c	5755,5761	costly_gold	js/shk.js	match-text	
+shk.c	5799,5816-5819	block_door	js/shk.js	match-text	
+shk.c	5852-5856	block_entry	js/shk.js	match-text	
+shk.c	5868,5870	shk_your	js/shk.js	match	
+shk.c	5926-5929	cad	-	nobehaviour	impossible
+shk.c	5986	globby_bill_fixup	-	nobehaviour	impossible
+shk.c	6044-6045	globby_bill_fixup	js/shk.js	match	targets open

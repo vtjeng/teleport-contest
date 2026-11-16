@@ -1,0 +1,347 @@
+file	lines	function	js	class	note
+mon.c	513-515,517-528	genus	-	skip-targets	targets unreachable (MS_GUARDIAN default); NOT COMPARED
+mon.c	732-733	make_corpse	js/mon.js	nobehaviour	NON_PM/LEAVESTATUE/NUMMONS break
+mon.c	1002-1005	minliquid_core	js/mon.js minliquid_core	match	iron golem rust kills
+mon.c	1044-1047	minliquid_core	js/mon.js minliquid_core	match	fire-resistant monster surrenders to lava
+mon.c	1054,1057	minliquid_core	js/mon.js minliquid_core	nobehaviour	empty statements (comments)
+mon.c	1105	minliquid_core	js/mon.js minliquid_core	match	drowning survivor overcrowding
+mon.c	1361,1367-1370,1374,1378-1380	meatbox	-	skip-targets	targets unreachable; NOT COMPARED
+mon.c	1434	m_consume_obj	js/mon.js m_consume_obj	match	poly_when_stoned golem
+mon.c	1449	m_consume_obj	js/mon.js m_consume_obj	unreachable-C	corpsenm is NON_PM for an EGG, so the pyrolisk-egg explode never runs; JS omits it with a comment (equivalent)
+mon.c	1555,1565	meatobj	js/mon.js meatobj	match	prize skip; rider corpse revive fail
+mon.c	1684	meatcorpse	js/mon.js meatcorpse	match	rider corpse revive fail
+mon.c	1838-1839	mpickgold	js/mon.js mpickgold	unreachable-C	only callers are vault.c 802/813/1194 with the guard, and the message requires !isgd; JS also calls message() without await (unobservable here)
+mon.c	2355-2359	mfndpos	-	nobehaviour	impossible
+mon.c	2506-2509	dmonsfree	-	nobehaviour	impossible
+mon.c	2521-2524	replmon	-	skip-targets	targets unreachable; NOT COMPARED
+mon.c	2528,2537,2548	replmon	js/mon.js replmon	match	polearm hitmon, worm segs, ustuck transfer
+mon.c	2550	replmon	-	skip-targets	targets unreachable; NOT COMPARED
+mon.c	2566,2583	relmon	-	nobehaviour	panic
+mon.c	2600	copy_mextra	-	skip-targets	targets unreachable; NOT COMPARED
+mon.c	2609-2613,2615-2619,2645	copy_mextra	js/mon.js copy_mextra	match	egd/epri struct copy (structuredClone), mcorpsenm
+mon.c	2682-2684	dealloc_monst	-	nobehaviour	panic (JS throws)
+mon.c	2792-2793	m_detach	-	nobehaviour	impossible
+mon.c	2857	lifesaved_monster	js/mon.js lifesaved_monster	match-text	reconstitutes!
+mon.c	2929-2930,2934	vamprises	js/mon.js vamprises	match	uunstick; newcham failure return
+mon.c	2961,2970-2975,2979-2981	vamprises	js/mon.js vamprises	match-text	door messages, mb_trapped with verbose off, is destroyed!
+mon.c	3144	mondead	js/mon.js mondead	match	mail daemon G_GENOD
+mon.c	3204-3207	corpse_chance	js/mon.js corpse_chance	match	AT_BOOM damd/zero dice
+mon.c	3274	mongone	js/mon.js mongone	match	grddead guard returns
+mon.c	3325,3329	monstone	js/mon.js monstone	match	flooreffects continue; end_burn
+mon.c	3425-3426	set_ustuck	-	nobehaviour	impossible
+mon.c	3516	xkilled	js/mon.js xkilled	match	boulder over pit nocorpse
+mon.c	3579-3580	xkilled	js/mon.js xkilled	match	SCR_MAIL from mail daemon
+mon.c	3702	xkilled	js/mon.js xkilled	match	A_NONE priest bonus
+mon.c	3758-3760	mon_to_stone	js/mon.js mon_to_stone	match-text	... and returns to normal.
+mon.c	3762	mon_to_stone	-	nobehaviour	impossible
+mon.c	3792,3794,3796-3799	vamp_stone	js/mon.js vamp_stone	DIFFERS-unproven	after expels() moves the engulfing fog cloud, C tests closed_door(mtmp->mx,mtmp->my) and enexto() from the new square; JS (mon.js vamp_stone) tests and enexto()s the pre-expel x,y, and places the message at x,y. Needs a vampire fog cloud stoned while engulfing the hero and expelled onto a closed door; not reproduced
+mon.c	3807-3808	vamp_stone	js/mon.js vamp_stone	match	cham reset
+mon.c	3940-3941,3943-3948	elemental_clog	-	skip-targets	targets unreachable; NOT COMPARED
+mon.c	3961-3964	mnexto	js/mon.js mnexto	match	steed sync
+mon.c	4008	maybe_mnexto	js/mon.js maybe_mnexto	match	enexto failure
+mon.c	4067-4068	mnearto	js/mon.js mnearto	not-compared	othermon overcrowding; JS located and messages/strings matched only; logic not compared line by line
+mon.c	4144	qst_guardians_respond	js/mon.js qst_guardians_respond	match	dead skip
+mon.c	4459-4460	normal_shape	js/mon.js normal_shape	match	finish_meating
+mon.c	4571	get_iter_mons_xy	js/mon.js get_iter_mons_xy	match	dead/offmap skip
+mon.c	4599-4601	healmon	js/mon.js healmon	unreachable-C	no C caller passes &youmonst (21 callers checked); JS omits the hero branch
+mon.c	4867	pick_animal	js/mon.js select_newcham_form	match	Rogue-level reroll done at the JS caller
+mon.c	4953-4954	pickvampshape	js/mon.js pickvampshape	match	Vlad wolfchance 3
+mon.c	4996,5007	validspecmon	js/mon.js validspecmon	match	
+mon.c	5054-5056	validvamp	-	skip-targets	targets unreachable; NOT COMPARED
+mon.c	5187,5204	select_newcham_form	js/mon.js select_newcham_form	match	chameleon break; dragon mail form
+mon.c	5234	accept_newcham_form	js/mon.js accept_newcham_form	match	NON_PM
+mon.c	5295,5340,5354,5423,5512	newcham	js/mon.js newcham	match-text	rider immune; genocided target; endgame mplayer ' the ' trim; 's stomach trail; boulder drop
+mon.c	5338,5378	newcham	-	skip-targets	targets unreachable; NOT COMPARED
+mon.c	5552	can_be_hatched	js/mondata.js can_be_hatched	match	Scorpius egg
+mon.c	5781-5784	mimic_hit_msg	js/mon.js mimic_hit_msg	nobehaviour	break
+mon.c	5997	see_monster_closeup	js/dog.js see_monster_closeup	match	M_AP_MONSTER photo mndx
+muse.c	76,81-82,103,108-109	precheck	js/muse.js precheck	match-text	enexto failure; empty potion (ghost, djinni)
+muse.c	171-173	mzapwand	-	nobehaviour	impossible
+muse.c	215,224	mplayhorn	js/muse.js mplayhorn	match	QBUFSZ simpleonames fallback
+muse.c	398	m_tele	js/muse.js m_tele	match-text	seems disoriented
+muse.c	426,431	m_next2m	js/muse.js m_next2m	match	
+muse.c	579-581	find_defensive	js/muse.js find_defensive	match	ladder SSTAIRS
+muse.c	835-836,840,851,860,874,919,974,989,1006,1163,1177,1191,1206,1210-1215,1217	use_defensive	-	nobehaviour	impossible/panic/case 0/default
+muse.c	867	use_defensive	js/muse.js use_defensive	match	wand of teleportation learns TELEP_TRAP
+muse.c	1059,1155	use_defensive	js/muse.js use_defensive	match	worm_move on trapdoor/teleport trap
+muse.c	1069,1096,1106,1116,1126	use_defensive	js/muse.js use_defensive	match	Is_botlevel / no stairway returns 0
+muse.c	1072	use_defensive	js/muse.js use_defensive	match	level-1 upstairs mon_escape
+muse.c	1075-1078,1083-1084	use_defensive	js/muse.js use_defensive	match-text	mysterious force on the stairs with the Amulet
+muse.c	1269	rnd_defensive_item	js/makemon_create.js	nobehaviour	return 0 default
+muse.c	1377	mon_has_friends	js/muse.js mon_has_friends	match	
+muse.c	1665-1668	mbhitm	js/muse.js mbhitm	not-compared	cancellation (monsters never zap it); JS located and messages/strings matched only; logic not compared line by line
+muse.c	1695-1696	mbhitm	-	nobehaviour	default break
+muse.c	1721	fhito_loc	js/muse.js fhito_loc	match	
+muse.c	1789-1790	mbhit	js/muse.js mbhit	not-compared	placeholder cases (monsters do not use opening/locking); JS located and messages/strings matched only; logic not compared line by line
+muse.c	1912	use_offensive	js/muse.js use_offensive	match-text	earth scroll rumbles in the middle of nowhere
+muse.c	2026-2029,2031	use_offensive	-	nobehaviour	impossible default
+muse.c	2080	rnd_offensive_item	-	nobehaviour	return 0 default
+muse.c	2256,2258	muse_newcham_mon	js/muse.js muse_newcham_mon	match	dragon scales/mail
+muse.c	2274,2279	mloot_container	js/muse.js mloot_container	match	locked/cursed bag/Schroedinger returns
+muse.c	2401,2444,2484,2490,2501,2510,2547,2620-2623,2625	use_misc	-	nobehaviour	panic/impossible
+muse.c	2411,2474-2475,2540,2562,2581-2583,2585-2586,2617	use_misc	-	skip-targets	targets unreachable (incl. batch 21); NOT COMPARED
+muse.c	2675,2685	rnd_misc_item	-	nobehaviour	return 0
+muse.c	2810	mon_reflects	js/muse.js mon_reflects	match-text	weapon reflection message
+muse.c	2952-2953,2974	mon_consume_unstone	js/muse.js mon_consume_unstone	match	mondead after acid; hungrytime floor
+muse.c	2988,2990	cures_stoning	js/muse.js cures_stoning	match	
+muse.c	3044,3046	munslime	js/muse.js munslime	match	
+muse.c	3132,3221-3222	muse_unslime	-	skip-targets	targets unreachable; NOT COMPARED
+muse.c	3153-3159	muse_unslime	js/muse.js muse_unslime	match-text	Oh, what a pretty fire!
+mhitu.c	39-41	hitmsg	js/mhitu.js hitmsg	unreachable-C	compat needs a nymph or amorous demon with an SEDU/SITM/SSEX attack, but no C hitmsg() caller passes one (mhitm_ad_sedu calls hitmsg only for is_animal, which could_seduce rejects; mhitm_ad_ssex returns under SYSOPT_SEDUCE). JS omits the arm; its comment ('only mhitm_ad_phys and mhitm_ad_elec call hitmsg') is stale, 9 JS callers; verdict provisional: mhitm_ad_sedu read only for its is_animal hitmsg arm
+mhitu.c	49	hitmsg	js/mhitu.js hitmsg	match	thick-skinned kick punct
+mhitu.c	188-191	wildmiss	-	nobehaviour	impossible
+mhitu.c	231-233	wildmiss	-	nobehaviour	default of rn2(3) switch
+mhitu.c	252-256	wildmiss	js/mhitu.js wildmiss	match-text	underwater distorted image / water reflections
+mhitu.c	258-260	wildmiss	-	nobehaviour	NOTREACHED
+mhitu.c	281	expels	-	nobehaviour	impossible
+mhitu.c	322,327-335	getmattk	-	unreachable-config	!SYSOPT_SEDUCE (sysconf, not a game option); JS not compared
+mhitu.c	515	mattacku	js/mhitu.js mattacku	match	dead after calc
+mhitu.c	590	mattacku	js/mhitu.js mattacku	match	worm tail retry enexto (result discarded)
+mhitu.c	701	mattacku	js/mhitu.js mattacku	match-text	You appear to be ... again.
+mhitu.c	783	mattacku	js/mhitu.js mattacku	match	firstfoundyou continue
+mhitu.c	857	mattacku	js/mhitu.js mattacku	match-text	gulps some air!
+mhitu.c	1036-1037	diseasemu	js/mhitu.js diseasemu	match-text	a slight illness
+mhitu.c	1055	u_slip_free	js/mhitu.js u_slip_free	match	AT_ENGL
+mhitu.c	1201-1203	hitmu	js/mhitu.js hitmu	match	already dead mdamageu(1)
+mhitu.c	1370,1387,1406	gulpmu	js/mhitu.js gulpmu	match	placebc after petrifying engulfer; tim_tmp<0; not ustuck
+mhitu.c	1535	gulpmu	js/mhitu.js gulpmu	match	AD_FIRE miss tmp=0
+mhitu.c	1571	gulpmu	js/mhitu.js gulpmu	match-text	very hurriedly expels you
+mhitu.c	1621	explmu	js/mhitu.js explmu	not-compared	lifesaved exploder; JS located and messages/strings matched only; logic not compared line by line
+mhitu.c	1652-1654	explmu	-	nobehaviour	impossible
+mhitu.c	1730,1744,1752	gazemu	js/mhitu.js gazemu	match	reflection breaks
+mhitu.c	1802	gazemu	js/mhitu.js gazemu	match	cancelled Archon react -1
+mhitu.c	1883-1885	gazemu	-	nobehaviour	impossible
+mhitu.c	1905-1907	mdamageu	-	nobehaviour	impossible (JS note_unported, n=0)
+mhitu.c	1915,1923	mdamageu	js/mhitu.js mdamageu	match	hp clamp to max
+mhitu.c	1965,1967	could_seduce	js/mhitu.js could_seduce	match	null mattk adtyp derivation
+mhitu.c	2096,2104	doseduce	js/mhitu.js doseduce	DIFFERS	JS read state.utotype (never set) for C u.utotype; proven at the sibling site 2136 (same expression); fixed f4ee133ab
+mhitu.c	2107	doseduce	-	nobehaviour	impossible
+mhitu.c	2137	doseduce	js/mhitu.js doseduce	DIFFERS	state.utotype for u.utotype: after removed levitation boots drop the hero through a trap door, C returns, JS asked about the gloves (knight) or began the encounter (priest). Proof recipes/mhitu.c/doseduce-levitation-boots-removed-over-trap-door-{knight,priest} fail on source-review-1 at steps 70/74; fixed f4ee133ab; check scripts/hero-field-on-state.test.mjs
+mhitu.c	2159	doseduce	js/mhitu.js doseduce	not-compared	appears to sigh; JS located and messages/strings matched only; logic not compared line by line
+mhitu.c	2222,2264	doseduce	-	nobehaviour	brace / empty statement
+mhitu.c	2269-2270	doseduce	js/mhitu.js doseduce	not-compared	leprechaun hero gold; JS located and messages/strings matched only; logic not compared line by line
+mhitu.c	2282	doseduce	js/mhitu.js doseduce	not-compared	peaceful cost floor 1; JS located and messages/strings matched only; logic not compared line by line
+mhitu.c	2320	mayberem	js/mhitu.js mayberem	DIFFERS	same state.utotype defect; covered by the knight recipe (gloves, shield and helmet after the fall); fixed f4ee133ab
+mhitu.c	2396-2398,2400-2405	mon_avoiding_this_attack	-	unreachable-C	no C caller (only a comment at 2409)
+mhitu.c	2622,2624,2628	cloneu	js/mhitu.js cloneu	match	mh<=1; extinct; makemon failure
+mhitm.c	51-53	pre_mm_attack	js/mhitm.js pre_mm_attack	match	hidden defender unhides
+mhitm.c	152	fightm	js/mhitm.js fightm	not-compared	has_u_swallowed returns 0; JS located and messages/strings matched only; logic not compared line by line
+mhitm.c	189,194,205	mdisplacem	js/mhitm.js mdisplacem	match	sanity returns; grid bug diagonal
+mhitm.c	227-229,239,241	mdisplacem	js/mhitm.js mdisplacem	match-text	petrifying displacement: polystone, lifesaved, peculiarly sad
+mhitm.c	248,254	mdisplacem	js/mhitm.js mdisplacem	match	long-worm defender swap
+mhitm.c	309	mattackm	js/mhitm.js mattackm	match	null check
+mhitm.c	403,469,559	mattackm	js/mhitm.js mattackm	match	AGR_DIED after thrwmm / clone / spit
+mhitm.c	438-440	mattackm	js/mhitm.js mattackm	match	no bare-handed cockatrice touch with a weapon
+mhitm.c	717-720	hitmm	js/mhitm.js hitmm	match-text	himself -> his own
+mhitm.c	771-775,777-783,788	gazemm	js/mhitm.js gazemm	match-text	Medusa gaze reflected back
+mhitm.c	934-936,947	gulpmm	js/mhitm.js gulpmm	match	goodpos fixup; aggressor dies at the spot
+mhitm.c	998,1004	explmm	js/mhitm.js explmm	match-text	lifesaved exploder; leash falls slack
+mhitm.c	1054	mdamagem	js/mhitm.js mdamagem	match-text	peculiarly sad
+mhitm.c	1100,1104,1106-1107	mdamagem	js/mhitm.js mdamagem	match	digest a shapeshifter / wraith
+mhitm.c	1162-1163,1165-1173	mon_poly	js/mhitm.js mon_poly	match-text	system shock shudders
+mhitm.c	1241-1242	sleep_monst	js/mhitm.js sleep_monst	match	amt<=0 sleeps
+mhitm.c	1265	rustm	js/mhitm.js rustm	match	null guard
+mhitm.c	1379	passivemm	js/mhitm.js passivemm	match	floating eye gaze reflected by attacker
+mhitm.c	1480-1488,1500-1502	attk_protection	js/mhitm.js attk_protection	match	pure table
+polyself.c	225	polyman	js/polyself.js polyman	match	unmul for a mimicking hero
+polyself.c	295,301-302	change_sex	js/polyself.js change_sex	match	ungendered form; amorous demon set_uasmon
+polyself.c	420-423,434-435	newman	js/polyself.js newman	match	Polymorph_control hp floor
+polyself.c	606-607	polyself	js/polyself.js polyself	not-compared	class retry counter; JS located and messages/strings matched only; logic not compared line by line
+polyself.c	711	polyself	js/polyself.js polyself	match	sex_change_ok++
+polyself.c	778	polymon	js/polyself.js polymon	not-compared	unmul; JS located and messages/strings matched only; logic not compared line by line
+polyself.c	925	polymon	js/polyself.js polymon	DIFFERS	canseemon() where C tests canspotmon(u.ustuck) before renaming an engulfer that can no longer contain an unsolid hero. Proof recipes/polyself.c/polymon-blind-hallucinating-hero-engulfed-by-dust-vortex-becomes-fog-cloud fails on source-review-1 at step 127 (holder's name); fixed 540b9cae0
+polyself.c	946-947	polymon	js/polyself.js polymon	DIFFERS-covered	same canseemon/canspotmon defect for a holder losing its grip (covered line, other condition). Proof recipes/polyself.c/polymon-blind-hallucinating-titan-held-by-owlbear-becomes-owlbear fails on source-review-1 at step 161; fixed 540b9cae0
+polyself.c	957-962	polymon	js/polyself.js polymon	match-text	No longer petrify-resistant, you touch ...
+polyself.c	1240	break_armor	js/polyself.js break_armor	match	cancel_don for a falling helmet
+polyself.c	1341,1348	drop_weapon	js/polyself.js drop_weapon	not-compared	in_use updateinv; JS located and messages/strings matched only; logic not compared line by line
+polyself.c	1400-1405	rehumanize	js/polyself.js rehumanize	match-text	old form not healthy enough
+polyself.c	1441	dobreathe	-	nobehaviour	impossible
+polyself.c	1456	dospit	js/polyself.js dospit	match	getdir cancel
+polyself.c	1459,1466-1468	dospit	-	nobehaviour	impossible
+polyself.c	1485-1488	doremove	js/polyself.js doremove	match-text	buried ball and chain
+polyself.c	1525	dospinweb	-	nobehaviour	impossible
+polyself.c	1545-1546	dospinweb	js/polyself.js dospinweb	match-text	web dissolves into
+polyself.c	1637	dosummon	js/polyself.js dosummon	match-text	But none arrive.
+polyself.c	1657-1659	dogaze	-	nobehaviour	impossible
+polyself.c	1677,1683	dogaze	js/polyself.js dogaze	not-compared	can't see where to gaze; JS located and messages/strings matched only; logic not compared line by line
+polyself.c	1793-1796,1802-1808	dohide	js/polyself.js dohide	match-text	unhide when held; eel without water
+polyself.c	1913	domindblast	js/polyself.js domindblast	not-compared	JS located and messages/strings matched only; logic not compared line by line
+polyself.c	1946-1948	uunstick	-	nobehaviour	impossible
+polyself.c	2058-2060	mbodypart	-	nobehaviour	impossible
+polyself.c	2091,2097,2119	mbodypart	js/polyself.js mbodypart	match	shark skin, floating eye cornea, stalker head
+polyself.c	2229-2230	armor_to_dragon	js/polyself.js armor_to_dragon	nobehaviour	default NON_PM
+polyself.c	2282-2283	udeadinside	js/polyself.js udeadinside	match	
+dothrow.c	151-154	throw_obj	js/dothrow.js throw_obj	match	welded throw (canletgo rejects first)
+dothrow.c	289-291	throw_obj	js/dothrow.js finishThrowObj	match	unsplit_stack
+dothrow.c	386,411	autoquiver	js/dothrow.js autoquiver	match	
+dothrow.c	452	find_launcher	js/dothrow.js find_launcher	match	null ammo
+dothrow.c	788,790-791	hurtle_step	js/dothrow.js hurtle_step	match	region / range 0
+dothrow.c	820-821,829-832	hurtle_step	js/dothrow.js hurtle_step	match-text	edge of the universe; wedged into a crevice
+dothrow.c	968	hurtle_step	js/dothrow.js hurtle_step	match	range floor 0
+dothrow.c	980	will_hurtle	js/dothrow.js will_hurtle	match	
+dothrow.c	1051-1053	mhurtle_step	js/dothrow.js mhurtle_step	match	poly'd cockatrice hero petrifies bumper
+dothrow.c	1152,1159-1161,1163	mhurtle	js/dothrow.js mhurtle	match	paranoia; unhide; seemimic
+dothrow.c	1187,1208	check_shop_obj	js/dothrow.js check_shop_obj	match	no shk; donate contained gold
+dothrow.c	1274-1277	toss_up	js/dothrow.js toss_up	match	breaktest at ceiling, unbroken falls
+dothrow.c	1326,1329-1330,1335-1336	toss_up	js/dothrow.js toss_up	match-text	vision clears; default; hitfloor
+dothrow.c	1360,1368	toss_up	js/dothrow.js toss_up	match	non-weapon damage cap 6; shade
+dothrow.c	1689,1703,1724	throwit	js/dothrow.js throwit	not-compared	tmp_at end; quivered returning aklys; JS located and messages/strings matched only; logic not compared line by line
+dothrow.c	1872-1874,1892,1897,1904	return_throw_to_inv	js/dothrow.js return_throw_to_inv	match	
+dothrow.c	2068-2070	thitmonst	-	nobehaviour	impossible
+dothrow.c	2123-2129,2131	thitmonst	js/dothrow.js thitmonst	match-text	leader keeps an invoked unique item
+dothrow.c	2149	thitmonst	js/dothrow.js thitmonst	not-compared	immobile leader returns 0; JS located and messages/strings matched only; logic not compared line by line
+dothrow.c	2528	breakobj	js/dothrow.js breakobj	DIFFERS	Number.isInteger(corpsenm) for C ismnum(): a laid-flag generic egg (NON_PM) cost Luck. Proof recipes/dothrow.c/breakobj-wished-generic-egg-thrown-at-ceiling-healer and -eggs-thrown-at-wall-valkyrie fail on source-review-1 at the ^X luck line (steps 20/21); fixed bbba62e06
+dothrow.c	2532-2533,2536-2537	breakobj	js/dothrow.js breakobj	match	boulder/statue fracture
+dothrow.c	2623	breakmsg	-	nobehaviour	impossible
+dothrow.c	2667,2710,2716,2722	throw_gold	js/dothrow.js throw_gold	match	
+dogmove.c	74,79,84-88,94,98,115,121	droppables	js/dogmove.js droppables	match	tool-keeping preferences, dummy sentinel
+dogmove.c	179	dog_nutrition	js/dogmove.js dog_nutrition	match	default size factor
+dogmove.c	198-203	dog_nutrition	js/dogmove.js dog_nutrition	DIFFERS	JS applied the size factor and oeaten scaling to coins and unusual objects; C only to FOOD_CLASS (172-195). Proof: constructed test scripts/dogmove-quickmimic.test.mjs 'dog_nutrition handles coin and unusual object nutrition' (it previously pinned the port's 1200; now C's 200) fails on source-review-1; fixed bb81a8581. No recording (ACCFOOD eaten only when hungry; effect shows only in a later hunger timer)
+dogmove.c	302-311	dog_eat	js/dogmove.js dog_eat	match-text	rust monster spits out rustproofed item
+dogmove.c	321-324,328-330	dog_eat	-	nobehaviour	impossible (apport reset)
+dogmove.c	351	dog_starve	js/dogmove.js dog_starve	match-text	leash goes slack
+dogmove.c	407	dog_invent	js/dogmove.js dog_invent	not-compared	helpless/meating; JS located and messages/strings matched only; logic not compared line by line
+dogmove.c	572,634-635	dog_goal	js/dogmove.js dog_goal	match	after && udist<=4; FARAWAY fallback
+dogmove.c	756,772-774,817	score_targ	js/dogmove.js score_targ	match	priest alignment; coaligned peaceful; vampshifter level
+dogmove.c	846	best_target	js/dogmove.js best_target	match	
+dogmove.c	912,927,965	pet_ranged_attk	js/dogmove.js pet_ranged_attk	match	
+dogmove.c	1005-1007	dog_move	-	nobehaviour	impossible
+dogmove.c	1140-1141,1144,1147	dog_move	js/dogmove.js dog_move	match	ranged_only FIXME (reset per iteration); after
+dogmove.c	1173-1174,1176-1180	dog_move	js/dogmove.js dog_move	match	displace monster
+dogmove.c	1290,1292	dog_move	js/dogmove.js dog_move	match	region / dig weapon check
+dogmove.c	1339,1344,1350	dog_move	js/dogmove.js dog_move	match	leashed reposition (raw dirtocoord offsets, as C)
+dogmove.c	1390	can_reach_location	js/dogmove.js can_reach_location	match	
+dogmove.c	1479	quickmimic	js/dogmove.js quickmimic	match	
+makemon.c	628-631	m_initinv	-	nobehaviour	impossible
+makemon.c	857-860,863,900-901	clone_mon	-	skip-targets	targets unreachable / open (enexto on full level); NOT COMPARED
+makemon.c	997	monhp_per_lvl	js/makemon.js monhp_per_lvl	match	mlevel > 49
+makemon.c	1189-1191	makemon	-	nobehaviour	impossible
+makemon.c	1271	makemon	js/makemon_create.js makemon	not-compared	leader gender from quest_status; JS located and messages/strings matched only; logic not compared line by line
+makemon.c	1457	makemon	js/makemon_create.js makemon	not-compared	discard_minvent when no inventory allowed; JS located and messages/strings matched only; logic not compared line by line
+makemon.c	1484	makemon	js/makemon_create.js makemon	match	M_AP_MONSTER exclaim
+makemon.c	1517-1519,1525-1529,1531,1535,1537-1539	unmakemon	js/makemon.js unmakemon	differs-unobservable	logic matches; JS does not await discard_minvent()/mongone(), whose promises settle later only for a wielded light source's message (targets: only caller wizard.c nasty(); not reached)
+makemon.c	1579,1582	create_critters	js/makemon.js create_critters	match	underwater eel spot; makemon failure
+makemon.c	1622,1626-1628	align_shift	js/makemon.js align_shift	match	AM_LAWFUL
+makemon.c	1709-1711	rndmonst_adj	-	nobehaviour	impossible
+makemon.c	1892-1894,1910-1912	mkclass_aligned	-	nobehaviour	impossible
+makemon.c	2004	mkclass_poly	js/makemon.js mkclass_poly	match	
+makemon.c	2026	adj_lev	js/makemon.js adj_lev	match	Wizard level cap 49
+makemon.c	2155,2173	grow_up	js/makemon.js grow_up	match	vampire cham; hp cap 400
+makemon.c	2197,2212-2214	mongets	js/makemon_create.js mongets	differs-unobservable	JS omits the Candelabrum (spe/age/lamplit/BUC), Bell (BUC) and Book of the Dead (cursed) adjustments; mksobj() already gives the Candelabrum spe 0, unlit and uncursed and the Bell uncursed, its age (moves vs C's 0) is replaced when candles are attached, and no C caller passes the Book to mongets() (provisional)
+makemon.c	2201-2202	mongets	js/makemon_create.js mongets	unreachable-C	is_mplayer() && is_sword(): m_initweap() gives player-monsters nothing and mk_mplayer() uses mksobj(); JS omits the branch and its rn2(4) (provisional; would differ if reached)
+makemon.c	2258-2259	golemhp	js/makemon.js golemhp	nobehaviour	default 0
+makemon.c	2277,2279	peace_minded	js/makemon.js peace_minded	match	leader/guardian/nemesis
+makemon.c	2452-2453,2545-2546	set_mimic_sym	js/makemon_create.js set_mimic_sym	match	Delphi statue; stale mcorpsenm cleared
+makemon.c	2562	bagotricks	-	nobehaviour	impossible
+weapon.c	173	hitval	js/weapon.js hitval	match	trident vs swimmer in pool
+weapon.c	315-319	dmgval	js/weapon.js dmgval	match	heavy iron ball increments
+weapon.c	385,403-405	special_dmgval	js/weapon.js special_dmgval	match	shirt; silver armor
+weapon.c	462-463	silver_sears	js/weapon.js silver_sears	match-text	left/right ring sears
+weapon.c	563-565,669	select_rwep	js/weapon.js select_rwep	match	Snickersnee; loadstone
+weapon.c	808	mon_wield_item	js/weapon.js mon_wield_item	match	
+weapon.c	843-846	mon_wield_item	-	nobehaviour	impossible
+weapon.c	971	abon	js/weapon.js abon	match	
+weapon.c	1011,1013	dbon	js/weapon.js dbon	match	
+weapon.c	1056-1057	wet_a_towel	js/weapon.js wet_a_towel	match-text	monster's towel gets wet
+weapon.c	1080-1082	dry_a_towel	js/weapon.js dry_a_towel	match-text	monster's towel dries
+weapon.c	1190	peaked_skill	js/weapon.js peaked_skill	not-compared	JS located and messages/strings matched only; logic not compared line by line
+weapon.c	1273	add_skills_to_menu	js/weapon.js add_skills_to_menu	not-compared	maxed prefix; JS located and messages/strings matched only; logic not compared line by line
+weapon.c	1307-1309,1311-1318	show_skills	js/weapon.js show_skills	match	(entries 0 in C coverage)
+weapon.c	1354,1372-1376	enhance_weapon_skill	js/weapon.js enhance_weapon_skill	match-text	maxed count footer (not compared line by line)
+weapon.c	1464	lose_weapon_skill	-	nobehaviour	panic
+weapon.c	1497	drain_weapon_skill	-	nobehaviour	panic
+weapon.c	1505	drain_weapon_skill	js/weapon.js drain_weapon_skill	match	advance redrawn
+weapon.c	1560-1562,1583-1585,1658-1660,1681	weapon_hit_bonus/weapon_dam_bonus	-	nobehaviour	impossible defaults
+weapon.c	1655	weapon_dam_bonus	js/weapon.js weapon_dam_bonus	not-compared	P_NONE; JS located and messages/strings matched only; logic not compared line by line
+weapon.c	1798-1800	skill_init	-	nobehaviour	impossible
+monmove.c	109,113-118	mon_yells	js/monmove.js mon_yells	match-text	Deaf: angrily waves arms
+monmove.c	168-169	m_break_boulder	js/monmove.js m_break_boulder	match	unpaid boulder billing
+monmove.c	186-187	watch_on_duty	js/monmove.js watch_on_duty	match-text	Halt, thief!
+monmove.c	314-319	mon_regen	js/mon.js mon_regen	match	digest_meal
+monmove.c	415	bee_eat_jelly	js/monmove.js bee_eat_jelly	not-compared	JS located and messages/strings matched only; logic not compared line by line
+monmove.c	470	monflee	js/monmove.js monflee	not-compared	dead guard; JS located and messages/strings matched only; logic not compared line by line
+monmove.c	498	monflee	js/monmove.js monflee	match-text	is frightened (Unaware)
+monmove.c	513-515	monflee	js/monmove.js monflee	DIFFERS	JS suppressed verbalize("Bright light!") when the acoustics option was off; C verbalize() has no acoustics gate. Proof recipes/monmove.c/monflee-gremlins-shout-bright-light-without-acoustics-{healer,tourist} fail on source-review-1 at steps 120/110; fixed b1395497a
+monmove.c	605-606,611-614,634	mind_blast	js/monmove.js mind_blast	match	hidden hero revealed
+monmove.c	707,786	dochug	js/monmove.js dochug	match	m_arrival; covetous mstate
+monmove.c	811-812	dochug	js/monmove.js dochug	match	demon hero sends bribe demon away
+monmove.c	927	dochug	js/monmove.js dochug	DIFFERS-unproven	JS has no counterpart of C's `if (mtmp->isgd && (DEADMONSTER(mtmp) || mtmp->mx == 0)) return 1;` for MMOVE_NOTHING/DONE/NOMOVES; a parked or dead vault guard goes on to phase four (a resist_conflict() draw under Conflict, an attack if hostile) and returns 0. Needs a guard parked at <0,0> still moving; not reproduced
+monmove.c	976	dochug	js/monmove.js dochug	match	wormhitu death
+monmove.c	1515-1516,1545-1547,1561-1562,1579-1580,1672,1677	postmov	js/monmove.js postmov	not-compared	offmap; Master Key disarms door trap; trapped door mb_trapped; JS located and messages/strings matched only; logic not compared line by line
+monmove.c	1737-1739,1797,2040	m_move	js/monmove.js m_move	match	
+monmove.c	1817-1819	m_move	-	nobehaviour	impossible
+monmove.c	2130	can_hide_under_obj	js/monmove.js can_hide_under_obj	not-compared	JS located and messages/strings matched only; logic not compared line by line
+monmove.c	2264	set_apparxy	js/monmove.js set_apparxy	nobehaviour	coverage artifact: 2265 covered, assignment is reached
+monmove.c	2287-2288,2290-2291	undesirable_disp	js/monmove.js undesirable_disp	match	pet avoids seen trap / cursed object
+monmove.c	2332,2350	stuff_prevents_passage	js/monmove.js stuff_prevents_passage	match	keeps C's typ == COIN_CLASS comparison
+monmove.c	2386	vamp_shift	js/monmove.js vamp_shift	match	
+mthrowu.c	89	thitu	-	nobehaviour	panic (JS throws)
+mthrowu.c	99	thitu	js/mthrowu.js thitu	match	named killer prefix
+mthrowu.c	137-138	thitu	js/mthrowu.js thitu	match	scattered potion hits hero
+mthrowu.c	143-145	thitu	js/mthrowu.js thitu	match-text	silver sears your flesh (Hate_silver inline, equivalent)
+mthrowu.c	256	monmulti	js/mthrowu.js monmulti	match	
+mthrowu.c	430-431,448	ohitmon	js/mthrowu.js ohitmon	not-compared	is seared!; JS located and messages/strings matched only; logic not compared line by line
+mthrowu.c	516-519	ucatchgem	js/mthrowu.js ucatchgem	match-text	unicorn hero and glass
+mthrowu.c	707-711	m_throw	-	nobehaviour	impossible
+mthrowu.c	725,840	m_throw	js/mthrowu.js m_throw	match	hitv -4; vision clears
+mthrowu.c	865-866,868-878,936,945-948,955-957,960	return_from_mtoss	js/mthrowu.js return_from_mtoss	match-text	flash path; artifact_hit; flooreffects; Splash!/Plop!
+mthrowu.c	1001	thrwmm	js/mthrowu.js thrwmm	not-compared	out of range; JS located and messages/strings matched only; logic not compared line by line
+mthrowu.c	1042-1044	spitmm	-	nobehaviour	impossible
+mthrowu.c	1054	spitmm	js/mthrowu.js spitmm	not-compared	mtarget; JS located and messages/strings matched only; logic not compared line by line
+mthrowu.c	1231,1244	thrwmu	js/mthrowu.js thrwmu	match	
+mthrowu.c	1311	linedup_callback	js/mthrowu.js linedup_callback	not-compared	JS located and messages/strings matched only; logic not compared line by line
+mthrowu.c	1357	linedup	js/mthrowu.js linedup	not-compared	JS located and messages/strings matched only; logic not compared line by line
+mthrowu.c	1439-1442	hit_bars	js/mthrowu.js hit_bars	not-compared	hissing noise / angry snakes; JS located and messages/strings matched only; logic not compared line by line
+mthrowu.c	1522,1538,1543	hits_bars	js/mthrowu.js hits_bars	match	
+dog.c	36-42	free_edog	-	nobehaviour	memory release (no C entries; JS has no counterpart, GC)
+dog.c	118,121-123,132	pick_familiar_pm	js/dog.js pick_familiar_pm	match-text	figurine of extinct species; nothing available
+dog.c	150,183,201	make_familiar	js/dog.js make_familiar	not-compared	JS located and messages/strings matched only; logic not compared line by line
+dog.c	258	makedog	js/dog.js makedog	not-compared	JS located and messages/strings matched only; logic not compared line by line
+dog.c	276-277	makedog	-	nobehaviour	impossible
+dog.c	548-551,562-563,593-594	mon_arrive	js/dog.js mon_arrive	match	endgame portal region; fuzzer stairway; wander outside room
+dog.c	636,638,640-641,644,714-716	mon_catchup_elapsed_time	-	skip-targets	targets unreachable; NOT COMPARED
+dog.c	854-856	keepdogs	-	nobehaviour	impossible
+dog.c	899-901	migrate_to_level	js/dog.js migrate_to_level	not-compared	leashed pet loses tameness; JS located and messages/strings matched only; logic not compared line by line
+dog.c	973	discard_migrations	js/dog.js discard_migrations	not-compared	JS located and messages/strings matched only; logic not compared line by line
+dog.c	1018	dogfood	js/dogfood.js dogfood	not-compared	JS located and messages/strings matched only; logic not compared line by line
+dog.c	1188-1189,1209,1230,1251,1266	tamedog	js/dog.js tamedog	match-text	unstuck; Tobjnam stop; tameness cap
+dog.c	1300,1305-1308,1322-1323,1330,1343	wary_dog	js/dog.js wary_dog	match-text	avoids your gaze; dismount
+minion.c	49	monster_census	js/minion.js monster_census	not-compared	JS located and messages/strings matched only; logic not compared line by line
+minion.c	103-108,110-125,132	msummon	js/minion.js msummon	match	lawful minion and angel summons; elementals order; unique count cap
+minion.c	154-155,158-160	msummon	js/minion.js msummon	match	summoned angel alignment and renegade
+minion.c	166-167,170,187-188	msummon	js/minion.js msummon	match	transient light for 'A'
+minion.c	214-217	summon_minion	-	nobehaviour	impossible
+minion.c	239-240	summon_minion	js/minion.js summon_minion	match	non-minion species
+minion.c	245-247	summon_minion	js/minion.js summon_minion	match-text	Deaf: You feel <god>'s booming voice
+minion.c	283-285	demon_talk	js/minion.js demon_talk	match	multi>0 unmul
+minion.c	341-342	demon_talk	js/minion.js demon_talk	match-text	scowls at you menacingly
+minion.c	369	bribe	js/minion.js bribe	match	unparsable offer is 0
+minion.c	401	dprince	js/minion.js dprince	match	endgame fallback
+minion.c	421-423,425-426	llord	js/minion.js llord	match	(no C entries)
+minion.c	440	lminion	js/minion.js lminion	match	
+minion.c	553	gain_guardian_angel	-	nobehaviour	panic
+steal.c	68,88	stealgold	js/steal.js stealgold	match-text	lesser coins skipped; coils
+steal.c	171	stealarm	js/steal.js stealarm	not-compared	JS located and messages/strings matched only; logic not compared line by line
+steal.c	179-181	stealarm	-	nobehaviour	impossible
+steal.c	244-246	remove_worn_item	-	nobehaviour	impossible
+steal.c	262-263,284-285	remove_worn_item	js/steal.js remove_worn_item	match	catchall setworn / setnotworn
+steal.c	357,420,494,516,583	steal	js/steal.js steal	match	
+steal.c	430-432,563-564	steal	-	nobehaviour	impossible
+steal.c	624-626,628-632	mpickobj	-	nobehaviour	impossible
+steal.c	642-643	mpickobj	js/steal.js mpickobj	match	unpaid contents billed
+steal.c	740,742,746-749,752	stealamulet	js/steal.js stealamulet	match	outer gear removal order
+steal.c	786,797,805-807	maybe_absorb_item	js/steal.js maybe_absorb_item	match-text	absorbs; pulled from your hands
+steal.c	866-868	mdrop_special_objs	js/steal.js mdrop_special_objs	not-compared	migrating monster rloco; JS located and messages/strings matched only; logic not compared line by line
+steal.c	885-890	relobj	js/steal.js relobj	match-text	guard's gold vanishes
+mcastu.c	105	choose_monster_spell	js/mcastu.js choose_monster_spell_steps	match	non-spell adtyp; map portStatus none is a naming artifact
+mcastu.c	162-163,235-239	castmu	-	nobehaviour	impossible
+mcastu.c	253-263,265-266	castmu	js/mcastu.js castmu	unreachable-C	no monster has AT_MAGC AD_FIRE (monsters.h); JS branch matches C text and order anyway (provisional)
+mcastu.c	417	mcast_clone_wiz	-	nobehaviour	impossible
+mcastu.c	478	mcast_weaken_you	js/mcastu.js mcast_weaken_you	match	dmg floor 1
+mcastu.c	500	mcast_disappear	-	nobehaviour	impossible
+mcastu.c	531,588,761	mcast_geyser/mcast_lightning/mcast_paralyze	js/mcastu.js	match	Half_spell_damage halving
+mcastu.c	634	mcast_open_wounds	js/mcastu.js mcast_open_wounds	match-text	skin itches badly
+mcastu.c	709-710,712,715	mcast_insects	js/mcastu.js mcast_insects	match-text	clump of sticks; spot near you
+mcastu.c	740	mcast_blind_you	js/mcastu.js mcast_blind_you	not-compared	vision clears; JS located and messages/strings matched only; logic not compared line by line
+mcastu.c	742	mcast_blind_you	-	nobehaviour	impossible
+mcastu.c	804-807,809-811,889-892	mcast_spell	-	nobehaviour	impossible

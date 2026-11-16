@@ -1,0 +1,198 @@
+file	lines	function	js	class	note
+botl.c	2611-2615	parse_status_hl1	js/options.js parse_status_hl1	match	spaces kept in a 'title' threshold
+botl.c	2764	query_arrayvalue	js/display.js query_arrayvalue	match	null hutxt[] gap skipped
+botl.c	2789	status_hilite_add_threshold	js/display.js status_hilite_add_threshold	match	null hilite returns
+botl.c	2920	parse_status_hl2	js/options.js parse_status_hl2	match	hitpoints/criticalhp sets 'critical'
+botl.c	2961-2964	parse_status_hl2	js/options.js parse_status_hl2	match	ANY_LONG out-of-range message text same
+botl.c	2966-2967	parse_status_hl2	js/options.js parse_status_hl2	match	ANY_STR text threshold
+botl.c	3013-3022	parse_status_hl2	js/options.js parse_status_hl2	match	invalid percentage; -1 and 101 always refused (C compares a_int with GT_VALUE/LT_VALUE); JS folds same
+botl.c	3029-3031	parse_status_hl2	js/options.js parse_status_hl2	unreachable-C	`if (!how)` tests an array element, never null
+botl.c	3037	parse_status_hl2	js/options.js parseStatusHiliteAction	match	sf < 1 (15+ separators) returns FALSE silently
+botl.c	3084-3085	parse_status_hl2	-	unreachable-C	a_void nonzero only with numeric set, which an earlier arm takes
+botl.c	3086-3087	parse_status_hl2	js/options.js parse_status_hl2	match	criticalhp behavior
+botl.c	3088-3089	parse_status_hl2	-	unreachable-C	every threshold arm sets a flag
+botl.c	3242	parse_condition	-	unreachable-C	s never null
+botl.c	3258-3260,3287-3289	parse_condition	js/options.js parse_condition	match	Missing condition(s) / Missing color+attribute
+botl.c	3312,3318,3320	parse_condition	js/options.js parse_condition	match	bold/uline/blink bits; JS replays cond_hilites[] at render from per-rule attrib
+botl.c	3324-3329	parse_condition	js/options.js parse_condition	match	"none" clears the six attribute bits: clearAttributes replayed in rule order
+botl.c	3334-3336	parse_condition	js/options.js parse_condition	match	bad color; earlier attribute bits kept, color skipped
+botl.c	3359-3361	clear_status_hilites	js/options.js clear_status_hilites	match	threshold lists freed, cond_hilites kept
+botl.c	3510,3514-3518	status_hilite_linestr_gather_conditions	js/display.js status_hilite_linestr_gather_conditions	match	lowest colour index wins (Math.min), atr &= ~HL_NONE
+botl.c	3601	status_hilite2str	js/display.js status_hilite2str	match	null hl
+botl.c	3616-3617,3626-3627,3632-3633,3638-3639	status_hilite2str	js/display.js status_hilite2str	nobehaviour	impossible(); JS note_unported
+botl.c	3641-3646	status_hilite2str	js/display.js status_hilite2str	unreachable-C	BL_TH_CONDITION is never stored in a threshold list (conditions use cond_hilites[])
+botl.c	3650-3652	status_hilite2str	js/display.js status_hilite2str	match	"criticalhp"
+botl.c	3653-3656	status_hilite2str	-	unreachable-C	BL_TH_NONE/default: every stored rule has a behavior
+botl.c	3673-3704	status_hilite_menu_choose_field	js/display.js status_hilite_menu_choose_field	unreachable-C	every caller passes a known field (recipes/botl.c/status-menu-choose-field-blocked); compared: index+1 values and score skip match
+botl.c	3719	status_hilite_menu_choose_behavior	js/display.js status_hilite_menu_choose_behavior	unreachable-C	fld out of range
+botl.c	3830-3831	status_hilite_menu_choose_updownboth	js/display.js status_hilite_menu_choose_updownboth	match	"Value goes down"
+botl.c	3905-3909,3912,3929	status_hilite_menu_add	js/display.js status_hilite_menu_add	unreachable-C	origfld is never BL_FLUSH (as 3673)
+botl.c	3960	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	empty after trimspaces returns to behavior
+botl.c	3971-3980	status_hilite_menu_add	js/display.js status_hilite_menu_add	DIFFERS	JS accepted "+-5" (regex -? after the stripped '+'); C takes '-' or else '+'. Proven by recipes/botl.c/status-menu-threshold-rejects-plus-minus (fails on 784c47157, screens 62/65); fixed a9987b0e8
+botl.c	3958,4057	status_hilite_menu_add	js/display.js status_hilite_menu_add	DIFFERS-covered	covered lines: relation menu quotes inbuf, which keeps leading blanks; JS passed the trimmed text. Proven by recipes/botl.c/status-menu-threshold-keeps-leading-blanks (fails on 784c47157, screens 64/65); fixed a9987b0e8
+botl.c	3987-3989,3997-3999	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	"Not expecting a percentage." / "Is that an invisible number?"
+botl.c	4014-4018,4028-4030	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	percent on a field without idxmax; invalid percent
+botl.c	4040-4049	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	int and long out-of-range texts
+botl.c	4067,4076	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	"or less"/"or more" suffixes
+botl.c	4091,4116	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	updown cancel; condition cancel returns FALSE (origfld never BL_FLUSH)
+botl.c	4135-4167	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	cap/align/hunger text menus; enc_stat from SLT_ENCUMBER, hutxt gap, aligntxt
+botl.c	4190-4195	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	title rolelist order for male hero; obuf cut at 79 bytes
+botl.c	4207-4221	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	free-text getlin; >= 80 bytes returns FALSE
+botl.c	4236-4240	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	colour cancel: value, or behavior for always
+botl.c	4251,4255-4269	status_hilite_menu_add	js/display.js status_hilite_menu_add	match	condition attributes; HL_NONE recorded as clearAttributes
+botl.c	4310-4311,4314	status_hilite_remove	js/display.js status_hilite_remove	match	id lookup
+botl.c	4317-4327	status_hilite_remove	js/display.js status_hilite_remove	match	condition removal: JS drops the conditions from every condition rule, same render as clearing all bits
+botl.c	4335,4350-4353	status_hilite_remove	js/display.js status_hilite_remove	match	non-head removal
+botl.c	4393-4395	status_hilite_menu_fld	js/display.js status_hilite_menu_fld	match	"No current hilites for %s" (count 0 after a successful add of nothing for this field)
+botl.c	4413-4414	status_hilite_menu_fld	js/display.js status_hilite_menu_fld	match	no 'Z' entry for score (SCORE_ON_BOTL undefined)
+botl.c	4436,4446-4448	status_hilite_menu_fld	js/display.js status_hilite_menu_fld	match	add loop
+cmd.c	2236-2287	get_changed_key_binds	js/cmd.js get_changed_key_binds	DIFFERS	JS printed a NULL CMD_PARAM bind->param as "()"; C's %s prints "(null)" (glibc). Proven by recipes/cmd.c/bind-toggle-empty-param-reports-and-lists-null (menu path, fails on 784c47157, screens 39/41) and rc-bind-param-errors-list-null (BIND=~:toggle() and BIND=^:toggle, screens 28/29, recorded 97efb8312); fixed 447989b9c. sbuf arm (#saveoptions file write) not reachable in JS (do_write_config_file stops before fopen)
+cmd.c	2308	handler_rebind_keys_add	js/cmd.js handler_rebind_keys_add	match	ESC at "Bind which key?"
+cmd.c	2349-2350	handler_rebind_keys_add	js/cmd.js handler_rebind_keys_add	match	"Bind what command?" (cmdstr uninitialized: parked judge-host difference, unchanged)
+cmd.c	2384-2389	handler_rebind_keys_add	js/cmd.js handler_rebind_keys_add	match	key asked after the command
+cmd.c	2397-2399	handler_rebind_keys_add	js/cmd.js handler_rebind_keys_add	DIFFERS-covered	covered lines: `else if (!prevcmd)` also prints after unbinding an unbound key ('Bound key ... to "nothing".'); JS required a command. Proven by recipes/cmd.c/unbind-unbound-key-reports-nothing (fails on 784c47157, screens 27/29); fixed 447989b9c
+cmd.c	2402-2403	handler_rebind_keys_add	js/cmd.js handler_rebind_keys_add	match	"Key binding failed?!" (reached on the judge host only, per docs/testing.md)
+cmd.c	2442-2443	handler_rebind_keys	js/cmd.js handler_rebind_keys	match	view changed key binds
+cmd.c	2629-2632	bind_mousebtn	js/options.js bind_mousebtn	unreachable-C	parsebindings passes only buttons 1 and 2
+cmd.c	2637-2639,2645,2658	bind_mousebtn	js/options.js bind_mousebtn	match	answer only; mousebtn[] has no reader in tty
+cmd.c	2693	bind_key	js/options.js bind_key, js/cmd.js bind_key	match	INTERNALCMD skipped
+cmd.c	2698,2704,2712	bind_key	js/cmd.js bind_key	DIFFERS	options.js reports all three; cmd.js (options-menu path) dropped them, and outside an rc read config_erradd() plines each. Proven by recipes/cmd.c/bind-toggle-empty-param-reports-and-lists-null ("Required parameter cannot be empty."); fixed 447989b9c
+cmd.c	2740,2745	bind_key_fn	js/cmd.js bind_key	unreachable-C	commands_init binds only functions that exist and are not INTERNALCMD
+cmd.c	3518-3578	randomkey	js/cmd.js randomkey	unreachable-config	debug_fuzzer only (wizard mode #debugfuzzer); not compared in detail
+cmd.c	4667-4668,4680,4685-4693	act_on_act	js/cmd.js act_on_act	match	travel and throw keep dx,dy; queue order same
+cmd.c	4719-4722,4749-4755,4781-4786,4790-4792	act_on_act	js/cmd.js act_on_act	match	close door, apply saddle, up/down, monability
+cmd.c	4835-4836	act_on_act	js/cmd.js act_on_act	match	default
+cmd.c	4917-5006	domouseaction	js/cmd.js domouseaction	unreachable-config	MOUSECMD; the tty recorder delivers no mouse clicks. Compared: branches, stairs and container choices match
+coloratt.c	238-246	colortable_to_int32	js/coloratt.js colortable_to_int32	match	reached from check_enhanced_colors name lookup
+coloratt.c	281-283,292	color_attr_parse_str	js/coloratt.js color_attr_parse_str	match	swapped color&attr retry; one-param colour failure
+coloratt.c	327	attr2attrname	js/coloratt.js attr2attrname	match	unknown attr null
+coloratt.c	345	clr2colorname	js/coloratt.js clr2colorname	match	unknown colour null
+coloratt.c	363	match_str2clr	js/coloratt.js basicColor	match	decimal colour via atoi (32-bit after long clamp)
+coloratt.c	445-450	query_attr	js/coloratt.js query_attr	match	blink/inverse bits
+coloratt.c	467-468	query_attr	js/coloratt.js query_attr	match	PICK_ONE preselected chosen returns dflt
+coloratt.c	510	query_color	js/coloratt.js query_color	match	second pick when the first is the preselected NO_COLOR
+coloratt.c	591	add_menu_coloring_parsed	js/coloratt.js add_menu_coloring_parsed	match	null str
+coloratt.c	697,702-705	free_one_menu_coloring	js/coloratt.js free_one_menu_coloring	match	non-head unlink
+coloratt.c	732-733	check_enhanced_colors	js/coloratt.js check_enhanced_colors	match	#rrggbb with trailing junk: C -1; JS falls through to the name table, which has no '#' name, so -1 too
+coloratt.c	739-758	check_enhanced_colors	js/coloratt.js check_enhanced_colors	match	grey/gray alias and fuzzymatch over colortable
+coloratt.c	765-797	wc_color_name	js/coloratt.js wc_color_name	match	basic, named RGB (first row from 16) and hex
+coloratt.c	844-845	rgbstr_to_int32	js/coloratt.js rgbstr_to_int32	match	hex letter in a dashed triple returns -1
+symbols.c	327	clear_symsetentry	js/symbols.js clear_symsetentry	nobehaviour	free() of desc; JS nulls it
+symbols.c	954	do_symset	js/symbols.js symsetMenuItems	match	widest name sets the column; no shipped name passes 15 chars
+symbols.c	960-963	do_symset	js/symbols.js do_symset	unreachable-config	the shipped symbols file has primary and rogue sets
+symbols.c	1042-1048	do_symset	-	unreachable-config	symbols file present and non-empty (JS embeds it)
+symbols.c	1082-1084	do_symset	-	unreachable-config	read_sym_file() fails only on an unreadable or broken symbols file
+windows.c	274-276,281,290,293,296-298	choose_windows	js/options.js choose_windows	unreachable-config	only tty is compiled in; '+'/'-' rows, ini_routine undo and empty winchoices need other ports
+windows.c	305-309	choose_windows	js/options.js choose_windows	unreachable-C	options.c 4972 and 7134 nmcpy() at most WINTYPELEN (16, hack.h 90) into chosen_windowtype, below WINDOW_TYPE_MAXLEN 50
+windows.c	317-334	choose_windows	js/options.js choose_windows	unreachable-config	"Choices are:" needs two window ports; the one-port message is covered and matches
+windows.c	337	choose_windows	-	unreachable-config	windowprocs already tty when windowtype is parsed
+windows.c	1449,1458,1462	decode_glyph	js/windows.js decode_glyph	match	non-hex stop and rndencode mismatch (a typed "\G" name is reachable; compared only)
+windows.c	1472	decode_mixed	js/windows.js decode_mixed	match	null str
+windows.c	1492-1497,1504-1505	decode_mixed	js/windows.js decode_mixed	match	forged \G kept, doubled backslash to one, trailing backslash kept. Probe (not committed): farlook on a hero named Ab\G00001234\\x\y\\ and Cd\ matches C; pager.c escapes the backslashes first, so it reaches 1495-1496 and 1504-1505, not 1492-1494
+windows.c	1588	menuitem_invert_test	js/windows.js menuitem_invert_test	match	menuinvertmode 0 with SKIPINVERT
+windows.c	1660	choose_classes_menu	js/windows.js choose_classes_menu	unreachable-C	the only caller (options.c 3360) passes a non-empty list
+windows.c	1670-1680,1692-1693	choose_classes_menu	-	unreachable-C	category 0 and bad categories: the only caller passes category 1; JS ports category 1 only (says so)
+windows.c	1684-1687	choose_classes_menu	js/windows.js choose_classes_menu	nobehaviour	panic on a bad object class; JS throws
+windows.c	1707-1709	choose_classes_menu	js/windows.js choose_classes_menu	unreachable-C	pickup_types lists fewer than 26 classes
+windows.c	1799-1801	add_menu	-	unreachable-C	no caller passes a null string
+windows.c	1877-1881,1885-1887,1892-1895	getlin	js/windows.js getlin	DIFFERS-unproven	JS getlin() has no cmdq arm. C pops CQ_CANNED or (in ^A) CQ_REPEAT keys into the answer and plines "query answer". JS comment says no caller queues keys; cmd.c 5543 (readchar) and act_on_act do queue keys, but I found no command whose getlin() runs with a key still queued. Not changed
+wintty.c	659-662	tty_askname	js/wintty.js tty_askname	match	restore_menu() -1 bails; reachable with a saved game, selectsaved and no name; not exercised
+wintty.c	686-688	tty_askname	js/tty_startup.js ttyAsknameImpl	match	'\r' ends the name
+wintty.c	747	tty_askname	js/tty_startup.js ttyNameCharacter	match	non-alphanumeric to '_' (reachable with no name option; compared only)
+wintty.c	884-887,957-960	tty_create_nhwindow	-	nobehaviour	panic
+wintty.c	927	tty_create_nhwindow	-	unreachable-C	optfn_statuslines (options.c 4088) refuses values outside 2..3; LI is 24
+wintty.c	2116,2127-2148,2153-2155,2159	tty_curs	-	nobehaviour	bad-position panic and debugpline
+wintty.c	2182-2184,2199-2201	tty_curs	-	nobehaviour	physical cursor-motion bytes only; the capture records the logical cursor
+wintty.c	3692-3693,3696-3702	tty_wait_synch	js/tty_rawprint.js tty_wait_synch	unreachable-config	inmore or interrupted read: needs a signal during --More-- or getlin
+wintty.c	3736	docorner	-	unreachable-config	RESIZABLE window shrink
+wintty.c	3739	docorner	js/display.js docorner	unreachable-config	a multi-page menu has maxrow = rows on a 24-row tty, so it is never a corner menu; JS returns early for this argument
+wintty.c	4089	tty_raw_print_bold	-	unreachable-config	raw_print_bold before windows exist (no ttyDisplay)
+wintty.c	997-998	erase_menu_or_text	-	unreachable-C	menus and text windows have offy 0
+termcap.c	101-103,183-192,195-196,208,240,244-246,256-260,269,282,286,292,302,305,324-326	term_startup	-	unreachable-config	fixed TERM and terminfo in the recorder; error() exits and capability fallbacks need other terminals
+topl.c	214	more	js/topl.js more	match	inmore recursion guard
+topl.c	509	tty_yn_function	js/topl.js tty_yn_function	DIFFERS	JS refused a count past 2^53 (Number.isSafeInteger); C's AppendLongDigit() keeps a long up to LONG_MAX. Proven by recipes/topl.c/yn-count-past-2-to-the-53 (fails on 784c47157, RNG 2761/2768, screens 27/31); fixed 79d424858, check scripts/append-long-digit.test.mjs
+topl.c	514,518-519,525-528,534-537	tty_yn_function	js/topl.js tty_yn_function	match	ESC abort, erase with only '#', other key aborts, number removed; n_len counts '#' where JS counts digits
+topl.c	554	tty_yn_function	-	unreachable-config	intr set only by a signal
+topl.c	310	topl_putsym	-	nobehaviour	panic
+topl.c	576	msghistory_snapshot	js/topl.js msghistory_snapshot	unreachable-C	message window always exists when called
+getline.c	103-105	hooked_tty_getlin	-	unreachable-config	intr set only by a signal
+getline.c	204-209	hooked_tty_getlin	js/getline.js hooked_tty_getlin	match	NEWAUTOCOMP kill-char (^U) erase; 0x7F is the erase char so the '\177' half is unreachable
+getline.c	210	hooked_tty_getlin	js/getline.js hooked_tty_getlin	match	tty_nhbell() for other control keys writes no cell
+files.c	212,219-224	nh_basename	js/files.js nh_basename	match	suffix strip; reached only for "nethack" (no '.') in this build, so unreachable-config in practice
+files.c	790-794	set_bonesfile_name	-	unreachable-config	the installed sysconf has no BONES_POOLS line (grep -nE '^(BONES_POOLS|LIVELOG)' prints nothing)
+files.c	972	open_bonesfile	-	unreachable-config	compressed-bones arm
+files.c	1089-1093,1099-1103,1106-1116	set_savefile_name	js/files.js set_savefile_name	unreachable-config	no SAVE_EXTENSION, sfindicator or postappend in the UNIX build
+files.c	1494,1503	get_saved_games	-	unreachable-config	save-directory scan failures
+files.c	2475,2491-2501,2519-2520	fopen_wizkit_file	-	unreachable-config	wizkit from NETHACKOPTIONS env or a file the recorder cannot be given
+files.c	2540	wizkit_addinv	js/files.js wizkit_addinv	match	null or hands_obj
+files.c	2551-2555	wizkit_addinv	js/files.js wizkit_addinv	match	full inventory schedules migration
+files.c	2567	proc_wizkit_line	js/files.js proc_wizkit_line	match	BUFSZ cut
+files.c	2637,2669-2671	read_sym_file	-	unreachable-config	symbols file present and well formed
+files.c	3438	choose_passage	js/files.js choose_passage	unreachable-C	passagecnt < 1 never in the tribute file
+files.c	3494-3497	read_tribute	js/files.js read_tribute	unreachable-C	both callers pass section and title
+files.c	3505-3508	read_tribute	-	unreachable-config	tribute file present
+files.c	3556	read_tribute	js/files.js read_tribute	unreachable-C	both callers pass tribpassage 0
+files.c	3576	read_tribute	-	unreachable-C	create_nhwindow never returns WIN_ERR in tty
+files.c	3590-3592	read_tribute	-	nobehaviour	debugpline
+files.c	3642	read_tribute	js/files.js read_tribute	unreachable-C	novel titles come from the tribute file's own list (provisional)
+files.c	3676-3684,3689,3692-3706	livelog_add	js/files.js livelog_add	unreachable-config	sysopt.livelog 0: the installed sysconf has no LIVELOG line
+cfgfiles.c	150-152	get_default_configfile	js/cfgfiles.js get_default_configfile	match	constant
+cfgfiles.c	175-177	do_write_config_file	js/cfgfiles.js do_write_config_file	unreachable-config	configfile always set
+cfgfiles.c	196-208	do_write_config_file	-	unreachable-config	file write; JS stops before fopen (recorded gap)
+cfgfiles.c	427	get_uchars	js/cfgfiles.js get_uchars	match	backslash is a syntax error
+cfgfiles.c	472	choose_random_part	js/cfgfiles.js choose_random_part	unreachable-C	null str
+cfgfiles.c	503	choose_random_part	js/cfgfiles.js choose_random_part	match	empty part (",," or trailing ',') returns null; reachable with CHOOSE=
+cfgfiles.c	514-516	free_config_sections	js/cfgfiles.js free_config_sections	match	a section still current at end of file
+cfgfiles.c	537,540-542	is_config_section	js/cfgfiles.js is_config_section	match	missing ']' and junk after it
+cfgfiles.c	577	handle_config_section	js/cfgfiles.js handle_config_section	unreachable-C	current is set only while chosen is set
+cfgfiles.c	1498,1501	config_error_nextline	js/cfgfiles.js config_error_nextline	unreachable-config	no frame / secure frame
+cfgfiles.c	1550	config_erradd	js/cfgfiles.js config_erradd	match	"Unknown error"
+cfgfiles.c	1585	config_erradd	-	unreachable-C	line_num 0 inside a frame
+cfgfiles.c	1598,1605-1607	config_error_done	js/cfgfiles.js config_error_done	unreachable-config	no frame; no_sound_notified needs SOUND lines, which JS does not dispatch (says so)
+cfgfiles.c	1854	parse_conf_file	-	unreachable-C	pbreak is set only by the SFCTOOL parser
+version.c	57,66,70	getversionstring	js/version.js getversionstring	unreachable-config	no git sha, branch or prefix in the recorder build
+version.c	105,116-117,141-143	status_version	js/version.js status_version	unreachable-config	hname is "nethack"; no git branch
+version.c	161	doversion	js/version.js doversion	match	m-prefix v runs doextversion
+version.c	195-197,202-204	doextversion	-	unreachable-config	version string shorter than COLNO
+version.c	207-214,238-241,273	doextversion	-	unreachable-config	OPTIONS_AT_RUNTIME: dlb arm off
+version.c	254	doextversion	-	unreachable-config	no tab in the runtime option text
+version.c	439	get_feature_notice_ver	js/version.js get_feature_notice_ver	match	null str
+version.c	488-489	copyright_banner_line	js/version.js copyright_banner_line	match	other index
+nhlua.c	149,157	l_nhcore_init	-	unreachable-config	nhl_init failure
+nhlua.c	251,267,288	get_table_mapchr, get_table_mapchr_opt, nhl_get_timertype	-	unreachable-C	shipped dat/*.lua use valid map chars and timer types
+nhlua.c	399	check_mapchr	js/mklev.js check_mapchr	match	INVALID_TYPE
+nhlua.c	1219-1223	get_table_str_opt	-	unreachable-C	no shipped Lua passes a function or non-string there
+nhlua.c	1245,1252,1256	get_table_boolean	-	unreachable-C	shipped Lua passes true/false, not strings
+nhlua.c	1917-1919	nhl_gamestate	js/nhlua.js restore_gamestate	match	user-given type names cleared on leaving the tutorial
+nhlua.c	1950-1953	nhl_gamestate	js/nhlua.js nhl_gamestate	nobehaviour	impossible(); JS notes it and updates inventory
+nhlua.c	2318-2322	nhl_pcall_handle	-	nobehaviour	panic on a Lua error
+nhlua.c	2383,2386-2388,2401,2416-2418,2432-2434	nhl_loadlua	-	unreachable-config	Lua file reading edge cases; JS has the programs as code
+nhlua.c	2463-2466,2512-2514	nhl_init	-	nobehaviour	panic / init failure
+nhlua.c	2528-2537	nhl_done	-	unreachable-config	LUASTATS livelog only with sandbox step stats
+nhlua.c	2552-2554	load_lua	-	unreachable-config	load failure
+nhlua.c	2588,2594-2601	get_lua_version	-	unreachable-config	_RELEASE is set by the bundled Lua
+nhlua.c	3214,3235,3246,3250-3252	nhlL_newstate	-	unreachable-config	sandbox sizing and allocation failure
+nhlsel.c	65	l_selection_check	-	nobehaviour	Lua error
+nhlsel.c	168,172-176,185-188	l_selection_setpoint	-	unreachable-C	every shipped selection.set() passes a selection first (grep dat/*.lua)
+nhlsel.c	607-615	l_selection_randline	-	unreachable-C	shipped selection.randline() callers pass a selection
+nhlsel.c	952-954	l_selection_iterate	-	nobehaviour	Lua error
+selvar.c	57-60	selection_clear	js/themerooms.js selection_clear	unreachable-C	every caller passes val 1
+selvar.c	425-427	selection_floodfill	-	unreachable-C	every caller sets a check function first
+selvar.c	735	selection_iterate	-	unreachable-C	null selection
+hacklib.c	213	mungspaces	js/hacklib.js mungspaces	match	newline ends the string
+hacklib.c	250	strip_newline	js/hacklib.js strip_newline	match	\r before \n
+hacklib.c	300	str_start_is	js/hacklib.js str_start_is	match	equal strings
+hacklib.c	374,378	chrcasecpy	js/hacklib.js chrcasecpy	match	case copy
+hacklib.c	417	s_suffix	js/hacklib.js s_suffix	match	you -> your
+hacklib.c	452-453	ing_suffix	js/hacklib.js ing_suffix	match	ie -> y
+hacklib.c	488	onlyspace	js/hacklib.js onlyspace	match	all blanks
+hacklib.c	503,522-524	tabexpand	js/hacklib.js tabexpand	match	empty string; BUFSZ-1 cut (JS counts code points, C bytes: differs only for non-ASCII input with tabs, which no caller passes)
+hacklib.c	703-708	sitoa	js/hacklib.js sitoa	match	signed text
+hacklib.c	817	strstri	js/hacklib.js strstri	match	empty sub
+rnd.c	163-175	rn2_on_display_rng	js/rng.js rn2_on_display_rng	unreachable-config	display-RNG logging needs the recorder's rng_log_disp flag, off in recordings
+mdlib.c	726,739-740,746-748,768,781-782	build_options	-	unreachable-config	one window port and one soundlib in the build
+mdlib.c	854	do_runtime_info	-	nobehaviour	lazy init
+role.c	1441,1579	root_plselection_prompt	-	unreachable-C	callers pass a BUFSZ buffer
+role.c	1466	root_plselection_prompt	-	unreachable-C	donefirst is always FALSE at the first word
+rip.c	108	genl_outrip	js/end.js	match	999999999 gold cap (needs a billion gold)
+strutil.c	96	Strlen_	-	nobehaviour	panic

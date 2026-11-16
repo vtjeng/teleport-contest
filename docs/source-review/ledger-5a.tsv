@@ -1,0 +1,174 @@
+file	lines	function	js	class	note
+options.c	523-526	parseoptions	js/options.js applyOption	match	probe toolong: "Option too long, max length is 128 characters" for a 130-byte fruit/dogname element, including one element of a comma list
+options.c	585-589	parseoptions	js/options.js applyOption	unreachable-C	optlen is length_without_val(opts) and match_optname() matched only because that same length reached minmatch, so optlen < minmatch cannot hold for a non-pfx row (JS comment at parseoptions agrees)
+options.c	675-682	parseoptions	js/options.js applyOption	match	probes cond1, cond2, font1, font2: "bad option suffix variation" after Unknown condition/font parameter
+options.c	706	check_misc_menu_command	js/options.js check_misc_menu_command	DIFFERS	return -1 for an abbreviated menu command name; JS applyOption threw "requires its full canonical name" instead of reaching it (D-5a-2); fixed fc781af33
+options.c	726-729	opt2roleopt	js/options.js opt2roleopt	unreachable-C	every caller passes opt_role/race/gender/alignment
+options.c	739,743-748,752	getoptstr	js/options.js getoptstr	unreachable-config	ophase == num_opt_phases and the panic only via get_cnf_role_opt(), i.e. #saveoptions, whose config-file fopen fails in the recorder (targets.md cmd.c all_options_autocomplete)
+options.c	767	saveoptstr	js/options.js saveoptstr	nobehaviour	strips "name:" from a stored string read only by #saveoptions
+options.c	865	petname_optfn	js/options.js petnameHandler	match	probe pet1/pet2: catname:none, !dogname, horsename:(none) shown as (none) in #optionsfull; kitten named none plays unnamed
+options.c	913-919	optfn_alignment	js/options.js optfn_alignment	unreachable-config	get_cnf_val: #saveoptions only
+options.c	930,933-953	optfn_align_message	js/options.js optfn_align_message	match	probes am1, wcalign: top/bottom/left/RIGHTish/middle, value-less and negated forms give identical startup errors; get_val arm unreachable in tty (WC option not supported, not listed by doset); JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	954-970	optfn_align_message	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	980-1002	optfn_align_status	js/options.js optfn_align_status	match	probes am1, wcalign (same as align_message); get_val and do_handler unreachable in tty; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	1003-1019	optfn_align_status	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	1032,1040-1044	optfn_altkeyhandling	js/options.js optfn_altkeyhandling	match	probe altkey: set_in_config outside WIN32; do_set arm takes nhUse() only; get_val unreachable (not listed)
+options.c	1045-1046,1055-1056,1062-1063	optfn_altkeyhandling	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	1088-1090	optfn_autounlock	js/options.js optfn_autounlock	match	probe v_aul1 (!autounlock shows [none]), v_aul2 (bare autounlock)
+options.c	1123-1125	optfn_autounlock	js/options.js optfn_autounlock	match	probe v_aul3: autounlock:Kick matches str_start_is() caselessly but *op is K, so the switch default refuses it; JS leaves apply-key as C does
+options.c	1137-1141	optfn_autounlock	js/options.js optfn_autounlock	match	probes aunl1, aunl3: none+kick and "none kick" give the none-with-some error
+options.c	1167	optfn_autounlock	js/options.js optfn_autounlock	nobehaviour	final return for an unused request
+options.c	1200-1201	optfn_boulder	js/options.js optfn_boulder + OPTION_SET_HANDLERS.boulder	match	probes boulder1, boulder2 (startup ^A, \001, ^@, \x02, \t, \M-a) and lv_boulder1-3 (O menu ^A, ^@, ^?, \M-a)
+options.c	1245	optfn_boulder	js/options.js optfn_boulder	nobehaviour	final return
+options.c	1270,1296	optfn_crash_email/name	js/options.js OPTION_SET_HANDLERS	nobehaviour	free() of the previous string; probe crash1 sets each twice
+options.c	1276,1302	optfn_crash_email/name	js/options.js	unreachable-C	get_val with opts NULL: callers always pass a buffer
+options.c	1281,1307,1338	optfn_crash_*	js/options.js	nobehaviour	final returns
+options.c	1334	optfn_crash_urlmax	js/options.js	match	probe crash1 (startup crash_urlmax with no value) and lv_crash1 (O menu)
+options.c	1416-1418	optfn_DECgraphics	js/options.js optfn_DECgraphics	unreachable-config	read_sym_file() fails only if the installed symbols file lacks DECgraphics
+options.c	1434-1439	optfn_DECgraphics	js/options.js optfn_DECgraphics	unreachable-config	get_val: set_in_config option not listed with a value; get_cnf_val #saveoptions
+options.c	1481-1483	optfn_disclose	js/options.js optfn_disclose	match	probe discl1: !disclose:yi
+options.c	1512-1514	optfn_disclose	js/options.js optfn_disclose	match	probes v_dis1, v_dis2: k and d map to v and o, shown in #optionsfull
+options.c	1519-1521	optfn_disclose	js/options.js optfn_disclose	unreachable-C	impossible(): disclosure_options has NUM_DISCLOSURE_OPTIONS letters
+options.c	1525-1527,1532	optfn_disclose	js/options.js optfn_disclose	match	probes discl2-4, v_dis2-3: # and $ prefixes before i/a/c/o, bare letters
+options.c	1559	optfn_disclose	js/options.js	nobehaviour	final return
+options.c	1582-1591	optfn_dungeon	js/options.js optfn_dungeon	unreachable-config	get_val/get_cnf_val of a set_in_config option doset does not list; #saveoptions
+options.c	1604-1613	optfn_effects	js/options.js optfn_effects	unreachable-config	as optfn_dungeon
+options.c	1718-1724	optfn_fruit	js/options.js optfn_fruit	match	probes fruit1 (!fruit gives slime mold, shown in #optionsfull), fruit2 (!fruit:kiwi bad negation)
+options.c	1741-1744	optfn_fruit	js/options.js optfn_fruit	DIFFERS	live refusal of a 101st named fruit: JS passed the game state to configErrorAdd() and threw (D-5a-1, third site); fixed 354ee8e27; constructed test scripts/options-fruit-live-limit.test.mjs. C tests the highest fid, JS counts nodes: equal because fids are assigned ++highest and never freed
+options.c	1753	optfn_fruit	js/options.js optfn_fruit	match	probes fruit1, lv_fruit1 (live "   " munges to empty, so slime mold)
+options.c	1773	optfn_fruit	js/options.js	nobehaviour	final return
+options.c	1806-1812	optfn_gender	js/options.js optfn_gender	unreachable-config	get_cnf_val: #saveoptions
+options.c	1827-1831	optfn_glyph	js/options.js	unreachable-C	glyph negateok No: parseoptions() bad_negation()s first (probe glyph1 shows that message)
+options.c	1844-1849	optfn_glyph	js/options.js	unreachable-config	get_cnf_val: #saveoptions
+options.c	1893	optfn_hilite_status	js/options.js	nobehaviour	final return
+options.c	1927,1933-1936,1940-1941	optfn_IBMgraphics	js/options.js optfn_IBMgraphics	match	probes decg1-3: IBMgraphics after symset or roguesymset gives "Failure to load symbol set"; 1933-1936 (read_sym_file failure) unreachable-config
+options.c	1945	optfn_IBMgraphics	js/options.js	unreachable-C	!opt_initial: IBMgraphics is set_in_config and not on the O menu
+options.c	1955-1960	optfn_IBMgraphics	js/options.js	unreachable-config	get_val/get_cnf_val of an unlisted set_in_config option
+options.c	1972,1979-2027	optfn_map_mode	js/options.js optfn_map_mode	match	probes mapmode1, mapmode2: tiles, ascii4x6, foo, negated forms; get_val unreachable in tty (not listed); JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	2028-2047	optfn_map_mode	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	2062	shared_menu_optfn	js/options.js shared_menu_optfn	DIFFERS	optn_err for an abbreviated menu command; see 706 (D-5a-2); proof recipes/options.c/shared_menu_optfn-abbreviated-*; fixed fc781af33
+options.c	2065-2074	shared_menu_optfn	js/options.js	unreachable-config	get_val/get_cnf_val of set_in_config rows doset does not list
+options.c	2197-2203	optfn_menu_headings	js/options.js optfn_menu_headings	match	probes mhead1-3, v_mh1-2: bare, negated, !menu_headings:bold shown in #optionsfull
+options.c	2221,2286,2316,2374,2519,2570,2691,3042,3400,3759,4160,4793	optfn_*	js/options.js	nobehaviour	final returns for unused requests
+options.c	2244,2251-2275	optfn_menu_objsyms	js/options.js optfn_menu_objsyms	match	probes mobj1-6: !menu_objsyms, 9, 12, 2, one-or-the-other, hea, xyzzy, use_menu_glyphs, ENTRies and more; value shown in #optionsfull
+options.c	2388-2393	optfn_monsters	js/options.js	unreachable-config	get_val of an unlisted option; #saveoptions
+options.c	2405-2409,2412-2426	optfn_mouse_support	js/options.js optfn_mouse_support	match	probes mouse1, mouse2 for do_set; get_val unreachable in tty (WC_MOUSE_SUPPORT absent); JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	2427,2432-2453	optfn_mouse_support	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	2481-2483	optfn_msg_window	js/options.js optfn_msg_window	match	probe msgw1
+options.c	2506-2508	optfn_msg_window	js/options.js	unreachable-config	curses only
+options.c	2536-2538	optfn_msghistory	js/options.js	match	probe msgh1
+options.c	2545	optfn_msghistory	js/options.js	nobehaviour	final return
+options.c	2594-2595,2615,2636-2638	optfn_number_pad	js/options.js optfn_number_pad	match	probes npad1-4, v_np1: !number_pad:2, modes 3, 4, -1, 5, -2, x; 2636-2638 is get_cnf_val (#saveoptions, unreachable-config)
+options.c	2644	optfn_number_pad	js/options.js	nobehaviour	final return
+options.c	2658-2667	optfn_objects	js/options.js	unreachable-config	as optfn_monsters
+options.c	2861,2867-2872,2877-2883,2886-2887,2890	optfn_paranoid_confirmation	js/options.js optfn_paranoid_confirmation	match	probes para1, para6, dupalias1, v_pc1, v_pc2: prayconfirm, !prayconfirm, prayconfirm:true; COMPLAIN_ABOUT_PRAYCONFIRM is defined (deprecation message shown)
+options.c	2898-2905	optfn_paranoid_confirmation	js/options.js	match	probe para1: !paranoid_confirmation and with a value
+options.c	2953,2965-2966,2973-2975,2996-2997	optfn_paranoid_confirmation	js/options.js	match	probes para2-5, para7, v_pc3: +/- with spaces, "! pray", noconfirm, nopray, +none, -none; values shown in #optionsfull
+options.c	3068-3069,3103-3110	optfn_perminv_mode	js/options.js optfn_perminv_mode	match	probe pim1-6 (startup); 3106-3110 !opt_initial unreachable: perminv_mode is not on the tty O menu
+options.c	3083-3088	optfn_perminv_mode	js/options.js	unreachable-config	+grid mode with a non-tty window port
+options.c	3113-3114,3117-3118,3121,3124-3133	optfn_perminv_mode	js/options.js	unreachable-config	do_handler/get_val: perminv_mode and perm_invent are not listed by doset in this tty build (probe ofull); get_cnf_val #saveoptions
+options.c	3152-3153,3168-3169	optfn_petattr	js/options.js optfn_petattr	unreachable-C	petattr negateok No: parseoptions() refuses !petattr first (probe petattr1)
+options.c	3173	optfn_petattr	js/options.js	unreachable-C	!opt_initial: the O menu reaches petattr only through handler_petattr()
+options.c	3182-3188	optfn_petattr	js/options.js	unreachable-config	non-tty/curses get_val arm
+options.c	3366-3368	optfn_pickup_types	js/options.js optfn_pickup_types	match	probe pick1: !pickup_types:$ bad negation
+options.c	3445,3448-3461	optfn_player_selection	js/options.js optfn_player_selection	match	probe plsel; get_val unreachable (WC option not supported by tty); JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	3462-3468	optfn_player_selection	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	3680	optfn_scores	js/options.js optfn_scores	match	probe scores1 (startup "scores"), scores-live-missing-blocked (O menu)
+options.c	3689	optfn_scores	js/options.js	match	probes scores1, scores2: !scores:3 and !scores
+options.c	3770,3773-3782	optfn_scroll_amount	js/options.js	match	probe scroll (do_set); get_val unreachable in tty; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	3783-3791	optfn_scroll_amount	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	3801-3812	optfn_scroll_margin	js/options.js	match	probe scroll (do_set); get_val unreachable in tty; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	3813-3821	optfn_scroll_margin	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	3851	optfn_soundlib	js/options.js optfn_soundlib	match	probe sound1: bare soundlib gives Missing parameter and optn_err; soundlib:foo silently keeps nosound
+options.c	3859	optfn_soundlib	js/options.js	nobehaviour	final return
+options.c	3874,3877,3881,3885,3889,3899	optfn_sortdiscoveries	js/options.js optfn_sortdiscoveries	match	probes v_sd0-3, v_sdx, v_sd5, sdisc1: values shown in #optionsfull, x refused, !sortdiscoveries
+options.c	3973,3981-3985,3988	optfn_sortvanquished	js/options.js optfn_sortvanquished	match	probes v_sv3, v_svz, v_svC, v_sv9, v_sv5, svanq1
+options.c	4144-4145	optfn_suppress_alert	js/options.js	match	probe supp1
+options.c	4152	optfn_suppress_alert	js/options.js	unreachable-config	get_cnf_val
+options.c	4249,4253-4254,4257-4266	optfn_term_cols	js/options.js	match	probes termcr, termcr2 (do_set); get_val unreachable (set_in_config, not listed); JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	4267-4277	optfn_term_cols	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	4290,4294-4295,4298-4307	optfn_term_rows	js/options.js	match	probes termcr, termcr2; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	4308-4318	optfn_term_rows	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	4328-4337	optfn_tile_file	js/options.js	match	probe tile (do_set); get_val unreachable in tty; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	4338-4351	optfn_tile_file	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	4361-4372	optfn_tile_height	js/options.js	match	probe tile; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	4373-4383	optfn_tile_height	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	4393-4404	optfn_tile_width	js/options.js	match	probe tile; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	4405-4415	optfn_tile_width	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	4447-4458	optfn_vary_msgcount	js/options.js	match	probe vary; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	4459-4469	optfn_vary_msgcount	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	4691-4694	optfn_warnings	js/options.js	match	probe warnings (do_set); get_val unreachable
+options.c	4695-4700	optfn_warnings	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	4757-4758,4764-4769,4777,4780	optfn_whatis_filter	js/options.js optfn_whatis_filter	match	probes v_wfn, v_wfv, v_wfA, v_wfx, v_wf5, wfilt1-3
+options.c	4806-4818,4821-4832	optfn_windowborders	js/options.js optfn_windowborders	match	probe wborders (do_set); get_val/do_handler unreachable in tty (WC2 bit absent); JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	4833-4853	optfn_windowborders	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	4907,4912-4920	optfn_windowcolors	js/options.js optfn_windowcolors	match	probes wcolors1, wcolors2 (do_set); get_val unreachable in tty; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	4921-4922,4925-4940	optfn_windowcolors	js/options.js	unreachable-config	get_val/get_cnf_val (and do_handler): a WC option tty does not support is not listed by doset; get_cnf_val #saveoptions
+options.c	4968	optfn_windowtype	js/options.js	unreachable-config	windowtype_locked is set only for a -w command-line window system (options.c 7130-7147), which the recorder does not pass (provisional); probe wtype1 shows the unlocked arm
+options.c	4986	optfn_windowtype	js/options.js	nobehaviour	final return
+options.c	5012-5014	pfxfn_cond_	js/options.js pfxfn_cond_	unreachable-C	parse_cond_option() (botl.c 1354-1371) never returns 3
+options.c	5015-5019,5022	pfxfn_cond_	js/options.js pfxfn_cond_	match	probes cond1, cond2: results 1 and 2
+options.c	5027-5036	pfxfn_cond_	js/options.js	unreachable-C	get_val/do_handler of a set_hidden prefix row
+options.c	5047-5109,5113-5119	pfxfn_font	js/options.js pfxfn_font	match	probes font1-3: font_map, font_size_*, !font_map, fontfoo, font:x, duplicate font_size_map, bad sizes; 5074-5078 unreachable-C (inner else after the same test); JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	5120-5165	pfxfn_font	js/options.js	unreachable-config	get_val: WC font options are not listed by tty doset
+options.c	5208	optfn_boolean	js/options.js optfn_boolean	unreachable-C	!opt_initial set_in_config boolean: doset lists only set_in_game rows
+options.c	5217-5221	optfn_boolean	js/options.js optfn_boolean	match	probe negbool1: !rest_on_space:yes and nosilent:0
+options.c	5241-5244	optfn_boolean	js/options.js	unreachable-config	debug_fuzzer only
+options.c	5247-5264	optfn_boolean	js/options.js optfn_boolean	match	probes fm1-fm4 (Healer male + female gives a female Healer; Priestess + male a Priest; !male, !female), femmale1-4, dupalias1
+options.c	5267	optfn_boolean	js/options.js	unreachable-config	perm_invent is not on the tty O menu (probe ofull)
+options.c	5282-5284	optfn_boolean	js/options.js	unreachable-C	nosexchange needs !opt_initial female/male, which doset never offers (C comment 5270-5276)
+options.c	5294-5299	optfn_boolean	js/options.js optfn_boolean	match	probes asciimap, asciimap2, asciimap3
+options.c	5308	optfn_boolean	js/options.js optfn_boolean	match	probes petattr2, petattr4: petattr:none then hilite_pet (startup and O-menu toggle)
+options.c	5313,5320	optfn_boolean	-	nobehaviour	preprocessor lines
+options.c	5339-5342	optfn_boolean	js/options.js	unreachable-config	probe wc2st: toggling armorstatus, terrainstatus and weaponstatus from #optionsfull prints only "toggled on" in C, so wc2_supported() holds for all three
+options.c	5444-5449	optfn_boolean	js/options.js	unreachable-config	get_val of booleans unused; get_cnf_val #saveoptions
+options.c	5455-5456	spcfn_misc_menu_cmd	js/options.js spcfn_misc_menu_cmd	unreachable-C	do_init: never requested
+options.c	5459-5460	spcfn_misc_menu_cmd	js/options.js	match	probe menucmd1: !menu_first_page
+options.c	5470-5475	spcfn_misc_menu_cmd	js/options.js	unreachable-C	get_val/get_cnf_val never requested (shared_menu_optfn answers those)
+options.c	5489,5494-5497,5503-5508,5524-5527	can_set_perm_invent	js/options.js can_set_perm_invent	unreachable-config	entries=0; only from perm_invent toggled on in game or handler_perminv_mode(), neither offered by tty doset (probe ofull)
+options.c	5587-5621	handler_align_misc	js/options.js handler_align_misc	unreachable-config	align_message/align_status are WC options tty does not support, so doset never lists them
+options.c	5662-5663	handler_autounlock	js/options.js handler_autounlock	match	probe h_aul1: unselecting the preselected apply-key gives none
+options.c	5788	handler_menu_headings	js/options.js	unreachable-config	update_inventory() with perm_invent, which tty cannot enable
+options.c	5823	handler_menu_objsyms	js/options.js handler_menu_objsyms	match	probe h_mobj1: picking 5 after the preselected 4 uses the second pick
+options.c	5855	handler_msg_window	js/options.js	unreachable-config	curses only
+options.c	5886-5888	handler_msg_window	js/options.js	unreachable-config	non-tty/curses window port
+options.c	5975-5984	handler_paranoid_confirmation	js/options.js handler_paranoid_confirmation	match	probes h_para1-4: BIND=m:nothing (#reqmenu text), ^v, M-m bound to reqmenu
+options.c	6012-6027,6032-6069,6079-6083	handler_perminv_mode	js/options.js handler_perminv_mode	unreachable-config	entries=0; perminv_mode is not on the tty O menu
+options.c	6252-6253	handler_whatis_coord	js/options.js	unreachable-config	non-tty only
+options.c	6427	handler_menu_colors	js/options.js	unreachable-config	perm_invent only
+options.c	6442-6444	handler_menu_colors	js/options.js	unreachable-C	add_menu_coloring_parsed() fails only when regex_compile() fails, which test_regex_pattern() has just ruled out, or on allocation failure
+options.c	6473	handler_menu_colors	js/options.js	match	JS truncates the same way; a pattern over 249 bytes cannot come from a config line (probe h_mc3: Malformed MENUCOLOR) and the tty menu cuts the row at 80 columns
+options.c	6498	handler_menu_colors	js/options.js	nobehaviour	final return
+options.c	6518	handler_msgtype	js/options.js handler_msgtype	match	probe h_mt1 escapes the pattern prompt
+options.c	6523-6525	handler_msgtype	js/options.js	unreachable-C	msgtype_add() fails only on a regex test_regex_pattern() has accepted, or on allocation failure
+options.c	6546	handler_msgtype	js/options.js	match	probes h_mt2, h_mt3, h_mt4: long patterns; truncation invisible past column 80
+options.c	6686-6688	string_for_env_opt	js/options.js string_for_env_opt	unreachable-C	!opt_initial: every string_for_env_opt() option (msghistory, soundlib, sortdiscoveries, sortvanquished, whatis_filter, windowtype, roles) is either not on the O menu or has a handler
+options.c	6802	complain_about_duplicate	js/options.js complain_about_duplicate	match	probe dupalias2: use_menu_glyphs twice gives "(via alias: use_menu_glyphs)"
+options.c	6928-6931,6940-6954	escapes	js/options_escapes.js escapes	match	source compared (digit limits 3/3/2, meta, ^ and C escapes); probes boulder1-2 and symval1-4 exercise \o, \O, \n, \t, \b, \r, \\
+options.c	7359-7362	initoptions_finish	js/options.js	unreachable-config	tty supports statushilites
+options.c	7371,7374	initoptions_finish	js/options.js initoptions_finish	match	probes asciimap2 (tiled_map reset to ascii); 7374 unreachable-config (tty has no tiled_map)
+options.c	7879-7881,7885-7887	test_regex_pattern	js/options.js test_regex_pattern	unreachable-C	null pattern, null errmsg and regex_init() failure: callers pass both strings; allocation
+options.c	7898	test_regex_pattern	js/options.js test_regex_pattern	DIFFERS	D-5a-1: JS passed the game state to configErrorAdd() and threw; C prints "MENUCOLORS regex: ..." / "MSGTYPE regex: ..." with pline() and wait_synch(). Proof recipes/options.c/handler_menu_colors-unmatched-bracket-and-paren-regex-errors-elf-priest and handler_msgtype-trailing-backslash-regex-error-dwarf-valkyrie fail on 784c47157 (screens 34/46, 41/45); fixed 354ee8e27; check scripts/live-config-error.test.mjs (b06aac42b)
+options.c	7941,7948-7950,7954-7961	parse_role_opt	js/options.js parse_role_opt	match	probes role1-7: role:!, role:no, mixed negation, multiple positive values, race:!foo, align:!lawful !chaotic
+options.c	7992-7994	parse_role_opt	js/options.js parse_role_opt	match	probe role4: role:!wiz then role:valkyrie then role:!sam
+options.c	8022-8033	get_cnf_role_opt	js/options.js get_cnf_role_opt	unreachable-config	entries=0; #saveoptions
+options.c	8068	oc_to_str	js/options.js oc_to_str	unreachable-C	impossible() for an illegal class
+options.c	8099-8102	get_menu_cmd_key	js/options.js get_menu_cmd_key	match	probes mck1-3: ?l with remapped menu keys (^A, M-n, ^?)
+options.c	8230	fruitadd	js/fruit.js fruitadd	match	probes lv_fruit1, lv_fruit4, lv_fruit5: tin of newt becomes candied, tin of foo stays
+options.c	8273	fruitadd	js/fruit.js fruitadd	match	source compared (rnd(127) when the highest fid is 127); not reproduced: needs 127 named fruits
+options.c	8332,8335,8375,8378,8385,8457,8460,8466,8473	optfn_o_*	js/options.js, js/cmd.js	unreachable-C	empty do_set bodies and get_val with opts NULL; doset always passes a buffer
+options.c	8591,8600	doset_simple_menu	js/options.js doset_simple_menu	unreachable-config	no simple-menu option is an unsupported WC option; wc_tiled_map is always FALSE in tty
+options.c	8622-8624	doset_simple_menu	js/options.js	unreachable-C	default of an opttyp switch over the three types
+options.c	8890	doset	js/options.js doset	unreachable-config	no OthrOpt row is a WC option
+options.c	8922	doset	js/options.js doset	unreachable-C	opt_indx < -1 needs an a_int below 0 other than HELP_IDX
+options.c	8968-8971	doset	js/options.js doset	match	recipes/options.c/options-tab-help-blocked replays matching (probe options-tab-help-blocked PASS, 20/20 screens); its comment is stale
+options.c	8991-8992	reset_needed_visuals	js/options.js reset_needed_visuals	unreachable-config	opt_update_basic_palette is set only by palette, which tty does not list
+options.c	9049,9055-9058	doset_add_menu	js/options.js doset_add_menu	unreachable-config	PREFIXES_IN_USE is not defined in this build (no playground rows in probe ofull)
+options.c	9150-9158	show_menu_controls	js/options.js show_menu_controls	unreachable-config	menu_shift is a WC2 capability tty lacks (probe mck1 shows no Pan view rows)
+options.c	9245	handle_add_list_remove	js/options.js handle_add_list_remove	unreachable-C	exit is the last row, so a second pick never follows a first pick of exit
+options.c	9403-9404,9408-9409,9412-9418	sym_val	js/symbols.js sym_val	match	probes symval1-4: quoted escapes, quoted quote, unterminated quote
+options.c	9500	option_help	js/options.js option_help	unreachable-C	every set_wiznofuz row is a boolean (optlist.h 275-281); this loop lists compounds
+options.c	9980-10010	wc_set_font_name	js/options.js wc_set_font_name	match	probes font1, font3: font_map:Courier, font_text, font_menu/font_message; stored value unobservable in tty; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	10024,10030-10038,10042-10046,10049-10053,10056-10060,10063-10067,10071-10075,10078-10113	wc_set_window_colors	js/options.js wc_set_window_colors	match	probes wcolors1, wcolors2: unknown window type, missing fg/bg, duplicate window, # colours, padding; JS setter read against C; the stored iflags value is never displayed in tty, so only the error text is compared by recording
+options.c	10139-10140	set_playmode	js/jsmain.js set_playmode	unreachable-config	authorize_wizard_mode() is always TRUE: the recorder build sets WIZARDS=*
+options.c	10149-10150	set_playmode	js/jsmain.js set_playmode	unreachable-config	authorize_explore_mode() is always TRUE: the recorder sysconf sets EXPLORERS=*

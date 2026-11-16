@@ -1,0 +1,201 @@
+file	lines	function	js	class	note
+getpos.c	205	getpos_help	js/getpos.js getpos_help	DIFFERS	C `goto skip_non_mons` jumps into the `if (!iflags.terrainmode)` block, so a monster goal (#wizkill, #wizsmell, #wiztelekinesis) also omits the fast-move, menu, filter, valid-location and autodescribe lines; JS skipped only the object/location key lines and printed 5 extra lines. Fixed 22d189efb; proof recordings/getpos.c/getpos_help-{wizkill-monster-goal-skips-location-keys,wizsmell-monster-goal-dwarf-valkyrie} fail on stack-sr2 at steps 11/13
+getpos.c	577,583	dxdy_to_dist_descr	js/getpos.js dxdy_to_dist_descr	match	9999 clamp (JS Math.min of abs)
+getpos.c	756-758	getpos_refresh	js/getpos.js getpos_refresh	match	hilite state 1 erased before redraw
+getpos.c	842	getpos	js/getpos.js	nobehaviour	null goal; every caller passes one
+getpos.c	875-878,886,903-909	getpos	js/getpos.js	skip-targets	targets: non-key queued command, iflags.remember_getpos (no option sets it), mouse click
+getpos.c	1094	getpos	js/getpos.js getpos	match	'~' on a known vibrating square goes to foundc (JS 932); targets: Gehennom bottom only
+getpos.c	346	gloc_filter_classify_glyph	js/getpos.js gloc_filter_classify_glyph	unreachable-C	only caller gloc_filter_floodfill_matcharea() passes back_to_glyph() results, always cmap; JS same and the is_cmap_* ranges match sym.h 101-106
+getpos.c	454,506	gather_locs_interesting	js/getpos.js	nobehaviour	454 is the `default:` label sharing GLOC_MONS's arm; 506 the NOTREACHED return
+display.c	181-183	mon_warning	js/display.js monsterWarnsHero	nobehaviour	entries=0 (out-of-line copy of the macro)
+display.c	534-541	display_monster	js/display.js	skip-targets	targets unreachable (bad m_ap_type)
+display.c	562,576,583	display_monster	js/display.js	nobehaviour	closing braces
+display.c	645-649	display_warning	js/display.js display_warning	unreachable-C	both callers (newsym 1030, 1055) test mon_warning(mon) first, so the MATCH_WARN_OF_MON arm and the impossible() never run; JS has the same arms
+display.c	676	mon_overrides_region	js/display.js	unreachable-C	C comment: newsym() never calls it while swallowed
+display.c	755-757	feel_location	js/display.js	nobehaviour	!isok guards
+display.c	857	feel_location	js/display.js feel_location	unreachable-C	the outer IS_ROOM() arm (C 807) already takes typ ROOM, so the else's ROOM test never holds; JS has the same arm
+display.c	1201,1211	tmp_at	js/display.js tmp_at	nobehaviour	free and panic
+display.c	1254,1259,1266	tmp_at	js/display.js tmp_at	match	!isok break and the TMP_AT_MAX_GLYPHS (COLNO * 2, display.c 1163) overflow breaks; JS 4776 uses COLNO * 2 at 4859/4864
+display.c	1446-1467	under_ground	-	unreachable-C	only caller docrt_flags 1735 / detect.c under u.uburied, which nothing sets (dig.c bury_you has no caller); JS detect.js comment agrees
+display.c	1536	mimic_light_blocking	js/display.js set_mimic_blocking	match	invisible boulder-mimic with See_invisible blocks the point
+display.c	1718,1735-1737	docrt_flags	js/display.js docrt	unreachable-C	1718 !u.ux before display ready; 1735 u.uburied (never set)
+display.c	1793	redraw_map	js/display.js redraw_map	nobehaviour	early return before the hero is placed or while restoring
+display.c	1829	reglyph_darkroom	js/display.js reglyph_darkroom	match	dark_room off: remembered lit corridor restored
+display.c	1906-1995,1998-2001	show_glyph	js/display.js show_glyph_cell	skip-targets	targets unreachable (impossible() reports for bad pos/glyph); C show_glyph is split into newsym/show_glyph_cell/commitFlushedGlyph in JS
+display.c	2194	cls	js/display.js cls	nobehaviour	in_cls reentry guard
+display.c	2228,2232	flush_screen	js/display.js flush_screen	nobehaviour	reentry and hangup guards
+display.c	2355	back_to_glyph	js/display.js back_to_glyph	skip-targets	targets unreachable (no branch ladder); JS 2901 same mapping
+display.c	2410-2414,2420-2423	back_to_glyph	js/display.js	skip-targets	impossible()
+display.c	2442-2444	swallow_to_glyph	js/display.js	nobehaviour	impossible()
+display.c	2464-2466	zapdir_to_glyph	js/display.js	nobehaviour	impossible()
+display.c	2517-2565	get_bkglyph_and_framecolor	js/display.js (comment at 2150)	skip-targets	targets unreachable: iflags.use_background_glyph never set; JS implements only the frame-color half
+display.c	2639-2644,2651-2652	map_glyphinfo	js/display.js	skip-targets	targets unreachable (sysopt.accessibility)
+display.c	2704	cmap_to_roguecolor	js/display.js cmap_to_roguecolor	match	nocolor symset returns NO_COLOR
+display.c	3070-3076	reset_glyphmap	js/display.js configuredPetOverride	skip-targets	targets unreachable (sysopt.accessibility)
+display.c	3259-3260	set_crosswall	js/display.js set_crosswall	match	more than one diagonal that is not a matched pair gives mode 0
+display.c	3548-3550,3563,3590-3594,3601-3603,3658-3662,3745-3747,3775-3778,3783-3784	wall_angle	js/display.js wall_angle	skip-targets	targets: t_warn/impossible/dead arboreal arm
+display.c	3721,3735	wall_angle	js/display.js wall_angle	match	crosswall seen only from SV4 -> stone; SV5/SV6 plus SV1-3 -> C_crwall; JS follows the same do_crwall cases
+display.c	3798-3800	fn_cmap_to_glyph	-	nobehaviour	entries=0; window-port helper with no tty caller
+botl.c	264-268	bot	js/display.js bot	unreachable-config	VIA_WINDOWPORT() is true for tty (WC2_HILITE_STATUS|WC2_FLUSH_STATUS), so the old putstr status path never runs
+botl.c	290-291	timebot	js/display.js timebot	unreachable-config	same VIA_WINDOWPORT() test
+botl.c	342	rank_of	js/display.js rank_of	skip-targets	targets unreachable (non-role monnum)
+botl.c	353-358	rank_of	js/display.js rank_of	skip-targets	targets unreachable (every role has all nine titles)
+botl.c	381,389	title_to_mon	js/mondata.js title_to_mon	unreachable-C	only caller mondata.c 1075 passes rank_indx NULL
+botl.c	591,595,612	armor_status	js/display.js armor_status	match	U/B letters and the MC '+' hint; one-piece fallback "" vs JS "shield" is unobservable (n==1 implies uarms)
+botl.c	1310	condopt	js/options.js condopt	nobehaviour	sanity return
+botl.c	1360,1370	parse_cond_option	js/options.js parse_cond_option	match	2 for "cond_" alone, 1 for no match; pfxfn_cond_ reports both
+botl.c	1461-1490	opt_next_cond	-	skip-targets	targets unreachable (#saveoptions only)
+botl.c	1602-1604	eval_notify_windowport_field	js/display.js	unreachable-C	chg is never 2: the only assignment (1566) is commented out
+botl.c	1693,1698-1699	status_initialize	js/display.js	nobehaviour	impossible/panic
+botl.c	1765-1767	init_blstats	js/display.js	nobehaviour	impossible
+botl.c	1816-1880	compare_blstats	js/display.js (status bank comparison, 6968)	skip-targets	targets unreachable: panics and ANY_* types no status field uses; INT/LONG arms are compared at JS 6968
+botl.c	1892-1923	anything_to_s	-	skip-targets	targets unreachable (unused types); JS formats each field inline
+botl.c	1933,1942-1966	s_to_anything	js/display.js s_to_anything	skip-targets	targets unreachable
+botl.c	1989-1992,2012-2035	percentage	js/display.js _statusPercentage	skip-targets	targets unreachable (unused types)
+botl.c	2147-2156	stat_hunger_indx	-	nobehaviour	entries=0; window-port helper
+botl.c	2161-2165	bl_idx_to_fldname	-	nobehaviour	entries=0; window-port helper
+botl.c	2247-2249	fldname_to_bl_indx	js/options.js statusHiliteFieldName	match	third pass: unique case-blind prefix of a canonical name
+botl.c	2661	is_ltgt_percentnumber	js/options.js is_ltgt_percentnumber	match	'=' after optional '<'/'>'; JS regex accepts the same strings
+botl.c	2680-2682	has_ltgt_percentnumber	js/options.js has_ltgt_percentnumber	match	
+botl.c	2696,2717	splitsubfields	js/options.js splitsubfields	match	2696 null str (nobehaviour); 2717 too many subfields -> -1 (JS null)
+botl.c	3151	conditionbitmask2str	js/display.js conditionbitmask2str	match	empty mask -> ""
+botl.c	3218	str2conditionbitmask	js/options.js str2conditionbitmask	match	splitsubfields -1 -> 0
+botl.c	3400	hlattr2attrname	js/display.js hlattr2attrname	nobehaviour	null attrib/buf
+end.c	70-87	done1	js/end.js (comment)	nobehaviour	SIGINT handler; no signals in JS
+end.c	135-142	done2	js/end.js done2	skip-targets	targets unreachable ('Dump core?' y aborts)
+end.c	156-165,171-178	done_intr,done_hangup	-	nobehaviour	signal handlers
+end.c	341	done_in_by	js/end.js done_in_by	match	genocided arise type cleared
+end.c	487-492,514-515	should_query_disclose_option	js/end.js	skip-targets	targets unreachable (impossible)
+end.c	713	savelife	js/end.js savelife	match	ulevel < 1 clamp
+end.c	752	savelife	js/end.js savelife	match	"You release %s." when the life-saved hero holds a monster in a sticky form
+end.c	781,789	get_valuables	js/end.js get_valuables	match	repeated amulet/gem type adds quan
+end.c	887-889	done_object_cleanup	js/end.js done_object_cleanup	match	free kicked object placed and stacked
+end.c	1026-1036	done	js/end.js done	differs-unobservable	patched recorder end.c (1030-1032) suppresses "You are a very tricky wizard, it seems." but JS still prints it. Unobservable: 1035-1036 are the panicking/done_hup test lines lcov splits off. Every C done(TRICKED) is a file failure (save.c 207/343/401, restore.c 1041 trickery()) and no JS code passes TRICKED (grep -n TRICKED js/*.js: const.js 315, end.js 94/365/688, topten.js 49 comment, save.js 687 comment above a throw). Unproven; port unchanged
+end.c	1059-1061	done	js/end.js done	skip-targets	targets: fuzzer only
+end.c	1067	done	js/end.js done	match	STARVING/BURNING with empty killer -> KILLED_BY (targets: every caller names one)
+end.c	1151,1210,1244,1509,1563	really_done	js/end.js really_done	skip-targets	targets unreachable (hangup, PANICKED, sound, fresh mksobj)
+end.c	1226-1229	really_done	js/end.js really_done	match	"quit while already on Charon's boat" (JS 1322)
+end.c	1277	really_done	js/end.js identifyInventoryForDisclosure	match	second Schroedinger's box becomes ordinary once a live cat is fixed
+end.c	1289	really_done	js/end.js really_done	match	empty formatkiller -> deaths[how] (livelog only)
+end.c	1611	container_contents	js/end.js container_contents	match	lknown set when identified
+end.c	1654-1656	container_contents	js/end.js container_contents	match	"  Schroedinger's cat!"
+end.c	1658	container_contents	-	nobehaviour	dumplog only
+end.c	1765	dealloc_killer	js/end.js	nobehaviour	impossible
+end.c	1808-1873	wordcount,bel_copy1,build_english_list	-	skip-targets	targets unreachable (sysconf WIZARDS list; recorder has WIZARDS=*)
+insight.c	213-215	enlght_halfdmg	js/insight.js	nobehaviour	default category
+insight.c	280	cause_known	js/insight.js cause_known	match	worn item with known matching property
+insight.c	338-356	fmt_elapsed_time	js/insight.js	skip-targets	targets unreachable (recorder elapsed time is always 0)
+insight.c	365	N_times	js/insight.js N_times	match	case 0 shares default "%ld times"
+insight.c	458	enlightenment	-	nobehaviour	free of menu selection
+insight.c	666	background_enlightenment	js/insight.js	unreachable-C	enclosing test (653) admits only FULL_MOON and NEW_MOON, so "last quarter" is dead; JS prints only full/new
+insight.c	739	basics_enlightenment	js/insight.js	match	negative hp shown as 0
+insight.c	888-889	one_characteristic	js/insight.js	nobehaviour	impossible
+insight.c	993	status_enlightenment	js/insight.js	unreachable-C	Underwater is u.uinwater (youprop.h), so 991 takes every u.uinwater case
+insight.c	1020	status_enlightenment	js/insight.js	unreachable-C	u.uburied never set
+insight.c	1081-1083	status_enlightenment	js/insight.js	nobehaviour	impossible
+insight.c	1590,1598-1601	attributes_enlightenment	js/insight.js	skip-targets	targets unreachable; JS chains compared, same order and text
+insight.c	1780	attributes_enlightenment	js/insight.js	skip-targets	targets unreachable (uhitinc >= spelarmr); JS same thresholds
+insight.c	1807	attributes_enlightenment	js/insight.js	skip-targets	targets unreachable (MC > 3)
+insight.c	1961-1974	attributes_enlightenment	-	skip-targets	targets unreachable (DEBUGFILES fruit)
+insight.c	1990-1992	attributes_enlightenment	-	nobehaviour	impossible
+insight.c	2036-2041,2066-2067	youhiding	js/insight.js youhiding	skip-targets	targets unreachable; JS has the same furniture/monster arms
+insight.c	2266-2267,2400-2402	show_achievements	js/insight.js	skip-targets	targets unreachable (en_win always set)
+insight.c	2280-2283,2378-2381	show_achievements	js/insight.js show_achievements	match	ascension reorder and " You ascended!" (targets: open, needs ascension)
+insight.c	2392-2395	show_achievements	js/insight.js	skip-targets	default case
+insight.c	2417-2419	record_achievement	js/insight.js	nobehaviour	impossible
+insight.c	2482,2486-2489	remove_achievement	js/insight.js remove_achievement	match	shift-up removal
+insight.c	2538-2539	do_gamelog	js/insight.js do_gamelog	unreachable-C	the game-start event is always logged, so gamelog is never empty during play; JS text matches
+insight.c	2574,2576,2585	show_gamelog	js/insight.js show_gamelog	match	final/minor and spoiler filters, " none"
+insight.c	2631	vanqsort_cmp	js/insight.js vanqsort_cmp	nobehaviour	`default:` label sharing VANQ_MLVL_MNDX
+insight.c	2961-2962	num_genocides	js/insight.js	nobehaviour	impossible
+insight.c	3064	list_genocided	js/insight.js list_genocided	match	count sort modes replaced by VANQ_ALPHA_MIX for the sort, restored after
+insight.c	3199	align_str	js/insight.js	nobehaviour	default
+insight.c	3226-3228	size_str	js/insight.js size_str	nobehaviour	unknown size
+insight.c	3342	mstatusline	js/insight.js mstatusline	match	", meditating" for STRAT_WAITMASK
+insight.c	3383	mstatusline	js/insight.js mstatusline	match	steed with both legs wounded: plural leg name
+insight.c	3415,3439,3460-3462,3471-3472	ustatusline	js/insight.js ustatusline	match	food poisoning and illness, stunned (Stunned is HStun), concealed/disguised, holding (targets: open or provisional unreachable)
+rumors.c	73	unpadline	js/random_text.js (inline)	nobehaviour	newline strip that the C comment says callers already did; JS strips the "_" padding inline (random_text.js 89)
+rumors.c	104-106	init_rumors	js/rumors.js	nobehaviour	rumors file header that fails the sscanf format: file failure
+rumors.c	130,142-144,162-164,173,177-179	getrumor	js/random_text.js getrumor	skip-targets	targets unreachable
+rumors.c	210-212,280-290	rumor_check	js/rumors.js	skip-targets	targets unreachable
+rumors.c	322-407	others_check	js/rumors.js	skip-targets	targets: every unrun line is a file error path
+rumors.c	445,489	get_rnd_line	js/random_text.js	nobehaviour	file failure / free
+rumors.c	523-524	get_rnd_text	js/random_text.js	nobehaviour	file failure
+rumors.c	542	outrumor	js/random_text.js outrumor	match	fainted hero reading a cookie returns silently
+rumors.c	553	outrumor	js/random_text.js outrumor	match	empty rumor -> "NetHack rumors file closed for renovation."
+rumors.c	650,659,664,676-677,690-692	outoracle	js/rumors.js	skip-targets	targets unreachable
+rumors.c	707-708,720	doconsult	js/rumors.js	skip-targets	targets unreachable
+rumors.c	771-782	couldnt_open_file	js/rumors.js	nobehaviour	file failure
+rumors.c	799	CapitalMon	js/random_text.js CapitalMon	match	lowercase or empty word returns FALSE
+rumors.c	835,920-932	init_CapMons	js/random_text.js	skip-targets	targets unreachable (re-init, DEBUGFILES)
+topten.c	111-113	formatkiller	js/topten.js	nobehaviour	impossible
+topten.c	143,147	formatkiller	js/topten.js formatkiller	match	'=' -> '_' and tab -> space when copying the killer name (',' -> ';' is covered)
+topten.c	253-257,260-273,282	readentry	js/topten.js readentry	skip-targets	targets unreachable (only this version's records); JS drops pre-3.3 lines, unobservable
+topten.c	294-296	readentry	js/topten.js readentry	match	Y2K date fixups (targets: open)
+topten.c	321	writeentry	js/topten.js	nobehaviour	pre-3.3 write format never chosen
+topten.c	405	encodexlogflags	-	nobehaviour	xlogfile only, not shown
+topten.c	532-534,562-564	encode_extended_achievements	-	nobehaviour	xlogfile only, not shown; JS writes no xlogfile
+topten.c	653,705,716,740,749-752,812-814,822-826	topten	js/topten.js	skip-targets	targets unreachable (panic, file/lock failures, ENTRYMAX)
+topten.c	971-972	outentry	js/topten.js outentry	skip-targets	targets unreachable (alignment '?')
+topten.c	979,982-984,998,1005-1028,1039,1102	outentry	js/topten.js outentry	match	escaped-with-Amulet paren fixup, ascension, crushed, every Plane name and its "on the %s Plane" form, Charon's boat suffix, so-padding; wrap loop compared too
+topten.c	1365-1366,1370-1375	classmon	js/topten.js	skip-targets	targets unreachable
+topten.c	1390-1392	get_rnd_toptenentry	js/topten.js	nobehaviour	file failure
+topten.c	1426	tt_oname	js/topten.js	nobehaviour	no record entry
+pager.c	93-94	append_str	js/pager.js	nobehaviour	impossible
+pager.c	295-296	object_from_map	js/pager.js object_from_map	match	cmap glyph: CHEST if a chest is there else LARGE_BOX
+pager.c	398-399	look_at_object	js/pager.js	nobehaviour	sanity
+pager.c	546,550-552	look_at_monster	js/pager.js	unreachable-C	546 needs a how_seen bit after MONSEEN_WARNMON, the highest; 550 impossible
+pager.c	568	waterbody_name	js/pager.js	nobehaviour	"drink" for a non-water location
+pager.c	630	ice_descr	js/pager.js ice_descr	nobehaviour	"[ice:%d?]" for a non-ice square; JS same text
+pager.c	645	ice_descr	js/pager.js ice_descr	match	1..14 turns -> "slushy"
+pager.c	723-727	lookat	js/pager.js lookat	skip-targets	targets: answered before lookat
+pager.c	786-787	lookat	js/pager.js lookatOrdinaryTerrain	match	underwater off the Plane of Water: "land" next to the hero, else "unknown" (S_stone explanation is "stone", so JS's fallthrough equals C's 788-790)
+pager.c	799-800	lookat	js/pager.js lookat	match	not mon/obj/trap/cmap -> "unexplored area"
+pager.c	848-856,863,998-1007,1019,1046,1049,1073-1075,1086,1089,1103-1104,1123,1126,1129	checkfile	js/pager.js	skip-targets	targets: data-file error paths and null monster
+pager.c	1099-1101	checkfile	js/pager.js	unreachable-C	space-indented data lines: grep -c '^ ' dat/data.base prints 0 (entries are tab-indented)
+pager.c	1317-1318,1383-1384,1567-1571	do_screen_description	js/pager.js	skip-targets	targets unreachable
+pager.c	1697-1698,1885-1889,1961	do_look	js/pager.js	skip-targets	targets unreachable
+pager.c	2370	doidtrap	js/pager.js doidtrap	match	unseen trap at the spot stops the search
+pager.c	2429-2432	whatdoes_help	js/pager.js	nobehaviour	file failure
+pager.c	2436	whatdoes_help	js/pager.js whatdoes_help	unreachable-C	dat/keyhelp has no comment line: grep -c '^#' dat/keyhelp prints 0; JS uses pregenerated lines
+pager.c	2725-2733	docontact	js/pager.js	skip-targets	targets unreachable (sysconf SUPPORT/WIZARDS)
+pager.c	2877	dohelp	js/pager.js helpMenuItems	unreachable-config	sysopt.hideusage is 0 in the recorder sysconf
+pager.c	2923,2937,2951	setopt_cmd	js/pager.js setopt_cmd	nobehaviour	paranoia defaults when cmdname_from_func() returns null; it never does for these functions
+questpgr.c	34-35	quest_info	js/questpgr.js quest_info	match	typ 0 -> questarti
+questpgr.c	42-45	quest_info	js/questpgr.js	nobehaviour	impossible
+questpgr.c	81,95,101,107-115	find_qarti,find_quest_artifact	js/quest.js	skip-targets	targets unreachable (on_goal asks only floor/minvent/buried)
+questpgr.c	293-295,305-307,317-322	convert_arg	js/questpgr.js convertArg	skip-targets	targets unreachable (codes only in quest.lua comments); JS arms compared: same strings
+questpgr.c	336-339,384-386	convert_line	js/questpgr.js convertLine	skip-targets	targets unreachable (no newline or %xS in quest.lua); JS has no newline arm, unobservable
+questpgr.c	399	convert_line	js/questpgr.js convertLine	match	%t on a name without "the " keeps the name
+questpgr.c	416	convert_line	-	nobehaviour	panic
+questpgr.c	463	skip_pager	js/questpgr.js skip_pager	match	wizkit wishing
+questpgr.c	485-565	com_pager_core	js/questpgr.js comPagerCore	skip-targets	targets unreachable (wizkit, nhl failures, impossible)
+questpgr.c	633	qt_pager	js/questpgr.js qt_pager	match	fallback to "common" section
+glyphs.c	152,154	glyphrep_to_custom_map_entries	js/glyphs.js parseGlyphrepDelimiterPointers	match	one leading space stripped from glyph id and color
+glyphs.c	263-272,277	glyph_find_core	js/glyphs.js glyph_find	skip-targets	targets unreachable
+glyphs.c	317-319,360,391,406-407,414,423	fill_glyphid_cache,free_glyphid_cache,add_glyph_to_cache,find_glyph_in_cache,find_glyphid_in_cache_by_glyphnum	js/glyphs.js	nobehaviour	cache bookkeeping: refill, panic, probe-sequence misses; JS uses a Map with the same hit/miss answers
+glyphs.c	475,480	glyphrep	js/glyphs.js	nobehaviour	debugger flag, return
+glyphs.c	679-698,723-725	shuffle_customizations	js/glyphs.js maybe_shuffle_customizations	match	duplicate oc_descr_idx copies the first holder's customization; JS copies before[descr] per object, same result
+glyphs.c	747	find_matching_customization	-	nobehaviour	no match returns NULL
+glyphs.c	777-778	purge_custom_entries	js/glyphs.js purge_custom_entries	match	symbol customizations cleared
+glyphs.c	814	wizcustom_glyphids	js/glyphs.js	nobehaviour	null window
+glyphs.c	838-844,850-851,884-885,1109,1113	parse_id	js/glyphs.js parse_id	skip-targets	targets unreachable (dump file, cache-fill failures)
+pline.c	35	dumplogmsg	-	nobehaviour	DUMPLOG off
+pline.c	70	putmesg	js/tty_message.js	nobehaviour	guard
+pline.c	143	pline_mon	js/pline.js pline_mon	match	hero speaker -> location 0,0
+pline.c	170,210	vpline	js/tty_message.js	nobehaviour	empty line / panic
+pline.c	217	vpline	js/tty_message.js normalizeVplineMessage	match	over-long "%s" or %-free message truncated with "..." and its last 3 bytes
+pline.c	572-576	vraw_printf	js/jsmain.js	nobehaviour	raw_print truncation
+pline.c	651-671,686	execplinehandler	-	skip-targets	targets: sysconf MSGHANDLER
+pline.c	691-717	nhassert_failed	js/eat.js	nobehaviour	entries=0
+shknam.c	426,437	shkveg	js/shknam.js	nobehaviour	panic
+shknam.c	509	nameshk	js/shknam.js nameshk	match	negative name index += 18
+shknam.c	526-529	nameshk	js/shknam.js nameshk	match	fall back to general-store names (targets: open)
+shknam.c	536	nameshk	js/shknam.js nameshk	match	'|'/'+' prefix sets male
+shknam.c	570-576	free_eshk	-	nobehaviour	entries=0; memory only
+shknam.c	608-609,619-620,623	good_shopdoor	js/shknam.js	skip-targets	targets unreachable (mkshop picks one-door rooms)
+shknam.c	638-657	shkinit	js/shknam.js	skip-targets	targets unreachable
+shknam.c	867-869	shkname	js/shknam.js	nobehaviour	impossible/panic
+shknam.c	913-915	is_izchak	js/shknam.js	nobehaviour	null/non-shk guards
+pager.c	2880	dohelp	js/pager.js helpMenuItems	unreachable-config	the only "%s" item is port_help, compiled only with PORT_HELP, which the Unix build leaves undefined
+topten.c	119-161 (covered; incidental while reviewing 143/147)	formatkiller	js/topten.js formatkiller	DIFFERS-covered	C cuts the text to siz-1 bytes and appends ", while <reason>" only if it fits the room its countdown leaves, else ", while helpless", else nothing; JS took no size, always appended the reason and topten cut at DTHSZ. 7 call sites (all) now pass the C buffer size, formatkiller throws without one. Fixed 47239c398; proof constructed-state tests in scripts/formatkiller.test.mjs (4 of 14 fail on stack-sr2). No recording: needs a normal-mode helpless death to a 47+ letter named monster

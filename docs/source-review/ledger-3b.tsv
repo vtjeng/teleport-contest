@@ -1,0 +1,302 @@
+file	lines	function	js	class	note
+mondata.c	159-164	Resists_Elem	js/mondata.js Resists_Elem	unreachable-C	the resists_* macros pass only FIRE_RES..STONE_RES (targets.md agrees); JS dispatches the same three
+mondata.c	166-168	Resists_Elem	-	nobehaviour	impossible(); JS note_unported
+mondata.c	195	Resists_Elem	js/mondata.js Resists_Elem	match	carried artifact / worn property / smock loop return
+mondata.c	229,237	resists_magm	js/mondata.js resists_magm	match	wielded artifact; two-weapon slot
+mondata.c	289	resists_blnd_by_arti	js/mondata.js resists_blnd_by_arti	match	carried AD_BLND defender
+mondata.c	338,354-355,365,373,377-385	can_blnd	js/mondata.js can_blnd_steps	match	raven pair; POT_BLINDNESS; other objects; ENGL sleeping monster; swallowed hero AT_CLAW; AT_TUCH/AT_STNG cancelled; default
+mondata.c	403-410	ranged_attk	js/mondata.js ranged_attk	match	no caller in src (targets.md)
+mondata.c	574	can_blow	js/mondata.js can_blow	match	Strangled hero
+mondata.c	672	cantvomit	js/mondata.js cantvomit	match	horses
+mondata.c	813,837-838,855-856	same_race	js/mondata.js same_race	match	rider; ghost; big_to_little walk
+mondata.c	1154-1156,1171	name_to_monclass	js/mondata.js name_to_monclass	match	"long worm" truematch; name_to_mon species index
+mondata.c	1340	big_little_match	js/mondata.js big_little_match	match	different class letters
+mondata.c	1362	raceptr	js/mondata.js raceptr	match	unpolymorphed hero
+mondata.c	1416	on_fire	js/mondata.js on_fire	match	flaming sphere
+mondata.c	1466-1489	msummon_environ	js/mondata.js msummon_environ	match-text	steam; shower of sparks; dust; ball of flame; flash of light
+mondata.c	1620,1622	mon_knows_traps	js/mondata.js mon_knows_traps	differs-unobservable	C casts the long mask to boolean (schar, global.h 83), so ALL_TRAPS would answer FALSE for a mask with only bits 8 and up and NO_TRAP TRUE; JS tests the whole mask. Unreachable: no caller passes ALL_TRAPS or NO_TRAP (grep mon_knows_traps src/*.c); unproven
+mondata.c	1634	mon_learns_traps	js/mondata.js mon_learns_traps	unreachable-C	no caller passes NO_TRAP (grep mon_learns_traps src/*.c)
+o_init.c	70-73	setgemprobs	js/o_init.js setgemprobs	unreachable-C	lev >= 0 keeps j <= 9, so first stays inside the 22 real gems (JS comment agrees)
+o_init.c	123,127	shuffle	js/o_init.js shuffle	match	fewer than two unknown; skip known
+o_init.c	159-161,180	init_objects	-	nobehaviour	panic (JS throws)
+o_init.c	215-224	init_objects	js/o_init.js init_objects	unreachable-C	objects[] is fixed and consistent; JS repairs the same way, sanity impossible() as note_unported
+o_init.c	255-262	init_oclass_probs	js/o_init.js init_oclass_probs	unreachable-C	targets.md; JS repairs the same way
+o_init.c	316	obj_shuffle_range	js/o_init.js obj_shuffle_range	match	out-of-range otyp
+o_init.c	357-359	objdescr_is	-	nobehaviour	impossible(); JS note_unported
+o_init.c	461	discover_object	js/o_init.js discover_object	match	generic object
+o_init.c	501-522	undiscover_object	js/o_init.js undiscover_object	match	shift, clear last slot, gem_learned; impossible as note_unported
+o_init.c	581	sortloot_descr	js/o_init.js sortloot_descr	match	slime mold current fruit
+o_init.c	677	disco_typename	js/o_init.js disco_typename	nobehaviour	empty statement (static-analyzer guard)
+o_init.c	706,710-718	disco_append_typename	js/o_init.js disco_append_typename	match	truncation keeping " (actual type)"; plain truncation
+o_init.c	776,780	dodiscovered	js/o_init.js dodiscovered	match	discosort fallback; menu cancel
+o_init.c	910,1083	doclassdisco	js/o_init.js doclassdisco	unreachable-C	targets.md (option validation; impossible)
+o_init.c	993-997	doclassdisco	js/o_init.js doclassdisco	match-text	You haven't discovered any items yet.
+o_init.c	1215,1217	get_sortdisco	js/options.js	not-compared	O-menu / #saveoptions value; C read, JS side only grepped
+do_name.c	45	new_mgivenname	js/do_name.js new_mgivenname	match	existing mextra: free old name
+do_name.c	74-76	new_oname	js/do_name.js new_oname	match	zero length removes old name
+do_name.c	141-144	christen_monst	js/do_name.js christen_monst	unreachable-C	name_from_player() (126) already cuts names to PL_PSIZ-1 bytes, and other callers pass short fixed names; JS truncates by bytes the same way
+do_name.c	270-274	do_mgivenname	js/do_name.js do_mgivenname	match-text	I'm <shkname>, not <name>.
+do_name.c	384-387	oname	js/do_name.js oname	unreachable-C	as christen_monst 141 (names come through name_from_player); JS same
+do_name.c	410	oname	js/do_name.js oname	match	alter_cost for an unpaid object that became an artifact
+do_name.c	516-517	docallcmd	js/do_name.js docallcmd	DIFFERS-unproven	C: a queued non-key entry clears CQ_CANNED and jumps to the switch with ch 0 (default: nothing). JS clears the queue but then shows the menu (queuedChoice stays null). No input found that puts a non-key entry first: every C push after docallcmd's ec is a key (cmd.c 4765-4767, iactions.c 169-171), and the repeat queue gets only keys from getpos/getobj for this command (getobj counts need GETOBJ_ALLOWCNT); not changed
+do_name.c	560	docallcmd	js/do_name.js docallcmd	match	default label
+do_name.c	618,622-630	docall_xname	js/do_name.js docall_xname	unreachable-C	targets.md (objtyp_is_callable); JS has every arm
+do_name.c	902	x_monnam	js/do_name.js x_monnam	match	ARTICLE_NONE strips "the " from priestname
+do_name.c	1180-1181	distant_monnam	js/do_name.js distant_monnam	match-text	high priestess/high priest concealed on Astral
+do_name.c	1206	mon_nam_too	js/do_name.js mon_nam_too	match	default label
+do_name.c	1237-1242	monverbself	js/do_name.js monverbself	match	"they" -> "them" with capitalization (both comments misstate makeplural, code agrees)
+do_name.c	1260-1270,1273-1275	minimal_monnam	js/do_name.js minimal_monnam	unreachable-C	targets.md (debug guards; ckloc only from impossible())
+do_name.c	1281-1282	minimal_monnam	js/do_name.js minimal_monnam	match	{cham} suffix
+do_name.c	1294-1295	Mgender	js/do_name.js Mgender	match	hero form gender
+do_name.c	1357-1358	obj_pmname	-	nobehaviour	impossible(); JS note_unported, same sentinel
+do_name.c	1378	bogusmon	js/do_name.js bogusmon	unreachable-C	bogusmon file is always present in the build
+do_name.c	1429-1436	roguename	js/do_name.js roguename	unreachable-config	ROGUEOPTS environment variable
+do_name.c	1660	lookup_novel	js/do_name.js lookup_novel	match	not found, no index
+read.c	591-593	doread	js/read.js doread	match-text	illiterate mail confirmation
+read.c	785-787	recharge	js/read.js recharge	unreachable-C	C comment: currently unreachable (wishing caps at 3 first)
+read.c	832,863	recharge	js/read.js recharge	match-text	ring alter_cost; marker permanently dried out
+read.c	875	recharge	js/read.js recharge	match	spe capped at 127
+read.c	1052	maybe_tame	js/read.js maybe_tame	match	cursed scroll angers a peaceful
+read.c	1110-1111	display_stinking_cloud_positions	js/read.js	match	DISP_END
+read.c	1192,1243,1247	seffect_enchant_armor	js/read.js seffect_enchant_armor	match	-100 clamp; scales uncurse; shop alter_cost
+read.c	1301-1311,1320	disintegrate_cursed_armor	js/read.js disintegrate_cursed_armor	match	same slot order then rn2(idx)
+read.c	1465	seffect_scare_monster	js/read.js seffect_scare_monster	match	dead monster skip
+read.c	1565,1568,1593-1594	seffect_remove_curse	js/read.js seffect_remove_curse	match	holy water price; confused saddle bknown
+read.c	1645-1646	seffect_enchant_weapon	js/read.js seffect_enchant_weapon	match-text	Your weapon feels warm for a moment.
+read.c	1971	seffect_earth	js/read.js seffect_earth	match-text	But nothing else happens.
+read.c	2177-2179,2186	seffect_mail	js/read.js seffect_mail	not-compared	readmail() is host-dependent (JS note_unported with the reason)
+read.c	2203,2207	seffects	-	nobehaviour	preprocessor lines
+read.c	2282-2283	seffects	-	nobehaviour	impossible(); JS note_unported
+read.c	2311	drop_boulder_on_player	-	nobehaviour	mksobj failure
+read.c	2349	drop_boulder_on_monster	-	nobehaviour	mksobj failure
+read.c	2398-2402	drop_boulder_on_monster	js/read.js drop_boulder_on_monster	match	unsolid engulfer: rock redirected to the hero
+read.c	2538	litroom	js/read.js litroom	match-text	It seems even darker in here than before.
+read.c	2687	do_class_genocide	js/read.js do_class_genocide	unreachable-C	targets.md; JS same fallback (name_to_monplus)
+read.c	2712	do_class_genocide	js/read.js do_class_genocide	match	dead monster skip in wizard '*'
+read.c	2759-2760,2763-2764	do_class_genocide	js/read.js do_class_genocide	match-text	Unchanging hero: You die.
+read.c	2930,3002,3005	do_genocide	js/read.js do_genocide	match	own role; makemon failure; extinct
+read.c	2952	do_genocide	js/read.js do_genocide	unreachable-C	needs a G_UNIQ species past the G_GENO check or own role/race; no unique is G_GENO and role/race species are not G_UNIQ (provisional); JS same
+read.c	3042-3043	punish	js/read.js punish	match	amorphous hero drops the reused ball
+read.c	3096	do_stinking_cloud	js/read.js do_stinking_cloud	match-text	Ugh... someone cut the cheese.
+read.c	3124-3125	cant_revive	js/read.js cant_revive	match	long worm tail
+read.c	3166	create_particular_parse	js/read.js create_particular_parse	match	quantity out of range
+read.c	3241-3243	create_particular_parse	js/read.js create_particular_parse	match	"tail" names the S_WORM_TAIL class
+lock.c	62-63	lock_action	js/lock.js lock_action	match	fallback "picking the lock"
+lock.c	73-74,80-88	picklock	js/lock.js picklock	match-text	moved; no door / open / broken
+lock.c	145	picklock	js/lock.js picklock	match	trapped shop door damage
+lock.c	200-202	breakchestlock	js/lock.js breakchestlock	differs-unobservable	JS omits the ICE_BOX corpse age reset and start_corpse_timeout() (rnz draw). Unreachable: the destroy path runs only from forcelock(), and doforce() accepts only Is_box() (LARGE_BOX or CHEST, obj.h 338); dokick.c 659 passes FALSE. Unproven; not changed
+lock.c	219	forcelock	js/lock.js forcelock	match	box moved
+lock.c	304-307,335	autokey	js/lock.js autokey	match	other role's lock pick; no card when locking
+lock.c	384-390	pick_lock	js/lock.js pick_lock	match-text	Unfortunately, you can no longer hold the pick/key/card.
+lock.c	406-407	pick_lock	js/lock.js pick_lock	match-text	You can't hold <pick> -- you have no hands!
+lock.c	416-418	pick_lock	-	nobehaviour	impossible(); JS note_unported
+lock.c	518-519	pick_lock	js/lock.js pick_lock	match	autounlock touch_artifact refusal
+lock.c	589	pick_lock	js/lock.js pick_lock	match-text	no lock on the drawbridge
+lock.c	642-643	pick_lock	js/lock.js pick_lock	match	default ch 0
+lock.c	844-846	doopen_indir	js/lock.js doopen_indir	match-text	drawbridge messages
+lock.c	911	doopen_indir	js/lock.js doopen_indir	match	trapped shop door damage
+lock.c	932,938	obstructed	js/lock.js obstructed	match	object mimic; "'s tail" via s_suffix
+lock.c	1035-1037	doclose	js/lock.js doclose	match-text	You're too small to push the door closed.
+lock.c	1094	boxlock	js/lock.js boxlock	match	polymorph resets pick
+lock.c	1255-1256	doorlock	js/lock.js doorlock	nobehaviour	impossible()
+lock.c	1269-1271	doorlock	js/lock.js doorlock	match	stop picking a door that a ray changed
+potion.c	59	itimeout	js/potion.js itimeout	match	TIMEOUT cap
+potion.c	167-169	make_sick	js/potion.js make_sick	match-text	You feel somewhat better.; doubled timeout
+potion.c	214-216	make_slimed	js/potion.js make_slimed	match	clear green slime appearance
+potion.c	401	make_hallucinated	js/potion.js make_hallucinated	match	eyeless hero strange_feeling
+potion.c	486-488	ghost_from_bottle	js/potion.js ghost_from_bottle	match-text	This bottle turns out to be empty.
+potion.c	924	peffect_monster_detection	js/potion.js peffect_monster_detection	match	repeated blessed use adds 1
+potion.c	958	peffect_object_detection	js/potion.js peffect_object_detection	match	nothing detected
+potion.c	1100-1102	peffect_gain_level	js/potion.js peffect_gain_level	match-text	It tasted bad.
+potion.c	1193	peffect_levitation	js/potion.js peffect_levitation	match	BLevitation blocks the rise
+potion.c	1374	peffects	js/potion.js peffects	match	object detection short-circuit
+potion.c	1420-1422	peffects	-	nobehaviour	impossible(); JS note_unported
+potion.c	1512	H2Opotion_dip	js/potion.js H2Opotion_dip	unreachable-C	targets.md
+potion.c	1573,1576-1577,1580-1581	H2Opotion_dip	js/potion.js H2Opotion_dip	match	COST_alter alter_cost / costly_alteration for unpaid water
+potion.c	1610	impact_arti_light	js/potion.js impact_arti_light	match	worsen curses the temporary water
+potion.c	1721-1723	potionhit	js/potion.js potionhit	match	polymorph does nothing to a saddle
+potion.c	1863	potionhit	js/potion.js potionhit	match	water kills a rusting iron golem
+potion.c	1920-1922	potionhit	js/potion.js potionhit	unreachable-C	targets.md (C comment)
+potion.c	2011	potionbreathe	js/potion.js potionbreathe	match	sickness vapor floors u.mh at 1
+potion.c	2082	potionbreathe	js/potion.js potionbreathe	match	gremlin hero splits
+potion.c	2148	mixtype	js/potion.js mixtype	match	full healing + gain level/energy -> gain ability
+potion.c	2343,2346,2354,2357	dodip	js/potion.js dodip	match	floating above pool; unskilled rider; acid in_use useup
+potion.c	2394,2403	dip_into	js/potion.js dip_into	match	non-potion cancel; inaccessible equipment
+potion.c	2620	potion_dip	js/potion.js potion_dip	match-text	One of the <potions> forms a coating
+potion.c	2768-2769	potion_dip	js/potion.js potion_dip	unreachable-C	inside if (!Blind), newbuf is always set
+potion.c	2821-2823	djinni_from_bottle	js/potion.js djinni_from_bottle	match-text	It turns out to be empty.
+potion.c	2888,2901	split_mon	js/potion.js split_mon	match	HP sanity clamps
+dokick.c	66	kickdmg	js/dokick.js kickdmg	match	seemimic before check_caitiff
+dokick.c	195	kick_monster	js/dokick.js kick_monster	match	stop after a paralysing counterattack
+dokick.c	350-351	ghitm	js/dokick.js ghitm	match-text	Thanks, scum! from an angry shopkeeper
+dokick.c	450	container_impact_dmg	js/dokick.js container_impact_dmg	match	own egg luck
+dokick.c	478-479	container_impact_dmg	js/dokick.js container_impact_dmg	match-text	You caused N zorkmids worth of damage!
+dokick.c	634-639	really_kick_object	js/dokick.js really_kick_object	match	C strchr(u.urooms, '\0') is non-null where JS includes(undefined) is false, but an object adjacent to a hero on a costly spot is always in the shop, so the two agree
+dokick.c	745,778	really_kick_object	js/dokick.js really_kick_object	match	keeper caught it; subfrombill
+dokick.c	821,825,828-829	kickstr	js/dokick.js kickstr	match-text	a drawbridge; a ladder; something weird
+dokick.c	893-897	kick_ouch	js/dokick.js kick_ouch	match-text	The drawbridge is unaffected. (maploc moved for kickstr)
+dokick.c	1058-1060	kick_nondoor	js/dokick.js kick_nondoor	match	throne on the bottom level
+dokick.c	1154-1155	kick_nondoor	js/dokick.js kick_nondoor	match-text	An <fruit> falls from the tree!
+dokick.c	1434	dokick	js/dokick.js dokick	match	recoil range floor
+dokick.c	1485-1487,1501	drop_to	js/dokick.js drop_to	match	endgame/bottom level nowhere; default
+dokick.c	1562,1615,1618-1619	impact_drop	js/dokick.js impact_drop	match-text	ball/chain skip; customer name; "<plname>, you are a thief!"
+dokick.c	1650,1655,1697,1709,1715,1724,1729	ship_object	js/dokick.js ship_object	match	null; nowhere; unpaid stolen_value; container; worn; mirror and egg luck
+dokick.c	1786,1817,1838	obj_delivery	js/dokick.js obj_delivery	match	species skip; default; scatter
+dokick.c	1861	deliver_obj_to_mon	js/dokick.js deliver_obj_to_mon	match	DF_RANDOM count
+engrave.c	366-368	read_engr_at	js/engrave.js	nobehaviour	impossible() default
+engrave.c	587-588	doengrave_sfx_item_WAN	js/engrave.js	nobehaviour	default label
+engrave.c	745,886-888	doengrave_sfx_item	js/engrave.js	unreachable-C	targets.md (ILLOBJ impossible)
+engrave.c	883-884	doengrave_sfx_item	js/engrave.js	match-text	Writing a poison pen letter?
+engrave.c	899-902	doengrave_ctx_verb	js/engrave.js	match-text	weird writing default
+engrave.c	1288-1290	engrave	js/engrave.js engrave	match-text	You are unable to continue engraving.
+engrave.c	1315-1318,1375-1376,1398-1401	engrave	js/engrave.js engrave	nobehaviour	impossible() sanity checks; JS note_unported with the same recovery (ink_cost, truncate)
+engrave.c	1412-1414	engrave	js/engrave.js engrave	match	default finishverb
+engrave.c	1658-1660	del_engr	-	nobehaviour	impossible()
+engrave.c	1673	rloc_engr	js/engrave.js rloc_engr	match	200 tries
+engrave.c	1696	make_grave	js/grave.js make_grave	match	set_levltyp failure
+engrave.c	1712-1714	disturb_grave	js/engrave.js disturb_grave	nobehaviour	impossible()
+engrave.c	1725-1727,1733-1741	see_engraving,feel_engraving	-	unreachable-C	no caller (grep see_engraving/feel_engraving src/*.c; C comment says feel_engraving is unused)
+steed.c	43	use_saddle	js/steed.js use_saddle	match	u_handsy refusal
+steed.c	110-112	use_saddle	js/steed.js use_saddle	match	Expert riding +30
+steed.c	132	use_saddle	js/steed.js use_saddle	match	remove worn saddle before freeinv
+steed.c	145-148,154-155	put_saddle_on_mon	js/steed.js put_saddle_on_mon	unreachable-C	targets.md (impossible; mksobj failure); JS same guards
+steed.c	158	put_saddle_on_mon	-	nobehaviour	panic (JS throws)
+steed.c	207-209	mount_steed	js/steed.js mount_steed	match-text	You are already riding <steed>.
+steed.c	289-295	mount_steed	js/steed.js mount_steed	match-text	You touch <cockatrice>. / attempting to ride
+steed.c	390	exercise_steed	js/steed.js exercise_steed	match	no steed
+steed.c	406,417,439	kick_steed	js/steed.js kick_steed	match	no steed; wake sleeping steed; unleash an untamed steed
+steed.c	502	landing_spot	js/steed.js landing_spot	match	skip the three preferred directions (C (j % 1) never skips; JS keeps it)
+steed.c	698	dismount_steed	js/steed.js dismount_steed	match	ghost-form enexto fallback
+steed.c	786-787	dismount_steed	js/steed.js dismount_steed	match	no room: killed + adjalign(-1)
+steed.c	841-842	maybewakesteed	js/steed.js maybewakesteed	match	halved paralysis
+steed.c	860	poly_steed	js/steed.js poly_steed	match	unrideable form: fall off
+steed.c	908-912,916-921	place_monster	js/monst.js	unreachable-C	targets.md (impossible() reports)
+ball.c	31-33	ballrelease	js/ball.js ballrelease	match	clear swap/quiver slots
+ball.c	48	ballfall	js/ball.js ballfall	match	welded or no ball
+ball.c	123-125,215-217,227,250-251,369-370,765-767	placebc_core,unplacebc,unplacebc_and_covet_placebc,lift_covet_and_placebc,bc_order,drag_ball	js/ball.js	nobehaviour	impossible() reports; JS note_unported/impossible with the same returns
+ball.c	155-158	unplacebc_core	js/ball.js unplacebc_core	match	swallowed on the Plane of Water: extract both
+ball.c	202-203,247-248	placebc,lift_covet_and_placebc	js/ball.js	match	restriction refusals
+ball.c	470-480	move_bc	js/ball.js move_bc	match	blind hero, ball moved alone (felt glyph restore)
+ball.c	683,692,720,752	drag_ball	js/ball.js drag_ball	unreachable-C	targets.md (geometry)
+ball.c	806	drag_ball	js/ball.js drag_ball	match	hmon(HMON_DRAGGED=4) on a monster at the chain spot
+attrib.c	228-230,241-243	losestr	js/attrib.js losestr	unreachable-C	targets.md; JS keeps both arms (JS tests !knam where C tests !knam || !*knam: same, every caller passes a nonempty name)
+attrib.c	308,310	poisontell	js/attrib.js poisontell	match-text	innately weaker; sick inside
+attrib.c	390	poisoned	js/attrib.js poisoned	match	Half_gas_damage halving (inlined macro, same test)
+attrib.c	456-484	restore_attrib	js/attrib.js restore_attrib	unreachable-C	no caller (grep restore_attrib src/*.c); JS same body
+attrib.c	493	exercise	js/attrib.js exercise	match	Int/Cha not exercised
+attrib.c	841-842	check_innate_abil	js/attrib.js check_innate_abil	match	default race
+attrib.c	895,898	is_innate	js/attrib.js is_innate	match	knight jumping; eyeless blindness / form blindness resistance
+attrib.c	963	from_what	js/attrib.js from_what	match-text	because of <blindfold>
+attrib.c	1088-1090,1107-1109,1128	newhp	js/attrib.js newhp	match	race/role random parts; hp floor
+attrib.c	1150	minuhpmax	js/attrib.js minuhpmax	match	altmin floor
+attrib.c	1287-1289	extremeattr	js/do_wear.js extremeattr	match	JS drops the Ogresmasher and dunce-cap limits, but the result agrees: Ogresmasher fixes Con at 25 (= hilimit) and no ring changes Int or Wis
+music.c	91,112,145,207	put_monsters_to_sleep,charm_snakes,calm_nymphs,charm_monsters	js/music.js	match	dead monster skips
+music.c	124	charm_snakes	js/music.js charm_snakes	match-text	You notice <snake>, swaying with the music.
+music.c	239	do_pit	js/music.js do_pit	match	boulder fills pit: monster untrapped
+music.c	301-303	do_pit	js/music.js do_pit	match-text	Your chain breaks! (buried ball)
+music.c	331	do_pit	js/music.js do_pit	match-text	Shaken, you (slithy/limbless form)
+music.c	357	do_earthquake	js/music.js do_earthquake	unreachable-C	targets.md (C comment: maximum used is 10)
+music.c	375-376,385,423,445,471	do_earthquake	js/music.js do_earthquake	match-text	shaken loose from the ceiling; seemimic; sanctum altar kept; secret corridor revealed; shop door damage
+music.c	481,485-489	generic_lvl_desc	js/music.js generic_lvl_desc	match	astral plane; sanctum; puzzle; tower
+music.c	559-560	do_improvisation	js/music.js do_improvisation	match-text	You feel a monotonous vibration.
+music.c	724-726	do_improvisation	-	nobehaviour	impossible() default
+music.c	750-751	improvised_notes	js/music.js improvised_notes	match	Unchanging keeps the tune
+music.c	789,821,887-889	do_play_instrument	js/music.js do_play_instrument	match	passtune quit; isok skip; five gears learn the tune
+music.c	902-903,943-944	obj_to_instr	-	unreachable-config	sound library only (SND_LIB_INTEGRATED); callers are Hero_playnotes no-ops
+priest.c	113-114	move_special	js/priest.js move_special	match	MMOVE_DIED (2) -> -2
+priest.c	240	priestini	js/priest.js priestini	match	no good spot: altar square
+priest.c	315,340	priestname	js/priest.js priestname	match	non-priest name; "an " before Angel
+priest.c	382	has_shrine	js/priest.js has_shrine	match	not an altar / not a shrine
+priest.c	421	intemple	js/priest.js intemple	match	temple already occupied
+priest.c	459-460	intemple	js/priest.js intemple	match-text	You desecrate this place by your presence!
+priest.c	550-552	forget_temple_entry	-	nobehaviour	impossible(); JS note_unported
+priest.c	606-611	priest_talk	js/priest.js priest_talk	match-text	Begone!  Thou desecratest this holy place with thy presence.
+priest.c	624	priest_talk	js/priest.js priest_talk	match-text	preaches the virtues of poverty
+priest.c	651-653	priest_talk	js/priest.js priest_talk	match-text	asks you for a contribution for the temple. (non-debug)
+priest.c	713-714	priest_talk	js/priest.js priest_talk	match	cleanse a strayed hero
+priest.c	736	mk_roamer	js/priest.js mk_roamer	match	rloc occupant
+priest.c	761	reset_hostility	js/priest.js reset_hostility	match	non-minion
+priest.c	817-825	ghod_hitsu	js/priest.js ghod_hitsu	match	door-side target squares (targets.md: open)
+priest.c	927	clearpriests	js/priest.js clearpriests	match	off-level priest mongone
+worm.c	105	get_wormno	js/worm.js get_wormno	match	no free slot
+worm.c	254,264,268-270	worm_move	js/worm.js worm_move	match	MHPMAX cap; growth clamp; over-max clamp
+worm.c	295	worm_nomove	js/worm.js worm_nomove	match	mhp floor 1
+worm.c	313	wormgone	-	nobehaviour	impossible(); JS note_unported, continues as C does
+worm.c	331	wormgone	js/worm.js wormgone	match	clear MCORPSENM
+worm.c	360	wormhitu	js/worm.js wormhitu	match	passive killed the worm
+worm.c	382,401-403	cutworm	js/worm.js cutworm	unreachable-C	targets.md (bullet-proofing, impossible)
+worm.c	440-443,474	cutworm	js/worm.js cutworm	match-text	Part of <worm>'s tail has been cut off.; <Worm> is cut in half.
+worm.c	626-628	place_wsegs	js/worm.js place_wsegs	nobehaviour	impossible() reports
+worm.c	746-748,754-759	place_worm_tail_randomly	js/worm.js place_worm_tail_randomly_steps	unreachable-C	targets.md (impossible() reports and cleanup)
+worm.c	914-916,919,931,941	worm_cross	js/monmove.js wormCross	match	JS name differs (AGENTS.md naming rule, not behaviour); impossible() for non-adjacent returns FALSE silently in JS
+wizard.c	96-101	amulet	js/wizard.js amulet	match-text	creepy feeling that somebody noticed your taking the Amulet
+wizard.c	229-232	you_have	js/wizard.js you_have	match	default
+wizard.c	281,285,309,313	strategy	js/wizard.js strategy	match	shk/priest at home; default; invoked priority order
+wizard.c	398-400,425-426,450,461	tactics	js/wizard.js tactics	match	mnearto failure stays put; noteleport target; monster on target
+wizard.c	467	tactics	-	nobehaviour	NOTREACHED
+wizard.c	480	has_aggravatables	js/wizard.js has_aggravatables_steps	match	tower mismatch
+wizard.c	646,677	nasty	js/wizard.js nasty	match	ten failed picks skip to next j; unmakemon substitute
+wizard.c	740,743-745	resurrect	js/wizard.js resurrectMigratingWizard	match	elapsed cap; sleep/freeze recovery
+wizard.c	863-864	cuss	js/wizard.js cuss	match-text	I shall return. / I'll be back.
+fountain.c	28-30	floating_above	js/fountain.js floating_above	match-text	You are trapped in the <surface>.
+fountain.c	87-89	dowaterdemon	js/fountain.js dowaterdemon	match-text	The fountain bubbles furiously for a moment, then calms.
+fountain.c	113-115	dowaternymph	js/fountain.js dowaternymph	match-text	You hear a loud pop.
+fountain.c	250-252,400-402,601-603	drinkfountain,dipfountain,drinksink	js/fountain.js	match	levitating: floating_above()
+fountain.c	375	drinkfountain	js/fountain.js drinkfountain	match	dead monster skip in scare
+fountain.c	521	dipfountain	js/fountain.js dipfountain	match	delobj emptied coin stack
+fountain.c	668	drinksink	js/fountain.js drinksink	match-text	But it quiets down.
+fountain.c	727,763-765	dipsink	js/fountain.js dipsink	match-text	still slippery; Nothing seems to happen.
+wield.c	201-202,271	ready_weapon	js/wield.js ready_weapon	match	"The " prefix; bare-handed status
+wield.c	498	doswapweapon	js/wield.js doswapweapon	match	untwoweapon
+wield.c	552-553	doquiver_core	js/wield.js doquiver_core	match-text	unsplit then That ammunition is already readied!
+wield.c	690,693,699-702,710,720-722,736,751,754	wield_tool	js/wield.js wield_tool	match-text	already wielded; default verb; worn; "pair of"; can't hold strongly enough; swap failure; rewielded; untwoweapon
+wield.c	796	can_twoweapon	js/wield.js can_twoweapon	unreachable-C	C comment: !TWOWEAPOK() prevents reaching it
+wield.c	966,1005-1006	chwepon	js/wield.js chwepon	match-text	crysknife alter_cost; blind evaporate
+sit.c	124,167	throne_sit_effect	js/sit.js	nobehaviour	closing brace / default label lines
+sit.c	206-208	throne_sit_effect	-	nobehaviour	impossible() default
+sit.c	293,329	special_throne_effect	js/sit.js special_throne_effect	match-text	extremely disoriented (Amulet); unworthy (vampire)
+sit.c	426	dosit	js/sit.js dosit	match-text	<holder> won't offer <his> lap.
+sit.c	489	dosit	js/sit.js dosit	match	lava burns away slime
+sit.c	522	dosit	js/sit.js dosit	match	1/10 water_damage(uarm)
+sit.c	524	dosit	js/sit.js dosit	DIFFERS	C passes uarm (body armor) to water_damage() after testing uarmf; JS passed uarmf. Reached by a flying hero (amulet of flying) sitting over a pool, which jumps to in_water (sit.c 428-429). D-3b-1; fixed 94dfb6d90, proof recordings/sit.c/dosit-flying-{valkyrie-over-pool-rusts-plate-mail-twice,knight-over-pool-rusts-ring-mail-not-shoes}
+sit.c	555	dosit	js/sit.js dosit	match-text	sit on the drawbridge
+sit.c	627,635-636	rndcurse	js/sit.js rndcurse	match	saddle unbless; blind bknown
+sit.c	660-664	attrcurse	js/sit.js attrcurse	match-text	You feel less jumpy.
+quest.c	34-35	on_start	js/quest.js on_start	match	othertime pager
+quest.c	65	on_goal	js/quest.js on_goal	match	nemesis already dead
+quest.c	93	onquest	js/quest.js onquest	match	quest completed / same level
+quest.c	163	is_pure	js/quest.js is_pure	match-text	You have converted.
+quest.c	196,200-203,208-215	expulsion	js/quest.js expulsion	unreachable-C	targets.md (expulsion(TRUE) never called); JS ports the arm
+quest.c	234	finish_quest	js/quest.js finish_quest	not-compared	deaf hero tossing a non-quest invocation item at the leader; C read, JS only skimmed
+quest.c	445	chat_with_guardian	js/quest.js chat_with_guardian	match	guardtalk_after
+u_init.c	708,780-781,861-862,917	u_init_role,u_init_race,pauper_reinit	js/u_init_inventory_attrs.js	nobehaviour	closing brace and default labels
+u_init.c	875	pauper_reinit	js/startup_skills.js	match	not pauper
+u_init.c	935-939	u_init_carry_attr_boost	js/u_init_inventory_attrs.js u_init_carry_attr_boost	match	Con boost, then stop
+u_init.c	1081-1083	skills_for_role	js/role_skills.js	not-compared	coverage artefact: Wizard games (sessions seed0006, seed0108, ...) run this; the switch compiles to a table. JS name differs
+u_init.c	1167-1169	ini_inv_mkobj_filter	-	nobehaviour	comment lines inside the block
+u_init.c	1276	ini_inv_use_obj	js/u_init_inventory_use.js	not-compared	coverage artefact (Wizard's cloak runs it); JS branch present
+were.c	63-64	counter_were	js/mon.js counter_were	match	default NON_PM (-1)
+were.c	78	were_beastie	js/were.js were_beastie	match	jackal family
+were.c	104	new_were	js/mon.js new_were	match	Protection_from_shape_changers keeps human form
+were.c	108-111	new_were	js/mon.js new_were	nobehaviour	impossible()
+were.c	176-177	were_summon	js/were.js were_summon	match	non-were skip
+were.c	198	you_were	js/were.js you_were	match	Unchanging / already the beast
+mplayer.c	67	dev_name	js/mplayer.js dev_name	match	all names in use after 100 tries
+mplayer.c	79	get_mplname	js/mplayer.js get_mplname	match-text	Eve/Adam
+mplayer.c	124,127	mk_mplayer	js/mplayer.js mk_mplayer	unreachable-C	targets.md (callers pass player monsters; insurance rloc)
+mplayer.c	250-253	mk_mplayer	-	nobehaviour	impossible() default
+mplayer.c	348	create_mplayers	js/mplayer.js create_mplayers	match	no spot in 50 tries
+mplayer.c	371	mplayer_talk	js/mplayer.js mplayer_talk	match	peaceful falls through
+exper.c	54	newpw	js/exper.js newpw	match	race inrnd
+exper.c	140	experience	js/exper.js experience	match	mail daemon (MAIL_STRUCTURES is defined)
+exper.c	179-181	more_experienced	js/exper.js more_experienced	unreachable-C	64-bit wraparound cap (JS comment gives the arithmetic)
+exper.c	243,267,277	losexp	js/exper.js losexp	match	fuzzer life-save return; hp/en clamps
+exper.c	397	rndexp	js/exper.js rndexp	match	level-30 wrap guard
+write.c	20,23	cost	-	nobehaviour	preprocessor lines
+write.c	52-56	cost	js/write.js cost	unreachable-C	targets.md (impossible)
+write.c	88-89	dowrite	js/write.js dowrite	match-text	You need hands to be able to write!
+iactions.c	73	item_naming_classification	js/iactions.js item_naming_classification	match	"the" for a unique type
+iactions.c	143-147	itemactions_pushkeys	js/iactions.js	nobehaviour	impossible() default / IA_NONE label
+track.c	101	rest_track	-	nobehaviour	panic
+read.c	(3155-3156 covered)	create_particular_parse	js/read.js create_particular_parse	DIFFERS-covered	found reading the enclosing block of 3166: C d->quan = atoi(bufp) keeps the low 32 bits of a long (glibc strtol saturation then int), so "4294967298 newts" makes 2; JS Number.parseInt kept 4294967298 and took the QUAN_LIMIT branch. Convention across js/ (atoi sites using parseInt): also objnam.c 3983/3991/4192/4198 (scanCount), sit.c 58, options.c 5227/5232/4503, coloratt.c 363, mkmaze.c 595, files.c 3549/3568. D-3b-2; fixed with one hacklib.js atoi() and check scripts/c-atoi.test.mjs; proof recordings/{read.c,objnam.c,sit.c,options.c}/*past-2-to-the-32* and *legacy-value-2-to-the-32*
+sit.c	(58 covered)	throne_sit_effect	js/sit.js throne_sit_effect	DIFFERS-covered	debug answer read with atoi(); JS parseInt (D-3b-2)

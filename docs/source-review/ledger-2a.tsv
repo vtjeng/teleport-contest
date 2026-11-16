@@ -1,0 +1,290 @@
+file	lines	function	js	class	note
+mkobj.c	106	dealloc_oextra	js/obj.js	match	omailcmd free (no mail in game)
+mkobj.c	158-164	new_omailcmd	js/obj.js	skip-targets	targets unreachable (no mail delivery); NOT COMPARED in detail
+mkobj.c	168-173	free_omailcmd	js/obj.js	skip-targets	targets unreachable; NOT COMPARED in detail
+mkobj.c	187	may_generate_eroded	js/obj.js may_generate_eroded	match	worm tooth / unicorn horn
+mkobj.c	296-298	mkobj	-	nobehaviour	impossible probtype
+mkobj.c	333-335,357,373-376	mkbox_cnts	-	skip-targets	targets unreachable; NOT COMPARED
+mkobj.c	438,441-442	copy_oextra	js/obj.js copy_oextra	match	JS leaves the mextra guard to copy_mextra
+mkobj.c	463-464	splitobj	-	nobehaviour	panic (JS throws)
+mkobj.c	492,497	splitobj	js/obj.js splitobj	match	LUAFREE->FREE; free_omid on child
+mkobj.c	528	next_ident	js/obj.js next_ident	match	ident wrap
+mkobj.c	545	nextoid	js/obj.js nextoid	match	oid wrap
+mkobj.c	580-582,594,598-602,613-618	unsplitobj	js/obj.js unsplitobj	match	all branches present (targets: no caller reaches them)
+mkobj.c	645,647,653-658	replace_object	js/obj.js replace_object	match	FREE and CONTAINED cases
+mkobj.c	675-677	replace_object	-	nobehaviour	panic
+mkobj.c	689-693	unknwn_contnr_contents	js/obj.js	match	
+mkobj.c	761-763	costly_alteration	-	nobehaviour	impossible
+mkobj.c	779,799,802,804-805,822-823	costly_alteration	js/obj.js costly_alteration	match	the uncovered branches match
+mkobj.c	796-818	costly_alteration	js/obj.js costly_alteration	differs-unobservable	covered region: JS sets bknown before the switch for every location, C only for FREE/INVENT/FLOOR; differs for an OBJ_CONTAINED item uncursed/unblessed in a shop, but no COST_UNCURS/COST_UNBLSS caller (read.c 1568, potion.c 1518/1529, zap.c 1332) reaches a contained object; JS also routes OBJ_MINVENT through the carried branch (C: carried() is INVENT only), harmless since no minvent item is unpaid
+mkobj.c	909-910	mksobj_init	js/obj.js	match	50 G_NOCORPSE tries -> PM_HUMAN
+mkobj.c	1163,1167-1168	mksobj_init	-	nobehaviour	panic default
+mkobj.c	1281-1284,1291	stone_furniture_type	js/obj.js	match	
+mkobj.c	1342-1345,1356	set_corpsenm	js/obj.js set_corpsenm	match	oeaten rescale; figurine timer
+mkobj.c	1462	item_on_ice	js/obj.js item_on_ice	match	
+mkobj.c	1478-1481	start_glob_timeout	-	nobehaviour	impossible
+mkobj.c	1516-1519	shrink_glob	-	nobehaviour	impossible
+mkobj.c	1549,1614	shrink_glob	js/obj.js shrink_glob	match	container weight catch-up; nested top container
+mkobj.c	1679-1681,1691	shrinking_glob_gone	js/obj.js	match	
+mkobj.c	1750,1756,1758,1760	bless	js/obj.js bless	match	
+mkobj.c	1834	uncurse	js/obj.js uncurse	match	
+mkobj.c	1893-1896	weight	-	nobehaviour	impossible
+mkobj.c	2043	fixup_oil	js/obj.js fixup_oil	match	
+mkobj.c	2078	mkcorpstat	js/corpstat.js mkcorpstat	match	impossible; JS note_unported (C continues; JS continues)
+mkobj.c	2096	mkcorpstat	js/corpstat.js mkcorpstat	match	ptr from mtmp via monsterSpecies
+mkobj.c	2150	obj_attach_mid	js/obj.js	match	
+mkobj.c	2160,2189	save_mtraits	js/corpstat.js save_mtraits	match	
+mkobj.c	2310-2325	place_object	-	skip-targets	targets unreachable (panic/impossible)
+mkobj.c	2514,2588-2590,2611,2638,2653,2681,2701,2723	(chain helpers)	-	nobehaviour	panic
+mkobj.c	2533	discard_minvent	js/makemon_create.js	match	safe_oname vs ONAME: both '' when unnamed
+mkobj.c	2704-2705	add_to_migration	-	nobehaviour	impossible
+mkobj.c	2737	container_weight	js/invent.js	match	nested recursion
+mkobj.c	2750-2763	dealloc_obj	-	skip-targets	targets unreachable
+mkobj.c	2839	dobjsfree	-	nobehaviour	panic
+mkobj.c	2855	hornoplenty	-	nobehaviour	impossible
+mkobj.c	2921,2924	hornoplenty	js/mkobj_hornoplenty.js	match	hitfloor when cannot reach floor; doaltarobj
+mkobj.c	3250-3274,3279-3286,3302-3307,3330-3334,3435-3442	insane_obj_bits/nomerge_exception/where_name/insane_object/check_glob	-	skip-targets	targets unreachable (sanity checking)
+mkobj.c	3362,3367	init_dummyobj	js/obj.js	match	
+mkobj.c	3646-3648,3752-3753,3811-3812	obj_nexto/obj_absorb/obj_meld	-	nobehaviour	impossible
+mkobj.c	3721	obj_absorb	js/obj.js obj_absorb	match	
+invent.c	132-133	inuse_classify	js/invent.js	match	no use rating: 0, -1
+invent.c	201	loot_classify	js/invent.js	match	armcat guard
+invent.c	380-381	loot_xname	js/invent.js	match	glob size suffix
+invent.c	427,527	sortloot_cmp	js/invent.js	match	inuse tiebreak; erodeproof order
+invent.c	783,808	merge_choice	js/invent.js	match	scare monster punt; no_charge restore
+invent.c	869	merged	js/invent.js beginMerged	match	known discovery
+invent.c	894-898	merged	js/invent.js beginMerged	match	quiver mask; impossible
+invent.c	987,1380	addinv_core1/freeinv_core	-	nobehaviour	impossible quest artifact
+invent.c	1065,1104,1112	addinv_core0	-	nobehaviour	panic
+invent.c	1067	addinv_core0	js/invent.js beginAddinv	match	LOST_EXPLODING
+invent.c	1241-1243	hold_another_object	js/invent.js	match	crysknife restore
+invent.c	1419,1423	delallobj	js/invent.js	match	unpunish; skip chain
+invent.c	1490	nxtobj	js/invent.js	match	
+invent.c	1649-1654	compactify	js/invent.js	match	'#' run compaction
+invent.c	1812,1814-1815,1828-1829	getobj	js/invent.js getobj	match	queued count without allowcnt; 1828 is dead (need_more_cq variable never set)
+invent.c	1868-1870,1895-1897	getobj	-	nobehaviour	impossible
+invent.c	2022-2026,2066,2078	getobj	js/invent.js getobj	match	LRS; in_doagain return; zero count
+invent.c	2128	silly_thing	js/invent.js	match	Amulet doesn't like being called names.
+invent.c	2189-2192	safeq_shortxprname	js/invent.js	match	
+invent.c	2216-2220,2238	ggetobj	js/invent.js ggetobj	match	
+invent.c	2482,2503-2504	askchain	js/invent.js askchain	match	count 0 -> 'n'; unsplit after refusal
+invent.c	2686-2687	menu_identify	js/invent.js	match	That was all.
+invent.c	2744	identify_pack	js/invent.js	match	update_inventory
+invent.c	2756	learn_unseen_invent	js/invent.js	match	Blind sanity check
+invent.c	2840-2854	doperminv	-	skip-targets	targets unreachable; NOT COMPARED
+invent.c	2947	xprname	js/invent.js xprname	match	overflow clamp
+invent.c	3036	find_unpaid	js/invent.js	match	
+invent.c	3108-3377	display_pickinv	-	skip-targets	targets unreachable (perm_invent); NOT COMPARED
+invent.c	3447-3449	display_inventory	js/invent.js	match	queued non-key aborts
+invent.c	3457-3460	repopulate_perminvent	-	skip-targets	perm_invent only
+invent.c	3772	dounpaid	js/invent.js	match	on or under the floor
+invent.c	3935-3941	dotypeinv	-	skip-targets	targets unreachable
+invent.c	4086	dfeature_at	js/invent.js	match	raised drawbridge
+invent.c	4400,4480,4496	mergable	js/invent.js mergable	match	LOST_EXPLODING; mail flavour; known under Blind
+invent.c	4557	doprwep	js/invent.js	match	
+invent.c	4656	doprring	js/invent.js	match	meat ring inuse mode
+invent.c	4726	doprtool	js/invent.js	match	
+invent.c	4777-4778	useupf	js/invent.js	match	stolen_value
+invent.c	4813-4814	let_to_name	js/invent.js	match	
+invent.c	4882	reassign	js/invent.js	match	
+invent.c	4899-4910	check_invent_gold	-	skip-targets	targets unreachable
+invent.c	4928-4933	adjust_gold_ok	js/invent.js	match	
+invent.c	5017	adjust_split	js/invent.js	match	
+invent.c	5124	doorganize_core	-	skip-targets	targets lists as open (not unreachable); NOT COMPARED
+invent.c	5291-5305	invdisp_nothing	-	skip-targets	targets unreachable
+invent.c	5310-5325	worn_wield_only	js/invent.js	unreachable-C	both display_minventory callers (invent.c 4156, zap.c 634) pass MINV_ALL; JS matches
+invent.c	5376-5383	display_minventory	js/invent.js	match	
+invent.c	5424-5441	cinv_ansimpleoname	js/invent.js	match	C's inverted strncmp tests are preserved
+invent.c	5463-5469	display_cinventory	js/invent.js	match	
+invent.c	5514,5520,5542	display_binventory	js/invent.js	match	pair_of
+invent.c	5550-5562	prepare_perminvent	-	skip-targets	perm_invent only
+apply.c	300,302	its_dead	js/apply.js its_dead	match	Healer statue-trap / contents health words
+apply.c	328-329	use_stethoscope	js/apply.js	match	targets: probably unreachable
+apply.c	347-349	use_stethoscope	js/apply.js	match	riding while engulfed by a whirly monster
+apply.c	419-420	use_stethoscope	js/apply.js	match	slime mold disguise named by MCORPSENM
+apply.c	427-429	use_stethoscope	js/apply.js	differs-unobservable	C Mgender() is binary (female?FEMALE:MALE); JS calls mondata gender(), which returns NEUTRAL for a neuter disguiser. Every M_AP_MONSTER setter (uncut grep: dogmove.c 1436-1442 dogs and cats, sp_lev.c 2090 mimics or the Wizard of Yendor, wizard.c 529 Wizard clones, timeout.c 397 the hero) leaves a non-neuter disguiser, so gender() == Mgender() for every reachable case
+apply.c	479,498	use_whistle/use_magic_whistle	js/apply.js	match	can_blow
+apply.c	584	magic_whistled	js/apply.js	match	Trap_Killed_Mon luck
+apply.c	734-735	m_unleash	js/apply.js	match	Your leash falls slack.
+apply.c	783-784	use_leash	js/apply.js	match	from inside
+apply.c	848-850	use_leash_core	js/apply.js	match	tail
+apply.c	900-902	mleashed_next2u	-	nobehaviour	impossible
+apply.c	962	check_leash	js/apply.js	match	life-saved pacifism restore
+apply.c	1044-1056,1192-1193	use_mirror	-	skip-targets	targets unreachable; NOT COMPARED
+apply.c	1134	use_mirror	js/apply.js	match	Medusa reflects
+apply.c	1259-1260	use_bell	js/apply.js use_bell	match	cursed Bell of Opening while engulfed
+apply.c	1371-1373	use_candelabrum	js/apply.js	match	impossible + age=1 (JS note_unported)
+apply.c	1549	splash_lit	js/apply_splash_lit.js	match	water level
+apply.c	1662-1663	use_lamp	js/apply.js	match	blind lantern out of power
+apply.c	1802-1804	dorub	js/apply.js	match	
+apply.c	1907-1909	is_valid_jump_pos	js/apply.js	match	
+apply.c	1983-1984,3351-3352,3724-3725	display_*_positions	js/apply.js	match	tmp_at(DISP_END)
+apply.c	2008,2097	jump	js/apply.js	match	
+apply.c	2107-2109,2378-2380	jump/use_unicorn_horn	-	nobehaviour	impossible
+apply.c	2192-2194,2218-2220	use_tinning_kit	-	skip-targets	targets unreachable
+apply.c	2213-2214	use_tinning_kit	js/apply.js	match	Rider corpse that fails to revive (targets open); compared
+apply.c	2409-2411,2493-2496	fig_transform	-	nobehaviour	impossible
+apply.c	2418-2421,2435-2487,2503-2507	fig_transform	js/apply.js fig_transform	match	retry timer; suppress_see; floor/monster/blind messages
+apply.c	2523-2526	figurine_location_checks	js/apply.js	match	
+apply.c	2713,2769	use_stone	js/apply.js	match	pretty shards; wetstone
+apply.c	2830	use_trap	js/apply.js	match	without hands
+apply.c	2924-2926	set_trap	js/apply.js	match	reset_trapset
+apply.c	3018,3144-3145,3214-3229	use_whip	js/apply.js	match	LAVAWALL fire_damage; hidden monster newsym; fatal snatch
+apply.c	3380-3381	calc_pole_range	js/apply.js	match	expert range 8
+apply.c	3398,3407	could_pole_mon	js/apply.js	match	
+apply.c	3460-3462,3500	use_pole	js/apply.js	match	
+apply.c	3644-3646,3655-3656,3664	use_royal_jelly	js/apply.js	match	
+apply.c	3771-3773,3869	use_grapple	js/apply.js	match	
+apply.c	3925-3926	do_break_wand	js/apply.js	match	
+apply.c	4440,4442	unfixable_trouble_count	js/apply.js	match	
+objnam.c	129-131	strprepend	-	nobehaviour	impossible
+objnam.c	218,222-223,259	obj_typename	js/objnam.js obj_typename	match	generic placeholder; coin; set of dragon scales
+objnam.c	313-330	safe_typename	-	skip-targets	targets unreachable (impossible() reports only)
+objnam.c	421	fruitname	js/fruit.js	match	" of " skip
+objnam.c	474,512	fruit_from_name	js/fruit.js fruitLookup	match	longest-prefix tentative matches
+objnam.c	524-554	reorder_fruit	-	unreachable-C	only caller is insight.c 1963 under #ifdef DEBUG with explicitdebug("fruit"); not ported
+objnam.c	568-569	xcalled	-	nobehaviour	panic
+objnam.c	613,751-752,945-948,1016-1026	xname_flags	-	skip-targets	targets unreachable; NOT COMPARED
+objnam.c	674	xname_flags	js/objnam.js	match	amulet without dknown
+objnam.c	1081	minimal_xname	js/objnam.js	match	strip forced 'uncursed '
+objnam.c	1294	doname_base	js/objnam.js	match	strip leading 'the '
+objnam.c	1438-1439,1728-1747	doname_base	-	skip-targets	targets unreachable
+objnam.c	1849,1851,1900	corpse_xname	js/objnam.js corpse_xname	match	glob name; thing; no corpse suffix for globs
+objnam.c	2150-2152,2178-2180	an/the	-	nobehaviour	impossible
+objnam.c	2215	the	js/objnam.js the	match	called before named
+objnam.c	2512-2513	bare_artifactname	js/objnam.js	match	
+objnam.c	2845,2891,2963-2965	makeplural	js/fruit.js makeplural	match	leading/trailing blanks; sis->ses
+objnam.c	2847-2850,3047-3050	makeplural/makesingular	-	nobehaviour	impossible
+objnam.c	2857-2869	makeplural	js/fruit.js makeplural	DIFFERS-covered	covered region (2863 uncovered): JS's pronoun table added 'hers' -> 'their', which C's genders[] table (role.c 689-691) lacks; C pluralizes 'hers' as an ordinary word ('herses'). No valid input reaches it (fruit names pass through makesingular(), options.c 8192 via fruitadd for both the option and the O menu; probe .cache/lead/srcreview/probe2a/hers.rec.json shows '3 them'); proven with the source-pinned unit test 'makeplural maps only the pronouns in role.c genders[]' in scripts/fruit.test.mjs (fails before); fixed f969f1ceb
+objnam.c	3045	makesingular	js/fruit.js	match	
+objnam.c	3182	ch_ksound	js/fruit.js	match	
+objnam.c	3272	wishymatch	js/objnam_readobjnam.js	match	'foo of bar' swap
+objnam.c	3451	rnd_otyp_by_wpnskill	js/objnam_readobjnam.js	match	
+objnam.c	4229-4231	readobjnam_parse_charges	js/objnam_readobjnam.js	match	negative spe
+objnam.c	4383-4384,4538,4540	readobjnam_postparse1	js/objnam_readobjnam.js	match	tin of spinach; gold count clamp
+objnam.c	4700,4708-4709	readobjnam_postparse2	js/objnam_readobjnam.js	match	colored glass
+objnam.c	4767-4769,4848,4862	readobjnam_postparse3	js/objnam_readobjnam.js	match	Japanese names; fruit match types
+objnam.c	4937-4965,5168,5174	readobjnam	-	nobehaviour	switch defaults and goto dispatch on helper returns (JS uses structured returns); MAIL_STRUCTURES preprocessor lines
+objnam.c	5418	rnd_class	js/obj.js	match	
+objnam.c	5462-5465	armor_simple_name	-	nobehaviour	impossible
+objnam.c	5612	mimic_obj_name	js/objnam.js	match	
+objnam.c	5647-5690	safe_qbuf	-	skip-targets	targets unreachable
+artifact.c	154	artiname	js/artifacts.js	match	
+artifact.c	196,224	mk_artifact	js/artifacts.js mk_artifact	match	gift-value skip; negative skill index
+artifact.c	269-271	mk_artifact	js/artifacts.js mk_artifact	differs-unobservable	C disposes a non-null otmp passed with an alignment (dispose_of_orig_obj); JS replaces obj without disposing it. Every caller passes either (NULL, alignment) (pray.c 1798) or (otmp, A_NONE) (mplayer.c 266, mkobj.c 891/1100/1255), so unreachable
+artifact.c	302-304	mk_artifact	js/artifacts.js mk_artifact	match	no candidate with alignment: null
+artifact.c	313-319	dispose_of_orig_obj	js/artifacts.js	match	entries=0 (see 269-271)
+artifact.c	387	artifact_exists	js/artifacts.js	match	ring of increase damage spe
+artifact.c	412,414,511,1056,1126-1127,1473-1475,2137-2139,2173-2175	(various)	-	nobehaviour	impossible
+artifact.c	547	arti_reflects	js/artifacts.js	match	carried reflection
+artifact.c	561,566	shade_glare	js/artifacts.js	match	
+artifact.c	583,585	restrict_name	js/artifacts.js	match	
+artifact.c	654-655	defends	js/artifacts.js	match	gold dragon scales AD_HALU
+artifact.c	728,738,742,756-758	set_artifact_intrinsic	js/artifacts.js	match	
+artifact.c	980-990	arti_immune	-	skip-targets	targets unreachable (no caller)
+artifact.c	1021,1025,1046,1049-1050,1053-1055,1059	spec_applies	-	skip-targets	targets unreachable
+artifact.c	1071	spec_m2	js/artifacts.js	match	
+artifact.c	1098	spec_dbon	js/artifacts.js	match	
+artifact.c	1327,1363-1365	Mb_hit	js/artifacts.js Mb_hit	match	rehumanized; release engulfed
+artifact.c	1498,1528-1535	artifact_hit	js/artifacts.js artifact_hit	match	burn_away_slime; AD_MAGM widget (no artifact attacks with AD_MAGM)
+artifact.c	1562-1608	artifact_hit	js/artifacts.js artifact_hit	match	Tsurugi and Vorpal arms (names via monsterCommonName = mon_nam)
+artifact.c	1590,1637	artifact_hit	js/artifacts.js artifact_hit	DIFFERS-covered	Upolyd(state) instead of Upolyd(state.u): always false, so fatal damage used u.uhp while polymorphed. Fixed bc676610b with the convention check scripts/hero-predicate-arg.test.mjs; no recording (damage of 2*hp+200 kills or rehumanizes either way except for a polymorphed hero with mh > 2*uhp+200 under Half_physical_damage)
+artifact.c	1633-1636	artifact_hit	-	skip-targets	targets unreachable
+artifact.c	1770-1777,2155	invoke_taming/arti_invoke	-	skip-targets	targets unreachable (Palantir #if 0)
+artifact.c	1786,1803	invoke_healing	js/artifacts.js	match	polymorphed heal
+artifact.c	1823	invoke_energy_boost	js/artifacts.js	match	
+artifact.c	1882	invoke_create_portal	js/artifacts.js	match	tutorial skip
+artifact.c	1939-1941,1952	invoke_create_ammo	js/artifacts.js	match	
+artifact.c	1976,1982	invoke_banish	js/artifacts.js	match	
+artifact.c	2254-2259	finesse_ahriman	js/artifacts.js	match	probe and restore
+artifact.c	2291	arti_speak	js/artifacts.js	match	
+artifact.c	2315-2316	arti_cost	js/artifacts.js	match	
+artifact.c	2572	retouch_object	js/artifacts.js	match	
+artifact.c	2680,2699,2701	retouch_equipment	js/artifacts.js	match	
+artifact.c	2718,2738-2740	count_surround_traps	js/artifacts.js	match	
+artifact.c	2796	has_magic_key	js/artifacts.js	match	
+trap.c	7137	trapname	js/trap.js trapname	DIFFERS-covered	found while reviewing artifact.c's Upolyd sites (outside this reviewer's files): Upolyd(state) always false, so the hallucinatory role trap took flags.female (the form's sex) instead of u.mfemale. Proven: recipes/trap.c/trapname-hallucinating-priest-polymorphed-into-water-nymph and -cavewoman-polymorphed-into-keystone-kop fail on source-review-1 (screen steps 216, 128); fixed bc676610b
+eat.c	168	eatmdone	js/eat.js	match	
+eat.c	197-199,205-207	eatmupdate	js/eat.js	match	rind message; buffer realloc (JS strings)
+eat.c	250,276,282-284	choke	js/eat.js choke	match	
+eat.c	297-299,1096-1098,3718-3720,3796-3800,3811-3826	(various)	-	nobehaviour	impossible/debugpline (targets: consume_oeaten, floorfood unreachable)
+eat.c	382	touchfood	js/eat.js	match	dropped piece deleted
+eat.c	410-419	food_substitution	-	unreachable-C	no caller in src/ (grep food_substitution: only the definition)
+eat.c	535	eatfood	js/eat.js	match	
+eat.c	616-617,649,653	eat_brains	js/eat.js	match	
+eat.c	1138	cpostfx	js/eat.js	match	
+eat.c	1433	tin_details	js/eat.js	match	
+eat.c	1475	set_tin_variety	js/eat.js	match	TTSZ-1 == TIN_VARIETY_COUNT (15)
+eat.c	1560	consume_tin	js/eat.js	match	
+eat.c	1709,1711-1713	opentin	js/eat.js	match	
+eat.c	1837	rottenfood	js/eat.js	match	
+eat.c	1954,1975,2001	eatcorpse	js/eat.js	match	
+eat.c	2106-2107,2177,2179	fprefx	js/eat.js	match	pyrolisk egg on floor; cursed apple; MACOS preprocessor line
+eat.c	2237-2240	bounded_increase	js/eat.js	match	
+eat.c	2276,2284,2297-2300	eataccessory	js/eat.js	match	
+eat.c	2450-2451,2467-2469	eatspecial	js/eat.js	match	
+eat.c	2504	foodword	js/eat.js	match	
+eat.c	2540	fpostfx	js/eat.js	match	
+eat.c	2663,2685-2686,2701	edibility_prompts	js/eat.js	match	
+eat.c	2895-2896,2903,2940-2941	doeat	js/eat.js	match	
+eat.c	3252-3253	gethungry	js/eat.js	match	
+eat.c	3506-3511	newuhs	js/eat.js	match	
+eat.c	3624-3627	floorfood	js/eat.js	match	bear trap eaten while too burdened (targets open); compared
+eat.c	3907	cant_finish_meal	js/eat.js	match	
+eat.c	3931,3939-3940,3949,3952-3953	Popeye	js/eat.js	match	
+sounds.c	974	domonnoise	js/sounds.js 1164-1165	differs-unobservable	UNPROVEN, not changed (outside this reviewer's files; seen while checking eat.c's nomovemsg): MS_BONES writes state.gn.nomovemsg = null, but every other site (74) keeps C's gn.nomovemsg in state.nomovemsg. Unobservable while #chat is only possible with nomovemsg already null
+do_wear.c	250-251,318-319,372-373,427-428,506-507,558-559,595-596,670-671,722-723,750-751,767-768,788-789	(<slot>_on/_off)	-	nobehaviour	impossible unknown_type defaults
+do_wear.c	490	Helmet_on	js/do_wear.js	match	helm of opposite alignment curse display
+do_wear.c	618	wielding_corpse	js/do_wear.js	match	
+do_wear.c	683,696	Gloves_off	js/do_wear.js	match	Glib cure; secondary corpse
+do_wear.c	804	dragon_armor_handling	js/do_wear.js	match	
+do_wear.c	890	Armor_on	js/do_wear.js	match	
+do_wear.c	1143	Amulet_off	js/do_wear.js	match	breathless neck message
+do_wear.c	1354,1503-1505,1823-1827,1896-1898,1962-1965,1997-2000,2660-2662,2817-2818,2891-2892,2971-2973	(various)	-	nobehaviour	impossible
+do_wear.c	1412-1413	Ring_off_or_gone	js/do_wear.js	match	float_vs_flight
+do_wear.c	1788	armor_or_accessory_off	js/do_wear.js	match	cloak and suit
+do_wear.c	1927,1938-1941,1954-1961,1985-1990	armoroff	js/do_wear.js armoroff	match	cursed refusal; shield/cloak/shirt delayed; gloves/boots immediate
+do_wear.c	2058-2061,2193-2196	canwearobj	-	skip-targets	targets unreachable
+do_wear.c	2232-2233,2344-2345,2350-2352	accessory_or_armor_on	-	skip-targets	targets lists as open (not unreachable); NOT COMPARED
+do_wear.c	2392-2393	accessory_or_armor_on	-	nobehaviour	panic
+do_wear.c	2669,2679	stuck_ring	js/do_wear.js	match	
+do_wear.c	2691	unchanger	js/do_wear.js	match	
+do_wear.c	2702	select_off	-	skip-targets	targets unreachable
+do_wear.c	2835	do_takeoff	js/do_wear.js	match	
+do_wear.c	2959	take_off	js/do_wear.js	match	shirt under cloak delay
+do_wear.c	3072-3074,3076	remarm_swapwep	js/do_wear.js	match	
+do_wear.c	3225	disintegrate_arm	js/do_wear.js	match	lit gold DSM end_burn
+do_wear.c	3272	obj_erode_type	js/do_wear.js	match	
+do_wear.c	3375,3379,3381	inaccessible_equipment	js/do_wear.js	match	sameprefix cloak and suit
+pickup.c	84,1300-1302,1373-1376,1558,1811-1813,2565-2566,2689-2690,2735-2736	(various)	-	nobehaviour	impossible/panic/debugpline
+pickup.c	86	simple_look	js/pickup.js	match	single object
+pickup.c	164,179	query_classes	js/pickup.js	match	both callers pass menu_on_demand, so JS's unconditional 'm' is equivalent
+pickup.c	463	n_or_more	js/pickup.js	match	
+pickup.c	567	allow_category	js/pickup.js	match	
+pickup.c	656	find_justpicked	js/pickup.js	match	
+pickup.c	830,869,872	pickup	js/pickup.js	match	one-by-one sort; '#' count 0 and clamp
+pickup.c	954	autopick_testobj	js/pickup.js	match	
+pickup.c	1048,1061-1062,1182-1209	query_objlist	-	skip-targets	targets unreachable (fork D)
+pickup.c	1618,1632,1634,1648,1673-1675	carry_count	js/pickup.js carry_count	match	gold capacity loop (targets open)
+pickup.c	1731-1733,1762,1793	lift_object	js/pickup.js lift_object	match	
+pickup.c	1824-1825,1842	pickup_object	js/pickup.js	match	
+pickup.c	1939	pick_obj	js/pickup.js	match	remote_burglary
+pickup.c	2096	do_loot_cont	js/pickup.js	match	
+pickup.c	2134	do_loot_cont	js/pickup.js do_loot_cont	match	JS has no *cobjp out-parameter; see 2274-2283
+pickup.c	2274-2283	doloot_core	js/pickup.js 3643-3653	differs	UNPROVEN, not changed: C caches nobj = cobj->nexthere before do_loot_cont(); JS reads cobj.nexthere afterwards, and extract_nexthere() nulls it. Differs when do_loot_cont() destroys a container without abort_looting: autounlock untrap (lock.c 471-480 untrap()) setting off a chest's explosion (trap.c chest_trap) with a second container below it; the explosion roll is about 1 in 100, so no recipe was made
+pickup.c	2328-2330	doloot_core	js/pickup.js	match	
+pickup.c	2394,2419	reverse_loot	js/pickup.js	match	throne coffers; distance is from the hero in both
+pickup.c	2450-2452	loot_mon	js/pickup.js	match	
+pickup.c	2493,2504	mbag_explodes	js/pickup.js	match	
+pickup.c	2553	boh_loss	js/pickup.js	match	
+pickup.c	2605,2654	in_container	-	skip-targets	targets lists as open (not unreachable); NOT COMPARED
+pickup.c	2742	out_container	-	skip-targets	targets lists as open (not unreachable); NOT COMPARED
+pickup.c	2796-2797	removed_from_icebox	js/pickup.js	match	
+pickup.c	2853-2854	observe_quantum_cat	js/pickup.js	match	
+pickup.c	3032-3035	use_container	js/pickup.js	match	
+pickup.c	3472	in_or_out_menu	js/pickup.js in_or_out_menu	match	n > 1 second pick
+pickup.c	3476	in_or_out_menu	js/pickup.js in_or_out_menu	DIFFERS-covered	C returns (n == 0 && more_containers) ? 'n' : 'q'; JS returned the preselected default for ESC too, so ESC at the first of several containers offered the next instead of quitting. Proven: recipes/pickup.c/in_or_out_menu-escape-quits-looting-first-of-two-sacks and -next-then-escape-with-lootabc-three-sacks fail on source-review-1 (screen steps 27, 37); fixed 81dec6843
+pickup.c	3548	choose_tip_container_menu	js/pickup.js	match	
+pickup.c	3798-3799,3831	tipcontainer	js/pickup.js	match	
+pickup.c	4010,4031,4041	tipcontainer_checks	js/pickup.js	match	
+pickup.c	4004	tipcontainer_checks	js/pickup.js ~4021	differs-unobservable	C returns the target box's own result (LOCKED/TRAPPED/EMPTY/CANNOT); JS returns TIPCHECK_CANNOT. Every caller (C pickup.c 3724, 3727, 4002; JS 4022, 4115, 4118) only tests != TIPCHECK_OK

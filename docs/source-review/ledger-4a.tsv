@@ -1,0 +1,134 @@
+file	lines	function	js	class	note
+sp_lev.c	243-246	mapfrag_fromstr	js/mklev.js mapfrag_fromstr	match	more than MAP_Y_LIM lines returns NULL; JS returns null. Unreachable with shipped Lua: every mapfragment (selection.match, des.replace_terrain mapfragment) is a few lines
+sp_lev.c	269-270	mapfrag_get	js/mklev.js mapfrag_get	nobehaviour	panic(); JS throws
+sp_lev.c	286-293	mapfrag_error	js/mklev.js mapfrag_error	match	Lua error texts for a bad mapfragment; identical strings; dat mapfragments are all odd-sized with a valid centre
+sp_lev.c	353	map_cleanup	js/mklev.js map_cleanup	match	del_engr(engr_at) vs del_engr_at(x,y): same engraving removed
+sp_lev.c	420-421	lvlfill_swamp	js/mklev.js lvlfill_swamp	nobehaviour	default of switch(rn2(3)); JS keeps the empty default
+sp_lev.c	553	flip_level	js/sp_lev.js flip_level	match	flp&3==0 return; JS same. #wizfliplevel passes only 1-3 (targets.md)
+sp_lev.c	562	flip_level	js/sp_lev.js flip_level	match	maxx clamp to COLNO-1; JS same
+sp_lev.c	582	flip_level	js/sp_lev.js flip_level	match	unplacebc() when ball, chain and hero straddle the flip area; JS same test (Punished as uball && where != OBJ_FREE)
+sp_lev.c	644	flip_level	js/sp_lev.js flip_level	match	guard with mx==0 skipped after flip_vault_guard; JS same order
+sp_lev.c	677-685	flip_level	js/sp_lev.js flip_level	match	migrating guard/priest/shopkeeper whose home level is this one; JS walks state.gm.migrating_mons with the same three on_level tests and Flip_coord (x!=0 guard) semantics
+sp_lev.c	910	flip_level	js/sp_lev.js flip_level	match	placebc() after the hero flip when ball_active && !ball_fliparea; JS same position in sequence
+sp_lev.c	1002-1013	set_wall_property	js/mklev.js set_wall_property	unreachable-C	only lspo_wall_property calls it and no dat/*.lua calls des.wall_property (grep -l 'des\.wall_property' dat/*.lua: none; des.non_diggable/non_passwall go through set_wallprop_in_selection 5911-5931). Compared anyway: clamps and loop order match
+sp_lev.c	1094-1096	shared_with_room	js/mklev.js shared_with_room	match	1094: JS tests that the location exists (level.at) rather than isok(); they differ only at column 0, where no door can stand (only door squares reach it, via maybe_add_door). 1096 is unreachable: maybe_add_door() already accepts roomno == rmno before calling shared_with_room(); JS keeps the same order
+sp_lev.c	1183	rndtrap	js/mklev.js rndtrap	match	In_endgame() rejects rolling boulder and falling rock traps; JS same
+sp_lev.c	1248,1251	get_location	js/room_coordinates.js get_location	match	last-try scan found nothing: C impossible() (JS note_unported unless a hook is supplied) and leaves the last scanned square; JS leaves the same square. 1248 itself (a hit in the exhaustive scan after 100 random misses) matches
+sp_lev.c	1263-1264	get_location	js/room_coordinates.js get_location	match	out-of-bounds non-ANY_LOC result becomes x_maze_max,y_maze_max; JS reads frame.xMazeMax/yMazeMax
+sp_lev.c	1369	get_room_loc	js/room_coordinates.js get_room_loc	nobehaviour	panic(); JS throws
+sp_lev.c	1371-1377	get_room_loc	js/room_coordinates.js get_room_loc	match	one random axis; JS same rn2 calls. Unreachable: only get_free_room_loc() calls it, and both its callers (create_trap 1814, create_altar 2451) pass x=y=-1, so the 1364 branch always runs (grep get_free_room_loc src/*.c: 1823, 2454)
+sp_lev.c	1401	get_free_room_loc	js/room_coordinates.js get_free_room_loc	nobehaviour	panic(); JS throws
+sp_lev.c	1426,1437,1476	check_room	js/mklev.js check_room	match	lowy<2 clamp; themeroom shrink rejections before and after the scan; JS same tests
+sp_lev.c	1500	create_room	js/mklev.js create_room	match	rtype -1 to OROOM. Unreachable: get_table_roomtype_opt() never yields -1 (room_types[] 3959-3987 has no random entry; default OROOM); build_room() passes r->rtype
+sp_lev.c	1590-1592	create_room	js/mklev.js create_room	match	random size with given position or alignment; JS rn1 as rn2+const. Confirmed unreachable: descalls.py room lists 170 des.room calls; every one with x/y or xalign also has w and h, and the five aligned rooms all give w,h
+sp_lev.c	1605-1607,1615-1617	create_room	js/mklev.js create_room	match	SPLEV_RIGHT and BOTTOM (=5) placements; JS same arithmetic. Confirmed unreachable: dat xalign/yalign values are only "center" (5 each); random alignment is rnd(3) in {1,2,3}
+sp_lev.c	1832	create_trap	js/mklev.js create_trap	match	give up after 100 stair/ladder hits; JS same
+sp_lev.c	1702	create_subroom	js/mklev.js create_subroom	match	rtype -1 to OROOM; unreachable for the same reason as 1500
+sp_lev.c	1720,1723	create_door	js/mklev.js create_door	match	random secret and W_RANDOM; JS same. Confirmed unreachable: lspo_door() sets secret 0/1 (4705) and maps "random" to W_ANY (4703); create_room_door() does the same
+sp_lev.c	1740-1747	create_door	js/mklev.js create_door	match	random mask for a secret door; JS same rn2(5)/rn2(20). Confirmed unreachable: secret is 1 only when typ == D_SECRET, which needs msk == D_SECRET (rnddoor() never returns it), so mask is never -1 there
+sp_lev.c	1793,1804	create_door	js/mklev.js create_door	match	empty default of switch(rn2(4)); set_levltyp() refusal returns; JS same
+sp_lev.c	1865-1881	m_bad_boulder_spot	js/themeroom_fill.js m_bad_boulder_spot	unreachable-C	entries=0; only the mimic-boulder retry calls it, and that retry is dead code (see 2043-2059). Compared anyway: trap, boulder, closed/locked door tests match
+sp_lev.c	1889	pm_to_humidity	js/priest.js pm_to_humidity	match	null pm returns DRY; JS same. The port has two copies: js/priest.js pm_to_humidity and js/themeroom_fill.js monsterHumidity (create_monster's caller), both equal to the C macros (is_floater = S_EYE/S_LIGHT, noncorporeal = S_GHOST, likes_fire = fire vortex, flaming sphere, fire elemental, salamander); a layout issue (AGENTS.md one-place rule), not behaviour
+sp_lev.c	1941	create_monster	js/themeroom_fill.js createMonsterBody	nobehaviour	panic(); JS throws
+sp_lev.c	2010-2014,2021-2022,2035-2036	create_monster	js/themeroom_fill.js createMonsterBody	match	impossible() texts for a bad appear_as; JS prints the same strings through impossible(). Unreachable: dat appear_as values are ter:staircase down, ter:fountain and obj:<valid object> (descalls.py monster: 15 uses)
+sp_lev.c	2043-2054,2057-2059	create_monster	js/themeroom_fill.js createMonsterBody	unreachable-C	dead code: 1993 sets m->x to the placed square before the m->x < 0 test at 2042. JS keeps the structure (with the same comment) and matches it
+sp_lev.c	2063-2087,2090-2100,2103-2114	create_monster	js/themeroom_fill.js createMonsterBody	differs-unobservable	appear_as "mon:". JS drops name_to_mon()'s gender_name_var (2097-2098), but 2128 overwrites mtmp->female with m->female right after, so the store is never seen; JS selects the chameleon branch by cham in {chameleon, doppelganger, sandestin} or vampshifter instead of C's "not a mimic and not the Wizard", equal for every monster that passes the 1999-2002 entry test. Confirmed unreachable: no dat appear_as starts with "mon:" (descalls.py monster | grep appear_as: 11 ter:/obj:, 0 mon:). Unproven; port unchanged
+sp_lev.c	2115-2119	create_monster	js/themeroom_fill.js createMonsterBody	nobehaviour	impossible() for an unknown appear type; JS same text; lspo_monster sets only the three types or raises a Lua error
+sp_lev.c	2134	create_monster	js/themeroom_fill.js createMonsterBody	match	seentraps is hard-coded 0 (3311); JS same
+sp_lev.c	2136-2159	create_monster	js/themeroom_fill.js createMonsterBody	match	cancelled/revived/avenge/stunned/confused/invisible/blinded/paralyzed/fleeing; JS same fields and %127. Confirmed unreachable: none of those keys appears in any des.monster table (descalls.py monster, key tally over 2111 calls)
+sp_lev.c	2170,2172	create_monster	js/themeroom_fill.js createMonsterBody	match	m_lev clamp to 49 and 0; JS same. Only use is m_lev_adj=3 (minetn-1.lua 136) on a watchman-class monster far below 46
+sp_lev.c	2160-2166	create_monster	js/themeroom_fill.js createMonsterBody	differs-unobservable	covered lines nearby: JS tests vampshifted() as cham == PM_VAMPIRE or PM_VAMPIRE_LEADER and omits PM_VLAD_THE_IMPALER (monst.h 217-220), so a waiting Vlad created in bat/fog/wolf form would not be changed back. Unreachable: the waiting monsters in dat are a ghost, a class M/V/L/Z themeroom monster (mkclass excludes G_UNIQ, so never Vlad), three vampire ladies (tower1.lua 45-47) and tutorial monsters; Vlad (tower1.lua 29) is not waiting. Unproven; port unchanged
+sp_lev.c	3161-3163	find_montype	js/mklev.js find_montype	match	unknown name returns NON_PM with NEUTRAL; positional callers then draw rn2(2) for female in both
+sp_lev.c	3176	get_table_montype	js/mklev.js get_table_montype	nobehaviour	nhl_error; JS throws
+sp_lev.c	3316-3322	lspo_monster	js/mklev.js lspo_monster	match	tail/group/adjacentok/ignorewater flags; JS same defaults. Confirmed unreachable: no des.monster table has those keys (countbirth, which follows, is used and covered)
+sp_lev.c	3331	lspo_monster	js/mklev.js lspo_monster	match	"mon:" prefix; unreachable as above
+sp_lev.c	3335-3336	lspo_monster	js/mklev.js lspo_monster	nobehaviour	nhl_error; JS throws
+sp_lev.c	3367,3374	lspo_monster	js/mklev.js lspo_monster	match	keep_default_invent true/false; JS compares with 1/0 (get_table_boolean_opt result). Confirmed unreachable: no des.monster passes keep_default_invent
+sp_lev.c	2221	create_object	js/sp_lev_object.js constructObject	nobehaviour	panic(); JS throws the same text
+sp_lev.c	2225	create_object	js/sp_lev_object.js constructObject	match	class "$" makes mkgold(0); JS same. Confirmed unreachable: no des.object passes class "$" (descalls.py object, 1419 calls: classes % ) / = ? [ ! ( * + \ `)
+sp_lev.c	2247-2249	create_object	js/sp_lev_object.js applyBuc	match	not-uncursed: blessorcurse(otmp,1) with its rn2(1) then rn2(2); JS blessorcurseSpecialObject same draws. Confirmed unreachable: dat buc values are blessed, cursed, uncursed, not-cursed, not-blessed only. JS bless/uncurse helpers skip the FIGURINE stop_timer of mkobj.c 1759; unobservable because a figurine gains FIG_TRANSFORM only when carried (mkobj.c 1354-1356), and create_object() applies buc on the floor
+sp_lev.c	2260	create_object	js/sp_lev_object.js applyObjectFields	unreachable-C	corpsenm NON_PM-1 (random): nothing in sp_lev.c sets it (grep 'NON_PM - 1' src/sp_lev.c: only 2259). JS keeps the same test
+sp_lev.c	2270-2271	create_object	js/sp_lev_object.js applyObjectFields	match	named SPE_NOVEL looks up the title; JS same. Confirmed unreachable: the 18 named des.object calls name quest artifacts, Excalibur and Perseus statues
+sp_lev.c	2277-2279	create_object	js/sp_lev_object.js applyObjectFields	match	positive eroded; JS same %4 and >>2. Confirmed unreachable: dat eroded values are all -1 (3 uses)
+sp_lev.c	2285	create_object	js/sp_lev_object.js applyObjectFields	match	recharged %8 into a 3-bit field; JS wraps the same way. No dat passes recharged
+sp_lev.c	2295	create_object	js/sp_lev_object.js applyObjectFields	match	tknown for a trapped object; JS reads specification.trapKnown (the port's name for trap_known). No dat passes trap_known (trapped appears twice, without it)
+sp_lev.c	2315	create_object	js/sp_lev_object.js placeSpecialObject	match	content with no container and no carrier stays on the floor; JS same. Unreachable: SP_OBJ_CONTENT is set only when container_idx is non-zero (3725-3726)
+sp_lev.c	2331,2334-2339	create_object	js/sp_lev_object.js putInCurrentContainer	match	child of a destroyed container is uncreated (artifact_exists FALSE, obfree); JS same. Unreachable: the slot is NULL only after a buried container is deallocated (2433-2434), and bury_an_obj() deallocates only a ROCK (not under ice) or a BOULDER (dig.c 2019-2023); the only buried dat container is themerms.lua 136's chest
+sp_lev.c	2349	create_object	js/sp_lev_object.js pushContainer	nobehaviour	impossible() for more than MAX_CONTAINMENT nesting; JS same text through the hook
+sp_lev.c	2402-2403,2411-2412	create_object	js/sp_lev_object.js initializeAchievementObject	match	"multiple prizes on %s level"; JS same text. Unreachable: each mines-end and sokoban-end file marks one achievement object
+sp_lev.c	2433-2436	create_object	js/sp_lev_object.js finalizeTopLevelObject	match	deallocated buried object nulls the open container slot; JS same. Unreachable as for 2331
+sp_lev.c	2467	create_altar	js/mklev.js create_altar	match	set_levltyp() refusal returns; JS same
+sp_lev.c	2474	create_altar	js/mklev.js create_altar	match	random shrine rn2(2); JS same. Unreachable: lspo_altar() maps every type to 0, 1 or 2 (4288)
+sp_lev.c	2496-2540	search_door	js/mklev.js search_door	unreachable-C	only create_corridor() calls it, from lspo_corridor(); no dat file calls des.corridor (grep -l 'des\.corridor' dat/*.lua: none). Compared anyway: wall cases, scan and cnt countdown match; JS returns the square instead of writing *x,*y
+sp_lev.c	2683-2725	create_corridor	js/mklev.js create_corridor	unreachable-C	needs des.corridor (none in dat; random_corridors takes 2675). Compared anyway: random-wall refusal, door search, outward steps and dig_corridor(CORR, STONE) match; JS impossible() is note_unported
+sp_lev.c	3418-3433	get_table_int_or_random	js/mklev.js get_table_int_or_random	differs-unobservable	"random" string returns rndval; error text matches. JS throws for a numeric string ("5") where Lua's lua_isnumber() accepts it. Unreachable: no dat spe or quantity is a string (grep 'spe *= *"\|quantity *= *"' dat/*.lua: none). Unproven; port unchanged
+sp_lev.c	3533	find_objtype	js/mklev.js find_objtype	nobehaviour	nhl_error; JS throws
+sp_lev.c	3611-3612	lspo_object	js/sp_lev_object.js normalizeSpecification	match	(class char, coord table) form. Confirmed unreachable: the 2-argument des.object calls all pass a full object name (descalls.py object: 30 such calls, e.g. "chest",niches[1])
+sp_lev.c	3704	lspo_object	js/sp_lev_object.js	nobehaviour	nhl_error "Unknown montype"; JS level ports resolve montype themselves
+sp_lev.c	3714	lspo_object	js/sp_lev_object.js normalizedSpe	match	female=1 on a statue or corpse sets CORPSTAT_FEMALE; JS same. Confirmed unreachable: dat passes male (4) and historic (13), never female
+sp_lev.c	2567-2570	dig_corridor	js/mklev.js dig_corridor	match	bad coordinates return FALSE; JS same (debugpline omitted, no output in a normal build)
+sp_lev.c	2736	fill_special_room	js/mklev.js fill_special_room	match	null room returns; JS same
+sp_lev.c	2915	maze1xy	js/mklev.js maze1xy	not-compared	coverage artefact: the closing assignment runs on every call (entries 316,473); JS returns {x, y} after the same loop
+sp_lev.c	2974-2975	fill_empty_maze	js/mklev.js fill_empty_maze	match	re-roll rndtrap() while a pit or hole would go under a boulder; JS same loop
+sp_lev.c	2985-2989	splev_initlev	js/mklev.js splev_initlev_steps	match	impossible() default and LVLINIT_NONE; JS same. Confirmed unreachable: descalls.py level_init (166 calls) uses styles solidfill, mazegrid, maze, mines and swamp only
+sp_lev.c	3001-3003	splev_initlev	js/mklev.js splev_initlev_steps	match	LVLINIT_ROGUE calls makeroguerooms(); JS same. Unreachable as above (the Rogue tribute level comes from makelevel, not level_init)
+sp_lev.c	3014	splev_initlev	js/mklev.js splev_initlev_steps	match	random swamp lit; JS same. Confirmed unreachable: the only swamp level_init (juiblex.lua) passes lit = 0
+sp_lev.c	3085-3088	lspo_message	js/mklev.js lspo_message	nobehaviour	nhl_error with no argument; JS throws. Every des.message passes a string
+sp_lev.c	3767	lspo_level_flags	js/mklev.js lspo_level_flags	nobehaviour	nhl_error with no argument; JS throws
+sp_lev.c	3785-3787,3801	lspo_level_flags	js/mklev.js lspo_level_flags	match	shroud, graveyard, noflipx; JS sets the same fields. Confirmed unreachable: descalls.py level_flags tallies 23 flag names, none of these three
+sp_lev.c	3822-3827	lspo_level_flags	js/mklev.js lspo_level_flags	nobehaviour	"Unknown level flag %s" Lua error; JS throws the same text
+sp_lev.c	3919-3920	lspo_engraving	js/mklev.js lspo_engraving	nobehaviour	nhl_error for a wrong argument count; JS throws
+sp_lev.c	3940-3955	lspo_mineralize	js/mklev.js lspo_mineralize	unreachable-C	entries=0; no dat file calls des.mineralize (grep -l: none). Compared anyway: same four optional fields and mineralize(kelp_pool, kelp_moat, gold_prob, gem_prob, TRUE)
+sp_lev.c	3999-4000	get_mkroom_name	js/mklev.js get_mkroom_name	nobehaviour	impossible() for an unknown rtype; JS note_unported (no output); returns "unknown" in both. Unreachable: callers pass rooms' own rtypes
+sp_lev.c	4016	get_table_roomtype_opt	js/mklev.js get_table_roomtype_opt	nobehaviour	impossible() for an unknown room type; JS reports only through a hook. Confirmed unreachable: every dat des.room/des.region type is a room_types[] name
+sp_lev.c	4033	lspo_room	js/mklev.js lspo_room	match	des.room after a failed themeroom returns at once; JS same order (before lcheck_param_table)
+sp_lev.c	4038,4060,4066	lspo_room	js/mklev.js lspo_room	nobehaviour	panic() and Lua errors for bad nesting or half-given x,y / w,h; JS throws the same texts
+sp_lev.c	4130-4132	spo_endroom	js/mklev.js spo_endroom	match	top-level exit resets the frame when no map set one; JS same. Unreachable: every caller (4099, 4111, 5709) has just incremented n_subroom from at least 1, so n_subroom > 1 always holds
+sp_lev.c	4244-4278	lspo_grave	js/mklev.js lspo_grave	unreachable-C	entries=0; no dat file calls des.grave (grep -l: none). Compared anyway: both argument forms, random/fixed packing, DRY location, isok && !t_at test and make_grave match
+sp_lev.c	4368-4376	get_trapname_bytype	js/mklev.js get_trapname_bytype	unreachable-C	entries=0; only nhl_gettrap (nhlua.c 440, nh.gettrap) calls it and no dat file calls nh.gettrap (descalls tally of nh.* calls). Compared anyway: same table scan
+sp_lev.c	4387	get_traptype_byname	js/mklev.js get_traptype_byname	match	unknown name returns NO_TRAP, which lspo_trap turns into a Lua error; JS same
+sp_lev.c	4437-4443	lspo_trap	js/mklev.js lspo_trap	match	launchfrom coordinate into gl.launchplace; JS same. Confirmed unreachable: no dat des.trap passes launchfrom (grep launchfrom dat/*.lua: none; teledest is used, themerms.lua 275)
+sp_lev.c	4459	lspo_trap	js/mklev.js lspo_trap	nobehaviour	nhl_error "Unknown trap type"; JS throws
+sp_lev.c	4491-4498	lspo_gold	js/mklev.js lspo_gold	match	gold(amount,x,y) and gold(amount,{x,y}); JS same. Confirmed unreachable: dat calls are des.gold() (hellfill.lua 75) and the table form (knox.lua 58)
+sp_lev.c	4506-4509	lspo_gold	js/mklev.js lspo_gold	nobehaviour	nhl_error; JS throws
+sp_lev.c	4530-4554	lspo_corridor	js/mklev.js lspo_corridor	unreachable-C	entries=0; no dat file calls des.corridor. Compared anyway: wall option tables and fields match
+sp_lev.c	4639-4640	sel_set_feature	js/mklev.js sel_set_feature	match	off-map square ignored; JS same. Unreachable: only lspo_feature calls it, and dat feature squares are on the map
+sp_lev.c	4655-4658	sel_set_door	js/mklev.js sel_set_door	match	D_SECRET stripped and raised to at least D_CLOSED; JS same. Confirmed unreachable: the 9 dat secret doors all use the wall form (descalls.py door: Wiz-loca, sanctum, themerms, wizard1, wizard3), which goes to create_door()
+sp_lev.c	4726-4729	lspo_door	js/mklev.js lspo_door	nobehaviour	nhl_error "door coord not ok"; JS same through nhl_error
+sp_lev.c	4744-4755	l_table_getset_feature_flag	js/mklev.js l_table_getset_feature_flag	unreachable-C	entries=0; needs the table form of des.feature. Compared anyway: -2 absent, -1 random rn2(2), set/clear match
+sp_lev.c	4812-4836	nhl_abs_coord	js/mklev.js nhl_abs_coord	unreachable-C	entries=0; no dat file calls nh.abscoord. Compared anyway: both forms and cvt_to_abscoord() match
+sp_lev.c	4874-4881,4901-4923	lspo_feature	js/mklev.js lspo_feature	match	table form with flags; JS same switch. Confirmed unreachable: descalls.py feature lists 30 calls, all positional ("fountain" 29, "sink" 1)
+sp_lev.c	4894	lspo_feature	js/mklev.js lspo_feature	nobehaviour	impossible() for STONE, unreachable because luaL_checkoption() rejects unknown names first; JS note_unported
+sp_lev.c	4955-4956,4959	lspo_gas_cloud	js/mklev.js lspo_gas_cloud	match	one-square cloud and ttl override; JS same. Confirmed unreachable: the only dat call is themerms.lua 68, { selection = fog }
+sp_lev.c	4961-4962	lspo_gas_cloud	js/mklev.js lspo_gas_cloud	nobehaviour	nhl_error; JS throws
+sp_lev.c	5018-5019,5022,5032	lspo_terrain	js/mklev.js lspo_terrain	nobehaviour	Lua errors for wrong arguments, bad map char, off-map square; JS same texts
+sp_lev.c	5070	lspo_replace_terrain	js/mklev.js lspo_replace_terrain	match	toterrain >= MAX_TYPE returns; JS same
+sp_lev.c	5081-5083	lspo_replace_terrain	js/mklev.js lspo_replace_terrain	nobehaviour	mapfragment error to Lua; JS throws the same text
+sp_lev.c	5167-5169,5181-5183	generate_way_out_method	js/mklev.js generate_way_out_method	match	secret door through the +x and +y walls; JS same four tests in the same order. Reachable only by a minetn-6 layout (targets.md 65, not tried)
+sp_lev.c	5209,5214	generate_way_out_method	js/mklev.js generate_way_out_method	match	no way out; unreachable because ov2 always holds (nx,ny), so the escape-item rndcoord succeeds. JS same
+sp_lev.c	5228-5231,5234-5238	ensure_way_out	js/mklev.js ensure_way_out	match	flood from same-dungeon stairs and undestroyable traps/holes; JS same (array order differs from the ftrap chain, but the union of flood fills does not depend on order). Confirmed unreachable: minetn-6.lua is the only "inaccessibles" level; its stairs are levregions (46-47) placed by fixup_special() later and it makes no traps
+sp_lev.c	5271-5276	get_table_intarray_entry	js/mklev.js get_table_intarray_entry	nobehaviour	Lua error text "Array entry #1 ..." (C prints 1 whatever the entry); JS same
+sp_lev.c	5303-5307	get_table_region	js/mklev.js get_table_region	nobehaviour	"Not a region" Lua error; JS throws
+sp_lev.c	5342-5345,5351-5354,5363-5364	get_coord	js/mklev.js get_coord	nobehaviour	"Not a coordinate" / "non-table coord specified" Lua errors; JS throws the same texts
+sp_lev.c	5610-5611,5633-5636	lspo_region	js/mklev.js lspo_region	nobehaviour	Lua errors; JS throws
+sp_lev.c	5657	lspo_region	js/mklev.js lspo_region	nobehaviour	impossible("Too many rooms on new level!"); JS note_unported. No dat level approaches MAXNROFROOMS regions
+sp_lev.c	5695	lspo_region	js/mklev.js lspo_region	nobehaviour	impossible("region as subroom"); JS note_unported. Confirmed unreachable: no des.region runs inside des.room contents (descalls.py room | grep des.region: 0)
+sp_lev.c	5752-5755	lspo_drawbridge	js/mklev.js lspo_drawbridge	nobehaviour	"drawbridge coord not ok"; JS keeps C's test of the unconverted mx,my
+sp_lev.c	5759	lspo_drawbridge	js/mklev.js lspo_drawbridge	nobehaviour	impossible("Cannot create drawbridge."); JS note_unported; dat drawbridges sit on valid moat squares
+sp_lev.c	5806-5809	lspo_mazewalk	js/mklev.js lspo_mazewalk	nobehaviour	"mazewalk coord not ok"; JS same
+sp_lev.c	5812-5813	lspo_mazewalk	js/mklev.js lspo_mazewalk	match	typ that maps to STONE becomes CORR/ROOM by corrmaze; JS same. Confirmed unreachable: no dat mazewalk passes typ (descalls.py mazewalk: 13 calls)
+sp_lev.c	5816,5820-5822	lspo_mazewalk	js/mklev.js lspo_mazewalk	match	random direction and north; JS same. Confirmed unreachable: dat directions are east, west and south only
+sp_lev.c	5832-5833	lspo_mazewalk	js/mklev.js lspo_mazewalk	nobehaviour	impossible("mazewalk: Bad direction"); JS prints it
+sp_lev.c	5877-5908	lspo_wall_property	js/mklev.js lspo_wall_property	unreachable-C	entries=0; no dat file calls des.wall_property. Compared anyway: defaults, get_location(ANY_LOC) and set_wall_property match
+sp_lev.c	5977-5981	lspo_wallify	js/mklev.js lspo_wallify	match	table form; JS same. Confirmed unreachable: all 14 dat des.wallify calls pass no argument
+sp_lev.c	5999-6004	lspo_reset_level	js/mklev.js lspo_reset_level	match	Lua-state branch remakes the coder; JS tests args !== null. Unreachable: no dat file calls des.reset_level; #wizloaddes passes NULL (wizcmds.c 388; js/wizcmds.js 757 passes null)
+sp_lev.c	6020,6027,6041,6046,6053	lspo_finalize_level	js/mklev.js lspo_finalize_level	match	Lua-state-only steps (coder, ensure_way_out, flip, solidify, premap); JS guards each with args !== null. Unreachable as for lspo_reset_level (wizcmds.c 390)
+sp_lev.c	6108	lspo_map	js/mklev.js lspo_map (themeroom form)	match	des.map after a failed themeroom returns; JS themeroom path returns null before placing
+sp_lev.c	6134-6137,6186-6190	lspo_map	js/mklev.js createSpecialLevelApi map	nobehaviour	Lua errors "Map data error" / "Map requires either x,y or halign,valign params"; JS throws the same texts
+sp_lev.c	6150-6152,6160-6162	lspo_map	js/mklev.js lspo_map (themeroom form)	match	themeroom map placed relative to an enclosing room (somex/somey); JS themeroom form has no croom case. Confirmed unreachable: every themerms.lua des.map is in a themeroom's own contents function (coder->croom NULL), and no dat des.map is inside des.room or des.region contents (descalls.py room/region | grep des.map: 0)
+sp_lev.c	6173-6178	lspo_map	js/mklev.js createSpecialLevelApi map	match	map at x,y inside a room, clipped to the room; JS same arithmetic. Unreachable as above (the three dat x,y/coord maps, bigrm-13.lua 61 and hellfill.lua 267/293, are top level)
+sp_lev.c	6229-6231	lspo_map	js/mklev.js lspo_map (themeroom form)	match	themeroom map off the rows fails; unreachable because the themeroom ystart is rn2(ROWNO - hei)
+sp_lev.c	6237	lspo_map	js/mklev.js createSpecialLevelApi map, mapFromRows	match	a full-height (21-row) map starts at row 0; JS same in both forms. Reachable: 21-row maps exist (minetn-5.lua Grotto Town, medusa-4, fire, Mon-loca, Rog-strt/loca/goal, Wiz-loca, Ran-strt); the coverage runs reached none of them. Hand-traced for Grotto Town (string form): ystart = 2 + (20-2-21)/2 = 1, 1+21 > 21, -2 gives -1, ysize == ROWNO gives 0, in C and JS
+sp_lev.c	6240	lspo_map	js/mklev.js createSpecialLevelApi map, mapFromRows	match	1x1 map resets the frame; JS same. No dat des.map is 1x1 (the 1x1 [[w]] strings are replace_terrain mapfragments)
+sp_lev.c	6283-6284	lspo_map	js/mklev.js createSpecialLevelApi map	match	invalid map character skipped; JS same. All dat map characters are valid
+sp_lev.c	6331-6332	update_croom	js/mklev.js update_croom	match	n_subroom 0 gives NULL; unreachable (n_subroom starts at 1, 6346). JS same

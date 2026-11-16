@@ -1,0 +1,255 @@
+file	lines	function	js	class	note
+cmd.c	310-311,325,329-330	cmdq_add_dir,cmdq_add_userinput	js/cmd.js	match	queue append to non-empty tail / empty queue; list handling only
+cmd.c	450	pgetchar	js/cmd.js readchar_core	nobehaviour	debug_fuzzer only
+cmd.c	483-484	can_do_extcmd	js/cmd.js can_do_extcmd	unreachable-C	u.uburied is set only by dig.c bury_you() (2222), which has no caller (grep bury_you src/*.c); JS text matches
+cmd.c	486	can_do_extcmd	-	nobehaviour	debug_fuzzer only
+cmd.c	790-791,862,867	extcmd_via_menu	-	nobehaviour	impossible()/overflow guards (MAX_EXT_CMD, QBUFSZ)
+cmd.c	935	domonability	js/cmd.js domonability	unreachable-C	u.uburied never set (see 483); JS text matches
+cmd.c	960-967	enter_explore_mode	js/cmd.js	skip-targets	targets: sysconf EXPLORERS only; text compared and matches
+cmd.c	1002	makemap_prepost	js/cmd.js makemap_prepost	match-text	"Mine's-end achievement revoked."
+cmd.c	1006	makemap_prepost	js/cmd.js makemap_prepost	DIFFERS	"C pline(Unachieve, ""Soko-prize"") prints ""Soko-prize achievement revoked.""; JS prints ""Sokoban end achievement revoked."" (see findings D-2c-1)"; fixed 1ca95e294, proof recordings/cmd.c/makemap_prepost-soko-prize-revoked-{bag-of-holding,amulet-of-reflection}
+cmd.c	1090-1094	levltyp_to_name	js/cmd.js levltyp_to_name	match	entries=0 in C; pure lookup
+cmd.c	1234,1256	u_have_seen_bounds_selection,u_can_see_whole_selection	js/cmd.js	match	unexplored left/right edge; unseen point
+cmd.c	2104,2131,2142-2144,2170,2187,2228	extcmds_getentry,cmdbind_*,count_bind_keys	js/cmd.js	nobehaviour	bounds guard, free() of bind params, count of bound keys in a path no key list reaches
+cmd.c	2540-2542	extcmds_match	js/cmd_autocomplete.js	match	CMD_NOT_AVAILABLE skip; null findstr
+cmd.c	2968	dokeylist	js/cmd.js	not-compared	skip special key with no binding row; C read, JS side not read
+cmd.c	3024,3064	ext_func_tab_from_func,cmd_from_func	js/cmd.js	not-compared	not-found returns; C read, JS side not read
+cmd.c	3082-3083,3087-3088	cmd_from_ecname	js/cmd.js cmd_from_ecname	match	only caller nhlua nh.eckey(); unbound command gets #name
+cmd.c	3093-3102	ecname_from_fn	js/cmd.js ecname_from_fn	skip-targets	targets unreachable; JS equivalent lookup
+cmd.c	3124,3129-3154	cmdname_from_func	js/cmd.js cmdname_from_func	unreachable-C	every caller (pager.c 2921, 2935, 2949; options.c 5978) passes fullname TRUE; 3124 needs fn without a row (all callers pass a listed fn)
+cmd.c	3260,3319	parseautocomplete,count_autocompletions	js/cmd_autocomplete.js	match	3319 read (count_autocompletions); 3260 parseautocomplete not read
+cmd.c	3297-3308	all_options_autocomplete	js/cmd.js	skip-targets	targets unreachable (#saveoptions fopen)
+cmd.c	3582-3598,3602-3604	random_response,rnd_extcmd_idx	-	nobehaviour	debug fuzzer only
+cmd.c	3640,3656	rhack	js/cmd.js	nobehaviour	3640 SAFERHANGUP hangup; 3656 parse() pushing a canned cmd without a key (click/menu queue paths)
+cmd.c	3699-3700	rhack	js/cmd.js	DIFFERS	JS prefixRefusedCommand() always named the prefix by its key and printed '^@' when none is bound; C falls back to "move-no-pickup or request-menu" for do_reqmenu, else ef_txt. Reached with BIND moving the prefix key and #reqmenu/#fight. See findings D-2c-3; fixed 00335d602, proof recordings/cmd.c/rhack-unbound-{reqmenu-prefix-named-by-description,fight-prefix-named-by-command}
+cmd.c	3975-3977,3986,3997-4007,4081,4085-4089	getdir	js/cmd.js getdir	nobehaviour	impossible(), fuzzer, readchar_queue click
+cmd.c	4130	show_direction_keys	js/cmd.js	not-compared	centerchar default; C read, JS side not read
+cmd.c	4231,4235-4236	help_dir	js/cmd.js help_dir	unreachable-C	4231 create_nhwindow failure; 4235 buf is filled only in the #if 0 block (4198-4220)
+cmd.c	4321	directionname	js/cmd.js	not-compared	invalid dir; C read, JS side not read
+cmd.c	4354,4444,4537	dotherecmdmenu,there_cmd_menu_self,there_cmd_menu_next2u	js/cmd.js	unreachable-C	4354 needs clicklook_cc set (mouse click only); 4444/4537 guard callers already test
+cmd.c	4907-4913,5263-5264,5222,5382-5384	click_to_cmd,readchar_core,doclicklook	-	skip-targets	targets: mouse clicks / readchar_queue only
+cmd.c	5050	get_count	js/cmd.js get_count	match	AppendLongDigit overflow -> 0 (JS BigInt, same)
+cmd.c	5066	get_count	-	nobehaviour	impossible
+cmd.c	5128	parse	js/cmd.js	nobehaviour	assigns command_count its own value (last_command_count was set from it on 5121)
+cmd.c	5162-5209,5218-5219,5244-5247	hangup,end_of_input,readchar_core	-	skip-targets	targets: SIGHUP/EOF/fuzzer
+cmd.c	5331	dotravel	js/cmd.js dotravel	match	restore getloc_filter after a successful getpos_menu
+cmd.c	5490-5494,5514-5529	yn_function	-	skip-targets	targets: overlong query / fuzzer
+cmd.c	5675-5676	dosuspend_core	js/cmd.js dosuspend_core	unreachable-C	tty win_can_suspend is genl_can_suspend_yes (JS comment agrees); entries=15 all took the dosuspend() arm
+cmd.c	5700-5702	dummyfunction	-	nobehaviour	placeholder
+hack.c	74-78	uint_to_any	-	nobehaviour	entries=0; menu helper
+hack.c	119,131-132	revive_nasty	js/hack.js revive_nasty	match	occupant moved before Rider revival; unsafe revived spot
+hack.c	222,225,234,238,242-243	dopush	js/hack.js dopush	match	shop-boundary bill branches (addtobill/subfrombill/stolen_value) same conditions and order
+hack.c	279-281	cannot_push	js/hack.js cannot_push	match-text	unskilled rider, giant form
+hack.c	318-319	rock_disappear_msg	js/hack.js rock_disappear_msg	match-text	steed form
+hack.c	376,428,529,539-542,565,573-575,585	moverock_core	js/hack.js moverock_core	match	boulder brought to top; blind feel; landmine rn2 fail break; pit flooreffects false; level-teleporter same-level dopush; costly stolen_value
+hack.c	1066-1068	test_move	-	nobehaviour	impossible-glyph text
+hack.c	1559,1583,1683-1688	trapmove	js/hack.js trapmove	skip-targets	targets: sanity checks / null desttrap
+hack.c	1613,1622-1623	trapmove	js/hack.js trapmove	differs-unobservable	C upstart(steedname) on 1613 capitalizes y_monnam()'s buffer in place, so 1622 would print "You lead Your pony to the edge of the lava."; JS upstart() copies and prints "your pony". Unreachable: pooleffects() 3273-3287 dismounts a grounded steed entering lava and a flier cannot be TT_LAVA; unproven
+hack.c	1665-1666	trapmove	js/hack.js trapmove	match-text	steed stuck in floor
+hack.c	1874-1876	handle_tip	-	nobehaviour	impossible
+hack.c	2056	domove_fight_web	js/hack.js	match	armor/food/venom weapon description as-is (JS 3666 same list)
+hack.c	2123,2148-2150	domove_swap_with_pet	js/hack.js domove_swap_with_pet	match	boulder-pinned pit; unseen trap feeltrap+just_an; JS noit_Monnam vs C YMonnam is equivalent because is_safemon() requires canspotmon(); x_monnam() turns ARTICLE_YOUR into ARTICLE_THE for a non-tame monster (do_name.c 848), so noit_mon_nam() and y_monnam() give the same article; saddle suppression differs only for the steed, which cannot be swapped
+hack.c	2183-2189,2196-2221	domove_swap_with_pet	js/hack.js domove_swap_with_pet	skip-targets	targets batch 20 unreachable (peaceful refuses trapped/unsafe square); compared anyway, matches
+hack.c	2668-2670	escape_from_sticky_mon	js/hack.js	match	rn2(8)==3 wakes holder
+hack.c	2868	domove_core	js/hack.js	match	in_out_region refusal return
+hack.c	3073	invocation_message	js/hack.js invocation_message	match-text	beneath steed
+hack.c	3122-3127	classify_terrain	js/display.js classify_terrain	match	db_under_typ mapping
+hack.c	3276,3294	pooleffects	js/hack.js	match	floating steed / ceiling hider returns
+hack.c	3412-3414	spoteffects	js/hack.js	match-text	ice warnings
+hack.c	3438	spoteffects	js/hack.js	match	piercer half physical damage
+hack.c	3516-3558	in_rooms	js/rooms.js	skip-targets	targets unreachable (SHARED_PLUS never assigned; edge rooms)
+hack.c	3722	check_special_room	js/rooms.js	match	Delphi without oracle: msg_given FALSE
+hack.c	3757-3758	check_special_room	js/rooms.js	unreachable-C	TEMPLE falls through to default which sets rt=0, so the second switch never sees TEMPLE; JS same
+hack.c	3908-3911	lookaround	js/hack.js	match-text	grid bug diagonal run
+hack.c	4068,4091	doorless_door,crawl_destination	js/hack.js	match	
+hack.c	4271,4282	losehp	js/hack.js losehp	match	negative loss raises max
+hack.c	4487-4493	cmp_weights	-	nobehaviour	entries=0 wizard weight table sort
+hack.c	4540-4541	spot_checks	js/hack.js	match	stop MELT_ICE_AWAY timer
+hack.c	4557-4561	rounddiv	js/hack.js	nobehaviour	panic / negative divisor (no caller passes y<0)
+do.c	56,175	boulder_hits_pool,flooreffects	-	nobehaviour	impossible/panic
+do.c	74-75,102	boulder_hits_pool	js/do.js boulder_hits_pool	match	drawbridge span filled with DB_FLOOR; steed pushes ("Your pony pushes"; vtense is case-insensitive so upstart order is moot)
+do.c	264	flooreffects	js/do.js	not-compared	reset_utrap when the filled pit holds the hero; C read, JS side only grepped or not read
+do.c	411,417,429,452-453	polymorph_sink	js/do.js polymorph_sink	match	not-a-sink return; looted throne; "The sink vanishes." when make_grave fails
+do.c	493	teleport_sink	js/do.js	match	200 tries fail
+do.c	692,706-708	canletgo	js/do.js canletgo	match-text	throw count kludge on cursed loadstones; saddle
+do.c	724-725	drop	js/do.js drop	unreachable-C	canletgo() 672 already refuses a welded uwep (JS comment agrees)
+do.c	765,771	drop	js/do.js drop	match	invoked Heart of Ahriman levhack
+do.c	812	dropz	js/do.js	not-compared	clear quiver; C read, JS side not read
+do.c	896	obj_no_longer_held	js/obj.js	not-compared	null obj; C read, JS side not read
+do.c	971	menudrop_split	js/do.js	match	cursed loadstone count kludge
+do.c	1095	menu_drop	js/do.js	not-compared	skip unpaid/worn in A drop; C read, JS side not read
+do.c	1120-1123	u_stuck_cannot_go	js/do.js u_stuck_cannot_go	match-text	sticky hero releases holder
+do.c	1257-1287	dodown	js/do.js dodown	unreachable-C	trap is non-null here only for a seen hole under the hero, and uescaped_shaft() (trap.c 6660) is then TRUE, so 1225-1227 already took dotrap(TOOKPLUNGE) and returned; JS has the same reading and the same code
+do.c	1318-1319,1332,1337-1338	doup	js/do.js	match	stucksteed; fuzzer; held back by pet
+do.c	1366-1368,1384	currentlevel_rewrite,save_currentstate	-	nobehaviour	file creation failure
+do.c	1417-1422,1439-1444	u_collide_m	js/do.js	skip-targets	targets unreachable
+do.c	1506-1508	goto_level	js/do.js goto_level	match	endgame without the Amulet / earth redirect
+do.c	1553	goto_level	js/do.js goto_level	match	mysterious force stays inside the Wizard's tower
+do.c	1587-1591	goto_level	-	nobehaviour	Lua NHCB_LVL_LEAVE callback; no dat file registers one outside the tutorial (tutorial_leave removes it)
+do.c	1599	goto_level	-	nobehaviour	currentlevel_rewrite failure
+do.c	1696-1698,1707-1708	goto_level	-	nobehaviour	impossible/error
+do.c	1736	goto_level	js/do.js	skip-targets	targets unreachable (expulsion(TRUE) never called)
+do.c	1901	goto_level	js/do.js	match	Knox alarm skips dead monsters
+do.c	2089-2094	deferred_goto	js/do.js deferred_goto	match	UTOTYPE_RMPORTAL deletes portal
+do.c	2148,2205	revive_corpse	js/do.js revive_corpse	match-text	container carried by a seen monster: "%s writhes out of %s!"
+do.c	2203,2216,2238-2241	revive_corpse	-	nobehaviour	impossible() and closing brace
+do.c	2282-2283	revive_mon	js/do.js revive_mon	match	Rider retries with rider_revival_time(TRUE)
+do.c	2306	zombify_mon	js/do.js zombify_mon	match	free_omid
+teleport.c	269,389,409,443,690	enexto_core,tele_jump_ok,teleok,collect_coords	js/teleport.js	not-compared	guard returns; C read, JS side not read
+teleport.c	513-520	teleds	js/teleport.js teleds	not-compared	drag_ball failure: unplacebc only if uball still placed; C read, JS side only grepped or not read
+teleport.c	766-767	safe_teleds	js/teleport.js	not-compared	backup spot after 400 tries; C read, JS side not read
+teleport.c	820-822	tele_to_rnd_pet	-	nobehaviour	impossible
+teleport.c	987,991	dotelecmd	js/teleport.js dotelecmd	match	wizard ^T menu choice / default 'w'
+teleport.c	1059,1116,1136-1137,1149,1156-1157	dotele	js/teleport.js dotele	match-text	vault-teleporter trap cleared; too weak from hunger; spell fails without break_the_rules; fixed teledest; leashed pet "You shudder for a moment."
+teleport.c	1175-1184	level_tele	js/teleport.js level_tele	nobehaviour	debug_fuzzer only (JS keeps it)
+teleport.c	1187-1188,1206-1207,1407-1409,1412	level_tele	js/teleport.js level_tele	match-text	disoriented; [type a number or name]; Sorry... (no invocation); quest floor
+teleport.c	1324	level_tele	-	nobehaviour	debug_fuzzer
+teleport.c	1451,1454-1455,1461,1470-1471	domagicportal	js/teleport.js domagicportal	match-text	buried ball; shudder; portal-landed return; dizzy without the Amulet
+teleport.c	1499,1507,1521	tele_trap	js/teleport.js tele_trap	match-text	recursion guard; shudder (leash / no room at teledest)
+teleport.c	1595-1599	rloc_pos_ok	js/teleport.js rloc_pos_ok	match	Wizard-tower arrival XOR test
+teleport.c	1755-1757	rloc_to_core	js/teleport.js	match	no_charge cleared / stolen_value for minvent leaving shop
+teleport.c	1819-1822	rloc	js/teleport.js rloc	match	Wizard in tower picks tower stairs
+teleport.c	1908-1911,1914	control_mon_tele	js/teleport.js	match	coordinate fallback; non-wizard return
+teleport.c	2015	mlevel_tele_trap	js/teleport.js mlevel_tele_trap	match	u.ustuck kludge
+teleport.c	2024-2028,2057-2061	mlevel_tele_trap	js/teleport.js mlevel_tele_trap	match-text	"%s avoids the hole/trap."; "%s seems very disoriented for a moment."
+teleport.c	2068	mlevel_tele_trap	js/teleport.js	unreachable-C	NO_TRAP arm: the only caller (trap.c 2100) passes a trap; JS omits the arm
+teleport.c	2080-2081	mlevel_tele_trap	-	nobehaviour	impossible
+teleport.c	2109-2110,2121,2171,2174-2175	rloco	js/teleport.js rloco	match	Rider corpse revives; try_limit break; same-shop unpaid subfrombill / boundary addtobill
+teleport.c	2250-2255	random_teleport_level	js/teleport.js random_teleport_level	match	below-min clamp + rnd(3)
+teleport.c	2283,2289	u_teleport_mon	js/teleport.js	not-compared	engulfer on no-teleport level into limbo; rloc failure; C read, JS side not read
+dig.c	35,39,53,62-65,77,130-134	rm_waslit,mkcavepos,mkcavearea	js/dig.js	match	Earth-level cave helpers: lit test, portal skip, monster rloc, waslit, CORR->ROOM
+dig.c	83	mkcavepos	-	nobehaviour	impossible
+dig.c	227,232	dig_check	js/dig.js dig_check	not-compared	water level / undestroyable trap codes; C read, JS side only grepped or not read
+dig.c	262,265-267,288-295	digcheck_fail_message	js/dig.js	skip-targets	targets unreachable
+dig.c	398	dig	js/dig.js dig	match	bear-trap self-hit damage floor of 1
+dig.c	428-430	dig	js/dig.js	skip-targets	targets unreachable (altar refused by dig_check)
+dig.c	490-492,512-514,518,526	dig	js/dig.js dig	match	shop wall SHOP_WALL_DMG=10*ACURRSTR "damage"; shop door SHOP_DOOR_COST "break"; statue/boulder taken; pay_for_damage
+dig.c	559	dig	js/dig.js	not-compared	; C read, JS side only grepped or not read
+dig.c	583,586-587	furniture_handled	js/dig.js furniture_handled	match	drawbridge destroyed via find_drawbridge
+dig.c	658,692,709-710,763-765,777,813-817	digactualhole	js/dig.js digactualhole	match-text	INFLOOR reset; maketrap failure; "%s digs %s %s the %s."; "You are jerked back by your pet!"; shop door ruin; stronghold/bottom-level "%s avoids the trap." (make_angry_shk ox/oy are UNUSED in shk.c 1472, so JS passing x,y is equivalent)
+dig.c	665-668	digactualhole	-	nobehaviour	impossible
+dig.c	850-856	liquid_flow	-	skip-targets	targets unreachable / sanity_check
+dig.c	902,933,973-975	dighole	js/dig.js dighole	match-text	drawbridge too hard; "The %s %shere is too hard to dig in."; 933 and 973-975 text read in JS, 902 guard not read
+dig.c	1040	dig_up_grave	js/dig.js	not-compared	; C read, JS side only grepped or not read
+dig.c	1133	use_pick_axe	js/dig.js	not-compared	NODIAG skip in direction list; C read, JS side only grepped or not read
+dig.c	1197-1199	use_pick_axe2	js/dig.js	match-text	Clash!
+dig.c	1396-1398	watch_dig	js/dig.js	match	door/tree names for the watchman warning
+dig.c	1459-1463	mdig_tunnel	-	nobehaviour	impossible
+dig.c	1540	draft_message	js/dig.js draft_message	match	
+dig.c	1576,1701,1705-1706	zap_dig	js/dig.js zap_dig	match-text	engulfer half HP; "The tree shudders but is unharmed."; STONE->CORR
+dig.c	1771,1773	adj_pit_checks	js/dig.js	skip-targets	targets unreachable
+dig.c	1796-1797	adj_pit_checks	js/dig.js adj_pit_checks	unreachable-C	1777 sets room->flags = 0 first and wall_info aliases flags (rm.h), so the W_NONDIGGABLE test is always false; JS does the same
+dig.c	1813-1814,1829	adj_pit_checks	js/dig.js adj_pit_checks	match-text	ladder; drawbridge supporting structures
+dig.c	2011,2022	bury_an_obj	js/bury.js	not-compared	unleash; dealloced flag; C read, JS side only grepped or not read
+dig.c	2169	rot_corpse	js/dig.js	not-compared	monster-wielded corpse; C read, JS side only grepped or not read
+timeout.c	161,430	stoned_dialogue,slime_dialogue	js/timeout.js	not-compared	nomul(0) when multi>0; C read, JS side not read
+timeout.c	236	vomiting_dialogue	js/timeout.js	match-text	"gag uncontrollably." for a cantvomit form
+timeout.c	463-464	slimed_to_death	js/timeout.js	not-compared	lifesaved slime / free killer; C read, JS side not read
+timeout.c	708-709,718-719	nh_timeout	js/timeout.js nh_timeout	skip-targets	targets: no-cause sickness / unique non-pname source; compared anyway, matches
+timeout.c	749	nh_timeout	js/timeout.js nh_timeout	match	BLINDED end stops occupation when sight returns
+timeout.c	886-887	nh_timeout	js/timeout.js nh_timeout	match-text	MAGICAL_BREATHING end inside a gas region
+timeout.c	1030,1062,1148	hatch_egg	js/timeout.js hatch_egg	match-text	sterilized egg; extinct; "empty water"; 1148 read, 1030/1062 JS not read
+timeout.c	1160-1162	hatch_egg	-	nobehaviour	impossible
+timeout.c	1230,1331-1333	slip_or_trip	js/timeout.js slip_or_trip	match-text	object in pool ignored; "You bang into the saddle-horn."
+timeout.c	1467,1649,1659,1665	burn_object	js/timeout.js burn_object	match	migrating lamp/candle owornmask; refuelled default
+timeout.c	1672-1674	burn_object	-	nobehaviour	impossible
+timeout.c	1719,1769-1771,1782-1783,1794-1795	begin_burn	js/timeout.js begin_burn	skip-targets	targets unreachable (burnt-out lamp / impossible / start_timer failure)
+timeout.c	1807-1809,1821,1833-1835	end_burn,cleanup_burn	-	nobehaviour	impossible
+timeout.c	1998-2010	kind_name	js/timeout.js	skip-targets	targets unreachable
+timeout.c	2257,2340-2353	start_timer,obj_move_timers	-	skip-targets	panic / whole function unreachable (targets)
+timeout.c	2431	spot_stop_timers	js/timeout.js	not-compared	cleanup callback for a stopped spot timer; C read, JS side not read
+timeout.c	2511,2519,2532-2549	write_timer	-	skip-targets	targets unreachable (save file)
+timeout.c	2561-2577,2604-2618,2752-2774	obj_is_local,timer_is_local,relink_timers	js/timeout.js	nobehaviour	uncovered lines are panic() and the TIMER_GLOBAL/TIMER_MONSTER arms of timer_is_local(); these helpers also run on every level change (maybe_write_timer), but no start_timer() call uses those kinds; JS timer_is_local/obj_is_local read and match
+sounds.c	162,295	temple_priest_sound,dosounds	js/sounds.js	not-compared	loop skips; C read, JS side not read
+sounds.c	382-384,391-393	growl_sound	js/sounds.js growl_sound	match	wail / commotion
+sounds.c	460-462	yelp	js/sounds.js yelp	match	wail / cringe
+sounds.c	523,529-532,538-539	beg	js/sounds.js beg	skip-targets	targets: open (pet confused from hunger, unseen); compared: text and order match
+sounds.c	562	maybe_gasp	js/sounds.js maybe_gasp	match	co-aligned angel gasps as MS_HUMANOID
+sounds.c	597	maybe_gasp	js/sounds.js	match	MS_BRIBE no gasp
+sounds.c	625,638-640,647-649	cry_sound	js/sounds.js cry_sound	match	default/chirp/grunt
+sounds.c	669	mon_is_gecko	js/sounds.js	match	long worm
+sounds.c	818	domonnoise	js/sounds.js domonnoise	unreachable-C	vampmsg[] has two entries, so rn2(SIZE(vampmsg)) never reaches index 2; JS draws rn2(2)
+sounds.c	862-863,1052	domonnoise	js/sounds.js domonnoise	match-text	hungry kitten "meows."; hungry humanoid pet "I'm hungry."
+sounds.c	1117	domonnoise	js/sounds.js	skip-targets	SYSOPT_SEDUCE off needs sysconf (targets)
+sounds.c	1215-1216	domonnoise	js/sounds.js domonnoise	match	Death's Sandman line: C's rn2(3)&&Death_quote fallthrough draws rn2(10) exactly as JS's nested else
+sounds.c	1299-1300	dochat	js/sounds.js dochat	match-text	helpless steed
+sounds.c	1434,1454,1484,1510-1512	tiphat	js/sounds.js tiphat	match-text	no helmet; steed doesn't notice; disguised mimic dropped; cursed helmet "grasps %s %s but can't remove it."
+sounds.c	1784,1787-1792,1801,1871	activate_chosen_soundlib,assign_soundlib,get_soundlib_name	js/sounds.js	nobehaviour	panic / sound-library init hooks (nosound backend)
+sounds.c	2089-2152	base_soundname_to_filename	-	nobehaviour	entries=0; sound files only
+worn.c	88,1024-1026,1394-1396	setworn,which_armor,extract_from_minvent	-	nobehaviour	impossible
+worn.c	157,159,173,175	setnotworn	js/worn.js setnotworn	match	null obj; twoweap off; artifact intrinsic; blocked prop
+worn.c	213	wearmask_to_obj	js/worn.js	not-compared	; C read, JS side not read
+worn.c	219-246	wornmask_to_armcat	-	skip-targets	targets: whole function dropped (unreachable)
+worn.c	316-318,322-325,332,338-348	wearslot	js/worn.js wearslot	skip-targets	targets: 322-325/338-348 unreachable, 316-318/332 rare; compared: same mapping
+worn.c	504,516-518	mon_adjust_speed	js/worn.js mon_adjust_speed	not-compared	slowed monster sped back to normal; -2 unused; C read, JS side only grepped or not read
+worn.c	608,641,645,672,676	update_mon_extrinsics	js/worn.js	not-compared	; C read, JS side not read
+worn.c	734	find_mac	js/worn.js find_mac	match	AC_MAX cap
+worn.c	967,983-989	m_dowear_type	js/worn.js m_dowear_type_steps	match-text	map portStatus none: JS name is m_dowear_type_steps; end_burn of replaced lit armor; "%s %s shining %s.", "Something begins to shine %s.", "Something is shining %s." (JS silent == C creation)
+worn.c	1107	clear_bypasses	js/worn.js	not-compared	; C read, JS side not read
+worn.c	1207-1210	mon_break_armor	js/worn.js	skip-targets	targets unreachable (no artifact cloak)
+worn.c	1320,1323-1332	mon_break_armor	js/worn.js mon_break_armor	skip-targets	targets: probably unreachable (polymorphing the steed dismounts first)
+detect.c	101	map_redisplay	js/detect.js map_redisplay	unreachable-C	u.uburied never set (dig.c bury_you has no caller); JS omits with that comment
+detect.c	145,166-176	trapped_chest_at	js/detect.js	skip-targets	targets: 145 unreachable, 166-176 open
+detect.c	187,192,195,243	trapped_door_at,o_material	js/detect.js	match	trapped_door_at and o_material read; match
+detect.c	349,352,362,409,437,462	gold_detect	js/detect.js gold_detect	skip-targets	targets: steed/vault-guard/stale-memory cases open
+detect.c	395-400	gold_detect	js/detect.js gold_detect	match-text	"You feel interested in %s financial situation." with s_suffix(x_monnam(steed, YOUR/THE, NULL, SUPPRESS_SADDLE))
+detect.c	505,518-520,565,586	food_detect	js/detect.js food_detect	match-text	targets open; "Your nose starts to tingle." / "You sense %s."
+detect.c	618-619	object_detect	-	nobehaviour	impossible
+detect.c	670,689,706-707,740	object_detect	js/detect.js object_detect	skip-targets	targets open; 689 text "You feel a lack of something." matches
+detect.c	850	monster_detect	js/detect.js	not-compared	display_nhwindow after cursed detection with no monsters shown; C read, JS side not read
+detect.c	875-877,892-896	sense_trap	js/detect.js	skip-targets	targets unreachable
+detect.c	973,1050,1053-1057	display_trap_map,trap_detect	js/detect.js	skip-targets	targets open (vault guard / monster with trapped box)
+detect.c	1107-1112	furniture_detect	js/detect.js	skip-targets	targets open (furniture mimic)
+detect.c	1160,1172-1173,1175	level_distance	js/detect.js level_distance	match	"in the distance" / "above you"
+detect.c	1234	use_crystal_ball	js/detect.js use_crystal_ball	match-text	"Your vision quickly clears."
+detect.c	1267	use_crystal_ball	js/detect.js use_crystal_ball	match	hallucinating with a cancelled ball implodes
+detect.c	1647	findone	js/detect.js	not-compared	; C read, JS side not read
+detect.c	1766-1769,1775-1777	openone	js/detect.js openone	skip-targets	targets open; compared: SCORR->CORR and unseen non-statue trap marked seen, counts match
+detect.c	1833	findit	js/detect.js findit	match	"%d secret corridors"
+detect.c	1971,2032	mfind0,dosearch0	js/detect.js	match	2032 fund cap read (searchFund); 1971 mfind0 not read
+detect.c	2212,2256	reveal_terrain_getglyph	js/detect.js	match	engulfer glyph on hero; furniture mimic glyph
+detect.c	2401-2402	reveal_terrain	js/detect.js	match-text	", and monsters"
+explode.c	54,60-70,101-111	explosionmask	js/explode.js	skip-targets	AD_DRST/AD_ACID explosions unreachable (targets 52/engulfer); 54 matches
+explode.c	133-172	engulfer_explosion_msg	js/explode.js	skip-targets	targets unreachable
+explode.c	236-238,346-348	explode	-	nobehaviour	impossible
+explode.c	338-345	explode	js/explode.js	skip-targets	explosion types 6/7 unreachable (same reason as explosionmask)
+explode.c	373	explode	js/explode.js	not-compared	dead monster skipped in mask pass; C read, JS side only grepped or not read
+explode.c	571-576	explode	js/explode.js explode	match-text	mdef killed self curing slime: "%s is %s!"
+explode.c	(579 covered, 4 runs)	explode	js/explode.js explode	DIFFERS-covered	found reading the enclosing block: during a monster's turn C sets adtyp = AD_RBRE when a fire blast completely burns a paper/straw golem (explode.c 579); JS sets AD_PHYS (js/explode.js 653). adtyp persists for the hero's injury, where AD_PHYS takes Maybe_Half_Phys() (explode.c 611) and AD_RBRE does not, so a Half_physical_damage hero takes half the C damage in JS. See findings D-2c-2; fixed 7eb3eb4c5, proof recordings/explode.c/explode-flaming-sphere-burns-{paper-golem-master-key,straw-golem-orb-of-fate}
+explode.c	741-742,979,1009-1010,1044-1047	scatter,explode_oil,adtyp_to_expltype,mon_explodes	-	nobehaviour	impossible
+explode.c	794	scatter	js/explode.js	skip-targets	targets unreachable
+explode.c	847-852	scatter	js/explode.js	skip-targets	targets open (scatter past map edge)
+explode.c	875,879,940-942	scatter	js/explode.js scatter	match	big hero hitvalu; object used up stops; hero rehides; source monster untrapped
+explode.c	1001-1005	adtyp_to_expltype	js/explode.js	skip-targets	targets unreachable
+explode.c	1028-1033	mon_explodes	js/explode.js	skip-targets	targets unreachable
+pray.c	335	worst_cursed_item	js/pray.js	not-compared	cursed uswapwep; C read, JS side not read
+pray.c	352-353,508,972,1352,2548-2549,2615-2619	fix_curse_trouble,fix_worst_trouble,gcrownu,pleased,align_gname,halu_gname	-	nobehaviour	impossible
+pray.c	359,400,503-504	fix_curse_trouble,fix_worst_trouble	js/pray.js	not-compared	; C read, JS side not read
+pray.c	651-652	god_zaps_you	js/pray.js god_zaps_you	match-text	engulfer disintegrates into dust
+pray.c	894,900,970	gcrownu	js/pray.js gcrownu	not-compared	; C read, JS side not read
+pray.c	1047-1051	give_spell	js/pray.js give_spell	match-text	"Your knowledge of spell '%c' - %s is restored/refreshed."
+pray.c	1181-1190	pleased	js/pray.js pleased	match-text	pat_on_head: cursed weapon "softly glow amber" / blind "the power of %s over %s."
+pray.c	1265-1267,1276	pleased	js/pray.js pleased	match	strength restore; luck floor 0
+pray.c	1372-1377	pleased	js/pray.js	match	ublesscnt increment after turn 100000 (clamped)
+pray.c	1536,1539-1540	offer_real_amulet	js/pray.js	not-compared	; C read, JS side not read
+pray.c	1751,1762	sacrifice_your_race	js/pray.js sacrifice_your_race	match-text	"something dreadful"; "The %s." demonless
+pray.c	1791-1792	bestow_artifact	js/pray.js bestow_artifact	match	non-wizard rn2(6 + 2*ugifts*nartifacts)
+pray.c	1987,2060,2102,2108	offer_corpse	js/pray.js offer_corpse	match	2102/2108 luck clamp read; 1987, 2060 not read
+pray.c	2192-2193	pray_revive	js/pray.js pray_revive	match	pet statue animated
+pray.c	2372-2373	maybe_turn_mon_iter	js/pray.js	match	lich xlev
+pray.c	2517,2642-2643,2712	a_gname_at,align_gtitle,blocked_boulder	js/pray.js,js/questpgr.js	match	a_gname_at and blocked_boulder read; align_gtitle 2642 default not read
+spell.c	180-181	cursed_book	js/spell.js	unreachable-C	switch(rn2(lev)) has cases 0-6 and lev <= 7, so default never runs
+spell.c	347-349	book_cursed	js/spell.js book_cursed	match-text	"%s shut!" (Tobjnam slam) while reading
+spell.c	398,556-558,850,1592-1594,1725,2349,2352,2403-2404	learn,study_book,spelltypemnemonic,spelleffects,tport_spell,initialspell,force_learn_spell	-	nobehaviour	impossible
+spell.c	452-455	learn	js/spell.js learn	not-compared	cursed book destroyed by cursed_book(); C read, JS side not read
+spell.c	659-665	book_substitution	-	unreachable-C	entries=0; no caller in src/*.c (grep book_substitution)
+spell.c	739,749-753	getspell	js/spell.js getspell	match	"a-zA" / "a-zA-%c" (JS 64+n-26 == 'A'+n-27)
+spell.c	962,1011	propagate_chain_lightning,cast_chain_lightning	js/spell.js	not-compared	range cap; engulfed return after display RNG draw; C read, JS side not read
+spell.c	1157-1158	cast_protection	js/spell.js cast_protection	match-text	maw/ooze (JS dmgtype_fromattack(AD_WRAP, AT_ENGL) == enfolds)
+spell.c	1262-1268	spelleffects_check	js/spell.js	match-text	four fading-memory messages
+spell.c	1610,1613,1649	spell_aim_step,display_spell_target_positions	js/spell.js	not-compared	; C read, JS side not read
+spell.c	1664-1665	throwspell	js/spell.js throwspell	match-text	"You had better wait for the sun to come out."
+spell.c	1744	tport_spell	js/spell.js	not-compared	; C read, JS side not read
+spell.c	1916-1917,1941	spell_cmp,sortspells	js/spell.js	not-compared	stable tie / short list; C read, JS side not read
+spell.c	2060-2069	show_spells	js/spell.js	skip-targets	targets unreachable (DUMPLOG off)
+spell.c	2372,2386,2397	known_spell,spell_idx,force_learn_spell	js/spell.js	match	known_spell, spell_idx, force_learn_spell read

@@ -1,0 +1,83 @@
+file	lines	function	js	class	note
+restore.c	121	inven_inuse	-	missing-unreachable	JS dorestore() has no inven_inuse(FALSE) (restore.c 922). An in_use object at save time needs a hangup save; every in_use setter (grep -n 'in_use = ' src/*.c) clears it or uses the object up before the command ends, and segments end with #save (provisional)
+restore.c	216-221	restobj	js/restore.js restobj	unreachable-config	omailcmd exists only on a scroll of mail delivered by the mail daemon (mail.c new_omailcmd); the recorder delivers no mail
+restore.c	282	restobjchn	js/restore.js restobjchn	match	bypass cleared on restore (JS clears it too); no recording saved an object with bypass set
+restore.c	296-298	restobjchn	js/restore.js restobjchn	nobehaviour	impossible() on a corrupt chain
+restore.c	440-443	restmonchn	js/restore.js restmonchn	nobehaviour	impossible() "bad monster weapon restore"; JS nulls mw and notes it
+restore.c	453	restmonchn	js/restore.js restmonchn	DIFFERS	JS had no polearm.m_id match; hitmon was kept as a snapshot graph reference only, so a return to the level after save+restore lost it. Proven by recipes/save.c/polearm-target-kept-after-restore-and-level-return; fixed af9185f92 (restmonchn and getlev monster pass)
+restore.c	460-462	restmonchn	js/restore.js restmonchn	nobehaviour	impossible() on a corrupt chain
+restore.c	509	ghostfruit	js/restore.js ghostfruit	nobehaviour	impossible() "no old fruit?"; JS notes it and returns
+restore.c	544,547-554	restgamestate	-	skip-targets	targets: uid mismatch (SYSOPT_CHECK_SAVE_UID with another uid); unreachable. Compared anyway: JS has no uid check
+restore.c	611-612	restgamestate	-	skip-targets	targets: explore_error_flag needs EXPLORERS restricted
+restore.c	632-633,637-647	restgamestate	-	skip-targets	targets: "not healthy enough to survive restoration" needs u.uhp <= 0 (and u.mh <= 0 if polymorphed) at #save, which done()/rehumanize() prevent; JS has no such branch (agree unreachable)
+restore.c	663-669	restgamestate	js/restore.js dorestore	skip-targets	targets: dangling ball and chain; JS reads bc_objs and relinks them as C does
+restore.c	763-765	restlevelfile	-	nobehaviour	panic on level-file creation failure
+restore.c	813-823	dorecover	-	skip-targets	targets: restgamestate() failure
+restore.c	833,887	dorecover	-	skip-targets	targets: recursive dorecover
+restore.c	911-915	dorecover	-	nobehaviour	impossible() lost ball and chain
+restore.c	1007,1010-1016	restcemetery	-	skip-targets	targets: savefile conversion only
+restore.c	1036-1042	trickery	-	unreachable-C	only getlev() 1099 calls it, on a PID or level-number mismatch in a level file (file tampering)
+restore.c	1090-1100	getlev	-	skip-targets	targets: trickery
+restore.c	1119-1121	getlev	-	skip-targets	targets: doors always freed before getlev
+restore.c	1245-1254	getlev	-	skip-targets	targets: bones between Medusa and the castle without down stairs
+restore.c	1278-1285	getlev	-	skip-targets	targets: portal-branch dlevel 1 bones
+restore.c	1294	getlev	-	skip-targets	targets: can_make_bones() refuses non-branch levels with portals
+restore.c	1401	restore_gamelog	-	nobehaviour	panic msg too big
+restore.c	1428	restore_msghistory	js/restore.js restore_msghistory	nobehaviour	panic msg too big (save_msghistory truncates to BUFSZ-1, so unreachable)
+restore.c	1506	lookup_id_mapping	js/bones.js idMap	unreachable-C	no mapping for an omid; the only omid is the dead hero's corpse attached to its ghost (bones.c 503), and the ghost is always restored with the bones level (provisional). JS idMap.get() misses the same way
+restore.c	1526-1527	reset_oattached_mids	js/restore.js reset_oattached_mids	match	free_omid() when the lookup fails (unreachable-C as 1506); JS is called only from bones.js, so the ghostly guard holds
+restore.c	1604-1605	restore_menu	js/restore.js restore_menu	match	no selection (ESC) quits: JS select_menu cancelValue null -> ch = -1 -> tty_askname bail("Until next time then..."). Not recorded
+restore.c	930	dorecover	js/jsmain.js	DIFFERS-covered	(covered line near uncovered 911-915) run_timers() after vision_reset() was missing from the port's restore tail; a timer due at the save ran one turn late. Proven by recipes/restore.c/due-corpse-timer-runs-on-restore; fixed 2ee07b5f3
+save.c	49	dosave	js/save.js dosave	match	"Really save?" n with multi > 0 calls nomul(0)
+save.c	60	dosave	-	nobehaviour	sound_exit_nhsound (no sound library)
+save.c	89-93	dosave0	-	skip-targets	targets: hangup-save flags
+save.c	101	dosave0	-	skip-targets	targets: nothing worth saving or no SAVEF
+save.c	130-136	dosave0	-	skip-targets	targets: create_savefile() failure, fplog
+save.c	203-209	dosave0	js/save.js save_other_levels	skip-targets	targets: missing level file; JS throws (port invariant)
+save.c	340-345	tricked_fileremoved	-	skip-targets	targets: a level file removed while the game runs
+save.c	378-380,384-387,392-394,400-403	savestateinlock	-	skip-targets	targets: missing or mismatched level-0 file; INSURANCE checkpoint has no JS counterpart
+save.c	439-441	savelev	-	nobehaviour	panic "savelev: where are we?"
+save.c	463	savelev_core	-	nobehaviour	panic "Save on bad file!"
+save.c	705-719	save_bc	js/save.js save_bc	skip-targets	targets: looseball/loosechain at save; JS mirrors BALL_IN_MON/CHAIN_IN_MON and the chain-then-ball order
+save.c	750-751	saveobj	-	unreachable-config	omailcmd (see restore.c 216)
+save.c	901-903	savemonchn	js/save.js savemonchn,dosave0	DIFFERS	JS never stored polearm.m_id on release (comment claimed goto_level had already cleared hitmon, true only for level changes, not #save). Proven by recipes/save.c/polearm-target-kept-after-restore-and-level-return (fails 87/88 screens on stack-sr3); fixed af9185f92
+save.c	1043	save_msghistory	js/save.js save_msghistory	unreachable-C	empty history entry: topl.c msghistory_snapshot() copies only non-empty messages (JS savedHistory() skips them too)
+save.c	1047	save_msghistory	js/save.js save_msghistory	match	truncation to BUFSZ-1 (JS slice); unreachable since toplines is BUFSZ
+save.c	1143-1154	freedynamicdata	-	skip-targets	targets: wc_font_* and wc_tile_file options tty rejects
+save.c	1176,1179	freedynamicdata	-	nobehaviour	frees window colors and glyphid cache at exit
+role.c	753,819,886,949	str2role,str2race,str2gend,str2align	js/roles.js	match	empty string -> ROLE_NONE
+role.c	766,832,896,959	str2role,str2race,str2gend,str2align	js/roles.js	unreachable-C	filecode match after a failed prefix match: every filecode (Arc..Wiz, hum..orc, Mal/Fem, Law/Neu/Cha) is a prefix of its own name, noun or adjective, which matches first. JS has the same order
+role.c	809	randrace	js/role_init.js randrace	skip-targets	targets: role with no permitted race; JS rn2(races.length) = C rn2(SIZE(races)-1)
+role.c	876	randgend	js/role_init.js randgend	skip-targets	targets (unreachable)
+role.c	939	randalign	js/role_init.js randalign	skip-targets	targets (unreachable)
+role.c	994,1001,1007	ok_role	js/role_init.js ok_role	match	random branch: filtered role, gender mismatch, none possible (JS recursion is equivalent)
+role.c	1051,1067,1070	ok_race	js/role_init.js ok_race	match	role mismatch; random-branch continues
+role.c	1101	pick_race	js/role_init.js pick_race	unreachable-C	second scan always finds the counted race
+role.c	1121,1134	ok_gend	js/role_init.js ok_gend	match	race mismatch; filtered gender continue
+role.c	1166	pick_gend	js/role_init.js pick_gend	unreachable-C	as pick_race 1101
+role.c	1231	pick_align	js/role_init.js pick_align	unreachable-C	as pick_race 1101
+role.c	1311	gotrolefilter	js/player_selection_tty.js gotRoleFilter	match	role filtered without a mask (two JS copies: player_selection_tty.js and tty_menu.js, both equivalent)
+role.c	1409	role_gendercount	js/player_selection.js roleGenderCount	unreachable-C	no role allows ROLE_NEUTER
+role.c	1592	build_plselection_prompt	js/player_selection.js	unreachable-C	buflen < QBUFSZ: the only caller passes QBUFSZ; JS has no buflen
+role.c	1626-1635	build_plselection_prompt	js/player_selection.js build_plselection_prompt	match	no post attributes yet a field ROLE_NONE: JS adds the same set from its parameters, which are flags.init* at its one caller; reachable with a filter leaving a single-gender role's gender NONE (not recorded)
+role.c	1673	plnamesuffix	-	unreachable-config	sysconf GENERICUSERS is a list, not '*'
+role.c	1684	plnamesuffix	js/tty_startup.js isGenericPlayerName	match	generic user name cleared; JS hard-codes the recorder sysconf list, case-sensitive like findword(...,FALSE). Not recorded
+role.c	1993-1996,2005,2015,2020	role_init	js/role_init.js role_init	skip-targets	targets: invalid role/race/gender/alignment resolved earlier; JS branches compared and match
+role.c	2071-2077	role_init	js/role_init.js role_init	skip-targets	targets: every role has a lawful god; JS findIndex matches
+allmain.c	102-104	moveloop_preamble	-	unreachable-config	--debug:fuzzer command-line option
+allmain.c	183	moveloop_core	-	skip-targets	targets: hangup
+allmain.c	254-257	moveloop_core	-	skip-targets	targets: a billion turns
+allmain.c	314-315	moveloop_core	js/allmain.js	match	teleportitis then check_leash when a leashed pet is not adjacent (targets: open)
+allmain.c	396	moveloop_core	js/allmain.js	skip-targets	targets: counter attribution
+allmain.c	434	moveloop_core	js/allmain.js	skip-targets	targets: buried hero
+allmain.c	443	moveloop_core	js/allmain.js	skip-targets	targets: counter attribution
+allmain.c	572	maybe_do_tutorial	js/tutorial_startup.js	unreachable-C	dungeon.lua always defines tut-1
+allmain.c	633	regen_hp	js/regen.js regen_hp	match	u.mh < 1 while polymorphed -> rehumanize ("shouldn't happen")
+allmain.c	723-724	init_sound_disp_gamewindows	-	unreachable-config	non-windowport status window (tty uses VIA_WINDOWPORT)
+allmain.c	803	newgame	-	unreachable-config	NEWS file display (iflags.news, no news file)
+allmain.c	865-867	welcome	js/jsmain.js	match	restored doomed hero (polymorphed, own role or race genocided): "You're back, but you still feel %s inside." and no further welcome; JS udeadinside() matches. Not recorded
+calendar.c	42-43	getnow	js/calendar.js getnow	unreachable-config	patched file numbering (recorder-lua/src/calendar.c, patch 001): time() fallback when NETHACK_FIXED_DATETIME is unset or unparsable; the recorder always sets it
+calendar.c	75,115	yyyymmdd,yyyymmddhhmmss	js/calendar.js serializedYear	match	patched numbering: tm_year < 70 adds 2000 (JS year+100); needs a pre-1970 datetime
+calendar.c	92,108	hhmmss,yyyymmddhhmmss	js/calendar.js getLocalTime	match	patched numbering: date == 0 reads getlt()
+calendar.c	174	time_from_yyyymmddhhmmss	js/calendar.js	match	patched numbering: mktime() returned -1 (JS returns 0 for -1)
+calendar.c	183	time_from_yyyymmddhhmmss	js/calendar.js	match	patched numbering: return 0 for a malformed string (JS parseFixedDatetime null -> 0)
