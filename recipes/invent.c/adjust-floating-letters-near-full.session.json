@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "With floating inventory letters (!fixinv), #adjust offers only the letters up to the first open slot while fewer than 52 stacks are carried (invent.c doorganize_core() 5109-5110): at 50 stacks moving an item offers its own letter and 'Y' but not 'Z', and at 51 stacks splitting offers no new letter. A Valkyrie builds the stacks by splitting wished darts.",
+  "segments": [
+    {
+      "seed": 2290467,
+      "datetime": "20440219184405",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,playmode:debug,suppress_alert:3.7.0\nOPTIONS=!autopickup,!fixinv\n",
+      "moves": "\u001760 darts\n\u00e11ef\u00e11eg\u00e11eh\u00e11ei\u00e11ej\u00e11ek\u00e11el\u00e11em\u00e11en\u00e11eo\u00e11ep\u00e11eq\u00e11er\u00e11es\u00e11et\u00e11eu\u00e11ev\u00e11ew\u00e11ex\u00e11ey\u00e11ez\u00e11eA\u00e11eB\u00e11eC\u00e11eD\u00e11eE\u00e11eF\u00e11eG\u00e11eH\u00e11eI\u00e11eJ\u00e11eK\u00e11eL\u00e11eM\u00e11eN\u00e11eO\u00e11eP\u00e11eQ\u00e11eR\u00e11eS\u00e11eT\u00e11eU\u00e11eV\u00e11eW\u00e11eX\u00e1a\u001b\u00e11eY\u00e11e\u001b"
+    }
+  ]
+}
