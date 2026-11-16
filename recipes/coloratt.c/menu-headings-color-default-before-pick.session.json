@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "coloratt.c query_color() 505-512 through options.c handler_menu_headings() and query_color_attr(). The rc sets menu_headings to red&underline, so the colour menu preselects red. The first visit picks blue with its selector: tty PICK_ONE leaves the preselected row selected, select_menu() returns both rows in menu order, red first, and query_color() switches to the second row only when the first is \"no color\", so the heading stays red. Return keeps the preselected underline. The second visit picks black, which comes before red, so the first row is the new pick and the heading turns black. Each #optionsfull redraw shows the heading colour. Seed, datetime, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4417093,
+      "datetime": "20410305162744",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Healer,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menu_headings:red&underline\n",
+      "moves": " #optionsfull\n:menu_headings\n\ne\n#optionsfull\n:menu_headings\n\na\n#optionsfull\n\u001bs"
+    }
+  ]
+}

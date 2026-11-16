@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "wintty.c toggle_menu_attr() calls term_start_color() for a menu heading's colour, and recorder patch 006's nomux_start_fg() stores CLR_BLACK as colour 8 while use_darkgray is on (the default), so the capture shows black text in the default colour. The rc sets menu_headings to black&bold; the full options menu draws its section headings in that style, a second page shows more of them, and ESC closes it before a search. A second segment turns use_darkgray off, where nomux_capture_screen() reads the stored 0 as the default foreground instead. Seeds, datetimes, characters and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 6620514,
+      "datetime": "20440927071858",
+      "nethackrc": "OPTIONS=name:Oswin,role:Ranger,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menu_headings:black&bold\n",
+      "moves": "#optionsfull\n>\u001bs"
+    },
+    {
+      "seed": 6620515,
+      "datetime": "20440928071858",
+      "nethackrc": "OPTIONS=name:Odila,role:Archeologist,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menu_headings:black&underline,!use_darkgray\n",
+      "moves": "#optionsfull\n\u001bs"
+    }
+  ]
+}

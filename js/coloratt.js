@@ -387,18 +387,21 @@ export async function query_attr(state, prompt, dflt, helpers) {
 
 // C ref: coloratt.c query_color(). Temporarily changes the real coloring
 // list rather than drawing an invented preview style.
+//
+// returnSelections hands back select_menu()'s rows in menu order, as C's
+// picks[] holds them: picking another colour leaves the preselected row
+// selected, so pick_cnt is 2, and C takes the second row only when the first
+// is "no color". A default listed before the new pick is therefore kept.
 export async function query_color(state, prompt, dflt, helpers) {
     basic_menu_colors(state, true);
     const rows = COLOR_NAMES.slice(0, COLOR_NAMES.findIndex(row => row.name === null));
-    const preselected = rows.findIndex(row => row.color === dflt);
     const picks = pickedValues(await queryMenu(state, {
         items: rows.map(({ name, color }, i) => ({ text: name, value: i + 1,
             color: NO_COLOR, attr: 0, selected: color === dflt })),
         title: prompt || 'Pick a color', how: PICK_ONE,
-        ...(preselected >= 0 ? { preselected: preselected + 1 } : {}),
         // pick_cnt == 0, an emptied or absent preselection, is not ESC's -1:
         // it answers dflt_color below.
-        emptyValue: [], cancelValue: null,
+        returnSelections: true, cancelValue: null,
     }, helpers));
     basic_menu_colors(state, false);
     if (picks?.length) {

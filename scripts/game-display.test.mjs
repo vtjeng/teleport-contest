@@ -84,3 +84,20 @@ test('serialize matches the frozen method when no edge space is visible',
          }
          assert.equal(disp.serialize(), frozen.serialize());
      });
+
+test('serialize writes CLR_BLACK as the default foreground, as the recorder does',
+     () => {
+         // Recorder patch 006's nomux_start_fg() stores CLR_BLACK (0) as 8
+         // under use_darkgray, and nomux_capture_screen() reads a stored 0
+         // as the default otherwise, so no C screen decodes to colour 0. A
+         // bold black word (an options-menu heading drawn with
+         // menu_headings:black&bold) must serialize exactly as the same word
+         // in NO_COLOR does, and decode to NO_COLOR.
+         const CLR_BLACK = 0;
+         const black = display();
+         const plain = display();
+         put(black, 1, 1, 'Booleans', CLR_BLACK, ATR_BOLD);
+         put(plain, 1, 1, 'Booleans', NO_COLOR, ATR_BOLD);
+         assert.equal(black.serialize(), plain.serialize());
+         assert.equal(decodeScreen(black.serialize())[1][1].color, NO_COLOR);
+     });

@@ -2998,13 +2998,13 @@ async function handler_menu_objsyms(state, helpers) {
         items: menuObjsymItems(state.iflags.menuobjsyms, separator),
         how: PICK_ONE,
         title: 'Set object symbols in menus to what?',
+        returnSelections: true,
         cancelValue: null,
     }, helpers);
     const values = menuSelectionValues(picked);
     if (values.length > 0) {
         let index = values[0] - 1;
-        // If a test or window port returns both the preselected row and the
-        // newly chosen row, C uses the row that was not preselected.
+        /* if there are two picks, use the one that wasn't pre-selected */
         if (values.length > 1 && index === state.iflags.menuobjsyms)
             index = values[1] - 1;
         set_menuobjsyms_flags(state, index);
@@ -3883,10 +3883,16 @@ async function handler_msg_window(state, optidx, helpers) {
         items,
         how: PICK_ONE,
         title: 'Select message history display type:',
+        returnSelections: true,
         cancelValue: null,
     }, helpers);
-    if (selected !== null && selected !== undefined)
-        state.iflags.prevmsg_window = selected;
+    const values = menuSelectionValues(selected);
+    if (values.length > 0) {
+        let c = values[0];
+        /* if there are two picks, use the one that wasn't pre-selected */
+        if (values.length > 1 && c === old) c = values[1];
+        state.iflags.prevmsg_window = c;
+    }
     const changed = state.iflags.prevmsg_window !== old;
     if (changed || state.flags?.verbose) {
         const value = optfn_msg_window(state, null, GET_VAL, false, '', '');
@@ -3988,6 +3994,9 @@ function perminvModeDescription(state, includeInactiveStatus) {
 // C ref: options.c handler_perminv_mode() (6019-6087).  This recorder build
 // has no TTY_PERM_INVENT rows, but the handler remains source-shaped so a
 // window port that advertises the option can use the same state transition.
+// doset() lists perminv_mode only when wc_supported() finds WC_PERM_INVENT
+// (options.c 9793), which tty lacks, so no recorded input reaches it;
+// scripts/options-menu.test.mjs drives it through the tty menu.
 export async function handler_perminv_mode(state, helpers) {
     state.iflags ??= {};
     state.flags ??= {};
@@ -4018,6 +4027,9 @@ export async function handler_perminv_mode(state, helpers) {
         items,
         how: PICK_ONE,
         title: 'Choose permanent inventory mode:',
+        // C's n == 0, a cleared preselection, is `[]`: it reports the mode
+        // as ESC's null does not.
+        returnSelections: true,
         cancelValue: null,
     }, helpers);
     const values = menuSelectionValues(selected);
@@ -4106,6 +4118,7 @@ async function handler_sortloot(state, helpers) {
         items,
         how: PICK_ONE,
         title: 'Select loot sorting type:',
+        returnSelections: true,
         cancelValue: null,
     }, helpers);
     const values = menuSelectionValues(selected);
@@ -4154,6 +4167,7 @@ async function handler_whatis_coord(state, helpers) {
         items,
         how: PICK_ONE,
         title: 'Select coordinate display when auto-describing a map position:',
+        returnSelections: true,
         cancelValue: null,
     }, helpers);
     const values = menuSelectionValues(selected);
@@ -4187,6 +4201,7 @@ async function handler_whatis_filter(state, helpers) {
         how: PICK_ONE,
         title: 'Select location filtering when going for next/previous map'
             + ' position:',
+        returnSelections: true,
         cancelValue: null,
     }, helpers);
     const values = menuSelectionValues(selected);
@@ -4258,9 +4273,9 @@ async function handler_symset(state, optionName, helpers) {
     }
 }
 
-// C ref: options.c handler_menustyle() (5544-5585).  select_menu() returns a
-// scalar in the TTY port; accepting an array as well preserves C's PICK_ONE
-// handling when a test double supplies both the preselected and new item.
+// C ref: options.c handler_menustyle() (5544-5585).  returnSelections gives
+// C's selection list: both the preselected and the new row when another is
+// picked, and an empty list when the preselected row is cleared.
 async function handler_menustyle(state, helpers) {
     const old_menu_style = state.flags.menu_style;
     const separator = state.iflags.menu_tab_sep ? '\t' : ' ';
@@ -4279,6 +4294,7 @@ async function handler_menustyle(state, helpers) {
         items,
         how: PICK_ONE,
         title: 'Select menustyle:',
+        returnSelections: true,
         cancelValue: null,
     }, helpers);
     const values = menuSelectionValues(selected);
@@ -4496,14 +4512,14 @@ async function handler_disclose(state, helpers) {
             items: disclosureCategoryItems(disclosure_names[index], current),
             how: PICK_ONE,
             title: `Disclosure options for ${disclosure_names[index]}:`,
+            returnSelections: true,
             cancelValue: null,
         }, helpers);
         const values = menuSelectionValues(picked);
         if (values.length > 0) {
             let setting = values[0];
-            // C's TTY PICK_ONE normally returns one item.  The second value
-            // covers the source's preselected-item tie-break when a window
-            // port supplies both entries.
+            /* tty PICK_ONE keeps the preselected row selected when
+               another is picked, so both rows come back */
             if (values.length > 1 && setting === current)
                 setting = values[1];
             state.flags.end_disclose[index] = setting;

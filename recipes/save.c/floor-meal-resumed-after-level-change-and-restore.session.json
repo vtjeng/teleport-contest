@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "save.c saveobjchn() 783-795 and restore.c restobjchn() 283-290, for a floor object on another level. A debug Valkyrie travels to the Dlvl 1 downstairs, drops one of her two food rations there, creates a newt beside her and starts eating the floor ration; the newt interrupts at once, leaving the partly eaten ration svc.context.victual.piece. She goes down the stairs, so goto_level()'s savelev() releases Dlvl 1 and saveobjchn() nulls the pointer and keeps the ration's o_id, and she saves on Dlvl 2. The second segment restores, keeps no save file and climbs back up: getlev()'s restobjchn() finds the o_id on Dlvl 1 and makes the ration victual.piece again, so eating it resumes the meal (\"You resume your meal.\"). Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 2264917,
+      "datetime": "20490710083015",
+      "nethackrc": "OPTIONS=name:Bryn,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0006_>.d1d\u0007newt\ney> Sy"
+    },
+    {
+      "seed": 2264918,
+      "datetime": "20490710093015",
+      "nethackrc": "OPTIONS=name:Bryn,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": " n<  ey"
+    }
+  ]
+}

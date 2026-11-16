@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "options.c optfn_pickup_types() through the traditional-menustyle 'O' prompt \"New pickup_types:\". The answer %Z% holds an unknown class and a repeated one, so optfn_pickup_types() stores only the food class and reports \"Unknown pickup_types parameter ''\" (options.c 3385, printed with op already at the end of the answer) through config_error_add(); during play cfgfiles.c config_erradd() (1557-1563) shows it on the message line with pline() and wait_synch(), and ESC dismisses the --More-- and the options menu.",
+  "segments": [
+    {
+      "seed": 17932015,
+      "datetime": "20531018112133",
+      "nethackrc": "OPTIONS=name:Mara,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:traditional,pickup_types:)\n",
+      "moves": ".Oo%Z%\n\u001b."
+    }
+  ]
+}
