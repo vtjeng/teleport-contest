@@ -1716,12 +1716,6 @@
       "c": null,
       "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
-    "js/mhitu.js | expels | 'expels requires a message operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/mhitu.js | explmu | 'explmu requires d and rnd random operations'": {
       "count": 1,
       "class": "invariant",
@@ -1735,12 +1729,6 @@
       "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/mhitu.js | mattacku | 'mattacku requires an rn2, rnd and d random source'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/mhitu.js | requireMattackuOperation | `mattacku requires a ${name} operation`": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -2519,12 +2507,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first (monst_globals_init(), init_objects() and the like)."
-    },
-    "js/mthrowu.js | requireRangedOperation | `monster ranged attack requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/mthrowu.js | thitu | 'thitu: name & obj both null?'": {
       "count": 1,

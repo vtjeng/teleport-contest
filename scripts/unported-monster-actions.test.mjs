@@ -84,7 +84,6 @@ import {
 } from '../js/const.js';
 import { eatfood } from '../js/eat.js';
 import { game } from '../js/gstate.js';
-import { losehp } from '../js/hack.js';
 import { tamedog } from '../js/dog.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { initworm } from '../js/worm.js';
@@ -155,10 +154,6 @@ import { objectGenerationEnv } from '../js/object_generation.js';
 import { setworn } from '../js/worn.js';
 import { Ring_on, setwornEnv } from '../js/do_wear.js';
 import { healup } from '../js/potion.js';
-import { castmu } from '../js/mcastu.js';
-import { use_offensive } from '../js/muse.js';
-import { capitalizedMonsterName, mon_nam } from '../js/do_name.js';
-import { encumber_msg } from '../js/pickup.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifacts.js';
 import {
@@ -562,34 +557,11 @@ async function runLiveMonsterScan() {
 }
 
 function directMattackuEnv(state, random, messages) {
-    const message = async text => {
-        messages.push(text);
-    };
-    const loseSpellHp = async (amount, killer, format) =>
-        losehp(amount, killer, format, state, {
-            state,
-            fromMonster: true,
-            message,
-        });
     return {
         state,
         random,
-        message,
-        useOffensiveItem: use_offensive,
-        castMonsterSpell: (subject, attack, thinksFound, found, spellEnv) => {
-            const spellState = spellEnv.state ?? state;
-            const spellMessage = spellEnv.message ?? message;
-            return castmu(subject, attack, thinksFound, found, {
-                ...spellEnv,
-                state: spellState,
-                random: spellEnv.random ?? random,
-                losehp: loseSpellHp,
-                encumberMessage: encumber_msg,
-                monsterName: monster =>
-                    capitalizedMonsterName(monster, spellState),
-                monnam: monster => mon_nam(monster, spellState, spellEnv),
-                message: spellMessage,
-            });
+        message: async text => {
+            messages.push(text);
         },
     };
 }
@@ -3230,9 +3202,14 @@ test('a starting pet\'s dog_move reflection gate calls mon_reflects',
 test('both production castmu adapters preserve source mon_nam', () => {
     const mhitu = readFileSync(new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/unported_monster_actions.js', import.meta.url), 'utf8');
-    const attackStart = js.indexOf('function attackHeroWithMattacku(');
-    const attackEnd = js.indexOf('// C ref: dogmove.c pet_ranged_attk()', attackStart);
-    const attackAdapter = js.slice(attackStart, attackEnd);
+    // mattacku() builds castmu()'s operations at its AT_MAGC call.
+    const mhituJs = readFileSync(new URL('../js/mhitu.js', import.meta.url), 'utf8');
+    const attackStart = mhituJs.indexOf(
+        'sum[i] = await castmu(monster, mattk, true, foundyou, {',
+    );
+    const attackEnd = mhituJs.indexOf('});', attackStart);
+    assert.ok(attackStart >= 0 && attackEnd > attackStart);
+    const attackAdapter = mhituJs.slice(attackStart, attackEnd);
     const dochugStart = MONMOVE_SOURCE.indexOf('dochug(struct monst *mtmp)');
     const dochugEnd = MONMOVE_SOURCE.indexOf('\n/* ', dochugStart);
     const dochug = MONMOVE_SOURCE.slice(dochugStart, dochugEnd);
@@ -3247,7 +3224,7 @@ test('both production castmu adapters preserve source mon_nam', () => {
     assert.match(dochug, /castmu\(mtmp, a, FALSE, FALSE\)/u);
     assert.match(fumble, /canseemon\(mtmp\)[\s\S]*?mon_nam\(mtmp\)/u);
     assert.match(attackAdapter,
-        /castMonsterSpell:[\s\S]*?monnam: \(mtmp\) => mon_nam\(mtmp, state, spellEnv\)/u);
+        /monnam: \(mtmp\) => mon_nam\(mtmp, state, env\)/u);
     assert.match(spellAdapter,
         /monnam: \(mtmp\) => mon_nam\(mtmp, state, spellEnv\)/u);
     assert.doesNotMatch(spellAdapter, /pmnames\?\./u,
@@ -3305,37 +3282,32 @@ test('monster missile caller adapters preserve hallucinated display RNG', () => 
     assert.ok(useOffensiveStart >= 0 && useOffensiveEnd > useOffensiveStart);
     assert.match(MUSE_SOURCE.slice(useOffensiveStart, useOffensiveEnd), /m_throw\(/u);
 
-    const missileAdapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
-        'function monsterMissileEnv(',
-    );
-    const missileAdapterEnd = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
-        '\n// C ref: muse.c use_offensive()',
-        missileAdapterStart,
-    );
-    assert.ok(missileAdapterStart >= 0 && missileAdapterEnd > missileAdapterStart);
-    const missileAdapter = SIMPLE_ACTIONS_JS_SOURCE.slice(
-        missileAdapterStart,
-        missileAdapterEnd,
-    );
-    assert.match(missileAdapter,
-        /objectToGlyph: \(obj, state\) =>\s*obj_to_glyph\(obj, state, env\.displayRandom\)/u);
-    assert.ok(missileAdapter.includes(
-        'monsterName: (subject) => capitalizedMonsterName(',
-    ));
-    assert.ok(missileAdapter.includes(
-        'subject,\n            env.state,\n            { displayRandom: env.displayRandom },',
-    ));
+    // m_throw(), monshoot() and mattacku()'s use_offensive() call pass the
+    // caller's display RNG themselves.
+    const mthrowuJs = readFileSync(
+        new URL('../js/mthrowu.js', import.meta.url), 'utf8');
+    const mThrowJsStart = mthrowuJs.indexOf('export async function m_throw(');
+    const mThrowJsEnd = mthrowuJs.indexOf('\nexport async function return_from_mtoss(',
+        mThrowJsStart);
+    assert.ok(mThrowJsStart >= 0 && mThrowJsEnd > mThrowJsStart);
+    assert.match(mthrowuJs.slice(mThrowJsStart, mThrowJsEnd),
+        /obj_to_glyph\(singleobj, state, env\.displayRandom\)/u);
+    const monshootJsStart = mthrowuJs.indexOf('export async function monshoot(');
+    const monshootJsEnd = mthrowuJs.indexOf('\nexport ', monshootJsStart + 1);
+    assert.ok(monshootJsStart >= 0 && monshootJsEnd > monshootJsStart);
+    assert.match(mthrowuJs.slice(monshootJsStart, monshootJsEnd),
+        /capitalizedMonsterName\(monster, state, \{\s*displayRandom: env\.displayRandom,/u);
 
-    const potionAdapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
-        'async function useOffensiveItem(',
+    const mhituJs = readFileSync(new URL('../js/mhitu.js', import.meta.url), 'utf8');
+    const potionAdapterStart = mhituJs.indexOf(
+        'const offended = await use_offensive(monster, {',
     );
-    const potionAdapterEnd = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
-        '\n// C ref: mhitu.c mattacku()',
-        potionAdapterStart,
-    );
+    const potionAdapterEnd = mhituJs.indexOf('});', potionAdapterStart);
     assert.ok(potionAdapterStart >= 0 && potionAdapterEnd > potionAdapterStart);
-    assert.match(SIMPLE_ACTIONS_JS_SOURCE.slice(potionAdapterStart, potionAdapterEnd),
-        /\.\.\.monsterMissileEnv\(monster, env\)/u);
+    const potionAdapter = mhituJs.slice(potionAdapterStart, potionAdapterEnd);
+    assert.match(potionAdapter,
+        /capitalizedMonsterName\(mtmp, state, \{\s*displayRandom: env\.displayRandom,/u);
+    assert.match(potionAdapter, /throwMissile: m_throw,/u);
 
     const petAdapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
         'export async function runPetRangedAttack(',
