@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c get_changed_key_binds 2253-2257, rc path: BIND=~:toggle() (\"Required parameter cannot be empty\") and BIND=^:toggle (\"'toggle' requires a parameter\") both leave bind->param NULL (cmd.c 2697-2705), so 'view changed key binds' prints \"toggle((null))\" for each. Seed and inputs chosen for this review.",
+  "segments": [
+    {
+      "seed": 51150612,
+      "datetime": "20570214091530",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nBIND=~:toggle()\nBIND=^:toggle\n",
+      "moves": "\n.#optionsfull\n      h\nc \u001b\u001b."
+    }
+  ]
+}
