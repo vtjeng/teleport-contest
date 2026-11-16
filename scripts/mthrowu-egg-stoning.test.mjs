@@ -4,15 +4,14 @@ import test from 'node:test';
 import { KILLED_BY, STONED, TIMEOUT } from '../js/const.js';
 import { find_delayed_killer } from '../js/end.js';
 import { game } from '../js/gstate.js';
-import { add_to_minv, obj_extract_self, stackobj } from '../js/invent.js';
+import { add_to_minv, stackobj } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE, PM_KEYSTONE_KOP } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { m_throw } from '../js/mthrowu.js';
-import { clear_dknown, mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/obj.js';
 import { CREAM_PIE, EGG } from '../js/objects.js';
 import { select_rwep } from '../js/weapon.js';
-import { setmnotwielded } from '../js/weapon.js';
 
 for (const { type, hit, label } of [
     { type: EGG, hit: true, label: 'target: cockatrice egg hits' },
@@ -51,17 +50,7 @@ for (const { type, hit, label } of [
                     return bound === 20 && !hit ? 20 : 1;
                 },
             },
-            canSeeMonster: () => false,
-            canSeeSquare: () => false,
             monsterAt: () => null,
-            objectToGlyph: () => 777,
-            temporaryDisplay: async () => {},
-            delayOutput: async () => {},
-            clearObjectKnowledge: obj => clear_dknown(obj, game),
-            observeObject: () => {},
-            extractObject: obj => obj_extract_self(obj, { state: game }),
-            setMonsterNotWielded: (monster, obj) => setmnotwielded(monster, obj, { state: game }),
-            damageValue: () => assert.fail('C egg uses thitu(8, 0), not weapon damage'),
             shouldMulch: () => false,
             floorEffects: () => false,
             placeObject: (obj, px, py) => place_object(obj, px, py, { state: game }),

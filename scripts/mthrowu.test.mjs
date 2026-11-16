@@ -8,7 +8,6 @@ import {
     CORR,
     DEAF,
     DETECT_MONSTERS,
-    DISP_END,
     D_CLOSED,
     DOOR,
     HALLUC,
@@ -38,10 +37,9 @@ import {
 } from '../js/const.js';
 import { acurr } from '../js/attrib.js';
 import { ART_MAGICBANE, spec_abon } from '../js/artifacts.js';
-import { flooreffects } from '../js/do.js';
 import { omon_adj, should_mulch_missile } from '../js/dothrow.js';
 import { game } from '../js/gstate.js';
-import { add_to_minv, obj_extract_self, stackobj } from '../js/invent.js';
+import { add_to_minv, obj_extract_self } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     LOW_PM,
@@ -56,7 +54,7 @@ import {
     PM_WHITE_UNICORN,
     SPECIAL_PM,
 } from '../js/monsters.js';
-import { newMonster } from '../js/monst.js';
+import { m_at, newMonster, remove_monster } from '../js/monst.js';
 import { clear_dknown, mksobj, mksobj_at, place_object, remove_object }
     from '../js/obj.js';
 import { observe_object } from '../js/o_init.js';
@@ -89,10 +87,9 @@ import {
     drop_throw, hit_bars, hits_bars, m_useup, monmulti, monshoot, m_throw, ohitmon, spitmm, thrwmu,
 } from '../js/mthrowu.js';
 import { canseemon, canspotmon } from '../js/display.js';
-import { potionhit } from '../js/potion.js';
 import { passive_obj } from '../js/uhitm.js';
 import { block_point, vision_reset } from '../js/vision.js';
-import { dmgval, select_rwep, setmnotwielded } from '../js/weapon.js';
+import { select_rwep, setmnotwielded } from '../js/weapon.js';
 import { coreRandom } from '../js/rng.js';
 import { expectTerminated, prepareQuietDeath } from './expect-terminated.mjs';
 
@@ -561,6 +558,42 @@ function setCouldSee(state, x, y, visible) {
     else state.viz_array[y][x] &= ~COULD_SEE;
 }
 
+// clearRow(), and also takes every monster off the row. m_throw() asks
+// m_at() about each square it crosses, and the witness level has a lichen
+// one square east of the hero, in the path of every westward test missile.
+function emptyRow(state, fromX, toX, y) {
+    clearRow(state, fromX, toX, y);
+    for (let x = Math.min(fromX, toX); x <= Math.max(fromX, toX); ++x) {
+        const occupant = m_at(x, y, state);
+        if (!occupant) continue;
+        remove_monster(x, y, state);
+        if (state.level.monlist === occupant) {
+            state.level.monlist = occupant.nmon;
+            continue;
+        }
+        for (let mon = state.level.monlist; mon; mon = mon.nmon) {
+            if (mon.nmon !== occupant) continue;
+            mon.nmon = occupant.nmon;
+            break;
+        }
+    }
+}
+
+// Turns the square west of a thrower to stone. m_throw()'s pre-flight check
+// then drops the missile on the thrower's own square before it draws a
+// random number or opens a display frame, which ends a test of what
+// monshoot() does before the flight.
+function wallWestOf(state, monster) {
+    state.level.at(monster.mx - 1, monster.my).typ = STONE;
+}
+
+// Sets the bit cansee() reads. canseemon() asks cansee() about the
+// monster's square, so this decides whether the hero sees a thrower.
+function setInSight(state, x, y, visible) {
+    if (visible) state.viz_array[y][x] |= IN_SIGHT;
+    else state.viz_array[y][x] &= ~IN_SIGHT;
+}
+
 test('thrwmu spends an empty-handed launcher wield turn', async () => {
     const state = await hero();
     const y = state.u.uy;
@@ -607,41 +640,47 @@ test('thrwmu announces one visible ordinary throw before missile flight',
         subject.minvent = dagger;
         subject.mw = dagger;
         subject.weapon_check = NO_WEAPON_WANTED;
-        clearRow(state, state.u.ux, subject.mx, y);
+        emptyRow(state, state.u.ux, subject.mx, y);
         setCouldSee(state, subject.mx, y, true);
+        // canseemon() selects monshoot()'s visible announcement.
+        setInSight(state, subject.mx, y, true);
         state.u.ux0 = state.u.ux;
         state.u.uy0 = state.u.uy;
         const messages = [];
-        const flight = new Error('expected m_throw boundary');
+        // monshoot() resets gm.m_shot after the volley, so each message
+        // records the value m_throw() flew with.
+        const shots = [];
+        const catchBound = 100 - acurr(state, A_DEX);
 
-        await assert.rejects(thrwmu(subject, {
+        await thrwmu(subject, {
             state,
-            random: noDraw(),
-            canSeeMonster: () => true,
-            monsterName: () => 'The giant rat',
-            message: (text) => { messages.push(text); },
-            endMulti: () => {},
-            throwMissile: (monster, x, originY, dx, dy, range, obj) => {
-                assert.equal(monster, subject);
-                assert.deepEqual(
-                    [x, originY, dx, dy, range, obj],
-                    // The hero is five squares west on the same row.
-                    [subject.mx, y, -1, 0, 5, dagger],
-                );
-                assert.deepEqual(state.m_shot, {
-                    // An orcish dagger is thrown rather than shot.
-                    s: false,
-                    o: ORCISH_DAGGER,
-                    n: 1,
-                    i: 1,
-                });
-                throw flight;
+            random: {
+                // A nonzero catch roll lets the dagger reach the hero; every
+                // other rn2() (flight checks, exercise) has no effect here.
+                rn2: (bound) => (bound === catchBound ? 1 : 0),
+                // rnd(3) is ORCISH_DAGGER's d3 damage; rnd(20)=1 hits.
+                rnd: () => 1,
             },
-        }), flight);
-        assert.deepEqual(messages, [
+            message: (text) => {
+                messages.push(text);
+                shots.push({ ...state.m_shot });
+            },
+        });
+        assert.deepEqual(messages.slice(0, 2), [
             // objects.c identifies an unknown orcish dagger as "crude dagger".
             'The giant rat throws a crude dagger!',
+            'You are hit by a crude dagger.',
         ]);
+        assert.deepEqual(shots[1], {
+            // An orcish dagger is thrown rather than shot.
+            s: false,
+            o: ORCISH_DAGGER,
+            n: 1,
+            i: 1,
+        });
+        // The hero is five squares west on the same row, so m_throw() flew
+        // the dagger west and dropped it on the hero's square.
+        assert.equal(state.level.objects[state.u.ux][y], dagger);
     });
 
 test('a visible monster throw includes its location in accessible messages',
@@ -666,19 +705,20 @@ test('a visible monster throw includes its location in accessible messages',
         state.objects[ORCISH_DAGGER].oc_name_known = 0;
         add_to_minv(subject, dagger, { state });
         state.gt = { tbx: -1, tby: 0 };
+        setInSight(state, subject.mx, y, true);
+        wallWestOf(state, subject);
         const messages = [];
-        const flight = new Error('expected flight boundary');
 
-        await assert.rejects(monshoot(subject, dagger, null, {
+        await monshoot(subject, dagger, null, {
             state,
-            canSeeMonster: () => true,
-            monsterName: () => 'The giant rat',
+            random: noDraw(),
             message: (line) => { messages.push(line); },
-            throwMissile: () => { throw flight; },
-        }), flight);
+        });
 
         assert.deepEqual(messages,
             ['(5east): The giant rat throws a crude dagger!']);
+        // The wall stopped the dagger before it left the thrower's square.
+        assert.equal(state.level.objects[subject.mx][y], dagger);
     });
 
 test('monshoot stops a volley once a missile ends the game', async () => {
@@ -698,23 +738,33 @@ test('monshoot stops a volley once a missile ends the game', async () => {
     daggers.quan = 2;
     add_to_minv(subject, daggers, { state });
     state.gt = { tbx: -1, tby: 0 };
-    const thrown = [];
+    emptyRow(state, state.u.ux, subject.mx, y);
+    const hits = [];
 
     await monshoot(subject, daggers, null, {
         state,
-        // monmulti()'s rnd(2) answers 2: a two-missile volley.
-        random: { rnd: (limit) => limit },
-        canSeeMonster: () => true,
-        monsterName: () => 'The gnome leader',
-        message: () => {},
-        throwMissile: () => {
-            thrown.push(state.m_shot.i);
-            // The first missile kills the hero.
+        random: {
+            // splitobj() checks for the whole random interface.
+            ...coreRandom,
+            // monmulti()'s rnd(2) answers 2: a two-missile volley. Every
+            // other rnd() answers 1: rnd(20)=1 hits and rnd(3) is damage.
+            rnd: (limit) => (limit === 2 ? 2 : 1),
+            // A nonzero catch roll lets each dagger reach the hero.
+            rn2: (bound) => bound - 1,
+        },
+        message: (text) => {
+            if (!text.startsWith('You are hit')) return;
+            hits.push(state.m_shot.i);
+            // The first missile ends the game: m_throw() returns with the
+            // flag the JavaScript end-game path leaves set after thitu().
             state.program_state.gameover = true;
         },
     });
 
-    assert.deepEqual(thrown, [1]);
+    assert.deepEqual(hits, [1]);
+    // The second dagger never left the thrower's stack.
+    assert.equal(daggers.quan, 1);
+    assert.equal(subject.minvent, daggers);
 });
 
 test('monshoot unseen arm sets m_shot.o to STRANGE_OBJECT and falls through',
@@ -731,36 +781,40 @@ test('monshoot unseen arm sets m_shot.o to STRANGE_OBJECT and falls through',
         dagger.nobj = null;
         subject.minvent = dagger;
         subject.mw = dagger;
+        emptyRow(state, state.u.ux, subject.mx, y);
+        // Monster is not visible.
+        setInSight(state, subject.mx, y, false);
         const messages = [];
-        const flight = new Error('expected m_throw boundary');
+        // monshoot() resets gm.m_shot after the volley, so each message
+        // records the value m_throw() flew with.
+        const shots = [];
+        const catchBound = 100 - acurr(state, A_DEX);
         // monshoot reads sgn(state.gt.tbx/tby) for direction; callers
         // (thrwmu/thrwmm) set these via lined_up/m_lined_up before calling.
         state.gt = { tbx: subject.mux - subject.mx, tby: subject.muy - subject.my };
 
-        await assert.rejects(monshoot(subject, dagger, subject.mw, {
+        await monshoot(subject, dagger, subject.mw, {
             state,
-            // Monster is not visible.
-            canSeeMonster: () => false,
-            monsterName: () => assert.fail('should not name unseen monster'),
-            message: (text) => { messages.push(text); },
-            endMulti: () => {},
-            throwMissile: (monster, x, originY, dx, dy, range, obj) => {
-                assert.equal(monster, subject);
-                assert.deepEqual(
-                    [x, originY, dx, dy, range, obj],
-                    [subject.mx, y, -1, 0, 5, dagger],
-                );
-                // Unseen: m_shot.o is STRANGE_OBJECT, not the missile type.
-                // m_shot.s is not set in the unseen arm (C leaves it from
-                // any prior use; JS leaves the key absent on a fresh object).
-                assert.equal(state.m_shot.o, STRANGE_OBJECT);
-                assert.equal(state.m_shot.n, 1);
-                assert.equal(state.m_shot.i, 1);
-                throw flight;
+            random: {
+                // A nonzero catch roll lets the dagger reach the hero.
+                rn2: (bound) => (bound === catchBound ? 1 : 0),
+                // rnd(3) is ORCISH_DAGGER's d3 damage; rnd(20)=1 hits.
+                rnd: () => 1,
             },
-        }), flight);
-        // No announcement message when the monster is unseen.
-        assert.deepEqual(messages, []);
+            message: (text) => {
+                messages.push(text);
+                shots.push({ ...state.m_shot });
+            },
+        });
+        // No announcement message when the monster is unseen: the first
+        // line is the hit itself.
+        assert.match(messages[0], /^You are hit by /u);
+        // Unseen: m_shot.o is STRANGE_OBJECT, not the missile type.
+        assert.equal(shots[0].o, STRANGE_OBJECT);
+        assert.equal(shots[0].n, 1);
+        assert.equal(shots[0].i, 1);
+        // The hero is five squares west, so the dagger flew west to her.
+        assert.equal(state.level.objects[state.u.ux][y], dagger);
     });
 
 test('monshoot names its monster target with the injected display RNG',
@@ -790,27 +844,31 @@ test('monshoot names its monster target with the injected display RNG',
         dagger.quan = 1;
         state.gm.mtarget = target;
         state.gt = { tbx: -1, tby: 0 };
+        setInSight(state, subject.mx, y, true);
+        wallWestOf(state, subject);
         const displayDraws = [];
         const messages = [];
-        const flight = new Error('expected m_throw boundary');
 
-        await assert.rejects(monshoot(subject, dagger, null, {
+        await monshoot(subject, dagger, null, {
             state,
+            random: noDraw(),
             displayRandom: (bound) => {
                 displayDraws.push(bound);
                 return 0;
             },
-            canSeeMonster: () => true,
-            monsterName: () => 'The giant rat',
             message: (text) => { messages.push(text); },
-            throwMissile: () => { throw flight; },
-        }), flight);
+        });
 
         // rndmonnam() chooses from SPECIAL_PM + 100 - LOW_PM candidates, then
         // draws one of two genders; LOW_PM is the ordinary giant-ant entry.
-        assert.deepEqual(displayDraws, [SPECIAL_PM + 100 - LOW_PM, 2]);
+        // some_mon_nam(mtarg) draws first, then Monnam(mtmp) names the
+        // hallucinated thrower with the same two draws.
+        assert.deepEqual(displayDraws, [
+            SPECIAL_PM + 100 - LOW_PM, 2,
+            SPECIAL_PM + 100 - LOW_PM, 2,
+        ]);
         assert.deepEqual(messages, [
-            'The giant rat throws a crude dagger at the giant ant!',
+            'The giant ant throws a crude dagger at the giant ant!',
         ]);
     });
 
@@ -830,8 +888,10 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
         dagger.owornmask = W_WEP;
         subject.mw = dagger;
         subject.weapon_check = NO_WEAPON_WANTED;
-        clearRow(state, state.u.ux, subject.mx, y);
+        emptyRow(state, state.u.ux, subject.mx, y);
         setCouldSee(state, subject.mx, y, true);
+        // canseemon() selects monshoot()'s visible announcement.
+        setInSight(state, subject.mx, y, true);
         state.u.ux0 = state.u.ux;
         state.u.uy0 = state.u.uy;
         state.gt ??= {};
@@ -839,8 +899,6 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
         startSearching(state);
         const messages = [];
         const draws = [];
-        const temporaryDisplay = [];
-        let endedMulti = 0;
         const catchBound = 100 - acurr(state, A_DEX);
         const random = {
             rn2: (bound) => {
@@ -861,50 +919,7 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
         await thrwmu(subject, {
             state,
             random,
-            canSeeMonster: () => true,
-            canSeeSquare: () => true,
-            // This constructed ray contains no intervening monster; m_at() is
-            // covered on live level grids by the end-to-end differential.
-            monsterAt: () => null,
-            monsterName: () => 'The giant rat',
             message: (text) => { messages.push(text); },
-            objectToGlyph: () => 777,
-            temporaryDisplay: async (x, atY) => {
-                temporaryDisplay.push([x, atY]);
-            },
-            throwMissile: m_throw,
-            delayOutput: async () => {},
-            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-            observeObject: (obj) => observe_object(obj, state),
-            extractObject: (obj) => obj_extract_self(obj, { state }),
-            setMonsterNotWielded: (monster, obj) =>
-                setmnotwielded(monster, obj, { state }),
-            damageValue: (obj, target) =>
-                dmgval(obj, target, state, { random }),
-            shouldMulch: (obj) => should_mulch_missile(obj, state, {
-                unsupported: (reason) => assert.fail(reason),
-            }),
-            floorEffects: (obj, x, atY, verb) => flooreffects(
-                obj,
-                x,
-                atY,
-                verb,
-                { state, unsupported: (reason) => assert.fail(reason) },
-            ),
-            placeObject: (obj, x, atY) => place_object(obj, x, atY, { state }),
-            passiveObject: (monster, obj, attack) => passive_obj(
-                monster,
-                obj,
-                attack,
-                state,
-                { unsupported: (reason) => assert.fail(reason) },
-            ),
-            stackObject: (obj) => stackobj(obj, {
-                state,
-                hooks: { extractExternalObject: remove_object },
-            }),
-            endMulti: () => { endedMulti++; },
-            unsupported: (reason) => assert.fail(reason),
         });
 
         assert.deepEqual(messages, [
@@ -920,7 +935,6 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
         assert.equal(dagger.ocarry, null);
         assert.equal(state.level.objects[state.u.ux][y], dagger);
         assert.equal(state.gt.thrownobj, null);
-        assert.equal(endedMulti, 1);
         assert.deepEqual(state.m_shot, { s: false, o: 0, n: 0, i: 0 });
         assert.deepEqual(draws, [
             // Three unobstructed intermediate squares each spend forcehit.
@@ -930,7 +944,8 @@ test('thrwmu carries an ordinary dagger hit through floor settlement',
             // Damage, hit, then exercise(A_STR, FALSE), in source order.
             ['rnd', 3], ['rnd', 20], ['rn2', 2],
         ]);
-        assert.equal(temporaryDisplay.at(-1)?.[0], -7);
+        // m_throw()'s closing tmp_at(DISP_END, 0) closed its flash frame.
+        assert.deepEqual(state.tmp_at_stack, []);
     });
 
 test('m_throw sends blinding venom through thitu and deletes it on a miss',
@@ -1016,13 +1031,14 @@ test('m_throw miss lets the missile continue flying and drop at range end',
         add_to_minv(subject, dagger, { state });
         dagger.owornmask = W_WEP;
         subject.mw = dagger;
-        clearRow(state, state.u.ux - 1, subject.mx, y);
+        emptyRow(state, state.u.ux - 1, subject.mx, y);
         setCouldSee(state, subject.mx, y, true);
+        // An unseen thrower: m_throw() clears the missile's dknown.
+        setInSight(state, subject.mx, y, false);
         state.gt ??= {};
         const hpBefore = state.u.uhp;
         const messages = [];
         const draws = [];
-        const temporaryDisplayCalls = [];
         startSearching(state);
         const catchBound = 100 - acurr(state, A_DEX);
         const random = {
@@ -1045,38 +1061,7 @@ test('m_throw miss lets the missile continue flying and drop at range end',
         await m_throw(subject, subject.mx, y, -1, 0, 4, dagger, {
             state,
             random,
-            canSeeMonster: () => false,
-            canSeeSquare: () => false,
-            monsterAt: () => null,
-            objectToGlyph: () => 777,
-            temporaryDisplay: async (x, atY) => {
-                temporaryDisplayCalls.push([x, atY]);
-            },
-            delayOutput: async () => {},
-            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-            observeObject: () => {},
-            extractObject: (obj) => obj_extract_self(obj, { state }),
-            setMonsterNotWielded: (s, obj) =>
-                setmnotwielded(s, obj, { state }),
-            damageValue: (obj, target) =>
-                dmgval(obj, target, state, { random }),
-            shouldMulch: (obj) => should_mulch_missile(obj, state, {
-                unsupported: (reason) => assert.fail(reason),
-            }),
-            floorEffects: (obj, x, atY, verb) => flooreffects(
-                obj,
-                x,
-                atY,
-                verb,
-                { state, unsupported: (reason) => assert.fail(reason) },
-            ),
-            placeObject: (obj, x, atY) => place_object(obj, x, atY, { state }),
-            passiveObject: () => {},
             message: (text) => { messages.push(text); },
-            stackObject: (obj) => stackobj(obj, {
-                state,
-                hooks: { extractExternalObject: remove_object },
-            }),
             unsupported: (reason) => assert.fail(reason),
         });
 
@@ -1124,12 +1109,11 @@ test('m_throw stops after a lethal hit has settled the transit object',
         add_to_minv(subject, dagger, { state });
         dagger.owornmask = W_WEP;
         subject.mw = dagger;
-        clearRow(state, state.u.ux, subject.mx, y);
+        emptyRow(state, state.u.ux, subject.mx, y);
         prepareQuietDeath(state);
         // One hit point and one point of damage: thitu()'s losehp() kills.
         state.u.uhp = 1;
         startSearching(state);
-        const notReached = (what) => () => assert.fail(`lethal hit must skip ${what}`);
 
         // C's lethal losehp() enters done() and never returns to m_throw().
         await expectTerminated(() => m_throw(subject, subject.mx, y, -1, 0, 2,
@@ -1137,28 +1121,12 @@ test('m_throw stops after a lethal hit has settled the transit object',
                 state,
                 random: {
                     // Nonzero catches and a non-forced intermediate flight
-                    // keep the ordinary hit path selected; rnd(20)=1 hits.
+                    // keep the ordinary hit path selected; rnd(20)=1 hits,
+                    // and rnd(3), ORCISH_DAGGER's d3, deals one point.
                     rn2: () => 1,
-                    rnd: (bound) => (bound === 20
+                    rnd: (bound) => (bound === 20 || bound === 3
                         ? 1 : assert.fail(`unexpected rnd(${bound})`)),
                 },
-                canSeeMonster: () => true,
-                canSeeSquare: () => false,
-                monsterAt: () => null,
-                objectToGlyph: () => 777,
-                temporaryDisplay: async () => {},
-                delayOutput: async () => {},
-                clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-                observeObject: () => {},
-                extractObject: (obj) => obj_extract_self(obj, { state }),
-                setMonsterNotWielded: (monster, obj) =>
-                    setmnotwielded(monster, obj, { state }),
-                damageValue: () => 1,
-                shouldMulch: notReached('drop_throw'),
-                floorEffects: notReached('drop_throw'),
-                placeObject: notReached('drop_throw'),
-                passiveObject: notReached('drop_throw'),
-                stackObject: notReached('drop_throw'),
                 message: () => {},
                 unsupported: (reason) => assert.fail(reason),
             }));
@@ -1192,14 +1160,13 @@ test('m_throw stops after a fatal poison coating on a missile', async () => {
     add_to_minv(subject, bow, { state });
     bow.owornmask = W_WEP;
     subject.mw = bow;
-    clearRow(state, state.u.ux, subject.mx, y);
+    emptyRow(state, state.u.ux, subject.mx, y);
     prepareQuietDeath(state);
     // The arrow's one point of damage leaves 4; poison's 6 + d(4,6) = 10
     // (each d6 rolls 1) is deadly.
     state.u.uhp = 5;
     startSearching(state);
     const messages = [];
-    const notReached = () => assert.fail('fatal poison cannot settle missile');
     await expectTerminated(() => m_throw(subject, subject.mx, y, -1, 0, 2, arrow, {
         state,
         random: {
@@ -1207,29 +1174,15 @@ test('m_throw stops after a fatal poison coating on a missile', async () => {
             // thrown weapon with fatal 10; every other rn2 (flight, catch,
             // exercise) returns 1.
             rn2: (bound) => (bound === 30 ? 0 : 1),
-            // rnd(20)=1 hits the hero.
-            rnd: (bound) => (bound === 20 ? 1 : assert.fail(`unexpected rnd(${bound})`)),
+            // rnd(20)=1 hits the hero; rnd(6), the arrow's d6, deals one
+            // point.
+            rnd: (bound) => (bound === 20 || bound === 6
+                ? 1 : assert.fail(`unexpected rnd(${bound})`)),
             d: (count, sides) => {
                 assert.deepEqual([count, sides], [4, 6]);
                 return 4;
             },
         },
-        canSeeMonster: () => true,
-        canSeeSquare: () => false,
-        monsterAt: () => null,
-        objectToGlyph: () => 777,
-        temporaryDisplay: () => {},
-        delayOutput: () => {},
-        clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-        observeObject: () => {},
-        extractObject: (obj) => obj_extract_self(obj, { state }),
-        setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
-        damageValue: () => 1,
-        shouldMulch: notReached,
-        floorEffects: notReached,
-        placeObject: notReached,
-        passiveObject: notReached,
-        stackObject: notReached,
         message: (text) => { messages.push(text); },
     }));
     assert.equal(messages.includes('The poison was deadly...'), true);
@@ -1252,7 +1205,7 @@ test('m_throw hands a hurled potion to potionhit and settles nothing else',
         potion.quan = 1;
         potion.dknown = true;
         add_to_minv(subject, potion, { state });
-        clearRow(state, state.u.ux, subject.mx, y);
+        emptyRow(state, state.u.ux, subject.mx, y);
         state.gt ??= {};
         const hpBefore = state.u.uhp;
         const dexBefore = state.u.aexe[A_DEX];
@@ -1279,31 +1232,7 @@ test('m_throw hands a hurled potion to potionhit and settles nothing else',
         await m_throw(subject, subject.mx, subject.my, -1, 0, 3, potion, {
             state,
             random,
-            canSeeMonster: () => true,
-            canSeeSquare: () => true,
-            monsterAt: () => null,
             message: (text) => { messages.push(text); },
-            objectToGlyph: () => 777,
-            temporaryDisplay: async () => {},
-            delayOutput: async () => {},
-            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-            observeObject: (obj) => observe_object(obj, state),
-            extractObject: (obj) => obj_extract_self(obj, { state }),
-            setMonsterNotWielded: (monster, obj) =>
-                setmnotwielded(monster, obj, { state }),
-            damageValue: () => assert.fail('a potion rolls no weapon damage'),
-            shouldMulch: () => assert.fail('a potion never mulches'),
-            floorEffects: () => assert.fail('a potion never lands'),
-            placeObject: () => assert.fail('a potion is used up, not placed'),
-            passiveObject: () => assert.fail('a potion never lands'),
-            stackObject: () => assert.fail('a potion is used up, not stacked'),
-            endMulti: () => {},
-            potionHit: (target, obj, how, actionEnv) => potionhit(
-                target,
-                obj,
-                how,
-                { ...actionEnv, encumberMessage: async () => {} },
-            ),
             unsupported: (reason) => assert.fail(reason),
         });
 
@@ -1350,35 +1279,18 @@ test('a unicorn catches and rejects worthless glass thrown by a monster', async 
     const subject = attacker(state, state.u.ux + 2, y, state.u.ux, y);
     const glass = mksobj(WORTHLESS_WHITE_GLASS, false, false, { state });
     add_to_minv(subject, glass, { state });
-    clearRow(state, state.u.ux, subject.mx, y);
+    emptyRow(state, state.u.ux, subject.mx, y);
     const messages = [];
 
     startSearching(state);
     await m_throw(subject, subject.mx, y, -1, 0, 2, glass, {
         state,
         random: { rn2: () => 1 },
-        canSeeMonster: () => true,
-        canSeeSquare: () => true,
-        monsterAt: () => null,
-        objectToGlyph: () => 777,
-        temporaryDisplay: () => {},
-        delayOutput: () => {},
-        clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-        observeObject: (obj) => observe_object(obj, state),
-        extractObject: (obj) => obj_extract_self(obj, { state }),
-        setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
-        damageValue: () => assert.fail('a caught gem does not roll damage'),
-        shouldMulch: () => assert.fail('a caught gem does not settle by flight'),
-        floorEffects: () => false,
-        placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
         hooks: {
             newsym: () => {},
             encumberMessage: () => {},
             extractExternalObject: (obj) => remove_object(obj, { state }),
         },
-        passiveObject: () => assert.fail('a caught gem has no passive hit'),
-        stackObject: () => {},
-        endMulti: () => {},
         message: (line) => { messages.push(line); },
     });
 
@@ -1405,34 +1317,17 @@ test('a unicorn accepts a real gem thrown by a monster', async () => {
     const subject = attacker(state, state.u.ux + 2, y, state.u.ux, y);
     const gem = mksobj(EMERALD, false, false, { state });
     add_to_minv(subject, gem, { state });
-    clearRow(state, state.u.ux, subject.mx, y);
+    emptyRow(state, state.u.ux, subject.mx, y);
     const messages = [];
 
     startSearching(state);
     await m_throw(subject, subject.mx, y, -1, 0, 2, gem, {
         state,
         random: { rn2: () => 1 },
-        canSeeMonster: () => true,
-        canSeeSquare: () => true,
-        monsterAt: () => null,
-        objectToGlyph: () => 777,
-        temporaryDisplay: () => {},
-        delayOutput: () => {},
-        clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-        observeObject: (obj) => observe_object(obj, state),
-        extractObject: (obj) => obj_extract_self(obj, { state }),
-        setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
-        damageValue: () => assert.fail('a caught gem does not roll damage'),
-        shouldMulch: () => assert.fail('a caught gem does not settle by flight'),
-        floorEffects: () => false,
-        placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
-        passiveObject: () => assert.fail('a caught gem has no passive hit'),
-        stackObject: () => {},
         hooks: {
             message: (line) => { messages.push(line); },
             encumberMessage: () => {},
         },
-        endMulti: () => {},
         message: (line) => { messages.push(line); },
     });
 
@@ -1459,45 +1354,26 @@ test('a failed tethered return closes its display before the snap', async () => 
         add_to_minv(subject, weapon, { state });
         subject.mw = weapon;
         weapon.owornmask = W_WEP;
-        clearRow(state, subject.mx, subject.mx + 1, y);
+        emptyRow(state, subject.mx, subject.mx + 1, y);
         if (deaf) state.u.uprops[DEAF] = { intrinsic: 1, extrinsic: 0 };
         const messages = [];
-        const events = [];
+        // The number of open tmp_at() frames when each line prints.
+        const openFrames = [];
 
         await m_throw(subject, subject.mx, y, 1, 0, 1, weapon, {
             state,
             random: { rn2: (bound) => bound === 100 ? 0 : bound - 1 },
-            canSeeMonster: () => true,
-            canSeeSquare: () => true,
-            monsterAt: () => null,
-            objectToGlyph: () => 777,
-            temporaryDisplay: (displayMode, argument) => {
-                events.push(['display', displayMode, argument]);
-            },
-            delayOutput: () => {},
-            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-            observeObject: (obj) => observe_object(obj, state),
-            extractObject: (obj) => obj_extract_self(obj, { state }),
-            setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
-            damageValue: () => assert.fail('the aklys does not strike a target'),
-            shouldMulch: () => false,
-            floorEffects: () => false,
-            placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
-            passiveObject: () => {},
-            stackObject: () => {},
-            endMulti: () => {},
             message: (line) => {
                 messages.push(line);
-                events.push(['message', line]);
+                openFrames.push(state.tmp_at_stack.length);
             },
         });
 
-        const endIndex = events.findIndex(
-            (event) => event[0] === 'display' && event[1] === DISP_END,
-        );
-        assert.ok(endIndex >= 0, 'the failed return closes the tether display');
-        if (!deaf)
-            assert.equal(events[endIndex + 1]?.[0], 'message');
+        // The failed return closed the tether frame, and did so before the
+        // snap printed.
+        assert.deepEqual(state.tmp_at_stack, [],
+            'the failed return closes the tether display');
+        assert.deepEqual(openFrames, deaf ? [] : [0]);
         assert.deepEqual(messages, deaf ? [] : ['You hear a loud snap!']);
         assert.equal(weapon.where, OBJ_FLOOR);
     }
@@ -1653,39 +1529,28 @@ test('m_throw stops flight display after a fatal hurled potion', async () => {
     const subject = attacker(state, state.u.ux + 3, y, state.u.ux, y);
     const potion = mksobj(POT_SLEEPING, false, false, { state });
     add_to_minv(subject, potion, { state });
-    clearRow(state, state.u.ux, subject.mx, y);
-    const display = [];
-    let displaysAtDeath;
+    emptyRow(state, state.u.ux, subject.mx, y);
+    let framesAtDeath;
     startSearching(state);
     const result = await m_throw(subject, subject.mx, y, -1, 0, 3, potion, {
         state,
-        random: { rn2: () => 1 },
-        canSeeMonster: () => true,
-        canSeeSquare: () => true,
-        monsterAt: () => null,
-        message: () => {},
-        objectToGlyph: () => 777,
-        temporaryDisplay: (...args) => { display.push(args); },
-        delayOutput: () => {},
-        clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-        observeObject: (obj) => observe_object(obj, state),
-        extractObject: (obj) => obj_extract_self(obj, { state }),
-        setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
-        damageValue: () => assert.fail('potion cannot roll weapon damage'),
-        shouldMulch: () => assert.fail('fatal potion cannot land'),
-        floorEffects: () => assert.fail('fatal potion cannot land'),
-        placeObject: () => assert.fail('fatal potion cannot land'),
-        passiveObject: () => assert.fail('fatal potion cannot land'),
-        stackObject: () => assert.fail('fatal potion cannot land'),
-        endMulti: () => {},
-        potionHit: () => {
+        // splitobj() and potionhit() check for the whole random interface;
+        // rn2 = 1 fails the catch roll so the potion reaches the hero.
+        random: { ...coreRandom, rn2: () => 1, rnd: () => 1 },
+        message: (line) => {
+            if (!line.includes('crashes on your')) return;
+            // potionhit()'s crash damage is the fatal blow: losehp() ->
+            // done() leaves this flag set when the JavaScript end-game path
+            // returns, and potionhit() returns at once.
             state.program_state.gameover = true;
-            displaysAtDeath = display.length;
+            framesAtDeath = state.tmp_at_stack.length;
         },
     });
     assert.equal(result, 0);
-    assert.ok(displaysAtDeath > 0);
-    assert.equal(display.length, displaysAtDeath);
+    // The flight's DISP_FLASH frame was open at the death, and m_throw()
+    // drew nothing more: it did not reach its closing tmp_at(DISP_END).
+    assert.equal(framesAtDeath, 1);
+    assert.equal(state.tmp_at_stack.length, 1);
     assert.notEqual(state.go.occupation, null, 'no stop_occupation()');
 });
 
@@ -2131,28 +1996,37 @@ test('thrwmu always tosses an unwelded returning aklys while hero retreats',
             subject.mw = weapon;
             weapon.owornmask = W_WEP;
             subject.weapon_check = NO_WEAPON_WANTED;
-            clearRow(state, state.u.ux, subject.mx, y);
+            emptyRow(state, state.u.ux, subject.mx, y);
             setCouldSee(state, subject.mx, y, true);
+            // A visible thrower announces the throw, which marks where
+            // monshoot() begins.
+            setInSight(state, subject.mx, y, true);
             state.u.ux0 = state.u.ux + 1;
             state.u.uy0 = y;
             assert.equal(select_rwep(subject, { state }), weapon);
             assert.equal(lined_up(subject, { state, random: { rn2: () => 0 } }), true);
 
-            const flight = new Error('reached missile flight');
             const draws = [];
-            const operation = thrwmu(subject, {
+            // The rn2() draws made before monshoot()'s announcement.
+            let drawsBeforeThrow;
+            const result = await thrwmu(subject, {
                 state,
-                random: { rn2(bound) { draws.push(bound); return 1; } },
-                canSeeMonster: () => false,
-                endMulti: () => {},
-                throwMissile: () => { throw flight; },
-                message: () => {},
+                random: {
+                    // The flight that follows a throw draws from the whole
+                    // interface; 1 declines the retreat roll and the catch.
+                    ...coreRandom,
+                    rn2(bound) { draws.push(bound); return 1; },
+                    rnd: () => 1,
+                },
+                message: (line) => {
+                    if (/ throws /u.test(line)) drawsBeforeThrow ??= [...draws];
+                },
             });
+            assert.equal(result, 0);
             if (returning) {
-                await assert.rejects(operation, error => error === flight);
-                assert.deepEqual(draws, []);
+                assert.deepEqual(drawsBeforeThrow, []);
             } else {
-                assert.equal(await operation, 0);
+                assert.equal(drawsBeforeThrow, undefined);
                 assert.deepEqual(draws, [5]);
             }
         }

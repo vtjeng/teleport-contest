@@ -2556,12 +2556,6 @@
       "c": null,
       "reason": "Called before the initialization every game performs first (monst_globals_init(), init_objects() and the like)."
     },
-    "js/mthrowu.js | requireRangedOperation | `monster ranged attack requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mthrowu.js | thitu | 'thitu: name & obj both null?'": {
       "count": 1,
       "class": "panic",
