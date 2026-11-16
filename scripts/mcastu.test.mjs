@@ -111,7 +111,7 @@ function makeState(overrides = {}) {
     // terrain effects inert while supplying zap_over_floor's real map owner.
     level.at(4, 5).typ = ROOM;
     if (overrides.level) Object.assign(level, overrides.level);
-    return {
+    const state = {
         // u_init.c gives every hero a zeroed u.uprops[] slot for each
         // property; make_confused() and make_stunned() write theirs.
         u: {
@@ -127,6 +127,18 @@ function makeState(overrides = {}) {
         ...overrides,
         level,
     };
+    // mhitu.c mdamageu() subtracts spell damage from u.uhp. 1000 is far
+    // above any roll here, so no test kills the hero by accident.
+    state.u.uhp ??= 1000;
+    state.u.uhpmax ??= 1000;
+    return state;
+}
+
+// The hit points the hero has lost since this call: what castmu()'s
+// mdamageu() call took.
+function trackHeroHp(state) {
+    const hp = state.u.uhp;
+    return () => hp - state.u.uhp;
 }
 
 // A random source that hands out `values` in order and records each draw as
@@ -468,25 +480,20 @@ test('castmu: AD_MAGM damages the hero after its source-ordered rolls', async ()
     const state = makeState();
     const random = scriptedRandom([50], 8);
     const events = [];
-    let damageArgs;
+    const hpLoss = trackHeroHp(state);
     const result = await castmu(makeCaster(), mattk, true, true, {
         state, random,
-        message: async (text) => events.push(`message:${text}`),
-        mdamageu: async (...args) => {
-            events.push('damage');
-            damageArgs = args;
-        },
+        // The loss so far, read as each message prints: the damage comes
+        // after the last one.
+        message: async (text) => events.push(`message:${text}`, `lost:${hpLoss()}`),
     });
     assert.equal(result, M_ATTK_HIT);
     assert.deepEqual(random.draws, ['rn2(70)', 'd(4,6)', 'd(4,6)']);
-    assert.ok(events.includes('message:You are hit by a shower of missiles!'));
     assert.deepEqual(events.slice(-2), [
         'message:You are hit by a shower of missiles!',
-        'damage',
+        'lost:0',
     ]);
-    assert.equal(damageArgs[0].m_lev, 7);
-    assert.equal(damageArgs[1], 8);
-    assert.equal(damageArgs[2], state);
+    assert.equal(hpLoss(), 8);
 });
 
 test('castmu: AD_MAGM is blocked by Antimagic without damage', async () => {
@@ -501,11 +508,10 @@ test('castmu: AD_MAGM is blocked by Antimagic without damage', async () => {
     const random = scriptedRandom([50], 8);
     const messages = [];
     const gaps = recordGaps();
-    const damageCalls = [];
+    const hpLoss = trackHeroHp(state);
     const result = await castmu(makeCaster(), mattk, true, true, {
         state, random,
         message: async (text) => messages.push(text),
-        mdamageu: (...args) => damageCalls.push(args),
     });
 
     assert.equal(result, M_ATTK_HIT);
@@ -514,7 +520,7 @@ test('castmu: AD_MAGM is blocked by Antimagic without damage', async () => {
     assert.ok(messages.includes('The missiles bounce off!'));
     assert.equal(watcher.seen_resistance, M_SEEN_MAGR);
     assert.deepEqual(gaps(), []);
-    assert.deepEqual(damageCalls, []);
+    assert.equal(hpLoss(), 0);
 });
 
 // C ref: mcastu.c castmu() AD_FIRE arm (253-266). No monsters.h entry
@@ -532,18 +538,17 @@ test('castmu: AD_FIRE envelops the hero and damages without resistance',
         // 50 passes the rn2(70) fumble check (fumble needs < 20).
         const random = scriptedRandom([50], 8);
         const messages = [];
-        const damageCalls = [];
+        const hpLoss = trackHeroHp(state);
         const result = await castmu(makeCaster(), mattk, true, true, {
             state, random,
             message: async (text) => messages.push(text),
-            mdamageu: async (...args) => damageCalls.push(args[1]),
         });
         assert.equal(result, M_ATTK_HIT);
         assert.deepEqual(random.draws, ['rn2(70)', 'd(4,6)']);
         assert.ok(messages.includes("You're enveloped in flames."));
         assert.ok(!messages.includes('But you resist the effects.'));
         assert.equal(watcher.seen_resistance, 0);
-        assert.deepEqual(damageCalls, [8]);
+        assert.equal(hpLoss(), 8);
     });
 
 test('castmu: AD_FIRE is resisted by fire resistance without damage',
@@ -556,11 +561,10 @@ test('castmu: AD_FIRE is resisted by fire resistance without damage',
         const watcher = watcherAt(state, 6, 5, 0);
         const random = scriptedRandom([50], 8);
         const messages = [];
-        const damageCalls = [];
+        const hpLoss = trackHeroHp(state);
         const result = await castmu(makeCaster(), mattk, true, true, {
             state, random,
             message: async (text) => messages.push(text),
-            mdamageu: (...args) => damageCalls.push(args),
         });
         assert.equal(result, M_ATTK_HIT);
         assert.deepEqual(random.draws, ['rn2(70)', 'd(4,6)']);
@@ -569,7 +573,7 @@ test('castmu: AD_FIRE is resisted by fire resistance without damage',
             'But you resist the effects.',
         ]);
         assert.equal(watcher.seen_resistance, M_SEEN_FIRE);
-        assert.deepEqual(damageCalls, []);
+        assert.equal(hpLoss(), 0);
     });
 
 // -- spell_would_be_useless --------------------------------------------
@@ -714,7 +718,6 @@ async function blindYouEffect(blinded) {
     const refusals = recordGaps();
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
         state, random: scriptedRandom([6, 50]), message: () => {},
-        mdamageu: () => {},
     });
     return refusals();
 }
@@ -758,13 +761,14 @@ test('MCAST_BLIND_YOU reports scales before applying the spell timeout',
             const gaps = recordGaps();
             const random = scriptedRandom([6, 50]);
             const visionCalls = [];
+            const hpLoss = trackHeroHp(state);
 
             await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
                 state, random,
                 message: (line) => messages.push(line),
                 visionRecalc: (...args) => visionCalls.push(args),
-                mdamageu: () => assert.fail('blindness clears spell damage'),
             });
+            assert.equal(hpLoss(), 0, 'blindness clears spell damage');
 
             const scalesIndex = messages.indexOf('Scales cover your eyes!');
             // decl.c vision_clears is "vision quickly clears."
@@ -934,10 +938,12 @@ test('castmu awaits a result-valued effect message before mdamageu', async () =>
             return 34;
         },
     };
+    const state = makeState();
+    const hpLoss = trackHeroHp(state);
     const pending = castmu(
         makeCaster(), AD_SPEL_ATTACK, true, true,
         {
-            state: makeState(),
+            state,
             random,
             message: async (text) => {
                 const number = messageNumber++;
@@ -948,9 +954,6 @@ test('castmu awaits a result-valued effect message before mdamageu', async () =>
                     await effectGate;
                 }
                 events.push('message-end');
-            },
-            mdamageu: (_monster, damage) => {
-                events.push(`mdamageu:${damage}`);
             },
         },
     );
@@ -974,13 +977,13 @@ test('castmu awaits a result-valued effect message before mdamageu', async () =>
         'd(4,6)',
         'message-start:Your head suddenly aches very painfully!',
     ]);
-    assert.ok(!events.includes('mdamageu:34'),
+    assert.equal(hpLoss(), 0,
         'effect damage waits for its asynchronous message');
 
     releaseEffect();
     await pending;
-    assert.equal(events.at(-2), 'message-end');
-    assert.equal(events.at(-1), 'mdamageu:34');
+    assert.equal(events.at(-1), 'message-end');
+    assert.equal(hpLoss(), 34);
     assert.deepEqual(draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
 });
 
@@ -1132,7 +1135,7 @@ test('MCAST_CONFUSE_YOU halves its own caster level with C integer rounding',
         state.u.uprops[HALF_SPDAM] = { intrinsic: 1, extrinsic: 0 };
         const random = scriptedRandom([2, 50]);
         const messages = [];
-        const damageCalls = [];
+        const hpLoss = trackHeroHp(state);
 
         const result = await castmu(
             makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
@@ -1140,7 +1143,6 @@ test('MCAST_CONFUSE_YOU halves its own caster level with C integer rounding',
                 state,
                 random,
                 message: async (text) => messages.push(text),
-                mdamageu: async (...args) => damageCalls.push(args),
             },
         );
 
@@ -1152,7 +1154,7 @@ test('MCAST_CONFUSE_YOU halves its own caster level with C integer rounding',
         assert.deepEqual(messages.slice(-1), ['You feel more confused!']);
         assert.equal(visibleMonster.seen_resistance & M_SEEN_MAGR, 0,
             'the ordinary branch clears remembered magic resistance');
-        assert.deepEqual(damageCalls, [],
+        assert.equal(hpLoss(), 0,
             'the MCAST_CONFUSE_YOU arm clears damage before mdamageu');
         assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)']);
     });
@@ -1274,7 +1276,7 @@ test('MCAST_CONFUSE_YOU Antimagic remembers resistance and leaves Confusion alon
         state.u.uprops[ANTIMAGIC] = { intrinsic: 1, extrinsic: 0 };
         state.u.uprops[CONFUSION] = { intrinsic: 0, extrinsic: 0 };
         const messages = [];
-        const damageCalls = [];
+        const hpLoss = trackHeroHp(state);
 
         await castmu(
             makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
@@ -1282,7 +1284,6 @@ test('MCAST_CONFUSE_YOU Antimagic remembers resistance and leaves Confusion alon
                 state,
                 random: scriptedRandom([2, 50]),
                 message: async (text) => messages.push(text),
-                mdamageu: async (...args) => damageCalls.push(args),
             },
         );
 
@@ -1291,7 +1292,7 @@ test('MCAST_CONFUSE_YOU Antimagic remembers resistance and leaves Confusion alon
         assert.equal(state.u.uprops[CONFUSION].intrinsic, 0,
             'the Antimagic branch does not call make_confused');
         assert.deepEqual(messages.slice(-1), ['You feel momentarily dizzy.']);
-        assert.deepEqual(damageCalls, [],
+        assert.equal(hpLoss(), 0,
             'the caller clears spell damage after this void effect');
     });
 
@@ -1323,7 +1324,6 @@ test('castmu: a blind telepath reads the name of the caster it senses', async ()
         {
             state, random: scriptedRandom([0, 50], 10),
             message: (m) => messages.push(m),
-            mdamageu: () => {},
             monsterName: () => 'The kobold shaman',
         },
     );
@@ -1343,7 +1343,6 @@ test('castmu: an unsensed, unseen caster is "Something"', async () => {
         {
             state, random: scriptedRandom([0, 50], 10),
             message: (m) => messages.push(m),
-            mdamageu: () => {},
             monsterName: () => 'The kobold shaman',
         },
     );
@@ -1375,14 +1374,13 @@ test('psi_bolt: headache message, mdamageu called, resistance forgotten', async 
     // Starts believing the hero resists magic; monstunseesu() clears it.
     const watcher = watcherAt(state, 6, 5, M_SEEN_MAGR);
     const messages = [];
-    let damageAmount = 0;
+    const damageAmount = trackHeroHp(state);
 
     const result = await castmu(
         makeCaster({ m_lev: 7 }), AD_SPEL_ATTACK, true, true,
         {
             state, random,
             message: (m) => messages.push(m),
-            mdamageu: (mon, dmg) => { damageAmount = dmg; },
             monsterName: (m) => 'The kobold shaman',
         },
     );
@@ -1390,7 +1388,7 @@ test('psi_bolt: headache message, mdamageu called, resistance forgotten', async 
     assert.equal(result, M_ATTK_HIT);
     assert.ok(messages.some(m => m.includes('brain is on fire')),
         `Expected "brain is on fire" for dmg=10; got: ${messages.join('; ')}`);
-    assert.equal(damageAmount, 10, 'full damage without ANTIMAGIC');
+    assert.equal(damageAmount(), 10, 'full damage without ANTIMAGIC');
     assert.equal(watcher.seen_resistance, 0, 'monstunseesu(M_SEEN_MAGR)');
 });
 
@@ -1405,16 +1403,15 @@ test('psi_bolt: ANTIMAGIC halves damage and tracks resistance', async () => {
     });
     const watcher = watcherAt(state, 6, 5, 0);
     const messages = [];
-    let damageAmount = 0;
+    const damageAmount = trackHeroHp(state);
 
     await castmu(makeCaster({ m_lev: 7 }), AD_SPEL_ATTACK, true, true, {
         state, random,
         message: (m) => messages.push(m),
-        mdamageu: (mon, dmg) => { damageAmount = dmg; },
         monsterName: (m) => 'The kobold shaman',
     });
 
-    assert.equal(damageAmount, 4, 'ANTIMAGIC halves damage: (8+1)/2=4');
+    assert.equal(damageAmount(), 4, 'ANTIMAGIC halves damage: (8+1)/2=4');
     assert.ok(messages.some(m => m.includes('slight') && m.includes('ache')),
         `Expected slight headache for dmg=4; got: ${messages.join('; ')}`);
     assert.equal(watcher.seen_resistance, M_SEEN_MAGR,
@@ -1431,18 +1428,17 @@ test('open_wounds: wound message for dmg in 6-10 range', async () => {
     const state = makeState();
     const watcher = watcherAt(state, 6, 5, M_SEEN_MAGR);
     const messages = [];
-    let damageAmount = 0;
+    const damageAmount = trackHeroHp(state);
 
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
         state, random,
         message: (m) => messages.push(m),
-        mdamageu: (mon, dmg) => { damageAmount = dmg; },
         monsterName: (m) => 'The kobold shaman',
     });
 
     assert.ok(messages.some(m => m === 'Wounds appear on your body!'),
         `Expected "Wounds appear on your body!"; got: ${messages.join('; ')}`);
-    assert.equal(damageAmount, 8);
+    assert.equal(damageAmount(), 8);
     assert.equal(watcher.seen_resistance, 0, 'monstunseesu(M_SEEN_MAGR)');
 });
 
@@ -1454,16 +1450,15 @@ test('open_wounds: ANTIMAGIC halves damage and tracks resistance', async () => {
     });
     const watcher = watcherAt(state, 6, 5, 0);
     const messages = [];
-    let damageAmount = 0;
+    const damageAmount = trackHeroHp(state);
 
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
         state, random,
         message: (m) => messages.push(m),
-        mdamageu: (mon, dmg) => { damageAmount = dmg; },
         monsterName: (m) => 'The kobold shaman',
     });
 
-    assert.equal(damageAmount, 4);
+    assert.equal(damageAmount(), 4);
     assert.ok(messages.some(m => m === 'Your skin itches badly for a moment.'),
         `Expected the itch line for dmg=4; got: ${messages.join('; ')}`);
     assert.equal(watcher.seen_resistance, M_SEEN_MAGR);
@@ -1481,14 +1476,13 @@ test('geyser: production cleric cast applies its own physical damage', async () 
     const random = scriptedRandom([13, 1, 1, 50], 6);
     const state = makeState({ level: { monlist: null } });
     const messages = [];
-    let damage = null;
+    const damage = trackHeroHp(state);
     const gaps = recordGaps();
     await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
         state, random,
         message: (m) => messages.push(m),
-        mdamageu: (_mon, value) => { damage = value; },
     });
-    assert.equal(damage, 6);
+    assert.equal(damage(), 6);
     assert.ok(messages.includes('A sudden geyser slams into you from nowhere!'));
     assert.deepEqual(random.draws, [
         'rn2(14)', 'rn2(5)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
@@ -1503,14 +1497,13 @@ test('fire pillar: production cleric cast applies fire damage and item effects',
     const random = scriptedRandom([13, 0, 50, 1, 4], 6);
     const state = makeState({ level: { monlist: null }, invent: null });
     const messages = [];
-    let damage = null;
+    const damage = trackHeroHp(state);
     const gaps = recordGaps();
     await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
         state, random,
         message: (m) => messages.push(m),
-        mdamageu: (_mon, value) => { damage = value; },
     });
-    assert.equal(damage, 6);
+    assert.equal(damage(), 6);
     assert.ok(messages.includes('A pillar of fire strikes all around you!'));
     assert.deepEqual(random.draws, [
         'rn2(14)', 'rn2(5)', 'rn2(140)', 'd(8,6)', 'd(8,6)',
@@ -1531,14 +1524,13 @@ test('lightning: production cast preserves rnd(100) before flashburn', async () 
         youmonst: { data: { mlet: 0, mattk } },
     });
     const messages = [];
-    let damage = null;
+    const damage = trackHeroHp(state);
     const gaps = recordGaps();
     await castmu(makeCaster({ m_lev: 14 }), AD_CLRC_ATTACK, true, true, {
         state, random,
         message: (m) => messages.push(m),
-        mdamageu: (_mon, value) => { damage = value; },
     });
-    assert.equal(damage, 6);
+    assert.equal(damage(), 6);
     assert.ok(messages.includes('A bolt of lightning strikes down at you from above!'));
     assert.deepEqual(random.draws, [
         'rn2(14)', 'rn2(140)', 'd(8,6)', 'd(8,6)', 'rn2(5)', 'rnd(100)',
@@ -1553,13 +1545,12 @@ test('paralyze: production cleric cast applies nomul damage', async () => {
     const random = scriptedRandom([4, 50, 6], 6);
     const state = makeState({ level: { monlist: null }, multi: 0 });
     const messages = [];
-    let damage = null;
+    const damage = trackHeroHp(state);
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
         state, random,
         message: (m) => messages.push(m),
-        mdamageu: (_mon, value) => { damage = value; },
     });
-    assert.equal(damage, 11);
+    assert.equal(damage(), 11);
     assert.ok(messages.includes('You are frozen in place!'));
     assert.equal(state.multi, -11);
     assert.equal(state.multi_reason, 'paralyzed by a monster');
@@ -1634,13 +1625,13 @@ test('cure_self: heals monster and produces no hero damage', async () => {
 
     const mtmp = makeCaster({ m_lev: 7, mhp: 10, mhpmax: 20 });
     const messages = [];
-    let damageCalled = false;
+    const state = makeState();
+    const hpLoss = trackHeroHp(state);
 
     await castmu(mtmp, AD_CLRC_ATTACK, true, true, {
-        state: makeState(),
+        state,
         random,
         message: (m) => messages.push(m),
-        mdamageu: () => { damageCalled = true; },
         monsterName: (m) => 'The kobold shaman',
     });
 
@@ -1648,7 +1639,7 @@ test('cure_self: heals monster and produces no hero damage', async () => {
     assert.equal(mtmp.mhp, 19, 'healmon adds d(3,6)=9: 10+9=19');
     assert.equal(mtmp.mhpmax, 20, 'mhpmax unchanged (19 < 20)');
     assert.ok(messages.some(m => m.includes('looks better')));
-    assert.ok(!damageCalled, 'cure_self sets dmg=0, no mdamageu');
+    assert.equal(hpLoss(), 0, 'cure_self sets dmg=0, no mdamageu');
 });
 
 test('cure_self: is not chosen when the monster is at full health', async () => {
@@ -1657,20 +1648,20 @@ test('cure_self: is not chosen when the monster is at full health', async () => 
     const random = scriptedRandom([1, 50], 6);
     const mtmp = makeCaster({ m_lev: 7, mhp: 20, mhpmax: 20 });
     const messages = [];
-    let damageAmount = 0;
+    const state = makeState();
+    const damageAmount = trackHeroHp(state);
 
     await castmu(mtmp, AD_CLRC_ATTACK, true, true, {
-        state: makeState(),
+        state,
         random,
         message: (m) => messages.push(m),
-        mdamageu: (mon, dmg) => { damageAmount = dmg; },
         monsterName: (m) => 'The kobold shaman',
     });
 
     assert.ok(!messages.some(m => m.includes('looks better')),
         'no "looks better" at full health');
     assert.equal(mtmp.mhp, 20, 'monster hp unchanged');
-    assert.equal(damageAmount, 6, 'open_wounds delivers d(4,6)=6');
+    assert.equal(damageAmount(), 6, 'open_wounds delivers d(4,6)=6');
 });
 
 // -- haste_self via castmu ---------------------------------------------
@@ -1687,13 +1678,13 @@ test('haste_self: speeds the caster without damage or extra RNG', async () => {
         data: { mmove: 12, pmnames: [null, null, 'kobold shaman'] },
     });
     const messages = [];
-    let damageCalled = false;
+    const state = makeState();
+    const hpLoss = trackHeroHp(state);
 
     const result = await castmu(mtmp, AD_SPEL_ATTACK, true, true, {
-        state: makeState(),
+        state,
         random,
         message: (m) => messages.push(m),
-        mdamageu: () => { damageCalled = true; },
     });
 
     assert.equal(result, M_ATTK_HIT);
@@ -1705,7 +1696,7 @@ test('haste_self: speeds the caster without damage or extra RNG', async () => {
         'The kobold shaman casts a spell!',
         'The kobold shaman is suddenly moving faster.',
     ]);
-    assert.equal(damageCalled, false,
+    assert.equal(hpLoss(), 0,
         'MCAST_HASTE_SELF sets damage to zero before mdamageu');
     assert.deepEqual(random.draws, ['rn2(7)', 'rn2(70)', 'd(4,6)'],
         'haste has no random draw after cast damage');
@@ -2163,7 +2154,6 @@ test('castmu death spell reaches the shared touch with source-ordered RNG', asyn
             losses.push([loss, reason, format]);
             owner.u.uhp -= loss;
         },
-        mdamageu: () => assert.fail('the void death spell clears ordinary spell damage'),
     });
     assert.equal(result, M_ATTK_HIT);
     assert.deepEqual(random.draws, ['rn2(25)', 'rn2(250)', 'd(13,6)', 'rn2(25)', 'd(8,6)']);
@@ -2197,8 +2187,8 @@ test('mcast_weaken_you follows source damage, half-spell rounding, and losestr o
         message: async text => messages.push(text),
         losehp: () => assert.fail('ordinary three-point loss does not reach the HP-loss arm'),
         encumberMessage: async () => {},
-        mdamageu: () => assert.fail('the void weaken spell clears spell damage'),
     });
+    assert.equal(state.u.uhp, 200, 'the void weaken spell clears spell damage');
 
     assert.equal(result, M_ATTK_HIT);
     assert.deepEqual(random.draws, ['rn2(11)', 'rn2(110)', 'd(6,6)', 'rnd(3)']);

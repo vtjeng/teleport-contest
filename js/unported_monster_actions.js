@@ -47,7 +47,6 @@ import { obj_extract_self, stackobj } from './invent.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import {
     mattacku,
-    mdamageu,
 } from './mhitu.js';
 import { buzzmu, castmu } from './mcastu.js';
 import { m_throw, thrwmu } from './mthrowu.js';
@@ -473,8 +472,6 @@ function attackHeroWithMattacku(monster, env) {
                 ),
                 monnam: (mtmp) => mon_nam(mtmp, state, spellEnv),
                 message: spellMessage,
-                mdamageu: (mtmp2, dmg) =>
-                    mdamageu(mtmp2, dmg, spellEnv.state ?? env.state, spellEnv),
             });
         },
         // C ref: mhitu.c AT_MAGC range2 arm -> buzzmu() (mcastu.c:988-1012).
@@ -564,12 +561,6 @@ function simpleMonsterActionOperations(env, state) {
                             capitalizedMonsterName(mtmp, state),
                         monnam: (mtmp) => mon_nam(mtmp, state, spellEnv),
                         message: async (text, s) => { await ttyPline(text, s); },
-                        mdamageu: (mtmp2, dmg) =>
-                            mdamageu(
-                                mtmp2, dmg,
-                                spellEnv.state ?? state,
-                                spellEnv,
-                            ),
                     };
                     for (const a of mdat.mattk) {
                         if (a.aatyp === AT_MAGC

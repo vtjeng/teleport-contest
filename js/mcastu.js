@@ -115,6 +115,7 @@ import {
     Halluc_resistance, Hallucination, Invis, See_invisible, Shock_resistance,
     Unaware,
 } from './youprop.js';
+import { mdamageu } from './mhitu.js';
 
 // C ref: mcastu.c touch_of_death() (323-354). Both Death's melee touch
 // and the monster spell share this HP/killer path.
@@ -264,16 +265,6 @@ const mon_wizard_spells = [
     MCAST_DISAPPEAR, MCAST_WEAKEN_YOU, MCAST_DESTRY_ARMR, MCAST_CURSE_ITEMS,
     MCAST_AGGRAVATION, MCAST_SUMMON_MONS, MCAST_CLONE_WIZ, MCAST_DEATH_TOUCH,
 ];
-
-
-
-
-function requireCastmuOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`castmu requires a ${name} operation`);
-    return operation;
-}
 
 // ---- is_undirected_spell() ----
 // C ref: mcastu.c is_undirected_spell() (899-905).
@@ -632,10 +623,7 @@ export async function castmu(
     default:
         break;
     }
-    if (dmg) {
-        const mdamageu = requireCastmuOperation(env, 'mdamageu');
-        await mdamageu(mtmp, dmg, state, env);
-    }
+    if (dmg) await mdamageu(mtmp, dmg, state, env);
     return ret;
 }
 
@@ -1097,7 +1085,6 @@ export async function mcast_destroy_armor(rawEnv = {}) {
 // positive result through mdamageu() after the selected case.
 async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     const state = env.state ?? game;
-    const mdamageu = env.mdamageu;
 
     if (dmg < 0) {
         note_unported('pline.c impossible');
@@ -1186,12 +1173,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         break;
     }
 
-    if (resultDmg) {
-        if (typeof mdamageu !== 'function') {
-            throw new TypeError('mcast_spell requires the mdamageu operation');
-        }
-        await mdamageu(mtmp, resultDmg);
-    }
+    if (resultDmg) await mdamageu(mtmp, resultDmg, state, env);
 }
 
 // C ref: mcastu.c:mcast_blind_you() (729-742). This is a clerical spell,

@@ -145,7 +145,6 @@ import {
 import {
     cloneu,
     mattacku,
-    mdamageu as damageHeroFromMonster,
 } from '../js/mhitu.js';
 import { newMonster } from '../js/monst.js';
 import { newmonhp, set_malign } from '../js/makemon.js';
@@ -590,12 +589,6 @@ function directMattackuEnv(state, random, messages) {
                     capitalizedMonsterName(monster, spellState),
                 monnam: monster => mon_nam(monster, spellState, spellEnv),
                 message: spellMessage,
-                mdamageu: (monster, damage) => damageHeroFromMonster(
-                    monster,
-                    damage,
-                    spellState,
-                    spellEnv,
-                ),
             });
         },
     };

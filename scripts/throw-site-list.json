@@ -1734,18 +1734,6 @@
       "c": null,
       "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
-    "js/mcastu.js | mcast_spell | 'mcast_spell requires the mdamageu operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/mcastu.js | requireCastmuOperation | `castmu requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/mhitm.js | attackEnv | `mattackm random injection requires ${name}`": {
       "count": 1,
       "class": "invariant",
