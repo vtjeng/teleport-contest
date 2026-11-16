@@ -4206,12 +4206,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/weapon.js | endWieldedArtifactLight | 'setmnotwielded requires an endArtifactLight operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/weapon.js | enhance_weapon_skill | 'enhance_weapon_skill needs a menu owner'": {
       "count": 1,
       "class": "invariant",

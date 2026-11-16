@@ -966,22 +966,8 @@ async function endMonsterArtifactLight(monster, obj, normalized) {
     );
 }
 
-async function endWieldedArtifactLight(monster, obj, normalized) {
-    if (typeof normalized.endArtifactLight === 'function') {
-        await normalized.endArtifactLight(monster, obj, normalized);
-    } else if (typeof normalized.hooks?.endArtifactLight === 'function') {
-        await normalized.hooks.endArtifactLight(obj, normalized);
-    } else if (normalized.endArtifactLight !== undefined
-               || normalized.hooks?.endArtifactLight !== undefined) {
-        throw new TypeError('setmnotwielded requires an endArtifactLight operation');
-    } else {
-        await endMonsterArtifactLight(monster, obj, normalized);
-    }
-}
-
 // C ref: weapon.c setmnotwielded(). End the artifact light through the
-// canonical timeout owner when no caller supplies an integration hook, then
-// print C's visibility-dependent stop-shining message. Only that light branch
+// canonical timeout owner, then print C's visibility-dependent stop-shining message. Only that light branch
 // can wait for --More--, so it alone answers a promise; an ordinary weapon is
 // released synchronously, which lets mkobj.c discard_minvent() run inside
 // makemon() through worn.c extract_from_minvent().
@@ -993,7 +979,7 @@ export function setmnotwielded(monster, obj, env = {}) {
         obj.owornmask &= ~W_WEP;
     };
     if (artifact_light(obj) && obj.lamplit)
-        return endWieldedArtifactLight(monster, obj, normalized).then(release);
+        return endMonsterArtifactLight(monster, obj, normalized).then(release);
     release();
     return undefined;
 }
