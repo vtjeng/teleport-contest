@@ -2414,7 +2414,7 @@ export async function dodown(state = game, env = {}) {
     } else {
         state.ga ??= {};
         state.ga.at_ladder = state.level?.at(u.ux, u.uy)?.typ === LADDER;
-        await next_level(!trap, state, { gotoLevel: goto_level });
+        await next_level(!trap, state);
         state.ga.at_ladder = false;
     }
     return ECMD_TIME;
@@ -2471,7 +2471,7 @@ export async function doup(state = game) {
     }
     state.ga ??= {};
     state.ga.at_ladder = state.level?.at(u.ux, u.uy)?.typ === LADDER;
-    await prev_level(true, state, { gotoLevel: goto_level, done });
+    await prev_level(true, state);
     state.ga.at_ladder = false;
     return ECMD_TIME;
 }

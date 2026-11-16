@@ -972,29 +972,11 @@
       "c": "src/dungeon.c:level_info usage",
       "reason": "C indexes svl.level_info[] without a bounds check (a wished portal can read past it); the out-of-bounds read is not modelled."
     },
-    "js/dungeon.js | next_level | 'next_level requires a gotoLevel operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/dungeon.js | panic | message": {
       "count": 1,
       "class": "panic",
       "c": "src/dungeon.c:init_dungeons()",
       "reason": "Synchronous stand-in for end.c panic() used by the dungeon.lua loading and lookup code, whose C counterparts call panic()."
-    },
-    "js/dungeon.js | prev_level | 'prev_level requires a done operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
-    "js/dungeon.js | prev_level | 'prev_level requires a gotoLevel operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/dungeon.js | print_mapseen | `print_mapseen: unknown dungeon ${dnum}`": {
       "count": 1,

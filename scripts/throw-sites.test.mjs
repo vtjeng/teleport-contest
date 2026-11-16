@@ -27,7 +27,7 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // marker audit (branch diag-markers) gave 13 more C panic() calls in
 // synchronous functions a listed throw: 96 panic in all. formatkiller()
 // added one guard for a missing C buffer size (source-review-3c).
-const LIST_PINS = { entries: 738, sites: 744 };
+const LIST_PINS = { entries: 735, sites: 741 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());
@@ -68,7 +68,7 @@ test('the list holds the pinned number of entries and throws', () => {
 // ported callee and call it. The pin counts the throws that remain and comes
 // down to 0; a new one fails here.
 const INJECTED_OPERATION_THROW = /requires an? \S+ operation/u;
-const INJECTED_OPERATION_PIN = 39;
+const INJECTED_OPERATION_PIN = 36;
 
 test('no new missing-operation throw', () => {
     // The whole message, not the key's 60-character head, which can cut

@@ -6,7 +6,7 @@ import { memoryLayout } from './wizcmds_data.js';
 import { game } from './gstate.js';
 // end.c panic(); the local panic() below stands in for it in the synchronous
 // dungeon-description loader.
-import { panic as end_panic } from './end.js';
+import { done, panic as end_panic } from './end.js';
 import { finish_steps, ImpossibleCall } from './source_steps.js';
 import { isok } from './cmd_isok.js';
 import { rn2, rnd } from './rng.js';
@@ -123,6 +123,7 @@ import {
 import { rest_push_each } from './restore.js';
 import { dungeon_at } from './dungeon_table.js';
 import { nhlL_newstate } from './nhlua.js';
+import { goto_level } from './do.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -837,20 +838,13 @@ export function builds_up(level, state = game) {
 }
 
 // C ref: dungeon.c next_level() (1496-1514), the '>' command's descent.
-//
-// goto_level() lives in js/do.js, which already imports this file; taking it as
-// an injected operation keeps the module graph acyclic. `env.gotoLevel` is
-// required rather than defaulted for that reason.
-export async function next_level(at_stairs, state = game, env = {}) {
-    const gotoLevel = env.gotoLevel;
-    if (typeof gotoLevel !== 'function')
-        throw new TypeError('next_level requires a gotoLevel operation');
+export async function next_level(at_stairs, state = game) {
     const stway = stairway_at(state.u.ux, state.u.uy, state);
 
     if (at_stairs && stway) stway.u_traversed = true;
 
     if (at_stairs && stway) {
-        return gotoLevel(
+        return goto_level(
             { dnum: stway.tolev.dnum, dlevel: stway.tolev.dlevel },
             at_stairs,
             false,
@@ -858,7 +852,7 @@ export async function next_level(at_stairs, state = game, env = {}) {
             state,
         );
     }
-    return gotoLevel(
+    return goto_level(
         { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel + 1 },
         at_stairs,
         !at_stairs,
@@ -868,12 +862,7 @@ export async function next_level(at_stairs, state = game, env = {}) {
 }
 
 // C ref: dungeon.c prev_level() (1518-1543), the '<' command's ascent.
-// Mirrors next_level() above. goto_level() is injected to keep the module
-// graph acyclic.
-export async function prev_level(at_stairs, state = game, env = {}) {
-    const gotoLevel = env.gotoLevel;
-    if (typeof gotoLevel !== 'function')
-        throw new TypeError('prev_level requires a gotoLevel operation');
+export async function prev_level(at_stairs, state = game) {
     const stway = stairway_at(state.u.ux, state.u.uy, state);
 
     if (at_stairs && stway) stway.u_traversed = true;
@@ -882,12 +871,9 @@ export async function prev_level(at_stairs, state = game, env = {}) {
         // Taking an up dungeon branch.
         if (!state.u.uz.dnum && state.u.uz.dlevel === 1
             && !state.u.uhave?.amulet) {
-            const finish = env.done;
-            if (typeof finish !== 'function')
-                throw new TypeError('prev_level requires a done operation');
-            await finish(ESCAPED, state);
+            await done(ESCAPED, state);
         } else {
-            return gotoLevel(
+            return goto_level(
                 { dnum: stway.tolev.dnum, dlevel: stway.tolev.dlevel },
                 at_stairs,
                 false,
@@ -897,7 +883,7 @@ export async function prev_level(at_stairs, state = game, env = {}) {
         }
     } else {
         // Going up a stairs or rising through the ceiling.
-        return gotoLevel(
+        return goto_level(
             { dnum: state.u.uz.dnum, dlevel: state.u.uz.dlevel - 1 },
             at_stairs,
             false,
