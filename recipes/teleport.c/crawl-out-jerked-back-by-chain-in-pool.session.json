@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "teleport.c teleds() 513-520: a debug Valkyrie kills a jackal, wears wished water walking boots, wishes a pool under herself and reads a scroll of punishment there (ball and chain in the pool), then walks east wishing two more pools, so the chain lies in the middle pool. After five searches she takes off the boots, falls in and crawls out (trap.c drown) to a land square two columns from the chain with TELEDS_ALLOW_DRAG; drag_ball() finds the chain in water and the hero not levitating, so 'You are jerked back by the iron ball!' and it returns FALSE, and teleds() recomputes ball_active and calls unplacebc() (517-520). The trailing ESCs dismiss the --More-- and the floor list.",
+  "segments": [
+    {
+      "seed": 6021187,
+      "datetime": "20380807120000",
+      "nethackrc": "OPTIONS=name:Hild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "#wizkill\nm.\u001b\u001b\u0017water walking boots\n\u001bWe\u001b\u0017scroll of punishment\n\u001b\u0017pool\n\u001brf\u001bl\u0017pool\n\u001bl\u0017pool\n\u001bsssssTe\u001b\u001b\u001b\u001b"
+    }
+  ]
+}
