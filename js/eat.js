@@ -3889,10 +3889,12 @@ async function eataccessory(otmp, state, env) {
             break;
         }
         case RIN_INVISIBILITY: {
+            // eat.c:2303: an extrinsic invisibility source (a worn ring or
+            // cloak) already hides the hero, so there is nothing to notice.
             const seeInvis = Boolean(
                 HSee_invisible(state.u) || ESee_invisible(state.u),
             );
-            if (!oldprop && !ESee_invisible(state.u) && !BInvis(state.u)
+            if (!oldprop && !EInvis(state.u) && !BInvis(state.u)
                 && !seeInvis && !Blind(state.u)) {
                 newsym(state.u.ux, state.u.uy, state);
                 await message(

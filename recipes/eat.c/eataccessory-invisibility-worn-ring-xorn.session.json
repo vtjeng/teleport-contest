@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "eat.c eataccessory() RIN_INVISIBILITY arm (2302-2310): a debug human Healer wishes for a ring of invisibility (a metal 'twisted ring' for this seed) and puts it on, so EInvis is set while HInvis is 0; she #polyselfs into a xorn and eats a second wished ring of invisibility, which takes effect (the rn2(3) at 2280 is 0). C's test at 2303 requires !EInvis, so after 'Magic spreads through your body as you digest the ring.' there is no 'Your body takes on a strange transparency...' message and the ring type is not newly discovered by this arm. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 7734211,
+      "datetime": "20390604101500",
+      "nethackrc": "OPTIONS=name:Sanna,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017uncursed ring of invisibility\nPmr #polyself\nxorn\n\u0017uncursed ring of invisibility\nen  "
+    }
+  ]
+}

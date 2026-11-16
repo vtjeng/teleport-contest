@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "eat.c eataccessory() RIN_INVISIBILITY arm (2302-2310), the variation without an extrinsic source: a debug human Healer #polyselfs into a xorn and eats a wished ring of invisibility (a metal 'twisted ring' for this seed), which takes effect (the rn2(3) at 2280 is 0). With no intrinsic or extrinsic invisibility, no see invisible and not blind, 'Your body takes on a strange transparency...' follows 'Magic spreads through your body as you digest the ring.' and the ring type is discovered. The paired recipe eataccessory-invisibility-worn-ring-xorn wears a ring of invisibility first. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 7734211,
+      "datetime": "20390604101500",
+      "nethackrc": "OPTIONS=name:Sanna,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " #polyself\nxorn\n\u0017uncursed ring of invisibility\nem  "
+    }
+  ]
+}
