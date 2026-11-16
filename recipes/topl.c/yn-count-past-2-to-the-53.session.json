@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "topl.c tty_yn_function 496-505: AppendLongDigit() keeps a count up to LONG_MAX, so '#' and seventeen 9s at askchain's [yn#aq] prompt for 34 ya is a count of 99999999999999999, and invent.c 2481-2486 drops all of them. Traditional menustyle Samurai; seed and inputs chosen for this review.",
+  "segments": [
+    {
+      "seed": 51150505,
+      "datetime": "20570214091530",
+      "nethackrc": "OPTIONS=name:Hideo,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:traditional\n",
+      "moves": ".D)\nnnn#99999999999999999\n  i "
+    }
+  ]
+}

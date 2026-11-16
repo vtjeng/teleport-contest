@@ -11,7 +11,7 @@ import {
     quitchars,
 } from './const.js';
 import { game } from './gstate.js';
-import { textBytes } from './hacklib.js';
+import { appendLongDigit, textBytes } from './hacklib.js';
 import { nomux_putch_byte } from './termcap.js';
 import { ATR_NONE, NO_COLOR } from './terminal.js';
 import {
@@ -776,6 +776,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // the physical line after clean_up, as typed ("#05" for a count of 5,
     // "#0" for the 'n' answer a zero count gives).
     let echoedCount = '';
+    let ynNumberText = ''; /* "%ld" of yn_number at clean_up */
     if (resp === null) {
         q = await readchar(state);
     } else {
@@ -835,7 +836,8 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 // terminator. A positive count returns '#' and is exposed as
                 // state.yn_number; zero and malformed counts follow C's no or
                 // reprompt paths respectively.
-                let value = q === 0x23 ? 0 : q - 0x30;
+                // C's long `value`, which a Number cannot hold exactly.
+                let value = BigInt(q === 0x23 ? 0 : q - 0x30);
                 let digitLength = q === 0x23 ? 0 : 1;
                 let invalid = false;
                 addtopl('#', state);
@@ -849,9 +851,9 @@ export async function tty_yn_function(query, resp, def, state = game) {
                     const lower = !preserveCase && z >= 0x41 && z <= 0x5A
                         ? z | 0x20 : z;
                     if (lower >= 0x30 && lower <= 0x39) {
-                        value = value * 10 + lower - 0x30;
-                        if (!Number.isSafeInteger(value)) {
-                            invalid = true;
+                        value = appendLongDigit(value, lower - 0x30);
+                        if (value < 0n) {
+                            invalid = true; /* overflow: try again */
                             break;
                         }
                         addtopl(String.fromCharCode(lower), state);
@@ -866,7 +868,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
                             invalid = true;
                             break;
                         }
-                        value = Math.trunc(value / 10);
+                        value /= 10n;
                         digitLength--;
                         removetopl(1, state);
                         echoedCount = echoedCount.slice(0, -1);
@@ -875,14 +877,16 @@ export async function tty_yn_function(query, resp, def, state = game) {
                         break;
                     }
                 }
-                if (invalid || value < 0) {
+                if (invalid || value < 0n) {
                     removetopl(digitLength + 1, state); // include the leading '#'
                     echoedCount = '';
                     q = 0;
-                } else if (value === 0) {
+                } else if (value === 0n) {
                     q = 0x6e; // 'n'
                 } else {
-                    state.yn_number = value;
+                    // Its readers only compare it with an object's quan.
+                    state.yn_number = Number(value);
+                    ynNumberText = String(value);
                     q = 0x23; // '#'
                 }
             }
@@ -892,7 +896,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // clean_up: gt.toplines is rewritten as the prompt followed by the key,
     // so message recall shows the answered prompt rather than the bare query.
     const answerText = state.yn_number
-        ? `#${state.yn_number}` : key2txt(q);
+        ? `#${ynNumberText}` : key2txt(q);
     // topl.c:539 writes gt.toplines with Sprintf(), not update_topl(), so a
     // recalled answer wider than the screen wraps at the terminal edge; see
     // toplineRows().

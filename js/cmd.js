@@ -285,6 +285,7 @@ import {
     doset,
     doset_simple,
     dotogglepickup,
+    plineConfigErrors,
     toggle_bool_option,
     show_menu_controls,
 } from './options.js';
@@ -3840,8 +3841,10 @@ export async function get_changed_key_binds(sbuf = null, state = game) {
         used[key] = 1;
         const command = EXTCMD_BY_NAME.get(binding.command);
         if (!binding.userbind || !command || command.key === key) continue;
+        // C formats bind->param with %s; glibc prints a null one, which
+        // bind_key() leaves after an empty or missing parameter, as "(null)".
         const parameter = command.flags & CMD_PARAM
-            ? '(' + (binding.param ?? '') + ')' : '';
+            ? '(' + (binding.param ?? '(null)') + ')' : '';
         append('BIND=' + key2txt(key) + ':' + command.ef_txt + parameter);
     }
     for (const command of extcmdlist) {
@@ -3854,7 +3857,9 @@ export async function get_changed_key_binds(sbuf = null, state = game) {
 // C ref: bind_key() (2661-2728). This is the interactive/config-independent
 // binding operation used by handler_rebind_keys_add(); options.js has its own
 // parser for configuration strings and records the same command operation.
-export function bind_key(key, commandText, user = false, state = game) {
+// `errors` collects the config_error_add() reports, which the interactive
+// caller prints as cfgfiles.c config_erradd() does outside an rc read.
+export function bind_key(key, commandText, user = false, state = game, errors = []) {
     const text = String(commandText ?? '');
     if (lcase(text) === 'nothing') {
         cmdbind_remove(key, state);
@@ -3863,7 +3868,8 @@ export function bind_key(key, commandText, user = false, state = game) {
     const opening = text.indexOf('(');
     const closing = text.lastIndexOf(')');
     const parenthesized = opening >= 0 && closing > opening;
-    const name = lcase(parenthesized ? text.slice(0, opening) : text);
+    const buf = parenthesized ? text.slice(0, opening) : text;
+    const name = lcase(buf);
     const command = extcmdlist.find((entry) => (
         lcase(entry.ef_txt) === name
         && !(entry.flags & INTERNALCMD)
@@ -3871,10 +3877,18 @@ export function bind_key(key, commandText, user = false, state = game) {
     if (!command) return false;
 
     cmdbind_add(key, command, user, state);
-    if (parenthesized && (command.flags & CMD_PARAM)
-        && text.slice(opening + 1, closing).length > 0) {
-        const binding = bindingAt(commandBindings(state).bindings, key);
-        if (binding) binding.param = text.slice(opening + 1, closing).slice(0, 30);
+    const param = parenthesized ? text.slice(opening + 1, closing) : null;
+    if (command.flags & CMD_PARAM) {
+        if (param === null) {
+            errors.push(`'${buf}' requires a parameter`);
+        } else if (!param.length) {
+            errors.push('Required parameter cannot be empty');
+        } else {
+            const binding = bindingAt(commandBindings(state).bindings, key);
+            if (binding) binding.param = param.slice(0, 30);
+        }
+    } else if (param) {
+        errors.push(`'${buf}' does not take a parameter`);
     }
     return true;
 }
@@ -3946,21 +3960,26 @@ export async function handler_rebind_keys_add(keyfirst = false, state = game) {
         if (!key || key === ESC) return;
     }
     const previous = cmdbind_get(key, state);
-    if (!bind_key(key, commandText, true, state)) {
+    const errors = [];
+    const bound = bind_key(key, commandText, true, state, errors);
+    await plineConfigErrors(state, errors);
+    if (!bound) {
         await ttyPline('Key binding failed?!', state);
         return;
     }
     // cmdbind_add() overwrites an existing C Cmd_bind in place. `prevcmd`
     // therefore sees the new command after bind_key() and the changed-key
     // message is suppressed for a successful rebind. Unbinding removes that
-    // node and follows the separate `nothing` message arm below.
+    // node and follows the separate `nothing` message arm below.  C's
+    // `else if (!prevcmd)` arm does not test the command, so unbinding a key
+    // that had no binding reports binding it to "nothing".
     if (previous && !command) {
         await ttyPline(
             "Changed key '" + key2txt(key) + "' from \""
             + previous.cmd.ef_txt + "\" to \"" + commandText + '".',
             state,
         );
-    } else if (!previous && command) {
+    } else if (!previous) {
         await ttyPline(
             "Bound key '" + key2txt(key) + "' to \"" + commandText + '".',
             state,

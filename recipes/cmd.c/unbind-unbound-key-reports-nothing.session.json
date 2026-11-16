@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c handler_rebind_keys_add 2392-2398: bind_key(\"nothing\") on a key with no binding returns TRUE and prevcmd is NULL, so the `else if (!prevcmd)` arm prints \"Bound key '~' to \\\"nothing\\\".\". Linux recorder; the uninitialized cmdstr (docs/testing.md, \"The key-binding difference\") may differ on the judge host. Seed and inputs chosen for this review.",
+  "segments": [
+    {
+      "seed": 51150503,
+      "datetime": "20570214091530",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": ".#optionsfull\n      h\na~a\u001b\u001b."
+    }
+  ]
+}
