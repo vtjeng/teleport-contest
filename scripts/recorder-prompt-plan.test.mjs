@@ -107,10 +107,13 @@ process.stdin.on('data', data => {
   let screen=states[n-1] || 'unexpected extra key';
   if(mode==='unknown') screen='unrecognized prompt';
   if(mode==='replay-mismatch' && replay && n===4) screen='different inventory';
-  emit(screen);
-  if(mode==='replay-setup-failure' && n===5 && !replay) {
+  // Break the replay's HOME before emitting the observer frame (n becomes
+  // 5): the recorder sends SIGTERM as soon as it sees that frame, so
+  // sabotage scheduled after the emit can be killed before it runs.
+  if(mode==='replay-setup-failure' && n===4 && !replay) {
    rmSync(process.env.HOME,{recursive:true,force:true}); writeFileSync(process.env.HOME,'not a directory');
   }
+  emit(screen);
   if(mode==='crash-after-observer' && n===5) process.exit(7);
  }
 });
