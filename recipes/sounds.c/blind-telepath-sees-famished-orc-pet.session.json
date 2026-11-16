@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sounds.c beg() 538-539: a debug dwarvish Valkyrie turns on debug_mongen through #optionsfull, kills the level's monsters, puts on a ring of slow digestion and an amulet of ESP, leashes a tame hill orc and blindfolds herself, then rests about 1500 turns. When the orc passes hungrytime + DOG_WEAK, dog_hunger() calls beg() because its square is in line of sight but not seen; a hill orc is MS_ORC (between MS_ANIMAL and MS_HUMANOID), and telepathy lets the blind hero spot it, so 'The hill orc seems famished.' (538-539). Each ESC dismisses a possible --More--.",
+  "segments": [
+    {
+      "seed": 6021187,
+      "datetime": "20380807120000",
+      "nethackrc": "OPTIONS=name:Gudrun,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "#optionsfull\n>r\n#wizintrinsic\nt\n\u001b#wizkill\nm.m.\u001b\u0017ring of slow digestion\n\u001b\u0017leash\n\u001b\u0017blindfold\n\u001b\u0017amulet of ESP\n\u001bPer\u001b\u0007tame hill orc\n\u001bafl\u001bPh\u001bag\u001b200.\u001b200.\u001b200.\u001b200.\u001b200.\u001b200.\u001b200.\u001b200.\u001b200.\u001b"
+    }
+  ]
+}

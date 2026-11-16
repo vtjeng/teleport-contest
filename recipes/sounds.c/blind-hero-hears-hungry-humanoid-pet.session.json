@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sounds.c beg() 528-532: a debug Valkyrie turns on debug_mongen through #optionsfull, kills the level's two monsters (#wizkill after #wizintrinsic monster detection), puts on a wished ring of slow digestion, makes a tame hobbit, leashes it and blindfolds herself, then rests about 1500 turns. With no food on hand the hobbit passes hungrytime + DOG_WEAK; dog_hunger() finds its square in line of sight but not seen (couldsee, hero Blind) and calls beg(): the hobbit is MS_HUMANOID and cannot be spotted, so map_invisible() and 'I'm hungry.' (529-532). Each ESC dismisses a possible --More--.",
+  "segments": [
+    {
+      "seed": 6021187,
+      "datetime": "20380807120000",
+      "nethackrc": "OPTIONS=name:Hild,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "#optionsfull\n>r\n#wizintrinsic\nt\n\u001b#wizkill\nm.m.\u001b\u0017ring of slow digestion\n\u001b\u0017leash\n\u001b\u0017blindfold\n\u001b\u0017amulet of ESP\n\u001bPer\u0007tame hobbit\n\u001bafj\u001bag\u001b200.\u001b200.\u001b200.\u001b200.\u001b200.\u001b200.\u001b200.\u001b200.\u001b200.\u001b"
+    }
+  ]
+}
