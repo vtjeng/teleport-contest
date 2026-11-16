@@ -160,7 +160,6 @@ test('hero-caused floor fire outside a shop charges for destroyed stock', async 
         state,
         random: { rn2: (bound) => bound === 100 ? 99 : 0,
             rnd: () => 1 },
-        igniteItems: () => {},
         message: () => {},
     });
     assert.equal(burned, 1);

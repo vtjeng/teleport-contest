@@ -2172,7 +2172,6 @@ export async function dofiretrap(box, rawEnv = {}) {
     }
     if (!box && await burn_floor_objects(u.ux, u.uy, seeIt, true, {
         ...env,
-        igniteItems: ignite_items,
     }) && !seeIt) {
         await message('You smell paper burning.', state, env);
     }
@@ -2294,7 +2293,6 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
 
     const burned = await burn_floor_objects(tx, ty, seeIt, false, {
         ...env,
-        igniteItems: ignite_items,
     });
     if (burned && !seeIt
         && dist2(tx, ty, state.u.ux, state.u.uy) <= 3 * 3) {
