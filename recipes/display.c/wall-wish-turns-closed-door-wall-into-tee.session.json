@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "display.c wall_angle() for a T wall whose wall_info mode it does not know: #wizloadlua knox runs Fort Ludios's des-file over Dlvl 1 without set_wall_state(); with this seed its 50% branch lays des.terrain(36,09,\"|\") on the map's secret door, which sel_set_ter() had given doormask D_CLOSED, so the new vertical wall keeps mode 4. ^T puts the Priest on the throne-room floor east of that wall, and a ^W wish for \"wall\" there runs objnam.c wizterrainwish() -> fix_wall_spines() over the hero's 3x3 block, which turns the wall into a TRWALL without touching its flags. ^F (do_mapping) then draws it through back_to_glyph() -> wall_angle(), and C prints impossible(\"wall_angle: unknown T wall mode 4\") among the hwall and vwall reports for the other mode-4 squares. Seed, date, Priest and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 7310265,
+      "datetime": "20460517220841",
+      "nethackrc": "OPTIONS=name:Anselm,role:Priest,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,suppress_alert:3.7.0\n",
+      "moves": "  #wizloadlua\nknox\n\u0014 LLLllllllljjjjj.       \u0017wall\n\u0006                                      "
+    }
+  ]
+}
