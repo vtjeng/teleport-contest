@@ -882,29 +882,11 @@
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
     },
-    "js/dogmove.js | goalOperation | `dog_goal requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
-    "js/dogmove.js | inventoryOperation | `dog_invent requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/dogmove.js | normalizePetMoveEnv | 'dog_move random injection requires rn2'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
-    },
-    "js/dogmove.js | petMoveOperation | `dog_move requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/dogmove.js | quickmimic | 'quickmimic random injection requires rn2'": {
       "count": 1,
