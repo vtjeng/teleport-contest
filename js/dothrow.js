@@ -1667,7 +1667,7 @@ export async function breakobj(
         await release_camera_demon(obj, x, y, { ...rawEnv, state, random, message });
         break;
     case EGG:
-        if (heroCaused && obj.spe && Number.isInteger(obj.corpsenm))
+        if (heroCaused && obj.spe && ismnum(obj.corpsenm))
             change_luck(-Math.min(obj.quan ?? 1, 5), state);
         if (obj.corpsenm === PM_PYROLISK) explosion = true;
         break;

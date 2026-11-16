@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent dothrow.c recipe: a gnomish Healer in debug mode wishes for '+1 egg', which sets the laid-by-you flag (spe) on a generic egg whose corpsenm is NON_PM, and throws it at the ceiling. toss_up() breaks it with hero_caused; breakobj() (dothrow.c 2526-2528) charges Luck only when ismnum(corpsenm), so ^X still reports zero luck.",
+  "segments": [
+    {
+      "seed": 3317042,
+      "datetime": "20610808120000",
+      "nethackrc": "OPTIONS=name:Odo,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,!acoustics,pettype:none\n",
+      "moves": "\u001b\u001b\u0017+1 egg\n\u001btl<\u001b\u001b\u001b\u0018 "
+    }
+  ]
+}
