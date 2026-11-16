@@ -26,7 +26,10 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // mkobj.c check_contained() cycles) with end.c panic(). The diagnostic
 // marker audit (branch diag-markers) gave 13 more C panic() calls in
 // synchronous functions a listed throw: 96 panic in all. formatkiller()
-// added one guard for a missing C buffer size (source-review-3c).
+// added one guard for a missing C buffer size (source-review-3c). Branch
+// remove-injected-ops replaced injected operations with direct calls and
+// removed 36 invariant throws, 708 left under 703 keys; 28 of them matched
+// INJECTED_OPERATION_PIN below.
 const LIST_PINS = { entries: 703, sites: 708 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
