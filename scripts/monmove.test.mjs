@@ -2968,50 +2968,51 @@ test('monhaskey distinguishes credit-card unlocking from locking tools', () => {
 
 test('m_everyturn_effect creates only unobstructed missing fog clouds', async () => {
     const { locations, state } = makeState();
+    state.level.regions = [];
+    // Each created cloud is one region square; record its rectangle and
+    // damage as monmove.c's create_gas_cloud(x, y, 1, 0) sets them.
+    const clouds = () => state.level.regions.map((region) => ({
+        x: region.bounding_box.lx,
+        y: region.bounding_box.ly,
+        damage: region.arg,
+    }));
     const ordinary = ordinaryMonster(state);
     await m_everyturn_effect(ordinary, { state });
+    assert.deepEqual(clouds(), []);
 
+    // <4,4> is an open ROOM square in makeState(), so the vapor forms there.
     const fog = newMonster({
         data: state.mons[PM_FOG_CLOUD],
         mnum: PM_FOG_CLOUD,
         mx: 4,
         my: 4,
     });
-    await assert.rejects(
-        m_everyturn_effect(fog, { state }),
-        /createGasCloud/,
-    );
-
-    const calls = [];
-    const env = {
-        state,
-        createGasCloud(x, y, radius, damage) {
-            calls.push({ x, y, radius, damage });
-        },
-    };
+    // create_gas_cloud() draws the cloud's lifetime with rn2(3); any value
+    // serves, since only the cloud's square and damage are checked.
+    const env = { state, random: { rn2: () => 0 } };
     await m_everyturn_effect(fog, env);
-    assert.deepEqual(calls, [{ x: 4, y: 4, radius: 1, damage: 0 }]);
+    assert.deepEqual(clouds(), [{ x: 4, y: 4, damage: 0 }]);
 
+    // A closed door blocks the vapor (monmove.c:658).
+    state.level.regions = [];
     locations.set('4,4', { typ: DOOR, flags: D_CLOSED });
     await m_everyturn_effect(fog, env);
-    assert.equal(calls.length, 1);
+    assert.deepEqual(clouds(), []);
 
+    // A visible region already on the square blocks it too.
     locations.set('4,4', { typ: ROOM, flags: 0 });
     const existing = create_region([{ lx: 4, ly: 4, hx: 4, hy: 4 }]);
     existing.visible = true;
     state.level.regions = [existing];
     await m_everyturn_effect(fog, env);
-    assert.equal(calls.length, 1);
+    assert.equal(state.level.regions.length, 1);
 
+    // The hero in fog-cloud form makes vapor at its own square.
+    state.level.regions = [];
     state.youmonst.data = state.mons[PM_FOG_CLOUD];
     state.youmonst.mnum = PM_FOG_CLOUD;
     await m_everyturn_effect(state.youmonst, env);
-    assert.deepEqual(calls.at(-1), {
-        x: state.u.ux,
-        y: state.u.uy,
-        radius: 1,
-        damage: 0,
-    });
+    assert.deepEqual(clouds(), [{ x: state.u.ux, y: state.u.uy, damage: 0 }]);
 });
 
 test('dochugw delegates movement and leaves an idle hero alone', async () => {
@@ -5248,7 +5249,6 @@ test('disturb includes the exact ten-square wake boundary', async () => {
                 return 1;
             },
         },
-        wakeMessage() {},
     }), 0);
     assert.deepEqual(draws, [7]);
     assert.equal(bee.msleeping, true);
@@ -5263,7 +5263,6 @@ test('disturb includes the exact ten-square wake boundary', async () => {
                 return 0;
             },
         },
-        wakeMessage() {},
     }), 1);
     assert.deepEqual(draws, [7]);
     assert.equal(bee.msleeping, false);
@@ -5284,7 +5283,6 @@ test('disturb treats blocked Stealth as inactive without an Ettin draw', async (
         state,
         random: { rn2: () => assert.fail('blocked Stealth is inactive') },
         couldSee: () => true,
-        wakeMessage() {},
     }), 1);
 
     const ettin = newMonster({
@@ -5299,7 +5297,6 @@ test('disturb treats blocked Stealth as inactive without an Ettin draw', async (
         state,
         random: sequenceRandom([0], calls),
         couldSee: () => true,
-        wakeMessage() {},
     }), 1);
     assert.deepEqual(calls, [7]);
 });
@@ -5315,16 +5312,19 @@ test('disturb preserves Ettin and hard-sleeper random order', async () => {
         msleeping: true,
     });
     const ettinCalls = [];
+    const ettinLines = [];
 
     assert.equal(await disturb(ettin, {
         state,
         random: sequenceRandom([1, 0], ettinCalls),
         couldSee: () => true,
-        wakeMessage(candidate, hostile) {
-            assert.equal(candidate.msleeping, true);
-            assert.equal(hostile, true);
-        },
+        // wake_msg() prints only while the monster still sleeps; a hostile
+        // monster's line ends in '!'.
+        canSeeMonster: () => true,
+        message: (text) => ettinLines.push(text),
     }), 1);
+    assert.equal(ettinLines.length, 1);
+    assert.match(ettinLines[0], /wakes up!$/);
     assert.deepEqual(ettinCalls, [10, 7]);
     assert.equal(ettin.msleeping, false);
 
@@ -5342,7 +5342,8 @@ test('disturb preserves Ettin and hard-sleeper random order', async () => {
             state,
             random: sequenceRandom([1], calls),
             couldSee: () => true,
-            wakeMessage: () => assert.fail('failed rare wake stays asleep'),
+            canSeeMonster: () => true,
+            message: () => assert.fail('failed rare wake stays asleep'),
         }), 0);
         assert.deepEqual(calls, [50]);
         assert.equal(hardSleeper.msleeping, true);
@@ -5360,7 +5361,6 @@ test('disturb preserves Ettin and hard-sleeper random order', async () => {
         state,
         random: sequenceRandom([0, 0], nymphCalls),
         couldSee: () => true,
-        wakeMessage() {},
     }), 1);
     assert.deepEqual(nymphCalls, [50, 7]);
 });
@@ -5376,17 +5376,18 @@ test('disturb lets dogs and aggravation bypass the final random draw', async () 
         my: 10,
     });
     const noDraw = { rn2: () => assert.fail('readily awakened without draw') };
-    let dogHostile;
+    const dogLines = [];
 
     assert.equal(await disturb(dog, {
         state,
         random: noDraw,
         couldSee: () => true,
-        wakeMessage(_candidate, hostile) {
-            dogHostile = hostile;
-        },
+        canSeeMonster: () => true,
+        message: (text) => dogLines.push(text),
     }), 1);
-    assert.equal(dogHostile, false);
+    // A peaceful dog is not "interesting": wake_msg() ends with '.'.
+    assert.equal(dogLines.length, 1);
+    assert.match(dogLines[0], /wakes up\.$/);
 
     const ordinary = ordinaryMonster(state, {
         mx: 9,
@@ -5398,7 +5399,6 @@ test('disturb lets dogs and aggravation bypass the final random draw', async () 
         state,
         random: noDraw,
         couldSee: () => true,
-        wakeMessage() {},
     }), 1);
 });
 
@@ -5416,25 +5416,10 @@ test('disturb draws before rejecting a concealed ordinary monster', async () => 
         state,
         random: sequenceRandom([0], calls),
         couldSee: () => true,
-        wakeMessage: () => assert.fail('concealed monster stays asleep'),
+        canSeeMonster: () => true,
+        message: () => assert.fail('concealed monster stays asleep'),
     }), 0);
     assert.deepEqual(calls, [7]);
-    assert.equal(monster.msleeping, true);
-});
-
-test('disturb preflights wake-message ownership before consuming randomness', async () => {
-    const { state } = makeState();
-    const monster = ordinaryMonster(state, {
-        msleeping: true,
-        mx: 9,
-        my: 10,
-    });
-
-    await assert.rejects(disturb(monster, {
-        state,
-        random: { rn2: () => assert.fail('missing wake owner preflights') },
-        couldSee: () => true,
-    }), /wakeMessage/);
     assert.equal(monster.msleeping, true);
 });
 
@@ -5453,7 +5438,9 @@ test('disturb keeps sleep state behind the asynchronous wake owner', async () =>
         state,
         random: { rn2: () => assert.fail('dogs wake without a draw') },
         couldSee: () => true,
-        wakeMessage: () => wake.promise,
+        // wake_msg() awaits its message before disturb() clears msleeping.
+        canSeeMonster: () => true,
+        message: () => wake.promise,
     });
     pending.then(() => { settled = true; });
 
@@ -6031,32 +6018,17 @@ test('distfleeck always draws brave-gremlin before checking a far monster', asyn
         },
         fleesLight: () => assert.fail('nearby gate comes first'),
         inYourSanctuary: () => assert.fail('nearby gate comes first'),
-        monFlee: () => assert.fail('a far monster does not flee'),
     });
 
     assert.deepEqual(events, ['rn2(5)', 'onscary']);
     assert.deepEqual(result, { inrange: false, nearby: false, scared: false });
-});
-
-test('distfleeck validates its action owner before consuming randomness', async () => {
-    const { state } = makeState();
-    const monster = ordinaryMonster(state);
-
-    await assert.rejects(
-        distfleeck(monster, {
-            state,
-            random: {
-                rn2: () => assert.fail('missing monFlee must preflight'),
-                rnd: () => assert.fail('missing monFlee must preflight'),
-            },
-        }),
-        /requires a monFlee operation/,
-    );
+    assert.equal(monster.mflee, false, 'a far monster does not flee');
 });
 
 test('distfleeck preserves scare duration draws and monflee arguments', async () => {
     const { state } = makeState();
     const monster = ordinaryMonster(state, {
+        mhp: 5, // alive: monflee() returns at once for a dead monster
         mx: 9,
         my: 10,
         mux: 10,
@@ -6083,9 +6055,12 @@ test('distfleeck preserves scare duration draws and monflee arguments', async ()
         },
         fleesLight: () => assert.fail('a seen scare short-circuits light'),
         inYourSanctuary: () => assert.fail('a seen scare short-circuits temple'),
-        async monFlee(candidate, duration, first, message) {
-            events.push(`monflee(${duration},${first},${message})`);
+        // monflee() asks this only when distfleeck passes showMessage TRUE;
+        // an unseen monster then flees without a message.
+        canSeeMonster(candidate) {
+            events.push('monflee-message-check');
             assert.equal(candidate, monster);
+            return false;
         },
     });
 
@@ -6094,14 +6069,18 @@ test('distfleeck preserves scare duration draws and monflee arguments', async ()
         'onscary',
         'rn2(7)',
         'rnd(10)',
-        'monflee(6,true,true)',
+        'monflee-message-check',
     ]);
     assert.deepEqual(result, { inrange: true, nearby: true, scared: true });
+    // monflee(mtmp, 6, TRUE, TRUE): the rnd(10) duration becomes the timer.
+    assert.equal(monster.mflee, true);
+    assert.equal(monster.mfleetim, 6);
 });
 
 test('distfleeck awaits the asynchronous flee owner before returning', async () => {
     const { state } = makeState();
     const monster = ordinaryMonster(state, {
+        mhp: 5, // alive: monflee() returns at once for a dead monster
         mx: 9,
         my: 10,
         mux: 10,
@@ -6123,9 +6102,13 @@ test('distfleeck awaits the asynchronous flee owner before returning', async () 
             },
         },
         onScary: () => true,
-        fleesLight: () => assert.fail('scary square short-circuits light'),
+        // monflee()'s message choice asks fleesLight(); distfleeck's own
+        // short-circuit is pinned by the scare-duration test above.
+        fleesLight: () => false,
         inYourSanctuary: () => assert.fail('scary square short-circuits temple'),
-        async monFlee() {
+        // monflee() awaits its message owner before setting mflee.
+        canSeeMonster: () => true,
+        async fleeMessage() {
             fleeStarted.resolve();
             await flee.promise;
         },
@@ -6135,6 +6118,7 @@ test('distfleeck awaits the asynchronous flee owner before returning', async () 
     await fleeStarted.promise;
     await Promise.resolve();
     assert.equal(settled, false);
+    assert.equal(monster.mflee, false);
     flee.resolve();
     assert.deepEqual(await pending, {
         inrange: true,
@@ -6148,6 +6132,7 @@ test('distfleeck independently recognizes light and sanctuary fear', async () =>
     async function runCause({ brave, light, peaceful, sanctuary }) {
         const { state } = makeState();
         const monster = ordinaryMonster(state, {
+            mhp: 5, // alive: monflee() returns at once for a dead monster
             mpeaceful: peaceful,
             mx: 9,
             my: 10,
@@ -6181,11 +6166,12 @@ test('distfleeck independently recognizes light and sanctuary fear', async () =>
                 events.push('sanctuary');
                 return sanctuary;
             },
-            monFlee(candidate, duration, first, message) {
-                events.push(`monflee(${duration},${first},${message})`);
-                assert.equal(candidate, monster);
-            },
+            // An unseen monster flees without monflee()'s message branch,
+            // which would ask fleesLight() a second time.
+            canSeeMonster: () => false,
         });
+        if (monster.mflee)
+            events.push(`monflee(${monster.mfleetim})`);
         return { events, result };
     }
 
@@ -6201,7 +6187,7 @@ test('distfleeck independently recognizes light and sanctuary fear', async () =>
             'light',
             'rn2(7)',
             'rnd(10)',
-            'monflee(6,true,true)',
+            'monflee(6)',
         ],
         result: { inrange: true, nearby: true, scared: true },
     });
@@ -6227,7 +6213,7 @@ test('distfleeck independently recognizes light and sanctuary fear', async () =>
             'sanctuary',
             'rn2(7)',
             'rnd(10)',
-            'monflee(6,true,true)',
+            'monflee(6)',
         ],
         result: { inrange: true, nearby: true, scared: true },
     });
@@ -6254,11 +6240,11 @@ test('distfleeck checks an invisible hero at the guessed square', async () => {
             return false;
         },
         fleesLight: () => false,
-        monFlee: () => assert.fail('not scared'),
     });
 
     assert.deepEqual(checked, [[monster.mux, monster.muy]]);
     assert.deepEqual(result, { inrange: true, nearby: true, scared: false });
+    assert.equal(monster.mflee, false, 'not scared');
 });
 
 // C ref: monmove.c can_hide_under_obj() (2119-2167).

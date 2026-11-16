@@ -242,6 +242,7 @@ import {
     mnexto,
     mpickstuff,
     unstuck,
+    wake_msg,
     wake_nearto,
     wakeup,
 } from './mon.js';
@@ -805,7 +806,8 @@ async function mind_blast(mtmp, env = {}) {
 
 // C ref: monmove.c m_everyturn_effect(). This runs for each living on-map
 // monster before its movement-ration check and for the hero near the end of
-// each input cycle. createGasCloud owns create_gas_cloud().
+// each input cycle. region.js create_gas_cloud() supplies its own display
+// and vision owners when the caller's environment does not.
 export async function m_everyturn_effect(monster, env = {}) {
     const state = env.state ?? game;
     if (!isSpecies(monster, PM_FOG_CLOUD, state)) return;
@@ -813,12 +815,7 @@ export async function m_everyturn_effect(monster, env = {}) {
     const x = isHero ? state.u?.ux : monster.mx;
     const y = isHero ? state.u?.uy : monster.my;
     if (closed_door(x, y, state) || visible_region_at(x, y, state)) return;
-    if (typeof env.createGasCloud !== 'function') {
-        throw new TypeError(
-            'm_everyturn_effect requires a createGasCloud operation',
-        );
-    }
-    await env.createGasCloud(x, y, 1, 0, { ...env, state });
+    await create_gas_cloud(x, y, 1, 0, { ...env, state });
 }
 
 // C ref: monmove.c m_postmove_effect() (672-689). Post-movement gas cloud
@@ -1889,13 +1886,6 @@ function fleeingLightSource(state) {
     return null;
 }
 
-function requireFleeOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`monflee requires a ${name} operation`);
-    return operation;
-}
-
 // C ref: monmove.c release_hero() (362-374). If the monster is grabbing or
 // engulfing the hero, release them. The swallowed branch delegates its message
 // and relocation to mhitu.c:expels; the grab-only branch calls unstuck().
@@ -2083,23 +2073,14 @@ export async function monflee(
             ?? ((mon, detail, e) => monfleeMessage(mon, detail, e)))
         : null;
     const createGasCloud = createsGas
-        ? (env.createGasCloud === undefined
-            ? ((x, y, size, damage, cloudEnv) => create_gas_cloud(
+        ? (env.createGasCloud
+            ?? ((x, y, size, damage, cloudEnv) => create_gas_cloud(
                 x, y, size, damage,
                 postmoveRegionEnv(cloudEnv, state),
-            ))
-            : requireFleeOperation(env, 'createGasCloud'))
+            )))
         : null;
-    if (checksMessage) {
-        if (typeof checksFleeingLight !== 'function'
-            || typeof couldSee !== 'function') {
-            throw new TypeError('monflee light predicates must be functions');
-        }
-        if (typeof random.rn2 !== 'function')
-            throw new TypeError('monflee random injection requires rn2');
-    } else if (createsGas && typeof random.rn2 !== 'function') {
+    if ((checksMessage || createsGas) && typeof random.rn2 !== 'function')
         throw new TypeError('monflee random injection requires rn2');
-    }
     const normalized = {
         ...env,
         state,
@@ -2157,9 +2138,7 @@ export async function monflee(
     mon_track_clear(monster);
 }
 
-// C ref: monmove.c disturb(). wakeMessage owns wake_msg(), including its
-// visibility-dependent message. It is preflighted before the first possible
-// random draw so an unavailable output owner cannot advance the PRNG stream.
+// C ref: monmove.c disturb().
 export async function disturb(monster, env = {}) {
     const normalized = movementEnv(env);
     const { couldSee, random, state } = normalized;
@@ -2170,8 +2149,6 @@ export async function disturb(monster, env = {}) {
     }
     const stealthyHero = Stealth(state.u);
     if (stealthyHero && !isSpecies(monster, PM_ETTIN, state)) return 0;
-    if (typeof env.wakeMessage !== 'function')
-        throw new TypeError('disturb requires a wakeMessage operation');
 
     if (stealthyHero && !random.rn2(10)) return 0;
     const hardToWake = monster.data?.mlet === S_NYMPH
@@ -2190,13 +2167,13 @@ export async function disturb(monster, env = {}) {
         }
     }
 
-    await env.wakeMessage(monster, !monster.mpeaceful, normalized);
+    await wake_msg(monster, !monster.mpeaceful, normalized);
     monster.msleeping = false;
     return 1;
 }
 
 // C ref: monmove.c distfleeck(). monflee() owns messages, release behavior,
-// Vrock gas, and track clearing, so callers supply that complete operation.
+// Vrock gas, and track clearing.
 export async function distfleeck(monster, env = {}) {
     const normalized = movementEnv(env);
     const { random, state } = normalized;
@@ -2205,13 +2182,6 @@ export async function distfleeck(monster, env = {}) {
     const inSanctuary = env.inYourSanctuary ?? in_your_sanctuary;
     if (typeof random.rnd !== 'function')
         throw new TypeError('distfleeck random injection requires rnd');
-    if (typeof onScary !== 'function'
-        || typeof checksFleeingLight !== 'function'
-        || typeof inSanctuary !== 'function') {
-        throw new TypeError('distfleeck predicate injections must be functions');
-    }
-    if (typeof env.monFlee !== 'function')
-        throw new TypeError('distfleeck requires a monFlee operation');
 
     const braveGremlin = random.rn2(5) === 0;
     const inrange = dist2(
@@ -2247,7 +2217,7 @@ export async function distfleeck(monster, env = {}) {
 
     if (scared) {
         const fleeTime = random.rnd(random.rn2(7) ? 10 : 100);
-        await env.monFlee(monster, fleeTime, true, true, normalized);
+        await monflee(monster, fleeTime, true, true, normalized);
     }
     return { inrange, nearby, scared: Boolean(scared) };
 }

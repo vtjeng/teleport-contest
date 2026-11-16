@@ -2358,25 +2358,7 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/monmove.js | distfleeck | 'distfleeck predicate injections must be functions'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | distfleeck | 'distfleeck random injection requires rnd'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | distfleeck | 'distfleeck requires a monFlee operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | disturb | 'disturb requires a wakeMessage operation'": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -2389,12 +2371,6 @@
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/monmove.js | dochugwInterruptsOccupation | 'dochugw occupation check requires a canSpotMonster operatio": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | m_everyturn_effect | 'm_everyturn_effect requires a createGasCloud operation'": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -2418,14 +2394,8 @@
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/monmove.js | monflee | 'monflee light predicates must be functions'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | monflee | 'monflee random injection requires rn2'": {
-      "count": 2,
+      "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
@@ -2455,12 +2425,6 @@
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/monmove.js | requireDochugwOperation | `dochugw requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | requireFleeOperation | `monflee requires a ${name} operation`": {
       "count": 1,
       "class": "invariant",
       "c": null,
