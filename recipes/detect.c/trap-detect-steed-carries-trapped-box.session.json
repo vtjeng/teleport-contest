@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "detect.c trap_detect() steed arm (1057): a trapped box carried by the hero's steed is found at the hero's spot. Dlvl 1 of seed 9133002 has no traps (port scan of 9133001-9133060 for Knights). A debug Knight raises himself to experience level 30, wishes for a trapped large box, drops it and steps aside until his pony picks it up, then forces the mount. He quaffs a potion of confusion and reads a scroll of gold detection: trap_detect() syncs the steed's coordinates to his, so detect_obj_traps() on the steed's inventory reports OTRAP_HERE and he only feels his toes itch.",
+  "segments": [
+    {
+      "seed": 9133002,
+      "datetime": "20370118193000",
+      "nethackrc": "OPTIONS=name:Gawain,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,suppress_alert:3.7.0,!tips\n",
+      "moves": " #levelchange\n30\n\u001b\u0017trapped large box\n dilssssssss#ride\nky\u0017potion of confusion\nqj\u0017scroll of gold detection\nrk  \u001b"
+    }
+  ]
+}
