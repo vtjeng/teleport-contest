@@ -1,0 +1,11 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 80551,
+   "datetime": "20390714201500",
+   "nethackrc": "OPTIONS=name:Sniffer,role:Valkyrie,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+   "moves": "#wizsmell\n  ? \u001b"
+  }
+ ]
+}
