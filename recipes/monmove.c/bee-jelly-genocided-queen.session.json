@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 640218,
+      "datetime": "20361127151903",
+      "nethackrc": "OPTIONS=name:Beekeep,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,suppress_alert:3.7.0\n",
+      "moves": "\u001b\u0017uncursed scroll of genocide\nrf  queen bee\n\u001b\u00175 lumps of royal jelly\n\u0007killer bee\ntgh\u001btgh\u001btgh\u001btgh\u001btgh\u001b"
+    }
+  ],
+  "comment": "Genocide queen bees, create a killer bee next to the hero and throw a lump of royal jelly at it so the lump lands under the bee; on its next move bee_eat_jelly() grows it into a genocided queen bee, grow_up() kills it, and bee_eat_jelly() returns 1 (monmove.c:415)."
+}

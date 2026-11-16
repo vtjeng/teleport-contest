@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 349061,
+      "datetime": "20361019084127",
+      "nethackrc": "OPTIONS=name:Barsy,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,suppress_alert:3.7.0\n",
+      "moves": "\u001b\u0017iron bars\nh\u0017uncursed potion of acid\nwe\u0017blindfold\nPfFl\u001b\u001b"
+    }
+  ],
+  "comment": "Debug terrain wish places iron bars; the hero steps off, wields a potion of acid, puts on a blindfold and force-fights the bars (hack.c domove_fight_ironbars). The potion breaks against the bars and, because the hero cannot see them, hit_bars() gives the hissing-noise message (mthrowu.c:1439-1442) before dissolving them."
+}
