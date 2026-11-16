@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c getobj() with a count typed in the '?' inventory menu: wintty.c process_menu_window() keeps the count as a long (AppendLongDigit), so 9007199254741022, above 2^53, reaches getobj() and its quantity test prints \"You don't have that many!  You have only 21.\" for the rocks. The port's single-choice menu dropped any count above Number.MAX_SAFE_INTEGER and dropped all 21 rocks. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 3141001,
+      "datetime": "20260214081500",
+      "nethackrc": "OPTIONS=name:Ugg,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\nd?9007199254741022d\u001b\u001bi"
+    }
+  ]
+}

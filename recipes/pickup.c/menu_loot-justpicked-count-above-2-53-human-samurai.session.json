@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c menu_loot() 3301: count = max(0, pick_list[i].count) for the put-in menu's 'P' category with a count above 2^53. The tty menu returns that long count exactly and C goes on to the 'Put in what?' item menu; the port applied Math.max() to the BigInt count and threw. A debug-mode Samurai drops and picks up her blindfold, wishes for a sack and puts the blindfold in. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 1618003,
+      "datetime": "20290101000100",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug\n",
+      "moves": "\ndf\u001b,\u001b\u0017sack\n\u001bagi9007199254741022P\nf\n\u001b\u001bi"
+    }
+  ]
+}

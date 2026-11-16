@@ -1789,7 +1789,8 @@ export async function menu_drop(retry, state = game) {
             if (choice.value === ALL_TYPES_SELECTED) allCategories = true;
             else if (choice.value === 'A') dropEverything = autopick = true;
             else if (choice.value === 'P') {
-                count = Math.max(0, choice.count);
+                // C max(0, count); the count can be a BigInt above 2^53.
+                count = choice.count > 0 ? choice.count : 0;
                 justpicked = true;
                 dropEverything = false;
                 add_valid_menu_class(choice.value, state);
