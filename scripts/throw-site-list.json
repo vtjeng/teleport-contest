@@ -2334,18 +2334,6 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/monmove.js | dochugw | 'dochugw requires a couldSee operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | dochugwInterruptsOccupation | 'dochugw occupation check requires a canSpotMonster operatio": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | mfndpos_steps | 'mfndpos requires an output data object'": {
       "count": 1,
       "class": "invariant",

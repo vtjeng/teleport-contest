@@ -129,7 +129,6 @@ import { game } from './gstate.js';
 import { addinv, prinv, obj_extract_self, sobj_at } from './invent.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { discover_object } from './o_init.js';
-import { stop_occupation } from './allmain.js';
 import { check_special_room, in_rooms } from './rooms.js';
 import { learnscroll } from './read.js';
 import { drag_ball, move_bc, placebc, unplacebc } from './ball.js';
@@ -1314,14 +1313,9 @@ function rloc_to_core(monster, x, y, rawEnv = {}) {
 
     const afterShopItems = () => {
         if (state.go?.occupation) {
-            return thenResult(dochugw(monster, false, {
-                ...env,
-                state,
-                canSpotMonster: (subject) => canspotmon(subject, state),
-                couldSee: (targetX, targetY) => couldsee(targetX, targetY, state),
-                // teleport.c:1763 dochugw() -> monmove.c:235.
-                stopOccupation: () => stop_occupation(state, { ...env, message }),
-            }), afterOccupation);
+            // teleport.c:1763 dochugw() -> monmove.c:235 stop_occupation().
+            return thenResult(dochugw(monster, false, { ...env, state }),
+                afterOccupation);
         }
         return afterOccupation();
     };

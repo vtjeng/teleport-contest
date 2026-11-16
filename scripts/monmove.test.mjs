@@ -3015,8 +3015,29 @@ test('m_everyturn_effect creates only unobstructed missing fog clouds', async ()
     assert.deepEqual(clouds(), [{ x: state.u.ux, y: state.u.uy, damage: 0 }]);
 });
 
+// vision.c's viz_array for dochugw()'s own canspotmon() and couldsee()
+// calls: IN_SIGHT lets the hero see a visible monster there, COULD_SEE
+// answers couldsee(). `bits` fills every square; `squares` overrides some.
+function dochugwSight(state, bits, squares = []) {
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Uint8Array(COLNO).fill(bits),
+    );
+    for (const [x, y, squareBits] of squares)
+        state.viz_array[y][x] = squareBits;
+}
+
+// allmain.c stop_occupation() prints "You stop <occtxt>." through the
+// message seam dochugw() hands it, then nomul(0) reads context.run.
+function occupy(state) {
+    state.go.occupation = () => {};
+    state.go.occtxt = 'waiting';
+    state.context ??= {};
+}
+
 test('dochugw delegates movement and leaves an idle hero alone', async () => {
     const { state } = makeState();
+    dochugwSight(state, IN_SIGHT | COULD_SEE);
     const monster = ordinaryMonster(state);
     const calls = [];
 
@@ -3027,9 +3048,7 @@ test('dochugw delegates movement and leaves an idle hero alone', async () => {
             candidate.mx = 5;
             return 2;
         },
-        canSpotMonster: () => assert.fail('idle hero skips sensing'),
-        couldSee: () => assert.fail('idle hero skips old visibility'),
-        stopOccupation: () => assert.fail('idle hero has no occupation'),
+        message: () => assert.fail('idle hero has no occupation'),
     }), 2);
     assert.deepEqual(calls, [['dochug', 4, 4]]);
 
@@ -3038,7 +3057,10 @@ test('dochugw delegates movement and leaves an idle hero alone', async () => {
 
 test('dochugw stops work for a newly nearby visible threat in source order', async () => {
     const { state } = makeState();
-    state.go.occupation = () => {};
+    occupy(state);
+    dochugwSight(state, IN_SIGHT | COULD_SEE);
+    // <1,1> is outside the nine-square threat radius of the hero at
+    // <10,10>; <9,10> is adjacent to it.
     const monster = ordinaryMonster(state, {
         mcanmove: true,
         mx: 1,
@@ -3049,34 +3071,23 @@ test('dochugw stops work for a newly nearby visible threat in source order', asy
 
     const result = dochugw(monster, true, {
         state,
-        canSpotMonster(candidate) {
-            calls.push(['spot', candidate.mx, candidate.my]);
-            return true;
-        },
         async dochug(candidate) {
             calls.push(['dochug', candidate.mx, candidate.my]);
             candidate.mx = 9;
             candidate.my = 10;
             return 0;
         },
-        couldSee(x, y) {
-            calls.push(['couldSee', x, y]);
-            return true;
-        },
-        async stopOccupation() {
-            calls.push(['stop']);
+        async message(text) {
+            calls.push(['message', text]);
             await stop.promise;
         },
     });
 
     await Promise.resolve();
+    await Promise.resolve();
     assert.deepEqual(calls, [
-        ['spot', 1, 1],
         ['dochug', 1, 1],
-        ['couldSee', 1, 1],
-        ['spot', 9, 10],
-        ['couldSee', 9, 10],
-        ['stop'],
+        ['message', 'You stop waiting.'],
     ]);
     let settled = false;
     result.then(() => { settled = true; });
@@ -3084,37 +3095,40 @@ test('dochugw stops work for a newly nearby visible threat in source order', asy
     assert.equal(settled, false);
     stop.resolve();
     assert.equal(await result, 0);
+    assert.equal(state.go.occupation, null);
 });
 
 test('dochugw hallucination bypasses hostility only without resistance', async () => {
     const { state } = makeState();
-    state.go.occupation = () => {};
+    dochugwSight(state, IN_SIGHT | COULD_SEE);
     state.u.uprops[HALLUC].intrinsic = 5;
+    // A peaceful monster adjacent to the hero is a threat only while
+    // Hallucination distorts the hero's knowledge.
     const monster = ordinaryMonster(state, {
         mcanmove: true,
         mpeaceful: true,
         mx: 9,
         my: 10,
     });
-    let stops = 0;
-    const env = {
-        state,
-        canSpotMonster: () => true,
-        couldSee: () => true,
-        stopOccupation() { ++stops; },
-    };
+    const lines = [];
+    const env = { state, message: (text) => lines.push(text) };
 
+    occupy(state);
     assert.equal(await dochugw(monster, false, env), 0);
-    assert.equal(stops, 1);
+    assert.deepEqual(lines, ['You stop waiting.']);
+    assert.equal(state.go.occupation, null);
 
     state.u.uprops[HALLUC_RES].extrinsic = 1;
+    occupy(state);
     assert.equal(await dochugw(monster, false, env), 0);
-    assert.equal(stops, 1);
+    assert.deepEqual(lines, ['You stop waiting.']);
+    assert.notEqual(state.go.occupation, null);
 });
 
 test('dochugw rechecks occupation after the monster action', async () => {
     const { state } = makeState();
-    state.go.occupation = () => {};
+    occupy(state);
+    dochugwSight(state, IN_SIGHT | COULD_SEE);
     const monster = ordinaryMonster(state, {
         mcanmove: true,
         mx: 9,
@@ -3123,17 +3137,22 @@ test('dochugw rechecks occupation after the monster action', async () => {
 
     assert.equal(await dochugw(monster, true, {
         state,
-        canSpotMonster: () => true,
-        couldSee: () => true,
         dochug() {
             state.go.occupation = null;
             return 0;
         },
-        stopOccupation: () => assert.fail('action already stopped work'),
+        message: () => assert.fail('action already stopped work'),
     }), 0);
 });
 
 test('dochugw retains every threat-interruption rejection gate', async () => {
+    // The hero stands at <10,10>; <1,1> is outside the threat radius and
+    // <9,10> is adjacent.
+    const movesAdjacent = (candidate) => {
+        candidate.mx = 9;
+        candidate.my = 10;
+        return 0;
+    };
     const cases = [
         ['action result', ({ env }) => { env.dochug = () => 1; }],
         ['peaceful', ({ context, monster }) => {
@@ -3150,36 +3169,25 @@ test('dochugw retains every threat-interruption rejection gate', async () => {
         }],
         ['already visible nearby', () => {}],
         ['already visible at the exact prior boundary', ({ env, monster }) => {
-            // The hero is at <10,10>; the old square is exactly distance 9.
-            // C requires old distu > 81, so equality must not interrupt even
+            // The old square is exactly distance 9 from the hero. C
+            // requires old distu > 81, so equality must not interrupt even
             // after the monster moves adjacent.
             monster.mx = 1;
             monster.my = 10;
-            env.dochug = (candidate) => {
-                candidate.mx = 9;
-                candidate.my = 10;
-                return 0;
-            };
+            env.dochug = movesAdjacent;
         }],
-        ['not spotted now', ({ env, monster }) => {
+        ['not spotted now', ({ env, monster, state }) => {
             monster.mx = monster.my = 1;
-            env.dochug = (candidate) => {
-                candidate.mx = 9;
-                candidate.my = 10;
-                return 0;
-            };
-            let spots = 0;
-            env.canSpotMonster = () => ++spots === 1;
+            env.dochug = movesAdjacent;
+            // couldsee() holds at the new square but cansee() does not, so
+            // canspotmon() fails there.
+            dochugwSight(state, IN_SIGHT | COULD_SEE, [[9, 10, COULD_SEE]]);
         }],
-        ['not visible now', ({ env, monster }) => {
+        ['not visible now', ({ env, monster, state }) => {
             monster.mx = monster.my = 1;
-            env.dochug = (candidate) => {
-                candidate.mx = 9;
-                candidate.my = 10;
-                return 0;
-            };
-            let visibilityChecks = 0;
-            env.couldSee = () => ++visibilityChecks === 1;
+            env.dochug = movesAdjacent;
+            // cansee() holds at the new square but couldsee() does not.
+            dochugwSight(state, IN_SIGHT | COULD_SEE, [[9, 10, IN_SIGHT]]);
         }],
         ['immobile', ({ context, monster }) => {
             context.chug = false;
@@ -3196,20 +3204,18 @@ test('dochugw retains every threat-interruption rejection gate', async () => {
 
     for (const [name, configure] of cases) {
         const { state } = makeState();
-        state.go.occupation = () => {};
+        occupy(state);
+        dochugwSight(state, IN_SIGHT | COULD_SEE);
         const monster = ordinaryMonster(state, {
             mcanmove: true,
             mx: 9,
             my: 10,
         });
-        let stops = 0;
         const context = { chug: true };
         const env = {
             state,
             dochug: () => 0,
-            canSpotMonster: () => true,
-            couldSee: () => true,
-            stopOccupation() { ++stops; },
+            message: () => assert.fail(`${name}: work continues`),
         };
         configure({ context, env, monster, state });
 
@@ -3218,38 +3224,28 @@ test('dochugw retains every threat-interruption rejection gate', async () => {
             true,
             name,
         );
-        assert.equal(stops, 0, name);
+        assert.notEqual(state.go.occupation, null, name);
     }
+
+    // The same setup with every gate open does interrupt, so each case
+    // above is rejected by its own gate.
+    const { state } = makeState();
+    occupy(state);
+    dochugwSight(state, IN_SIGHT | COULD_SEE);
+    const monster = ordinaryMonster(state, { mcanmove: true, mx: 1, my: 1 });
+    const lines = [];
+    await dochugw(monster, true, {
+        state,
+        dochug: movesAdjacent,
+        message: (text) => lines.push(text),
+    });
+    assert.deepEqual(lines, ['You stop waiting.']);
 });
 
-test('dochugw preflights occupation owners before monster action', async () => {
+test('dochugw requires its dochug operation before the monster action', async () => {
     const { state } = makeState();
-    state.go.occupation = () => {};
     const monster = ordinaryMonster(state);
-    let actions = 0;
-    const dochug = () => { ++actions; return 0; };
-
-    await assert.rejects(dochugw(monster, true, {
-        state,
-        dochug,
-        stopOccupation() {},
-    }), /canSpotMonster/);
-    await assert.rejects(dochugw(monster, true, {
-        state,
-        dochug,
-        canSpotMonster: () => true,
-    }), /stopOccupation/);
-    await assert.rejects(dochugw(monster, true, {
-        state,
-        dochug,
-        canSpotMonster: () => true,
-        couldSee: true,
-        stopOccupation() {},
-    }), /couldSee/);
-    assert.equal(actions, 0);
-
     await assert.rejects(dochugw(monster, true, { state }), /dochug/);
-    assert.equal(actions, 0);
 });
 
 // monmove.c:889-970.  A monster which has just resisted fightm() still enters
