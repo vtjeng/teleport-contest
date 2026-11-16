@@ -1245,7 +1245,7 @@ test('a metal weapon splits a pudding after hitmm and before mintrap',
                 MHITM_JS.indexOf('const mclone = await clone_mon(mdef, 0, 0, state, {')),
         );
         assert.match(jsBranch,
-            /clone_mon\([\s\S]*?requireAttackOperation\(env, 'message'\)[\s\S]*?await mintrap\(mclone, NO_TRAP_FLAGS[\s\S]*?magr\.mhp < 1[\s\S]*?M_ATTK_AGR_DIED/u);
+            /clone_mon\([\s\S]*?env\.message \?\? ttyPline[\s\S]*?await mintrap\(mclone, NO_TRAP_FLAGS[\s\S]*?magr\.mhp < 1[\s\S]*?M_ATTK_AGR_DIED/u);
 
         await hero();
         const { ax, dx, y } = battlefield(1);
