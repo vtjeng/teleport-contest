@@ -1572,67 +1572,64 @@ export async function dodrop(state = game) {
 
 // C ref: do.c canletgo() (664-711). Answers whether the hero can let go of an
 // object and says why when she cannot. `word` is the verb the message uses;
-// C's callers pass "" to ask the question without a message, and every test on
-// it is written out here even though the one ported caller passes "drop".
-export async function canletgo(obj, word, state = game) {
+// C's callers pass "" to ask the question without a message. With an empty
+// word nothing is printed, so the answer comes back synchronously (a boolean)
+// with C's side effects already applied: welded() marks a welded uwep's
+// bknown, and a cursed loadstone gets corpsenm reset and bknown set. With a
+// word the answer is a promise that settles after the message, keeping C's
+// message-then-side-effect order. Callers may await either form.
+export function canletgo(obj, word, state = game) {
     if (obj.owornmask & (W_ARMOR | W_ACCESSORY)) {
-        if (word) {
-            await ttyNorep(
-                `You cannot ${word} ${something} you are wearing.`, state,
-            );
-        }
-        return false;
+        if (!word) return false;
+        return ttyNorep(
+            `You cannot ${word} ${something} you are wearing.`, state,
+        ).then(() => false);
     }
     if (obj === state.uwep && welded(state.uwep, state)) {
         /* no weldmsg(), so uwep->bknown might become set silently
            if word is "" */
-        if (word) {
-            let hand = body_part(HAND, state.youmonst);
+        if (!word) return false;
+        let hand = body_part(HAND, state.youmonst);
 
-            if (bimanual(state.uwep, state))
-                hand = makeplural(hand);
-            await ttyNorep(
-                `You cannot ${word} ${something} welded to your ${hand}.`,
-                state,
-            );
-        }
-        return false;
+        if (bimanual(state.uwep, state))
+            hand = makeplural(hand);
+        return ttyNorep(
+            `You cannot ${word} ${something} welded to your ${hand}.`,
+            state,
+        ).then(() => false);
     }
     if (obj.otyp === LOADSTONE && obj.cursed) {
+        const refuse = () => {
+            obj.corpsenm = 0; /* reset */
+            set_bknown(obj, 1, { state });
+            return false;
+        };
         /* getobj() kludge sets corpsenm to user's specified count
            when refusing to split a stack of cursed loadstones */
-        if (word) {
-            /* getobj() ignores a count for throwing since that is
-               implicitly forced to be 1; replicate its kludge... */
-            if (word === 'throw' && obj.quan > 1)
-                obj.corpsenm = 1;
-            await ttyPline(
-                `For some reason, you cannot ${word}`
-                + `${obj.corpsenm ? ' any of' : ''}`
-                + ` the stone${plur(obj.quan)}!`,
-                state,
-            );
-        }
-        obj.corpsenm = 0; /* reset */
-        set_bknown(obj, 1, { state });
-        return false;
+        if (!word) return refuse();
+        /* getobj() ignores a count for throwing since that is
+           implicitly forced to be 1; replicate its kludge... */
+        if (word === 'throw' && obj.quan > 1)
+            obj.corpsenm = 1;
+        return ttyPline(
+            `For some reason, you cannot ${word}`
+            + `${obj.corpsenm ? ' any of' : ''}`
+            + ` the stone${plur(obj.quan)}!`,
+            state,
+        ).then(refuse);
     }
     if (obj.otyp === LEASH && obj.leashmon !== 0) {
-        if (word) {
-            await ttyPline(
-                `The leash is tied around your ${body_part(HAND, state.youmonst)}.`,
-                state,
-            );
-        }
-        return false;
+        if (!word) return false;
+        return ttyPline(
+            `The leash is tied around your ${body_part(HAND, state.youmonst)}.`,
+            state,
+        ).then(() => false);
     }
     if (obj.owornmask & W_SADDLE) {
-        if (word) {
-            await ttyPline(
-                `You cannot ${word} ${something} you are sitting on.`, state,
-            );
-        }
-        return false;
+        if (!word) return false;
+        return ttyPline(
+            `You cannot ${word} ${something} you are sitting on.`, state,
+        ).then(() => false);
     }
     return true;
 }

@@ -5614,6 +5614,8 @@ async function doorganize_core(obj, state = game, hooks = {}) {
         if (letValue === GOLD_SYM && !isgold) {
             await ttyPline(`Only gold coins may be moved into the '${GOLD_SYM}' slot.`, state);
             everMind = true;
+            // C `goto noadjust`: put a split-off stack back before returning.
+            if (splitting) await mergedRuntime(splitting, obj, { state, hooks });
             return ECMD_OK;
         }
         if ((letter(letValue) && letValue !== '@')

@@ -122,6 +122,7 @@ import {
     FROST_HORN,
     GLOB_OF_GREEN_SLIME,
     LARGE_BOX,
+    LOADSTONE,
     LONG_SWORD,
     ORCISH_DAGGER,
     POT_ACID,
@@ -914,6 +915,46 @@ test('the bullwhip disarm announces its wrap as an urgent message', async () => 
     assert.match(urgent[0], / wraps around the .* you're wielding!$/u);
     assert.ok(!ordinary.some((text) => / wraps around /u.test(text)));
 });
+
+test('find_misc bullwhip check learns a welded or loadstone uwep is cursed',
+    async () => {
+        // muse.c:2189 asks canletgo(uwep, "") (do.c:665-711) with an empty
+        // word: no message, but welded() (wield.c) still calls
+        // set_bknown(uwep, 1), and a cursed loadstone still gets corpsenm = 0
+        // and set_bknown(obj, 1) (do.c:685-698). Refused, the whip is not
+        // selected, so nothing else would reveal the curse.
+        for (const makeWielded of [
+            // The Valkyrie's own long sword, cursed: will_weld() is true.
+            (state) => Object.assign(state.uwep, { cursed: true, bknown: 0 }),
+            // A cursed loadstone in the weapon slot; corpsenm 3 stands for a
+            // stale getobj() count that canletgo() must reset to 0.
+            (state) => {
+                const stone = carried(state, LOADSTONE, {
+                    cursed: true, bknown: 0, corpsenm: 3,
+                });
+                state.uwep = stone;
+                return stone;
+            },
+        ]) {
+            const state = await offensiveHero();
+            const wielded = makeWielded(state);
+            const whip = carried(state, BULLWHIP, {
+                where: OBJ_MINVENT, owornmask: W_WEP, // MON_WEP(mtmp)
+            });
+            const monster = offensiveMonster(state, PM_GOBLIN, whip, {
+                mhp: 10, mhpmax: 10, mpeaceful: false,
+            });
+            whip.ocarry = monster;
+            monster.mw = whip;
+            // rn2(5) == 0 passes the whip's "not every turn" test.
+            const selection = find_misc(monster, {
+                state, random: { rn2: () => 0 },
+            });
+            assert.notEqual(selection?.kind, 'bullwhip');
+            assert.ok(wielded.bknown, 'canletgo() set bknown');
+            if (wielded.otyp === LOADSTONE) assert.equal(wielded.corpsenm, 0);
+        }
+    });
 
 test('use_misc supplies seetrap redraw and preserves injected redraw owners',
     async () => {

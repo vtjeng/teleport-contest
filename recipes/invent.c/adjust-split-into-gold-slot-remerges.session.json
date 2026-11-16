@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7731,
+      "datetime": "20280914101500",
+      "nethackrc": "OPTIONS=name:GoldSlot,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics\n",
+      "moves": "  #adjust\n2d$i",
+      "comment": "Reaches invent.c doorganize_core() with a split count (2 of 4 holy water) and answers '$' for the new slot: C refuses with \"Only gold coins may be moved into the '$' slot.\" and its noadjust label merges the split stack back, so the final inventory shows d - 4 potions of holy water."
+    }
+  ]
+}
