@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent polyself.c polymon() witness for the stuck-mimic test at 775-778, which tests the hero's current form, not the new one. A Caveman (no magic resistance) wearing polymorph control eats a blessed tin of small mimic meat while a six-turn #wizintrinsic levitation hangs over a wished polymorph trap; the levitation ends during the 20 helpless turns, float_down() springs the trap, and the controlled polyself() chooses a small mimic. C calls unmul(\"\"), so eatmdone() drops the gold disguise and the hero acts at once; adjacent melee cannot reach this state because mattacku() unmasks the hero first.",
+  "segments": [
+    {
+      "seed": 62038817,
+      "datetime": "20710405142200",
+      "nethackrc": "OPTIONS=name:StuckMimicPoly,role:Caveman,race:human,gender:male,align:neutral,pauper,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!debug_mongen,!autopickup,!acoustics,!safe_wait\n",
+      "moves": "\u0017ring of polymorph control\nPar\u0017blessed tin opener\nwb\u0017blessed tin of small mimic meat\nj\u0017polymorph trap\n#wizintrinsic\n6q\n ec y     small mimic\n     sss:"
+    }
+  ]
+}

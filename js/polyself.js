@@ -906,11 +906,13 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         state.flags.female = u.mfemale;
     }
 
-    // polyself.c:778-783. unmul()'s result is discarded; an empty override
-    // runs its state transition without printing the pending movement text.
+    // polyself.c:775-783. The test is on the hero's current (old) form, not
+    // the new one: a non-mimic stuck mimicking an object after eating a
+    // mimic stops at once even when the new form is itself a mimic. The
+    // empty override runs unmul()'s state transition, including the
+    // pending eatmdone(), without printing the pending movement text.
     if (state.multi < 0 && M_AP_TYPE(state.youmonst) === M_AP_OBJECT
-        && state.youmonst.data.mlet !== M.S_MIMIC
-        && mdat.mlet !== M.S_MIMIC) {
+        && state.youmonst.data.mlet !== M.S_MIMIC) {
         await unmul('', state);
     }
     if (mdat.mlet !== M.S_MIMIC) {
