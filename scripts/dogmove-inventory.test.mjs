@@ -11,7 +11,6 @@ import {
     MMOVE_DIED,
     MMOVE_MOVED,
     MMOVE_NOTHING,
-    NEED_HTH_WEAPON,
     NEED_WEAPON,
     NON_PM,
     OBJ_FLOOR,
@@ -392,57 +391,77 @@ test('dog_invent rejects nofetch classes, mail, and prize ids', async () => {
     }
 });
 
+// dog_invent()'s eating arm hands the floor object to the real dog_eat(),
+// which pickupState() can run: the pet becomes a tame one with an edog and
+// eats a food ration in sight of the hero.
+function eatingPetState() {
+    const setup = pickupState();
+    setup.edog.hungrytime = 0; // Below state.moves, so dog_eat() raises it.
+    setup.monster.mextra = { edog: setup.edog };
+    setup.monster.mhp = setup.monster.mhpmax = 4; // A living kitten.
+    const ration = floorStack(setup.state, FOOD_RATION, 1);
+    return { ...setup, ration };
+}
+
 test('dog_invent eats eligible food and propagates death', async () => {
-    for (const expected of [MMOVE_MOVED, MMOVE_DIED]) {
-        const { state, monster, edog } = inventoryState();
-        const obj = floorObject(state);
-        let eatenArgs;
+    // A pet already at 0 hit points is the one way dog_eat() can return
+    // MMOVE_DIED for an ordinary ration (dogmove.c:344, mhp < 1), so the
+    // second pass checks that dog_invent() returns dog_eat()'s verdict.
+    for (const [hp, expected] of [[4, MMOVE_MOVED], [0, MMOVE_DIED]]) {
+        const { state, monster, edog, ration } = eatingPetState();
+        monster.mhp = hp;
+        const messages = [];
         const result = await dog_invent(
             monster,
             edog,
             HERO_DISTANCE,
-            noFloorActionEnv(state, {
+            pickupEnv(state, {
                 dogfood: () => CADAVER,
-                eatObject: async (...args) => {
-                    eatenArgs = args;
-                    return expected;
-                },
+                message: async (text) => { messages.push(String(text)); },
+                // Two obj_resists() draws of rn2(100): dog_eat()'s dogfood()
+                // reclassification, then delobj() as m_consume_obj() eats the
+                // ration. 99 clears both chances (95 and 0), so neither resists.
+                random: pickupRandom([], [99, 99]),
+                redraw: () => {},
             }),
         );
         assert.equal(result, expected);
-        assert.deepEqual(eatenArgs.slice(0, 5), [
-            monster,
-            obj,
-            PET_X,
-            PET_Y,
-            false,
-        ]);
-        assert.equal(eatenArgs[5].state, state);
+        // dog_eat() ran at the pet's own square: it ate the ration there.
+        assert.equal(state.level.objects[PET_X][PET_Y], null);
+        assert.notEqual(ration.where, OBJ_FLOOR);
+        assert.ok(monster.meating > 0, 'dog_nutrition() set an eating time');
+        assert.ok(edog.hungrytime > state.moves, 'the meal fed the pet');
+        assert.deepEqual(messages, ['Your kitten eats a food ration.']);
     }
 });
 
 test('dog_invent admits acceptable food only for a starving pet', async () => {
     for (const starving of [false, true]) {
-        const { state, monster, edog } = inventoryState();
-        floorObject(state);
+        const { state, monster, edog, ration } = eatingPetState();
         edog.mhpmax_penalty = starving
             ? 2 // Any positive penalty marks the pet as starving.
             : 0;
-        let ate = false;
         const result = await dog_invent(
             monster,
             edog,
             HERO_DISTANCE,
-            noFloorActionEnv(state, {
+            pickupEnv(state, {
+                canCarry: () => 0, // Skip the pickup arm when not eating.
                 dogfood: () => ACCFOOD,
-                eatObject: async () => {
-                    ate = true;
-                    return MMOVE_MOVED;
-                },
+                message: async () => {},
+                // Two obj_resists() draws of rn2(100): dog_eat()'s dogfood()
+                // reclassification, then delobj() as m_consume_obj() eats the
+                // ration. 99 clears both chances (95 and 0), so neither resists.
+                random: pickupRandom([], [99, 99]),
+                redraw: () => {},
             }),
         );
         assert.equal(result, starving ? MMOVE_MOVED : MMOVE_NOTHING);
-        assert.equal(ate, starving);
+        assert.equal(
+            state.level.objects[PET_X][PET_Y],
+            starving ? null : ration,
+            'only the starving pet eats the ration',
+        );
     }
 });
 
@@ -598,8 +617,7 @@ test('dog_invent hands an AT_WEAP carrier to its weapon owner', async () => {
     // A soldier ant has no AT_WEAP attack; give the pet one so the arm fires.
     monster.data = { ...monster.data, mattk: [{ aatyp: AT_WEAP }] };
     monster.weapon_check = NEED_WEAPON;
-    floorStack(state, DAGGER, 1);
-    const wields = [];
+    const dagger = floorStack(state, DAGGER, 1);
 
     await dog_invent(
         monster,
@@ -608,14 +626,13 @@ test('dog_invent hands an AT_WEAP carrier to its weapon owner', async () => {
         pickupEnv(state, {
             message: async () => {},
             random: pickupRandom([], [PET_APPORT + 2, 0, 0]),
-            wieldPickedItem: (subject) => {
-                wields.push(subject.weapon_check);
-            },
         }),
     );
 
-    // C sets NEED_HTH_WEAPON before calling mon_wield_item().
-    assert.deepEqual(wields, [NEED_HTH_WEAPON]);
+    // C sets NEED_HTH_WEAPON, then weapon.c mon_wield_item() selects the
+    // dagger it just carried, wields it and clears weapon_check.
+    assert.equal(monster.mw, dagger);
+    assert.equal(monster.weapon_check, NEED_WEAPON);
     assert.equal(monster.misc_worn_check & I_SPECIAL, I_SPECIAL);
 });
 

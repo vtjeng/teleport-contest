@@ -3179,7 +3179,7 @@ test('dogmove preserves source order before the mounted-steed no-op', () => {
     assert.deepEqual(jsOrder, [...jsOrder].sort((a, b) => a - b));
 });
 
-test('starting-pet adapter wires dog_move reflection to mon_reflects',
+test('a starting pet\'s dog_move reflection gate calls mon_reflects',
     async () => {
         const target = await prepareStartingPetAction(PM_LITTLE_DOG);
         const { monster } = target;
@@ -3211,19 +3211,10 @@ test('starting-pet adapter wires dog_move reflection to mon_reflects',
         monster.nmon = eye;
         game.level.monsters[eye.mx][eye.my] = eye;
 
-        const adapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
-            'async function moveSimplePet(',
-        );
-        const adapterEnd = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
-            '\nasync function ',
-            adapterStart + 1,
-        );
-        const adapter = SIMPLE_ACTIONS_JS_SOURCE.slice(
-            adapterStart,
-            adapterEnd,
-        );
-        assert.match(adapter,
-            /monsterReflects: \(subject, moveEnv\) => mon_reflects\(\s*subject,\s*null,\s*moveEnv\.state,\s*moveEnv,/u);
+        // dogmove.c:1133 `!mon_reflects(mtmp, (char *) NULL)`: dog_move() calls
+        // muse.c mon_reflects() itself, with no message string.
+        assert.match(DOGMOVE_JS_SOURCE,
+            /mon_reflects\(monster, null, state, env\)/u);
 
         // The source-admitted pet is on x=7 with the eye at x=8. dochug()
         // consumes dog_move()'s completed attack and itself returns zero

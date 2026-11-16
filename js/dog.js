@@ -815,13 +815,6 @@ function monsterEmitsLight(monster) {
         || species?.pmidx === PM_GOLD_DRAGON;
 }
 
-function migratingOperation(env, name, fallback) {
-    const operation = env[name] ?? fallback;
-    if (typeof operation !== 'function')
-        throw new TypeError(`migrate_to_level requires a ${name} operation`);
-    return operation;
-}
-
 function levelMonsterPredecessor(monster, state) {
     let previous = null;
     for (let current = state.level.monlist;
@@ -1397,12 +1390,6 @@ export async function migrate_to_level(
         state.wiz2_level,
         state.wiz3_level,
     ].some((level) => sameLevel(level, state.u.uz));
-    const inWizardTower = onWizardTowerLevel
-        ? migratingOperation(env, 'inWizardTower',
-            (x, y, level, towerState) => finish_steps(
-                In_W_tower_steps(x, y, level, towerState),
-                impossible_printer(towerState)))
-        : null;
     const isOnMap = m_at(monster.mx, monster.my, state) === monster;
     const isOffMapLimbo = monster.mx === 0
         && (monster.mstate & MON_LIMBO) === MON_LIMBO;
@@ -1424,9 +1411,6 @@ export async function migrate_to_level(
     }
     const oldX = monster.mx;
     const oldY = monster.my;
-    const recalculateVision = monsterEmitsLight(monster)
-        ? migratingOperation(env, 'visionRecalc', vision_recalc_async)
-        : null;
 
     const num_segs = mon_leave(monster, state);
     await relmon(monster, 'migrating_mons', state, env);
@@ -1443,8 +1427,11 @@ export async function migrate_to_level(
     let xyFlags = depth(destination, state) < depth(state.u.uz, state)
         ? 1
         : 0;
-    if (inWizardTower
-        && await inWizardTower(oldX, oldY, state.u.uz, state)) {
+    // dog.c:914 In_W_tower(), which is false off the Wizard's Tower levels.
+    if (onWizardTowerLevel
+        && await finish_steps(
+            In_W_tower_steps(oldX, oldY, state.u.uz, state),
+            impossible_printer(state))) {
         xyFlags |= 2;
     }
     monster.wormno = num_segs;
@@ -1459,8 +1446,9 @@ export async function migrate_to_level(
     monster.muy = destination.dlevel;
     monster.mx = 0;
     monster.my = 0;
-    if (recalculateVision) {
-        await recalculateVision(0, {
+    // dog.c:930-931, emits_light() -> vision_recalc(0).
+    if (monsterEmitsLight(monster)) {
+        await vision_recalc_async(0, {
             state, redraw: newsym,
         });
     }

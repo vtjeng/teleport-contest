@@ -219,23 +219,6 @@ for (const tower of ['wiz1_level', 'wiz2_level', 'wiz3_level']) {
     }
 }
 
-test('migration retains an injected tower operation with original coordinates', async () => {
-    const state = migrationState();
-    state.wiz1_level = { ...CURRENT_LEVEL };
-    const { monster } = onMapMonster(state);
-    const calls = [];
-    await migrate_to_level(monster, 1, MIGR_RANDOM, null, {
-        state, newsym: () => {},
-        inWizardTower: (x, y, level, owner) => {
-            calls.push([x, y, level]);
-            assert.equal(owner, state);
-            return true;
-        },
-    });
-    assert.deepEqual(calls, [[MONSTER_X, MONSTER_Y, CURRENT_LEVEL]]);
-    assert.equal(monster.mtrack[0].y, 3);
-});
-
 test('migration uses canonical mon_leaving_level boulder landing effects', async () => {
     const state = migrationState();
     state.flags = { acoustics: true };
@@ -773,14 +756,25 @@ test('a migrating light invalidates vision after leaving the map', async () => {
     const { monster } = onMapMonster(state, PM_YELLOW_LIGHT);
     const events = [];
 
-    await migrate_to_level(monster, 1, MIGR_RANDOM, null, {
-        newsym: () => events.push('newsym'),
-        state,
-        visionRecalc: (control) => {
-            events.push(['vision', control, monster.mx, monster.my]);
+    // vision.c vision_recalc() clears vision_full_recalc on entry, before it
+    // finds that this minimal state has no vision to rebuild; the setter
+    // records that write and where the light stood when it happened.
+    let fullRecalc = 1;
+    Object.defineProperty(state, 'vision_full_recalc', {
+        get: () => fullRecalc,
+        set: (value) => {
+            events.push(['vision', value, monster.mx, monster.my]);
+            fullRecalc = value;
         },
     });
 
+    await migrate_to_level(monster, 1, MIGR_RANDOM, null, {
+        newsym: () => events.push('newsym'),
+        state,
+    });
+
+    // One vacated-square redraw, then vision_recalc(0) once the light is off
+    // the map at <0,0> (dog.c:930-931 runs after mx = my = 0).
     assert.deepEqual(events, [
         'newsym',
         ['vision', 0, 0, 0],

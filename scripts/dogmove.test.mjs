@@ -77,12 +77,14 @@ import {
     PM_VAMPIRE_BAT,
 } from '../js/monsters.js';
 import { place_monster } from '../js/monst.js';
+import { create_region } from '../js/region.js';
 import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
 import {
     BOULDER,
     CREDIT_CARD,
     CORPSE,
     FOOD_CLASS,
+    FOOD_RATION,
     LEASH,
     objects_globals_init,
     PICK_AXE,
@@ -183,19 +185,18 @@ function movementEnv(state, overrides = {}) {
         unsupported: (reason) => {
             throw new Error(`unsupported: ${reason}`);
         },
-        avoidKicked: () => false,
-        avoidSokobanPush: () => false,
-        monsterReflects: () => false,
         resistsStone: () => false,
-        bestTarget: () => null,
+        // The live caller binds runPetRangedAttack(); no pet here has a
+        // ranged target, so the scan's tail answers MMOVE_NOTHING.
         petRangedAttack: () => MMOVE_NOTHING,
-        mayCrossRegion: () => true,
-        digWeaponCheck: () => false,
-        canSeeMonster: () => false,
         monAllowFlags: () => 0,
         ...overrides,
     });
 }
+
+// A value no square on the fixture's map has, so a pet's mux still holding it
+// shows that monmove.c set_apparxy() has not run.
+const PET_STALE_MUX = 99;
 
 function activePetState(x = 5, y = 5) {
     const setup = petState();
@@ -1122,53 +1123,65 @@ test('dog_move dismisses a guardian angel whose conflict is blocked',
         assert.deepEqual(events, [monster]);
     });
 
+// A real food ration on <x,y> for the eating arms, with the object catalog
+// and display state that dogmove.c dog_eat() reads through dog_nutrition(),
+// distant_name() and m_consume_obj(). The hero sees nothing, so the meal
+// prints nothing.
+function placeRation(state, x, y) {
+    state.context ??= {};
+    state.flags ??= {};
+    state.iflags ??= {};
+    state.u.uprops = Array.from({ length: 64 }, () => ({
+        intrinsic: 0, extrinsic: 0, blocked: false,
+    }));
+    state.viz_array = Array.from({ length: ROWNO }, () => Array(COLNO).fill(0));
+    objects_globals_init(state);
+    init_objects(state, () => 0); // Zero choices fix every description.
+    const ration = newObject({
+        otyp: FOOD_RATION,
+        oclass: FOOD_CLASS,
+        quan: 1,
+        o_id: 211, // An ordinary live id: neither prize nor quest artifact.
+        age: state.moves,
+    });
+    ration.owt = state.objects[FOOD_RATION].oc_weight;
+    place_object(ration, x, y, { state });
+    return ration;
+}
+
 test('dog_move maps an off-map inventory result through monster life',
     async () => {
         const { state, monster } = activePetState();
-        const food = {
-            ox: monster.mx,
-            oy: monster.my,
-            cursed: false,
-            nexthere: null,
-        };
-        state.level.objects[monster.mx][monster.my] = food;
+        placeRation(state, monster.mx, monster.my);
 
         const result = await dog_move(monster, false, movementEnv(state, {
             dogfood: () => DOGFOOD,
-            eatObject(subject) {
-                subject.mx = 0; // Zero is mon_offmap()'s coordinate sentinel.
-                return MMOVE_MOVED;
-            },
+            // dog_eat() itself cannot take a living pet off the map, so the
+            // mon_offmap() seam answers as if the meal had.
+            monsterOffMap: () => true,
         }));
 
+        // The pet ate (dog_invent() returned MMOVE_MOVED) and is alive, so
+        // the off-map test maps the result to MMOVE_DONE.
+        assert.equal(state.level.objects[5][5], null);
         assert.equal(result, MMOVE_DONE);
     });
 
 test('dog_move skips goals and ranged attacks after inventory eating',
     async () => {
         const { state, monster } = activePetState();
-        state.level.objects[monster.mx][monster.my] = {
-            cursed: false,
-            nexthere: null,
-            oclass: FOOD_CLASS,
-            ox: monster.mx,
-            oy: monster.my,
-            otyp: 1, // A decision-only ordinary food object type.
-        };
-        const events = [];
+        placeRation(state, monster.mx, monster.my);
 
         const result = await dog_move(monster, false, movementEnv(state, {
             dogfood: () => CADAVER,
-            eatObject: () => {
-                events.push('eat');
-                return MMOVE_MOVED;
-            },
             findPositions: () => assert.fail('inventory eating skips goals'),
             petRangedAttack: () => assert.fail('inventory eating skips range'),
         }));
 
         assert.equal(result, MMOVE_MOVED);
-        assert.deepEqual(events, ['eat']);
+        // dog_eat() consumed the ration where the pet stands.
+        assert.equal(state.level.objects[monster.mx][monster.my], null);
+        assert.ok(monster.meating > 0);
     });
 
 // dogmove.c:1122, `max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp`. An acid blob's
@@ -1214,7 +1227,7 @@ test('dog_move rejects lethal passive damage before attacking', async () => {
 test('dog_move awaits the floating-eye reflection result', async () => {
     const { state, monster } = activePetState();
     // Match the starting kitten's source level so the ordinary target gate
-    // reaches the asynchronous reflection callback.
+    // reaches the asynchronous mon_reflects() call.
     monster.m_lev = 2;
     const eye = {
         data: state.mons[PM_FLOATING_EYE],
@@ -1248,9 +1261,9 @@ test('dog_move awaits the floating-eye reflection result', async () => {
             y: eye.my,
             info: ALLOW_M,
         }]),
-        // An unequipped pet does not reflect, so C treats the eye as hazardous.
-        monsterReflects: async () => false,
     }));
+    // muse.c mon_reflects() is real: an unequipped pet does not reflect, so
+    // C treats the eye as hazardous and the pet leaves it alone.
 
     assert.equal(result, MMOVE_MOVED);
     assert.deepEqual([monster.mx, monster.my], [5, 5]);
@@ -1275,13 +1288,17 @@ test('dog_move makes a leashed pet whimper at a trap before moving',
                 y: trap.ty,
                 info: ALLOW_TRAPS,
             }]),
-            whimper(subject) {
-                events.push(['whimper', subject.mx, subject.my]);
+            // sounds.c whimper() prints through the message seam; the
+            // pet's square at that moment shows it whimpers before moving.
+            message: async (text) => {
+                events.push([String(text), monster.mx, monster.my]);
             },
         }));
 
         assert.equal(result, MMOVE_MOVED);
-        assert.deepEqual(events, [['whimper', 5, 5]]);
+        // A little dog is MS_BARK, which whimper() voices as "whine". The
+        // fixture has no vision, so the hero cannot see the pet: "It".
+        assert.deepEqual(events, [['It whines.', 5, 5]]);
         assert.deepEqual([monster.mx, monster.my], [trap.tx, trap.ty]);
     });
 
@@ -1309,8 +1326,8 @@ async function leashedTrapWhimpers(state, monster) {
             y: trap.ty,
             info: ALLOW_TRAPS,
         }]),
-        whimper(subject) {
-            events.push(['whimper', subject.mx, subject.my]);
+        message: async (text) => {
+            events.push([String(text), monster.mx, monster.my]);
         },
     }));
 
@@ -1375,16 +1392,7 @@ test('dog_move always evaluates a ranged attack after candidate scan',
 
 test('dog_move skips ranged attacks for a selected food landing', async () => {
     const { state, monster } = activePetState();
-    const food = {
-        cursed: false,
-        nexthere: null,
-        oclass: FOOD_CLASS,
-        ox: 6,
-        oy: 5,
-        otyp: 1, // A decision-only ordinary food object type.
-    };
-    state.level.objects[food.ox][food.oy] = food;
-    let eats = 0;
+    const food = placeRation(state, 6, 5); // The square east of the pet.
 
     const result = await dog_move(monster, false, movementEnv(state, {
         dogfood: () => DOGFOOD,
@@ -1394,14 +1402,13 @@ test('dog_move skips ranged attacks for a selected food landing', async () => {
             info: 0, // An ordinary food square needs no occupancy allowance.
         }]),
         petRangedAttack: () => assert.fail('food goto skips ranged attack'),
-        eatObject() {
-            eats++;
-            return MMOVE_MOVED;
-        },
     }));
 
     assert.equal(result, MMOVE_MOVED);
-    assert.equal(eats, 1);
+    // The pet stepped onto the ration and dog_eat() consumed it there.
+    assert.deepEqual([monster.mx, monster.my], [6, 5]);
+    assert.equal(state.level.objects[6][5], null);
+    assert.ok(monster.meating > 0);
 });
 
 test('dog_move skips food classification on an unreachable candidate',
@@ -1684,7 +1691,17 @@ test('dog_move unleashes a pet before attacking the hero', async () => {
 // C ref: dogmove.c dog_move():1298-1312. Each case below fixes one term of
 // `"%s %s reluctantly %s %s."` and leaves the rest at the values the shared
 // helper sets.
-function cursedStepEnv(state, destination, overrides = {}) {
+//
+// display.c canseemon() reads the hero's view of the pet's square. By default
+// the hero sees the pet's starting square <5,5> only, which is the `wasseen`
+// half of dogmove.c:1298: C consults its second canseemon() only when this
+// one is false. Pass `seen` to change which squares are in sight.
+function cursedStepEnv(state, destination, overrides = {}, seen = [[5, 5]]) {
+    state.viz_array = Array.from(
+        { length: ROWNO },
+        () => new Array(COLNO).fill(0),
+    );
+    for (const [x, y] of seen) state.viz_array[y][x] = IN_SIGHT;
     return movementEnv(state, {
         findPositions: fixedCandidates([{
             ...destination,
@@ -1693,9 +1710,6 @@ function cursedStepEnv(state, destination, overrides = {}) {
         cursedObjectAt: (x, y) => (
             x === destination.x && y === destination.y
         ),
-        // canseemon() before the step; C's second call is only consulted when
-        // this one is false.
-        canSeeMonster: () => true,
         ...overrides,
     });
 }
@@ -1720,12 +1734,6 @@ test('dog_move reports a cursed landing seen before movement', async () => {
                 cursedChecks.push([x, y]);
                 return x === destination.x && y === destination.y;
             },
-            canSeeMonster(subject) {
-                events.push(`see:${subject.mx},${subject.my}`);
-                // Seen at its origin only, which is the `wasseen` half of
-                // dogmove.c:1298.
-                return subject.mx === 5;
-            },
             async message(text) {
                 events.push(`report:${monster.mx},${monster.my}`);
                 lines.push(text);
@@ -1735,11 +1743,10 @@ test('dog_move reports a cursed landing seen before movement', async () => {
 
     assert.equal(result, MMOVE_MOVED);
     assert.deepEqual(cursedChecks, [[destination.x, destination.y]]);
-    // C calls canseemon() once before place_monster() and again after it only
-    // when the first answered FALSE, so a pet seen at its origin asks once.
-    // noit_Monnam() tests canspotmon(), not this canseemon() operation.
+    // The hero sees only the origin <5,5> (cursedStepEnv()'s default), so the
+    // line comes from the `wasseen` half of dogmove.c:1298 and prints after
+    // place_monster() has moved the pet to <6,5>.
     assert.deepEqual(events, [
-        'see:5,5',
         'report:6,5',
     ]);
     // This state sets no level.flags.hero_memory, so dogmove.c:1302 keeps o at
@@ -1940,9 +1947,9 @@ test('dog_move stays silent when the pet is unseen before and after',
             state,
             destination,
             {
-                canSeeMonster: () => false,
                 message: () => assert.fail('an unseen step must not print'),
             },
+            [], // The hero sees neither the origin nor the destination.
         ));
 
         assert.equal(result, MMOVE_MOVED);
@@ -1979,7 +1986,21 @@ test('dog_move owns the source leashed-pet reposition and region order', async (
     // distance 25, selecting the source's udist > 4 leash branch.
     const { state, monster } = activePetState(12, 5);
     monster.mleashed = true;
+    monster.mux = PET_STALE_MUX;
     const events = [];
+    // region.c m_in_out_region() is real here. A one-square region at the
+    // pet's origin <12,5> answers its can_enter test only if C passes the old
+    // nix/niy rather than the chosen square <8,5>. Region tests put a function
+    // in this field the same way; C never sets one in play.
+    state.level.regions = [Object.assign(
+        create_region([{ lx: 12, ly: 5, hx: 12, hy: 5 }]),
+        {
+            can_enter_f(_region, subject) {
+                events.push(['region', 12, 5, subject === monster]);
+                return true;
+            },
+        },
+    )];
 
     const result = await dog_move(monster, false, movementEnv(state, {
         findPositions: fixedCandidates([]),
@@ -1987,13 +2008,9 @@ test('dog_move owns the source leashed-pet reposition and region order', async (
             events.push(['goodpos', x, y, subject === monster, flags]);
             return true;
         },
-        mayCrossRegion(subject, x, y) {
-            // C tests the old nix/niy, not the chosen nearby square.
-            events.push(['region', x, y, subject === monster]);
-            return true;
-        },
-        redraw: (x, y) => events.push(['redraw', x, y]),
-        setApparxy: (subject) => events.push(['apparxy', subject.mx, subject.my]),
+        // The redraw also records where the pet believes the hero is, which
+        // set_apparxy() has not yet updated when C redraws.
+        redraw: (x, y) => events.push(['redraw', x, y, monster.mux]),
     }));
 
     assert.equal(result, MMOVE_MOVED);
@@ -2001,9 +2018,10 @@ test('dog_move owns the source leashed-pet reposition and region order', async (
     assert.deepEqual(events, [
         ['goodpos', 8, 5, true, 0],
         ['region', 12, 5, true],
-        ['redraw', 8, 5],
-        ['apparxy', 8, 5],
+        ['redraw', 8, 5, PET_STALE_MUX],
     ]);
+    // monmove.c set_apparxy() ran last: a tame pet knows where the hero is.
+    assert.deepEqual([monster.mux, monster.muy], [state.u.ux, state.u.uy]);
 });
 
 // dogmove.c:915–946 consumes both attack masks; retaliation draws precede
@@ -2057,18 +2075,25 @@ test('pet_ranged_attk forced no-target noise and hero death return match C', asy
 test('dog_move retains raw fallback coordinates and rejected region', async () => {
     const {state, monster} = activePetState(12, 5);
     monster.mleashed = true;
+    monster.mux = PET_STALE_MUX;
     const positions = [], events = [];
+    // A one-square region at <12,5> whose can_enter test refuses, so
+    // m_in_out_region() rejects the move (a test function, as above).
+    state.level.regions = [Object.assign(
+        create_region([{ lx: 12, ly: 5, hx: 12, hy: 5 }]),
+        { can_enter_f: () => (events.push([12, 5]), false) },
+    )];
     assert.equal(await dog_move(monster, false, movementEnv(state, {
         findPositions: fixedCandidates([]),
         goodpos: (x, y) => (positions.push([x, y]), false),
-        mayCrossRegion: (_subject, x, y) => (events.push([x, y]), false),
         redraw: () => assert.fail('rejected region skips redraw'),
-        setApparxy: () => assert.fail('rejected region skips set_apparxy'),
     })), MMOVE_MOVED);
     assert.deepEqual(positions, [[8, 5], [1, -1], [1, 0],
         [0, -1], [1, -1], [1, 0], [1, 1]]);
     assert.deepEqual(events, [[12, 5]]);
     assert.deepEqual([monster.mx, monster.my], [12, 5]);
+    assert.equal(monster.mux, PET_STALE_MUX,
+        'rejected region skips set_apparxy');
 });
 
 // dogmove.c:341 discards m_consume_obj's result, and mon.c:1447 discards

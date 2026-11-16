@@ -141,10 +141,14 @@ import {
     remove_monster,
 } from './monst.js';
 import {
+    m_avoid_kicked_loc,
+    m_avoid_soko_push_loc,
+    m_digweapon_check,
     mfndpos_steps,
     mon_track_add,
     monnear,
     onscary,
+    set_apparxy,
     should_displace,
     undesirable_disp,
 } from './monmove.js';
@@ -201,12 +205,15 @@ import { canseemon, canspotmon, mon_visible } from './display.js';
 import { goodpos } from './teleport.js';
 import { impossible, impossible_printer, pline_mon, youFeel } from './pline.js';
 import { finish_steps } from './source_steps.js';
-import { beg, domonnoise } from './sounds.js';
+import { beg, domonnoise, whimper } from './sounds.js';
 import { stop_occupation } from './allmain.js';
 import { mattacku } from './mhitu.js';
 import {
     Conflict, Deaf, Hallucination, Protection_from_shape_changers,
 } from './youprop.js';
+import { m_in_out_region } from './region.js';
+import { mon_reflects } from './muse.js';
+import { mon_wield_item } from './weapon.js';
 
 const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;
@@ -231,20 +238,6 @@ function doorMask(location) {
     return location?.flags ?? 0;
 }
 
-function goalOperation(rawEnv, name, fallback) {
-    const operation = rawEnv[name] ?? fallback;
-    if (typeof operation !== 'function')
-        throw new TypeError(`dog_goal requires a ${name} operation`);
-    return operation;
-}
-
-function inventoryOperation(rawEnv, name, fallback) {
-    const operation = rawEnv[name] ?? fallback;
-    if (typeof operation !== 'function')
-        throw new TypeError(`dog_invent requires a ${name} operation`);
-    return operation;
-}
-
 function cannotFetch(obj, state) {
     return obj.oclass === BALL_CLASS
         || obj.oclass === CHAIN_CLASS
@@ -252,16 +245,6 @@ function cannotFetch(obj, state) {
         || obj.otyp === SCR_MAIL
         || is_mines_prize(obj, state) || is_soko_prize(obj, state);
 }
-
-function petMoveOperation(rawEnv, name) {
-    const operation = rawEnv[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`dog_move requires a ${name} operation`);
-    return operation;
-}
-
-
-
 
 function monsterOffMap(monster) {
     return monster.mx === 0;
@@ -800,10 +783,10 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
     // pline_xy() and newsym() on the carry arm; a caller may override both.
     const message = rawEnv.message ?? ttyPline;
     const redraw = rawEnv.redraw ?? newsym;
-    const findDroppable = inventoryOperation(
-        rawEnv,
-        'droppables',
-    );
+    // dog_move() normalizes droppables(), could_reach_item(), dogfood() and
+    // can_carry() into its env, and js/steal.js relobj() reads the same
+    // droppables key, so one selector serves every reader.
+    const findDroppable = rawEnv.droppables ?? droppables;
 
     if (findDroppable(monster, operationEnv)) {
         if (edog.apport <= 0)
@@ -811,7 +794,7 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
         if ((!random.rn2(heroDistance + 1)
                 || !random.rn2(edog.apport))
             && random.rn2(10) < edog.apport) {
-            await inventoryOperation(rawEnv, 'dropInventory', relobj)(
+            await (rawEnv.dropInventory ?? relobj)(
                 monster,
                 monster.minvis,
                 true,
@@ -827,16 +810,13 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
     const obj = state.level?.objects?.[monster.mx]?.[monster.my] ?? null;
     if (!obj || cannotFetch(obj, state)) return MMOVE_NOTHING;
 
-    const dogfood = inventoryOperation(rawEnv, 'dogfood', classifyDogFood);
-    const canReach = inventoryOperation(
-        rawEnv,
-        'couldReachItem',
-    );
+    const dogfood = rawEnv.dogfood ?? classifyDogFood;
+    const canReach = rawEnv.couldReachItem ?? could_reach_item;
     const foodType = dogfood(monster, obj, operationEnv);
     if ((foodType <= CADAVER
             || (edog.mhpmax_penalty && foodType === ACCFOOD))
         && canReach(monster, obj.ox, obj.oy, state)) {
-        return await inventoryOperation(rawEnv, 'eatObject')(
+        return await dog_eat(
             monster,
             obj,
             monster.mx,
@@ -846,7 +826,7 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
         );
     }
 
-    const canCarry = inventoryOperation(rawEnv, 'canCarry', can_carry);
+    const canCarry = rawEnv.canCarry ?? can_carry;
     const amount = canCarry(monster, obj, operationEnv);
     if (amount > 0 && !obj.cursed
         && canReach(monster, obj.ox, obj.oy, state)
@@ -901,10 +881,7 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
         if (attacktype(monster.data, AT_WEAP)
             && monster.weapon_check === NEED_WEAPON) {
             monster.weapon_check = NEED_HTH_WEAPON;
-            await inventoryOperation(rawEnv, 'wieldPickedItem')(
-                monster,
-                operationEnv,
-            );
+            await mon_wield_item(monster, operationEnv);
         }
         check_gear_next_turn(monster);
     }
@@ -933,9 +910,9 @@ export async function dog_goal(
     const random = rawEnv.random ?? coreRandom;
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dog_goal random injection requires rn2');
-    const dogfood = goalOperation(rawEnv, 'dogfood', classifyDogFood);
-    const findDroppable = goalOperation(rawEnv, 'droppables', droppables);
-    const canCarry = goalOperation(rawEnv, 'canCarry', can_carry);
+    const dogfood = rawEnv.dogfood ?? classifyDogFood;
+    const findDroppable = rawEnv.droppables ?? droppables;
+    const canCarry = rawEnv.canCarry ?? can_carry;
     const couldSee = rawEnv.couldSee
         ?? ((x, y) => couldsee(x, y, state));
     const petCanSee = rawEnv.petCanSee
@@ -1379,13 +1356,11 @@ export async function dog_move(monster, after, rawEnv = {}) {
             }
         }
         if (!found) cc = { x: monster.mx, y: monster.my };
-        if (!await petMoveOperation(env, 'mayCrossRegion')(
-            monster, nextX, nextY, env,
-        )) return;
+        if (!await m_in_out_region(monster, nextX, nextY, env)) return;
         remove_monster(monster.mx, monster.my, state);
         place_monster(monster, cc.x, cc.y, state);
         (env.redraw ?? newsym)(cc.x, cc.y, state);
-        await petMoveOperation(env, 'setApparxy')(monster, env);
+        set_apparxy(monster, env);
     };
 
     let whistleApproach = false;
@@ -1489,10 +1464,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
                     && haseyes(monster.data)
                     && occupant.mcansee
                     && (!occupant.minvis || perceives(monster.data))
-                    && !(await petMoveOperation(env, 'monsterReflects')(
-                        monster,
-                        env,
-                    ))
+                    && !(await mon_reflects(monster, null, state, env))
             ) || (occupant.data?.pmidx === PM_GELATINOUS_CUBE
                 && random.rn2(10))
                 || (touch_petrifies(occupant.data)
@@ -1505,11 +1477,8 @@ export async function dog_move(monster, after, rawEnv = {}) {
                     monster.my,
                     occupant.mx,
                     occupant.my,
-                ) <= 2 || petMoveOperation(env, 'bestTarget')(
-                    monster,
-                    false,
-                    env,
-                ) !== occupant) {
+                ) <= 2
+                    || best_target(monster, false, env) !== occupant) {
                     continue;
                 }
                 // dogmove.c sets ranged_only here, then immediately skips the
@@ -1547,17 +1516,8 @@ export async function dog_move(monster, after, rawEnv = {}) {
             return result & M_ATTK_DEF_DIED
                 ? MMOVE_DIED : MMOVE_NOTHING;
         }
-        if (petMoveOperation(env, 'avoidKicked')(
-            monster,
-            x,
-            y,
-            env,
-        ) || petMoveOperation(env, 'avoidSokobanPush')(
-            monster,
-            x,
-            y,
-            env,
-        )) {
+        if (m_avoid_kicked_loc(monster, x, y, state)
+            || m_avoid_soko_push_loc(monster, x, y, state)) {
             continue;
         }
 
@@ -1566,7 +1526,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
         if (trap) {
             if (monster.mleashed) {
                 if (!Deaf(state.u)) {
-                    await petMoveOperation(env, 'whimper')(monster, env);
+                    await whimper(monster, env);
                 }
             } else if (trap.tseen && random.rn2(40)) {
                 continue;
@@ -1647,10 +1607,12 @@ export async function dog_move(monster, after, rawEnv = {}) {
     }
 
     if (!eatAfterMoving) {
-        const rangedResult = await petMoveOperation(
-            env,
-            'petRangedAttack',
-        )(monster, false, env);
+        // The live caller binds js/unported_monster_actions.js
+        // runPetRangedAttack(), which adds the missile operations that
+        // mattackm() and mattacku() still take from their env.
+        const rangedResult = await (env.petRangedAttack ?? pet_ranged_attk)(
+            monster, false, env,
+        );
         if (rangedResult !== MMOVE_NOTHING) return rangedResult;
     }
 
@@ -1669,36 +1631,22 @@ export async function dog_move(monster, after, rawEnv = {}) {
                 );
                 m_unleash(monster, false, { ...env, state });
             }
-            await petMoveOperation(env, 'attackHero')(monster, env);
+            // The live caller binds attackHeroWithMattacku(), which adds the
+            // missile, spell and item operations mattacku() takes from env.
+            await (env.attackHero ?? mattacku)(monster, env);
             return MMOVE_DONE;
         }
-        if (!await petMoveOperation(env, 'mayCrossRegion')(
-            monster,
-            nextX,
-            nextY,
-            env,
-        )) {
+        if (!await m_in_out_region(monster, nextX, nextY, env)) {
             return MMOVE_MOVED;
         }
-        if (await petMoveOperation(env, 'digWeaponCheck')(
-            monster,
-            nextX,
-            nextY,
-            env,
-        )) {
+        if (await m_digweapon_check(monster, nextX, nextY, env)) {
             return MMOVE_NOTHING;
         }
-        const wasSeen = Boolean(petMoveOperation(env, 'canSeeMonster')(
-            monster,
-            state,
-        ));
+        const wasSeen = Boolean(canseemon(monster, state));
         remove_monster(originX, originY, state);
         place_monster(monster, nextX, nextY, state);
         if (curseMessages[chosenIndex]
-            && (wasSeen || Boolean(petMoveOperation(
-                env,
-                'canSeeMonster',
-            )(monster, state)))) {
+            && (wasSeen || canseemon(monster, state))) {
             // C ref: dogmove.c:1299-1312. Describe the top item of the pile
             // rather than the cursed item that made the pet reluctant. C
             // avoids glyph_at() here on purpose, as its comment at 1299-1301
@@ -1738,7 +1686,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
         }
         mon_track_add(monster, originX, originY);
         if (eatAfterMoving) {
-            const result = await petMoveOperation(env, 'eatObject')(
+            const result = await dog_eat(
                 monster,
                 eatAfterMoving,
                 originX,
