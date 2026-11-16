@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mon.c wiz_force_cham_form() 5151 and validvamp() 5053-5056, the S_VAMPIRE class arm: a vampshifter whose last monpolycontrol answer is the vampire class 'V' after every V species but Vlad is genocided, so mkclass_poly() returns NON_PM and validvamp() falls back to the monster's own form (mon->cham). A debug Valkyrie (monpolycontrol, !confirm) reads a blessed scroll of genocide for class V (Vlad is unique and survives), puts on a +60 ring of increase accuracy, creates a sleeping Vlad the Impaler (forcing him over the doppelganger substitute), turns into a water nymph and steals his Candelabrum (without it, validvamp() does not override the choice at 5034). Vlad kills her repeatedly (debug mode declines each death); once she is blindfolded, Vlad cannot be seen, so decide_to_shapeshift() shifts him (m_calcdistress) and the monpolycontrol prompt takes 'V' five times.",
+  "segments": [
+    {
+      "seed": 8810041,
+      "datetime": "20380311090000",
+      "nethackrc": "OPTIONS=name:Vlader,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips,!confirm,monpolycontrol\n",
+      "moves": "\u0017blessed scroll of genocide\nrf  V\n\u001b\u0017+60 ring of increase accuracy\n\u0017blindfold\nPgr\u001b\u0007sleeping Vlad the Impaler\ny\u001b#polyself\nwater nymph\n\u001b\u001bFh  \u001bFh  \u001bPh  Ph  n  n  n nms  n  n ms  n n  n ms  n  nms  n  nms n  n n V\n V\n V\n V\n V\n "
+    }
+  ]
+}
