@@ -52,9 +52,9 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 277,
-    unreachable: 200,
-    noVisibleEffect: 194,
+    otherName: 279,
+    unreachable: 174,
+    noVisibleEffect: 215,
     unportedVisible: 2,
 });
 
@@ -81,7 +81,7 @@ const LUA_DIRECT = 'a Lua binding: the port runs the dat/*.lua program as JavaSc
 const EXTRACOLOR = 'computes or writes the 256-colour escape for an RGB customisation, which patch 006\'s shadow buffer does not capture';
 const ESCAPE = 'writes a terminal escape sequence or mode change that patch 006\'s shadow buffer, which the scorer reads, does not capture';
 const CMDLINE = 'reached only from a command-line option; the recorder passes only "-u <name>"';
-const HANGUP = 'a hangup procedure; no SIGHUP reaches the recorder, whose input is a pipe';
+const HANGUP = 'a hup_procs routine that draws or reads nothing; after hangup() (21 bytes 0377 read through pgetchar()), GameDisplay ignores every write and nhgetch() answers ESC without reading';
 const GENL = 'a windows.c generic or default procedure that the tty window port does not install';
 const BUILD_CONST = 'computes a build constant; js/mdlib.js and js/version.js hold the recorder\'s values';
 const SAVE_COMPAT = 'a save or bones file compatibility check; the port\'s input.storage snapshots carry no C file header';
@@ -1016,32 +1016,29 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         + 'tty_preference_update() calls it last'),
     'windows.c genl_getmsghistory': unreachable(GENL),
     'windows.c genl_putmsghistory': unreachable(GENL),
-    'windows.c nhwindows_hangup': unreachable(HANGUP),
-    'windows.c hup_exit_nhwindows': unreachable(HANGUP),
-    'windows.c hup_nhgetch': unreachable(HANGUP),
-    'windows.c hup_yn_function': unreachable(HANGUP),
-    'windows.c hup_nh_poskey': unreachable(HANGUP),
-    'windows.c hup_getlin': unreachable(HANGUP),
-    'windows.c hup_init_nhwindows': unreachable(HANGUP),
-    'windows.c hup_create_nhwindow': unreachable(HANGUP),
-    'windows.c hup_select_menu': unreachable(HANGUP),
-    'windows.c hup_add_menu': unreachable(HANGUP),
-    'windows.c hup_end_menu': unreachable(HANGUP),
-    'windows.c hup_putstr': unreachable(HANGUP),
-    'windows.c hup_print_glyph': unreachable(HANGUP),
-    'windows.c hup_outrip': unreachable(HANGUP),
-    'windows.c hup_curs': unreachable(HANGUP),
-    'windows.c hup_display_nhwindow': unreachable(HANGUP),
-    'windows.c hup_display_file': unreachable(HANGUP),
-    'windows.c hup_cliparound': unreachable(HANGUP),
-    'windows.c hup_status_update': unreachable(HANGUP),
-    'windows.c hup_int_ndecl': unreachable(HANGUP),
-    'windows.c hup_void_ndecl': unreachable(HANGUP),
-    'windows.c hup_void_fdecl_int': unreachable(HANGUP),
-    'windows.c hup_void_fdecl_winid': unreachable(HANGUP),
-    'windows.c hup_void_fdecl_winid_ulong': unreachable(HANGUP),
-    'windows.c hup_void_fdecl_constchar_p': unreachable(HANGUP),
-    'windows.c hup_ctrl_nhwindow': unreachable(HANGUP),
+    'windows.c hup_exit_nhwindows': ported('js/cmd.js end_of_input'),
+    'windows.c hup_yn_function': ported('js/cmd.js yn_function'),
+    'windows.c hup_getlin': noEffect(HANGUP),
+    'windows.c hup_init_nhwindows': noEffect(HANGUP),
+    'windows.c hup_create_nhwindow': noEffect(HANGUP),
+    'windows.c hup_select_menu': noEffect(HANGUP),
+    'windows.c hup_add_menu': noEffect(HANGUP),
+    'windows.c hup_end_menu': noEffect(HANGUP),
+    'windows.c hup_putstr': noEffect(HANGUP),
+    'windows.c hup_print_glyph': noEffect(HANGUP),
+    'windows.c hup_outrip': noEffect(HANGUP),
+    'windows.c hup_curs': noEffect(HANGUP),
+    'windows.c hup_display_nhwindow': noEffect(HANGUP),
+    'windows.c hup_display_file': noEffect(HANGUP),
+    'windows.c hup_cliparound': noEffect(HANGUP),
+    'windows.c hup_status_update': noEffect(HANGUP),
+    'windows.c hup_int_ndecl': noEffect(HANGUP),
+    'windows.c hup_void_ndecl': noEffect(HANGUP),
+    'windows.c hup_void_fdecl_int': noEffect(HANGUP),
+    'windows.c hup_void_fdecl_winid': noEffect(HANGUP),
+    'windows.c hup_void_fdecl_winid_ulong': noEffect(HANGUP),
+    'windows.c hup_void_fdecl_constchar_p': noEffect(HANGUP),
+    'windows.c hup_ctrl_nhwindow': noEffect(HANGUP),
     'windows.c genl_status_init': ported('js/wintty.js new_status_window',
         'the status window\'s set-up'),
     'windows.c genl_status_finish': noEffect('only frees the status_vals[] strings; '
