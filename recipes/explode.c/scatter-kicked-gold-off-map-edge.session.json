@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "explode.c scatter() for a scattered object whose next square is off the map: a dwarven Valkyrie in debug mode wishes for 250 gold pieces, #wizloadlua Kni-strt lays the Knight quest home over Dlvl 1 (its mines-style init fills every column with floor), ^F maps it, ^T teleports her to column 1 (x=1), she drops the gold there, steps south, and kicks it north. dokick.c really_kick_object() -> scatter(x, y, rnd(3), VIS_EFFECTS | MAY_HIT, gold); chunks heading west reach x=0, so isok() fails, typ becomes STONE and the chunk stops in place. Seed, date, role and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 5193377,
+      "datetime": "20510921193004",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,suppress_alert:3.7.0\n",
+      "moves": "  \u0017250 gold pieces\n#wizloadlua\nKni-strt\n \u0006\u0014 HHHHHHHHhhhhhhh.d$ j\u0004k   "
+    }
+  ]
+}
