@@ -3967,6 +3967,10 @@ async function tipcontainer_gettarget(box, state) {
         items,
         how: PICK_ONE,
         preselected: FLOOR_TARGET,
+        // n == 0 leaves otmp 0 and *cancelled FALSE, so the contents go on
+        // the floor; only ESC (n == -1) cancels.
+        emptyValue: FLOOR_TARGET,
+        cancelValue: null,
     });
 
     // pickup.c:3936-3947. Interpret the result.

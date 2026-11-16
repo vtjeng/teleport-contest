@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "role.c treats a PICK_ONE commit after the preselected row is toggled off (select_menu() returns 0) differently from ESC (-1): the role menu's `choice = (n == 0) ? ROLE_RANDOM : ROLE_NONE` picks a random role, and the confirmation's `(n == 0) ? 1 : -1` starts the game. 'n' declines pick4u; '-' (MENU_UNSELECT_ALL) clears the preselected row and Return commits. Segment 1 clears Random in the role menu and answers 'y' at the confirmation; segment 2 accepts Random with Return and clears Yes in the confirmation. Race, gender and alignment are fixed so only those two menus appear.",
+  "segments": [
+    {
+      "seed": 73015521,
+      "datetime": "20410317101500",
+      "nethackrc": "OPTIONS=name:Wendeline,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "n-\ry"
+    },
+    {
+      "seed": 73015522,
+      "datetime": "20410318144500",
+      "nethackrc": "OPTIONS=name:Wendeline,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "n\r-\r"
+    }
+  ]
+}

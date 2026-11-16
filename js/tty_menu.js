@@ -1338,6 +1338,9 @@ async function selectOneTtyMenu(state, spec) {
     const committedValue = () => {
         // C tty_select_menu recounts the current rows after process_menu_window;
         // an Enter after bulk deselection cannot restore the initial payload.
+        // That is C's n == 0, which each caller interprets for itself, so
+        // scripts/menu-preselected-empty.test.mjs makes every spec with a
+        // preselected row name its emptyValue.
         if (spec.returnSelections) return selectedRows();
         if (initiallySelected && !hasSelection())
             return spec.emptyValue ?? spec.cancelValue ?? null;

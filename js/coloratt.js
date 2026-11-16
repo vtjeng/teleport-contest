@@ -354,11 +354,15 @@ export async function query_attr(state, prompt, dflt, helpers) {
     const { ttyMenuColorAttribute } = await import('./windows.js');
     const allowMany = Boolean(prompt && lcase(prompt.slice(0, 6)) === 'choose');
     const rows = MENU_COLOR_ATTRIBUTES.slice(0, MENU_COLOR_ATTRIBUTES.findIndex(row => row.name === null));
+    const preselected = rows.findIndex(row => row.attr === dflt);
     const picks = pickedValues(await queryMenu(state, {
         items: rows.map(({ name, attr }, i) => ({ text: name, value: i + 1,
             attr: ttyMenuColorAttribute(attr), color: NO_COLOR, selected: attr === dflt })),
         title: prompt || 'Pick an attribute', how: allowMany ? PICK_ANY : PICK_ONE,
-        preselected: rows.findIndex(row => row.attr === dflt) + 1, cancelValue: null,
+        ...(preselected >= 0 ? { preselected: preselected + 1 } : {}),
+        // pick_cnt == 0, an emptied or absent preselection, is not ESC's -1:
+        // PICK_ONE answers dflt_attr below.
+        emptyValue: [], cancelValue: null,
     }, helpers));
     if (picks?.length) {
         if (!allowMany) {
@@ -386,11 +390,15 @@ export async function query_attr(state, prompt, dflt, helpers) {
 export async function query_color(state, prompt, dflt, helpers) {
     basic_menu_colors(state, true);
     const rows = COLOR_NAMES.slice(0, COLOR_NAMES.findIndex(row => row.name === null));
+    const preselected = rows.findIndex(row => row.color === dflt);
     const picks = pickedValues(await queryMenu(state, {
         items: rows.map(({ name, color }, i) => ({ text: name, value: i + 1,
             color: NO_COLOR, attr: 0, selected: color === dflt })),
         title: prompt || 'Pick a color', how: PICK_ONE,
-        preselected: rows.findIndex(row => row.color === dflt) + 1, cancelValue: null,
+        ...(preselected >= 0 ? { preselected: preselected + 1 } : {}),
+        // pick_cnt == 0, an emptied or absent preselection, is not ESC's -1:
+        // it answers dflt_color below.
+        emptyValue: [], cancelValue: null,
     }, helpers));
     basic_menu_colors(state, false);
     if (picks?.length) {

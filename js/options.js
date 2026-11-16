@@ -9076,7 +9076,8 @@ export async function handle_add_list_remove(state, optname, count, helpers) {
     const rows = [['a', `add new ${optname}`], ['l', `list ${makeplural(optname)}`],
         ['r', `remove existing ${optname}`], ['x', 'exit this menu']];
     const items = rows.flatMap(([accelerator, text], i) => !count && (i === 1 || i === 2) ? [] : [{ text, selector: accelerator, value: i + 1, selected: i === 3 }]);
-    const selected = await optionMenuSelect(state, { items, title: 'Do what?', how: PICK_ONE, preselected: 4 }, helpers);
+    // pick_cnt <= 0, an emptied selection or ESC, exits the menu.
+    const selected = await optionMenuSelect(state, { items, title: 'Do what?', how: PICK_ONE, preselected: 4, emptyValue: null }, helpers);
     const picks = menuSelectionValues(selected);
     if (!picks.length) return 3;
     return (picks.length > 1 && picks[0] === 4 ? picks[1] : picks[0]) - 1;

@@ -171,6 +171,8 @@ export async function restore_menu(bannerwin = WIN_ERR, state = game) {
         const choice = await select_menu(state, {
             items,
             preselected: -2,
+            // select_menu() <= 0, an emptied selection or ESC, quits.
+            emptyValue: null,
             cancelValue: null,
         });
         if (choice !== null && choice !== undefined) {

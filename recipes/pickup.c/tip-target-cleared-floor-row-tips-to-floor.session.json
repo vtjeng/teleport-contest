@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c tipcontainer_gettarget() preselects 'on the floor'. Clearing that row and committing (select_menu() returns 0) leaves otmp 0 and *cancelled FALSE, so tipcontainer() tips onto the floor; only ESC (n == -1) cancels. A debug Wizard wishes for two sacks, tips the first (p) with #tip, clears the floor row with '\\\\' (MENU_UNSELECT_PAGE; the row's own selector '-' would choose it explicitly) and commits with Return. The second sack is the carried target that makes the menu appear.",
+  "segments": [
+    {
+      "seed": 48120773,
+      "datetime": "20430905083000",
+      "nethackrc": "OPTIONS=name:Tipwell,role:Wizard,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "  #wizwish\nsack\n#wizwish\nsack\n#tip\np\\\n"
+    }
+  ]
+}
