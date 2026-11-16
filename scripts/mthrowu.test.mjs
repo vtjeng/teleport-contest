@@ -39,7 +39,7 @@ import { acurr } from '../js/attrib.js';
 import { ART_MAGICBANE, spec_abon } from '../js/artifacts.js';
 import { omon_adj, should_mulch_missile } from '../js/dothrow.js';
 import { game } from '../js/gstate.js';
-import { add_to_minv, obj_extract_self } from '../js/invent.js';
+import { add_to_minv } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     LOW_PM,
@@ -55,9 +55,8 @@ import {
     SPECIAL_PM,
 } from '../js/monsters.js';
 import { m_at, newMonster, remove_monster } from '../js/monst.js';
-import { clear_dknown, mksobj, mksobj_at, place_object, remove_object }
+import { mksobj, mksobj_at, place_object, remove_object }
     from '../js/obj.js';
-import { observe_object } from '../js/o_init.js';
 import { killer_xname, mshot_xname } from '../js/objnam.js';
 import {
     ARROW,
@@ -89,7 +88,7 @@ import {
 import { canseemon, canspotmon } from '../js/display.js';
 import { passive_obj } from '../js/uhitm.js';
 import { block_point, vision_reset } from '../js/vision.js';
-import { select_rwep, setmnotwielded } from '../js/weapon.js';
+import { select_rwep } from '../js/weapon.js';
 import { coreRandom } from '../js/rng.js';
 import { expectTerminated, prepareQuietDeath } from './expect-terminated.mjs';
 
@@ -979,20 +978,7 @@ test('m_throw sends blinding venom through thitu and deletes it on a miss',
         await m_throw(subject, subject.mx, y, -1, 0, 1, venom, {
             state,
             random,
-            canSeeMonster: () => false,
-            canSeeSquare: () => false,
             monsterAt: () => null,
-            objectToGlyph: () => 777,
-            temporaryDisplay: async () => {},
-            delayOutput: async () => {},
-            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-            observeObject: () => {},
-            extractObject: (obj) => obj_extract_self(obj, { state }),
-            setMonsterNotWielded: (monster, obj) =>
-                setmnotwielded(monster, obj, { state }),
-            damageValue: () => assert.fail(
-                'BLINDING_VENOM uses thitu(8, 0), not weapon damage',
-            ),
             shouldMulch: () => assert.fail('venom is deleted before mulching'),
             floorEffects: () => assert.fail('venom is never placed on floor'),
             placeObject: () => assert.fail('venom is never placed on floor'),
@@ -1409,23 +1395,12 @@ test('unseen fumbled returns respect acoustics', async () => {
                 rn2: (bound) => bound === 100 ? 1 : bound === 2 ? Number(hitsArm) : bound - 1,
                 rnd: () => 1,
             },
-            canSeeMonster: () => true,
-            canSeeSquare: () => true,
             monsterAt: () => null,
-            objectToGlyph: () => 777,
-            temporaryDisplay: () => {},
-            delayOutput: () => {},
-            clearObjectKnowledge: (obj) => clear_dknown(obj, state),
-            observeObject: (obj) => observe_object(obj, state),
-            extractObject: (obj) => obj_extract_self(obj, { state }),
-            setMonsterNotWielded: (mon, obj) => setmnotwielded(mon, obj, { state }),
-            damageValue: () => assert.fail('the aklys does not strike a target'),
             shouldMulch: () => false,
             floorEffects: () => false,
             placeObject: (obj, x, py) => place_object(obj, x, py, { state }),
             passiveObject: () => {},
             stackObject: () => {},
-            endMulti: () => {},
             message: (line) => { messages.push(line); },
         });
 
@@ -2190,17 +2165,7 @@ test('m_throw performs the source-ordered cursed missile misfire', async () => {
             },
             rnd: () => assert.fail('misfire path does not roll damage'),
         },
-        canSeeMonster: () => false,
-        canSeeSquare: () => false,
         monsterAt: () => null,
-        objectToGlyph: () => 777,
-        temporaryDisplay: async () => {},
-        delayOutput: async () => {},
-        clearObjectKnowledge: () => {},
-        observeObject: () => {},
-        extractObject: (obj) => obj_extract_self(obj, { state }),
-        setMonsterNotWielded: () => {},
-        damageValue: () => assert.fail('misfire path does not hit hero'),
         shouldMulch: () => false,
         floorEffects: () => false,
         placeObject: (_obj, x, atY) => { landed = [x, atY]; },
