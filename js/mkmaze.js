@@ -68,7 +68,7 @@ import {
 } from './dungeon.js';
 import { migrate_to_level } from './dog.js';
 import { game } from './gstate.js';
-import { dist2, push_front, upstart } from './hacklib.js';
+import { atoi, dist2, push_front, upstart } from './hacklib.js';
 import { add_to_minv, stackobjRuntime } from './invent.js';
 import { set_malign } from './makemon.js';
 import { makemon } from './makemon_create.js';
@@ -1082,7 +1082,7 @@ export async function fixup_special(state = game, env = {}) {
             if (region.rname?.[0] >= '0' && region.rname[0] <= '9') {
                 destination = {
                     ...state.u.uz,
-                    dlevel: Number.parseInt(region.rname, 10),
+                    dlevel: atoi(region.rname), // mkmaze.c 595
                 };
             } else {
                 destination = env.findLevel(region.rname, state).dlevel;

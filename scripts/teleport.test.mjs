@@ -210,7 +210,7 @@ test('level_tele_trap preserves the whole C effect order in both callers', () =>
     const jsLevelTeleTrap = sourceScrolltele(
         JS_TELEPORT_SOURCE,
         'export async function level_tele_trap(',
-        "// The comparison recorder's atoi() reaches strtol()",
+        '// C ref: teleport.c random_teleport_level()',
     );
 
     assert.match(cTrapEffect,

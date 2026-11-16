@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "sit.c dosit() 520-524 (variation): a flying Knight in ring mail and wished iron shoes sits over a wished pool. On the fourth #sit the boots test passes and C rusts the ring mail again (\"Your armor rusts further!\"), not the shoes; the first sit had already rusted the ring mail once.",
+ "segments": [
+  {
+   "seed": 6290414,
+   "datetime": "20450523183000",
+   "nethackrc": "OPTIONS=name:Percival,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+   "moves": "\u0017iron shoes\nWi\u0017amulet of flying\nPj\u0017pool\n#sit\n#sit\n#sit\n#sit\n"
+  }
+ ]
+}

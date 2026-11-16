@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "sit.c throne_sit_effect() 58 (variation): \"4294967297\" is atoi() 1, the cursed-throne effect (attribute loss and damage).",
+ "segments": [
+  {
+   "seed": 8822032,
+   "datetime": "20450722093000",
+   "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+   "moves": "l\u0017throne\n#sit\n 4294967297\n "
+  }
+ ]
+}

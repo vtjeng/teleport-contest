@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "sit.c throne_sit_effect() 58: the debug-mode effect answer is atoi(), so \"4294967298\" (2^32 + 2) chooses effect 2 (\"You feel smart!\") over the random rnd(13) draw.",
+ "segments": [
+  {
+   "seed": 8822015,
+   "datetime": "20450721093000",
+   "nethackrc": "OPTIONS=name:Regent,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+   "moves": "l\u0017throne\n#sit\n 4294967298\n "
+  }
+ ]
+}

@@ -85,7 +85,7 @@ import {
     may_dig,
 } from './hack.js';
 import { mon_sanity_check, mongone, monkilled, rescham, usmellmon, xkilled } from './mon.js';
-import { dist2, encodeUtf8Text, textBytes, mungspaces, strncmpi, upstart, truncateByteString, lcase } from './hacklib.js';
+import { atoi, dist2, encodeUtf8Text, textBytes, mungspaces, strncmpi, upstart, truncateByteString, lcase } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
@@ -1390,14 +1390,7 @@ export async function wiz_migrate_mons(state = game, env = {}) {
     else
         await (env.message ?? ttyPline)("Can't get there from here.", state);
     if (!input || input[0] === '\x1b') return ECMD_OK;
-    // atoi is strtol(..., 10) narrowed to int in the LP64 reference build:
-    // retain the decimal prefix, long saturation, and 32-bit signed result.
-    const prefix = /^[ \t\n\r\v\f]*([+-]?\d+)/u.exec(input);
-    let parsed = prefix ? BigInt(prefix[1]) : 0n;
-    const longMax = (1n << 63n) - 1n, longMin = -(1n << 63n);
-    if (parsed > longMax) parsed = longMax;
-    else if (parsed < longMin) parsed = longMin;
-    let count = Number(BigInt.asIntN(32, parsed));
+    let count = atoi(input);
     const useRandom = count >= 0;
     if (count < 0) count = (-count) | 0;
     count = Math.min(Math.max(count, 0), (COLNO - 1) * ROWNO);

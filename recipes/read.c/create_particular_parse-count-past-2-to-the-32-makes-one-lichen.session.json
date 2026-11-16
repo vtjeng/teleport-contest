@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "read.c create_particular_parse() 3156 (variation): \"4294967297 lichens\" (2^32 + 1) is atoi() 1, so one lichen appears.",
+ "segments": [
+  {
+   "seed": 8822021,
+   "datetime": "20450722090000",
+   "nethackrc": "OPTIONS=name:Chiyo,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+   "moves": "\u00074294967297 lichens\n"
+  }
+ ]
+}

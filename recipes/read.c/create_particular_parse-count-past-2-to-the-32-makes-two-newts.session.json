@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "read.c create_particular_parse() 3156: the ^G count is atoi(), so \"4294967298 newts\" (2^32 + 2) keeps the low 32 bits and makes 2 newts; a count kept whole would exceed QUAN_LIMIT (3165) and fill the level.",
+ "segments": [
+  {
+   "seed": 8822013,
+   "datetime": "20450721090000",
+   "nethackrc": "OPTIONS=name:Census,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+   "moves": " \u00074294967298 newts\n"
+  }
+ ]
+}

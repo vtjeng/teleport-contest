@@ -101,6 +101,7 @@ import {
     SPBOOK_CLASS,
 } from './objects.js';
 import { body_part } from './polyself.js';
+import { atoi } from './hacklib.js';
 import { coreRandom } from './rng.js';
 import { aggravate_steps } from './wizard.js';
 import { S_altar, S_grave, S_ice, S_sink, S_throne } from './symbols.js';
@@ -338,7 +339,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
                 await message('Never mind.', state);
                 return; // sit.c: the caller still consumes a turn.
             }
-            const requested = Number.parseInt(answer ?? '', 10) || 0;
+            const requested = atoi(answer ?? '');
             if (requested >= 1 && requested <= 13) effect = requested;
         }
 
@@ -638,10 +639,12 @@ async function sit_in_water(state, random, rawEnv) {
     const { water_damage } = await import('./trap_water_damage.js');
     if (!random.rn2(10) && state.uarm)
         await water_damage(state.uarm, 'armor', true, { ...rawEnv, state, random });
+    // sit.c:523-524 tests the boots but passes uarm, so this second roll
+    // wets the body armor again (or nothing, without body armor).
     if (!random.rn2(10) && state.uarmf
         && state.uarmf.otyp !== WATER_WALKING_BOOTS) {
         await water_damage(
-            state.uarmf,
+            state.uarm,
             'armor',
             true,
             { ...rawEnv, state, random },
