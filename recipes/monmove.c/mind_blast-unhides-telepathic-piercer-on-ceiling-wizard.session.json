@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "monmove.c mind_blast() 605-606: a debug Wizard eats a wished floating eye corpse (intrinsic telepathy), engraves Elbereth so a mind flayer will not close to melee, #polyselfs into a piercer (eyeless, so Blind: telepathy senses monsters) and hides on the ceiling (#monster, u.uundetected), then creates a hostile mind flayer beside him and searches with the m prefix. The flayer's blast finds a sensed hero (m_sen), so it brings the hidden hero out of hiding before 'It locks on to your telepathy!'",
+  "segments": [
+    {
+      "seed": 8433571,
+      "datetime": "20410130213000",
+      "nethackrc": "OPTIONS=name:Elof,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017floating eye corpse\neo  E- Elbereth\n#polyself\npiercer\n   #monster\n\u0007hostile mind flayer\nms     "
+    }
+  ]
+}

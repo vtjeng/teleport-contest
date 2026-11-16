@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of eataccessory-invisible-xorn-eats-ring-of-see-invisible: a debug Rogue (seed chosen so the ring of see invisible is wire, which is iron) turns into a rust monster, which eats only rustprone metal, after quaffing invisibility, declines the short sword on the floor at each eat prompt and eats wire rings of see invisible until 2297-2300 run.",
+  "segments": [
+    {
+      "seed": 4471982,
+      "datetime": "20391204101000",
+      "nethackrc": "OPTIONS=name:Vera,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017potion of invisibility\nqg #polyself\nrust monster\n \u0017ring of see invisible\nenh\u0017ring of see invisible\neni  "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of tamedog-blessed-taming-caps-punched-kitten-wizard: dog.c tamedog() 1188-1189. A debug Caveman (no pet) creates a hostile lichen, steps beside it (it appeared diagonally in a doorway) and searches with the m prefix until it touches and sticks to him (u.ustuck, not engulfed); reading an uncursed scroll of taming then reaches tamedog() with mtmp == u.ustuck, and since the hero is not a sticky form, unstuck() releases him before the lichen is tamed.",
+  "segments": [
+    {
+      "seed": 7318840,
+      "datetime": "20400911131500",
+      "nethackrc": "OPTIONS=name:Ugg,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017scroll of taming\n\u0007hostile lichen\njmsmsmsmsmsmsrf "
+    }
+  ]
+}

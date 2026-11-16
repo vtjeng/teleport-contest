@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "dog.c tamedog() 1230: a debug Wizard with a starting kitten (mtame 10) unwields, punches the kitten once bare-handed (uhitm.c 1595 abuse_dog(): mtame 9), waits until it is adjacent again, then reads a wished blessed scroll of taming. The already-tame kitten with mtame below 10 may gain 1, then the blessed scroll adds 2, so mtame exceeds 10 and is clamped to 10.",
+  "segments": [
+    {
+      "seed": 2095561,
+      "datetime": "20410702083000",
+      "nethackrc": "OPTIONS=name:Mira,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:cat",
+      "moves": " \u0017blessed scroll of taming\nw-FjFlsrp "
+    }
+  ]
+}

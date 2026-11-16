@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of use_royal_jelly-cursed-twice-then-uncursed-on-giant-ant-egg-healer: a debug Archeologist rubs a cursed lump on a wished killer bee egg, which turns it into a queen bee egg (3649-3650) and kills its timer, then a second cursed lump finds it untimed and unchanged (3655-3656), then a blessed lump restarts the timer (3664) and marks the hatchling as the hero's (spe 2).",
+  "segments": [
+    {
+      "seed": 4823117,
+      "datetime": "20380604211500",
+      "nethackrc": "OPTIONS=name:Odo,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017killer bee egg\n\u00172 cursed lumps of royal jelly\n\u0017blessed lump of royal jelly\najiaji aki "
+    }
+  ]
+}

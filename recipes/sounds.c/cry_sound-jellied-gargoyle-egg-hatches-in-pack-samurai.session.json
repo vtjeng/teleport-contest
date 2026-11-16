@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of cry_sound-jellied-crocodile-egg-hatches-in-pack-valkyrie: sounds.c cry_sound() 647-649. A debug female Samurai rubs blessed royal jelly on a wished gargoyle egg (mon.c can_be_hatched() allows PM_GARGOYLE), then fights and searches until a gargoyle (MS_GRUNT) drops out of her pack: 'Its grunting sounds like \"mommy.\"'",
+  "segments": [
+    {
+      "seed": 1186427,
+      "datetime": "20380911201500",
+      "nethackrc": "OPTIONS=name:Akemi,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017gargoyle egg\n\u0017blessed lump of royal jelly\nagf20s20s20s20s20s20s20s20s20sFb20s20s20s20s20s20s20s 20s20s20s20s20s "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of return_throw_to_inv-twoweapon-aklys-tossed-up-rejoins-valkyrie: dothrow.c return_throw_to_inv() 1892 and 1897. A debug Priest with the autoquiver option wishes for a boomerang, wields it, swaps it to the alternate weapon slot (x), and throws it west; it loops back and is caught (throwit() 1606-1608). addinv_before() autoquivers the returned boomerang into the empty quiver, so 1892 unquivers it, and because it left the alternate slot (wep_mask W_SWAPWEP) 1897 makes it the alternate weapon again.",
+  "segments": [
+    {
+      "seed": 1752046,
+      "datetime": "20380226101500",
+      "nethackrc": "OPTIONS=name:Anselm,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,autoquiver",
+      "moves": " \u0017boomerang\nwiyxtihi\u001b"
+    }
+  ]
+}

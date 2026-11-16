@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "eat.c eataccessory() 2297-2300: a debug gnome Healer (seed chosen so the ring of see invisible is copper, a metal) quaffs a wished potion of invisibility, #polyselfs into a xorn (a metallivore that does not see invisible) and eats wished rings of see invisible until one takes effect (1 in 3, at 2280). Invisible, with no prior or extrinsic see invisible and not blind, the hero 'Suddenly can see yourself' and the ring type is discovered.",
+  "segments": [
+    {
+      "seed": 5120343,
+      "datetime": "20410825191000",
+      "nethackrc": "OPTIONS=name:Rolf,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017potion of invisibility\nql#polyself\nxorn\n\u0017ring of see invisible\nem\u0017ring of see invisible\nen\u0017ring of see invisible\neo  "
+    }
+  ]
+}

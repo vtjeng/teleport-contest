@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of merged-adjust-rustproof-daggers-with-differing-rknown-valkyrie: invent.c merged() 894-895. A debug Samurai #adjusts 5 of his 31 quivered ya to slot q (the split part is not worn), then #adjusts the quivered stack d onto q. The moving stack is worn and the target is not, so the combined worn mask holds only W_QUIVER and merged() keeps the result in the quiver ('Merging: q - 31 +0 ya (in quiver)').",
+  "segments": [
+    {
+      "seed": 8854370,
+      "datetime": "20380317203000",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " i\u001b#adjust\n5dq#adjust\ndq"
+    }
+  ]
+}

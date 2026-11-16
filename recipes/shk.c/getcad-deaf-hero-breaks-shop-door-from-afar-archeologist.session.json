@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of getcad-deaf-hero-digs-shop-wall-from-afar-archeologist: a debug Archeologist arrives inside another Dlvl 3 general store (same scan), wizard-teleports outside its closed west door, steps one more square west, deafens herself with a leather drum and zaps a wand of striking east; the door is destroyed and the keeper 'is quite upset that someone decided to destroy her door!' (5165-5168).",
+  "segments": [
+    {
+      "seed": 8810062,
+      "datetime": "20410214120000",
+      "nethackrc": "OPTIONS=name:Ari,role:Archeologist,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": "\u00163\n  \u0014 \nhhhhk.  h\u0017leather drum\naj\u0017wand of striking\nzkl "
+    }
+  ]
+}

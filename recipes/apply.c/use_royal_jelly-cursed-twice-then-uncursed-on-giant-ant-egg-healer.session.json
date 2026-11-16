@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "apply.c use_royal_jelly() 3655-3656 and 3664: a debug Healer wishes for a giant ant egg (objnam.c set_corpsenm() starts its hatch timer), two cursed lumps and one uncursed lump of royal jelly. The first cursed lump finds the egg timed, so it 'quivers feebly' and kill_egg() stops the timer; the second cursed lump finds an untimed egg of the same species, so 'Nothing seems to happen' (3655-3656); the uncursed lump then finds an untimed egg with a species and restarts its timer (3664), so 'The egg quivers briefly'.",
+  "segments": [
+    {
+      "seed": 7314529,
+      "datetime": "20410317093000",
+      "nethackrc": "OPTIONS=name:Ilse,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017giant ant egg\n\u00172 cursed lumps of royal jelly\n\u0017uncursed lump of royal jelly\namlamlanl"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkobj.c shrink_glob() 1614, with container_weight() 2737: a debug Valkyrie wishes for a glob of gray ooze and two sacks, stashes the glob in one sack and that sack in the other, then searches until the glob's shrink timer fires. The glob is contained but not in open inventory, so shrink_glob() walks up from its sack to the outermost one (1612-1614) and recomputes the nested container weights.",
+  "segments": [
+    {
+      "seed": 4405129,
+      "datetime": "20400316093000",
+      "nethackrc": "OPTIONS=name:Embla,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u0017glob of gray ooze\n\u0017sack\n\u0017sack\nafseagsf20s20s20s20s20s"
+    }
+  ]
+}

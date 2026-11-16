@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of hmon_hitmon_misc_obj-hero-hits-newt-with-own-jellied-egg-tourist: a debug Samurai jellies and wields 5 giant ant eggs and hits a hostile newt; with 5 or more eggs the Luck penalty is capped at 5 (1197, 1199-1201).",
+  "segments": [
+    {
+      "seed": 8127743,
+      "datetime": "20390801121500",
+      "nethackrc": "OPTIONS=name:Hiro,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none",
+      "moves": " \u00175 giant ant eggs\n\u0017blessed lump of royal jelly\nagfwf\u0007hostile newt\nFu \u0018\u001b"
+    }
+  ]
+}
