@@ -849,13 +849,13 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     if (Math.trunc(obj.quan ?? 1) === 1) {
         if (monster.mw === obj)
             await setmnotwielded(monster, obj, env);
-        obj_extract_self(obj, env);
+        await obj_extract_self(obj, env);
         singleobj = obj;
     } else {
         // C splitobj(obj, 1L) keeps the parent stack in monster inventory;
         // obj_extract_self() moves the one missile into OBJ_FREE.
         singleobj = await splitobj(obj, 1, env);
-        obj_extract_self(singleobj, env);
+        await obj_extract_self(singleobj, env);
     }
     state.gt ??= {};
     state.gt.thrownobj = singleobj;
