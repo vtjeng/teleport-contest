@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c status_hilite_menu_add 3958 and 4057: trimspaces() skips but keeps leading blanks in inbuf, which status_hilite_menu_choose_updownboth() quotes in its menu (\"Better (lower) than   3\"); the colour prompt quotes numstart (\"less than 3\"). Seed and inputs chosen for this review.",
+  "segments": [
+    {
+      "seed": 51150501,
+      "datetime": "20570214091530",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": ".#optionsfull\n:status highlight rules\n\n:armor-class\nn  3\na\u001b\u001b\u001b\u001b\u001b."
+    }
+  ]
+}
