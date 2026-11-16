@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wizcmds.c wiz_intrinsic() 1068: slippery fingers goes through make_glib((int) newtimeout). A debug-mode elven Ranger takes the default 30 turns, then adds 2147483647: the long sum 2147483677 wraps to a negative int, itimeout() makes it 0 and Glib ends, though the message still says 'increased by 2147483647'. #timeout then reports no timed properties. Seed, date, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 6620417,
+      "datetime": "20270923170500",
+      "nethackrc": "OPTIONS=name:Lirael,role:Ranger,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug\n",
+      "moves": "\n#wizintrinsic\nl\n\u001b#wizintrinsic\n2147483647l\n\u001b#timeout\n\u001b"
+    }
+  ]
+}

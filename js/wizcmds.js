@@ -616,7 +616,9 @@ export async function wiz_intrinsic(state = game, rawEnv = {}) {
             // intrinsic fields.
             await make_deaf(newTimeout, true, state);
         } else if (property === GLIB) {
-            make_glib(newTimeout, state);
+            // C passes (int) newtimeout (wizcmds.c 1068): a sum past
+            // INT_MAX wraps negative, and itimeout() then clears Glib.
+            make_glib(newTimeout | 0, state);
             state.disp.botl = true;
             await ttyPline(
                 `Timeout for ${name} ${oldTimeout ? 'increased by' : 'set to'} `
