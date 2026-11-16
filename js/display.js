@@ -6535,7 +6535,7 @@ function _statusFuzzyText(value) {
 // ignore set: "(polymorphed)" skips only quotes and parentheses, so
 // "poly-morphed" names no rule there, and "none of the above" does not skip
 // parentheses.
-function noneoftheabove(hl_text) {
+export function noneoftheabove(hl_text) {
     if (fuzzymatch(hl_text, 'none of the above', '" -_', true)
         || fuzzymatch(hl_text, '(polymorphed)', '"()', true)
         || fuzzymatch(hl_text, 'none of the above (polymorphed)',
