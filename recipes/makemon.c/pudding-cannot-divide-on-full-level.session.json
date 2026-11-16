@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "makemon.c clone_mon() 863: a pudding hit with an iron weapon cannot divide because enexto() finds no spot for the clone. A debug Priest level-teleports to the first level of Vlad's Tower (small, so the fill stays well under the 120-birth extinction limit that would stop clone_mon() earlier), creates a hostile brown pudding beside her, fills every other spot a brown pudding can occupy with '0 peaceful brown pudding' (^G with quantity 0), and fights the hostile one with her mace. The hit that would split it runs 863 and no 'divides' message follows.",
+  "segments": [
+    {
+      "seed": 3301457,
+      "datetime": "20381201120000",
+      "nethackrc": "OPTIONS=name:Filler,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time,!tips\n",
+      "moves": "\u0016?\n>G\u0007brown pudding\n\u00070 peaceful brown pudding\nFkFk\u001b"
+    }
+  ]
+}
