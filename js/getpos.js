@@ -408,7 +408,13 @@ async function getpos_help(force, goal, state = game) {
             state,
         );
     }
-    if (goal !== 'a monster'
+    // C ref: getpos.c 204-205 `goto skip_non_mons`.  The label is inside the
+    // `if (!iflags.terrainmode)` block below, so a monster goal leaves out
+    // every line from the object keys through the autodescribe key, the
+    // fast-move, menu, filter and valid-location lines included, and then
+    // prints the pick lines whatever terrainmode holds.
+    const skipNonMons = goal === 'a monster';
+    if (!skipNonMons
         && (!terrainmode || (terrainmode & TER_OBJ) !== 0)) {
         getpos_help_keyxhelp(
             lines,
@@ -418,7 +424,7 @@ async function getpos_help(force, goal, state = game) {
             state,
         );
     }
-    if (goal !== 'a monster'
+    if (!skipNonMons
         && (!terrainmode || (terrainmode & TER_MAP) !== 0)) {
         getpos_help_keyxhelp(
             lines,
@@ -442,41 +448,44 @@ async function getpos_help(force, goal, state = game) {
             state,
         );
     }
-    lines.push(
-        `Use '${getposSpecialKeyText('getpos.moveskip', state)}' to change `
-        + `fast-move mode to ${fastMoveMode[Number(!Boolean(
-            state.iflags?.getloc_moveskip,
-        ))]}.`,
-    );
-    if (!terrainmode || (terrainmode & TER_DETECT) === 0) {
+    if (!skipNonMons) {
         lines.push(
-            `Use '${getposSpecialKeyText('getpos.menu', state)}' to toggle menu `
-            + 'listing for possible targets.',
+            `Use '${getposSpecialKeyText('getpos.moveskip', state)}' to change `
+            + `fast-move mode to ${fastMoveMode[Number(!Boolean(
+                state.iflags?.getloc_moveskip,
+            ))]}.`,
         );
-        lines.push(
-            `Use '${getposSpecialKeyText('getpos.filter', state)}' to change the `
-            + 'mode of limiting possible targets.',
-        );
+        if (!terrainmode || (terrainmode & TER_DETECT) === 0) {
+            lines.push(
+                `Use '${getposSpecialKeyText('getpos.menu', state)}' to toggle menu `
+                + 'listing for possible targets.',
+            );
+            lines.push(
+                `Use '${getposSpecialKeyText('getpos.filter', state)}' to change the `
+                + 'mode of limiting possible targets.',
+            );
+        }
     }
-    if (!terrainmode) {
-        if (state.getpos_getvalid) {
+    if (skipNonMons || !terrainmode) {
+        if (!skipNonMons) {
+            if (state.getpos_getvalid) {
+                lines.push(
+                    `Use '${getposSpecialKeyText('getpos.valid.next', state)}' or `
+                    + `'${getposSpecialKeyText('getpos.valid.prev', state)}' to move `
+                    + 'to valid locations.',
+                );
+            }
+            if (state.getpos_hilitefunc) {
+                lines.push(
+                    `Use '${getposSpecialKeyText('getpos.valid', state)}' to `
+                    + 'toggle marking of valid locations.',
+                );
+            }
             lines.push(
-                `Use '${getposSpecialKeyText('getpos.valid.next', state)}' or `
-                + `'${getposSpecialKeyText('getpos.valid.prev', state)}' to move `
-                + 'to valid locations.',
+                `Use '${getposSpecialKeyText('getpos.autodescribe', state)}' to `
+                + 'toggle automatic description.',
             );
         }
-        if (state.getpos_hilitefunc) {
-            lines.push(
-                `Use '${getposSpecialKeyText('getpos.valid', state)}' to `
-                + 'toggle marking of valid locations.',
-            );
-        }
-        lines.push(
-            `Use '${getposSpecialKeyText('getpos.autodescribe', state)}' to `
-            + 'toggle automatic description.',
-        );
-
         // C compares this pointer with pager.c's static string, so use the
         // same value for the JavaScript pager caller.
         const doingWhatIs = goal === GETPOS_WHAT_IS_A_LOCATION;

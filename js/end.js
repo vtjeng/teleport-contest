@@ -106,6 +106,7 @@ import {
     In_tutorial,
     LL_DUMP,
     LL_LIFESAVE,
+    BUFSZ,
 } from './const.js';
 import { mk_named_object } from './corpstat.js';
 import { bot, status_finish } from './display.js';
@@ -787,7 +788,7 @@ export async function done(how, state = game, source = {}) {
                 'Unfortunately you are still genocided...', state,
             );
         } else {
-            const killbuf = formatkiller(how, false, state);
+            const killbuf = formatkiller(how, false, state, BUFSZ);
             livelog_printf(
                 LL_LIFESAVE, `averted death (${killbuf})`, state,
             );
@@ -1367,7 +1368,7 @@ async function really_done(how, state) {
     // the final dump records, and livelog_printf() keeps the LL_DUMP event in
     // the in-memory Chronicle even though the external dump file is absent.
     if (how !== PANICKED) {
-        const deathBuf = formatkiller(how, true, state);
+        const deathBuf = formatkiller(how, true, state, BUFSZ);
         livelog_printf(LL_DUMP, deathBuf || deaths[how] || '', state);
     }
 
@@ -1394,7 +1395,12 @@ async function really_done(how, state) {
         corpse = mk_named_object(
             CORPSE, mnum, state.u.ux, state.u.uy, state.plname, { state },
         );
-        const graveText = `${state.plname}, ${formatkiller(how, true, state)}`;
+        // C: Sprintf(pbuf, "%s, ", plname) then formatkiller(eos(pbuf),
+        // sizeof pbuf - Strlen(pbuf), ...).
+        const gravePrefix = `${state.plname}, `;
+        const graveText = gravePrefix + formatkiller(
+            how, true, state, BUFSZ - gravePrefix.length,
+        );
         make_grave(state.u.ux, state.u.uy, graveText, { state });
         const loc = state.level.at(state.u.ux, state.u.uy);
         if (loc && IS_GRAVE(loc.typ) && !wasAlreadyGrave) {
@@ -1749,7 +1755,7 @@ function genl_outrip(textLines, how, when, state) {
     center(dp, GOLD_LINE, `${cash} Au`);
 
     // Put death description on stone
-    const deathBuf = formatkiller(how, false, state);
+    const deathBuf = formatkiller(how, false, state, BUFSZ);
     let dpx = deathBuf;
     for (let line = DEATH_LINE; line < YEAR_LINE; line++) {
         let i0 = dpx.length;

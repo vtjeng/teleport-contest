@@ -66,7 +66,7 @@ import {
     save_exclusions,
     copy_lastseentyp_grid, lastseentyp_grid,
 } from './dungeon.js';
-import { formatkiller } from './topten.js';
+import { DTHSZ, formatkiller } from './topten.js';
 import { game } from './gstate.js';
 import { yyyymmddhhmmss } from './calendar.js';
 import {
@@ -770,7 +770,7 @@ export async function savebones(how, when, corpse, state) {
              `${state.urace?.filecode ?? '???'}-` +
              `${genders[state.flags.female ? 1 : 0]?.filecode ?? '???'}-` +
              `${aligns[1 - (state.u.ualign?.type ?? 0)]?.filecode ?? '???'}`,
-        how: formatkiller(how, true, state),
+        how: formatkiller(how, true, state, DTHSZ + 1),
         when: yyyymmddhhmmss(state, when),
         frpx: state.u.ux0,
         frpy: state.u.uy0,

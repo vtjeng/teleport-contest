@@ -69,6 +69,7 @@ import {
     VIBRATING_SQUARE,
     VISITED,
     plur,
+    BUFSZ,
 } from './const.js';
 import {
     AD_DGST, AD_WRAP, AT_ENGL, PM_DWARF,
@@ -2280,7 +2281,7 @@ export function print_mapseen(
         if (knownCount) {
             appendInterest(items, '      Final resting place for');
             if (diedHere) {
-                let killer = formatkiller(how, true, state)
+                let killer = formatkiller(how, true, state, BUFSZ)
                     .replaceAll(' himself', ' yourself')
                     .replaceAll(' herself', ' yourself')
                     .replaceAll(' his ', ' your ')

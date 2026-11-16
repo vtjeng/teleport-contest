@@ -1,0 +1,11 @@
+{
+ "version": 5,
+ "segments": [
+  {
+   "seed": 4471903,
+   "datetime": "20410322091530",
+   "nethackrc": "OPTIONS=name:Helpless,role:Priest,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+   "moves": "#wizkill\n ? \u001b"
+  }
+ ]
+}

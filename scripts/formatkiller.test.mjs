@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    BUFSZ,
     CHOKING,
     DIED,
     KILLED_BY,
@@ -11,7 +12,7 @@ import {
     PANICKED,
     QUIT,
 } from '../js/const.js';
-import { formatkiller } from '../js/topten.js';
+import { DTHSZ, formatkiller } from '../js/topten.js';
 
 const TOPTEN_C = readFileSync(
     new URL('../nethack-c/upstream/src/topten.c', import.meta.url), 'utf8',
@@ -38,7 +39,7 @@ test('formatkiller with KILLED_BY_AN prepends article and prefix', () => {
         killer: { name: 'falling rock trap', format: KILLED_BY_AN },
         multi: 0,
     };
-    const result = formatkiller(DIED, true, state);
+    const result = formatkiller(DIED, true, state, BUFSZ);
     assert.equal(result, 'killed by a falling rock trap');
 });
 
@@ -49,7 +50,7 @@ test('formatkiller with KILLED_BY uses prefix without article', () => {
         killer: { name: 'food ration', format: KILLED_BY },
         multi: 0,
     };
-    const result = formatkiller(CHOKING, false, state);
+    const result = formatkiller(CHOKING, false, state, BUFSZ);
     assert.equal(result, 'choked on food ration');
 });
 
@@ -59,7 +60,7 @@ test('formatkiller with NO_KILLER_PREFIX uses killer name only', () => {
         killer: { name: 'quit', format: NO_KILLER_PREFIX },
         multi: 0,
     };
-    const result = formatkiller(QUIT, false, state);
+    const result = formatkiller(QUIT, false, state, BUFSZ);
     assert.equal(result, 'quit');
 });
 
@@ -70,7 +71,7 @@ test('formatkiller sanitizes commas and equals in killer name', () => {
         killer: { name: 'named,danger=extreme', format: NO_KILLER_PREFIX },
         multi: 0,
     };
-    const result = formatkiller(QUIT, false, state);
+    const result = formatkiller(QUIT, false, state, BUFSZ);
     assert.equal(result, 'named;danger_extreme');
 });
 
@@ -83,7 +84,7 @@ test('formatkiller appends helpless reason when multi < 0', () => {
         multi: -3,
         multi_reason: 'sleeping',
     };
-    const result = formatkiller(DIED, true, state);
+    const result = formatkiller(DIED, true, state, BUFSZ);
     assert.equal(result, 'killed by a gnome, while sleeping');
 });
 
@@ -96,7 +97,7 @@ test('formatkiller appends generic helpless when multi_reason is missing', () =>
         multi: -1,
         multi_reason: null,
     };
-    const result = formatkiller(DIED, true, state);
+    const result = formatkiller(DIED, true, state, BUFSZ);
     assert.equal(result, 'killed by a troll, while helpless');
 });
 
@@ -109,7 +110,7 @@ test('formatkiller omits helpless when incl_helpless is false', () => {
         multi: -1,
         multi_reason: 'sleeping',
     };
-    const result = formatkiller(DIED, false, state);
+    const result = formatkiller(DIED, false, state, BUFSZ);
     assert.equal(result, 'killed by a troll');
 });
 
@@ -120,6 +121,78 @@ test('formatkiller default case falls through to NO_KILLER_PREFIX', () => {
     const state = {
         killer: { name: 'mysterious force', format: 99 },
     };
-    const result = formatkiller(DIED, false, state);
+    const result = formatkiller(DIED, false, state, BUFSZ);
     assert.equal(result, 'mysterious force');
+});
+
+// A 61-letter name, "a dog called " plus it is 74 bytes: the longest a
+// #name-d dog's killer text gets before the reason cannot fit.  The values
+// below are worked through topten.c 119-161 by hand for a DTHSZ + 1 (101)
+// byte buffer, the size topten() (694) and savebones() (bones.c 585) pass.
+const LONG_NAME = 'B'.repeat(61);
+
+test('formatkiller drops a reason that does not fit a topten entry', () => {
+    // After "killed by " siz is 91; copying 74 bytes and meeting the
+    // terminator leaves 91 - 75 = 16.  "sleeping" needs 8 + 9 = 17 and
+    // ", while helpless" needs 17, so C appends nothing.  Before the fix
+    // the port appended ", while sleeping" and cut the result at 100.
+    const state = {
+        killer: { name: `dog called ${LONG_NAME}`, format: KILLED_BY_AN },
+        multi: -5,
+        multi_reason: 'sleeping',
+    };
+    assert.equal(
+        formatkiller(DIED, true, state, DTHSZ + 1),
+        `killed by a dog called ${LONG_NAME}`,
+    );
+});
+
+test('formatkiller falls back to "while helpless" when the reason is long', () => {
+    // A 47-letter name makes the copied text 60 bytes, so 91 - 61 = 30 is
+    // left.  "fainted from lack of food" (eat.c) needs 25 + 9 = 34 > 30, but
+    // ", while helpless" needs 17 <= 30.  The port used to print the
+    // reason itself, cut to "...lack of foo".
+    const name = 'C'.repeat(47);
+    const state = {
+        killer: { name: `dog called ${name}`, format: KILLED_BY_AN },
+        multi: -3,
+        multi_reason: 'fainted from lack of food',
+    };
+    assert.equal(
+        formatkiller(DIED, true, state, DTHSZ + 1),
+        `killed by a dog called ${name}, while helpless`,
+    );
+});
+
+test('formatkiller keeps a reason that fits exactly', () => {
+    // A 60-letter name: 73 bytes copied leaves 91 - 74 = 17, and
+    // "sleeping" needs exactly 17, so C keeps it; the text is 99 bytes.
+    const name = 'D'.repeat(60);
+    const state = {
+        killer: { name: `dog called ${name}`, format: KILLED_BY_AN },
+        multi: -5,
+        multi_reason: 'sleeping',
+    };
+    assert.equal(
+        formatkiller(DIED, true, state, DTHSZ + 1),
+        `killed by a dog called ${name}, while sleeping`,
+    );
+});
+
+test('formatkiller cuts an over-long name at siz - 1 bytes', () => {
+    // A 120-byte NO_KILLER_PREFIX name in a 101-byte buffer: the copy loop
+    // stops when --siz reaches 0, after 100 bytes, and no suffix fits.
+    const state = {
+        killer: { name: 'E'.repeat(120), format: NO_KILLER_PREFIX },
+        multi: -1,
+        multi_reason: 'sleeping',
+    };
+    assert.equal(formatkiller(DIED, true, state, DTHSZ + 1), 'E'.repeat(100));
+});
+
+test('formatkiller refuses a call without C\'s buffer size', () => {
+    // Every C caller passes its buffer's size; a JS caller that omits it
+    // would silently keep text C cuts, which is the defect fixed here.
+    const state = { killer: { name: 'newt', format: KILLED_BY_AN }, multi: 0 };
+    assert.throws(() => formatkiller(DIED, false, state), TypeError);
 });
