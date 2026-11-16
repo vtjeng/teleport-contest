@@ -26,7 +26,6 @@ import {
     M_SEEN_COLD,
     M_SEEN_ELEC,
     M_SEEN_FIRE,
-    NEED_HTH_WEAPON,
     NEED_WEAPON,
     NO_WEAPON_WANTED,
     PIT,
@@ -570,8 +569,6 @@ function meleeEnv(state, rolls, extra = {}) {
             redraw: () => {},
             markInvisible: () => {},
             statusRefresh: async () => {},
-            wieldMonsterItem: async () => 0,
-            throwRangedWeapon: () => {},
             ...envExtra,
         },
     };
@@ -2512,25 +2509,23 @@ test('mattacku wields for an attacker with an empty hand', async () => {
     const goblin = meleeAttacker(state, PM_GOBLIN, 1, 0, {
         weapon_check: NO_WEAPON_WANTED,
     });
-    let wields = 0;
-    const bare = meleeEnv(state, [17], {
-        wieldMonsterItem: async () => { wields += 1; return 0; },
-    });
+    const bare = meleeEnv(state, [17]);
     assert.equal(await mattacku(goblin, bare.env), false);
-    assert.equal(wields, 1);
-    assert.equal(goblin.weapon_check, NEED_HTH_WEAPON);
+    // mattacku() asked for NEED_HTH_WEAPON; mon_wield_item() found nothing
+    // to wield in the empty pack and reset the request to NEED_WEAPON.
+    assert.equal(goblin.weapon_check, NEED_WEAPON);
+    assert.equal(goblin.mw, null);
 
     // A nonzero answer means mon_wield_item() printed and took the turn, so
-    // C breaks out of the loop before rolling.
-    goblin.mw = mksobj(LONG_SWORD, false, false, { state });
-    goblin.weapon_check = NEED_WEAPON;
-    const took = meleeEnv(state, [17], {
-        wieldMonsterItem: async () => { wields += 1; return 1; },
-    });
+    // C breaks out of the loop before rolling. A long sword in the pack
+    // gives select_hwep() something to wield.
+    const sword = mksobj(LONG_SWORD, false, false, { state });
+    add_to_minv(goblin, sword, { state });
+    const took = meleeEnv(state, [17]);
     assert.equal(await mattacku(goblin, took.env), false);
-    assert.equal(wields, 2);
+    assert.equal(goblin.mw, sword);
     assert.deepEqual(took.bounds, []);
-    assert.deepEqual(took.lines, []);
+    assert.deepEqual(took.lines, ['The goblin wields a long sword!']);
 });
 
 test('mattacku swings only where mswings() would print', async () => {

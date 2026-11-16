@@ -1776,12 +1776,6 @@
       "c": null,
       "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
-    "js/mhitu.js | requireMattackuOperation | `mattacku requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/mineralize.js | mineralizeEnv | `mineralize random injection requires ${name}()`": {
       "count": 1,
       "class": "invariant",

@@ -93,8 +93,6 @@ function steedTestEnv(state, random) {
         lines,
         message: async (text) => { lines.push(text); },
         statusRefresh: async () => {},
-        throwRangedWeapon: () => {},
-        wieldMonsterItem: async () => 0,
         wieldMonsterItemAgainstMonster: async () => 0,
     };
 }

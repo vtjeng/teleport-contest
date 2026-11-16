@@ -84,7 +84,6 @@ import {
 } from '../js/const.js';
 import { eatfood } from '../js/eat.js';
 import { game } from '../js/gstate.js';
-import { losehp } from '../js/hack.js';
 import { tamedog } from '../js/dog.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { initworm } from '../js/worm.js';
@@ -155,10 +154,6 @@ import { objectGenerationEnv } from '../js/object_generation.js';
 import { setworn } from '../js/worn.js';
 import { Ring_on, setwornEnv } from '../js/do_wear.js';
 import { healup } from '../js/potion.js';
-import { castmu } from '../js/mcastu.js';
-import { use_offensive } from '../js/muse.js';
-import { capitalizedMonsterName, mon_nam } from '../js/do_name.js';
-import { encumber_msg } from '../js/pickup.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifacts.js';
 import {
@@ -562,34 +557,11 @@ async function runLiveMonsterScan() {
 }
 
 function directMattackuEnv(state, random, messages) {
-    const message = async text => {
-        messages.push(text);
-    };
-    const loseSpellHp = async (amount, killer, format) =>
-        losehp(amount, killer, format, state, {
-            state,
-            fromMonster: true,
-            message,
-        });
     return {
         state,
         random,
-        message,
-        useOffensiveItem: use_offensive,
-        castMonsterSpell: (subject, attack, thinksFound, found, spellEnv) => {
-            const spellState = spellEnv.state ?? state;
-            const spellMessage = spellEnv.message ?? message;
-            return castmu(subject, attack, thinksFound, found, {
-                ...spellEnv,
-                state: spellState,
-                random: spellEnv.random ?? random,
-                losehp: loseSpellHp,
-                encumberMessage: encumber_msg,
-                monsterName: monster =>
-                    capitalizedMonsterName(monster, spellState),
-                monnam: monster => mon_nam(monster, spellState, spellEnv),
-                message: spellMessage,
-            });
+        message: async text => {
+            messages.push(text);
         },
     };
 }

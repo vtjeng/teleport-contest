@@ -203,7 +203,7 @@ import {
 } from './mondata.js';
 import { monnear, onscary, set_apparxy } from './monmove.js';
 import * as M from './monsters.js';
-import { find_offensive_steps } from './muse.js';
+import { find_offensive_steps, use_offensive } from './muse.js';
 import { mon_reflects, ureflects } from './muse.js';
 import { makeplural } from './fruit.js';
 import { is_weptool, is_wet_towel, objectType } from './obj.js';
@@ -277,9 +277,9 @@ import {
     m_canseeu,
     vision_recalc_async,
 } from './vision.js';
-import { hitval } from './weapon.js';
+import { hitval, mon_wield_item } from './weapon.js';
 import { is_pole, setworn, which_armor, find_mac } from './worn.js';
-import { breamu, spitmu } from './mthrowu.js';
+import { breamu, m_throw, spitmu, thrwmu } from './mthrowu.js';
 import { mnexto } from './mon.js';
 import {
     body_part,
@@ -328,6 +328,10 @@ import {
     Protection_from_shape_changers, Reflecting, See_invisible, Sick,
     Slow_digestion, Stone_resistance, Unaware, Punished,
 } from './youprop.js';
+// js/mcastu.js imports mdamageu() from this file; castmu() and buzzmu() are
+// hoisted function declarations, which an ES module cycle initializes before
+// either module body runs.
+import { buzzmu, castmu } from './mcastu.js';
 
 // C ref: mhitu.c u_slow_down() (163-171).  The self-zap and monster-action
 // callers share this owner: HFast is cleared in one operation, leaving any
@@ -537,13 +541,6 @@ export async function cloneu(rawState = game, rawEnv = {}) {
     state.u.mh -= monster.mhp;
     state.disp.botl = true;
     return monster;
-}
-
-function requireMattackuOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`mattacku requires a ${name} operation`);
-    return operation;
 }
 
 
@@ -1766,11 +1763,16 @@ export async function mattacku(monster, rawEnv = {}) {
     /* Unlike defensive stuff, don't let them use item _and_ attack. */
     if (await finish_steps(find_offensive_steps(monster, env),
         impossible_printer(state))) {
-        const useOffensiveItem = requireMattackuOperation(
-            env,
-            'useOffensiveItem',
-        );
-        const offended = await useOffensiveItem(monster, env);
+        // muse.c use_offensive() names the thrower of a hurled potion with
+        // Monnam() and sends it through m_throw(); js/muse.js takes both as
+        // operations.
+        const offended = await use_offensive(monster, {
+            ...env,
+            monsterName: (mtmp) => capitalizedMonsterName(mtmp, state, {
+                displayRandom: env.displayRandom,
+            }),
+            throwMissile: m_throw,
+        });
         if (offended !== 0) return offended === 1 ? 1 : 0;
     }
 
@@ -1922,11 +1924,8 @@ export async function mattacku(monster, rawEnv = {}) {
 
         case M.AT_WEAP:
             if (range2) {
-                if (!on_level(u.uz, state.rogue_level)) {
-                    await requireMattackuOperation(
-                        env, 'throwRangedWeapon',
-                    )(monster, env);
-                }
+                if (!on_level(u.uz, state.rogue_level))
+                    await thrwmu(monster, env);
             } else {
                 let hittmp = 0;
 
@@ -1937,10 +1936,7 @@ export async function mattacku(monster, rawEnv = {}) {
                 if (monster.weapon_check === NEED_WEAPON || !monster.mw) {
                     monster.weapon_check = NEED_HTH_WEAPON;
                     /* mon_wield_item resets weapon_check as appropriate */
-                    const wieldMonsterItem = requireMattackuOperation(
-                        env, 'wieldMonsterItem',
-                    );
-                    if (await wieldMonsterItem(monster, env) !== 0)
+                    if (await mon_wield_item(monster, env) !== 0)
                         break;
                 }
                 if (foundyou) {
@@ -1984,17 +1980,27 @@ export async function mattacku(monster, rawEnv = {}) {
 
         case M.AT_MAGC:
             if (range2) {
-                const castRangedSpell = requireMattackuOperation(
-                    env, 'castRangedSpell',
-                );
-                sum[i] = await castRangedSpell(monster, mattk, env);
+                // mcastu.c buzzmu() names the caster with Monnam().
+                sum[i] = await buzzmu(monster, mattk, {
+                    ...env,
+                    monsterName: (mtmp) => capitalizedMonsterName(mtmp, state),
+                });
             } else {
-                const castMonsterSpell = requireMattackuOperation(
-                    env, 'castMonsterSpell',
-                );
-                sum[i] = await castMonsterSpell(
-                    monster, mattk, true, foundyou, env,
-                );
+                // js/mcastu.js castmu() takes Monnam(), mon_nam() and the
+                // spell damage's losehp() as operations. A monster's spell
+                // is damage from a monster.
+                sum[i] = await castmu(monster, mattk, true, foundyou, {
+                    ...env,
+                    losehp: env.losehp ?? ((n, knam, format) => losehp(
+                        n, knam, format, state,
+                        { ...env, fromMonster: true },
+                    )),
+                    encumberMessage: env.encumberMessage ?? encumber_msg,
+                    monsterName: (mtmp) => capitalizedMonsterName(mtmp, state, {
+                        displayRandom: env.displayRandom,
+                    }),
+                    monnam: (mtmp) => mon_nam(mtmp, state, env),
+                });
             }
             break;
 
