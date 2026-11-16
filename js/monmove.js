@@ -2030,8 +2030,9 @@ export async function monfleeMessage(monster, detail, env = {}) {
         break;
     }
     case 'bright-light':
-        // C's verbalize(), which records no location.
-        if (!state.flags.acoustics) return;
+        // C's verbalize(), which records no location. pline.c verbalize()
+        // has no acoustics gate (You_hear() does), and the caller has
+        // already excluded a Deaf hero.
         return message('"Bright light!"', state, env);
     default:
         text = `${Monnam(monster, state)} turns to flee.`;
