@@ -1657,7 +1657,7 @@ test('pet highlighting preserves the source tty attribute state', () => {
     }
 });
 
-test('menu command options preserve source alias order and require full names', () => {
+test('menu command options preserve source alias order and ignore abbreviations', () => {
     const defaults = parseNethackrc('');
     assert.equal(defaults.iflags.mapped_menu_cmds, '');
     assert.equal(defaults.iflags.mapped_menu_op, '');
@@ -1690,12 +1690,14 @@ test('menu command options preserve source alias order and require full names', 
     assert.equal(acrossLines.iflags.mapped_menu_op, ':>');
 
     // The outer option lookup recognizes these unambiguous prefixes, but
-    // shared_menu_optfn() rechecks against the complete canonical name.
+    // shared_menu_optfn() rechecks against the complete canonical name:
+    // check_misc_menu_command() answers -1, the handler optn_err, and
+    // parseoptions() FALSE with no message (options.c 2060-2062, 664-671).
     for (const abbreviated of ['menu_sea', 'menu_n', 'menu_f']) {
-        assert.throws(
-            () => parseNethackrc(`OPTIONS=${abbreviated}:#`),
-            /requires its full canonical name/u,
-        );
+        const parsed = parseNethackrc(`OPTIONS=${abbreviated}:#\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], abbreviated);
+        assert.equal(parsed.iflags.mapped_menu_cmds, '', abbreviated);
+        assert.equal(parsed.iflags.mapped_menu_op, '', abbreviated);
     }
 
     // spcfn_misc_menu_cmd() reads its value with string_for_opt(opts, FALSE),

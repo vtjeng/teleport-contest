@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Source review 5a: parseoptions() matches the abbreviation menu_first_pa to the menu_first_page row, but shared_menu_optfn() (options.c 2054-2062) refuses it because check_misc_menu_command() (695-707) wants the complete name and returns -1, so the statement fails silently; the full menu_last_page:} beside it is applied. The help menu's 'List menu control keys' entry shows First page still on '^' and Last page on '}'.",
+  "segments": [
+    {
+      "seed": 23950761,
+      "datetime": "20390827155214",
+      "nethackrc": "OPTIONS=name:Osgood,role:Tourist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=menu_first_pa:{\nOPTIONS=menu_last_page:}\n",
+      "moves": "\n?l  l"
+    }
+  ]
+}
