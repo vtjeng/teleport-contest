@@ -1200,12 +1200,6 @@
       "c": null,
       "reason": "Replay harness contract (input queue, display, or module-level game); no C counterpart."
     },
-    "js/hack.js | domove_swap_with_pet | 'pet swap requires a message operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/hack.js | dump_weights | 'dump_weights requires an initialized monster catalog'": {
       "count": 1,
       "class": "invariant",
@@ -1217,12 +1211,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
-    "js/hack.js | requiredMessageOperation | `${arm} requires a message operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/hack.js | rounddiv | 'division by zero in rounddiv'": {
       "count": 1,
