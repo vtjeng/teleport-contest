@@ -1,13 +1,15 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
+import { initialGb } from '../js/gstate.js';
 import {
     botl_incapacitated_conditions, condopt, status_condition_cache_keys,
 } from '../js/display.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
-const fresh = () => ({ multi: 0, u: { usleep: 0 },
+// gb is the struct js/gstate.js initialGb() builds for every game.
+const fresh = () => ({ multi: 0, u: { usleep: 0 }, gb: initialGb(),
     iflags: { status_conditions: {
         unconscious: true, paralyzed: true, sleep: true, busy: true,
     } } });
