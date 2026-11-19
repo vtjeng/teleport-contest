@@ -92,7 +92,7 @@ import { MAXMCLASSES } from './symbols.js';
 // monstunseesu() below reads m_canseeu(), which reads perceives() from this
 // file; the two modules reach each other the way this file and js/dungeon.js
 // already do, and neither side uses the other's exports at module scope.
-import { m_canseeu } from './vision.js';
+import { clear_path, m_canseeu } from './vision.js';
 import { mon_has_amulet } from './wizard.js';
 import { note_unported } from './unported.js';
 
@@ -783,14 +783,9 @@ export function mon_learns_traps(monster, trapType) {
 // remembers that type, which is what makes mintrap()'s `already_seen` arm
 // reachable on a later trigger.
 //
-// m_cansee() is vision.h:42, a clear_path() macro. js/vision.js cannot be
-// imported here: js/vision.js reaches js/mondata.js through js/display.js and
-// js/startup_a11y.js, so the caller supplies the predicate instead.
+// m_cansee() is vision.h:42, clear_path() from the monster's square.
 export function mons_see_trap(trap, env = {}) {
     const state = env.state ?? game;
-    const mCansee = env.mCansee;
-    if (typeof mCansee !== 'function')
-        throw new TypeError('mons_see_trap requires the mCansee owner');
     const tx = trap.tx;
     const ty = trap.ty;
     const maxdist = state.level?.at(tx, ty)?.lit ? 7 * 7 : 2;
@@ -802,7 +797,7 @@ export function mons_see_trap(trap, env = {}) {
             continue;
         }
         if (dist2(monster.mx, monster.my, tx, ty) > maxdist) continue;
-        if (!mCansee(monster, tx, ty)) continue;
+        if (!clear_path(monster.mx, monster.my, tx, ty)) continue;
         mon_learns_traps(monster, trap.ttyp);
     }
 }

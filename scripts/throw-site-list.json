@@ -2250,12 +2250,6 @@
       "c": null,
       "reason": "Called before the initialization every game performs first (monst_globals_init(), init_objects() and the like)."
     },
-    "js/mondata.js | mons_see_trap | 'mons_see_trap requires the mCansee owner'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mondata.js | name_to_monplus | 'name_to_monplus gender must be an integer'": {
       "count": 1,
       "class": "invariant",
