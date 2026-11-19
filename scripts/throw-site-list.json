@@ -54,23 +54,11 @@
       "c": null,
       "reason": "Called before the initialization every game performs first."
     },
-    "js/apply_catch_lit.js | ignitionOperation | `item ignition requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/apply_splash_lit.js | monsterInventoryLocation | 'lit-item splash requires a monster-carried object'": {
       "count": 1,
       "class": "guard",
       "c": null,
       "reason": "Called only for an object its caller found in a monster inventory; C reads the carrier directly."
-    },
-    "js/apply_splash_lit.js | splashOperation | `lit-item splash requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/apply.js | use_tinning_kit | `tinning kit: invalid corpse species ${corpse.corpsenm}`": {
       "count": 1,

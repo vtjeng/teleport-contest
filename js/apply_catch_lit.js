@@ -30,14 +30,6 @@ import { cansee } from './vision.js';
 import { coreRandom } from './rng.js';
 import { Blind } from './youprop.js';
 
-function ignitionOperation(env, name, fallback) {
-    const operation = env[name] ?? fallback;
-    if (typeof operation !== 'function') {
-        throw new TypeError(`item ignition requires a ${name} operation`);
-    }
-    return operation;
-}
-
 // C ref: obj.h ignitable() (397-400). This is a pure type predicate.
 export function ignitable(obj) {
     return obj.otyp === BRASS_LANTERN
@@ -76,31 +68,18 @@ export async function catch_lit(obj, rawEnv = {}) {
         return false;
     }
 
-    const squareVisible = ignitionOperation(env, 'squareVisible', cansee);
-    const message = ignitionOperation(env, 'message', ttyPline);
-    const discoverObject = ignitionOperation(
-        env,
-        'discoverObject',
-        discover_object,
-    );
-    const beginBurn = ignitionOperation(env, 'beginBurn', begin_burn);
-    const costlySpot = ignitionOperation(env, 'costlySpot', costly_spot);
-    const roomsAt = ignitionOperation(env, 'inRooms', in_rooms);
-    const shopKeeper = ignitionOperation(env, 'shopKeeper', shop_keeper);
-    const billDummyObject = ignitionOperation(
-        env,
-        'billDummyObject',
-        bill_dummy_object,
-    );
-    const speak = ignitionOperation(
-        env,
-        'verbalize',
-        (line, messageState) => verbalize(
-            line,
-            messageState,
-            { message },
-        ),
-    );
+    // Tests observe these calls through env; production passes none of
+    // these keys, so each resolves to the C callee.
+    const squareVisible = env.squareVisible ?? cansee;
+    const message = env.message ?? ttyPline;
+    const discoverObject = env.discoverObject ?? discover_object;
+    const beginBurn = env.beginBurn ?? begin_burn;
+    const costlySpot = env.costlySpot ?? costly_spot;
+    const roomsAt = env.inRooms ?? in_rooms;
+    const shopKeeper = env.shopKeeper ?? shop_keeper;
+    const billDummyObject = env.billDummyObject ?? bill_dummy_object;
+    const speak = env.verbalize
+        ?? ((line, messageState) => verbalize(line, messageState, { message }));
     const blind = Blind(state.u);
     if (obj.where === OBJ_INVENT
         || squareVisible(location.x, location.y, state)) {
