@@ -35,11 +35,12 @@ says otherwise, the hero is a neutral human female Valkyrie on seed
 | `options-compound` | 164 | Each compound row of `#optionsfull` four ways: ESC at once, the first choice, the second choice, and the typed value `99999999999`. |
 | `options-short` | 5 | The `O` menu's pages and help text, `#optionsfull` help, a whole-page selection and `#saveoptions`. |
 | `status-highlights` | 37 | `hilite_status` lines in the nethackrc (percentages, absolute values, up/down/changed, text matches, conditions, an RGB colour, bad colours and fields, and 21 or 22 fields, which reach past `hsbuf[]` in `botl.c parse_status_hl1()`); and the interactive status-highlight menu. |
-| `regex` | 93 | `regcomp()` patterns that GNU and BSD regex may read differently, as `MENUCOLOR` lines; bad patterns as `MENUCOLOR`, `MSGTYPE` and `AUTOPICKUP_EXCEPTION` lines and typed into the three options-menu editors, whose error text comes from `regerror()`; and `MSGTYPE=hide` patterns aimed at the welcome and look messages. |
-| `enhanced-colors` | 26 | Colour strings for `hilite_status` and `MENUCOLOR` that `coloratt.c` parses with `sscanf("#%02x%02x%02x%c")` or `atoi()`: a width-exhausted `0x`, signs, spaces, too few and too many digits. |
+| `regex` | 119 | `regcomp()` patterns that GNU and BSD regex may read differently, as `MENUCOLOR` lines; patterns a player might type into the menu-colour editor, including the `{,n}` family; bad patterns as `MENUCOLOR`, `MSGTYPE` and `AUTOPICKUP_EXCEPTION` lines and typed into the three options-menu editors, whose error text comes from `regerror()`; and `MSGTYPE=hide` patterns aimed at the welcome and look messages. |
+| `enhanced-colors` | 39 | Colour strings with a width-exhausted `0x`, signs, spaces, too few and too many digits. Only the `glyph:` lines (after `symset:plain`) reach `coloratt.c rgbstr_to_int32()`, which parses them with `atoi()` and `sscanf("#%02x%02x%02x%c")`; the `hilite_status` and `MENUCOLOR` lines go through `match_str2clr()`, a colour-name lookup. The capture (patch 006) hooks `term_start_color()` but not `term_start_extracolor()`, so an RGB colour never shows on a recorded screen. This build has no `palette` option. |
 | `help` | 85 | Every `?` menu item; `#version`, `v`, `^O`, `#overview`, `^X`, `#chronicle`, `#conduct`, `#known`, `#vanquished`, `#genocided`, `V`, `#?`, `&`, `/`, `!`, `#shell`, `^Z`, `#suspend`, `^R`, `#annotate`; every `#terrain` choice; `\` and every `` ` `` class; `^P` in each `msg_window` mode. |
-| `date` | 51 | A Tourist on 34 dates (Friday the 13th, full and new moon, midnight, the 21:59/22:00 and 05:59/06:00 night boundaries, Halloween, both 2026 DST changes, winter and summer, 29 February, both sides of 2038-01-19 03:14:07 UTC, years 1800 to 9999), reading the Hawaiian shirt (whose motif comes from `o_id ^ ubirthday`), then `^X` and `#chronicle`; a debug-mode death on 12 of the dates for the tombstone's year; and five saves restored on another date. |
+| `date` | 65 | A Tourist on 42 dates (Friday the 13th, full and new moon, midnight, the 21:59/22:00 and 05:59/06:00 night boundaries, Halloween, both 2026 DST changes, winter and summer, 29 February, both sides of 2038-01-19 03:14:07 UTC, years 1800 to 9999, with eight dates between 1801 and 1901 added after the first macOS run), reading the Hawaiian shirt (whose motif comes from `o_id ^ ubirthday`), then `^X` and `#chronicle`; a debug-mode death on 18 of the dates for the tombstone's year; and five saves restored on another date. |
 | `high-byte` | 47 | Every byte from 0x80 to 0xff at the command prompt, some with `altmeta`; high bytes typed into the engrave, extended-command, fruit, call and annotate prompts, used as menu selectors and after a count, with `number_pad`, and in the player name. |
+| `out-of-bounds` | 10 | Copies of committed debug-mode recipes in which C reads `svd.dungeons[-1]` or `gl.luathemes[-1]` for a wished magic portal "to nowhere". The port models those bytes from the Linux recorder's memory layout (`js/dungeon_table.js`, `js/mklev.js`). |
 
 ## Running it
 
@@ -51,3 +52,139 @@ node experiments/host-parity/sample2/check-markers.mjs <out-dir>
 
 The macOS workflow (`.github/workflows/macos-recorder.yml`) records the
 sample into `macos-recordings/sample2/` in its artifact.
+
+## Results
+
+Two macOS workflow runs recorded the sample, both on macOS 26.7.2
+(arm64, Apple clang 21.0.0), in standard time with `tm_isdst` forced to 1
+(patch 009), as was the Linux recording:
+
+- Run [44616562608](https://github.com/vtjeng/teleport-contest/actions/runs/44616562608)
+  at `07520f6e`: the first 580 recipes. In this version the regex
+  recipes doubled every backslash, and the colour recipes did not reach
+  `rgbstr_to_int32()`.
+- Run [44619874537](https://github.com/vtjeng/teleport-contest/actions/runs/44619874537)
+  at `e59cc23f`: the 643 recipes here. Every recipe recorded on both
+  hosts.
+
+`node scripts/compare-host-recordings.mjs <macOS> <Linux>` on run
+44619874537 reported 626 of 643 RNG logs identical and 72 recipes with
+differing screens; 89 recipes differ in all, in three groups.
+
+| Group | Recipes that differ | Cause |
+| --- | --- | --- |
+| `regex` | 75 of 119 | The host's `regcomp()` and `regerror()` |
+| `date` | 12 of 65: every date from 1800 to 1899 | `mktime()` before 1900 |
+| `status-highlights` | 2 of 37: `hl-hsbuf-21`, `hl-hsbuf-22` | A read past `hsbuf[]` |
+
+The other 554 recipes are identical on both hosts: every options menu,
+help screen, `^P` mode and high-byte key, every date from 1900 to 9999
+(the DST gap and repeated hour, Friday the 13th, both moons, midnight,
+2038), the save and restore pairs, the colour strings and the ten
+out-of-bounds portal recipes. The 17 RNG differences are not game
+differences: in 13 regex recipes one host stops at the config-error
+screen before the game starts, and in four pre-1900 date recipes Linux
+prints a date-dependent start message with a `--More--` that macOS, on
+its own clock's date, does not, which moves an input boundary.
+
+### Regex
+
+`sys/share/posixregex.c regex_compile()` calls the C library's
+`regcomp(REG_EXTENDED | REG_NOSUB)` (line 70) and `regex_error_desc()`
+calls `regerror()` (line 84). macOS ships BSD regex; `js/posixregex.js`,
+`js/regcomp.js` and `js/regexec.js` port glibc's. The differences:
+
+- Every rejected pattern has different error text, for example
+  `parentheses not balanced.` against `Unmatched ( or \(.`, and
+  `repetition-operator operand invalid.` against
+  `Invalid preceding regular expression.`
+- macOS rejects empty alternatives (`spear|`, `|spear`, `(spear|)`) as
+  `empty (sub)expression.` and stacked repetition (`x**`, `a+?`, `b*+`,
+  `a{1,2}{3}`) as `repetition-operator operand invalid.`; glibc accepts
+  them.
+- glibc rejects `[[:<:]]`, `[[.space.]]` and `{,1}`; macOS accepts them.
+- `\w`, `\W`, `\s`, `\S`, `\b`, `\<` and `\>` are GNU operators; macOS
+  reads them as the plain letter. In an extended regex, glibc reads `\1`
+  as a back-reference and macOS as the digit 1. glibc reads `{,n}` as
+  `{0,n}` and macOS as literal text.
+- The two hosts agree on `\d` (the letter d), `\+`, `\(`, `.`, anchors,
+  bracket expressions, `{m,n}` and ordinary words.
+
+A judged session reaches this with single-byte keys and no debug mode:
+`#optionsfull` (or `O`), then `menu colors`, `message types` or
+`autopickup exceptions`, `a` to add, and a pattern. Patterns a player
+might well type, such as `+1`, `+0 dagger`, `*dagger` and `?spear`, are
+rejected on both hosts with different text, which changes one or two
+screens and no RNG call (`re-typed-03` to `re-typed-06`). `MENUCOLOR`,
+`MSGTYPE` and `AUTOPICKUP_EXCEPTION` lines in a session's nethackrc
+reach it too; none of the 44 public sessions has one. The port replays
+all 75 Linux recordings and none of the 75 macOS ones.
+
+### Dates before 1900
+
+For every date from 1800 to 1899 macOS shows a different Hawaiian-shirt
+motif and a tombstone dated 2026, the year of the run, where Linux shows
+the requested date (the tombstone prints 1900 for 1800, through the
+`tm_year < 70` rule in `calendar.c yyyymmdd()`). `19000101000000` and
+the 1901 dates match. The likely cause, not traced in the macOS source:
+macOS `mktime()` returns -1 for a year before 1900, so patch 001's
+`time_from_yyyymmddhhmmss()` returns 0 and `getnow()` falls back to
+`time()`. `date-y1800` differs between the two macOS runs, which fits a
+real-clock fallback. A judged session reaches this only through a
+`datetime` before 1900; the public sessions use 2000 to 2026. No port can
+match a real-clock recording. The port replays the Linux recordings.
+
+### `hsbuf[21]`
+
+A `hilite_status` value with 21 or more `/`-separated fields makes
+`botl.c parse_status_hl1()` fill `hsbuf[0]` to `hsbuf[20]`, and a parser
+then reads `hsbuf[21]`, past the array. The error text shows whatever
+the stack held. Two Linux recordings of `hl-hsbuf-21` differ from each
+other, so no port can match either host. The port reports a fixed
+configuration error (`js/options.js`). A judged session reaches it
+through such a `hilite_status` line in its nethackrc, or by typing the
+value at the `hilite_status` prompt of `#optionsfull`.
+
+### Uninitialized memory
+
+A Linux recorder built with `-ftrivial-auto-var-init=pattern` (stack
+variables start as a nonzero pattern instead of whatever the stack held)
+was checked against the normal Linux build:
+
+- It prints `Key binding failed?!` for the key-binding probes, as macOS
+  does.
+- Of the 4,136 committed recipes that have a committed recording, 3
+  differ: `cmd.c/unbind-unbound-key-reports-nothing` (the `cmdstr`
+  buffer in `cmd.c handler_rebind_keys_add()`) and the two
+  `dungeon.c/levtele-menu-*` recipes (`print_dungeon()` reads
+  `lchoices.playerlev[-1]`). macOS read 0 in the levtele probes of run
+  44607258217, as Linux does; that depends on what the stack held, not
+  on a rule.
+- Its recordings of the first 500-recipe sample match macOS run
+  44619874537 in all 500, `g04439` included.
+- In this sample only the two `hl-hsbuf` recipes differ.
+
+The normal build with `MALLOC_PERTURB_=165` (heap blocks start as a
+nonzero pattern) recorded 579 of the first 580 recipes; 577 match the
+normal recordings and the two `hl-hsbuf` recipes do not. The one that did
+not record, `optc-runmode-esc`, was rewritten while the run was going.
+
+A text scan of `cmd.c`, `options.c`, `invent.c`, `pager.c`, `insight.c`,
+`botl.c` and `wintty.c` for local `char` arrays whose first use reads
+them found `cmdstr` only. A wider scan for arrays whose first use is not a
+plain write listed 80 sites; those read did not show a read before a
+write, and the rest were not checked one by one.
+
+### Not covered
+
+- How the judge's recorder delivers keys. Both hosts here write keys to a
+  pipe, so terminal line-discipline handling, such as `^T` (`VSTATUS` on
+  macOS), `^C`, `^Z` and `^O`, is not tested.
+- The judge's terminfo entry. Both runs used the runner's
+  `xterm-256color`.
+- A recording made in daylight time on macOS: `mktime()` agreed with
+  glibc for every date from 1900 on with `tm_isdst` forced to 1 in
+  standard time, which leaves `tm_gmtoff` and `tm_isdst` disagreeing.
+- RGB colours, which the capture does not record.
+- Heap perturbation of the committed recipes, and stack or heap
+  perturbation on macOS itself.
