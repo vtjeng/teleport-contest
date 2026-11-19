@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 1034,
+      "datetime": "20391021101500",
+      "nethackrc": "OPTIONS=name:Piper,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": " \u0017wooden flute\naeyaeyaeyaeyaeyaeyaey#wizloadlua\ntut-1\n20s20s20s20s20s\u00162\n\u0016?\n>C       "
+    }
+  ]
+}

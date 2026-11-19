@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77310452,
+      "datetime": "20480305141522",
+      "nethackrc": "OPTIONS=name:Porter,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!tips\n",
+      "moves": "#wizloadlua\ntut-1\n\u0014 LLlllk.  jy      "
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 112358,
+      "datetime": "20191231235500",
+      "nethackrc": "OPTIONS=name:Wayfarer,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:debug,sanity_check\n",
+      "moves": "j\u0017wooden harp\nakyakyakyakyakyaky\u0017magic portal\nkj                     "
+    }
+  ]
+}

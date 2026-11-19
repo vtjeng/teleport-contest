@@ -63,6 +63,15 @@ jobs:
           recipes/cmd.c/toggle-bound-param-menu.session.json
           recipes/cmd.c/bind-toggle-empty-param-reports-and-lists-null.session.json
 
+      # The second host-parity sample (experiments/host-parity/sample2/)
+      # probes options menus, help screens, dates, regex, colour parsing and
+      # one-byte keys. It runs last because record-sample.sh fails the step
+      # when any recipe fails, which would skip the steps after it, and it
+      # runs even when an earlier recording step failed.
+      - name: Record the second sample
+        if: always()
+        run: experiments/host-parity/record-sample.sh macos-recordings/sample2 4 experiments/host-parity/sample2/recipes/*.session.json
+
       - name: Upload recordings
         if: always()
         uses: actions/upload-artifact@v7
