@@ -703,15 +703,7 @@ export async function query_objlist(
                 // LOOKHERE_NOFLAGS), and returns before selection. The
                 // source look_here() owns the warning and any engraving read;
                 // keep those effects in its canonical caller order.
-                await look_here(0, LOOKHERE_NOFLAGS, state, {
-                    message: ttyPline,
-                    readEngraving: () => read_engr_at(
-                        state.u.ux,
-                        state.u.uy,
-                        state,
-                        { pline: ttyPline, canReachFloor: can_reach_floor },
-                    ),
-                });
+                await look_here(0, LOOKHERE_NOFLAGS, state);
                 return { n: 0, pick_list };
             }
             if (!allow(curr, state)) continue;
@@ -1455,10 +1447,7 @@ export async function pickup(what, state = game) {
                 || is_lava(u.ux, u.uy, state))) {
             if (state.flags?.mention_decor)
                 await describe_decor(state);
-            await read_engr_at(u.ux, u.uy, state, {
-                pline: ttyPline,
-                canReachFloor: can_reach_floor,
-            });
+            await read_engr_at(u.ux, u.uy, state);
             return 0;
         }
 
@@ -1471,10 +1460,7 @@ export async function pickup(what, state = game) {
                 || (autopickup && !state.flags?.pickup)
                 || (trap && (uteetering_at_seen_pit(trap, state)
                     || uescaped_shaft(trap, state)))) {
-                await read_engr_at(u.ux, u.uy, state, {
-                    pline: ttyPline,
-                    canReachFloor: can_reach_floor,
-                });
+                await read_engr_at(u.ux, u.uy, state);
             }
             return 0;
         }
@@ -1751,25 +1737,9 @@ export async function check_here(picked_some, state = game) {
         // Stepping onto objects ends a run before their description prints.
         if (state.context.run) nomul(0, state);
         await flush_screen(1);
-        await look_here(
-            count,
-            lookhereFlags,
-            state,
-            {
-                message: ttyPline,
-                readEngraving: () => read_engr_at(
-                    state.u.ux,
-                    state.u.uy,
-                    state,
-                    { pline: ttyPline, canReachFloor: can_reach_floor },
-                ),
-            },
-        );
+        await look_here(count, lookhereFlags, state);
     } else {
-        await read_engr_at(state.u.ux, state.u.uy, state, {
-            pline: ttyPline,
-            canReachFloor: can_reach_floor,
-        });
+        await read_engr_at(state.u.ux, state.u.uy, state);
     }
 }
 

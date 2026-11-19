@@ -246,7 +246,7 @@ import { itemactions } from './iactions.js';
 import { surface } from './dungeon.js';
 import { ice_descr, self_lookat } from './pager.js';
 import { digests } from './dothrow.js';
-import { can_reach_floor } from './engrave.js';
+import { can_reach_floor, read_engr_at } from './engrave.js';
 import { add_valid_menu_class, allow_all, allow_category, encumber_msg, force_decor, query_objlist, query_objlist_selector, query_objlist_sortflags, u_safe_from_fatal_corpse } from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
@@ -2462,19 +2462,21 @@ export function preflight_look_here(
 //
 // Returns true where C returns ECMD_TIME and false where it returns ECMD_OK,
 // so the caller decides whether the command takes game time.
+//
+// `message` is the message seam; read_engr_at() prints through it too.
 export async function look_here(
     obj_cnt,
     lookhere_flags,
     state = game,
     {
-        message,
-        readEngraving,
+        message = ttyPline,
+        readEngraving = () => read_engr_at(
+            state.u.ux, state.u.uy, state, { pline: message },
+        ),
         displayObjectPile = (lines) => displayTtyMenuTextWindow(state, lines),
         displayMinventory = display_minventory,
     } = {},
 ) {
-    if (typeof message !== 'function' || typeof readEngraving !== 'function')
-        throw new TypeError('look_here needs message and engraving owners');
     const plan = preflight_look_here(
         obj_cnt,
         lookhere_flags,
@@ -2622,8 +2624,6 @@ export async function look_here(
         return blind;
     }
     if (otmp.nexthere) {
-        if (typeof displayObjectPile !== 'function')
-            throw new TypeError('look_here needs an object-pile display owner');
         // C invent.c look_here() first calls display_nhwindow(WIN_MESSAGE,
         // FALSE) at 4289, before it formats or names any pile object. On TTY
         // this retires the logical topline while preserving an already

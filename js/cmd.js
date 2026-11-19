@@ -199,9 +199,7 @@ import { doeat } from './eat.js';
 import {
     can_reach_floor,
     doengrave,
-    read_engr_at,
 } from './engrave.js';
-import { random_engraving } from './random_engraving.js';
 import {
     AUTOCOMPLETE,
     AUTOCOMP_ADJ,
@@ -3252,8 +3250,6 @@ async function runEngraveCommand(key, state) {
         redraw: newsym,
         setOccupation: set_occupation,
         random: coreRandom,
-        randomEngraving: ({ state: engravingState, random }) =>
-            random_engraving({ state: engravingState, random }),
         yesNo: yn_function,
         monName: mon_nam,
         ECMD_CANCEL,
@@ -4885,15 +4881,7 @@ export async function doclicklook(state = game) {
 
 // C ref: invent.c dolook().
 async function runLookCommand(key, state) {
-    return failClosedCommand(key, state, () => dolook(state, {
-        message: ttyPline,
-        readEngraving: () => read_engr_at(
-            state.u.ux,
-            state.u.uy,
-            state,
-            { pline: ttyPline, canReachFloor: can_reach_floor },
-        ),
-    }));
+    return failClosedCommand(key, state, () => dolook(state));
 }
 
 // C ref: dat/nhlib.lua tutorial_blacklist_commands, the extended commands

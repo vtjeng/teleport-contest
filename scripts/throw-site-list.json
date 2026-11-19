@@ -972,30 +972,6 @@
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
     },
-    "js/engrave.js | cant_reach_floor | 'cant_reach_floor requires a pline callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/engrave.js | doengrave_sfx_item_WAN | 'doengrave requires randomEngraving'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/engrave.js | read_engr_at | 'read_engr_at requires a pline callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/engrave.js | tactileFloor | 'blind read_engr_at requires a canReachFloor callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/exper.js | newpw | 'hero, role, and race must be initialized first'": {
       "count": 1,
       "class": "invariant",
@@ -1289,18 +1265,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
-    "js/invent.js | look_here | 'look_here needs an object-pile display owner'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/invent.js | look_here | 'look_here needs message and engraving owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/invent.js | mergedRuntime | 'glob absorption must preserve its target'": {
       "count": 1,

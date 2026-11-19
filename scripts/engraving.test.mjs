@@ -509,10 +509,11 @@ test('read_engr_at reports, remembers, and punctuates a carved message', async (
 });
 
 test('read_engr_at uses tactile burn text but cannot sense blind dust', async () => {
-    const state = {
-        u: { uprops: [] },
-        level: { at: () => ({ typ: ICE }) },
-    };
+    // A blind hero standing on ice who can reach the floor: engrave.c
+    // read_engr_at() feels BURN text through can_reach_floor(TRUE) and names
+    // ice as "melted", but cannot sense DUST at all.
+    const state = floorReachState();
+    state.level.at = () => ({ typ: ICE });
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     make_engr_at(
         4,
@@ -526,7 +527,6 @@ test('read_engr_at uses tactile burn text but cannot sense blind dust', async ()
     const messages = [];
     assert.equal(await read_engr_at(4, 5, state, {
         pline: async (message) => messages.push(message),
-        canReachFloor: () => true,
     }), true);
     assert.deepEqual(messages, [
         'Some text has been melted into the ice here.',
@@ -550,11 +550,13 @@ test('read_engr_at uses tactile burn text but cannot sense blind dust', async ()
 });
 
 test('blind tactile engravings require the source reach-floor gate', async () => {
-    const state = {
-        u: { uprops: [] },
-        level: { at: () => ({ typ: ROOM }) },
-    };
+    // A blind, levitating hero away from the Planes of Air and Water cannot
+    // reach the floor, so engrave.c can_reach_floor(TRUE) fails and
+    // read_engr_at() senses neither ENGRAVE nor BURN text.
+    const state = floorReachState();
+    state.level.at = () => ({ typ: ROOM });
     state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.u.uprops[LEVITATION].intrinsic = 1;
     const messages = [];
     for (const engravingType of [ENGRAVE, BURN]) {
         make_engr_at(
@@ -568,18 +570,14 @@ test('blind tactile engravings require the source reach-floor gate', async () =>
         );
         assert.equal(await read_engr_at(8, 7, state, {
             pline: async (message) => messages.push(message),
-            canReachFloor: (checkPits, receivedState) => {
-                assert.equal(checkPits, true);
-                assert.equal(receivedState, state);
-                return false;
-            },
         }), false, engravingType);
         assert.deepEqual(messages, []);
     }
-    await assert.rejects(
-        read_engr_at(8, 7, state, {
-            pline: async (message) => messages.push(message),
-        }),
-        /requires a canReachFloor callback/u,
-    );
+    // Landing restores can_reach_floor(TRUE), so the same blind hero now
+    // feels the BURN text left by the last pass of the loop.
+    state.u.uprops[LEVITATION].intrinsic = 0;
+    assert.equal(await read_engr_at(8, 7, state, {
+        pline: async (message) => messages.push(message),
+    }), true);
+    assert.equal(messages[0], 'Some text has been burned into the floor here.');
 });
