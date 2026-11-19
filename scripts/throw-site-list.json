@@ -1692,12 +1692,6 @@
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
     },
-    "js/mcastu.js | mcast_lightning | 'mcast_lightning requires the rnd operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/mhitm.js | attackEnv | `mattackm random injection requires ${name}`": {
       "count": 1,
       "class": "invariant",
