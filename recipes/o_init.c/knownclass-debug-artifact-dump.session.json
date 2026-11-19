@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "o_init.c doclassdisco() (1064-1074) under menustyle:traditional in debug mode: the class prompt accepts 'a' even with no artifact discovered, and y_n(\"Dump information about all artifacts?\") answered y fills the text window through artifact.c dump_artifact_info() instead of the discoveries list. A dwarvish Archeologist with no pet dismisses the welcome, asks #knownclass for artifacts, pages through the dump and searches once. Seed, date, character and inputs chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5530917,
+      "datetime": "20310214093000",
+      "nethackrc": "OPTIONS=name:Wren,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,menustyle:traditional,pettype:none\nOPTIONS=playmode:debug\n",
+      "moves": "\u001b`ay      \u001bs"
+    }
+  ]
+}
