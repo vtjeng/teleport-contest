@@ -156,12 +156,6 @@
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
     },
-    "js/attrib.js | exerciseAttribute | 'exercise requires encumber_msg'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/attrib.js | exerper | 'periodic exercise requires initialized hero hunger'": {
       "count": 1,
       "class": "invariant",
@@ -173,18 +167,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
-    },
-    "js/attrib.js | requiredOperation | `attribute upkeep requires ${name}`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
-    "js/attrib.js | restore_attrib | 'restore_attrib requires encumber_msg'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/attrib.js | roleAndRace | 'role and race must be initialized first'": {
       "count": 1,
@@ -894,12 +876,6 @@
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
     },
-    "js/eat.js | preflightGetHungry | 'gethungry requires nearCapacity'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
     "js/eat.js | preflightGetHungry | 'weakness transition requires hero attributes, role, and rac": {
       "count": 1,
       "class": "invariant",
@@ -911,12 +887,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
-    "js/eat.js | requireEatOperation | `eat.c requires ${name}`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/eat.js | ringConsumesNutrition | `gethungry requires object data for ring ${ring.otyp}`": {
       "count": 1,

@@ -141,6 +141,8 @@ import {
     HWounded_legs, Halluc_resistance, Hallucination, Poison_resistance, Sick,
     Stunned, Very_fast, Vomiting, Wounded_legs,
 } from './youprop.js';
+import { encumber_msg } from './pickup.js';
+import { losehp, near_capacity } from './hack.js';
 
 const EXERCISE_LIMIT = 50;
 const ATTRIBUTE_NAMES = Object.freeze([
@@ -906,7 +908,7 @@ export function vary_init_attr(state = game, random = coreRandom) {
 // Returns the adjustment and whether that call is due, so the async owner and
 // the synchronous startup caller below share one copy of the arithmetic and
 // one draw boundary.
-function exerciseAttribute(index, increase, state, random, encumberMessage) {
+function exerciseAttribute(index, increase, state, random) {
     if (index === A_INT || index === A_CHA)
         return { adjustment: 0, encumbranceDue: false };
     if (Upolyd(state.u) && index !== A_WIS)
@@ -914,13 +916,8 @@ function exerciseAttribute(index, increase, state, random, encumberMessage) {
     if (typeof random.rn2 !== 'function')
         throw new TypeError('exercise random injection requires rn2');
 
-    // Both owner checks must precede the draw. Rejecting afterwards would
-    // leave the PRNG advanced and AEXE(i) already changed, so a caller that
-    // retried would not repeat the same call sequence.
     const encumbranceDue = Math.trunc(state.moves ?? 0) > 0
         && (index === A_STR || index === A_CON);
-    if (encumbranceDue && typeof encumberMessage !== 'function')
-        throw new Error('exercise requires encumber_msg');
 
     const attrs = attributeArrays(state.u);
     let adjustment = 0;
@@ -933,23 +930,23 @@ function exerciseAttribute(index, increase, state, random, encumberMessage) {
     return { adjustment, encumbranceDue };
 }
 
-// C ref: attrib.c exercise(). encumberMessage owns the trailing
-// encumber_msg(), which C runs only for Strength or Constitution after play
-// has begun. Always await this: dropping the completion would emit the
-// encumbrance line after whatever the caller printed next.
+// C ref: attrib.c exercise(). The trailing pickup.c encumber_msg(), which C
+// runs only for Strength or Constitution after play has begun, may be
+// replaced through encumberMessage. Always await this: dropping the
+// completion would emit the encumbrance line after whatever the caller
+// printed next.
 export async function exercise(
     index,
     increase,
     state = game,
     random = coreRandom,
-    { encumberMessage } = {},
+    { encumberMessage = encumber_msg } = {},
 ) {
     const { adjustment, encumbranceDue } = exerciseAttribute(
         index,
         increase,
         state,
         random,
-        encumberMessage,
     );
     if (encumbranceDue) await encumberMessage(state);
     return adjustment;
@@ -973,12 +970,19 @@ export function exercise_nonphysical(
     return exerciseAttribute(index, increase, state, random).adjustment;
 }
 
-
-function requiredOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`attribute upkeep requires ${name}`);
-    return operation;
+// The callees attrib.c calls directly, which a caller may replace through
+// env: pline(), pickup.c encumber_msg(), hack.c near_capacity() and
+// hack.c losehp().
+function attributeOperation(env, name, state) {
+    if (env[name]) return env[name];
+    const message = env.message ?? ttyPline;
+    return {
+        message,
+        encumberMessage: (subject) => encumber_msg(subject, { message }),
+        nearCapacity: () => near_capacity(state),
+        losehp: (n, knam, kFormat) => losehp(n, knam, kFormat, state,
+            { message }),
+    }[name];
 }
 
 async function exerciseWithEnvironment(index, increase, state, env) {
@@ -993,8 +997,8 @@ async function exerciseWithEnvironment(index, increase, state, env) {
 // can change capacity and burden before the next allocation.
 export async function exerper(state = game, env = {}) {
     const random = env.random ?? coreRandom;
-    const encumberMessage = requiredOperation(env, 'encumberMessage');
-    const nearCapacity = requiredOperation(env, 'nearCapacity');
+    const encumberMessage = attributeOperation(env, 'encumberMessage', state);
+    const nearCapacity = attributeOperation(env, 'nearCapacity', state);
     const normalized = {
         ...env,
         random,
@@ -1082,7 +1086,7 @@ function attributeBonus(hero, index) {
 }
 
 async function emitAttributeMessage(env, text, state) {
-    const message = requiredOperation(env, 'message');
+    const message = attributeOperation(env, 'message', state);
     await message(text, state);
 }
 
@@ -1191,7 +1195,7 @@ export async function adjattrib(
     }
     if (state.program_state?.in_moveloop
         && (index === A_STR || index === A_CON)) {
-        await requiredOperation(env, 'encumberMessage')(state);
+        await attributeOperation(env, 'encumberMessage', state)(state);
     }
     return true;
 }
@@ -1424,20 +1428,13 @@ export async function restore_attrib(state = game, env = {}) {
     // C checks `disp.botl` here, which covers both changes this function
     // made and any flag the caller left set. Since the function is dead code
     // (ATIME is never non-zero), the distinction is academic.
-    if (state.disp?.botl) {
-        const encumberMessage = env.encumberMessage;
-        if (typeof encumberMessage !== 'function')
-            throw new Error('restore_attrib requires encumber_msg');
-        await encumberMessage(state);
-    }
+    if (state.disp?.botl)
+        await attributeOperation(env, 'encumberMessage', state)(state);
 }
 
 // C ref: attrib.c gainstr() (203-220). Strength gain, typically from eating a
 // giant corpse, spinach from a tin, or royal jelly. When incr is 0 the amount
 // depends on current strength; a cursed object reverses the direction.
-//
-// Cycle avoidance: adjattrib() needs pickup.c encumber_msg(), which lives in a
-// file that imports this one. The caller supplies it through env.
 export async function gainstr(otmp, incr, givemsg, state = game, env = {}) {
     const random = env.random ?? coreRandom;
     let num = incr;
@@ -1457,16 +1454,13 @@ export async function gainstr(otmp, incr, givemsg, state = game, env = {}) {
 // C ref: attrib.c losestr() (218-270). Strength loss that may kill; the cause
 // is poison or a monster like 'a'. Each point that would push ABASE(A_STR)
 // below the race's minimum is converted into rn1(4, 3) hit points of damage
-// instead, and only the points that fit reach adjattrib().
-//
-// Cycle avoidance follows poisoned() below: hack.c losehp() lives in a file
-// that imports this one, and pickup.c encumber_msg(), which adjattrib() spends
-// on a Strength change, lives in a file that imports that one. Both arrive
-// through env.
+// instead, and only the points that fit reach adjattrib(). C calls hack.c
+// losehp() and, through adjattrib(), pickup.c encumber_msg(); a caller may
+// replace either through env.
 export async function losestr(num, knam, k_format, state = game, env = {}) {
     const random = env.random ?? coreRandom;
-    const losehp = requiredOperation(env, 'losehp');
-    const encumberMessage = requiredOperation(env, 'encumberMessage');
+    const losehp = attributeOperation(env, 'losehp', state);
+    const encumberMessage = attributeOperation(env, 'encumberMessage', state);
     const u = state.u;
     const attrmin = Math.trunc(state.urace?.attrmin?.[A_STR] ?? 0);
     const uhpmin = minuhpmax(1, state);
@@ -1522,7 +1516,7 @@ export async function losestr(num, knam, k_format, state = game, env = {}) {
 export async function poison_strdmg(
     strloss, dmg, knam, k_format, state = game, env = {},
 ) {
-    const losehp = requiredOperation(env, 'losehp');
+    const losehp = attributeOperation(env, 'losehp', state);
     await losestr(strloss, knam, k_format, state, env);
     if (state.program_state?.gameover) return;
     await losehp(dmg, knam, k_format);
@@ -1555,7 +1549,7 @@ export async function poisontell(typ, exclaim, state = game, env = {}) {
         msg = 'innately weaker';
     else if (typ === A_CON && acurr(state, A_CON) === 25)
         msg = 'sick inside';
-    const message = requiredOperation(env, 'message');
+    const message = attributeOperation(env, 'message', state);
     await message(effect.delivery(`${msg}${exclaim ? '!' : '.'}`, state), state);
 }
 

@@ -144,7 +144,7 @@ import { o_unleash, tinnable } from './apply.js';
 import { on_level,
     surface } from './dungeon.js';
 import { pluslvl, more_experienced, newexplevel } from './exper.js';
-import { canseemon, canspotmon, newsym,
+import { bot, canseemon, canspotmon, newsym,
     see_monsters, set_mimic_blocking } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { game } from './gstate.js';
@@ -156,7 +156,7 @@ import { vault_gd_watching } from './vault.js';
 import { unpunish } from './read.js';
 import { impossible_printer, livelog_printf, verbalize, youHear, youFeel } from './pline.js';
 import {
-    check_capacity, endRunning, inv_cnt, losehp, nomul, unmul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
+    check_capacity, endRunning, inv_cnt, losehp, near_capacity, nomul, unmul, rounddiv, still_chewing, curs_on_u, You_can_move_again, } from './hack.js';
 import { dist2, lcase, s_suffix } from './hacklib.js';
 import {
     INVLET_BASIC, addinv_nomerge, carrying, feel_cockatrice, freeinv, getobj, hands_obj, obj_extract_self, obj_here, stackobj, useup, useupall, useupf, will_feel_cockatrice, } from './invent.js';
@@ -383,16 +383,6 @@ function preflightNutritionRing(ring, state) {
     }
 }
 
-// The operations eat.c reaches through globals -- pline(), end_running() and
-// bot() -- and this port injects. Resolving by name means a caller that omits one fails here rather than
-// silently skipping the output C produces.
-function requireEatOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`eat.c requires ${name}`);
-    return operation;
-}
-
 // C ref: eat.c is_edible() (91-121). This is a pure predicate: it reads the
 // current form and object definition but makes no random draw, output, or
 // state change. The form-specific arms intentionally precede FOOD_CLASS just
@@ -447,9 +437,6 @@ export function preflightGetHungry(state = game, env = {}) {
     // Unaware and burns nutrition at the ordinary rate with no draw.
     const unaware = Unaware(state);
 
-    if (typeof env.nearCapacity !== 'function') {
-        throw new Error('gethungry requires nearCapacity');
-    }
     const species = state.youmonst?.data;
     if (!species || !Number.isInteger(species.mflags1)) {
         throw new Error('gethungry requires initialized hero form');
@@ -466,7 +453,7 @@ export function preflightGetHungry(state = game, env = {}) {
     const ordinaryLoss = eatsNormally && !slowDigestion ? 1 : 0;
     const regenerationLoss = (HRegeneration(state.u) & ~FROMFORM)
         || (ERegeneration(state.u) & ~(W_ARTI | W_WEP)) ? 1 : 0;
-    const capacity = env.nearCapacity(state);
+    const capacity = (env.nearCapacity ?? near_capacity)(state);
     const oddLoss = ordinaryLoss + regenerationLoss
         + (capacity > SLT_ENCUMBER ? 1 : 0);
     const hungerLoss = Hunger(state.u) ? 1 : 0;
@@ -491,7 +478,6 @@ export function preflightGetHungry(state = game, env = {}) {
     const earliestStatus = hungerStatus(
         u.uhunger - maximumReachableLoss,
     );
-    const mayChangeStatus = earliestStatus !== u.uhs;
     // newuhs()'s `newhs >= WEAK && u.uhs < WEAK` arm writes ATEMP(A_STR), and
     // its WEAK message reads the role and the race. Widening `<` to `<=` here
     // is equivalent for every well-formed state: it only adds the case where
@@ -505,18 +491,6 @@ export function preflightGetHungry(state = game, env = {}) {
         throw new Error(
             'weakness transition requires hero attributes, role, and race',
         );
-    }
-    // newuhs() resolves these at its own call sites; resolving them here as
-    // well rejects a caller that cannot supply them before the rn2(20) draw
-    // that decides whether the transition happens. Every transition newuhs()
-    // takes rewrites the status line; only its HUNGRY and WEAK arms print a
-    // message and end a run.
-    if (mayChangeStatus) {
-        requireEatOperation(env, 'statusRefresh');
-        if (earliestStatus === HUNGRY || earliestStatus === WEAK) {
-            requireEatOperation(env, 'message');
-            requireEatOperation(env, 'endRunning');
-        }
     }
 
     return {
@@ -1744,7 +1718,8 @@ export async function unfaint(state = game, env = {}) {
 // rather than one bite. C keeps the pair in function statics; this port keeps
 // them on the game state, so a new game starts with neither set.
 //
-// `env` supplies message(), endRunning() and statusRefresh().
+// `env` may replace pline() (message), end_running() (endRunning) and bot()
+// (statusRefresh); each defaults to the function C calls.
 export async function newuhs(incr, state = game, env = {}) {
     const u = state.u;
     let newhs = hungerStatus(u.uhunger);
@@ -1777,7 +1752,7 @@ export async function newuhs(incr, state = game, env = {}) {
                 const duration = 10 - hungerTens;
                 const { stop_occupation } = await import('./allmain.js');
                 await stop_occupation(state, env);
-                await requireEatOperation(env, 'message')('You faint from lack of food.', state);
+                await (env.message ?? ttyPline)('You faint from lack of food.', state);
                 incr_itimeout(state.u.uprops[DEAF], duration);
                 state.disp ??= {};
                 state.disp.botl = true;
@@ -1795,8 +1770,8 @@ export async function newuhs(incr, state = game, env = {}) {
             u.uhs = STARVED;
             state.disp ??= {};
             state.disp.botl = true;
-            await requireEatOperation(env, 'statusRefresh')(state);
-            await requireEatOperation(env, 'message')('You die from starvation.', state);
+            await (env.statusRefresh ?? bot)(state);
+            await (env.message ?? ttyPline)('You die from starvation.', state);
             state.killer ??= {};
             state.killer.format = KILLED_BY;
             state.killer.name = 'starvation';
@@ -1815,11 +1790,8 @@ export async function newuhs(incr, state = game, env = {}) {
         }
 
         if (newhs === HUNGRY || newhs === WEAK) {
-            const message = requireEatOperation(env, 'message');
-            const stopRunning = requireEatOperation(
-                env,
-                'endRunning',
-            );
+            const message = env.message ?? ttyPline;
+            const stopRunning = env.endRunning ?? endRunning;
             await message(hungerTransitionMessage(newhs, incr, state), state);
             // C's `go.occupation != opentin`. start_tin() installs a wrapper
             // around opentin(), so its source marker stands for that pointer,
@@ -1835,9 +1807,9 @@ export async function newuhs(incr, state = game, env = {}) {
         u.uhs = newhs;
         state.disp ??= {};
         state.disp.botl = true;
-        await requireEatOperation(env, 'statusRefresh')(state);
+        await (env.statusRefresh ?? bot)(state);
         if ((u.umonnum !== u.umonster ? u.mh : u.uhp) < 1) {
-            await requireEatOperation(env, 'message')('You die from hunger and exhaustion.', state);
+            await (env.message ?? ttyPline)('You die from hunger and exhaustion.', state);
             state.killer ??= {};
             state.killer.format = KILLED_BY;
             state.killer.name = 'exhaustion';
@@ -2061,7 +2033,7 @@ export async function lesshungry(num, state, env) {
         && !Hunger(state.u)
         // C spells this `!eating || (eating && !fullwarn)`.
         && (!meal.eating || !meal.fullwarn)) {
-        await requireEatOperation(env, 'message')(
+        await (env.message ?? ttyPline)(
             "You're having a hard time getting all of it down.",
             state,
         );
@@ -3465,7 +3437,7 @@ async function done_eating(message, state, env) {
     // clears it a second time when this callback answers 0.
     if (state.go) state.go.occupation = null;
     await newuhs(false, state, env);
-    const plineMessage = requireEatOperation(env, 'message');
+    const plineMessage = env.message ?? ttyPline;
     if (state.nomovemsg) {
         if (message) await plineMessage(state.nomovemsg, state);
         // C's `gn.nomovemsg = 0` assigns NULL to a `const char *`. The number

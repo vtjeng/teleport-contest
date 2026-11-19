@@ -750,29 +750,6 @@ test('gethungry owns the first increasing hunger transition in source order',
             'end_running',
             'bot',
         ]);
-
-        // newuhs()'s HUNGRY arm prints and ends a run as well as writing the
-        // status line, so the preflight rejects a caller missing any of the
-        // three, and does so before the rn2(20) draw.
-        for (const missing of ['message', 'endRunning', 'statusRefresh']) {
-            const incomplete = hungerState();
-            incomplete.u.uhunger = 151;
-            const env = {
-                random: {
-                    rn2: () => assert.fail('the preflight draws nothing'),
-                },
-                nearCapacity: () => UNENCUMBERED,
-                message: () => {},
-                endRunning: () => {},
-                statusRefresh: () => {},
-            };
-            delete env[missing];
-            await assert.rejects(
-                gethungry(incomplete, env),
-                new RegExp(`requires ${missing}`, 'u'),
-            );
-            assert.equal(incomplete.u.uhunger, 151);
-        }
     });
 
 test('gethungry drops out of SATIATED with no message and no run to end',
@@ -813,22 +790,6 @@ test('gethungry drops out of SATIATED with no message and no run to end',
         // SATIATED and NOT_HUNGRY are both below WEAK, so neither of
         // newuhs()'s two ATEMP arms fires.
         assert.equal(satiated.u.atemp[A_STR], 0);
-
-        // bot() is the whole output, so a caller that cannot supply it is
-        // rejected before the rn2(20) draw rather than part way through.
-        const noStatusRefresh = hungerState();
-        noStatusRefresh.u.uhunger = 1001;
-        noStatusRefresh.u.uhs = SATIATED;
-        await assert.rejects(
-            gethungry(noStatusRefresh, {
-                random: {
-                    rn2: () => assert.fail('the preflight draws nothing'),
-                },
-                nearCapacity: () => UNENCUMBERED,
-            }),
-            /requires statusRefresh/u,
-        );
-        assert.equal(noStatusRefresh.u.uhunger, 1001);
     });
 
 test('gethungry awaits transition output before later state and status work',
