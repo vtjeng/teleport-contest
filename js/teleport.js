@@ -1745,9 +1745,6 @@ export async function dotele(breakTheRules = false, state = game, rawEnv = {}) {
 // TELEDS_ALLOW_DRAG.
 export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) {
     const env = teleportEnv({ ...rawEnv, state });
-    if (state !== game && typeof env.redraw !== 'function') {
-        throw new TypeError('teleds on a non-live state requires a redraw callback');
-    }
     const redraw = env.redraw ?? newsym;
     const u = state.u;
     let allow_drag = (teleds_flags & TELEDS_ALLOW_DRAG) !== 0;
