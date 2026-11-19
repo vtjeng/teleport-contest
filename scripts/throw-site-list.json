@@ -2118,24 +2118,6 @@
       "c": null,
       "reason": "C mongone() does not check that the monster is on fmon; the guard is kept because callers that hold migrating monsters have not all been traced."
     },
-    "js/mon.js | monsterTurnEnv | 'movemon requires a clearBypasses operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/mon.js | monsterTurnEnv | 'movemon requires a deferredGoto operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/mon.js | monsterTurnEnv | 'movemon requires a moveSingleMonster operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | movemon_singlemon | 'movemon_singlemon random injection requires rn2'": {
       "count": 1,
       "class": "invariant",
@@ -2165,12 +2147,6 @@
       "class": "panic",
       "c": "src/mon.c:2583",
       "reason": "relmon() panics when the monster is not on fmon."
-    },
-    "js/mon.js | requiredSingleMonsterOperation | `movemon_singlemon requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/mon.js | validvamp | 'validvamp requires an mndx reference'": {
       "count": 1,

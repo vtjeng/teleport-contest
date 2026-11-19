@@ -1,8 +1,8 @@
 // The fail-closed boundary for monster actions. This file holds no port; the
 // ports of monmove.c and dogmove.c live in js/monmove.js and js/dogmove.js.
 //
-// runSimpleMonsterAction() executes one monster action for the movemon()
-// adapter in js/allmain.js.
+// runSimpleMonsterAction() executes one monster action for js/mon.js
+// movemon_singlemon().
 //
 // Delete this file once ported coverage makes the boundary unnecessary.
 
@@ -369,7 +369,7 @@ export async function runDirectMonsterAction(monster, rawEnv = {}) {
     });
 }
 
-// Execute one monster action for the movemon() adapter in js/allmain.js.
+// Execute one monster action for js/mon.js movemon_singlemon().
 export async function runSimpleMonsterAction(monster, rawEnv = {}) {
     const { env, state } = simpleMonsterActionEnvironment(rawEnv);
     return dochugw(monster, true, {

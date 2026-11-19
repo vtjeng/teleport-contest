@@ -495,8 +495,9 @@ function observedCoreRandom(state) {
     return { draws, random };
 }
 
-// One live movemon() scan over the level, bound the way js/allmain.js
-// moveElapsedTurnMonster() and the live arm of regionEffectEnv() bind it. It
+// One live movemon() scan over the level, bound the way js/mon.js
+// movemon_singlemon()'s defaults and the live arm of js/allmain.js
+// regionEffectEnv() bind it. It
 // covers the parts of a monster turn that runSimpleMonsterAction() does not:
 // mon.c movemon_singlemon()'s every-turn effect and liquid check, and
 // movemon()'s dmonsfree() tail. Restrap, Conflict combat and the deferred

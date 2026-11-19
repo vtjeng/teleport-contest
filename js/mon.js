@@ -739,18 +739,31 @@ import {
     HTelepat, Hallucination, Levitation, Maybe_Half_Phys,
     Protection_from_shape_changers, Unaware,
 } from './youprop.js';
+import { m_everyturn_effect } from './monmove.js';
+import { clear_bypasses, m_dowear } from './worn.js';
+import { deferred_goto } from './do.js';
+import { gd_move } from './vault.js';
+import { fightm } from './mhitm.js';
+import { map_invisible } from './display.js';
+import { fire_damage_chain } from './trap.js';
+import { emitGlyphUpdateNotices } from './startup_a11y.js';
+// js/unported_monster_actions.js imports this file in turn (through
+// js/dbridge.js); these are hoisted function declarations that nothing
+// reads at module scope.
+import {
+    runSimpleMonsterAction,
+    wieldMonsterItemAgainstMonster,
+} from './unported_monster_actions.js';
 
+// movemon()'s callees default to the functions C calls; a caller may replace
+// any of them.
 function monsterTurnEnv(env = {}) {
     const state = env.state ?? game;
-    const moveSingleMonster = env.moveSingleMonster;
-    const clearBypasses = env.clearBypasses;
-    const deferredGoto = env.deferredGoto;
-    if (typeof moveSingleMonster !== 'function')
-        throw new TypeError('movemon requires a moveSingleMonster operation');
-    if (typeof clearBypasses !== 'function')
-        throw new TypeError('movemon requires a clearBypasses operation');
-    if (typeof deferredGoto !== 'function')
-        throw new TypeError('movemon requires a deferredGoto operation');
+    const moveSingleMonster = env.moveSingleMonster
+        ?? movemon_singlemon_with_notices;
+    const clearBypasses = env.clearBypasses ?? clear_bypasses;
+    const deferredGoto = env.deferredGoto
+        ?? ((gotoEnv) => deferred_goto(gotoEnv.state));
     return {
         ...env,
         state,
@@ -799,9 +812,8 @@ export function alloc_itermonarr(count) {
 // C ref: mon.c movemon(). moveSingleMonster owns movemon_singlemon(). Its
 // Boolean result means "terminate traversal", not "monster moved"; like C, it
 // separately maintains state.somebody_can_move for movemon()'s return value.
-// The other two required operations own worn.c clear_bypasses() and do.c
-// deferred_goto(). They are preflighted together so an unavailable later
-// boundary cannot leave a partially processed monster list.
+// The other two operations own worn.c clear_bypasses() and do.c
+// deferred_goto().
 export async function movemon(env = {}) {
     const normalized = monsterTurnEnv(env);
     const { state } = normalized;
@@ -840,40 +852,112 @@ export async function movemon(env = {}) {
     return state.somebody_can_move;
 }
 
-function requiredSingleMonsterOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function') {
-        throw new TypeError(
-            `movemon_singlemon requires a ${name} operation`,
-        );
-    }
-    return operation;
+// movemon()'s default per-monster step: movemon_singlemon(), then the
+// glyph-update notices the monster queued. display.c show_glyph() prints a
+// glyph-update notice through pline_xy() while the monster is still moving,
+// so its vpline() flush shows the status of that moment. Drain the notices
+// this monster queued before the next monster or the turn's upkeep
+// (regeneration, for one) changes what that flush would show.
+async function movemon_singlemon_with_notices(monster, env) {
+    const stop = await movemon_singlemon(monster, env);
+    if (!env.state.program_state?.gameover)
+        await emitGlyphUpdateNotices(env.state, { pline: ttyPline });
+    return stop;
 }
 
 // C ref: mon.c movemon_singlemon() ends in `(void) dochugw(mtmp, TRUE);`
-// (mon.c:1320). This file never calls dochugw() itself: the port injects that
-// call as the `dochugwAction` operation, which movemon_singlemon() below
-// invokes with the normalized action environment as a third argument that C's
-// two-parameter dochugw() has no counterpart for. Adapt an environment-owned
-// action to that signature without letting the source `chug` argument
-// displace the environment.
+// (mon.c:1320). The port reaches dochugw() through the `dochugwAction`
+// operation, which movemon_singlemon() below invokes with the normalized
+// action environment as a third argument that C's two-parameter dochugw() has
+// no counterpart for. Adapt an environment-owned action to that signature
+// without letting the source `chug` argument displace the environment.
 export function adaptMonsterActionToDochugwSignature(action) {
     return (monster, _chug, env) => action(monster, env);
 }
 
-function activeMonsterOperations(env) {
+// C ref: mon.c minliquid(), with the env the running game gives it at its
+// two monster-turn call sites, movemon_singlemon() and mcalcdistress().
+// minliquid() uses rloc()'s result to decide whether its liquid effect is
+// finished, so the relocation stays on the moving monster's state with the
+// complete teleport.c hook set.
+export function liveMinliquid(monster, env) {
+    return minliquid(monster, {
+        ...env,
+        state: env.state,
+        canSee: (x, y) => cansee(x, y, env.state),
+        message: ttyPline,
+        relocateMonster: (subject, flags, relocationEnv) => rloc(
+            subject,
+            flags,
+            {
+                ...relocationEnv,
+                state: env.state,
+                random: relocationEnv.random ?? env.random,
+                message: ttyPline,
+                newsym,
+                onscary: (x, y, target) => onscary(
+                    x,
+                    y,
+                    target,
+                    env.state,
+                ),
+                setApparxy: (target, setEnv) => set_apparxy(target, {
+                    ...setEnv,
+                    state: env.state,
+                    random: relocationEnv.random ?? env.random,
+                }),
+            },
+        ),
+        // mon.c:minliquid_core() discards this inventory-chain result.
+        fireDamageChain: async (
+            chain, force, here, x, y, effectEnv,
+        ) => {
+            await fire_damage_chain(chain, force, here, x, y, effectEnv);
+        },
+        hooks: {
+            ...(env.hooks ?? {}),
+            newsym,
+        },
+    });
+}
+
+// The callees movemon_singlemon() reaches after the movement debit. Each
+// defaults to the function C calls, with the env the running game gives it;
+// a caller may replace any of them. The resolved set is spread into the
+// action env, where later readers take canSeeMonster and canSeeSquare.
+function activeMonsterOperations(env, state) {
     return {
-        visionRecalc: requiredSingleMonsterOperation(env, 'visionRecalc'),
-        clearBypasses: requiredSingleMonsterOperation(env, 'clearBypasses'),
-        minLiquid: requiredSingleMonsterOperation(env, 'minLiquid'),
-        dowear: requiredSingleMonsterOperation(env, 'dowear'),
-        restrap: requiredSingleMonsterOperation(env, 'restrap'),
-        canSeeMonster: requiredSingleMonsterOperation(env, 'canSeeMonster'),
-        hideUnder: requiredSingleMonsterOperation(env, 'hideUnder'),
-        canSeeHero: requiredSingleMonsterOperation(env, 'canSeeHero'),
-        canSeeSquare: requiredSingleMonsterOperation(env, 'canSeeSquare'),
-        fightMonster: requiredSingleMonsterOperation(env, 'fightMonster'),
-        dochugwAction: requiredSingleMonsterOperation(env, 'dochugwAction'),
+        visionRecalc: env.visionRecalc ?? vision_recalc_async,
+        clearBypasses: env.clearBypasses ?? clear_bypasses,
+        minLiquid: env.minLiquid ?? liveMinliquid,
+        // C ref: mon.c movemon_singlemon():1268-1281. A monster whose gear
+        // was flagged for reassessment reruns the complete worn.c m_dowear()
+        // family before the rest of its movement turn.
+        dowear: env.dowear ?? m_dowear,
+        restrap: env.restrap ?? restrap,
+        canSeeMonster: env.canSeeMonster
+            ?? ((subject) => canseemon(subject, state)),
+        // C ref: mon.c movemon_singlemon():1295-1303 and
+        // hideunder():4726-4801, with the newsym() C calls when the eel's
+        // mundetected changes.
+        hideUnder: env.hideUnder ?? ((subject, subjectEnv) => hideunder(
+            subject,
+            { ...subjectEnv, redraw: newsym },
+        )),
+        // C ref: mon.c movemon_singlemon():1305, m_canseeu().
+        canSeeHero: env.canSeeHero
+            ?? ((subject) => m_canseeu(subject, state)),
+        canSeeSquare: env.canSeeSquare ?? ((x, y) => cansee(x, y, state)),
+        fightMonster: env.fightMonster
+            ?? ((subject, subjectEnv) => fightm(subject, {
+                ...subjectEnv,
+                message: ttyPline,
+                markInvisible: (x, y) => map_invisible(x, y, state),
+                redraw: newsym,
+                wieldMonsterItemAgainstMonster,
+            })),
+        dochugwAction: env.dochugwAction
+            ?? adaptMonsterActionToDochugwSignature(runSimpleMonsterAction),
     };
 }
 
@@ -1295,11 +1379,10 @@ export function set_ustuck(mtmp, state = game) {
     }
 }
 
-// C ref: mon.c movemon_singlemon(). The injected operations retain the source
+// C ref: mon.c movemon_singlemon(). The operations retain the source
 // subsystem boundaries for guard cleanup, liquid effects, runtime equipment,
-// hiding, perception, monster combat, and dochugw(). All operations reachable
-// after the movement debit are preflighted before m_everyturn_effect() so a
-// missing owner cannot duplicate its fog-cloud side effect on retry.
+// hiding, perception, monster combat, and dochugw(); each defaults to the
+// function C calls.
 export async function movemon_singlemon(monster, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
@@ -1314,7 +1397,7 @@ export async function movemon_singlemon(monster, env = {}) {
         && !((monster.mstate ?? MON_FLOOR) & MON_MIGRATING);
     if (parkedGuard) {
         if ((state.moves ?? 0) > (monster.mlstmv ?? 0)) {
-            const guardMove = requiredSingleMonsterOperation(env, 'guardMove');
+            const guardMove = env.guardMove ?? gd_move;
             await guardMove(monster, { ...env, state, random });
             monster.mlstmv = state.moves;
         }
@@ -1322,12 +1405,11 @@ export async function movemon_singlemon(monster, env = {}) {
     }
     if (monster.mhp < 1 || !monsterOnMap(monster)) return false;
 
-    const everyTurnEffect = requiredSingleMonsterOperation(
-        env,
-        'everyTurnEffect',
-    );
+    const everyTurnEffect = env.everyTurnEffect ?? m_everyturn_effect;
     const willSpendMovement = monster.movement >= NORMAL_SPEED;
-    const operations = willSpendMovement ? activeMonsterOperations(env) : null;
+    const operations = willSpendMovement
+        ? activeMonsterOperations(env, state)
+        : null;
     if (willSpendMovement && monster.data?.mlet === S_EEL
         && typeof random.rn2 !== 'function') {
         throw new TypeError(
@@ -6627,7 +6709,8 @@ export function restrap(monster, env = {}) {
     if (monster.data?.mlet === S_MIMIC) {
         /* "The mimic needs to be awake to disguise itself as something else." */
         if (monster.msleeping || monster.mfrozen) return false;
-        requiredSingleMonsterOperation(env, 'setMimicSym')(monster, env);
+        // C ref: makemon.c set_mimic_sym(); a caller may replace it.
+        (env.setMimicSym ?? set_mimic_sym)(monster, { ...env, state, random });
         return true;
     } else if (state.level?.at(monster.mx, monster.my)?.typ === ROOM) {
         monster.mundetected = 1;

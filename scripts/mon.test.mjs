@@ -2103,30 +2103,14 @@ test('movemon_singlemon keeps conflict combat as the last pre-move action', asyn
     assert.equal(wizardMoves, 1);
 });
 
-test('movemon_singlemon preflights downstream owners before mutation', async () => {
-    const subject = actionMonster();
-    const state = actionState(subject);
-    const operations = actionOperations();
-    delete operations.dochugwAction;
-    let everyTurnCalls = 0;
-    operations.everyTurnEffect = () => { ++everyTurnCalls; };
-
-    await assert.rejects(movemon_singlemon(subject, {
-        state,
-        ...operations,
-    }), /dochugwAction/);
-    assert.equal(subject.movement, NORMAL_SPEED);
-    assert.equal(everyTurnCalls, 0);
-    assert.deepEqual(state.context.objsplit, {
-        parent_oid: 7,
-        child_oid: 8,
-    });
-
+test('movemon_singlemon checks the eel random source before mutation', async () => {
     const eel = actionMonster({ data: { mflags1: 0, mlet: S_EEL } });
     const eelState = actionState(eel);
-    everyTurnCalls = 0;
+    let everyTurnCalls = 0;
     await assert.rejects(movemon_singlemon(eel, {
         state: eelState,
+        // An empty random source lacks the rn2() the S_EEL re-hiding arm
+        // draws, which the preflight rejects before any state changes.
         random: {},
         ...actionOperations({
             everyTurnEffect: () => { ++everyTurnCalls; },
@@ -2292,24 +2276,6 @@ test('movemon awaits actions, cleanup, and deferred level changes in order', asy
         'deferred:start',
         'deferred:end',
     ]);
-});
-
-test('movemon preflights every unported operation before state changes', async () => {
-    const cases = [
-        [{}, /moveSingleMonster/],
-        [{ moveSingleMonster() {} }, /clearBypasses/],
-        [{ moveSingleMonster() {}, clearBypasses() {} }, /deferredGoto/],
-    ];
-
-    for (const [operations, expected] of cases) {
-        const state = schedulerState([{ id: 'untouched' }]);
-        await assert.rejects(movemon({ state, ...operations }), expected);
-        assert.equal(state.somebody_can_move, 'unchanged');
-        assert.deepEqual(state.context.objsplit, {
-            parent_oid: 7,
-            child_oid: 8,
-        });
-    }
 });
 
 // ---- mon.c mpickstuff() ----
