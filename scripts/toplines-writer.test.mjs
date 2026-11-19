@@ -170,3 +170,53 @@ test('each writer sets the unsplit mark from the path its caller names', () => {
     assert.equal(state._ttyUnsplitToplines, null);
     assert.equal(state.nhDisplay.toplines, line);
 });
+
+// GameDisplay.toplines copies state._ttyToplines for the tests that read
+// it. Game code must not read it: a fallback that did could return a line
+// C's gt.toplines no longer holds. Outside js/game_display.js, which declares
+// the field, only writeToplines() in js/topl.js may name it.
+export function displayCopyUses(source, isTopl = false) {
+    const ast = acorn.parse(source, {
+        ecmaVersion: 'latest', sourceType: 'module', locations: true,
+    });
+    const findings = [];
+    function visit(node, owner) {
+        if (!node || typeof node.type !== 'string') return;
+        let current = owner;
+        if (FUNCTION_TYPES.has(node.type)) current = node.id?.name ?? null;
+        if (node.type === 'MemberExpression'
+            && (node.computed ? propertyName(node.property)
+                : node.property.name) === 'toplines'
+            && !(isTopl && current === 'writeToplines'))
+            findings.push(node.loc.start.line);
+        for (const key of Object.keys(node)) {
+            if (key === 'loc') continue;
+            const child = node[key];
+            if (Array.isArray(child)) for (const item of child) visit(item, current);
+            else if (child && typeof child.type === 'string') visit(child, current);
+        }
+    }
+    visit(ast, null);
+    return findings;
+}
+
+test('game code does not read the display copy of the top line', () => {
+    const findings = [];
+    for (const file of readdirSync(JS_DIR).filter((name) => name.endsWith('.js')).sort()) {
+        if (file === 'game_display.js') continue;
+        const source = readFileSync(join(JS_DIR, file), 'utf8');
+        for (const line of displayCopyUses(source, file === 'topl.js'))
+            findings.push(`js/${file}:${line}`);
+    }
+    assert.deepEqual(findings, []);
+});
+
+test('the copy scan finds a read and a write outside writeToplines()', () => {
+    const source = [
+        "const line = state._ttyToplines ?? state.nhDisplay.toplines;", // 1: read
+        "display['toplines'] = line;", // 2: computed write
+        "function writeToplines(state) { state.nhDisplay.toplines = ''; }", // 3
+    ].join('\n');
+    assert.deepEqual(displayCopyUses(source), [1, 2, 3]);
+    assert.deepEqual(displayCopyUses(source, true), [1, 2]);
+});

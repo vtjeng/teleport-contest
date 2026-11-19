@@ -205,7 +205,7 @@ export function clearTtyMessageWindow(state = game) {
     delete state._pendingMessageLayout;
     delete state._ttyMixedFirstCell;
     display.toplin = TOPLINE_EMPTY;
-    display.topMessage = state._ttyToplines ?? display.toplines ?? '';
+    display.topMessage = state._ttyToplines ?? '';
 }
 
 // C ref: win/tty/topl.c more().  A multi-line top message is repaired through
@@ -274,7 +274,6 @@ export async function dismissPendingTtyMessage(
         state._ttyMessageStopped = true;
     }
     display.topMessage = state._ttyToplines;
-    display.toplines = state._ttyToplines;
     display.toplin = TOPLINE_EMPTY;
     return returnResponse ? response : true;
 }
