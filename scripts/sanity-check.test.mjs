@@ -172,18 +172,18 @@ test('check_wornmask_slots reports a wielded weapon missing from inventory', asy
     ]);
 });
 
-test('a collection returns the impossible() texts synchronous doname code would print', async () => {
-    const { collect_impossibles } = await import('../js/source_steps.js');
+test('synchronous doname code queues the impossible() report C prints', async () => {
     const { unpaid_cost } = await import('../js/shk.js');
     const state = mapState();
     // No shop entered (u.ushops empty): C's loop leaves shkp null, so
     // shk.c:3301-3302 reports the object even though nothing was searched.
     state.u = { ushops: [] };
     const dart = { unpaid: true, quan: 3, cobj: null };
-    const { value, texts } = collect_impossibles(state,
-        () => unpaid_cost(dart, 0, state));
-    assert.equal(value, 0);
-    assert.deepEqual(texts, ["unpaid_cost: object wasn't on any bill."]);
-    // Outside a collection the same call only records the gap.
-    assert.equal(state.program_state.collected_impossibles, undefined);
+    assert.equal(unpaid_cost(dart, 0, state), 0);
+    // The report waits on the notice queue for the next message, menu,
+    // prompt or turn boundary (js/startup_a11y.js queueImpossibleNotice()).
+    assert.deepEqual(
+        state._glyphUpdateNotices.map(({ message, impossible }) => ({ message, impossible })),
+        [{ message: "unpaid_cost: object wasn't on any bill.", impossible: true }],
+    );
 });

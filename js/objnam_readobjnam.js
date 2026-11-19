@@ -660,12 +660,9 @@ async function apply_wizterrainwish(d, rawEnv = {}) {
         if (strncmpiIsPrefix(bp, 'melting ')) {
             // A second "melting ice" wish on this square reaches
             // start_timer()'s duplicate-timer impossible().
+            // Its report prints before the terrain message below.
             const { start_melt_ice_timeout } = await import('./zap.js');
-            const { collect_impossibles } = await import('./source_steps.js');
-            const { impossible } = await import('./pline.js');
-            const { texts } = collect_impossibles(state,
-                () => start_melt_ice_timeout(x, y, 0, state, random));
-            for (const text of texts) await impossible(text, state, env);
+            start_melt_ice_timeout(x, y, 0, state, random);
         }
         if (!isDbridge) {
             const { ice_descr } = await import('./pager.js');

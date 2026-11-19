@@ -412,7 +412,7 @@ import {
 import { genders } from './roles.js';
 import { encumber_msg } from './pickup.js';
 import {
-    impossible_printer, verbalize, with_impossibles, youFeel,
+    impossible_printer, verbalize, youFeel,
 } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { body_part, polymon } from './polyself.js';
@@ -1110,7 +1110,7 @@ export async function hitfloor(obj, verbosely = true, state = game, rawEnv = {})
                 break;
             }
         }
-        const name = await with_impossibles(() => Doname2(obj, state), state);
+        const name = Doname2(obj, state);
         await (rawEnv.message ?? ttyPline)(
             `${name} ${otense(obj, verb, state)} the ${landingSurface}.`,
             state,

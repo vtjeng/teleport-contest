@@ -1730,8 +1730,7 @@ export function start_timer(
             && timer.func_index === funcIndex
             && timer.arg === arg) {
             // timeout.c defines VERBOSE_TIMER, so idbuf names the function.
-            // start_timer() cannot wait for the message; an async caller
-            // runs it inside collect_impossibles() and prints the text.
+            // start_timer() cannot wait for the message, so it is queued.
             sync_impossible('Attempted to start duplicate '
                 + `${timeout_funcs[funcIndex].name} timer, aborted.`, state);
             return false;

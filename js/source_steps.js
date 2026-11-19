@@ -17,6 +17,7 @@
 // the synchronous callers that still do that for dungeon.c builds_up().
 
 import { note_unported } from './unported.js';
+import { queueImpossibleNotice } from './startup_a11y.js';
 
 // The text of one impossible() call, yielded where C makes it.
 export class ImpossibleCall {
@@ -54,30 +55,12 @@ export function finish_steps(steps, onImpossible = gap_impossible) {
     return advance(undefined, false);
 }
 
-// A synchronous function that C has call impossible() cannot wait for the
-// message. An async caller that formats an object through such code, and
-// prints right after it, runs that code inside collect_impossibles(): each
-// impossible() text is queued and returned with the result, for the caller
-// to print before its own output, which is the order C prints in. Outside
-// a collection the call records the unported print, as gap_impossible()
-// does.
+// C ref: pline.c impossible(), called from a synchronous port function. C
+// prints the report there and then; the port queues it with the map frame of
+// that moment (startup_a11y.js queueImpossibleNotice()), and the next message,
+// menu, text window, prompt or turn boundary prints it first. In the common
+// case, pline("You drop %s.", doname(obj)), that is C's order: doname()'s
+// report, then the message that uses the name.
 export function sync_impossible(text, state) {
-    const queue = state?.program_state?.collected_impossibles;
-    if (queue) queue.push(text);
-    else gap_impossible();
-}
-
-// Run the synchronous `fn` and return { value, texts }, the impossible()
-// texts sync_impossible() queued while it ran. Collections nest; each
-// returns only its own texts.
-export function collect_impossibles(state, fn) {
-    state.program_state ??= {};
-    const outer = state.program_state.collected_impossibles;
-    const texts = [];
-    state.program_state.collected_impossibles = texts;
-    try {
-        return { value: fn(), texts };
-    } finally {
-        state.program_state.collected_impossibles = outer;
-    }
+    queueImpossibleNotice(text, state);
 }

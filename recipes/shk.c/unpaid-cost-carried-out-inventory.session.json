@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c unpaid_cost() report from inventory displays. Seed 8452217's Dlvl 4 has a weapon shop whose keeper stands at (54,5) inside an open door at (53,5); a debug-mode Samurai who level-teleports there lands at (58,3) on 10 darts (port-only scanSeeds() probe over 8452000-8452400 for a hero who lands on an object inside a shop with its keeper at home: 16 hits, this one chosen for its weapon shop). She picks up the darts (unpaid), hurls the keeper west through the door with #wiztelekinesis (wizcmds.c wiz_telekinesis() -> mhurtle()), wishes for a hole under herself (objnam.c wizterrainwish()) and plunges through it with '>'. shk.c u_left_shop() returns early because the keeper is not inhishop(), so the darts stay unpaid on Dlvl 5, where no bill holds them: every objnam.c doname() of them reaches shk.c unpaid_cost(), which reports \"unpaid_cost: object wasn't on any bill.\" through impossible() (3302-3303), and C prints that report while it formats the name, before the window or message that uses it. She then lists her inventory with 'i': invent.c display_pickinv() (3057) formats each entry with doname() while it builds the menu, so the report and its two report lines come before the menu appears. Escape closes the menu, and she readies the darts with 'Q': wield.c dowieldquiver() prints the new quiver through invent.c prinv() (wield.c 657), whose doname() reports first again. Seed, datetime, character and inputs were chosen independently of every recorded session and batch game.",
+  "segments": [
+    {
+      "seed": 8452217,
+      "datetime": "20270314101500",
+      "nethackrc": "OPTIONS=name:Peddler,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!tips\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001b\u00164\n\n\n,\n#wiztelekinesis\nhhhhjj.h\u001b\u0017hole\n>i\n\n\n\u001bQg\n\n\n\n"
+    }
+  ]
+}

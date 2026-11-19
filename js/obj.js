@@ -224,7 +224,7 @@ import {
 } from './shk.js';
 import { in_rooms } from './rooms.js';
 import {
-    impossible, impossible_printer, verbalize, with_impossibles, youSee,
+    impossible, impossible_printer, verbalize, youSee,
 } from './pline.js';
 import { fmt_ptr } from './alloc.js';
 import { panic } from './end.js';
@@ -3664,15 +3664,14 @@ export async function insane_object(obj, fmt, mesg, mon, state = game) {
     let monnm = 'null!';
     if (obj) {
         // doname() can itself call impossible() (a leash whose monster is
-        // gone, an unpaid object on no bill); C prints those first.
-        objnm = await with_impossibles(() => {
-            state.iflags.override_ID = (state.iflags.override_ID ?? 0) + 1;
-            try {
-                return donameFresh(obj, state);
-            } finally {
-                state.iflags.override_ID -= 1;
-            }
-        }, state);
+        // gone, an unpaid object on no bill); its queued report prints
+        // first, as C's does.
+        state.iflags.override_ID = (state.iflags.override_ID ?? 0) + 1;
+        try {
+            objnm = donameFresh(obj, state);
+        } finally {
+            state.iflags.override_ID -= 1;
+        }
     }
     if (mon || (strstri(mesg, 'minvent') && !strstri(mesg, 'contained'))) {
         const altfmt = `${fmt} held by mon %s (%s)`;
