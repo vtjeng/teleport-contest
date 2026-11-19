@@ -2033,13 +2033,13 @@ function preflightTrap(env, trap) {
 }
 
 /**
- * C ref: the aflag == 0 arms of detect.c dosearch0(), plus every capability
- * its loop body needs.
+ * C ref: the aflag == 0 arms of detect.c dosearch0().  Checks that an injected
+ * random source has every draw the loop body needs.
  *
- * dosearch0() draws rnl() once per adjacent square inside its loop, so a case
- * this port cannot finish has to be refused over the whole 3x3 before the
- * first draw.  A refusal decided at the fifth square would already have spent
- * randomness on the first four and could not be retried.
+ * dosearch0() draws rnl() once per adjacent square inside its loop, so a
+ * random source that lacks a draw has to be refused over the whole 3x3 before
+ * the first draw.  A refusal decided at the fifth square would already have
+ * spent randomness on the first four.
  */
 function preflightExplicitSearch(env) {
     const { state } = env;
@@ -2563,10 +2563,10 @@ export async function find_trap(trap, rawEnv = {}) {
  * adjacent square, searches out adjacent monsters through mfind0(), and
  * reconciles a remembered invisible monster through unmap_invisible().
  *
- * The explicit command can be retried, so preflightExplicitSearch() decides
- * its remaining swallowed and trap refusals over all eight squares before the
- * first draw.  The source mfind0() arms are complete and therefore run from
- * the loop for both mimics and unspotted or hidden monsters.
+ * Before the first draw, preflightExplicitSearch() checks over all eight
+ * squares that an injected random source has every draw the loop needs.  The
+ * source mfind0() arms are complete and therefore run from the loop for both
+ * mimics and unspotted or hidden monsters.
  */
 export async function dosearch0(aflag, rawEnv = {}) {
     const explicit = aflag === 0 || aflag === false;
