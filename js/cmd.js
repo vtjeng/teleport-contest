@@ -3877,7 +3877,7 @@ export async function handler_rebind_keys_add(keyfirst = false, state = game) {
     // FALSE having changed nothing and reported nothing, and line 2402 prints
     // "Key binding failed?!". On Linux the first byte happens to be zero and
     // the key is bound. macOS workflow runs 41286167639 (probes) and
-    // 44607258217 (recordings/cmd.c/*bind*-live) show the failure on all
+    // 44607258217 (the cmd.c *bind*-live recordings) show the failure on all
     // four Strcat() paths, key first and command first, and on a Strcat()
     // bind that follows a Snprintf() bind in the same visit to the menu; the
     // RNG matches Linux in every case. A command with a parameter fills
