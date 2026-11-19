@@ -1087,7 +1087,6 @@ export async function panic(str, state = game) {
     if (panicking)
         await NH_abort(state); /* avoid loops - this should never happen*/
 
-    state.gb ??= {};
     state.gb.bot_disabled = true;
     if (state.iflags?.window_inited !== false) {
         tty_raw_print(state, '\r\nOops...');

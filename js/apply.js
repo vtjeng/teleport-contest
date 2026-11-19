@@ -2562,7 +2562,6 @@ async function use_stethoscope(obj, state = game) {
     // from mon.c see_monster_closeup(); this pair is not that one, because
     // gn.notonhead here is u.uswallow rather than a comparison with the
     // monster's own square.
-    state.gb ??= {};
     state.gb.bhitpos.x = u.ux;
     state.gb.bhitpos.y = u.uy;
     state.gn ??= {};

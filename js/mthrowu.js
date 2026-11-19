@@ -838,7 +838,6 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
     const tethered_weapon = monster.mw === obj
         && Boolean(arw?.tethered);
 
-    state.gb ??= {};
     state.gb.bhitpos.x = x;
     state.gb.bhitpos.y = y;
     state.gn ??= {};
@@ -1514,7 +1513,6 @@ export async function breamm(mtmp, mattk, mtarg, rawEnv = {}) {
                         state,
                     );
                 }
-                state.gb ??= {};
                 state.gb.buzzer = mtmp;
                 // C discards dobuzz()'s return value, but the call itself owns
                 // the beam walk, damage, messages, and all of its RNG draws.

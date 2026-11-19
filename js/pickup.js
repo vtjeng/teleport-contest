@@ -2545,7 +2545,6 @@ export function menu_class_present(c, state = game) {
 export function add_valid_menu_class(c, state) {
     state.gv ??= {};
     state.gc ??= {};
-    state.gb ??= {};
     state.gs ??= {};
     state.gp ??= {};
     if (c === 0) {

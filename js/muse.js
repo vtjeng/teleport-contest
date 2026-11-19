@@ -2398,7 +2398,6 @@ async function fhito_loc(obj, tx, ty, fhito, state, rawEnv = {}) {
 async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
     const otyp = obj.otyp;
 
-    state.gb ??= {};
     state.gb.bhitpos.x = mon.mx;
     state.gb.bhitpos.y = mon.my;
     const ddx = sgn(mon.mux - mon.mx);
@@ -2685,7 +2684,6 @@ export async function use_offensive(mtmp, rawEnv = {}) {
             discover_object(otmp.otyp, true, true, true, state, env);
         state.m_using = true;
         state.current_wand = otmp;
-        state.gb ??= {};
         state.gb.buzzer = mtmp;
         const buzzFunction = mtmp.mwandexp ? buzz : buzz_force_miss;
         await buzzFunction(
@@ -2709,7 +2707,6 @@ export async function use_offensive(mtmp, rawEnv = {}) {
     case MUSE_FROST_HORN: {
         await mplayhorn(mtmp, otmp, false, state, env);
         state.m_using = true;
-        state.gb ??= {};
         state.gb.buzzer = mtmp;
         state.current_wand = otmp;
         const buzzFunction = mtmp.mwandexp ? buzz : buzz_force_miss;
@@ -2818,7 +2815,6 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         state.gz.zap_oseen = oseen;
         await mzapwand(mtmp, otmp, false, state, env);
         state.m_using = true;
-        state.gb ??= {};
         state.gb.buzzer = mtmp;
         await mbhit(
             mtmp,

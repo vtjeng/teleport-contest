@@ -2226,7 +2226,6 @@ export async function do_attack(monster, state = game, env = {}) {
 
     state.go ??= {};
     state.go.override_confirmation = false;
-    state.gb ??= {};
     state.gb.bhitpos.x = state.u.ux + state.u.dx;
     state.gb.bhitpos.y = state.u.uy + state.u.dy;
     state.gn ??= {};
@@ -2395,7 +2394,6 @@ export async function known_hitum(
 
         /* we hit the monster; be careful: it might die or
            be knocked into a different location */
-        state.gb ??= {};
         state.gn ??= {};
         state.gn.notonhead = state.gb.bhitpos.x !== mon.mx
             || state.gb.bhitpos.y !== mon.my;

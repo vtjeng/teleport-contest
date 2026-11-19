@@ -2016,7 +2016,6 @@ export async function dosinkfall(state = game) {
 // Strength and moving the rock. decl.c:224-225 starts both at 0.
 async function dopush(sx, sy, rx, ry, otmp, state, env) {
     env ??= {};
-    state.gb ??= {};
     const moves = Math.trunc(state.moves ?? 0);
     /* give boulder pushing feedback if this is a different
        boulder than the last one pushed or if it's been at
@@ -4067,7 +4066,6 @@ async function domove_core(state = game) {
     const oldy = u.uy;
     u.ux0 = oldx;
     u.uy0 = oldy;
-    state.gb ??= {};
     state.gb.bhitpos.x = newx;
     state.gb.bhitpos.y = newy;
     const targetGlyph = glyph_at(newx, newy, state);

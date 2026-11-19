@@ -2575,7 +2575,6 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     }
 
     setThrownObject(state, obj);
-    state.gb ??= {};
     obj.how_lost = LOST_THROWN;
     state.iflags ??= {};
     state.iflags.returning_missile = autoReturns(obj, wep_mask, state)

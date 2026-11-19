@@ -357,7 +357,6 @@ export async function kickdmg(mon, clumsy, state = game) {
 export async function maybe_kick_monster(mon, x, y, state = game) {
     if (!mon) return false;
     const env = kickEnvironment(state);
-    state.gb ??= {};
     state.gb.bhitpos.x = x;
     state.gb.bhitpos.y = y;
     const saveForcefight = state.context?.forcefight;
