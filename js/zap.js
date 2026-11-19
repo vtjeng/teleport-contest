@@ -324,7 +324,6 @@ export async function boomhit(
     const counterclockwise = state.u?.uhandedness !== LEFT_HANDED;
     let direction = xytodir(dx, dy);
     let nhits = Math.max(1, (obj.spe ?? 0) + 1);
-    state.gb ??= {};
     state.gb.bhitpos.x = state.u.ux;
     state.gb.bhitpos.y = state.u.uy;
     let boom = counterclockwise ? S_BOOMLEFT : S_BOOMRIGHT;
@@ -5819,7 +5818,6 @@ export async function dobuzz(
     let range = random.rn1(7, 7);
     if (dx === 0 && dy === 0)
         range = 1;
-    state.gb ??= {};
     const save_bhitpos = { ...state.gb.bhitpos };
     // C's `boolean shopdamage`, taken by address. Only the door arm of
     // zap_over_floor() raises it and that arm stops, so the tail below reads
@@ -6210,7 +6208,6 @@ export async function zapwrapup(state = game, rawEnv = {}) {
 export async function zap_steed(obj, state = game, random = coreRandom, rawEnv = {}) {
     const steed = state.u?.usteed;
     if (!steed) return false;
-    state.gb ??= {};
     state.gb.bhitpos.x = steed.mx;
     state.gb.bhitpos.y = steed.my;
     state.gn ??= {};

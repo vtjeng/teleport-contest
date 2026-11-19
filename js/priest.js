@@ -299,7 +299,6 @@ export async function ghod_hitsu(priest, rawEnv = {}) {
 
     const oldcurrwand = state.current_wand;
     state.current_wand = null;
-    state.gb ??= {};
     const oldbuzzer = state.gb.buzzer;
     state.gb.buzzer = 0;
     await buzz(

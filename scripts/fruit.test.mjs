@@ -26,10 +26,7 @@ import {
     SLIME_MOLD,
     objects_globals_init,
 } from '../js/objects.js';
-import {
-    NON_PM,
-    monst_globals_init,
-} from '../js/monsters.js';
+import { monst_globals_init } from '../js/monsters.js';
 import { SYM_BOULDER } from '../js/const.js';
 import {
     S_darkroom,
@@ -485,12 +482,6 @@ test('monster-shaped fruit names use the complete source resolver', () => {
         );
         assert.equal(state.svp.pl_fruit, expected, configured);
     }
-
-    const injected = fruitState();
-    finish_fruit_option(parseNethackrc('OPTIONS=fruit:newt eggs'), injected, {
-        hooks: { nameToMon: () => NON_PM },
-    });
-    assert.equal(injected.svp.pl_fruit, 'newt egg');
 });
 
 test('fruit lookup and insertion preserve ids, case, and prefix matching', () => {

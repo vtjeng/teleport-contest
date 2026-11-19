@@ -1404,7 +1404,6 @@ export async function doread(state = game) {
     if (scroll.oclass === SPBOOK_CLASS) {
         return await study_book(scroll, state, {
             message: ttyPline,
-            prompt: y_n,
         }) ? ECMD_TIME : ECMD_OK;
     }
 

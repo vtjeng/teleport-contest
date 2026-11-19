@@ -21,7 +21,7 @@ import {
     preflight_initial_pickup,
     reset_justpicked,
 } from './pickup.js';
-import { can_reach_floor, read_engr_at } from './engrave.js';
+import { read_engr_at } from './engrave.js';
 import { rnd } from './rng.js';
 import { initrack } from './track.js';
 import { ttyPline } from './tty_message.js';
@@ -91,10 +91,7 @@ export async function moveloop_preamble(
     if (resuming) {
         // allmain.c:86-89: read_engr_at() is "a subset of pickup()", which
         // only a new game runs, and fix_shop_damage() repairs shops.
-        await read_engr_at(state.u.ux, state.u.uy, state, {
-            pline: ttyPline,
-            canReachFloor: can_reach_floor,
-        });
+        await read_engr_at(state.u.ux, state.u.uy, state);
         await fix_shop_damage(state, env);
     }
 

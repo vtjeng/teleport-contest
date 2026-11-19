@@ -3724,7 +3724,6 @@ export async function m_move(monster, rawEnv = {}) {
             ? m_at(targetX, targetY, state) : null;
         if (intruder && intruder !== monster
             && dist2(monster.mx, monster.my, targetX, targetY) <= 2) {
-            state.gb ??= {};
             state.gb.bhitpos.x = targetX;
             state.gb.bhitpos.y = targetY;
             state.gn ??= {};
@@ -4188,7 +4187,6 @@ export async function m_move_aggress(mtmp, x, y, env = {}) {
 
     const mtmp2 = m_at(x, y, state);
     if (mtmp2) {
-        state.gb ??= {};
         state.gb.bhitpos.x = x;
         state.gb.bhitpos.y = y;
         state.gn ??= {};
@@ -4205,7 +4203,6 @@ export async function m_move_aggress(mtmp, x, y, env = {}) {
             mtmp2.movement -= NORMAL_SPEED;
         else
             mtmp2.movement = 0;
-        state.gb ??= {};
         state.gb.bhitpos.x = mtmp.mx;
         state.gb.bhitpos.y = mtmp.my;
         state.gn ??= {};

@@ -267,7 +267,6 @@ function bot_disabled_is_set(state) {
 // inside win_select_menu(), and its docrt()+flush_screen(1) repair reaches
 // bot() while the flag is up.
 export async function select_menu(state, spec) {
-    state.gb ??= {};
     const old_bot_disabled = bot_disabled_is_set(state);
 
     // Core callers model calls to add_menu() as item objects or display-only
@@ -361,7 +360,6 @@ export async function getlin(query, state = game) {
         return answer;
     }
 
-    state.gb ??= {};
     const old_bot_disabled = bot_disabled_is_set(state);
 
     state.gb.bot_disabled = true;

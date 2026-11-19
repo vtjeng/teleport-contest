@@ -185,8 +185,6 @@ function normalizedEnvironment(state, random, options) {
     if (typeof random?.rn2 !== 'function' || typeof random?.rnd !== 'function')
         throw new TypeError('starting inventory requires rn2 and rnd');
     const iniInv = options?.iniInv ?? ini_inv;
-    if (typeof iniInv !== 'function')
-        throw new TypeError('starting inventory requires an iniInv callback');
     return {
         state,
         random,

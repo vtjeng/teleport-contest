@@ -59,6 +59,7 @@ import {
     W_QUIVER,
     BURN_OBJECT,
     TIMER_OBJECT,
+    DUST,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { utf8Text } from '../js/hacklib.js';
@@ -239,6 +240,7 @@ import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
 import { expectTerminated } from './expect-terminated.mjs';
 import { lastseentyp_grid } from '../js/dungeon.js';
+import { make_engr_at } from '../js/engrave.js';
 
 const OBJNAM_SOURCE = readFileSync('nethack-c/upstream/src/objnam.c', 'utf8');
 const OBJ_HEADER_SOURCE = readFileSync('nethack-c/upstream/include/obj.h', 'utf8');
@@ -908,18 +910,31 @@ test('blind single-object look_here awaits each output owner in source order',
         assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
     });
 
-test('single-object look_here requires its engraving owner before output',
+test('single-object look_here reads the engraving through its message seam',
     async () => {
         const dart = objectOf(namingState(), DART);
         const state = lookState(ROOM, dart);
+        // A dust engraving under the dart at the hero's square (1, 1). Any
+        // text but the exact "Elbereth", whose engraving exercises Wisdom,
+        // is made without a random draw.
+        make_engr_at(1, 1, 'ad aerarium', null, 0, DUST, {
+            state,
+            random: {
+                rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+                rnd: (bound) => assert.fail(`unexpected rnd(${bound})`),
+            },
+        });
         const messages = [];
-        await assert.rejects(
-            look_here(0, LOOKHERE_NOFLAGS, state, {
-                message: (text) => messages.push(text),
-            }),
-            /engraving owners/u,
-        );
-        assert.deepEqual(messages, []);
+        await look_here(0, LOOKHERE_NOFLAGS, state, {
+            message: async (text) => messages.push(text),
+        });
+        // invent.c look_here() calls read_engr_at() before it names the
+        // single object, and both print through the same message seam.
+        assert.deepEqual(messages, [
+            'Something is written here in the dust.',
+            'You read: "ad aerarium".',
+            'You see here a dart.',
+        ]);
     });
 
 test('ordinary object piles display every name before reading the engraving',

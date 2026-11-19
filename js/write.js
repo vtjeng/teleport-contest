@@ -70,6 +70,8 @@ import { ttyPline } from './tty_message.js';
 import { livelog_printf } from './pline.js';
 import { getlin } from './windows.js';
 import { Blind, Glib, Hallucination } from './youprop.js';
+import { fingers_or_gloves } from './do_wear.js';
+import { dropx } from './do.js';
 
 // C ref: write.c cost() (12-57). Returns the base ink cost for a scroll or
 // spellbook type. The table values are copied verbatim from the C source.
@@ -139,20 +141,13 @@ export async function dowrite(pen, state = game, env = {}) {
     } else if (Glib(state.u)) {
         // C: pline("%s from your %s.", Tobjnam(pen, "slip"),
         // fingers_or_gloves(FALSE)); dropx(pen); return ECMD_TIME.
-        // apply.c supplies the do_wear.c and do.c operations here to avoid a
-        // write.js -> do_wear.js -> do.js -> apply.js import cycle.
-        if (typeof env.fingersOrGloves !== 'function'
-            || typeof env.dropx !== 'function') {
-            throw new TypeError(
-                'write.c dowrite() requires fingersOrGloves and dropx',
-            );
-        }
         await ttyPline(
             `${Tobjnam(pen, 'slip', state)} from your `
-            + `${env.fingersOrGloves(false, state)}.`,
+            + `${fingers_or_gloves(false, state)}.`,
             state,
         );
-        await env.dropx(pen);
+        // write.c discards dropx()'s result.
+        await dropx(pen, { ...env, state });
         return ECMD_TIME;
     }
 

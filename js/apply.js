@@ -2562,7 +2562,6 @@ async function use_stethoscope(obj, state = game) {
     // from mon.c see_monster_closeup(); this pair is not that one, because
     // gn.notonhead here is u.uswallow rather than a comparison with the
     // monster's own square.
-    state.gb ??= {};
     state.gb.bhitpos.x = u.ux;
     state.gb.bhitpos.y = u.uy;
     state.gn ??= {};
@@ -5031,12 +5030,7 @@ export async function doapply(state = game, env = {}) {
         return ECMD_TIME;
     case MAGIC_MARKER:
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.
-        return dowrite(obj, state, {
-            ...env,
-            fingersOrGloves: fingers_or_gloves,
-            // write.c discards dropx()'s result.
-            dropx: (object) => dropx(object, { ...env, state }),
-        });
+        return dowrite(obj, state, env);
     case TIN_OPENER: {
         // apply.c:4364-4366 assigns this ECMD result before the common
         // artifact-speech tail; use_tin_opener() selects a tin and calls

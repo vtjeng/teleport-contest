@@ -621,7 +621,6 @@ function defaultDogName(state) {
 // C callers set gb.bhitpos and derive gn.notonhead together before recording a
 // monster observation. Keep those coupled writes at one JS ownership point.
 function setMonsterObservationPosition(monster, observedAt, state) {
-    state.gb ??= {};
     state.gb.bhitpos.x = observedAt.x;
     state.gb.bhitpos.y = observedAt.y;
     state.gn ??= {};

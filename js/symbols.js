@@ -456,6 +456,7 @@ export function selectedSymsetMenuValue(selection, defaultIndex) {
 
 // C ref: symbols.c:do_symset(). The JavaScript picker uses the generated
 // symbols-file projection instead of mutating global symset_list while parsing.
+// `selectMenu` defaults to the tty select_menu() with the menu-heading style.
 export async function do_symset(
     rogueFlag,
     state = game,
@@ -475,8 +476,19 @@ export async function do_symset(
     }
 
     const title = `Select ${rogueFlag ? 'rogue level ' : ''}symbol set:`;
-    if (typeof selectMenu !== 'function')
-        throw new TypeError('do_symset requires the options menu selector');
+    if (!selectMenu) {
+        // windows.js and tty_menu.js import display.js, which imports this
+        // module; a static import would read display.js's bindings before
+        // they are initialized when this module loads first.
+        const [{ select_menu }, { menuTitleStyle }] = await Promise.all([
+            import('./windows.js'),
+            import('./tty_menu.js'),
+        ]);
+        selectMenu = (spec) => select_menu(state, {
+            ...spec,
+            ...menuTitleStyle(state),
+        });
+    }
     const selection = await selectMenu({
         items,
         how: PICK_ONE,

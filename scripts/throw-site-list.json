@@ -972,30 +972,6 @@
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
     },
-    "js/engrave.js | cant_reach_floor | 'cant_reach_floor requires a pline callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/engrave.js | doengrave_sfx_item_WAN | 'doengrave requires randomEngraving'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/engrave.js | read_engr_at | 'read_engr_at requires a pline callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/engrave.js | tactileFloor | 'blind read_engr_at requires a canReachFloor callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/exper.js | newpw | 'hero, role, and race must be initialized first'": {
       "count": 1,
       "class": "invariant",
@@ -1055,12 +1031,6 @@
       "class": "guard",
       "c": null,
       "reason": "Checks the named-fruit chain for a cycle or a malformed node; C walks gf.ffruit without checking, and no writer is known to corrupt it."
-    },
-    "js/fruit.js | monsterName | 'nameToMon must return an integer monster index'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/fruit.js | requireFruitGlobals | `${operation} requires objects_globals_init()`": {
       "count": 1,
@@ -1145,12 +1115,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Replay harness contract (input queue, display, or module-level game); no C counterpart."
-    },
-    "js/insight.js | doattributes | 'doattributes needs a menu owner'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/invent.js | add_to_buried | 'add_to_buried requires an object'": {
       "count": 1,
@@ -1289,18 +1253,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
-    "js/invent.js | look_here | 'look_here needs an object-pile display owner'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/invent.js | look_here | 'look_here needs message and engraving owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/invent.js | mergedRuntime | 'glob absorption must preserve its target'": {
       "count": 1,
@@ -2472,18 +2424,6 @@
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/o_init.js | doclassdisco | 'doclassdisco needs textWindow and yesNo owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/o_init.js | dodiscovered | 'dodiscovered needs message and window owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/o_init.js | init_objects | `init_objects: generic object ${i} has class ${objects[i].oc": {
       "count": 1,
       "class": "panic",
@@ -3210,18 +3150,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/spell.js | study_book | 'study_book requires a prompt owner'": {
-      "count": 2,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/startup_a11y.js | emitGlyphUpdateNotices | 'emitGlyphUpdateNotices requires a pline callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/startup_reroll.js | reroll_menu | 'reroll_menu requires initialized u.uroleplay'": {
       "count": 1,
       "class": "invariant",
@@ -3317,12 +3245,6 @@
       "class": "guard",
       "c": "include/rm.h",
       "reason": "C indexes the symbol array or converts the value with a macro unchecked; callers pass values in range."
-    },
-    "js/symbols.js | do_symset | 'do_symset requires the options menu selector'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
     "js/symbols.js | get_othersym | `other symbol ${index} is outside MAXOTHER`": {
       "count": 1,
@@ -3684,12 +3606,6 @@
       "c": null,
       "reason": "Refuses state used before the initialization every game performs first."
     },
-    "js/u_init_inventory_attrs.js | normalizedEnvironment | 'starting inventory requires an iniInv callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/u_init_inventory_attrs.js | normalizedEnvironment | 'starting inventory requires initialized hero role and race'": {
       "count": 1,
       "class": "invariant",
@@ -3715,12 +3631,6 @@
       "reason": "An injected random source returned a value outside its bound."
     },
     "js/u_init_inventory_use.js | ini_inv_use_obj | 'ini_inv_use_obj requires an inventory object'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/u_init_inventory_use.js | ini_inv_use_obj | 'ini_inv_use_obj requires initialSpell for a spellbook'": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -3841,12 +3751,6 @@
       "reason": "C view_from() panics on a range outside 1..MAX_RADIUS; the function is synchronous."
     },
     "js/weapon.js | drain_weapon_skill | 'drain_weapon_skill requires rn2'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/weapon.js | enhance_weapon_skill | 'enhance_weapon_skill needs a menu owner'": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -3983,12 +3887,6 @@
       "class": "invariant",
       "c": null,
       "reason": "A missing injected operation."
-    },
-    "js/write.js | dowrite | 'write.c dowrite() requires fingersOrGloves and dropx'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
     "js/zap.js | blank_novel | 'blank_novel requires a blank spellbook'": {
       "count": 1,

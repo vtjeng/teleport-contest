@@ -203,6 +203,7 @@ import {
 } from './symbols.js';
 import { Blind, Hallucination } from './youprop.js';
 import { lcase, lowc, strncmpi } from './hacklib.js';
+import { ttyPline } from './tty_message.js';
 
 // mhidden_description() is owned by pager.c.  Keep this compatibility export
 // for status-line and startup callers while pager.js remains the sole JS
@@ -661,12 +662,7 @@ export function queueVisionMonsterNotices(state) {
 const NOTICE_MON_YOU_BUF = 'You %s %s.';
 
 export async function emitGlyphUpdateNotices(state, env = {}) {
-    const pline = env.pline;
-    if (typeof pline !== 'function') {
-        throw new TypeError(
-            'emitGlyphUpdateNotices requires a pline callback',
-        );
-    }
+    const pline = env.pline ?? ttyPline;
     if (state._emittingGlyphUpdateNotices) return [];
     const pending = state._glyphUpdateNotices?.splice(0) ?? [];
     if (!pending.length) return [];

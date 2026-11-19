@@ -647,7 +647,6 @@ export async function dorestore(state = game) {
     // first clears every slot that newgame left.
     find_lev_obj(state.level.objlist, state, false);
     state.level.buriedobjlist = restobjchn(state.level.buriedobjlist, state);
-    state.gb ??= {};
     state.gb.billobjs = restobjchn(snapshot.billobjs ?? null, state);
 
     // C ref: restore.c getlev():1181-1221, the hero's level under
@@ -1140,7 +1139,6 @@ export async function getlev(ledger, state = game) {
     state.level.objlist = restobjchn(state.level.objlist, state);
     find_lev_obj(state.level.objlist, state, true);
     state.level.buriedobjlist = restobjchn(state.level.buriedobjlist, state);
-    state.gb ??= {};
     state.gb.billobjs = restobjchn(snapshot.billobjs ?? null, state);
 
     for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {

@@ -875,7 +875,6 @@ export async function scatter(
     let shopkeeper = null;
     let lostGoods = false;
 
-    state.gb ??= {};
     state.gt ??= {};
 
     if (individualObject && (obj.ox !== sx || obj.oy !== sy)) {

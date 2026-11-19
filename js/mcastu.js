@@ -1315,7 +1315,6 @@ export async function buzzmu(mtmp, mattk, rawEnv = {}) {
                 mtmp.mx, mtmp.my, state,
             ), state);
         }
-        state.gb ??= {};
         state.gb.buzzer = mtmp;
         await buzz(
             BZ_M_SPELL(BZ_OFS_AD(mattk.adtyp)),

@@ -78,14 +78,6 @@ async function startup(roleName, raceName = 'human', seed = 731_337) {
     return { state: game, hooks };
 }
 
-function spellRecorder() {
-    const types = [];
-    return {
-        types,
-        initialSpell: (obj) => types.push(obj.otyp),
-    };
-}
-
 function removalHooks(overrides = {}) {
     return {
         cancelDoff: () => {},
@@ -96,14 +88,15 @@ function removalHooks(overrides = {}) {
 
 test('Healer inventory is used in final inventory-chain order', async () => {
     const env = await startup('Healer');
-    const spells = spellRecorder();
-    await use_initial_inventory({ ...env, initialSpell: spells.initialSpell });
+    await use_initial_inventory(env);
 
     assert.equal(game.uwep?.otyp, O.SCALPEL);
     assert.equal(game.uwep.owornmask, W_WEP);
     assert.equal(game.uarmg?.otyp, O.LEATHER_GLOVES);
     assert.equal(game.uarmg.owornmask, W_ARMG);
-    assert.deepEqual(spells.types, [
+    // u_init.c ini_inv_use_obj() calls initialspell() for each Healer
+    // spellbook in inventory-chain order, filling the first three slots.
+    assert.deepEqual(game.svs.spl_book.slice(0, 3).map((s) => s.sp_id), [
         O.SPE_HEALING,
         O.SPE_EXTRA_HEALING,
         O.SPE_STONE_TO_FLESH,
@@ -112,7 +105,7 @@ test('Healer inventory is used in final inventory-chain order', async () => {
 
 test('Ranger selects primary, alternate, quiver, and displacement cloak', async () => {
     const env = await startup('Ranger');
-    await use_initial_inventory({ ...env, initialSpell: () => {} });
+    await use_initial_inventory(env);
 
     assert.equal(game.uwep?.otyp, O.DAGGER);
     assert.equal(game.uwep.owornmask, W_WEP);
@@ -129,7 +122,7 @@ test('Ranger selects primary, alternate, quiver, and displacement cloak', async 
 
 test('Wizard cloak confers and removes its worn extrinsic', async () => {
     const env = await startup('Wizard');
-    await use_initial_inventory({ ...env, initialSpell: () => {} });
+    await use_initial_inventory(env);
 
     const cloak = game.uarmc;
     assert.equal(cloak?.otyp, O.CLOAK_OF_MAGIC_RESISTANCE);
@@ -152,7 +145,7 @@ test('known described objects and oil lamps update discovery state', async () =>
         spe: 1,
     };
     assert.equal(Boolean(game.objects[O.POT_OIL].oc_name_known), false);
-    await ini_inv_use_obj(lamp, { ...env, initialSpell: () => {} });
+    await ini_inv_use_obj(lamp, env);
     assert.equal(Boolean(game.objects[O.OIL_LAMP].oc_name_known), true);
     assert.equal(Boolean(game.objects[O.POT_OIL].oc_name_known), true);
     assert.equal(Boolean(game.objects[O.POT_OIL].oc_encountered), true);

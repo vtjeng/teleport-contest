@@ -27,6 +27,7 @@ import { A_WIS, ECMD_OK, NO_SPELL, NUM_ATTRS, P_BASIC,
 import { MAXSPELL, SPE_HEALING, SPE_EXTRA_HEALING, SPE_FORCE_BOLT,
     SPE_STONE_TO_FLESH } from '../js/objects.js';
 import { roles } from '../js/roles.js';
+import { initialGb } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
 import { dospellmenu, dovspell, show_spells, sortspells, spell_cmp,
     spellsortmenu, spelltypemnemonic, SORTBY_ALPHA, SORTBY_CURRENT,
@@ -42,7 +43,10 @@ function spellState() {
             Array.from({ length: P_NUM_SKILLS }, () => ({ skill: P_ISRESTRICTED })) },
         svs: { spl_book: Array.from({ length: MAXSPELL + 1 }, () =>
             ({ sp_id: NO_SPELL, sp_lev: 0, sp_know: 0 })) },
-        iflags: {}, flags: {}, gs: { spl_sortmode: 0, spl_orderindx: null } };
+        iflags: {}, flags: {}, gs: { spl_sortmode: 0, spl_orderindx: null },
+        // windows.c select_menu() raises gb.bot_disabled; every game state
+        // starts with the gb that js/gstate.js initialGb() builds.
+        gb: initialGb() };
     state.u.weapon_skills[P_HEALING_SPELL].skill = P_BASIC;
     init_objects(state, () => 0); // Fixed catalog setup, no RNG in comparator.
     [SPE_HEALING, SPE_STONE_TO_FLESH, SPE_EXTRA_HEALING, SPE_FORCE_BOLT]

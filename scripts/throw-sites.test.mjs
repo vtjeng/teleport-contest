@@ -35,7 +35,7 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // ops3-a and ops3-b removed 19 more (the last 2 in apply_catch_lit.js and
 // apply_splash_lit.js, and guards in detect.js, trap.js, teleport.js and
 // themerooms.js), 676 left under 671 keys; none still match the pin.
-const LIST_PINS = { entries: 671, sites: 676 };
+const LIST_PINS = { entries: 654, sites: 658 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());

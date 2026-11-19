@@ -2648,7 +2648,6 @@ export async function do_storms(state = game) {
             const dx = rn2(3) - 1;
             const dy = rn2(3) - 1;
             if (dx || dy) {
-                state.gb ??= {};
                 state.gb.buzzer = null;
                 await buzz(BZ_M_SPELL(BZ_OFS_AD(AD_ELEC)), 8, x, y, dx, dy, state);
                 // C death terminates nonlocally; a JS ended game returns.

@@ -89,6 +89,8 @@ import { rest_push_each } from './restore.js';
 import {
     Blind, Confusion, Deaf, Flying, Hallucination, Levitation, Stunned,
 } from './youprop.js';
+import { random_engraving } from './random_engraving.js';
+import { ttyPline } from './tty_message.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -402,10 +404,8 @@ export async function doengrave_sfx_item_WAN(de, state = game, env = {}) {
         if (de.oep) {
             if (!blind) {
                 de.type = 0;
-                const generated = await env.randomEngraving?.({ state,
+                const generated = random_engraving({ state,
                     random: env.random });
-                if (!generated)
-                    throw new TypeError('doengrave requires randomEngraving');
                 de.buf = generated.text;
                 de.ebuf = generated.pristine;
             } else {
@@ -1160,13 +1160,10 @@ export function can_reach_floor(checkPit = true, state = game) {
 
 // C ref: engrave.c cant_reach_floor() (217-228). Emits the refusal message
 // after the caller has already determined that can_reach_floor() is false.
-// The pline callback is injected so this module need not depend on the tty
-// display layer.
+// A caller may pass its own message seam as `pline`.
 export async function cant_reach_floor(
-    x, y, up, checkPit, wandEngraving, state = game, { pline } = {},
+    x, y, up, checkPit, wandEngraving, state = game, { pline = ttyPline } = {},
 ) {
-    if (typeof pline !== 'function')
-        throw new TypeError('cant_reach_floor requires a pline callback');
     const who = wandEngraving
         ? 'The wand does nothing more, and the tip of the wand'
         : 'You';
@@ -1191,16 +1188,14 @@ export function freehand(state = game, env = {}) {
         || (!bimanual(uwep, state) && (!state.uarms || !state.uarms.cursed));
 }
 
-// C ref: engrave.c read_engr_at(). The message callback is injected to avoid
-// making the engraving substrate depend on the tty display implementation.
-// Blind tactile ENGRAVE, HEADSTONE, and BURN paths invoke
-// canReachFloor(true, state) synchronously; other paths do not require the
-// callback.
+// C ref: engrave.c read_engr_at(). A caller may pass its own message seam as
+// `pline`. Blind tactile ENGRAVE, HEADSTONE, and BURN paths call
+// can_reach_floor(TRUE).
 export async function read_engr_at(
     x,
     y,
     state = game,
-    { pline, canReachFloor } = {},
+    { pline = ttyPline } = {},
 ) {
     const engraving = engr_at(x, y, state);
     // C obtains `eloc` from dungeon.c:surface() before inspecting the
@@ -1208,19 +1203,12 @@ export async function read_engr_at(
     const surfaceName = surface(x, y, state);
     const text = engraving?.engr_txt?.[0] ?? '';
     if (!text) return false;
-    if (typeof pline !== 'function')
-        throw new TypeError('read_engr_at requires a pline callback');
 
     const blind = Blind(state.u);
     const onIce = is_ice(x, y, state);
     const tactileFloor = () => {
         if (!blind) return true;
-        if (typeof canReachFloor !== 'function') {
-            throw new TypeError(
-                'blind read_engr_at requires a canReachFloor callback',
-            );
-        }
-        return Boolean(canReachFloor(true, state));
+        return can_reach_floor(true, state);
     };
     let sensed = false;
     switch (engraving.engr_type) {

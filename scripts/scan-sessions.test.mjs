@@ -11,8 +11,6 @@ import test from 'node:test';
 import {
     DISPATCHED_COMMANDS,
     MOVEMENT_INTENTS,
-    UnsupportedHeroCommandBoundaryError,
-    UnsupportedHeroCommandBranchBoundaryError,
 } from '../js/cmd.js';
 import {
     DEVELOPMENT_DIR,
@@ -20,7 +18,6 @@ import {
     cursorState,
     extendedCommandAt,
     formatReplayContext,
-    isCommandRefusal,
     loadScanRows,
     loadSyntheticScan,
     main,
@@ -416,31 +413,6 @@ test('the supported set is every command the port dispatches', () => {
     // supported.
     assert.equal(supported.has('debugfuzzer'), true);
     assert.equal(supported.has('bugreport'), true);
-});
-
-// isCommandRefusal() reads the class js/cmd.js raised and never the message,
-// so each case below carries the shortest reason that identifies the seam it
-// stands for. 0x71 is `q`, a dispatched command byte, and is the same in the
-// first two cases on purpose: nothing in the recording tells them apart.
-test('isCommandRefusal separates a refused command from a refused branch',
-    () => {
-    // The dispatch seam. callExtcmdFunction() used to refuse a row whose
-    // function was absent from DISPATCHED_COMMANDS' source table; no row is
-    // now, but a refusal of that class is still one the model derives from
-    // the recording by itself.
-    assert.equal(
-        isCommandRefusal(new UnsupportedHeroCommandBoundaryError(
-            'the repeated-command boundary', 0x71)),
-        true,
-    );
-    // failClosedCommand()'s seam, below a command that was dispatched. The
-    // gate admits the first byte, so the model reads the command as supported
-    // and can name nothing at the step the port stopped on.
-    assert.equal(
-        isCommandRefusal(new UnsupportedHeroCommandBranchBoundaryError(
-            'an unported branch of this command: quaffing a potion', 0x71)),
-        false,
-    );
 });
 
 test('only the bytes read at a command position count as commands', () => {

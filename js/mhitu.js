@@ -1516,7 +1516,6 @@ export function calc_mattacku_vars(mtmp, rawEnv = {}) {
         foundyou: u_at(mtmp.mux, mtmp.muy, state),
         youseeit: seeMonster(mtmp, state),
     };
-    state.gb ??= {};
     state.gb.bhitpos.x = state.u.ux;
     state.gb.bhitpos.y = state.u.uy;
     state.gn ??= {};

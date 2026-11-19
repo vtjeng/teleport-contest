@@ -500,7 +500,6 @@ export async function fightm(mtmp, rawEnv = {}) {
                 }
             }
 
-            state.gb ??= {};
             state.gb.bhitpos.x = mon.mx;
             state.gb.bhitpos.y = mon.my;
             state.gn ??= {};

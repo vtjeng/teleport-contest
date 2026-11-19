@@ -251,7 +251,6 @@ function monsterOffMap(monster) {
 }
 
 function setMonsterAttackPosition(target, x, y, state) {
-    state.gb ??= {};
     state.gb.bhitpos.x = x;
     state.gb.bhitpos.y = y;
     state.gn ??= {};

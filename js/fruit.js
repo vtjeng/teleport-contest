@@ -595,12 +595,7 @@ export function fruit_from_name(fname, exact = false, state = game) {
 }
 
 function monsterName(name, env) {
-    const hook = env.hooks?.nameToMon;
-    const index = typeof hook === 'function'
-        ? hook(name, env)
-        : name_to_mon(name, { state: env.state });
-    if (!Number.isInteger(index))
-        throw new TypeError('nameToMon must return an integer monster index');
+    const index = name_to_mon(name, { state: env.state });
     return index >= LOW_PM && index < NUMMONS;
 }
 

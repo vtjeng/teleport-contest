@@ -15,11 +15,7 @@ import { fileURLToPath } from 'node:url';
 
 import { decodeScreen } from '../frozen/screen-decode.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
-import {
-    DISPATCHED_COMMANDS,
-    UnsupportedHeroCommandBoundaryError,
-    UnsupportedHeroCommandBranchBoundaryError,
-} from '../js/cmd.js';
+import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { commandForKey } from '../js/command_bindings.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
@@ -349,23 +345,6 @@ export function assembleBehaviors(issued, supported, behavioral = null) {
         .map(([member, at]) => ({ member, at }))
         .sort((a, b) => a.at - b.at || a.member.localeCompare(b.member));
 }
-/**
- * Whether the port refused the COMMAND, which is the one kind of stop the
- * recorded input can name for itself.
- *
- * `supportedCommands()` resolves each recorded byte against DISPATCHED_COMMANDS,
- * which names a command by its first byte alone. A refusal at that byte is
- * therefore a behavior the model derives from the recording. A refusal below it
- * is not: failClosedCommand() raises js/cmd.js
- * UnsupportedHeroCommandBranchBoundaryError inside a command the port did
- * dispatch, so it refuses a branch rather than the command and no recorded byte
- * stands for it. A boundary raised outside any command is that same case and
- * always was.
- */
-export function isCommandRefusal(boundary) {
-    return boundary instanceof UnsupportedHeroCommandBoundaryError
-        && !(boundary instanceof UnsupportedHeroCommandBranchBoundaryError);
-}
 
 /**
  * The first mismatch between the port's replayed output and the recording,
@@ -468,7 +447,7 @@ export async function scanRecordedSession(file, data, replaySegment = runSegment
                 sum + (segment.steps?.length ?? 0), 0),
             divergence: null, boundary: 'Replay error: ' + error.message,
             scanError: String(error.stack ?? error).replaceAll(PROJECT_ROOT + '/', ''),
-            commandRefusal: false, key: null, command: null, keyCursor: null,
+            key: null, command: null, keyCursor: null,
             message: '', stopContext: null, behavioral: null, issued: [],
             answers: null, ambiguous: null, unported: [], segmentEndStates: [],
         };
@@ -697,7 +676,6 @@ async function replaySession(file, data, replaySegment) {
             const step = steps[stopIndex];
             stop = {
                 boundary: boundary.message,
-                commandRefusal: isCommandRefusal(boundary),
                 key: step?.key ?? null,
                 command: resolvedCommand(step?.key),
                 // Whether the refused byte began a command, read the way
@@ -716,10 +694,13 @@ async function replaySession(file, data, replaySegment) {
                     ],
                 },
             };
-            // A stop that is not a command refusal names a behavior the input
-            // stream cannot: the port reached a behavior it has not ported,
-            // either outside any command or inside one it dispatched. Its
-            // first use is the step the port never consumed. Only the FIRST
+            // Every stop names a behavior the input stream cannot: the port
+            // reached a behavior it has not ported, either outside any command
+            // or inside one it dispatched. (supportedCommands() resolves each
+            // recorded byte against DISPATCHED_COMMANDS, which names a command
+            // by its first byte alone, and every row there now dispatches, so
+            // no stop is a refusal of the command byte itself.) Its first use
+            // is the step the port never consumed. Only the FIRST
             // such behavior per session is visible, because the port stops
             // there and never reports what stands behind it; that censoring is
             // why `unlocks` is an upper bound.
@@ -730,8 +711,7 @@ async function replaySession(file, data, replaySegment) {
             // enter at the step the FIRST one stopped on, in a segment it
             // never ran in -- and would sort ahead of the behavior actually
             // measured there, taking that behavior's `unlocks` with it.
-            if (!isCommandRefusal(boundary))
-                behavioral = { member: boundary.message, at: screensEmitted };
+            behavioral = { member: boundary.message, at: screensEmitted };
         }
         const issued = commandsIssued(steps);
         answers += issued.answers;
@@ -762,7 +742,6 @@ async function replaySession(file, data, replaySegment) {
         recordedSteps,
         divergence: enrichDivergence(rawDivergence, replayedSegments),
         boundary: stop?.boundary ?? null,
-        commandRefusal: stop?.commandRefusal ?? false,
         key: stop?.key ?? null,
         command: stop?.command ?? null,
         keyCursor: stop?.keyCursor ?? null,
