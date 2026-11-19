@@ -5338,7 +5338,6 @@ export function status_condition_cache_keys(state) {
 // this game's gb so separate games cannot share classification or flags.
 // The cache survives multi>=0; only the four test flags clear on recovery.
 export function botl_incapacitated_conditions(state = game, u = state.u) {
-    state.gb ??= {};
     const cache = state.gb.incapacitated_conditions ??= {
         messageKey: null, reasonKey: null,
         available: [false, false], result: [false, false],
@@ -6593,7 +6592,7 @@ function _statusHiliteChangeBanks(gb, size) {
 // initialized, including the zeroed any-value union. The configured threshold
 // list belongs to iflags and is deliberately left intact here.
 export function init_blstats(state = game) {
-    const gb = state.gb ??= {};
+    const gb = state.gb;
     // C keeps a static initalready flag; gb.blinit is set by the one full
     // status_initialize() that reaches here, so it marks the same state.
     if (gb.blinit) {
@@ -6641,7 +6640,6 @@ function statusPercentBanks(gb) {
 export function status_initialize(state = game, reassessOnly = true) {
     state.disp ??= {};
     state.gu ??= {};
-    state.gb ??= {};
     if (!reassessOnly) {
         if (state.gb.blinit) {
             // C: impossible("2nd status_initialize with full init.");
@@ -6683,7 +6681,7 @@ function _setStatusHiliteChange(gb, fld, value) {
 }
 
 function _beginStatusHilitePass(onlyField = null) {
-    const gb = game.gb ??= {};
+    const gb = game.gb;
     const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
     // bot_via_windowport() toggles gn.now_or_before_idx; stat_update_time()
     // does not.
@@ -6873,7 +6871,7 @@ function _deliverStatusCapacity(capacity) {
 // consumes these delivered banks. `onlyField` is the timebot fast path.
 // Returns whether this pass marked tty_status[NOW][BL_TITLE] dirty.
 function _collectStatusHilites(layouts, onlyField = null) {
-    const gb = game.gb ??= {};
+    const gb = game.gb;
     let titleDirty = false;
     const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
     for (const name of ['status_hilite_rule', 'status_hilite_value',
@@ -7041,7 +7039,7 @@ function _collectStatusHilites(layouts, onlyField = null) {
 // took-time action. This owns the two timer banks and requests botl only once
 // an existing temporary highlight expires.
 export function status_eval_next_unhilite(state = game) {
-    const gb = state.gb ??= {};
+    const gb = state.gb;
     const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
     gb.status_hilite_times ??= [Array(size).fill(0), Array(size).fill(0)];
     gb.status_hilite_times[0] ??= Array(size).fill(0);
@@ -8560,7 +8558,6 @@ export async function query_conditions(state, helpers) {
 }
 export function reset_status_hilites(state = game) {
     if (state.iflags?.hilite_delta) {
-        state.gb ??= {};
         const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
         state.gb.status_hilite_times = [
             Array(size).fill(0), Array(size).fill(0),
@@ -8618,7 +8615,6 @@ export function status_hilite2str(rule) {
     return truncateByteString(`${row.name}/${behavior}/${color}`, statusConstants.BUFSZ - 1);
 }
 export function status_hilite_linestr_done(state = game) {
-    state.gb ??= {};
     state.gb.status_hilite_str = [];
 }
 export function status_hilite_linestr_add(state, fld, hl, mask, str) {

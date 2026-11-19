@@ -1661,7 +1661,6 @@ async function add_one_tobill(obj, dummy, shkp, state, env) {
 function add_to_billobjs(obj, state = game, env = {}) {
     if (obj.where !== OBJ_FREE) throw new Error('add_to_billobjs: obj not free');
     if (obj.timed) obj_stop_timers(obj, state, env);
-    state.gb ??= {};
     obj.nobj = state.gb.billobjs ?? null;
     state.gb.billobjs = obj;
     obj.where = OBJ_ONBILL;

@@ -1,8 +1,7 @@
 // js/gstate.js initialGameState() builds the game's `gb` struct with
 // initialGb(), as C's decl.c declares it once per process, so game code never
 // creates it on first use. This test fails when js/ guards it with
-// `gb ??= {}` again. The pinned exceptions are files another change owns;
-// lower their counts as those lines go.
+// `gb ??= {}` again.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -30,15 +29,7 @@ export function gbCreationLines(source) {
         CREATION.test(codePart(line)) ? [index + 1] : []));
 }
 
-// Each count is the number of `gb ??=` lines left in that file. They were
-// left in place because another agent was editing js/display.js and
-// js/shk.js when the other 36 were removed; they are as redundant as those.
-const PINNED_EXCEPTIONS = {
-    'js/display.js': 8,
-    'js/shk.js': 1,
-};
-
-test('js/ never creates gb on first use outside the pinned files', () => {
+test('js/ never creates gb on first use', () => {
     const counts = {};
     for (const name of readdirSync(join(ROOT, 'js')).sort()) {
         if (!name.endsWith('.js')) continue;
@@ -46,7 +37,7 @@ test('js/ never creates gb on first use outside the pinned files', () => {
             readFileSync(join(ROOT, 'js', name), 'utf8'));
         if (found.length) counts[`js/${name}`] = found.length;
     }
-    assert.deepEqual(counts, PINNED_EXCEPTIONS);
+    assert.deepEqual(counts, {});
 });
 
 test('the scan finds statement and expression creations, not comments', () => {
