@@ -712,7 +712,8 @@ export function* wall_angle_steps(loc) {
     }
 
     case SDOOR:
-        if (loc.arboreal_sdoor || loc.candig) return S_tree;
+        // rm.h:224 `#define arboreal_sdoor candig`.
+        if (loc.candig) return S_tree;
         if (loc.horizontal) return yield* hwallAngle(seenv, mode);
         // Non-horizontal secret doors use the vertical-wall cases.
         // falls through
@@ -2843,7 +2844,8 @@ export function* back_to_glyph_steps(x, y, state = game) {
     if (WALL_TYPES.has(ptr.typ)) {
         // C's SDOOR case falls through to the ten wall cases unless the
         // secret door hides a tree, so the two share one arm here too.
-        const idx = ptr.typ === SDOOR && (ptr.arboreal_sdoor || ptr.candig)
+        // rm.h:224 `#define arboreal_sdoor candig`.
+        const idx = ptr.typ === SDOOR && ptr.candig
             ? S_tree
             : ptr.seenv ? yield* wall_angle_steps(ptr) : S_stone;
         return cmap_to_glyph(idx, state);

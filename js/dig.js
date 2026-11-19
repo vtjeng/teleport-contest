@@ -2030,8 +2030,10 @@ export async function zap_dig(
                 add_damage(zx, zy, SHOP_DOOR_COST, state);
                 shopdoor = true;
             }
+            // dig.c:1674-1675 sets only typ here; unlike
+            // cvt_sdoor_to_door(), it leaves arboreal_sdoor (candig) set.
             if (room.typ === SDOOR) {
-                cvt_sdoor_to_door(room, state);
+                room.typ = DOOR; /* doormask set below */
             } else if (cansee(zx, zy, state)) {
                 await ttyPline('The door is razed!', state);
             }
