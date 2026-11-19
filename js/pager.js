@@ -249,7 +249,6 @@ import {
     ROCK_CLASS,
     VENOM_CLASS,
 } from './objects.js';
-import { NO_COLOR } from './terminal.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
 import {
     describeMonster,
@@ -2057,7 +2056,7 @@ export async function do_look(mode, clickCc = null, state = game) {
             for (let row = firstStatusRow; row <= lastRepairRow; ++row) {
                 for (let column = inventoryRepairLayout.repairColumn;
                     column < state.nhDisplay.cols; ++column) {
-                    state.nhDisplay.setCell(column, row, ' ', NO_COLOR, 0);
+                    state.nhDisplay.clearCell(column, row);
                 }
             }
         }

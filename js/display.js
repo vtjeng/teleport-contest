@@ -7422,7 +7422,9 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
             const color = browserGlyphs
                 ? presentation.displayColor ?? presentation.color ?? NO_COLOR
                 : presentation.color ?? NO_COLOR;
-            display.setCell(x - 1, screenRow, ch, color, attr);
+            // tty_print_glyph()'s g_putch(), whose capture map_glyphinfo()
+            // has already applied (symbols.js symbol_at()).
+            display.putCaptured(x - 1, screenRow, ch, color, attr);
             if (overStatus) {
                 recordScreenOverlay(x - 1, screenRow, ch, color, attr);
             }
@@ -7461,7 +7463,8 @@ function writeStatusRows(
             column < Math.min(text.length, display.cols);
             ++column) {
             const style = styles[index]?.[column];
-            display.setCell(
+            // tty_putstatusfield() prints each byte as a char.
+            display.putch(
                 column,
                 screenRow,
                 text[column],
@@ -7528,8 +7531,8 @@ export function recordRawShadowCells(cells, state = game) {
 function _applyScreenOverlay(display) {
     const overlay = game._screenOverlay;
     if (!overlay?.size) return;
-    for (const { column, row, ch, color, attr } of overlay.values())
-        display.setCell(column, row, ch, color, attr);
+    for (const cell of overlay.values())
+        display.restoreCell(cell.column, cell.row, cell);
 }
 
 // The field each status column belongs to. botl.c formats every field after
@@ -7771,16 +7774,12 @@ function _buildScreenOutput(cursorOnHero = true) {
         if (!bufferedOnly) display.clearScreen();
         // Message line
         for (let c = 0; !bufferedOnly && c < rowZeroLength; c++) {
-            if (skipsCell(c)) {
-                const cell = skippedMessageCells[c];
-                display.setCell(c, 0, cell.ch, cell.color, cell.attr);
-            } else {
-                display.setCell(
-                    c, 0,
-                    c === 0 && mixedFirstCell ? mixedFirstCell : msg[c],
-                    NO_COLOR, 0,
-                );
-            }
+            if (skipsCell(c))
+                display.restoreCell(c, 0, skippedMessageCells[c]);
+            else if (c === 0 && mixedFirstCell)
+                display.putCaptured(c, 0, mixedFirstCell);
+            else
+                display.putch(c, 0, msg[c]);
         }
         // Map — write characters to grid (DEC → Unicode for browser display)
         const browserGlyphs = Boolean(display.spans);
@@ -7857,7 +7856,8 @@ function _buildScreenOutput(cursorOnHero = true) {
                             : loc.disp_attr ?? 0,
                     );
                 }
-                display.setCell(
+                // The cell tty_print_glyph() last printed here.
+                display.putCaptured(
                     x - 1,
                     offset + 1,
                     ch,
@@ -7898,14 +7898,8 @@ function _buildScreenOutput(cursorOnHero = true) {
                 for (let column = 0; column < display.cols; ++column) {
                     if (printedOverStatus.has(`${firstRow + row}:${column}`))
                         continue;
-                    const cell = savedStatusCells[row][column];
-                    display.setCell(
-                        column,
-                        firstRow + row,
-                        cell.ch,
-                        cell.color,
-                        cell.attr,
-                    );
+                    display.restoreCell(column, firstRow + row,
+                        savedStatusCells[row][column]);
                 }
             }
         }
@@ -8436,7 +8430,7 @@ function writeErasedStatusRows(display) {
             column < Math.min(text.length, display.cols);
             ++column) {
             const style = styles[index]?.[column];
-            display.setCell(column, screenRow, text[column],
+            display.putch(column, screenRow, text[column],
                 style?.color ?? NO_COLOR, style?.attr ?? ATR_NONE);
         }
     }

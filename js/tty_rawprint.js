@@ -40,7 +40,8 @@ function nomux_raw_write(state, bytes, attr = 0) {
                 shadowCells?.push({
                     column, row: raw.row, ch: character, color: NO_COLOR, attr,
                 });
-                display.setCell(column++, raw.row, character, NO_COLOR, attr);
+                // nomux_raw_putch() stores an unsigned byte.
+                display.putCaptured(column++, raw.row, character, NO_COLOR, attr);
             }
         }
         captured = [];

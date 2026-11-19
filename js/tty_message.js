@@ -122,8 +122,9 @@ function writePendingTtyMessagePrompt(state, layout, promptAttr = ATR_NONE) {
         display.setCursor(0, promptRow);
         display.clearToEol();
     }
+    // redotoplin()'s g_putch() of a mixed line's first byte.
     if (state._ttyMixedFirstCell)
-        display.setCell(0, 0, state._ttyMixedFirstCell, NO_COLOR, 0);
+        display.putCaptured(0, 0, state._ttyMixedFirstCell);
     display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, promptAttr);
     display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
 }
@@ -137,7 +138,7 @@ function writeMorePromptAtCursor(display, promptAttr) {
     }
     for (const ch of MORE_PROMPT) {
         if (column >= display.cols) break;
-        display.setCell(column++, row, ch, NO_COLOR, promptAttr);
+        display.putch(column++, row, ch, NO_COLOR, promptAttr);
     }
     display.setCursor(column, row);
 }
