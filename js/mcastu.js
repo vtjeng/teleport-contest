@@ -795,9 +795,7 @@ async function mcast_lightning(mtmp, dmg, env = {}) {
         mtmp, AD_ELEC, state.u.ux, state.u.uy, effectEnv,
     );
     // mcastu.c evaluates rnd(100) before the canonical zap.c flashburn call.
-    // Keep that draw on the injected gameplay RNG.
-    if (typeof random.rnd !== 'function')
-        throw new TypeError('mcast_lightning requires the rnd operation');
+    // Keep that draw on the same gameplay RNG as the d(8,6) above.
     const duration = random.rnd(100);
     await flashburn(duration, true, state, effectEnv);
     return dmg;

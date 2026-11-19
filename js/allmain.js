@@ -44,23 +44,15 @@ import { run_end_turn_callbacks } from './nhlua.js';
 import { u_on_upstairs } from './stairs.js';
 import { m_at } from './monst.js';
 import {
-    adaptMonsterActionToDochugwSignature,
     decide_to_shapeshift,
-    hideunder,
+    liveMinliquid,
     mcalcdistress,
     mcalcmove,
-    minliquid,
     mnexto,
     movemon,
-    movemon_singlemon,
-    restrap,
     were_change,
 } from './mon.js';
-import {
-    m_dowear,
-    makemon_runtime,
-    set_mimic_sym,
-} from './makemon_create.js';
+import { makemon_runtime } from './makemon_create.js';
 import { init_objects } from './o_init.js';
 import { maybe_shuffle_customizations } from './glyphs.js';
 import { UnsupportedObjectOperationError } from './obj.js';
@@ -114,7 +106,6 @@ import {
     cls,
     bot,
     flush_screen,
-    map_invisible,
     newsym,
     see_monsters,
     see_objects,
@@ -133,13 +124,12 @@ import {
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
 import { u_wipe_engr } from './engrave.js';
 import { check_special_room } from './rooms.js';
-import { rloc, tele } from './teleport.js';
+import { tele } from './teleport.js';
 import {
     block_point,
     cansee,
     does_block,
     init_vision_globals,
-    m_canseeu,
     unblock_point,
     vision_reset,
     vision_recalc_async,
@@ -156,17 +146,8 @@ import {
     maybe_finished_meal,
     reset_eat,
 } from './eat.js';
-import { gd_move, invault } from './vault.js';
-import { fightm } from './mhitm.js';
-import {
-    m_everyturn_effect,
-    onscary,
-    set_apparxy,
-} from './monmove.js';
-import {
-    runSimpleMonsterAction,
-    wieldMonsterItemAgainstMonster,
-} from './unported_monster_actions.js';
+import { invault } from './vault.js';
+import { m_everyturn_effect } from './monmove.js';
 import { run_regions } from './region.js';
 import {
     nh_timeout,
@@ -184,7 +165,6 @@ import { check_leash } from './apply.js';
 import { clear_splitobjs } from './obj.js';
 import { makewish } from './zap.js';
 import { clear_bypasses } from './worn.js';
-import { canseemon } from './display.js';
 import { amulet, intervene } from './wizard.js';
 import { rndcurse } from './sit.js';
 import {
@@ -672,51 +652,6 @@ function regionEffectEnv(state, random) {
     };
 }
 
-function elapsedTurnMinLiquid(monster, env) {
-    return minliquid(monster, {
-        ...env,
-        state: env.state,
-        canSee: (x, y) => cansee(x, y, env.state),
-        message: ttyPline,
-        // minliquid() uses rloc()'s result to decide whether its liquid
-        // effect is finished. Keep the relocation on the elapsed-turn state
-        // and provide the complete teleport.c hook set.
-        relocateMonster: (subject, flags, relocationEnv) => rloc(
-            subject,
-            flags,
-            {
-                ...relocationEnv,
-                state: env.state,
-                random: relocationEnv.random ?? env.random,
-                message: ttyPline,
-                newsym,
-                onscary: (x, y, target) => onscary(
-                    x,
-                    y,
-                    target,
-                    env.state,
-                ),
-                setApparxy: (target, setEnv) => set_apparxy(target, {
-                    ...setEnv,
-                    state: env.state,
-                    random: relocationEnv.random ?? env.random,
-                }),
-            },
-        ),
-        // mon.c:minliquid_core() discards this inventory-chain result.
-        fireDamageChain: async (
-            chain, force, here, x, y, effectEnv,
-        ) => {
-            const { fire_damage_chain } = await import('./trap.js');
-            await fire_damage_chain(chain, force, here, x, y, effectEnv);
-        },
-        hooks: {
-            ...(env.hooks ?? {}),
-            newsym,
-        },
-    });
-}
-
 // C ref: allmain.c moveloop_core(), the once-per-turn block that runs when
 // both the hero and the monsters are out of movement. C's done() does not
 // return; the JavaScript end-game path returns so the recorder can capture
@@ -738,7 +673,7 @@ export async function finishElapsedTurn(state, random) {
         message: ttyPline,
         redrawSquare: newsym,
         visionRecalc: vision_recalc_async,
-        minLiquid: elapsedTurnMinLiquid,
+        minLiquid: liveMinliquid,
         decideToShapeshift: decide_to_shapeshift,
         wereChange: were_change,
     });
@@ -1031,74 +966,6 @@ function elapsedTurnRefusals() {
     ];
 }
 
-const runElapsedTurnMonsterAction =
-    adaptMonsterActionToDochugwSignature(runSimpleMonsterAction);
-
-async function moveElapsedTurnMonster(monster, env) {
-    const stop = await movemon_singlemon(monster, {
-        ...env,
-        // C ref: mon.c movemon_singlemon():1233-1239, a guard parked at <0,0>.
-        guardMove: (guard, guardEnv) => gd_move(guard, guardEnv),
-        everyTurnEffect: m_everyturn_effect,
-        visionRecalc: vision_recalc_async,
-        clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),
-        minLiquid: elapsedTurnMinLiquid,
-        // C ref: mon.c movemon_singlemon():1268-1281. A monster whose gear
-        // was flagged for reassessment reruns the complete worn.c m_dowear()
-        // family before the rest of its movement turn.
-        dowear: (subject, creation, subjectEnv) => m_dowear(
-            subject,
-            creation,
-            subjectEnv,
-        ),
-        // C ref: mon.c restrap(). This binding preserves makemon.c
-        // set_mimic_sym()'s final visibility-blocking update against the
-        // monster map.
-        restrap: (subject, subjectEnv) => restrap(subject, {
-            ...subjectEnv,
-            setMimicSym: (mimic, mimicEnv) => set_mimic_sym(mimic, {
-                ...mimicEnv,
-                hooks: {
-                    ...(mimicEnv.hooks ?? {}),
-                    doesBlock: (x, y, location, normalized) => does_block(
-                        x,
-                        y,
-                        location,
-                        normalized.state,
-                    ),
-                },
-            }),
-        }),
-        canSeeMonster: (subject) => canseemon(subject, env.state),
-        // C ref: mon.c movemon_singlemon():1295-1303 and hideunder():4726-4801.
-        // This binding owes the newsym() C calls when the eel's mundetected
-        // changes.
-        hideUnder: (subject, subjectEnv) => hideunder(subject, {
-            ...subjectEnv,
-            redraw: newsym,
-        }),
-        // C ref: mon.c movemon_singlemon():1305, m_canseeu().
-        canSeeHero: (subject) => m_canseeu(subject, env.state),
-        canSeeSquare: (x, y) => cansee(x, y, env.state),
-        fightMonster: (subject, subjectEnv) => fightm(subject, {
-            ...subjectEnv,
-            message: ttyPline,
-            markInvisible: (x, y) => map_invisible(x, y, env.state),
-            redraw: newsym,
-            wieldMonsterItemAgainstMonster,
-        }),
-        dochugwAction: runElapsedTurnMonsterAction,
-    });
-    // display.c show_glyph() prints a glyph-update notice through pline_xy()
-    // while the monster is still moving, so its vpline() flush shows the
-    // status of that moment. Drain the notices this monster queued before
-    // the next monster or the turn's upkeep (regeneration, for one) changes
-    // what that flush would show.
-    if (!env.state.program_state?.gameover)
-        await emitGlyphUpdateNotices(env.state, { pline: ttyPline });
-    return stop;
-}
-
 // C ref: allmain.c moveloop_core(), the `if (svc.context.move)` block.
 // Monster movement can require multiple complete list scans while the hero
 // lacks a ration. A fast hero's retained ration ends the scan even when a fast
@@ -1122,8 +989,6 @@ async function advanceElapsedTurn(state) {
                 monstersCanMove = await movemon({
                     state,
                     random,
-                    moveSingleMonster: moveElapsedTurnMonster,
-                    clearBypasses: (subjectEnv) => clear_bypasses(subjectEnv),
                     // C ref: mon.c movemon():1343-1347. quest.c expulsion()
                     // schedules the hero's departure from inside the monster
                     // scan, so movemon()'s own tail performs it.

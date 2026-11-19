@@ -15,6 +15,7 @@ import {
 } from './mdlib.js';
 import { atoi } from './hacklib.js';
 import { nhlL_newstate, nhl_init } from './nhlua.js';
+import { ttyPline } from './tty_message.js';
 
 export const VI_NUMBER = 1;
 export const VI_NAME = 2;
@@ -110,15 +111,14 @@ export function copyright_banner_line(indx) {
 
 // C ref: version.c doversion(). The short V command prints one message; its
 // M-prefix variant delegates to the existing extended-version text window.
+// C prints through pline(); a caller may replace it.
 export async function doversion(state, {
-    pline,
+    pline = ttyPline,
     displayTextWindow,
     random,
 } = {}) {
     if (state.iflags?.menu_requested)
         return doextversion(state, { displayTextWindow, random });
-    if (typeof pline !== 'function')
-        throw new TypeError('doversion requires the pline operation');
     await pline(getversionstring(), state);
     return 0; // C: ECMD_OK.
 }

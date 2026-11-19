@@ -1,8 +1,8 @@
 // The fail-closed boundary for monster actions. This file holds no port; the
 // ports of monmove.c and dogmove.c live in js/monmove.js and js/dogmove.js.
 //
-// runSimpleMonsterAction() executes one monster action for the movemon()
-// adapter in js/allmain.js.
+// runSimpleMonsterAction() executes one monster action for js/mon.js
+// movemon_singlemon().
 //
 // Delete this file once ported coverage makes the boundary unnecessary.
 
@@ -144,7 +144,6 @@ export async function moveSimpleOrdinary(monster, env) {
             set_apparxy(subject, operationEnv),
         mdigTunnel: mdig_tunnel,
         mayCrossRegion: admitSimpleDestinationAndRegion,
-        movePet: env.movePet ?? moveSimplePet,
         // monmove.c m_move():1953 rejects the square the hero most recently
         // kicked before it filters occupants and tracking. The ordinary
         // adapter must provide the same predicate that the pet adapter uses.
@@ -158,7 +157,7 @@ export async function moveSimpleOrdinary(monster, env) {
     });
 }
 
-async function moveSimplePet(monster, after, env) {
+export async function moveSimplePet(monster, after, env) {
     return dog_move(monster, after, {
         ...env,
         migrateToLevel: monsterMigrationOperation(env),
@@ -263,7 +262,7 @@ function monsterMissileEnv(monster, env) {
 // mattacku() calls its own dispatch callees; this keeps the missile keys
 // other readers on its env take, and the wield operation js/mhitm.js
 // mattackm() reads when mattacku() turns on the hero's steed.
-function attackHeroWithMattacku(monster, env) {
+export function attackHeroWithMattacku(monster, env) {
     return mattacku(monster, {
         ...env,
         ...monsterMissileEnv(monster, env),
@@ -353,12 +352,10 @@ function simpleMonsterActionOperations(env, state) {
                     message: ttyPline,
                     yn: undefined,
                 }),
-        moveMonster: moveSimpleOrdinary,
         wieldMonsterItem: (weaponUser, weaponEnv) =>
                     mon_wield_item(weaponUser, weaponEnv),
         wieldMonsterItemAgainstMonster,
         wipeEngraving: wipeSimpleEngraving,
-        movePet: moveSimplePet,
     };
 }
 
@@ -372,13 +369,12 @@ export async function runDirectMonsterAction(monster, rawEnv = {}) {
     });
 }
 
-// Execute one monster action for the movemon() adapter in js/allmain.js.
+// Execute one monster action for js/mon.js movemon_singlemon().
 export async function runSimpleMonsterAction(monster, rawEnv = {}) {
     const { env, state } = simpleMonsterActionEnvironment(rawEnv);
     return dochugw(monster, true, {
         ...env,
         canSpotMonster: (subject) => canspotmon(subject, state),
-        dochug: runDirectMonsterAction,
         // C ref: monmove.c dochugw():223-235. Its radius is nine squares, so
         // this fires several turns before moveloop_core()'s own
         // monster_nearby() test, which scans the eight adjacent squares alone.

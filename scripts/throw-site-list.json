@@ -1692,12 +1692,6 @@
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
     },
-    "js/mcastu.js | mcast_lightning | 'mcast_lightning requires the rnd operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/mhitm.js | attackEnv | `mattackm random injection requires ${name}`": {
       "count": 1,
       "class": "invariant",
@@ -2124,24 +2118,6 @@
       "c": null,
       "reason": "C mongone() does not check that the monster is on fmon; the guard is kept because callers that hold migrating monsters have not all been traced."
     },
-    "js/mon.js | monsterTurnEnv | 'movemon requires a clearBypasses operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/mon.js | monsterTurnEnv | 'movemon requires a deferredGoto operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/mon.js | monsterTurnEnv | 'movemon requires a moveSingleMonster operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | movemon_singlemon | 'movemon_singlemon random injection requires rn2'": {
       "count": 1,
       "class": "invariant",
@@ -2171,12 +2147,6 @@
       "class": "panic",
       "c": "src/mon.c:2583",
       "reason": "relmon() panics when the monster is not on fmon."
-    },
-    "js/mon.js | requiredSingleMonsterOperation | `movemon_singlemon requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/mon.js | validvamp | 'validvamp requires an mndx reference'": {
       "count": 1,
@@ -2250,12 +2220,6 @@
       "c": null,
       "reason": "Called before the initialization every game performs first (monst_globals_init(), init_objects() and the like)."
     },
-    "js/mondata.js | mons_see_trap | 'mons_see_trap requires the mCansee owner'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mondata.js | name_to_monplus | 'name_to_monplus gender must be an integer'": {
       "count": 1,
       "class": "invariant",
@@ -2317,24 +2281,6 @@
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/monmove.js | movementEnv | 'monster movement random injection requires rn2'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | requireDochugOperation | `dochug requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | requireDochugwOperation | `dochugw requires a ${name} operation`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/monmove.js | requireMoveOperation | `m_move requires a ${name} operation`": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -3997,12 +3943,6 @@
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
     "js/uhitm.js | erode_armor | 'erode_armor random injection requires rn2'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/version.js | doversion | 'doversion requires the pline operation'": {
       "count": 1,
       "class": "invariant",
       "c": null,

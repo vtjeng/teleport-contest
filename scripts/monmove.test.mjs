@@ -3242,12 +3242,6 @@ test('dochugw retains every threat-interruption rejection gate', async () => {
     assert.deepEqual(lines, ['You stop waiting.']);
 });
 
-test('dochugw requires its dochug operation before the monster action', async () => {
-    const { state } = makeState();
-    const monster = ordinaryMonster(state);
-    await assert.rejects(dochugw(monster, true, { state }), /dochug/);
-});
-
 // monmove.c:889-970.  A monster which has just resisted fightm() still enters
 // dochug()'s Conflict movement disjunct.  That movement can end the turn
 // before the standard hero attack, so the source term must be present even
