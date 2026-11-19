@@ -547,14 +547,11 @@ function makeRollingBoulderLaunch(trap, x, y, env) {
 }
 
 const DEFAULT_CAPABILITIES = Object.freeze({
-    makeRollingBoulderLaunch,
     newsym,
-    resetUtrap(msg, env) { return reset_utrap(msg, env.state); },
     objIceEffects: obj_ice_effects,
     spotStopTimers(x, y, action, env) {
         spot_stop_timers(x, y, action, env.state);
     },
-    unearthObjects: unearth_objs,
     recalculateBlockPoint(x, y, env) {
         recalc_block_point(x, y, env.state);
     },
@@ -764,32 +761,6 @@ function resetTrap(trap, typ) {
     // C's ntrap link is represented by level.traps' array order.
 }
 
-function buriedObjectAt(x, y, state) {
-    let buried = state.level.buriedobjlist;
-    while (buried && (buried.ox !== x || buried.oy !== y))
-        buried = buried.nobj;
-    return buried;
-}
-
-function preflightPitTerrain(x, y, env) {
-    if (buriedObjectAt(x, y, env.state)
-        && typeof capability(env, 'unearthObjects') !== 'function') {
-        throw new Error('maketrap requires the buried-object subsystem');
-    }
-    if (is_ice(x, y, env.state)) {
-        if (typeof capability(env, 'objIceEffects') !== 'function') {
-            throw new Error(
-                'maketrap requires obj_ice_effects when removing ice',
-            );
-        }
-        if (typeof capability(env, 'spotStopTimers') !== 'function') {
-            throw new Error(
-                'maketrap requires spot_stop_timers when removing ice',
-            );
-        }
-    }
-}
-
 function preflightHoleDestination(env) {
     const current = env.state.u?.uz;
     if (!current || !dungeon_at(current.dnum, env.state)) {
@@ -808,42 +779,6 @@ function heroTrapNeedsReset(x, y, typ, env) {
     case TT_PIT: return !is_pit(typ);
     case TT_LAVA: return !is_lava(x, y, env.state);
     default: return false;
-    }
-}
-
-function preflightTrapCreation(x, y, typ, resetHero, env) {
-    if (resetHero && typeof capability(env, 'resetUtrap') !== 'function') {
-        throw new Error('maketrap requires hero-trap reset support');
-    }
-    switch (typ) {
-    case ROLLING_BOULDER_TRAP:
-        if (typeof capability(env, 'makeRollingBoulderLaunch')
-            !== 'function') {
-            throw new Error(
-                'maketrap requires the rolling-boulder launch subsystem',
-            );
-        }
-        break;
-    case PIT:
-    case SPIKED_PIT:
-        preflightPitTerrain(x, y, env);
-        break;
-    case HOLE:
-    case TRAPDOOR:
-        preflightHoleDestination(env);
-        preflightPitTerrain(x, y, env);
-        break;
-    default:
-        break;
-    }
-}
-
-function resetHeroTrap(env) {
-    capability(env, 'resetUtrap')(false, env);
-    if (env.state.u.utrap || env.state.u.utraptype !== TT_NONE) {
-        throw new Error(
-            'maketrap resetUtrap must clear u.utrap and u.utraptype',
-        );
     }
 }
 
@@ -878,7 +813,7 @@ function pitTerrain(x, y, env) {
     // C's `lev->flags = 0`: a hole dug in an open doorway leaves D_NODOOR,
     // which lets monsters and the hero move diagonally through it.
     if (clearFlags) location.flags = 0;
-    const exposed = capability(env, 'unearthObjects')(x, y, env);
+    const exposed = unearth_objs(x, y, env);
     const recompute = () => capability(env, 'recalculateBlockPoint')(x, y, env);
     if (exposed && typeof exposed.then === 'function') return exposed.then(recompute);
     recompute();
@@ -965,9 +900,9 @@ export function maketrap(x, y, typ, rawEnv = {}) {
         trap = { tx: x, ty: y };
     }
 
-    const resetHero = oldplace && heroTrapNeedsReset(x, y, typ, env);
-    preflightTrapCreation(x, y, typ, resetHero, env);
-    if (resetHero) resetHeroTrap(env);
+    if (typ === HOLE || typ === TRAPDOOR) preflightHoleDestination(env);
+    if (oldplace && heroTrapNeedsReset(x, y, typ, env))
+        reset_utrap(false, state);
     resetTrap(trap, typ);
     const linkTrap = () => {
         if (!oldplace) {
@@ -989,7 +924,7 @@ export function maketrap(x, y, typ, rawEnv = {}) {
         }
         break;
     case ROLLING_BOULDER_TRAP:
-        capability(env, 'makeRollingBoulderLaunch')(trap, x, y, env);
+        makeRollingBoulderLaunch(trap, x, y, env);
         break;
     case PIT:
     case SPIKED_PIT:

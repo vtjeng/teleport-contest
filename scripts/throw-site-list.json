@@ -3708,42 +3708,6 @@
       "c": null,
       "reason": "Refuses state used before the initialization every game performs first."
     },
-    "js/trap.js | preflightPitTerrain | 'maketrap requires obj_ice_effects when removing ice'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "A missing injected operation that maketrap() needs."
-    },
-    "js/trap.js | preflightPitTerrain | 'maketrap requires spot_stop_timers when removing ice'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "A missing injected operation that maketrap() needs."
-    },
-    "js/trap.js | preflightPitTerrain | 'maketrap requires the buried-object subsystem'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "A missing injected operation that maketrap() needs."
-    },
-    "js/trap.js | preflightTrapCreation | 'maketrap requires hero-trap reset support'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "A missing injected operation that maketrap() needs."
-    },
-    "js/trap.js | preflightTrapCreation | 'maketrap requires the rolling-boulder launch subsystem'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "A missing injected operation that maketrap() needs."
-    },
-    "js/trap.js | resetHeroTrap | 'maketrap resetUtrap must clear u.utrap and u.utraptype'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected reset operation did not clear the hero trap state."
-    },
     "js/tty_menu.js | displayTtyMenuTextWindow | 'tty menu text window requires an initialized display'": {
       "count": 1,
       "class": "invariant",
