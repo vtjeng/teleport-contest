@@ -416,27 +416,6 @@ export class UnsupportedHeroCommandBoundaryError extends Error {
     }
 }
 
-// A branch the port has not reached, inside a command it did dispatch.
-// failClosedCommand() below raises this by converting the owner's refusal;
-// every other raiser of the parent class refused a command before dispatching
-// it at all.
-//
-// The distinction has one consumer, scripts/scan-sessions.mjs, and it is not
-// cosmetic there. That scan models what a session still owes the port by
-// resolving the recorded bytes against DISPATCHED_COMMANDS, which names a
-// command by its command byte alone. So the recorded input can name a command
-// the port refuses to dispatch, and can never name a branch below one it
-// dispatches: a stop here has to carry the port's own message as the
-// behavior, the way a boundary raised outside any command does.
-//
-// The class body is empty because the identity is the whole addition. It
-// keeps the parent's `name`, which labels the contract every other consumer
-// reads -- js/jsmain.js ends the segment on it and leaves the keystroke
-// retryable -- and that contract is identical here. The cause is what
-// differs, and the message states it.
-export class UnsupportedHeroCommandBranchBoundaryError
-    extends UnsupportedHeroCommandBoundaryError {}
-
 // Each value is [u.dx, u.dy, context.run]: 0 walks, 1 runs, and 3 rushes.
 // Preserve these source numeric modes; downstream code groups them by
 // truthiness only where cmd.c does.
@@ -3021,8 +3000,7 @@ function commandTookTime(state) {
 // an object name doname() cannot format yet. Those throw their owner's error;
 // converting it here keeps the segment's supported prefix and leaves the
 // keystroke retryable, the same contract callExtcmdFunction()'s refusal of an
-// unported function provides. The branch subclass records which of the two
-// seams stopped the command, for the reason its declaration gives.
+// unported function provides.
 async function failClosedCommand(key, state, run) {
     try {
         return await run();
@@ -3031,7 +3009,7 @@ async function failClosedCommand(key, state, run) {
             (type) => error instanceof type,
         )) {
             resetCommandVars(state);
-            throw new UnsupportedHeroCommandBranchBoundaryError(
+            throw new UnsupportedHeroCommandBoundaryError(
                 `an unported branch of this command: ${error.message}`,
                 key,
             );
