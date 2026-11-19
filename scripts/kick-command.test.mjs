@@ -99,7 +99,7 @@ async function replay(segment, moves) {
         boundary,
         rngLog: nhGame.getRngLog() ?? [],
         draws: (nhGame.getRngLog() ?? []).length,
-        toplines: game._ttyToplines ?? '',
+        ttyToplines: game._ttyToplines ?? '',
         turns: game.moves,
         kickedloc: game.gk?.kickedloc ?? null,
     };
@@ -206,7 +206,7 @@ test('kicking empty floor prints one line and spends the turn', async () => {
     const before = await replay(MONK(), '');
     const after = await replay(MONK(), `${KICK}h`);
     assert.equal(after.boundary, null);
-    assert.equal(after.toplines, 'You kick at empty space.');
+    assert.equal(after.ttyToplines, 'You kick at empty space.');
     assert.equal(after.turns, before.turns + 1);
     assert.equal(lineOf(DOKICK_C, 1251), 'kick_dumb(x, y);');
 });
@@ -227,8 +227,8 @@ test('martial() keeps the rn2(3) out of a Monk\'s kick', async () => {
     // martial_bonus() separates them.
     const monk = await kickTurnDraws(MONK(), `${KICK}h`);
     const valkyrie = await kickTurnDraws(VALKYRIE(), `${KICK}h`);
-    assert.equal(monk.kicked.toplines, 'You kick at empty space.');
-    assert.equal(valkyrie.kicked.toplines, 'You kick at empty space.');
+    assert.equal(monk.kicked.ttyToplines, 'You kick at empty space.');
+    assert.equal(valkyrie.kicked.ttyToplines, 'You kick at empty space.');
     // exercise(A_DEX, FALSE) at :866 is the first draw of the turn for both.
     assert.match(monk.draws[0], /^rn2\(2\)=/u);
     assert.match(valkyrie.draws[0], /^rn2\(2\)=/u);
@@ -242,7 +242,7 @@ test('the strain arm wounds a leg and the ordinary arm does not', async () => {
     // dokick.c:872-874. Seed 6600006 is the case whose rn2(3) lands on 0.
     const strain = await kickTurnDraws(segmentFor('strain'), `${KICK}h`);
     assert.equal(strain.kicked.boundary, null);
-    assert.equal(strain.kicked.toplines, 'Dumb move!  You strain a muscle.');
+    assert.equal(strain.kicked.ttyToplines, 'Dumb move!  You strain a muscle.');
     // :866, :867, :873 and :874 in that order: the Dexterity exercise, the
     // rn2(3) that landed on 0, the Strength exercise, and the rnd(5) inside
     // set_wounded_legs().
@@ -257,7 +257,7 @@ test('the strain arm wounds a leg and the ordinary arm does not', async () => {
     assert.equal(game.u.atemp[3], -1); /* A_DEX */
 
     const plain = await replay(MONK(), `${KICK}h`);
-    assert.equal(plain.toplines, 'You kick at empty space.');
+    assert.equal(plain.ttyToplines, 'You kick at empty space.');
     assert.equal(game.u.uprops[WOUNDED_LEGS].intrinsic, 0);
     assert.equal(game.u.atemp[3], 0);
 });
@@ -272,7 +272,7 @@ test('a floor-object kick reaches kick_object and spends the turn', async () => 
     assert.equal(kicked.boundary, null);
     assert.equal(kicked.turns, base.turns + 1);
     assert.equal(
-        kicked.toplines,
+        kicked.ttyToplines,
         'You kick 4 gold pieces.  Thump!  Ouch!  That hurts!',
     );
     assert.equal(game.level.objects[target.x]?.[target.y]?.quan, 4);
@@ -285,7 +285,7 @@ test('kicking a monster spends the turn and reports the kick', async () => {
     const base = await replay(MONK(), '');
     const kicked = await replay(MONK(), `${KICK}k`);
     assert.equal(kicked.boundary, null);
-    assert.equal(kicked.toplines, 'You kick the grid bug.');
+    assert.equal(kicked.ttyToplines, 'You kick the grid bug.');
     assert.equal(kicked.turns, base.turns + 1);
 });
 
@@ -305,7 +305,7 @@ test('a levitating monster kick uses dokick() recoil', async () => {
     const base = await replay(DOKICK_RECOIL, '');
     const kicked = await replay(DOKICK_RECOIL, DOKICK_RECOIL.moves);
     assert.equal(kicked.boundary, null);
-    assert.match(kicked.toplines, /You float in the opposite direction/u);
+    assert.match(kicked.ttyToplines, /You float in the opposite direction/u);
     assert.ok(
         kicked.rngLog.slice(base.draws).includes('rnd(3)=1'),
         'the C-selected first hurtle_step roll follows kick_monster',
@@ -335,7 +335,7 @@ test('kicking a wall hurts and spends the turn', async () => {
     const base = await replay(VALKYRIE(), '');
     const kicked = await replay(VALKYRIE(), `${KICK}k`);
     assert.equal(kicked.boundary, null);
-    assert.equal(kicked.toplines, 'Ouch!  That hurts!');
+    assert.equal(kicked.ttyToplines, 'Ouch!  That hurts!');
     assert.equal(kicked.turns, base.turns + 1);
     assert.equal(game.u.uhp, 15);
     assert.deepEqual(kicked.rngLog.slice(base.draws, base.draws + 4), [
@@ -412,7 +412,7 @@ test('sixteen points of Dexterity are enough to skip the rn2(3)',
     // :867's second term. The Valkyrie of seed 6600007 rolled exactly 16,
     // which is the boundary the comparison sits on: at 15 she would draw.
     const highDex = await kickTurnDraws(DOOR_VALKYRIE(), `${KICK}h`);
-    assert.equal(highDex.kicked.toplines, 'You kick at empty space.');
+    assert.equal(highDex.kicked.ttyToplines, 'You kick at empty space.');
     assert.match(highDex.draws[0], /^rn2\(2\)=/u);
     assert.doesNotMatch(highDex.draws[1], /^rn2\(3\)=/u);
 });
@@ -429,7 +429,7 @@ test('a strained muscle reports the next kick as impossible', async () => {
         'display_nhwindow(WIN_MESSAGE, TRUE); /* --More-- */');
     assert.equal(lineOf(DOKICK_C, 1315), 'return ECMD_FAIL;');
     const first = await replay(segmentFor('strain'), `${KICK}h`);
-    assert.equal(first.toplines, 'Dumb move!  You strain a muscle.');
+    assert.equal(first.ttyToplines, 'Dumb move!  You strain a muscle.');
     // The final space dismisses the guard's source-owned WIN_MESSAGE More
     // window after the extra kick byte has demonstrated that invalid keys do
     // not dismiss it. The guard itself consumes no RNG and no turn.
@@ -437,7 +437,7 @@ test('a strained muscle reports the next kick as impossible', async () => {
         segmentFor('strain'), `${KICK}h${KICK} `,
     );
     assert.equal(second.boundary, null);
-    assert.equal(second.toplines,
+    assert.equal(second.ttyToplines,
         'Your right leg is in no shape for kicking.');
     assert.equal(second.draws, first.draws);
     assert.equal(second.turns, first.turns);
@@ -455,7 +455,7 @@ test('kicking the staircase the hero stepped off hurts', async () => {
 
     const kicked = await replay(MONK(), `h${KICK}l`);
     assert.equal(kicked.boundary, null);
-    assert.equal(kicked.toplines, 'Ouch!  That hurts!');
+    assert.equal(kicked.ttyToplines, 'Ouch!  That hurts!');
     assert.equal(kicked.turns, base.turns + 2);
 });
 
@@ -483,7 +483,7 @@ test('a kicked square is remembered, and every later command forgets it',
     // The same rhack() test with `func` still holding doextcmd(), which is
     // what the '#' key's row supplies: '#kick' forgets the square at once.
     const prompted = await replay(MONK(), `${KICK_EXT}h`);
-    assert.equal(prompted.toplines, 'You kick at empty space.');
+    assert.equal(prompted.ttyToplines, 'You kick at empty space.');
     assert.deepEqual(prompted.kickedloc, { x: 0, y: 0 });
 
     // cmd.c:3821 once more, this time through an arm whose handler answers a
@@ -765,7 +765,7 @@ test('a strong hero whose rn2(5) is 0 shatters the door', async () => {
     const { kicked, draws } = await kickTurnDraws(segmentFor('shatter'),
                                                  `${KICK}l`);
     assert.equal(kicked.boundary, null);
-    assert.equal(kicked.toplines,
+    assert.equal(kicked.ttyToplines,
         'As you kick the door, it shatters to pieces!');
     const loc = game.level.at(game.u.ux + 1, game.u.uy);
     // :944 sets D_NODOOR.
@@ -784,7 +784,7 @@ test('a strong hero whose rn2(5) is not 0 crashes the door open', async () => {
     const { kicked, draws } = await kickTurnDraws(segmentFor('crashOpen'),
                                                  `${KICK}h`);
     assert.equal(kicked.boundary, null);
-    assert.equal(kicked.toplines, 'As you kick the door, it crashes open!');
+    assert.equal(kicked.ttyToplines, 'As you kick the door, it crashes open!');
     const loc = game.level.at(game.u.ux - 1, game.u.uy);
     // :949 sets D_BROKEN.
     assert.equal(loc.flags, D_BROKEN, 'crash sets D_BROKEN');

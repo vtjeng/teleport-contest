@@ -540,7 +540,7 @@ for (const {
         assert.equal(replay.getCursors().length, 23);
         assert.equal(digest(replay.getScreens()), screenDigest);
         assert.equal(digest(replay.getCursors()), cursorDigest);
-        assert.equal(game.nhDisplay.toplines, message);
+        assert.equal(game._ttyToplines, message);
         assert.equal(game.uwep?.otyp, MAGIC_LAMP);
         assert.equal(game.uwep?.spe, 1);
         assert.equal(game.uwep?.invlet, 'o');

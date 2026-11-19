@@ -195,7 +195,7 @@ test('pickup.c tipcontainer identifies a cursed spill on an altar', async () => 
     assert.equal(dagger.bknown, 1);
     assert.equal(dagger.nexthere, chest);
     assert.equal(state.u.uconduct.gnostic, 1);
-    assert.match(state.nhDisplay.toplines, /black flash as a dagger hits the altar/u);
+    assert.match(state._ttyToplines, /black flash as a dagger hits the altar/u);
 });
 
 test('pickup.c tipcontainer resolves a quantum cat before checking its contents',
@@ -224,7 +224,7 @@ test('pickup.c tipcontainer resolves a quantum cat before checking its contents'
         assert.ok(cat, 'makemon creates the live housecat');
         assert.equal(cat.mpeaceful, true);
         assert.equal(cat.minvent, null);
-        assert.match(state.nhDisplay.toplines,
+        assert.match(state._ttyToplines,
             /housecat inside the box is still alive/u);
         assert.deepEqual([...(state.unported ?? [])], []);
     });
@@ -279,7 +279,7 @@ test('pickup.c passes drop operations to the tipped horn floor path', async () =
     assert.equal(spilled.where, OBJ_FLOOR);
     assert.equal(spilled.cursed, 1);
     assert.equal(spilled.bknown, 1);
-    assert.match(state.nhDisplay.toplines, /black flash as .* hits the altar/u);
+    assert.match(state._ttyToplines, /black flash as .* hits the altar/u);
 });
 
 

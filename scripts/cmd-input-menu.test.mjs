@@ -117,13 +117,13 @@ test('external command cores preserve time state and record only platform gaps',
     // cmd.c:5666 always calls ioctl.c dosuspend() for tty, which uses Norep()
     // when sysconf names no SHELLERS; ECMD_OK is still the handler result.
     assert.equal(await dosuspend_core(state), ECMD_OK);
-    assert.match(state.nhDisplay.toplines, /^Suspend command not available\./u);
+    assert.match(state._ttyToplines, /^Suspend command not available\./u);
 
     state.urealtime.start_timing = 0;
     assert.equal(await dosh_core(state), ECMD_OK);
     // unixunix.c dosh() (344-365): the recorder's sysconf sets no SHELLERS,
     // so the command reports itself unavailable and records no platform gap.
-    assert.match(state.nhDisplay.toplines, /Unavailable command '!'\./u);
+    assert.match(state._ttyToplines, /Unavailable command '!'\./u);
     assert.equal(game.unported.has('sys/unix/unixunix.c dosh'), false);
     assert.equal(
         state.urealtime.start_timing,

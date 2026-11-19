@@ -1400,7 +1400,6 @@ function suppliedItsDeadEffects(state, target) {
         previousMessage: state._ttyPreviousMessage,
         display: {
             topMessage: state.nhDisplay.topMessage,
-            toplines: state.nhDisplay.toplines,
             toplin: state.nhDisplay.toplin,
             messages: [...state.nhDisplay.messages],
             cursor: [
@@ -2971,9 +2970,6 @@ test('its_dead admitted body reads and writes the supplied state', async () => {
     assert.equal(supplied._ttyToplines, supplied._pending_message);
     assert.equal(
         supplied.nhDisplay.topMessage, supplied._pending_message,
-    );
-    assert.equal(
-        supplied.nhDisplay.toplines, supplied._pending_message,
     );
     assert.deepEqual(
         suppliedItsDeadEffects(supplied, target).pile, suppliedPileBefore,

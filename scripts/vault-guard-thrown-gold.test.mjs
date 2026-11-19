@@ -25,5 +25,5 @@ test('guard collects gold thrown onto an unoccupied fake-corridor square', async
     assert.deepEqual([guard.mx, guard.my], [73, 13],
         'the guard returned to its original square');
     assert.equal(guard.mextra.egd.warncnt, 5, 'the escort warning resets');
-    assert.match(game.nhDisplay?.toplines ?? '', /picks up the gold\./u);
+    assert.match(game._ttyToplines ?? '', /picks up the gold\./u);
 });

@@ -106,6 +106,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { isMetallic, newObject, weight } from '../js/obj.js';
+import { setToplinesDirectly } from '../js/topl.js';
 import { init_objects } from '../js/o_init.js';
 import { singular, xnameFresh } from '../js/objnam.js';
 import { getRngLog } from '../js/rng.js';
@@ -843,7 +844,7 @@ test('the meal message is the one fprefx chose', async () => {
 // key queue the replay uses. The message buffer is emptied first so that a
 // message left by the replay cannot satisfy an assertion below on its own.
 async function eatSlot(obj, env = {}) {
-    game.nhDisplay.toplines = '';
+    setToplinesDirectly('', game);
     game.nhDisplay.pushKey(obj.invlet.charCodeAt(0));
     return doeat(game, env);
 }
@@ -854,7 +855,7 @@ async function eatSlot(obj, env = {}) {
 // the buffer therefore checks the same string a replay would paint, one step
 // earlier. Assertions on the painted row read topLine() instead.
 function mealMessage() {
-    return game.nhDisplay.toplines;
+    return game._ttyToplines;
 }
 
 // How many random numbers a call drew.

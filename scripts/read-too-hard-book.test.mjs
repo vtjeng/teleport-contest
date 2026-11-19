@@ -38,7 +38,7 @@ test('uncursed too-hard spellbook aggravation keeps the book', async () => {
     assert.equal(game.context.spbook.delay, 0);
     // C's logical gt.toplines is mirrored by the display message buffer.
     assert.equal(
-        game.nhDisplay.toplines,
+        game._ttyToplines,
         'You feel threatened.  You can move again.',
     );
 

@@ -2159,7 +2159,7 @@ test('dopray() shimmering light sets invulnerability with the wait',
         // The shimmering light message shares the top line with the
         // "You begin praying" message. addtopl() stores both in toplines
         // without repainting the grid, so check toplines directly.
-        assert.match(game.nhDisplay.toplines, /shimmering light/u);
+        assert.match(game._ttyToplines, /shimmering light/u);
     });
 
 // cmd.c paranoid_query() and win/tty/topl.c tty_yn_function()'s restricted

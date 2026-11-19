@@ -38,7 +38,7 @@ const CASES = [
         otyp: POT_SLEEPING,
         // potion.c:2052-2064. The sleeping vapors name themselves, freeze the
         // hero and set the reason unmul() reports.
-        toplines: 'The dark green potion evaporates.  You feel rather tired.',
+        ttyToplines: 'The dark green potion evaporates.  You feel rather tired.',
         reason: 'sleeping off a magical draught',
     },
     {
@@ -46,7 +46,7 @@ const CASES = [
         recipe: 'recipes/monster-hurls-potion-paralysis.session.json',
         otyp: POT_PARALYSIS,
         // potion.c:2041-2051, the same shape with its own message and reason.
-        toplines:
+        ttyToplines:
             'The dark green potion evaporates.  Something seems to be holding'
             + ' you.',
         reason: 'frozen by a potion',
@@ -76,7 +76,7 @@ for (const testCase of CASES) {
             assert.equal(boundary, undefined,
                 'the port replays every key of the recipe');
 
-            assert.equal(game._ttyToplines, testCase.toplines);
+            assert.equal(game._ttyToplines, testCase.ttyToplines);
             // potionbreathe() sets kn for both arms, so its tail identifies
             // the type rather than offering the naming prompt.
             assert.equal(game.objects[testCase.otyp].oc_name_known, 1);

@@ -26,12 +26,12 @@ test('guard demands newly carried gold while escorting hero', async () => {
     const guard = await replay(moves.slice(0, -1));
     assert.equal(guard.mextra.egd.warncnt, 6, 'the guard marks the demand');
     assert.equal(guard.mpeaceful, 1, 'the initial demand is peaceful');
-    assert.match(game.nhDisplay?.toplines ?? '', /Drop all your gold, scoundrel!/u);
+    assert.match(game._ttyToplines ?? '', /Drop all your gold, scoundrel!/u);
 });
 
 test('guard turns hostile when hero keeps carried gold', async () => {
     const guard = await replay(recipe.segments[0].moves);
     assert.equal(guard.mextra.egd.warncnt, 6, 'warning count stays at six');
     assert.equal(guard.mpeaceful, 0, 'the guard turns hostile');
-    assert.match(game.nhDisplay?.toplines ?? '', /So be it, rogue!/u);
+    assert.match(game._ttyToplines ?? '', /So be it, rogue!/u);
 });

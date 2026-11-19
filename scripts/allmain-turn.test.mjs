@@ -1764,7 +1764,7 @@ test('hunger weakness drives the next live multi-allocation path', async () => {
     assert.equal(game.moves, priorMoves + 1);
     assert.equal(game.u.uhunger, priorHunger - 1);
     assert.equal(
-        game.nhDisplay.toplines,
+        game._ttyToplines,
         'Your movements are slowed slightly because of your load.',
     );
 
@@ -1777,7 +1777,7 @@ test('hunger weakness drives the next live multi-allocation path', async () => {
     assert.equal(game.u.umovement, 18);
     assert.equal(game.u.uhunger, priorHunger - 3);
     assert.equal(
-        game.nhDisplay.toplines,
+        game._ttyToplines,
         'Your movements are slowed slightly because of your load.',
     );
 });

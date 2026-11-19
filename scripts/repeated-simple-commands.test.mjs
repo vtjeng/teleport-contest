@@ -128,7 +128,7 @@ test('repeated-simple-command cases retain their source branch markers',
         assert.equal(game.u.uhs, 3);
         assert.equal(game.u.atemp[0], -1);
         assert.equal(
-            game.nhDisplay.toplines,
+            game._ttyToplines,
             'You are beginning to feel weak.',
         );
 

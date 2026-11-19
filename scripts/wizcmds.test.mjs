@@ -250,7 +250,7 @@ test('wiz_intrinsic sets STONED and records its delayed killer through the menu'
             name: '#wizintrinsic',
         });
         assert.equal(
-            state.nhDisplay.toplines,
+            state._ttyToplines,
             'You are turning into stone.',
         );
     });

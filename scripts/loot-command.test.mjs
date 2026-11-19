@@ -144,7 +144,7 @@ test('doloot routes an unreachable floor through cant_reach_floor',
         // its false return ends #loot after cant_reach_floor emits the source
         // surface wording.
         assert.equal(await doloot(state), 0);
-        assert.equal(state.nhDisplay?.toplines,
+        assert.equal(state._ttyToplines,
             `You can't reach the ${surface(ux, uy, state)}.`);
     });
 
@@ -160,7 +160,7 @@ test('doloot prints the source unskilled-rider refusal',
 
         assert.equal(await doloot(state), 0);
         assert.equal(state.unported.has('steed.c rider_cant_reach'), false);
-        assert.equal(state.nhDisplay?.toplines, "You aren't skilled enough to reach from your pony.");
+        assert.equal(state._ttyToplines, "You aren't skilled enough to reach from your pony.");
         assert.equal(state.level.objects[ux][uy]?.otyp, LARGE_BOX);
     });
 
@@ -236,7 +236,7 @@ test('doloot with a single locked chest (lknown=0) prints "Hmmm" message',
         assert.equal(result, 0, 'locked container -> ECMD_OK');
         assert.equal(chest.lknown, 1,
             'lknown set to 1 after discovering the lock');
-        const toplines = state.nhDisplay?.toplines ?? '';
+        const toplines = state._ttyToplines ?? '';
         assert.ok(toplines.includes('turns out to be locked'),
             `expected "turns out to be locked" in "${toplines}"`);
     });
@@ -288,7 +288,7 @@ test('#loot lets a floor bag of tricks bite and applies half physical damage',
                 'makeknown identifies the bag of tricks');
             assert.equal(state.objects[BAG_OF_TRICKS].oc_encountered, 1,
                 'makeknown records that the bag type was encountered');
-            assert.match(state.nhDisplay.toplines,
+            assert.match(state._ttyToplines,
                 /develops a huge set of teeth and bites you/u);
             return hpBefore - state.u.uhp;
         }
@@ -343,7 +343,7 @@ test('rhack dispatches the queued #force function before reading a command',
 
         assert.equal(state.command_queue[CQ_CANNED].length, 0,
             'rhack consumes the queued extcmd');
-        assert.match(state.nhDisplay.toplines,
+        assert.match(state._ttyToplines,
             /You decide not to force the issue\./u,
             'the queued row reaches lock.js:doforce and reads its answer');
     });
@@ -385,7 +385,7 @@ test('doloot with a single locked chest (lknown=1) prints "is locked"',
 
         const result = await doloot(state);
         assert.equal(result, 0, 'locked container -> ECMD_OK');
-        const toplines = state.nhDisplay?.toplines ?? '';
+        const toplines = state._ttyToplines ?? '';
         assert.ok(toplines.includes('is locked'),
             `expected "is locked" in "${toplines}"`);
         assert.ok(!toplines.includes('Hmmm'),
@@ -534,7 +534,7 @@ test("'o' on an empty container prints empty message and sets cknown",
         assert.equal(result, ECMD_TIME,
             // ECMD_TIME because the hero learned the bag is empty.
             'should return ECMD_TIME for discovering empty bag');
-        const toplines = state.nhDisplay?.toplines ?? '';
+        const toplines = state._ttyToplines ?? '';
         assert.ok(toplines.includes('is empty'),
             `expected "is empty" in top line but got "${toplines}"`);
     });
@@ -623,7 +623,7 @@ test("'i' on empty container with no inventory prints nothing-to-put-in",
         state.nhDisplay.pushKey('n'.charCodeAt(0));
 
         const result = await doloot(state);
-        const toplines = state.nhDisplay?.toplines ?? '';
+        const toplines = state._ttyToplines ?? '';
         // C: "You don't have anything to put in." when invent is null.
         assert.ok(toplines.includes("don't have anything to put in"),
             `expected "don't have anything to put in" in "${toplines}"`);
@@ -716,7 +716,7 @@ test("'i' puts an inventory item into an unlocked floor container",
         // The container should now have contents.
         assert.ok(box.cobj !== null,
             'container should have contents after put-in');
-        const toplines = state.nhDisplay?.toplines ?? '';
+        const toplines = state._ttyToplines ?? '';
         assert.ok(toplines.includes('You put'),
             `expected "You put" in "${toplines}"`);
     });
@@ -754,7 +754,7 @@ test("'s' with no inventory prints nothing-to-stash",
         state.nhDisplay.pushKey('n'.charCodeAt(0));
 
         const result = await doloot(state);
-        const toplines = state.nhDisplay?.toplines ?? '';
+        const toplines = state._ttyToplines ?? '';
         // C: "You don't have anything to stash."
         assert.ok(toplines.includes("don't have anything to stash"),
             `expected "don't have anything to stash" in "${toplines}"`);
@@ -840,7 +840,7 @@ test("'s' stashes a single inventory item into a floor container",
         // The container should now have contents.
         assert.ok(box.cobj !== null,
             'container should have contents after stash');
-        const toplines = state.nhDisplay?.toplines ?? '';
+        const toplines = state._ttyToplines ?? '';
         assert.ok(toplines.includes('You put'),
             `expected "You put" in "${toplines}"`);
     });

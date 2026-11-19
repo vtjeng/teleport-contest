@@ -19,7 +19,7 @@ async function replay(moves) {
     assert.equal(boundary, undefined);
     assert.equal(money_cnt(game.invent), 0, 'the hero has no loose gold');
     assert.equal(hidden_gold(true, game), 1067, 'the gold remains in the sack');
-    return game.nhDisplay?.toplines ?? '';
+    return game._ttyToplines ?? '';
 }
 
 test('deaf guard glares at the hero’s sack of hidden gold', async () => {

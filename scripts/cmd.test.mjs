@@ -620,7 +620,6 @@ function heroMoveAdmissionSnapshot(replay) {
             messages: [...game.nhDisplay.messages],
             topMessage: game.nhDisplay.topMessage,
             toplin: game.nhDisplay.toplin,
-            toplines: game.nhDisplay.toplines,
             ttyToplines: game._ttyToplines,
         },
         domoveAttempting: game.domoveAttempting,
@@ -692,7 +691,6 @@ function heroCommandRetrySnapshot(replay, trimInputCaptures = 0) {
             pending: game._pending_message,
             topMessage: game.nhDisplay.topMessage,
             toplin: game.nhDisplay.toplin,
-            toplines: game.nhDisplay.toplines,
             ttyToplines: game._ttyToplines,
         },
         domoveAttempting: game.domoveAttempting,
@@ -1347,8 +1345,8 @@ test('hero walks onto a MARK engraving and reads it', async () => {
     assert.equal(game.u.ux, x, 'hero reached the engraving square');
     assert.equal(game.u.uy, y);
     assert.ok(
-        game.nhDisplay.toplines.includes('graffiti'),
-        `expected graffiti message, got: ${game.nhDisplay.toplines}`,
+        game._ttyToplines.includes('graffiti'),
+        `expected graffiti message, got: ${game._ttyToplines}`,
     );
 });
 
@@ -2419,7 +2417,6 @@ test('parseCommand clears the physical message row without saving Count in histo
     state._pending_message = 'Ready';
     state._ttyToplines = 'Ready';
     state.nhDisplay.topMessage = 'Ready';
-    state.nhDisplay.toplines = 'Ready';
     state.nhDisplay.toplin = 1;
 
     await parseCommand(state);
@@ -2438,7 +2435,6 @@ test('parseCommand clears the physical message row without saving Count in histo
     assert.equal(state.nhDisplay.toplin, 0);
     assert.equal(state._ttyToplines, '');
     assert.equal(state.nhDisplay.topMessage, '');
-    assert.equal(state.nhDisplay.toplines, '');
 });
 
 test('number-pad count prefix feeds the same saturating parser', async () => {

@@ -41,8 +41,8 @@ for (const freed of [false, true]) {
                     } },
                 }), 2);
                 const expected = freed ? '"You freed me!"' : '"It is about time."';
-                assert.ok(state.nhDisplay.toplines.includes(expected), state.nhDisplay.toplines);
-                assert.ok(!state.nhDisplay.toplines.includes('You hear "'), state.nhDisplay.toplines);
+                assert.ok(state._ttyToplines.includes(expected), state._ttyToplines);
+                assert.ok(!state._ttyToplines.includes('You hear "'), state._ttyToplines);
                 assert.equal(draws[0], 13);
                 assert.equal(state.mvitals[PM_DJINNI].born, 1);
                 assert.equal(monster.minvent, null);

@@ -40,7 +40,7 @@ export async function verifyTrapRustTrapSegment(segment) {
         && trap.ty === game.u.uy);
     assert.equal(rustTrap?.tseen, true,
         'dotrap marks the rust trap seen before its effect');
-    assert.equal(game.nhDisplay?.toplines,
+    assert.equal(game._ttyToplines,
         'A gush of water hits your right arm!',
         'trapeffect_rust_trap reaches the right-arm case');
     return replay;

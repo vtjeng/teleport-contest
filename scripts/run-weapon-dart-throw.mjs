@@ -71,7 +71,7 @@ export async function verifyWeaponDartThrowSegment(segment) {
     if (!selected || selected.object.quan !== 10) {
         throw new Error('Kobold did not throw one of its darts');
     }
-    if (game.nhDisplay?.toplines
+    if (game._ttyToplines
         !== 'The kobold throws a dart!  You are hit by a dart.') {
         throw new Error('dart throw message did not match C');
     }

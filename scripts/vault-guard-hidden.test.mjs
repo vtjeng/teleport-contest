@@ -22,7 +22,7 @@ for (const kind of ['mimic', 'deaf-mimic', 'hidden']) {
         if (kind === 'hidden') assert.equal(game.u.uundetected, 1);
         else assert.equal(game.youmonst.m_ap_type, M_AP_OBJECT);
         assert.equal(findgd(game), null);
-        assert.match(game.nhDisplay.toplines, kind === 'hidden'
+        assert.match(game._ttyToplines, kind === 'hidden'
             ? /Puzzled, she turns around and leaves\./u
             : /Puzzled, it turns around and leaves\./u);
     });

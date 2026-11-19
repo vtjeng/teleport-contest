@@ -205,7 +205,7 @@ async function verifyRubLampNonrelease(segment) {
         [743, 'You now wield a lamp.  Nothing happens.'],
     ]).get(segment.seed);
     assert.ok(expected, `unexpected rub non-release seed ${segment.seed}`);
-    assert.equal(game.nhDisplay.toplines, expected);
+    assert.equal(game._ttyToplines, expected);
     assert.equal(game.uwep?.otyp, MAGIC_LAMP);
     assert.equal(game.uwep?.spe, 1);
     assert.equal(game.uwep?.owornmask & W_WEP, W_WEP);
@@ -255,7 +255,7 @@ async function verifyRubFeedback(segment) {
     assert.equal(boundary, null);
     if (entry.nohands) {
         assert.equal(game.u.umonnum, PM_EARTH_ELEMENTAL);
-        assert.equal(game.nhDisplay.toplines,
+        assert.equal(game._ttyToplines,
             "You aren't able to rub anything without hands.");
         return;
     }
@@ -265,13 +265,13 @@ async function verifyRubFeedback(segment) {
     if (entry.otyp === MAGIC_LAMP) assert.equal(game.uwep.spe, 0);
     if (entry.blind) {
         assert.equal(Blind(game.u), true);
-        assert.match(game.nhDisplay.toplines, /You smell smoke\./u);
+        assert.match(game._ttyToplines, /You smell smoke\./u);
     } else if (entry.otyp === BRASS_LANTERN) {
-        assert.match(game.nhDisplay.toplines, /Anyway, nothing exciting happens\./u);
+        assert.match(game._ttyToplines, /Anyway, nothing exciting happens\./u);
     } else if (entry.otyp === OIL_LAMP) {
-        assert.match(game.nhDisplay.toplines, /Nothing happens\./u);
+        assert.match(game._ttyToplines, /Nothing happens\./u);
     } else {
-        assert.match(game.nhDisplay.toplines,
+        assert.match(game._ttyToplines,
             /(?:You see a puff of smoke|Nothing happens)\./u);
     }
 }

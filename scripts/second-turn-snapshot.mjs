@@ -123,7 +123,6 @@ export function completeSecondTurnSnapshot(state, replay) {
             pending: state._pending_message,
             topMessage: state.nhDisplay.topMessage,
             toplin: state.nhDisplay.toplin,
-            toplines: state.nhDisplay.toplines,
             ttyToplines: state._ttyToplines,
             glyphNotices: structuredClone(
                 state._glyphUpdateNotices ?? null,

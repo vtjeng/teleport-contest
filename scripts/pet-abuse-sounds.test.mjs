@@ -22,6 +22,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { growl, growl_sound, h_sounds, whimper, yelp } from '../js/sounds.js';
+import { setToplinesDirectly } from '../js/topl.js';
 import {
     PM_GNOME,
     PM_JACKAL,
@@ -84,12 +85,12 @@ function pet(speciesIndex, overrides = {}) {
 // a --More-- prompt would need.
 function resetTopLine() {
     game._pending_message = '';
-    game.nhDisplay.toplines = '';
+    setToplinesDirectly('', game);
     game.nhDisplay.toplin = 0;
 }
 
 function lines() {
-    const text = game.nhDisplay.toplines ?? '';
+    const text = game._ttyToplines ?? '';
     resetTopLine();
     return text;
 }
