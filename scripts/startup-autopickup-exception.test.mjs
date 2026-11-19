@@ -131,12 +131,14 @@ test('the source sscanf accidents accept unclosed and 254-byte mappings', () => 
 });
 
 test('POSIX ERE validation accepts source syntax that JavaScript misreads', () => {
+    // macOS regcomp() accepts each; "\\d" is a literal backslash and d, and
+    // a "{" with no digit after it is a literal brace.
     for (const pattern of [
         '[[:digit:]]+ wand',
         '([a-z]+|scroll){1,3}',
         String.raw`\\d+`,
-        'a+?',
-        'wand|',
+        'wand{,2}',
+        '[[:<:]]wand',
     ]) {
         const parsed = parseNethackrc(
             `AUTOPICKUP_EXCEPTION=\">${pattern}\"\n`,
@@ -145,24 +147,23 @@ test('POSIX ERE validation accepts source syntax that JavaScript misreads', () =
         assert.deepEqual(parsed.configErrorFrame.output, [], pattern);
     }
 });
-
-test('POSIX ERE compile failures report libc-compatible diagnostics', () => {
+// Each pattern and its regerror() text are a row of the macOS oracle table
+// (experiments/host-parity/regex-oracle/, run 44628090866), except
+// "(?:wand)", "a+?" and "wand|", which follow from the oracle's "(?i)a",
+// "a+?" and "spear|".
+test('POSIX ERE compile failures report macOS libc diagnostics', () => {
     const cases = [
-        ['(', String.raw`Unmatched ( or \(`],
-        ['[z-a]', 'Invalid range end'],
-        ['(?:wand)', 'Invalid preceding regular expression'],
-        ['[[:bogus:]]', 'Invalid character class name'],
-        ['a{2,1}', String.raw`Invalid content of \{\}`],
-        [String.raw`(a)\1{a,`, String.raw`Invalid content of \{\}`],
-        ['a{a,,', String.raw`Invalid content of \{\}`],
-        ['a{a,', String.raw`Invalid content of \{\}`],
-        ['a{1a,', String.raw`Invalid content of \{\}`],
-        ['a{,', String.raw`Unmatched \{`],
-        ['a{1,', String.raw`Unmatched \{`],
-        ['a{a', String.raw`Unmatched \{`],
-        ['a{1', String.raw`Unmatched \{`],
-        ['a{32768}', 'Regular expression too big'],
-        ['\\', 'Trailing backslash'],
+        ['(', 'parentheses not balanced'],
+        ['[z-a]', 'invalid character range'],
+        ['(?:wand)', 'repetition-operator operand invalid'],
+        ['a+?', 'repetition-operator operand invalid'],
+        ['wand|', 'empty (sub)expression'],
+        ['[[:foo:]]', 'invalid character class'],
+        ['a{2,1}', 'invalid repetition count(s)'],
+        ['a{1,', 'braces not balanced'],
+        ['a{1', 'braces not balanced'],
+        ['a{256}', 'maximum repetition exceeds 255'],
+        ['\\', 'trailing backslash (\\)'],
     ];
     for (const [pattern, diagnostic] of cases) {
         const line = `AUTOPICKUP_EXCEPTION=\">${pattern}\"`;
@@ -174,22 +175,21 @@ test('POSIX ERE compile failures report libc-compatible diagnostics', () => {
         ], pattern);
     }
 });
-
-// Each diagnostic below comes from a direct regcomp(REG_EXTENDED | REG_NOSUB)
-// probe against the same libc, in the C locale the recorder runs in.
+// One pattern for each regcomp() error macOS reports for a pattern NetHack
+// can pass, each a row of the macOS oracle table.
 test('the POSIX validator covers each libc diagnostic category it emits', () => {
     const failures = [
-        ['[', 'Invalid regular expression'],
-        ['[a', 'Unmatched [, [^, [:, [., or [='],
-        ['[z-a]', 'Invalid range end'],
-        ['[[=ab=]]', 'Invalid collation character'],
-        ['[[:bogus:]]', 'Invalid character class name'],
-        ['a{2,1}', String.raw`Invalid content of \{\}`],
-        ['a{32768}', 'Regular expression too big'],
-        ['\\', 'Trailing backslash'],
-        ['(?:wand)', 'Invalid preceding regular expression'],
-        ['(', String.raw`Unmatched ( or \(`],
-        ['a{1', String.raw`Unmatched \{`],
+        ['[[=ab=]]', 'invalid collating element'],
+        ['[[:foo:]]', 'invalid character class'],
+        ['\\', 'trailing backslash (\\)'],
+        ['[a', 'brackets ([ ]) not balanced'],
+        ['(', 'parentheses not balanced'],
+        ['a{1', 'braces not balanced'],
+        ['a{2,1}', 'invalid repetition count(s)'],
+        ['[z-a]', 'invalid character range'],
+        ['a+?', 'repetition-operator operand invalid'],
+        ['(|a)', 'empty (sub)expression'],
+        ['a{256}', 'maximum repetition exceeds 255'],
     ];
     for (const [pattern, diagnostic] of failures) {
         const regex = regex_init();
@@ -197,15 +197,16 @@ test('the POSIX validator covers each libc diagnostic category it emits', () => 
         assert.equal(regex_error_desc(regex), diagnostic, pattern);
     }
 });
-
 test('the POSIX validator accepts non-JavaScript bracket and branch syntax', () => {
+    // Each compiles on macOS (oracle table), including the BSD word start
+    // [[:<:]], the character name [[.space.]] and the literal brace {,1}.
     for (const pattern of [
         '[[:digit:]]',
         '[[=a=]]',
         '[[.a.]]',
-        String.raw`\(literal\)\{braces\}`,
-        '(|wand)',
-        'wand|',
+        '[[.space.]]',
+        '[[:<:]]',
+        '{,1}',
         '()',
     ]) {
         const regex = regex_init();
@@ -213,7 +214,6 @@ test('the POSIX validator accepts non-JavaScript bracket and branch syntax', () 
         assert.equal(regex_error_desc(regex), 'no explanation', pattern);
     }
 });
-
 test('invalid rows do not stop later rows and duplicates stay distinct', () => {
     const parsed = parseNethackrc([
         'AUTOPICKUP_EXCEPTION=\"\"',
@@ -240,6 +240,7 @@ test('the source-owned helper prepends to the sole ga.apelist state', () => {
 });
 
 test('startup installation retains each parsed node and compiled regex', () => {
+    // macOS reads \1 in an extended regex as the digit 1.
     const parsed = parseNethackrc(
         'AUTOPICKUP_EXCEPTION=">(wand)\\1"\n',
     );
@@ -247,11 +248,10 @@ test('startup installation retains each parsed node and compiled regex', () => {
     installParsedGa(state, parsed);
     assert.equal(state.ga.apelist, parsed.ga.apelist);
     assert.equal(state.ga.apelist.regex, parsed.ga.apelist.regex);
-    assert.equal(regex_match('wandwand', state.ga.apelist.regex), true);
-    assert.equal(regex_match('wand1', state.ga.apelist.regex), false);
+    assert.equal(regex_match('wand1', state.ga.apelist.regex), true);
+    assert.equal(regex_match('wandwand', state.ga.apelist.regex), false);
 });
-
-test('startup installation uses finite duplicated-capture semantics',
+test('startup installation keeps a repeated group before a digit escape',
     () => {
         const parsed = parseNethackrc(
             String.raw`AUTOPICKUP_EXCEPTION=">(wand){2}\1"` + '\n',
@@ -259,10 +259,9 @@ test('startup installation uses finite duplicated-capture semantics',
         const state = {};
         installParsedGa(state, parsed);
         assert.equal(state.ga.apelist, parsed.ga.apelist);
-        assert.equal(regex_match('>wandwandwand', state.ga.apelist.regex), true);
-        assert.equal(regex_match('>wandwand', state.ga.apelist.regex), false);
+        assert.equal(regex_match('>wandwand1', state.ga.apelist.regex), true);
+        assert.equal(regex_match('>wandwandwand', state.ga.apelist.regex), false);
     });
-
 test('the fresh autopickup-exception matrix carries replay inputs only', () => {
     const recipe = loadStartupAutopickupExceptionRecipe();
     assert.equal(recipe.version, 5);

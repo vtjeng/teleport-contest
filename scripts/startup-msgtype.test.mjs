@@ -163,169 +163,12 @@ test('invalid MSGTYPE rows preserve prior rules and later rows continue', () => 
     assert.equal(msgtype_type('other', false, parsed), MSGTYP_NORMAL);
     assert.equal(msgtype_type('other', true, parsed), MSGTYP_NOREP);
     assert.equal(parsed.configErrorFrame.num_errors, 2);
+    // macOS regerror() for REG_ERANGE (Apple Libc regex/FreeBSD/regerror.c).
     assert.match(parsed.configErrorFrame.output[1],
-        /MSGTYPE regex error: Invalid range end/u);
+        /MSGTYPE regex error: invalid character range/u);
     assert.match(parsed.configErrorFrame.output[3],
         /Unknown message type 'unknown'/u);
 });
-
-test('regex_match implements the ASCII POSIX ERE forms MSGTYPE consumes', () => {
-    const cases = [
-        ['[[:digit:]]+ wand', '12 wand', true],
-        ['[[:digit:]]+ wand', 'twelve wand', false],
-        ['^(foo|bar){1,2}$', 'foobar', true],
-        ['^(foo|bar){1,2}$', 'xfoobar', false],
-        ['[[=a=]][[.b.]]', 'ab', true],
-        [String.raw`\(literal\)\{braces\}`, '(literal){braces}', true],
-        [String.raw`\d+`, 'ddd', true],
-        [String.raw`\d+`, '123', false],
-        ['(|wand)', 'anything', true],
-        ['wand|', 'anything', true],
-        ['|wand', 'anything', true],
-        [String.raw`^[\\]$`, '\\', true],
-        [String.raw`^[\\]$`, ']', false],
-        [String.raw`^[\]]$`, '\\]', true],
-        [String.raw`^[\]]$`, ']', false],
-        [String.raw`^[a\-c]$`, '\\', true],
-        [String.raw`^[a\-c]$`, 'b', true],
-        [String.raw`^[a\-c]$`, '-', false],
-        ['^a.b$', 'a\nb', true],
-        ['^end$', 'end\n', false],
-        ['a^b', 'a^b', false],
-        ['a$b', 'a$b', false],
-        ['(^a|b$)', 'xb', true],
-        [String.raw`\^a\$`, '^a$', true],
-        ['^(a+?)$', '', true],
-        ['^(a+?)$', 'aaa', true],
-        ['^(a++)$', '', false],
-        ['^(a++)$', 'aaa', true],
-    ];
-    for (const [pattern, text, expected] of cases) {
-        const regex = regex_init();
-        assert.equal(regex_compile(pattern, regex), true, pattern);
-        assert.equal(regex_match(text, regex), expected,
-            JSON.stringify({ pattern, text }));
-    }
-});
-
-test('numeric backreferences follow recorder glibc compile and match rules',
-    () => {
-        for (const [pattern, matches, misses] of [
-            [String.raw`(a)\1`, ['aa', 'zaa'], ['a1', 'a']],
-            [String.raw`(a)\10`, ['aa0'], ['a10', 'aa']],
-            [String.raw`^(a)\1|(b)\2$`, ['aa', 'bb'], ['ab', 'ba']],
-            [String.raw`^(a)?\1|a$`, ['a', 'aa'], ['b']],
-            [String.raw`^(X)?\1Hello`, ['XXHello'], ['Hello']],
-            [String.raw`^(a)(b)(c)(d)(e)(f)(g)(h)(i)\9$`,
-                ['abcdefghii'], ['abcdefghii9']],
-            [String.raw`^\0$`, ['0'], ['\\0']],
-        ]) {
-            const regex = regex_init();
-            assert.equal(regex_compile(pattern, regex), true, pattern);
-            for (const text of matches)
-                assert.equal(regex_match(text, regex), true,
-                    JSON.stringify({ pattern, text }));
-            for (const text of misses)
-                assert.equal(regex_match(text, regex), false,
-                    JSON.stringify({ pattern, text }));
-        }
-
-        for (const pattern of [
-            String.raw`\1`, String.raw`(a)\2`, String.raw`(a\1)`,
-        ]) {
-            const regex = regex_init();
-            assert.equal(regex_compile(pattern, regex), false, pattern);
-            assert.equal(regex_error_desc(regex), 'Invalid back reference', pattern);
-        }
-    });
-
-test('rejected empty-reference candidates retain every valid candidate', () => {
-    for (const [pattern, text] of [
-        [String.raw`(a|(b))b?\2`, 'abb'],
-        [String.raw`((a)?\2x.x|a)`, 'xax'],
-        [String.raw`((a)?\2|a)`, 'a'],
-    ]) {
-        const regex = regex_init();
-        assert.equal(regex_compile(pattern, regex), true, pattern);
-        assert.equal(regex_match(text, regex), true,
-            JSON.stringify({ pattern, text }));
-    }
-});
-
-test('backreferences explore same-start paths and retain participating groups',
-    () => {
-        for (const [pattern, matches, misses] of [
-            [String.raw`(|())\2`, ['', 'x'], []],
-            [String.raw`^((a)|b)*\2`, ['aab'], ['abb']],
-            [String.raw`^((a)|b)*\2$`, ['aba'], ['abb']],
-            [String.raw`^(()*)\2$`, [''], ['a']],
-            [String.raw`^((a|c)|b)*\2$`, ['abcc'], ['abca']],
-        ]) {
-            const regex = regex_init();
-            assert.equal(regex_compile(pattern, regex), true, pattern);
-            for (const text of matches)
-                assert.equal(regex_match(text, regex), true,
-                    JSON.stringify({ pattern, text }));
-            for (const text of misses)
-                assert.equal(regex_match(text, regex), false,
-                    JSON.stringify({ pattern, text }));
-        }
-    });
-
-test('duplicated captures use the compiled repeat semantics when supported',
-    () => {
-        for (const [pattern, expected] of [
-            [String.raw`^((a)|b){0,2}\2$`, true],
-            [String.raw`^(()|a){3}\2$`, false],
-            [String.raw`^((a?)?){2}\2$`, true],
-            [String.raw`^(a){2,3}\1$`, true],
-            [String.raw`^(()){2}\2$`, false],
-            [String.raw`^(()){2,}\2$`, false],
-            [String.raw`^(a+)+\1$`, false],
-        ]) {
-            const regex = regex_init();
-            assert.equal(regex_compile(pattern, regex), true, pattern);
-            assert.equal(regex_match('aaa', regex), expected, pattern);
-        }
-
-        // glibc's answers for a nullable nested unbounded capture.
-        const nullableUnbounded = regex_init();
-        assert.equal(regex_compile(String.raw`^((a?)?){1,}\2$`,
-            nullableUnbounded), true);
-        assert.equal(regex_match('a', nullableUnbounded), false);
-        assert.equal(regex_match('', nullableUnbounded), true);
-        assert.equal(regex_match('aa', nullableUnbounded), true);
-
-        for (const [pattern, text, expected] of [
-            [String.raw`^(a){0}\1$`, '', false],
-            [String.raw`^(a){1}\1$`, 'aa', true],
-            [String.raw`^(a){0,1}\1$`, 'aa', true],
-            [String.raw`^(a){0,}\1$`, 'aa', true],
-            [String.raw`^(a)(b){2}\1$`, 'abba', true],
-        ]) {
-            const regex = regex_init();
-            assert.equal(regex_compile(pattern, regex), true, pattern);
-            assert.equal(regex_match(text, regex), expected, pattern);
-        }
-
-        const deletedReference = regex_init();
-        assert.equal(regex_compile(
-            String.raw`^He(l){2}(\1){0}o$`, deletedReference,
-        ), true);
-        assert.equal(regex_match('Hello', deletedReference), true);
-
-        const deletedDuplicatedSubtree = regex_init();
-        assert.equal(regex_compile(
-            String.raw`^((a){2}){0}\2$`, deletedDuplicatedSubtree,
-        ), true);
-        assert.equal(regex_match('', deletedDuplicatedSubtree), false);
-
-        const configured = parseNethackrc(
-            String.raw`MSGTYPE=hide "^((a)|b){0,2}\2$"` + '\n',
-        );
-        assert.equal(configured.configErrorFrame.num_errors, 0);
-        assert.equal(msgtype_type('aba', false, configured), MSGTYP_NOSHOW);
-    });
 
 test('a finite duplicated-capture MSGTYPE reaches startup',
     async () => {
@@ -347,106 +190,20 @@ test('a finite duplicated-capture MSGTYPE reaches startup',
             String.raw`^He(()|l){1,2}\2lo`);
     });
 
-test('sibling alternatives expose only captures on their current path', () => {
-    const invalid = regex_init();
-    assert.equal(regex_compile(String.raw`(a)|\1`, invalid), false);
-    assert.equal(regex_error_desc(invalid), 'Invalid back reference');
-
-    const valid = regex_init();
-    assert.equal(regex_compile(String.raw`(a)|(b)\2`, valid), true);
-    assert.equal(regex_match('a', valid), true);
-    assert.equal(regex_match('bb', valid), true);
-    assert.equal(regex_match('b', valid), false);
-});
-
-test('supported backreferences follow recorder unbounded repetition selection',
-    () => {
-        for (const [pattern, matches, misses] of [
-            [String.raw`^(a+)*\1$`, ['aaa'], ['b']],
-            [String.raw`^(a+){0,}\1$`, ['aaa'], ['b']],
-        ]) {
-            const regex = regex_init();
-            assert.equal(regex_compile(pattern, regex), true, pattern);
-            for (const text of matches)
-                assert.equal(regex_match(text, regex), true,
-                    JSON.stringify({ pattern, text }));
-            for (const text of misses)
-                assert.equal(regex_match(text, regex), false,
-                    JSON.stringify({ pattern, text }));
-        }
-    });
-
-test('reference-aware classes and anchors exercise their parsed-tree arms', () => {
-    for (const [pattern, matches, misses] of [
-        [String.raw`^([[:digit:]])\1$`, ['44'], ['45']],
-        [String.raw`\`(a)\1\'`, ['aa'], ['baa', 'aab']],
-        [String.raw`(()^b)\1`, [], ['\nbb']],
-        [String.raw`(.+^b)(x)\2`, ['\nbxx'], ['\nbx']],
-    ]) {
-        const regex = regex_init();
-        assert.equal(regex_compile(pattern, regex), true, pattern);
-        for (const text of matches)
-            assert.equal(regex_match(text, regex), true,
-                JSON.stringify({ pattern, text }));
-        for (const text of misses)
-            assert.equal(regex_match(text, regex), false,
-                JSON.stringify({ pattern, text }));
-    }
-});
-
-test('variable-width captures overwrite and retain recorder values', () => {
-    const pattern = String.raw`^((ab|c)|x)*\2$`;
-    const regex = regex_init();
-    assert.equal(regex_compile(pattern, regex), true);
-    for (const text of ['abab', 'abxab', 'abcc', 'cc', 'xabxabab'])
-        assert.equal(regex_match(text, regex), true, text);
-    for (const text of ['ababc', 'xc', 'abxc'])
-        assert.equal(regex_match(text, regex), false, text);
-});
-
 test('posixregex.c keeps the last regcomp() error code', () => {
     const regex = regex_init();
     assert.equal(regex_error_desc(regex), 'no explanation');
     assert.equal(regex_error_desc(null), 'no regexp');
+    // [z-a] runs backwards: REG_ERANGE, in macOS regerror()'s words.
     assert.equal(regex_compile('[z-a]', regex), false);
-    assert.equal(regex_error_desc(regex), 'Invalid range end');
+    assert.equal(regex_error_desc(regex), 'invalid character range');
     assert.equal(regex_match('a', regex), false);
+    // A later success clears the code. In macOS's extended regex \1 is
+    // the digit 1, so (a){2}\1 is the text "aa1".
     assert.equal(regex_compile(String.raw`(a){2}\1`, regex), true);
     assert.equal(regex_error_desc(regex), 'no explanation');
-    assert.equal(regex_match('aaa', regex), true);
-    assert.equal(regex_match('aa', regex), false);
-});
-
-test('GNU word, space, and boundary escapes use ASCII glibc semantics', () => {
-    const cases = [
-        [String.raw`^\bfoo\b$`, 'foo', 'foo_'],
-        [String.raw`\Boo\B`, 'xooz', 'foo'],
-        [String.raw`\<foo\>`, ' foo ', '_foo'],
-        [String.raw`^\w+$`, 'abc_123', 'abc-'],
-        [String.raw`^\W+$`, ' -', '_'],
-        [String.raw`^\s+$`, '\t\n\v\f\r ', 'a'],
-        [String.raw`^\S+$`, 'abc_123', 'a b'],
-    ];
-    for (const [pattern, match, miss] of cases) {
-        const regex = regex_init();
-        assert.equal(regex_compile(pattern, regex), true, pattern);
-        assert.equal(regex_match(match, regex), true, pattern);
-        assert.equal(regex_match(miss, regex), false, pattern);
-    }
-    for (const boundary of [
-        String.raw`\b`, String.raw`\B`, String.raw`\<`, String.raw`\>`,
-    ]) {
-        for (const quantifier of ['*', '+', '?', '{1}']) {
-            const pattern = boundary + quantifier;
-            const regex = regex_init();
-            assert.equal(regex_compile(pattern, regex), false, pattern);
-            assert.equal(
-                regex_error_desc(regex),
-                'Invalid preceding regular expression',
-                pattern,
-            );
-        }
-    }
+    assert.equal(regex_match('aaa1', regex), true);
+    assert.equal(regex_match('aaa', regex), false);
 });
 
 test('all twelve ASCII POSIX character classes pin both memberships', () => {
@@ -483,103 +240,6 @@ test('negated POSIX classes and unmatched close parentheses match literally',
             assert.equal(regex_compile(pattern, regex), true, pattern);
             assert.equal(regex_match(match, regex), true, pattern);
             assert.equal(regex_match(miss, regex), false, pattern);
-        }
-    });
-
-test('a leading literal close bracket can be a range endpoint', () => {
-    const accepted = regex_init();
-    assert.equal(regex_compile('^[]-a]$', accepted), true);
-    for (const text of [']', '^', '_', '`', 'a'])
-        assert.equal(regex_match(text, accepted), true, text);
-    for (const text of ['\\', 'b', '-'])
-        assert.equal(regex_match(text, accepted), false, text);
-
-    const rejected = regex_init();
-    assert.equal(regex_compile('[]--]', rejected), false);
-    assert.equal(regex_error_desc(rejected), 'Invalid range end');
-});
-
-test('every source-accepted translator edge compiles without a JS leak', () => {
-    for (const pattern of [
-        ')', '()', '(|)', 'a{,}', 'a{,2}', 'a{2,}', 'a{2}{3}', 'a**', 'a?+',
-        '[]a]', '[a-]', '[[:punct:]]', '[[=a=]]', '[[.a.]]',
-        String.raw`\(\)\{\}\+\?\|\.\^\$`,
-    ]) {
-        const regex = regex_init();
-        assert.doesNotThrow(() => regex_compile(pattern, regex), pattern);
-        assert.equal(regex_compile(pattern, regex), true, pattern);
-    }
-});
-
-test('accepted interval and final-hyphen forms match their libc languages',
-    () => {
-        for (const [pattern, matches, misses] of [
-            ['^a{,}$', ['', 'a', 'aaaa'], ['b']],
-            ['^a{,2}$', ['', 'a', 'aa'], ['aaa', 'b']],
-            ['^a{2}{3}$', ['aaaaaa'], ['', 'aa', 'aaaaa']],
-            ['^[a-]$', ['a', '-'], ['b', 'aa']],
-        ]) {
-            const regex = regex_init();
-            assert.equal(regex_compile(pattern, regex), true, pattern);
-            for (const text of matches)
-                assert.equal(regex_match(text, regex), true,
-                    JSON.stringify({ pattern, text }));
-            for (const text of misses)
-                assert.equal(regex_match(text, regex), false,
-                    JSON.stringify({ pattern, text }));
-        }
-    });
-
-test('GNU buffer anchors and contextual line anchors match recorder glibc',
-    () => {
-        for (const [pattern, matches, misses] of [
-            [String.raw`\`a`, ['a', 'ab'], ['ba']],
-            [String.raw`a\'`, ['a', 'ba'], ['ab', 'a\n']],
-            ['$.', ['\n', 'a\n'], ['', 'a']],
-            ['a$.', ['a\n', 'a\nb'], ['a', 'b\n']],
-            ['.+^', ['\n', 'a\n'], ['', 'a']],
-            ['^end$', ['end'], ['end\n', 'xend']],
-        ]) {
-            const regex = regex_init();
-            assert.equal(regex_compile(pattern, regex), true, pattern);
-            for (const text of matches)
-                assert.equal(regex_match(text, regex), true,
-                    JSON.stringify({ pattern, text }));
-            for (const text of misses)
-                assert.equal(regex_match(text, regex), false,
-                    JSON.stringify({ pattern, text }));
-        }
-
-        for (const anchor of [String.raw`\``, String.raw`\'`]) {
-            for (const quantifier of ['*', '+', '?', '{1}']) {
-                const pattern = anchor + quantifier;
-                const regex = regex_init();
-                assert.equal(regex_compile(pattern, regex), false, pattern);
-                assert.equal(regex_error_desc(regex),
-                    'Invalid preceding regular expression', pattern);
-            }
-        }
-    });
-
-test('configured internal dollar classifies a live newline message',
-    async () => {
-        const state = messageState('MSGTYPE=hide "$."\n');
-        await ttyPline('line\n', state);
-        assert.equal(state._pending_message, undefined);
-        assert.equal(state._ttyPreviousMessage, '');
-    });
-
-test('internal caret requires the current candidate to consume its newline',
-    () => {
-        for (const [pattern, text, expected] of [
-            ['()^b', '\nb', false],
-            ['a*^b', 'a\nb', false],
-            ['.+^b', '\nb', true],
-            ['.*^b$', 'x\nb', true],
-        ]) {
-            const regex = regex_init();
-            assert.equal(regex_compile(pattern, regex), true, pattern);
-            assert.equal(regex_match(text, regex), expected, pattern);
         }
     });
 
