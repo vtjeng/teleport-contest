@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310442,
+      "datetime": "20261115143000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=menucolors\nMENUCOLOR=\"a{1,2}{3}\"=red&inverse\n",
+      "moves": "\u001b\ni\u001b"
+    }
+  ]
+}

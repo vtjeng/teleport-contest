@@ -1,0 +1,580 @@
+{"id":"optb-accessiblemsg","group":"options-boolean","probe":"#optionsfull toggles boolean accessiblemsg","marker":"accessiblemsg","segments":1}
+{"id":"optb-acoustics","group":"options-boolean","probe":"#optionsfull toggles boolean acoustics","marker":"acoustics","segments":1}
+{"id":"optb-altmeta","group":"options-boolean","probe":"#optionsfull toggles boolean altmeta","marker":"altmeta","segments":1}
+{"id":"optb-armorstatus","group":"options-boolean","probe":"#optionsfull toggles boolean armorstatus","marker":"armorstatus","segments":1}
+{"id":"optb-autodescribe","group":"options-boolean","probe":"#optionsfull toggles boolean autodescribe","marker":"autodescribe","segments":1}
+{"id":"optb-autodig","group":"options-boolean","probe":"#optionsfull toggles boolean autodig","marker":"autodig","segments":1}
+{"id":"optb-autoopen","group":"options-boolean","probe":"#optionsfull toggles boolean autoopen","marker":"autoopen","segments":1}
+{"id":"optb-autopickup","group":"options-boolean","probe":"#optionsfull toggles boolean autopickup","marker":"autopickup","segments":1}
+{"id":"optb-autoquiver","group":"options-boolean","probe":"#optionsfull toggles boolean autoquiver","marker":"autoquiver","segments":1}
+{"id":"optb-bgcolors","group":"options-boolean","probe":"#optionsfull toggles boolean bgcolors","marker":"bgcolors","segments":1}
+{"id":"optb-checkpoint","group":"options-boolean","probe":"#optionsfull toggles boolean checkpoint","marker":"checkpoint","segments":1}
+{"id":"optb-cmdassist","group":"options-boolean","probe":"#optionsfull toggles boolean cmdassist","marker":"cmdassist","segments":1}
+{"id":"optb-color","group":"options-boolean","probe":"#optionsfull toggles boolean color","marker":"color","segments":1}
+{"id":"optb-confirm","group":"options-boolean","probe":"#optionsfull toggles boolean confirm","marker":"confirm","segments":1}
+{"id":"optb-customcolors","group":"options-boolean","probe":"#optionsfull toggles boolean customcolors","marker":"customcolors","segments":1}
+{"id":"optb-customsymbols","group":"options-boolean","probe":"#optionsfull toggles boolean customsymbols","marker":"customsymbols","segments":1}
+{"id":"optb-dark_room","group":"options-boolean","probe":"#optionsfull toggles boolean dark_room","marker":"dark_room","segments":1}
+{"id":"optb-dropped_nopick","group":"options-boolean","probe":"#optionsfull toggles boolean dropped_nopick","marker":"dropped_nopick","segments":1}
+{"id":"optb-eight_bit_tty","group":"options-boolean","probe":"#optionsfull toggles boolean eight_bit_tty","marker":"eight_bit_tty","segments":1}
+{"id":"optb-extmenu","group":"options-boolean","probe":"#optionsfull toggles boolean extmenu","marker":"extmenu","segments":1}
+{"id":"optb-fireassist","group":"options-boolean","probe":"#optionsfull toggles boolean fireassist","marker":"fireassist","segments":1}
+{"id":"optb-fixinv","group":"options-boolean","probe":"#optionsfull toggles boolean fixinv","marker":"fixinv","segments":1}
+{"id":"optb-force_invmenu","group":"options-boolean","probe":"#optionsfull toggles boolean force_invmenu","marker":"force_invmenu","segments":1}
+{"id":"optb-goldX","group":"options-boolean","probe":"#optionsfull toggles boolean goldX","marker":"goldX","segments":1}
+{"id":"optb-help","group":"options-boolean","probe":"#optionsfull toggles boolean help","marker":"help","segments":1}
+{"id":"optb-herecmd_menu","group":"options-boolean","probe":"#optionsfull toggles boolean herecmd_menu","marker":"herecmd_menu","segments":1}
+{"id":"optb-hilite_pet","group":"options-boolean","probe":"#optionsfull toggles boolean hilite_pet","marker":"hilite_pet","segments":1}
+{"id":"optb-hilite_pile","group":"options-boolean","probe":"#optionsfull toggles boolean hilite_pile","marker":"hilite_pile","segments":1}
+{"id":"optb-hitpointbar","group":"options-boolean","probe":"#optionsfull toggles boolean hitpointbar","marker":"hitpointbar","segments":1}
+{"id":"optb-idlecheckpoint","group":"options-boolean","probe":"#optionsfull toggles boolean idlecheckpoint","marker":"idlecheckpoint","segments":1}
+{"id":"optb-ignintr","group":"options-boolean","probe":"#optionsfull toggles boolean ignintr","marker":"ignintr","segments":1}
+{"id":"optb-implicit_uncursed","group":"options-boolean","probe":"#optionsfull toggles boolean implicit_uncursed","marker":"implicit_uncursed","segments":1}
+{"id":"optb-lit_corridor","group":"options-boolean","probe":"#optionsfull toggles boolean lit_corridor","marker":"lit_corridor","segments":1}
+{"id":"optb-lootabc","group":"options-boolean","probe":"#optionsfull toggles boolean lootabc","marker":"lootabc","segments":1}
+{"id":"optb-mail","group":"options-boolean","probe":"#optionsfull toggles boolean mail","marker":"mail","segments":1}
+{"id":"optb-mention_decor","group":"options-boolean","probe":"#optionsfull toggles boolean mention_decor","marker":"mention_decor","segments":1}
+{"id":"optb-mention_map","group":"options-boolean","probe":"#optionsfull toggles boolean mention_map","marker":"mention_map","segments":1}
+{"id":"optb-mention_walls","group":"options-boolean","probe":"#optionsfull toggles boolean mention_walls","marker":"mention_walls","segments":1}
+{"id":"optb-menu_overlay","group":"options-boolean","probe":"#optionsfull toggles boolean menu_overlay","marker":"menu_overlay","segments":1}
+{"id":"optb-menucolors","group":"options-boolean","probe":"#optionsfull toggles boolean menucolors","marker":"menucolors","segments":1}
+{"id":"optb-mon_movement","group":"options-boolean","probe":"#optionsfull toggles boolean mon_movement","marker":"mon_movement","segments":1}
+{"id":"optb-null","group":"options-boolean","probe":"#optionsfull toggles boolean null","marker":"null","segments":1}
+{"id":"optb-pickup_stolen","group":"options-boolean","probe":"#optionsfull toggles boolean pickup_stolen","marker":"pickup_stolen","segments":1}
+{"id":"optb-pickup_thrown","group":"options-boolean","probe":"#optionsfull toggles boolean pickup_thrown","marker":"pickup_thrown","segments":1}
+{"id":"optb-price_quotes","group":"options-boolean","probe":"#optionsfull toggles boolean price_quotes","marker":"price_quotes","segments":1}
+{"id":"optb-pushweapon","group":"options-boolean","probe":"#optionsfull toggles boolean pushweapon","marker":"pushweapon","segments":1}
+{"id":"optb-query_menu","group":"options-boolean","probe":"#optionsfull toggles boolean query_menu","marker":"query_menu","segments":1}
+{"id":"optb-quick_farsight","group":"options-boolean","probe":"#optionsfull toggles boolean quick_farsight","marker":"quick_farsight","segments":1}
+{"id":"optb-rest_on_space","group":"options-boolean","probe":"#optionsfull toggles boolean rest_on_space","marker":"rest_on_space","segments":1}
+{"id":"optb-safe_pet","group":"options-boolean","probe":"#optionsfull toggles boolean safe_pet","marker":"safe_pet","segments":1}
+{"id":"optb-safe_wait","group":"options-boolean","probe":"#optionsfull toggles boolean safe_wait","marker":"safe_wait","segments":1}
+{"id":"optb-showdamage","group":"options-boolean","probe":"#optionsfull toggles boolean showdamage","marker":"showdamage","segments":1}
+{"id":"optb-showexp","group":"options-boolean","probe":"#optionsfull toggles boolean showexp","marker":"showexp","segments":1}
+{"id":"optb-showrace","group":"options-boolean","probe":"#optionsfull toggles boolean showrace","marker":"showrace","segments":1}
+{"id":"optb-showvers","group":"options-boolean","probe":"#optionsfull toggles boolean showvers","marker":"showvers","segments":1}
+{"id":"optb-silent","group":"options-boolean","probe":"#optionsfull toggles boolean silent","marker":"silent","segments":1}
+{"id":"optb-sortpack","group":"options-boolean","probe":"#optionsfull toggles boolean sortpack","marker":"sortpack","segments":1}
+{"id":"optb-sounds","group":"options-boolean","probe":"#optionsfull toggles boolean sounds","marker":"sounds","segments":1}
+{"id":"optb-sparkle","group":"options-boolean","probe":"#optionsfull toggles boolean sparkle","marker":"sparkle","segments":1}
+{"id":"optb-spot_monsters","group":"options-boolean","probe":"#optionsfull toggles boolean spot_monsters","marker":"spot_monsters","segments":1}
+{"id":"optb-standout","group":"options-boolean","probe":"#optionsfull toggles boolean standout","marker":"standout","segments":1}
+{"id":"optb-terrainstatus","group":"options-boolean","probe":"#optionsfull toggles boolean terrainstatus","marker":"terrainstatus","segments":1}
+{"id":"optb-time","group":"options-boolean","probe":"#optionsfull toggles boolean time","marker":"time","segments":1}
+{"id":"optb-tips","group":"options-boolean","probe":"#optionsfull toggles boolean tips","marker":"tips","segments":1}
+{"id":"optb-tombstone","group":"options-boolean","probe":"#optionsfull toggles boolean tombstone","marker":"tombstone","segments":1}
+{"id":"optb-toptenwin","group":"options-boolean","probe":"#optionsfull toggles boolean toptenwin","marker":"toptenwin","segments":1}
+{"id":"optb-travel","group":"options-boolean","probe":"#optionsfull toggles boolean travel","marker":"travel","segments":1}
+{"id":"optb-use_inverse","group":"options-boolean","probe":"#optionsfull toggles boolean use_inverse","marker":"use_inverse","segments":1}
+{"id":"optb-verbose","group":"options-boolean","probe":"#optionsfull toggles boolean verbose","marker":"verbose","segments":1}
+{"id":"optb-weaponstatus","group":"options-boolean","probe":"#optionsfull toggles boolean weaponstatus","marker":"weaponstatus","segments":1}
+{"id":"optb-whatis_menu","group":"options-boolean","probe":"#optionsfull toggles boolean whatis_menu","marker":"whatis_menu","segments":1}
+{"id":"optb-whatis_moveskip","group":"options-boolean","probe":"#optionsfull toggles boolean whatis_moveskip","marker":"whatis_moveskip","segments":1}
+{"id":"optc-autounlock-esc","group":"options-compound","probe":"#optionsfull autounlock, then ESC","marker":"autounlock","segments":1}
+{"id":"optc-autounlock-a","group":"options-compound","probe":"#optionsfull autounlock, first choice","marker":"autounlock","segments":1}
+{"id":"optc-autounlock-b","group":"options-compound","probe":"#optionsfull autounlock, second choice","marker":"autounlock","segments":1}
+{"id":"optc-autounlock-num","group":"options-compound","probe":"#optionsfull autounlock, typed value 99999999999 (atoi/strtol overflow)","marker":"autounlock","segments":1}
+{"id":"optc-boulder-esc","group":"options-compound","probe":"#optionsfull boulder, then ESC","marker":"boulder","segments":1}
+{"id":"optc-boulder-a","group":"options-compound","probe":"#optionsfull boulder, first choice","marker":"boulder","segments":1}
+{"id":"optc-boulder-b","group":"options-compound","probe":"#optionsfull boulder, second choice","marker":"boulder","segments":1}
+{"id":"optc-boulder-num","group":"options-compound","probe":"#optionsfull boulder, typed value 99999999999 (atoi/strtol overflow)","marker":"boulder","segments":1}
+{"id":"optc-crash_email-esc","group":"options-compound","probe":"#optionsfull crash_email, then ESC","marker":"crash_email","segments":1}
+{"id":"optc-crash_email-a","group":"options-compound","probe":"#optionsfull crash_email, first choice","marker":"crash_email","segments":1}
+{"id":"optc-crash_email-b","group":"options-compound","probe":"#optionsfull crash_email, second choice","marker":"crash_email","segments":1}
+{"id":"optc-crash_email-num","group":"options-compound","probe":"#optionsfull crash_email, typed value 99999999999 (atoi/strtol overflow)","marker":"crash_email","segments":1}
+{"id":"optc-crash_name-esc","group":"options-compound","probe":"#optionsfull crash_name, then ESC","marker":"crash_name","segments":1}
+{"id":"optc-crash_name-a","group":"options-compound","probe":"#optionsfull crash_name, first choice","marker":"crash_name","segments":1}
+{"id":"optc-crash_name-b","group":"options-compound","probe":"#optionsfull crash_name, second choice","marker":"crash_name","segments":1}
+{"id":"optc-crash_name-num","group":"options-compound","probe":"#optionsfull crash_name, typed value 99999999999 (atoi/strtol overflow)","marker":"crash_name","segments":1}
+{"id":"optc-crash_urlmax-esc","group":"options-compound","probe":"#optionsfull crash_urlmax, then ESC","marker":"crash_urlmax","segments":1}
+{"id":"optc-crash_urlmax-a","group":"options-compound","probe":"#optionsfull crash_urlmax, first choice","marker":"crash_urlmax","segments":1}
+{"id":"optc-crash_urlmax-b","group":"options-compound","probe":"#optionsfull crash_urlmax, second choice","marker":"crash_urlmax","segments":1}
+{"id":"optc-crash_urlmax-num","group":"options-compound","probe":"#optionsfull crash_urlmax, typed value 99999999999 (atoi/strtol overflow)","marker":"crash_urlmax","segments":1}
+{"id":"optc-disclose-esc","group":"options-compound","probe":"#optionsfull disclose, then ESC","marker":"disclose","segments":1}
+{"id":"optc-disclose-a","group":"options-compound","probe":"#optionsfull disclose, first choice","marker":"disclose","segments":1}
+{"id":"optc-disclose-b","group":"options-compound","probe":"#optionsfull disclose, second choice","marker":"disclose","segments":1}
+{"id":"optc-disclose-num","group":"options-compound","probe":"#optionsfull disclose, typed value 99999999999 (atoi/strtol overflow)","marker":"disclose","segments":1}
+{"id":"optc-fruit-esc","group":"options-compound","probe":"#optionsfull fruit, then ESC","marker":"fruit","segments":1}
+{"id":"optc-fruit-a","group":"options-compound","probe":"#optionsfull fruit, first choice","marker":"fruit","segments":1}
+{"id":"optc-fruit-b","group":"options-compound","probe":"#optionsfull fruit, second choice","marker":"fruit","segments":1}
+{"id":"optc-fruit-num","group":"options-compound","probe":"#optionsfull fruit, typed value 99999999999 (atoi/strtol overflow)","marker":"fruit","segments":1}
+{"id":"optc-glyph-esc","group":"options-compound","probe":"#optionsfull glyph, then ESC","marker":"glyph","segments":1}
+{"id":"optc-glyph-a","group":"options-compound","probe":"#optionsfull glyph, first choice","marker":"glyph","segments":1}
+{"id":"optc-glyph-b","group":"options-compound","probe":"#optionsfull glyph, second choice","marker":"glyph","segments":1}
+{"id":"optc-glyph-num","group":"options-compound","probe":"#optionsfull glyph, typed value 99999999999 (atoi/strtol overflow)","marker":"glyph","segments":1}
+{"id":"optc-hilite_status-esc","group":"options-compound","probe":"#optionsfull hilite_status, then ESC","marker":"hilite_status","segments":1}
+{"id":"optc-hilite_status-a","group":"options-compound","probe":"#optionsfull hilite_status, first choice","marker":"hilite_status","segments":1}
+{"id":"optc-hilite_status-b","group":"options-compound","probe":"#optionsfull hilite_status, second choice","marker":"hilite_status","segments":1}
+{"id":"optc-hilite_status-num","group":"options-compound","probe":"#optionsfull hilite_status, typed value 99999999999 (atoi/strtol overflow)","marker":"hilite_status","segments":1}
+{"id":"optc-menu_headings-esc","group":"options-compound","probe":"#optionsfull menu_headings, then ESC","marker":"menu_headings","segments":1}
+{"id":"optc-menu_headings-a","group":"options-compound","probe":"#optionsfull menu_headings, first choice","marker":"menu_headings","segments":1}
+{"id":"optc-menu_headings-b","group":"options-compound","probe":"#optionsfull menu_headings, second choice","marker":"menu_headings","segments":1}
+{"id":"optc-menu_headings-num","group":"options-compound","probe":"#optionsfull menu_headings, typed value 99999999999 (atoi/strtol overflow)","marker":"menu_headings","segments":1}
+{"id":"optc-menu_objsyms-esc","group":"options-compound","probe":"#optionsfull menu_objsyms, then ESC","marker":"menu_objsyms","segments":1}
+{"id":"optc-menu_objsyms-a","group":"options-compound","probe":"#optionsfull menu_objsyms, first choice","marker":"menu_objsyms","segments":1}
+{"id":"optc-menu_objsyms-b","group":"options-compound","probe":"#optionsfull menu_objsyms, second choice","marker":"menu_objsyms","segments":1}
+{"id":"optc-menu_objsyms-num","group":"options-compound","probe":"#optionsfull menu_objsyms, typed value 99999999999 (atoi/strtol overflow)","marker":"menu_objsyms","segments":1}
+{"id":"optc-menuinvertmode-esc","group":"options-compound","probe":"#optionsfull menuinvertmode, then ESC","marker":"menuinvertmode","segments":1}
+{"id":"optc-menuinvertmode-a","group":"options-compound","probe":"#optionsfull menuinvertmode, first choice","marker":"menuinvertmode","segments":1}
+{"id":"optc-menuinvertmode-b","group":"options-compound","probe":"#optionsfull menuinvertmode, second choice","marker":"menuinvertmode","segments":1}
+{"id":"optc-menuinvertmode-num","group":"options-compound","probe":"#optionsfull menuinvertmode, typed value 99999999999 (atoi/strtol overflow)","marker":"menuinvertmode","segments":1}
+{"id":"optc-menustyle-esc","group":"options-compound","probe":"#optionsfull menustyle, then ESC","marker":"menustyle","segments":1}
+{"id":"optc-menustyle-a","group":"options-compound","probe":"#optionsfull menustyle, first choice","marker":"menustyle","segments":1}
+{"id":"optc-menustyle-b","group":"options-compound","probe":"#optionsfull menustyle, second choice","marker":"menustyle","segments":1}
+{"id":"optc-menustyle-num","group":"options-compound","probe":"#optionsfull menustyle, typed value 99999999999 (atoi/strtol overflow)","marker":"menustyle","segments":1}
+{"id":"optc-msg_window-esc","group":"options-compound","probe":"#optionsfull msg_window, then ESC","marker":"msg_window","segments":1}
+{"id":"optc-msg_window-a","group":"options-compound","probe":"#optionsfull msg_window, first choice","marker":"msg_window","segments":1}
+{"id":"optc-msg_window-b","group":"options-compound","probe":"#optionsfull msg_window, second choice","marker":"msg_window","segments":1}
+{"id":"optc-msg_window-num","group":"options-compound","probe":"#optionsfull msg_window, typed value 99999999999 (atoi/strtol overflow)","marker":"msg_window","segments":1}
+{"id":"optc-number_pad-esc","group":"options-compound","probe":"#optionsfull number_pad, then ESC","marker":"number_pad","segments":1}
+{"id":"optc-number_pad-a","group":"options-compound","probe":"#optionsfull number_pad, first choice","marker":"number_pad","segments":1}
+{"id":"optc-number_pad-b","group":"options-compound","probe":"#optionsfull number_pad, second choice","marker":"number_pad","segments":1}
+{"id":"optc-number_pad-num","group":"options-compound","probe":"#optionsfull number_pad, typed value 99999999999 (atoi/strtol overflow)","marker":"number_pad","segments":1}
+{"id":"optc-packorder-esc","group":"options-compound","probe":"#optionsfull packorder, then ESC","marker":"packorder","segments":1}
+{"id":"optc-packorder-a","group":"options-compound","probe":"#optionsfull packorder, first choice","marker":"packorder","segments":1}
+{"id":"optc-packorder-b","group":"options-compound","probe":"#optionsfull packorder, second choice","marker":"packorder","segments":1}
+{"id":"optc-packorder-num","group":"options-compound","probe":"#optionsfull packorder, typed value 99999999999 (atoi/strtol overflow)","marker":"packorder","segments":1}
+{"id":"optc-paranoid_confirmation-esc","group":"options-compound","probe":"#optionsfull paranoid_confirmation, then ESC","marker":"paranoid_confirmation","segments":1}
+{"id":"optc-paranoid_confirmation-a","group":"options-compound","probe":"#optionsfull paranoid_confirmation, first choice","marker":"paranoid_confirmation","segments":1}
+{"id":"optc-paranoid_confirmation-b","group":"options-compound","probe":"#optionsfull paranoid_confirmation, second choice","marker":"paranoid_confirmation","segments":1}
+{"id":"optc-paranoid_confirmation-num","group":"options-compound","probe":"#optionsfull paranoid_confirmation, typed value 99999999999 (atoi/strtol overflow)","marker":"paranoid_confirmation","segments":1}
+{"id":"optc-petattr-esc","group":"options-compound","probe":"#optionsfull petattr, then ESC","marker":"petattr","segments":1}
+{"id":"optc-petattr-a","group":"options-compound","probe":"#optionsfull petattr, first choice","marker":"petattr","segments":1}
+{"id":"optc-petattr-b","group":"options-compound","probe":"#optionsfull petattr, second choice","marker":"petattr","segments":1}
+{"id":"optc-petattr-num","group":"options-compound","probe":"#optionsfull petattr, typed value 99999999999 (atoi/strtol overflow)","marker":"petattr","segments":1}
+{"id":"optc-pickup_burden-esc","group":"options-compound","probe":"#optionsfull pickup_burden, then ESC","marker":"pickup_burden","segments":1}
+{"id":"optc-pickup_burden-a","group":"options-compound","probe":"#optionsfull pickup_burden, first choice","marker":"pickup_burden","segments":1}
+{"id":"optc-pickup_burden-b","group":"options-compound","probe":"#optionsfull pickup_burden, second choice","marker":"pickup_burden","segments":1}
+{"id":"optc-pickup_burden-num","group":"options-compound","probe":"#optionsfull pickup_burden, typed value 99999999999 (atoi/strtol overflow)","marker":"pickup_burden","segments":1}
+{"id":"optc-pickup_types-esc","group":"options-compound","probe":"#optionsfull pickup_types, then ESC","marker":"pickup_types","segments":1}
+{"id":"optc-pickup_types-a","group":"options-compound","probe":"#optionsfull pickup_types, first choice","marker":"pickup_types","segments":1}
+{"id":"optc-pickup_types-b","group":"options-compound","probe":"#optionsfull pickup_types, second choice","marker":"pickup_types","segments":1}
+{"id":"optc-pickup_types-num","group":"options-compound","probe":"#optionsfull pickup_types, typed value 99999999999 (atoi/strtol overflow)","marker":"pickup_types","segments":1}
+{"id":"optc-pile_limit-esc","group":"options-compound","probe":"#optionsfull pile_limit, then ESC","marker":"pile_limit","segments":1}
+{"id":"optc-pile_limit-a","group":"options-compound","probe":"#optionsfull pile_limit, first choice","marker":"pile_limit","segments":1}
+{"id":"optc-pile_limit-b","group":"options-compound","probe":"#optionsfull pile_limit, second choice","marker":"pile_limit","segments":1}
+{"id":"optc-pile_limit-num","group":"options-compound","probe":"#optionsfull pile_limit, typed value 99999999999 (atoi/strtol overflow)","marker":"pile_limit","segments":1}
+{"id":"optc-roguesymset-esc","group":"options-compound","probe":"#optionsfull roguesymset, then ESC","marker":"roguesymset","segments":1}
+{"id":"optc-roguesymset-a","group":"options-compound","probe":"#optionsfull roguesymset, first choice","marker":"roguesymset","segments":1}
+{"id":"optc-roguesymset-b","group":"options-compound","probe":"#optionsfull roguesymset, second choice","marker":"roguesymset","segments":1}
+{"id":"optc-roguesymset-num","group":"options-compound","probe":"#optionsfull roguesymset, typed value 99999999999 (atoi/strtol overflow)","marker":"roguesymset","segments":1}
+{"id":"optc-runmode-esc","group":"options-compound","probe":"#optionsfull runmode, then ESC","marker":"runmode","segments":1}
+{"id":"optc-runmode-a","group":"options-compound","probe":"#optionsfull runmode, first choice","marker":"runmode","segments":1}
+{"id":"optc-runmode-b","group":"options-compound","probe":"#optionsfull runmode, second choice","marker":"runmode","segments":1}
+{"id":"optc-runmode-num","group":"options-compound","probe":"#optionsfull runmode, typed value 99999999999 (atoi/strtol overflow)","marker":"runmode","segments":1}
+{"id":"optc-scores-esc","group":"options-compound","probe":"#optionsfull scores, then ESC","marker":"scores","segments":1}
+{"id":"optc-scores-a","group":"options-compound","probe":"#optionsfull scores, first choice","marker":"scores","segments":1}
+{"id":"optc-scores-b","group":"options-compound","probe":"#optionsfull scores, second choice","marker":"scores","segments":1}
+{"id":"optc-scores-num","group":"options-compound","probe":"#optionsfull scores, typed value 99999999999 (atoi/strtol overflow)","marker":"scores","segments":1}
+{"id":"optc-sortdiscoveries-esc","group":"options-compound","probe":"#optionsfull sortdiscoveries, then ESC","marker":"sortdiscoveries","segments":1}
+{"id":"optc-sortdiscoveries-a","group":"options-compound","probe":"#optionsfull sortdiscoveries, first choice","marker":"sortdiscoveries","segments":1}
+{"id":"optc-sortdiscoveries-b","group":"options-compound","probe":"#optionsfull sortdiscoveries, second choice","marker":"sortdiscoveries","segments":1}
+{"id":"optc-sortdiscoveries-num","group":"options-compound","probe":"#optionsfull sortdiscoveries, typed value 99999999999 (atoi/strtol overflow)","marker":"sortdiscoveries","segments":1}
+{"id":"optc-sortloot-esc","group":"options-compound","probe":"#optionsfull sortloot, then ESC","marker":"sortloot","segments":1}
+{"id":"optc-sortloot-a","group":"options-compound","probe":"#optionsfull sortloot, first choice","marker":"sortloot","segments":1}
+{"id":"optc-sortloot-b","group":"options-compound","probe":"#optionsfull sortloot, second choice","marker":"sortloot","segments":1}
+{"id":"optc-sortloot-num","group":"options-compound","probe":"#optionsfull sortloot, typed value 99999999999 (atoi/strtol overflow)","marker":"sortloot","segments":1}
+{"id":"optc-sortvanquished-esc","group":"options-compound","probe":"#optionsfull sortvanquished, then ESC","marker":"sortvanquished","segments":1}
+{"id":"optc-sortvanquished-a","group":"options-compound","probe":"#optionsfull sortvanquished, first choice","marker":"sortvanquished","segments":1}
+{"id":"optc-sortvanquished-b","group":"options-compound","probe":"#optionsfull sortvanquished, second choice","marker":"sortvanquished","segments":1}
+{"id":"optc-sortvanquished-num","group":"options-compound","probe":"#optionsfull sortvanquished, typed value 99999999999 (atoi/strtol overflow)","marker":"sortvanquished","segments":1}
+{"id":"optc-statushilites-esc","group":"options-compound","probe":"#optionsfull statushilites, then ESC","marker":"statushilites","segments":1}
+{"id":"optc-statushilites-a","group":"options-compound","probe":"#optionsfull statushilites, first choice","marker":"statushilites","segments":1}
+{"id":"optc-statushilites-b","group":"options-compound","probe":"#optionsfull statushilites, second choice","marker":"statushilites","segments":1}
+{"id":"optc-statushilites-num","group":"options-compound","probe":"#optionsfull statushilites, typed value 99999999999 (atoi/strtol overflow)","marker":"statushilites","segments":1}
+{"id":"optc-statuslines-esc","group":"options-compound","probe":"#optionsfull statuslines, then ESC","marker":"statuslines","segments":1}
+{"id":"optc-statuslines-a","group":"options-compound","probe":"#optionsfull statuslines, first choice","marker":"statuslines","segments":1}
+{"id":"optc-statuslines-b","group":"options-compound","probe":"#optionsfull statuslines, second choice","marker":"statuslines","segments":1}
+{"id":"optc-statuslines-num","group":"options-compound","probe":"#optionsfull statuslines, typed value 99999999999 (atoi/strtol overflow)","marker":"statuslines","segments":1}
+{"id":"optc-suppress_alert-esc","group":"options-compound","probe":"#optionsfull suppress_alert, then ESC","marker":"suppress_alert","segments":1}
+{"id":"optc-suppress_alert-a","group":"options-compound","probe":"#optionsfull suppress_alert, first choice","marker":"suppress_alert","segments":1}
+{"id":"optc-suppress_alert-b","group":"options-compound","probe":"#optionsfull suppress_alert, second choice","marker":"suppress_alert","segments":1}
+{"id":"optc-suppress_alert-num","group":"options-compound","probe":"#optionsfull suppress_alert, typed value 99999999999 (atoi/strtol overflow)","marker":"suppress_alert","segments":1}
+{"id":"optc-symset-esc","group":"options-compound","probe":"#optionsfull symset, then ESC","marker":"symset","segments":1}
+{"id":"optc-symset-a","group":"options-compound","probe":"#optionsfull symset, first choice","marker":"symset","segments":1}
+{"id":"optc-symset-b","group":"options-compound","probe":"#optionsfull symset, second choice","marker":"symset","segments":1}
+{"id":"optc-symset-num","group":"options-compound","probe":"#optionsfull symset, typed value 99999999999 (atoi/strtol overflow)","marker":"symset","segments":1}
+{"id":"optc-versinfo-esc","group":"options-compound","probe":"#optionsfull versinfo, then ESC","marker":"versinfo","segments":1}
+{"id":"optc-versinfo-a","group":"options-compound","probe":"#optionsfull versinfo, first choice","marker":"versinfo","segments":1}
+{"id":"optc-versinfo-b","group":"options-compound","probe":"#optionsfull versinfo, second choice","marker":"versinfo","segments":1}
+{"id":"optc-versinfo-num","group":"options-compound","probe":"#optionsfull versinfo, typed value 99999999999 (atoi/strtol overflow)","marker":"versinfo","segments":1}
+{"id":"optc-whatis_coord-esc","group":"options-compound","probe":"#optionsfull whatis_coord, then ESC","marker":"whatis_coord","segments":1}
+{"id":"optc-whatis_coord-a","group":"options-compound","probe":"#optionsfull whatis_coord, first choice","marker":"whatis_coord","segments":1}
+{"id":"optc-whatis_coord-b","group":"options-compound","probe":"#optionsfull whatis_coord, second choice","marker":"whatis_coord","segments":1}
+{"id":"optc-whatis_coord-num","group":"options-compound","probe":"#optionsfull whatis_coord, typed value 99999999999 (atoi/strtol overflow)","marker":"whatis_coord","segments":1}
+{"id":"optc-whatis_filter-esc","group":"options-compound","probe":"#optionsfull whatis_filter, then ESC","marker":"whatis_filter","segments":1}
+{"id":"optc-whatis_filter-a","group":"options-compound","probe":"#optionsfull whatis_filter, first choice","marker":"whatis_filter","segments":1}
+{"id":"optc-whatis_filter-b","group":"options-compound","probe":"#optionsfull whatis_filter, second choice","marker":"whatis_filter","segments":1}
+{"id":"optc-whatis_filter-num","group":"options-compound","probe":"#optionsfull whatis_filter, typed value 99999999999 (atoi/strtol overflow)","marker":"whatis_filter","segments":1}
+{"id":"optc-autocompletions-esc","group":"options-compound","probe":"#optionsfull autocompletions, then ESC","marker":"autocompletions","segments":1}
+{"id":"optc-autocompletions-a","group":"options-compound","probe":"#optionsfull autocompletions, first choice","marker":"autocompletions","segments":1}
+{"id":"optc-autocompletions-b","group":"options-compound","probe":"#optionsfull autocompletions, second choice","marker":"autocompletions","segments":1}
+{"id":"optc-autocompletions-num","group":"options-compound","probe":"#optionsfull autocompletions, typed value 99999999999 (atoi/strtol overflow)","marker":"autocompletions","segments":1}
+{"id":"optc-autopickup-exceptions-esc","group":"options-compound","probe":"#optionsfull autopickup exceptions, then ESC","marker":"autopickup exceptions","segments":1}
+{"id":"optc-autopickup-exceptions-a","group":"options-compound","probe":"#optionsfull autopickup exceptions, first choice","marker":"autopickup exceptions","segments":1}
+{"id":"optc-autopickup-exceptions-b","group":"options-compound","probe":"#optionsfull autopickup exceptions, second choice","marker":"autopickup exceptions","segments":1}
+{"id":"optc-autopickup-exceptions-num","group":"options-compound","probe":"#optionsfull autopickup exceptions, typed value 99999999999 (atoi/strtol overflow)","marker":"autopickup exceptions","segments":1}
+{"id":"optc-bind-keys-esc","group":"options-compound","probe":"#optionsfull bind keys, then ESC","marker":"bind keys","segments":1}
+{"id":"optc-bind-keys-a","group":"options-compound","probe":"#optionsfull bind keys, first choice","marker":"bind keys","segments":1}
+{"id":"optc-bind-keys-b","group":"options-compound","probe":"#optionsfull bind keys, second choice","marker":"bind keys","segments":1}
+{"id":"optc-bind-keys-num","group":"options-compound","probe":"#optionsfull bind keys, typed value 99999999999 (atoi/strtol overflow)","marker":"bind keys","segments":1}
+{"id":"optc-menu-colors-esc","group":"options-compound","probe":"#optionsfull menu colors, then ESC","marker":"menu colors","segments":1}
+{"id":"optc-menu-colors-a","group":"options-compound","probe":"#optionsfull menu colors, first choice","marker":"menu colors","segments":1}
+{"id":"optc-menu-colors-b","group":"options-compound","probe":"#optionsfull menu colors, second choice","marker":"menu colors","segments":1}
+{"id":"optc-menu-colors-num","group":"options-compound","probe":"#optionsfull menu colors, typed value 99999999999 (atoi/strtol overflow)","marker":"menu colors","segments":1}
+{"id":"optc-message-types-esc","group":"options-compound","probe":"#optionsfull message types, then ESC","marker":"message types","segments":1}
+{"id":"optc-message-types-a","group":"options-compound","probe":"#optionsfull message types, first choice","marker":"message types","segments":1}
+{"id":"optc-message-types-b","group":"options-compound","probe":"#optionsfull message types, second choice","marker":"message types","segments":1}
+{"id":"optc-message-types-num","group":"options-compound","probe":"#optionsfull message types, typed value 99999999999 (atoi/strtol overflow)","marker":"message types","segments":1}
+{"id":"optc-status-condition-fields-esc","group":"options-compound","probe":"#optionsfull status condition fields, then ESC","marker":"status condition fields","segments":1}
+{"id":"optc-status-condition-fields-a","group":"options-compound","probe":"#optionsfull status condition fields, first choice","marker":"status condition fields","segments":1}
+{"id":"optc-status-condition-fields-b","group":"options-compound","probe":"#optionsfull status condition fields, second choice","marker":"status condition fields","segments":1}
+{"id":"optc-status-condition-fields-num","group":"options-compound","probe":"#optionsfull status condition fields, typed value 99999999999 (atoi/strtol overflow)","marker":"status condition fields","segments":1}
+{"id":"optc-status-highlight-rules-esc","group":"options-compound","probe":"#optionsfull status highlight rules, then ESC","marker":"status highlight rules","segments":1}
+{"id":"optc-status-highlight-rules-a","group":"options-compound","probe":"#optionsfull status highlight rules, first choice","marker":"status highlight rules","segments":1}
+{"id":"optc-status-highlight-rules-b","group":"options-compound","probe":"#optionsfull status highlight rules, second choice","marker":"status highlight rules","segments":1}
+{"id":"optc-status-highlight-rules-num","group":"options-compound","probe":"#optionsfull status highlight rules, typed value 99999999999 (atoi/strtol overflow)","marker":"status highlight rules","segments":1}
+{"id":"opt-short-pages","group":"options-short","probe":"O menu, both pages","marker":"Options","segments":1}
+{"id":"opt-short-help","group":"options-short","probe":"O menu ? help text, paged","marker":"hide help","segments":1}
+{"id":"opt-full-help","group":"options-short","probe":"#optionsfull ? help text, paged","marker":"Booleans","segments":1}
+{"id":"opt-short-select-page","group":"options-short","probe":"O menu, select a whole page with ,","marker":"Options","segments":1}
+{"id":"opt-saveoptions","group":"options-short","probe":"#saveoptions writes to the judge HOME","marker":"saveoptions","segments":1}
+{"id":"hl-hp-percent","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:hitpoints/<50%/red/>=100%/green&bold","marker":"Dlvl","segments":1}
+{"id":"hl-hp-absolute","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:hitpoints/<10/red&inverse/>=16/yellow&underline","marker":"Dlvl","segments":1}
+{"id":"hl-gold-updown","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:gold/up/green/down/red","marker":"Dlvl","segments":1}
+{"id":"hl-time-changed","group":"status-highlights","probe":"nethackrc OPTIONS=time,statushilites:3,hilite_status:time/changed/bright-blue&blink","marker":"Dlvl","segments":1}
+{"id":"hl-title-text","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:title/always/red&underline","marker":"Dlvl","segments":1}
+{"id":"hl-align-text","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:alignment/neutral/magenta&bold","marker":"Dlvl","segments":1}
+{"id":"hl-hunger-text","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:hunger/not-hungry/cyan","marker":"Dlvl","segments":1}
+{"id":"hl-cond-many","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:condition/blind/magenta&underline&blink&bold&italic condition/conf/yellow&italic","marker":"Dlvl","segments":1}
+{"id":"hl-cond-all","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:condition/all/orange&dim","marker":"Dlvl","segments":1}
+{"id":"hl-ac-updown","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:armor-class/down/green/up/red","marker":"Dlvl","segments":1}
+{"id":"hl-xp-rgb","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:experience-level/always/#ff8000","marker":"Dlvl","segments":1}
+{"id":"hl-str-percent-edge","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:strength/<=0%/red/>100%/green/=100%/blue","marker":"Dlvl","segments":1}
+{"id":"hl-many-fields","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:hitpoints/always/red hitpoints-max/always/blue power/always/green power-max/always/cyan gold/always/yellow dungeon-level/always/magenta experience-level/always/orange armor-class/always/white","marker":"Dlvl","segments":1}
+{"id":"hl-hsbuf-21","group":"status-highlights","probe":"nethackrc OPTIONS=hilite_status:hitpoints/<1/red/<1/red/<1/red/<1/red/<1/red/<1/red/<1/red/<1/red/<1/red/<1/red","marker":"Dlvl","segments":1}
+{"id":"hl-hsbuf-22","group":"status-highlights","probe":"nethackrc OPTIONS=hilite_status:hitpoints/<1/red/<1/red/<1/red/<1/red/<1/red/<1/red/<1/red/<1/red/<1/red/<1/red/x","marker":"Dlvl","segments":1}
+{"id":"hl-bad-color","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:hitpoints/always/notacolor&bold","marker":"Dlvl","segments":1}
+{"id":"hl-bad-field","group":"status-highlights","probe":"nethackrc OPTIONS=statushilites:10,hilite_status:nosuchfield/always/red","marker":"Dlvl","segments":1}
+{"id":"hl-menu-hp-pct-le","group":"status-highlights","probe":"#optionsfull status highlight rules: \"rp50\\nbbb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hp-pct-lt","group":"status-highlights","probe":"#optionsfull status highlight rules: \"rp50\\nabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hp-num","group":"status-highlights","probe":"#optionsfull status highlight rules: \"rn10\\nabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hp-num-big","group":"status-highlights","probe":"#optionsfull status highlight rules: \"rn99999999999\\nabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hp-pct-200","group":"status-highlights","probe":"#optionsfull status highlight rules: \"rp200\\nabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hp-always","group":"status-highlights","probe":"#optionsfull status highlight rules: \"rabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hp-changes","group":"status-highlights","probe":"#optionsfull status highlight rules: \"rcabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hp-critical","group":"status-highlights","probe":"#optionsfull status highlight rules: \"rCbb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-title-always","group":"status-highlights","probe":"#optionsfull status highlight rules: \"aabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-title-changes","group":"status-highlights","probe":"#optionsfull status highlight rules: \"acbb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-gold-changes","group":"status-highlights","probe":"#optionsfull status highlight rules: \"jcabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-gold-num","group":"status-highlights","probe":"#optionsfull status highlight rules: \"jn100\\nbbb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hunger-text","group":"status-highlights","probe":"#optionsfull status highlight rules: \"qtabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hunger-a","group":"status-highlights","probe":"#optionsfull status highlight rules: \"qabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-align-a","group":"status-highlights","probe":"#optionsfull status highlight rules: \"habb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-ac-num","group":"status-highlights","probe":"#optionsfull status highlight rules: \"nn5\\nabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-time-changes","group":"status-highlights","probe":"#optionsfull status highlight rules: \"pcabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-xp-pct","group":"status-highlights","probe":"#optionsfull status highlight rules: \"mp50\\nabb\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hp-attrs","group":"status-highlights","probe":"#optionsfull status highlight rules: \"rabcdef\\n\"","marker":"Status hilites","segments":1}
+{"id":"hl-menu-hp-twice","group":"status-highlights","probe":"#optionsfull status highlight rules: \"rp50\\nbbb\\n\\u001b\\u001bsp25\\nbcb\\n\"","marker":"Status hilites","segments":1}
+{"id":"re-match-00","group":"regex","probe":"MENUCOLOR \"\\w+ spear\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-01","group":"regex","probe":"MENUCOLOR \"\\bdagger\\b\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-02","group":"regex","probe":"MENUCOLOR \"\\<dagger\\>\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-03","group":"regex","probe":"MENUCOLOR \"[[:<:]]dagger\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-04","group":"regex","probe":"MENUCOLOR \"sp\\ear\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-05","group":"regex","probe":"MENUCOLOR \"\\+1\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-06","group":"regex","probe":"MENUCOLOR \"\\s\\+0\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-07","group":"regex","probe":"MENUCOLOR \"\\S+ dagger\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-08","group":"regex","probe":"MENUCOLOR \"\\W\\(\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-09","group":"regex","probe":"MENUCOLOR \"dagger\\B\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-10","group":"regex","probe":"MENUCOLOR \"(spear|)\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-11","group":"regex","probe":"MENUCOLOR \"(|dagger)\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-12","group":"regex","probe":"MENUCOLOR \"spea{,1}r\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-13","group":"regex","probe":"MENUCOLOR \"x**\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-14","group":"regex","probe":"MENUCOLOR \"a+?\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-15","group":"regex","probe":"MENUCOLOR \"^a - \" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-16","group":"regex","probe":"MENUCOLOR \"shield)$\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-17","group":"regex","probe":"MENUCOLOR \"(.)\\1\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-18","group":"regex","probe":"MENUCOLOR \"(o)\\1d\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-19","group":"regex","probe":"MENUCOLOR \"[a-]\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-20","group":"regex","probe":"MENUCOLOR \"[]a]x\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-21","group":"regex","probe":"MENUCOLOR \"[^]]\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-22","group":"regex","probe":"MENUCOLOR \"[[.space.]]dagger\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-23","group":"regex","probe":"MENUCOLOR \"[[=a=]]\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-24","group":"regex","probe":"MENUCOLOR \"[\\d]\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-25","group":"regex","probe":"MENUCOLOR \"[[:alpha:]]+ spear\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-26","group":"regex","probe":"MENUCOLOR \"spe(ar)?\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-27","group":"regex","probe":"MENUCOLOR \"()spear\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-28","group":"regex","probe":"MENUCOLOR \"{1}a\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-29","group":"regex","probe":"MENUCOLOR \"a|*b\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-30","group":"regex","probe":"MENUCOLOR \"\\(\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-31","group":"regex","probe":"MENUCOLOR \"dagger{1,2}\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-32","group":"regex","probe":"MENUCOLOR \"x{0}spear\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-33","group":"regex","probe":"MENUCOLOR \"\\d\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-34","group":"regex","probe":"MENUCOLOR \"[z-a]\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-35","group":"regex","probe":"MENUCOLOR \"(?i)SPEAR\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-36","group":"regex","probe":"MENUCOLOR \"SPEAR\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-37","group":"regex","probe":"MENUCOLOR \"[[:word:]]\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-38","group":"regex","probe":"MENUCOLOR \"é|spear\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-39","group":"regex","probe":"MENUCOLOR \"[à-ÿ]\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-40","group":"regex","probe":"MENUCOLOR \"a{1,2}{3}\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-41","group":"regex","probe":"MENUCOLOR \"b*+\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-42","group":"regex","probe":"MENUCOLOR \"^*spear\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-43","group":"regex","probe":"MENUCOLOR \"$a\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-44","group":"regex","probe":"MENUCOLOR \"spear|\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-match-45","group":"regex","probe":"MENUCOLOR \"|spear\" in nethackrc, then the inventory","marker":"Weapons","segments":1}
+{"id":"re-bad-rc-00","group":"regex","probe":"bad patterns in nethackrc: [\"(\",\")\",\"[\",\"]\",\"{\"]","marker":"Dlvl","segments":1}
+{"id":"re-bad-rc-01","group":"regex","probe":"bad patterns in nethackrc: [\"}\",\"a{\",\"a{1\",\"a{1,\",\"a{2,1}\"]","marker":"Dlvl","segments":1}
+{"id":"re-bad-rc-02","group":"regex","probe":"bad patterns in nethackrc: [\"*\",\"+\",\"?\",\"\\\\\",\"a\\\\\"]","marker":"Dlvl","segments":1}
+{"id":"re-bad-rc-03","group":"regex","probe":"bad patterns in nethackrc: [\"[[:foo:]]\",\"[a\",\"(a\",\"a)\",\"[[.foo.]]\"]","marker":"Dlvl","segments":1}
+{"id":"re-bad-rc-04","group":"regex","probe":"bad patterns in nethackrc: [\"[[=foo=]]\",\"[b-a]\",\"a{99999}\",\"a{1}{2}\",\"a**\"]","marker":"Dlvl","segments":1}
+{"id":"re-bad-rc-05","group":"regex","probe":"bad patterns in nethackrc: [\"((((((((((a))))))))))\",\"\\\\1\",\"(a)\\\\2\",\"\",\"|\"]","marker":"Dlvl","segments":1}
+{"id":"re-bad-rc-06","group":"regex","probe":"bad patterns in nethackrc: [\"()\",\"a||b\",\"(|)\"]","marker":"Dlvl","segments":1}
+{"id":"re-bad-menu-00","group":"regex","probe":"#optionsfull menucolor add, pattern \"(\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-01","group":"regex","probe":"#optionsfull msgtype add, pattern \")\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-02","group":"regex","probe":"#optionsfull ape add, pattern \"[\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-03","group":"regex","probe":"#optionsfull menucolor add, pattern \"]\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-04","group":"regex","probe":"#optionsfull msgtype add, pattern \"{\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-05","group":"regex","probe":"#optionsfull ape add, pattern \"}\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-06","group":"regex","probe":"#optionsfull menucolor add, pattern \"a{\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-07","group":"regex","probe":"#optionsfull msgtype add, pattern \"a{1\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-08","group":"regex","probe":"#optionsfull ape add, pattern \"a{1,\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-09","group":"regex","probe":"#optionsfull menucolor add, pattern \"a{2,1}\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-10","group":"regex","probe":"#optionsfull msgtype add, pattern \"*\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-11","group":"regex","probe":"#optionsfull ape add, pattern \"+\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-12","group":"regex","probe":"#optionsfull menucolor add, pattern \"?\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-13","group":"regex","probe":"#optionsfull msgtype add, pattern \"\\\\\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-14","group":"regex","probe":"#optionsfull ape add, pattern \"a\\\\\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-15","group":"regex","probe":"#optionsfull menucolor add, pattern \"[[:foo:]]\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-16","group":"regex","probe":"#optionsfull msgtype add, pattern \"[a\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-17","group":"regex","probe":"#optionsfull ape add, pattern \"(a\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-18","group":"regex","probe":"#optionsfull menucolor add, pattern \"a)\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-19","group":"regex","probe":"#optionsfull msgtype add, pattern \"[[.foo.]]\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-20","group":"regex","probe":"#optionsfull ape add, pattern \"[[=foo=]]\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-21","group":"regex","probe":"#optionsfull menucolor add, pattern \"[b-a]\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-22","group":"regex","probe":"#optionsfull msgtype add, pattern \"a{99999}\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-23","group":"regex","probe":"#optionsfull ape add, pattern \"a{1}{2}\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-24","group":"regex","probe":"#optionsfull menucolor add, pattern \"a**\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-25","group":"regex","probe":"#optionsfull msgtype add, pattern \"((((((((((a))))))))))\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-26","group":"regex","probe":"#optionsfull ape add, pattern \"\\\\1\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-27","group":"regex","probe":"#optionsfull menucolor add, pattern \"(a)\\\\2\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-28","group":"regex","probe":"#optionsfull msgtype add, pattern \"\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-29","group":"regex","probe":"#optionsfull ape add, pattern \"|\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-30","group":"regex","probe":"#optionsfull menucolor add, pattern \"()\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-31","group":"regex","probe":"#optionsfull msgtype add, pattern \"a||b\"","marker":"pattern","segments":1}
+{"id":"re-bad-menu-32","group":"regex","probe":"#optionsfull ape add, pattern \"(|)\"","marker":"pattern","segments":1}
+{"id":"re-msgtype-0","group":"regex","probe":"MSGTYPE=hide \"\\w+ to NetHack\"","marker":"Dlvl","segments":1}
+{"id":"re-msgtype-1","group":"regex","probe":"MSGTYPE=hide \"\\bwelcome\\b\"","marker":"Dlvl","segments":1}
+{"id":"re-msgtype-2","group":"regex","probe":"MSGTYPE=hide \"welcome{,2}\"","marker":"Dlvl","segments":1}
+{"id":"re-msgtype-3","group":"regex","probe":"MSGTYPE=hide \"You see no \\w+\"","marker":"Dlvl","segments":1}
+{"id":"re-msgtype-4","group":"regex","probe":"MSGTYPE=hide \"[[:<:]]objects\"","marker":"Dlvl","segments":1}
+{"id":"re-msgtype-5","group":"regex","probe":"MSGTYPE=hide \"(e)\\1\"","marker":"Dlvl","segments":1}
+{"id":"re-msgtype-6","group":"regex","probe":"MSGTYPE=hide \"see (no|)objects\"","marker":"Dlvl","segments":1}
+{"id":"rgb-hilite-00","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#ff0000","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-00","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#ff0000","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-01","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#0x0102","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-01","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#0x0102","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-02","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#+1+2+3","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-02","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#+1+2+3","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-03","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#-1-2-3","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-03","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#-1-2-3","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-04","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#12345","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-04","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#12345","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-05","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/# 1 2 3","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-05","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=# 1 2 3","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-06","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#ff00ff00","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-06","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#ff00ff00","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-07","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#0X0X0X","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-07","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#0X0X0X","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-08","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#fg0000","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-08","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#fg0000","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-09","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/255-0-0","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-09","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=255-0-0","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-10","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/999-0-0","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-10","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=999-0-0","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-11","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/-1-2-3","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-11","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=-1-2-3","marker":"Weapons","segments":1}
+{"id":"rgb-hilite-12","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/1-2","marker":"Dlvl","segments":1}
+{"id":"rgb-menucolor-12","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=1-2","marker":"Weapons","segments":1}
+{"id":"help-a","group":"help","probe":"? menu item a, paged","marker":"Select one item","segments":1}
+{"id":"help-b","group":"help","probe":"? menu item b, paged","marker":"Select one item","segments":1}
+{"id":"help-c","group":"help","probe":"? menu item c, paged","marker":"Select one item","segments":1}
+{"id":"help-d","group":"help","probe":"? menu item d, paged","marker":"Select one item","segments":1}
+{"id":"help-e","group":"help","probe":"? menu item e, paged","marker":"Select one item","segments":1}
+{"id":"help-f","group":"help","probe":"? menu item f, paged","marker":"Select one item","segments":1}
+{"id":"help-g","group":"help","probe":"? menu item g, paged","marker":"Select one item","segments":1}
+{"id":"help-h","group":"help","probe":"? menu item h, paged","marker":"Select one item","segments":1}
+{"id":"help-i","group":"help","probe":"? menu item i, paged","marker":"Select one item","segments":1}
+{"id":"help-j","group":"help","probe":"? menu item j, paged","marker":"Select one item","segments":1}
+{"id":"help-k","group":"help","probe":"? menu item k, paged","marker":"Select one item","segments":1}
+{"id":"help-l","group":"help","probe":"? menu item l, paged","marker":"Select one item","segments":1}
+{"id":"help-m","group":"help","probe":"? menu item m, paged","marker":"Select one item","segments":1}
+{"id":"help-n","group":"help","probe":"? menu item n, paged","marker":"Select one item","segments":1}
+{"id":"help-o","group":"help","probe":"? menu item o, paged","marker":"Select one item","segments":1}
+{"id":"cmd-version-ext","group":"help","probe":"command \"#version\\n\", paged","marker":"NetHack","segments":1}
+{"id":"cmd-version-v","group":"help","probe":"command \"v\", paged","marker":"NetHack","segments":1}
+{"id":"cmd-overview-ctrl-o","group":"help","probe":"command \"\\u000f\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-overview-ext","group":"help","probe":"command \"#overview\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-attributes-ctrl-x","group":"help","probe":"command \"\\u0018\", paged","marker":"Background","segments":1}
+{"id":"cmd-chronicle","group":"help","probe":"command \"#chronicle\\n\", paged","marker":"Logged events","segments":1}
+{"id":"cmd-conduct","group":"help","probe":"command \"#conduct\\n\", paged","marker":"conduct","segments":1}
+{"id":"cmd-achievements","group":"help","probe":"command \"#achievements\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-known","group":"help","probe":"command \"#known\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-vanquished","group":"help","probe":"command \"#vanquished\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-genocided","group":"help","probe":"command \"#genocided\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-history-V","group":"help","probe":"command \"V\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-extlist","group":"help","probe":"command \"#?\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-herecmdmenu","group":"help","probe":"command \"#herecmdmenu\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-whatdoes","group":"help","probe":"command \"&a&\\u0018&á\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-whatis-slash","group":"help","probe":"command \"/a\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-whatis-ops","group":"help","probe":"command \"/m\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-shell-bang","group":"help","probe":"command \"!\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-shell-ext","group":"help","probe":"command \"#shell\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-suspend-ctrl-z","group":"help","probe":"command \"\\u001a\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-suspend-ext","group":"help","probe":"command \"#suspend\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-prevmsg-ext","group":"help","probe":"command \"#prevmsg\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-redraw","group":"help","probe":"command \"\\u0012\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-annotate","group":"help","probe":"command \"#annotate\\nhere\\n\\u000f\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-call-type","group":"help","probe":"command \"#name\\nn\", paged","marker":"Dlvl","segments":1}
+{"id":"cmd-license-ext","group":"help","probe":"command \"#license\\n\", paged","marker":"Dlvl","segments":1}
+{"id":"terrain-a","group":"help","probe":"#terrain choice a","marker":"Dlvl","segments":1}
+{"id":"terrain-b","group":"help","probe":"#terrain choice b","marker":"Dlvl","segments":1}
+{"id":"terrain-c","group":"help","probe":"#terrain choice c","marker":"Dlvl","segments":1}
+{"id":"terrain-d","group":"help","probe":"#terrain choice d","marker":"Dlvl","segments":1}
+{"id":"terrain-e","group":"help","probe":"#terrain choice e","marker":"Dlvl","segments":1}
+{"id":"terrain-f","group":"help","probe":"#terrain choice f","marker":"Dlvl","segments":1}
+{"id":"terrain-g","group":"help","probe":"#terrain choice g","marker":"Dlvl","segments":1}
+{"id":"terrain-h","group":"help","probe":"#terrain choice h","marker":"Dlvl","segments":1}
+{"id":"discoveries","group":"help","probe":"\\ discoveries","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-a","group":"help","probe":"` discoveries by class a","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-b","group":"help","probe":"` discoveries by class b","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-c","group":"help","probe":"` discoveries by class c","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-d","group":"help","probe":"` discoveries by class d","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-e","group":"help","probe":"` discoveries by class e","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-f","group":"help","probe":"` discoveries by class f","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-g","group":"help","probe":"` discoveries by class g","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-h","group":"help","probe":"` discoveries by class h","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-i","group":"help","probe":"` discoveries by class i","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-j","group":"help","probe":"` discoveries by class j","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-k","group":"help","probe":"` discoveries by class k","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-l","group":"help","probe":"` discoveries by class l","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-m","group":"help","probe":"` discoveries by class m","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-n","group":"help","probe":"` discoveries by class n","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-o","group":"help","probe":"` discoveries by class o","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-p","group":"help","probe":"` discoveries by class p","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-q","group":"help","probe":"` discoveries by class q","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-r","group":"help","probe":"` discoveries by class r","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-s","group":"help","probe":"` discoveries by class s","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-t","group":"help","probe":"` discoveries by class t","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-u","group":"help","probe":"` discoveries by class u","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-v","group":"help","probe":"` discoveries by class v","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-w","group":"help","probe":"` discoveries by class w","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-x","group":"help","probe":"` discoveries by class x","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-y","group":"help","probe":"` discoveries by class y","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-z","group":"help","probe":"` discoveries by class z","marker":"Dlvl","segments":1}
+{"id":"discoveries-class-all","group":"help","probe":"` discoveries by class *","marker":"Dlvl","segments":1}
+{"id":"prevmsg-single-0","group":"help","probe":"^P with msg_window:single","marker":"Dlvl","segments":1}
+{"id":"prevmsg-single-1","group":"help","probe":"^P with msg_window:single","marker":"Dlvl","segments":1}
+{"id":"prevmsg-combination-0","group":"help","probe":"^P with msg_window:combination","marker":"Dlvl","segments":1}
+{"id":"prevmsg-combination-1","group":"help","probe":"^P with msg_window:combination","marker":"Dlvl","segments":1}
+{"id":"prevmsg-full-0","group":"help","probe":"^P with msg_window:full","marker":"Dlvl","segments":1}
+{"id":"prevmsg-full-1","group":"help","probe":"^P with msg_window:full","marker":"Dlvl","segments":1}
+{"id":"prevmsg-reverse-0","group":"help","probe":"^P with msg_window:reverse","marker":"Dlvl","segments":1}
+{"id":"prevmsg-reverse-1","group":"help","probe":"^P with msg_window:reverse","marker":"Dlvl","segments":1}
+{"id":"date-fri13-mar","group":"date","probe":"Tourist on 20260313120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-fri13-nov","group":"date","probe":"Tourist on 20261113120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-fullmoon","group":"date","probe":"Tourist on 20261124213000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-newmoon","group":"date","probe":"Tourist on 20261110120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-midnight-summer","group":"date","probe":"Tourist on 20260715003000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-midnight-winter","group":"date","probe":"Tourist on 20260115000000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-night-2159","group":"date","probe":"Tourist on 20260715215959: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-night-2200","group":"date","probe":"Tourist on 20260715220000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-dawn-0559","group":"date","probe":"Tourist on 20260715055959: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-dawn-0600","group":"date","probe":"Tourist on 20260715060000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-halloween","group":"date","probe":"Tourist on 20261031210000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-christmas","group":"date","probe":"Tourist on 20261225120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-dst-gap-0200","group":"date","probe":"Tourist on 20260308020000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-dst-gap-0230","group":"date","probe":"Tourist on 20260308023000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-dst-gap-0300","group":"date","probe":"Tourist on 20260308030000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-dst-gap-0159","group":"date","probe":"Tourist on 20260308015959: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-dst-fall-0030","group":"date","probe":"Tourist on 20261101003000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-dst-fall-0130","group":"date","probe":"Tourist on 20261101013000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-dst-fall-0200","group":"date","probe":"Tourist on 20261101020000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-winter-noon","group":"date","probe":"Tourist on 20260115120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-summer-noon","group":"date","probe":"Tourist on 20260715120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-leapday","group":"date","probe":"Tourist on 20280229120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-newyear-eve","group":"date","probe":"Tourist on 20261231235959: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y2038-before","group":"date","probe":"Tourist on 20380119031407: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y2038-after","group":"date","probe":"Tourist on 20380119031408: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y2099","group":"date","probe":"Tourist on 20991231235959: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y2100-mar","group":"date","probe":"Tourist on 21000301120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y2300","group":"date","probe":"Tourist on 23000101000000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y9999","group":"date","probe":"Tourist on 99991231235959: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1970","group":"date","probe":"Tourist on 19700101120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1969","group":"date","probe":"Tourist on 19690720201700: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1900","group":"date","probe":"Tourist on 19000101120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1800","group":"date","probe":"Tourist on 18000704120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y2000-leap","group":"date","probe":"Tourist on 20000229000000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"rip-fri13-mar","group":"date","probe":"debug death on 20260313120000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-fri13-nov","group":"date","probe":"debug death on 20261113120000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-midnight-winter","group":"date","probe":"debug death on 20260115000000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-dst-gap-0230","group":"date","probe":"debug death on 20260308023000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-dst-fall-0130","group":"date","probe":"debug death on 20261101013000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-winter-noon","group":"date","probe":"debug death on 20260115120000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-newyear-eve","group":"date","probe":"debug death on 20261231235959: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y2038-after","group":"date","probe":"debug death on 20380119031408: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y9999","group":"date","probe":"debug death on 99991231235959: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y1969","group":"date","probe":"debug death on 19690720201700: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y1900","group":"date","probe":"debug death on 19000101120000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y1800","group":"date","probe":"debug death on 18000704120000: tombstone year","marker":"REST","segments":1}
+{"id":"restore-summer-winter","group":"date","probe":"Tourist saved on 20260715120000, restored on 20260115120000","marker":"design","segments":2}
+{"id":"restore-winter-summer","group":"date","probe":"Tourist saved on 20260115120000, restored on 20260715120000","marker":"design","segments":2}
+{"id":"restore-gap-fall","group":"date","probe":"Tourist saved on 20260308023000, restored on 20261101013000","marker":"design","segments":2}
+{"id":"restore-fall-gap","group":"date","probe":"Tourist saved on 20261101013000, restored on 20260308023000","marker":"design","segments":2}
+{"id":"restore-y1900-y2099","group":"date","probe":"Tourist saved on 19000101120000, restored on 20991231235959","marker":"design","segments":2}
+{"id":"byte-cmd-80","group":"high-byte","probe":"command keys 0x80-0x83","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-84","group":"high-byte","probe":"command keys 0x84-0x87","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-88","group":"high-byte","probe":"command keys 0x88-0x8b","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-8c","group":"high-byte","probe":"command keys 0x8c-0x8f","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-90","group":"high-byte","probe":"command keys 0x90-0x93","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-94","group":"high-byte","probe":"command keys 0x94-0x97","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-98","group":"high-byte","probe":"command keys 0x98-0x9b","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-9c","group":"high-byte","probe":"command keys 0x9c-0x9f","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-a0","group":"high-byte","probe":"command keys 0xa0-0xa3","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-a4","group":"high-byte","probe":"command keys 0xa4-0xa7","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-a8","group":"high-byte","probe":"command keys 0xa8-0xab","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-ac","group":"high-byte","probe":"command keys 0xac-0xaf","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-b0","group":"high-byte","probe":"command keys 0xb0-0xb3","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-b4","group":"high-byte","probe":"command keys 0xb4-0xb7","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-b8","group":"high-byte","probe":"command keys 0xb8-0xbb","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-bc","group":"high-byte","probe":"command keys 0xbc-0xbf","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-c0","group":"high-byte","probe":"command keys 0xc0-0xc3","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-c4","group":"high-byte","probe":"command keys 0xc4-0xc7","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-c8","group":"high-byte","probe":"command keys 0xc8-0xcb","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-cc","group":"high-byte","probe":"command keys 0xcc-0xcf","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-d0","group":"high-byte","probe":"command keys 0xd0-0xd3","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-d4","group":"high-byte","probe":"command keys 0xd4-0xd7","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-d8","group":"high-byte","probe":"command keys 0xd8-0xdb","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-dc","group":"high-byte","probe":"command keys 0xdc-0xdf","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-e0","group":"high-byte","probe":"command keys 0xe0-0xe3","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-e4","group":"high-byte","probe":"command keys 0xe4-0xe7","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-e8","group":"high-byte","probe":"command keys 0xe8-0xeb","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-ec","group":"high-byte","probe":"command keys 0xec-0xef","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-f0","group":"high-byte","probe":"command keys 0xf0-0xf3","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-f4","group":"high-byte","probe":"command keys 0xf4-0xf7","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-f8","group":"high-byte","probe":"command keys 0xf8-0xfb","marker":"Dlvl","segments":1}
+{"id":"byte-cmd-fc","group":"high-byte","probe":"command keys 0xfc-0xff","marker":"Dlvl","segments":1}
+{"id":"byte-altmeta-e1","group":"high-byte","probe":"key 0xe1 with altmeta","marker":"Dlvl","segments":1}
+{"id":"byte-altmeta-e3","group":"high-byte","probe":"key 0xe3 with altmeta","marker":"Dlvl","segments":1}
+{"id":"byte-altmeta-e5","group":"high-byte","probe":"key 0xe5 with altmeta","marker":"Dlvl","segments":1}
+{"id":"byte-altmeta-f0","group":"high-byte","probe":"key 0xf0 with altmeta","marker":"Dlvl","segments":1}
+{"id":"byte-altmeta-ff","group":"high-byte","probe":"key 0xff with altmeta","marker":"Dlvl","segments":1}
+{"id":"byte-getlin-engrave","group":"high-byte","probe":"engrave text with high bytes, then read it","marker":"write in the dust","segments":1}
+{"id":"byte-getlin-engrave-no-ff","group":"high-byte","probe":"engrave text with high bytes other than 0xff, then read it","marker":"write in the dust","segments":1}
+{"id":"byte-getlin-extcmd","group":"high-byte","probe":"# prompt with high bytes","marker":"Dlvl","segments":1}
+{"id":"byte-getlin-fruit","group":"high-byte","probe":"fruit name with high bytes, then inventory","marker":"fruit","segments":1}
+{"id":"byte-getlin-call","group":"high-byte","probe":"call an object type with high bytes, then discoveries","marker":"Dlvl","segments":1}
+{"id":"byte-getlin-annotate","group":"high-byte","probe":"#annotate with high bytes, then ^O","marker":"Dlvl","segments":1}
+{"id":"byte-menu","group":"high-byte","probe":"high bytes as menu selectors in the inventory and help menus","marker":"Dlvl","segments":1}
+{"id":"byte-count","group":"high-byte","probe":"count prefix followed by a high byte","marker":"Dlvl","segments":1}
+{"id":"byte-number-pad","group":"high-byte","probe":"high bytes with number_pad:1","marker":"Dlvl","segments":1}
+{"id":"byte-name-nethackrc","group":"high-byte","probe":"player name with high bytes in nethackrc","marker":"Dlvl","segments":1}

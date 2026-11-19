@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310442,
+      "datetime": "19690720201700",
+      "nethackrc": "OPTIONS=name:Probe,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u001brk\u0018      \u001b#chronicle\n\u001b"
+    }
+  ]
+}
