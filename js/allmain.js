@@ -65,7 +65,7 @@ import { movebubbles, fumaroles } from './mkmaze.js';
 import { init_artifacts, mkot_trap_warn } from './artifacts.js';
 import { role_init, welcomeHallucinationMessage, welcomeIdentity,
     welcomeMessage } from './role_init.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, norep_printer } from './pline.js';
 import { u_init_misc } from './u_init.js';
 import {
     find_ac,
@@ -606,7 +606,7 @@ export async function interrupt_multi(message, state, env = {}) {
     }
     const printing = Boolean(state.flags?.verbose && message);
     nomul(0, state);
-    if (printing) await (env.norepMessage ?? ttyNorep)(message, state);
+    if (printing) await norep_printer(env)(message, state);
 }
 
 function regionEffectEnv(state, random) {

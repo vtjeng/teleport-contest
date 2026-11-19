@@ -29,9 +29,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4004 | 64 | 0 |
-| diagnostic | 726 | 362 | 6 | 358 |
+| diagnostic | 726 | 361 | 6 | 359 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4914 | 4369 | 70 | 475 |
+| total | 4914 | 4368 | 70 | 476 |
 
 ## Missing by C file
 
@@ -69,7 +69,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/iactions.c | yes | 0 | 1 | 0 |
 | src/insight.c | yes | 0 | 3 | 0 |
 | src/invent.c | yes | 0 | 1 | 0 |
-| src/light.c | yes | 0 | 12 | 0 |
+| src/light.c | yes | 0 | 13 | 0 |
 | src/lock.c | yes | 0 | 1 | 0 |
 | src/mail.c | no | 0 | 0 | 1 |
 | src/makemon.c | yes | 0 | 5 | 4 |
@@ -470,6 +470,7 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 162 impossible: `delete_ls not found, ls=`
 
 - `show_transient_light()`
+  - 287 impossible: `transient light`
   - 290 impossible: `a light source`
 
 - `save_light_sources()`
