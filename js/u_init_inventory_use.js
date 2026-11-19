@@ -32,6 +32,7 @@ import {
     setworn,
 } from './worn.js';
 import { setuwep } from './wield.js';
+import { initialspell } from './startup_skills.js';
 
 function useEnv(env = {}) {
     return {
@@ -97,12 +98,7 @@ export async function ini_inv_use_obj(obj, env = {}) {
     }
 
     if (obj.oclass === SPBOOK_CLASS && obj.otyp !== SPE_BLANK_PAPER) {
-        if (typeof normalized.initialSpell !== 'function') {
-            throw new TypeError(
-                'ini_inv_use_obj requires initialSpell for a spellbook',
-            );
-        }
-        normalized.initialSpell(obj, state);
+        initialspell(obj, state);
     }
     return obj;
 }

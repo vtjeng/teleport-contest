@@ -1032,12 +1032,6 @@
       "c": null,
       "reason": "Checks the named-fruit chain for a cycle or a malformed node; C walks gf.ffruit without checking, and no writer is known to corrupt it."
     },
-    "js/fruit.js | monsterName | 'nameToMon must return an integer monster index'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/fruit.js | requireFruitGlobals | `${operation} requires objects_globals_init()`": {
       "count": 1,
       "class": "invariant",
@@ -3648,12 +3642,6 @@
       "c": null,
       "reason": "Refuses state used before the initialization every game performs first."
     },
-    "js/u_init_inventory_attrs.js | normalizedEnvironment | 'starting inventory requires an iniInv callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/u_init_inventory_attrs.js | normalizedEnvironment | 'starting inventory requires initialized hero role and race'": {
       "count": 1,
       "class": "invariant",
@@ -3679,12 +3667,6 @@
       "reason": "An injected random source returned a value outside its bound."
     },
     "js/u_init_inventory_use.js | ini_inv_use_obj | 'ini_inv_use_obj requires an inventory object'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/u_init_inventory_use.js | ini_inv_use_obj | 'ini_inv_use_obj requires initialSpell for a spellbook'": {
       "count": 1,
       "class": "invariant",
       "c": null,
