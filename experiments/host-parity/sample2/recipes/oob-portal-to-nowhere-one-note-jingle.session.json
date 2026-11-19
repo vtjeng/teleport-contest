@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4242017,
+      "datetime": "20590417093000",
+      "nethackrc": "OPTIONS=name:Brigid,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\naeyaeyh\u0017magic portal\nlh      s:"
+    }
+  ]
+}

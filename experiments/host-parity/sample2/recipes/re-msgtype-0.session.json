@@ -4,7 +4,7 @@
     {
       "seed": 7310442,
       "datetime": "20261115143000",
-      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\nMSGTYPE=hide \"\\\\w+ to NetHack\"\n",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\nMSGTYPE=hide \"\\w+ to NetHack\"\n",
       "moves": "\u001b\n:\u0010\u0010\u001b"
     }
   ]

@@ -362,6 +362,32 @@
 {"id":"re-bad-menu-30","group":"regex","probe":"#optionsfull menucolor add, pattern \"()\"","marker":"pattern","segments":1}
 {"id":"re-bad-menu-31","group":"regex","probe":"#optionsfull msgtype add, pattern \"a||b\"","marker":"pattern","segments":1}
 {"id":"re-bad-menu-32","group":"regex","probe":"#optionsfull ape add, pattern \"(|)\"","marker":"pattern","segments":1}
+{"id":"re-typed-00","group":"regex","probe":"#optionsfull menu colors add \"blessed\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-01","group":"regex","probe":"#optionsfull menu colors add \"uncursed\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-02","group":"regex","probe":"#optionsfull menu colors add \"spear\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-03","group":"regex","probe":"#optionsfull menu colors add \"+1\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-04","group":"regex","probe":"#optionsfull menu colors add \"+0 dagger\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-05","group":"regex","probe":"#optionsfull menu colors add \"*dagger\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-06","group":"regex","probe":"#optionsfull menu colors add \"?spear\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-07","group":"regex","probe":"#optionsfull menu colors add \"\\\\(being worn\\\\)\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-08","group":"regex","probe":"#optionsfull menu colors add \"(being worn)\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-09","group":"regex","probe":"#optionsfull menu colors add \"(weapon|alternate)\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-10","group":"regex","probe":"#optionsfull menu colors add \"spear.*hand\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-11","group":"regex","probe":"#optionsfull menu colors add \"[0-9]+ \" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-12","group":"regex","probe":"#optionsfull menu colors add \"food ration$\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-13","group":"regex","probe":"#optionsfull menu colors add \"^an \" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-14","group":"regex","probe":"#optionsfull menu colors add \"a{,2}\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-15","group":"regex","probe":"#optionsfull menu colors add \"spea{,1}r\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-16","group":"regex","probe":"#optionsfull menu colors add \"spe{,2}ar\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-17","group":"regex","probe":"#optionsfull menu colors add \"x{,0}spear\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-18","group":"regex","probe":"#optionsfull menu colors add \"spear{,}\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-19","group":"regex","probe":"#optionsfull menu colors add \"{,1}\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-20","group":"regex","probe":"#optionsfull menu colors add \"a{,}\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-21","group":"regex","probe":"#optionsfull menu colors add \"dag{1,}er\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-22","group":"regex","probe":"#optionsfull menu colors add \"dagger\\\\b\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-23","group":"regex","probe":"#optionsfull menu colors add \"\\\\.\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-24","group":"regex","probe":"#optionsfull menu colors add \".\" red bold, then the inventory","marker":"pattern","segments":1}
+{"id":"re-typed-25","group":"regex","probe":"#optionsfull menu colors add \" +\" red bold, then the inventory","marker":"pattern","segments":1}
 {"id":"re-msgtype-0","group":"regex","probe":"MSGTYPE=hide \"\\w+ to NetHack\"","marker":"Dlvl","segments":1}
 {"id":"re-msgtype-1","group":"regex","probe":"MSGTYPE=hide \"\\bwelcome\\b\"","marker":"Dlvl","segments":1}
 {"id":"re-msgtype-2","group":"regex","probe":"MSGTYPE=hide \"welcome{,2}\"","marker":"Dlvl","segments":1}
@@ -369,30 +395,43 @@
 {"id":"re-msgtype-4","group":"regex","probe":"MSGTYPE=hide \"[[:<:]]objects\"","marker":"Dlvl","segments":1}
 {"id":"re-msgtype-5","group":"regex","probe":"MSGTYPE=hide \"(e)\\1\"","marker":"Dlvl","segments":1}
 {"id":"re-msgtype-6","group":"regex","probe":"MSGTYPE=hide \"see (no|)objects\"","marker":"Dlvl","segments":1}
+{"id":"rgb-glyph-00","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/#ff0000","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-00","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#ff0000","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-00","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#ff0000","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-01","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/#0x0102","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-01","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#0x0102","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-01","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#0x0102","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-02","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/#+1+2+3","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-02","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#+1+2+3","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-02","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#+1+2+3","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-03","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/#-1-2-3","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-03","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#-1-2-3","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-03","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#-1-2-3","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-04","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/#12345","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-04","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#12345","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-04","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#12345","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-05","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/# 1 2 3","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-05","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/# 1 2 3","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-05","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=# 1 2 3","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-06","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/#ff00ff00","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-06","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#ff00ff00","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-06","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#ff00ff00","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-07","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/#0X0X0X","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-07","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#0X0X0X","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-07","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#0X0X0X","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-08","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/#fg0000","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-08","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/#fg0000","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-08","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=#fg0000","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-09","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/255-0-0","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-09","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/255-0-0","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-09","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=255-0-0","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-10","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/999-0-0","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-10","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/999-0-0","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-10","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=999-0-0","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-11","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/-1-2-3","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-11","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/-1-2-3","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-11","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=-1-2-3","marker":"Weapons","segments":1}
+{"id":"rgb-glyph-12","group":"enhanced-colors","probe":"symset:plain, glyph:S_room:U+002E/1-2","marker":"Dlvl","segments":1}
 {"id":"rgb-hilite-12","group":"enhanced-colors","probe":"hilite_status:hitpoints/always/1-2","marker":"Dlvl","segments":1}
 {"id":"rgb-menucolor-12","group":"enhanced-colors","probe":"MENUCOLOR=\"spear\"=1-2","marker":"Weapons","segments":1}
 {"id":"help-a","group":"help","probe":"? menu item a, paged","marker":"Select one item","segments":1}
@@ -514,6 +553,14 @@
 {"id":"date-y1900","group":"date","probe":"Tourist on 19000101120000: shirt, ^X, #chronicle","marker":"design","segments":1}
 {"id":"date-y1800","group":"date","probe":"Tourist on 18000704120000: shirt, ^X, #chronicle","marker":"design","segments":1}
 {"id":"date-y2000-leap","group":"date","probe":"Tourist on 20000229000000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1899","group":"date","probe":"Tourist on 18991231120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1890","group":"date","probe":"Tourist on 18900615120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1850","group":"date","probe":"Tourist on 18500615120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1825","group":"date","probe":"Tourist on 18250615120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1801","group":"date","probe":"Tourist on 18010101120000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1900-0000","group":"date","probe":"Tourist on 19000101000000: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1901-int32min","group":"date","probe":"Tourist on 19011213154552: shirt, ^X, #chronicle","marker":"design","segments":1}
+{"id":"date-y1901-after","group":"date","probe":"Tourist on 19011213154553: shirt, ^X, #chronicle","marker":"design","segments":1}
 {"id":"rip-fri13-mar","group":"date","probe":"debug death on 20260313120000: tombstone year","marker":"REST","segments":1}
 {"id":"rip-fri13-nov","group":"date","probe":"debug death on 20261113120000: tombstone year","marker":"REST","segments":1}
 {"id":"rip-midnight-winter","group":"date","probe":"debug death on 20260115000000: tombstone year","marker":"REST","segments":1}
@@ -526,6 +573,12 @@
 {"id":"rip-y1969","group":"date","probe":"debug death on 19690720201700: tombstone year","marker":"REST","segments":1}
 {"id":"rip-y1900","group":"date","probe":"debug death on 19000101120000: tombstone year","marker":"REST","segments":1}
 {"id":"rip-y1800","group":"date","probe":"debug death on 18000704120000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y1899","group":"date","probe":"debug death on 18991231120000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y1890","group":"date","probe":"debug death on 18900615120000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y1850","group":"date","probe":"debug death on 18500615120000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y1825","group":"date","probe":"debug death on 18250615120000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y1801","group":"date","probe":"debug death on 18010101120000: tombstone year","marker":"REST","segments":1}
+{"id":"rip-y1900-0000","group":"date","probe":"debug death on 19000101000000: tombstone year","marker":"REST","segments":1}
 {"id":"restore-summer-winter","group":"date","probe":"Tourist saved on 20260715120000, restored on 20260115120000","marker":"design","segments":2}
 {"id":"restore-winter-summer","group":"date","probe":"Tourist saved on 20260115120000, restored on 20260715120000","marker":"design","segments":2}
 {"id":"restore-gap-fall","group":"date","probe":"Tourist saved on 20260308023000, restored on 20261101013000","marker":"design","segments":2}
@@ -578,3 +631,13 @@
 {"id":"byte-count","group":"high-byte","probe":"count prefix followed by a high byte","marker":"Dlvl","segments":1}
 {"id":"byte-number-pad","group":"high-byte","probe":"high bytes with number_pad:1","marker":"Dlvl","segments":1}
 {"id":"byte-name-nethackrc","group":"high-byte","probe":"player name with high bytes in nethackrc","marker":"Dlvl","segments":1}
+{"id":"oob-portal-nowhere-jingle-monster-arrival","group":"out-of-bounds","probe":"copy of recipes/dog.c/portal-nowhere-jingle-monster-arrival","marker":"Dlvl","segments":1}
+{"id":"oob-portal-nowhere-migration-panic","group":"out-of-bounds","probe":"copy of recipes/dog.c/portal-nowhere-migration-panic","marker":"Dlvl","segments":1}
+{"id":"oob-portal-to-nowhere-one-note-jingle","group":"out-of-bounds","probe":"copy of recipes/do.c/portal-to-nowhere-one-note-jingle","marker":"Dlvl","segments":1}
+{"id":"oob-niche-depth-dungeon-minus-one","group":"out-of-bounds","probe":"copy of recipes/mklev.c/niche-depth-dungeon-minus-one","marker":"Dlvl","segments":1}
+{"id":"oob-sanity-check-portal-nowhere-unconnected-rooms","group":"out-of-bounds","probe":"copy of recipes/mklev.c/sanity-check-portal-nowhere-unconnected-rooms","marker":"Dlvl","segments":1}
+{"id":"oob-improvised-notes-stale-byte-portal-depth","group":"out-of-bounds","probe":"copy of recipes/music.c/improvised-notes-stale-byte-portal-depth","marker":"Dlvl","segments":1}
+{"id":"oob-pet-enters-wished-portal-one-note-jingle","group":"out-of-bounds","probe":"copy of recipes/teleport.c/pet-enters-wished-portal-one-note-jingle","marker":"Dlvl","segments":1}
+{"id":"oob-portal-nowhere-hero-escape","group":"out-of-bounds","probe":"copy of recipes/trap.c/portal-nowhere-hero-escape","marker":"Dlvl","segments":1}
+{"id":"oob-portal-nowhere-hero-jingle-overview","group":"out-of-bounds","probe":"copy of recipes/trap.c/portal-nowhere-hero-jingle-overview","marker":"Dlvl","segments":1}
+{"id":"oob-random-monster-in-dungeon-minus-one","group":"out-of-bounds","probe":"copy of recipes/makemon.c/random-monster-in-dungeon-minus-one","marker":"Dlvl","segments":1}

@@ -196,7 +196,9 @@ const REGEX_BAD = [
     'a{99999}', 'a{1}{2}', 'a**', '((((((((((a))))))))))', String.raw`\1`, String.raw`(a)\2`,
     '', '|', '()', 'a||b', '(|)',
 ];
-const enc = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+// The config parser takes the text between the quotes as it stands, without
+// unescaping backslashes, so the patterns go in unchanged (none contains '"').
+const enc = (s) => s;
 REGEX_MATCH.forEach((pat, i) => {
     add(`re-match-${String(i).padStart(2, '0')}`, 'regex',
         `MENUCOLOR "${pat}" in nethackrc, then the inventory`, 'Weapons',
@@ -228,6 +230,19 @@ REGEX_BAD.forEach((pat, i) => {
         [seg(VAL + 'OPTIONS=menucolors\n',
             `#optionsfull\n>>>>>>${key}\na${pat}\n${after}${ESC}${ESC}${ESC}${ESC}i${ESC}`)]);
 });
+// Patterns a player might type into the options menu's menu-colour editor,
+// and the {,n} interval family, which GNU reads as {0,n}; each is added with
+// colour red and attribute bold, then the inventory is shown.
+const REGEX_TYPED = ['blessed', 'uncursed', 'spear', '+1', '+0 dagger', '*dagger', '?spear',
+    String.raw`\(being worn\)`, '(being worn)', '(weapon|alternate)', 'spear.*hand', '[0-9]+ ',
+    'food ration$', '^an ', 'a{,2}', 'spea{,1}r', 'spe{,2}ar', 'x{,0}spear', 'spear{,}', '{,1}',
+    'a{,}', 'dag{1,}er', String.raw`dagger\b`, String.raw`\.`, '.', ' \+'];
+REGEX_TYPED.forEach((pat, i) => {
+    add(`re-typed-${String(i).padStart(2, '0')}`, 'regex',
+        `#optionsfull menu colors add ${JSON.stringify(pat)} red bold, then the inventory`, 'pattern',
+        [seg(VAL + 'OPTIONS=menucolors\n',
+            `#optionsfull\n>>>>>>i\na${pat}\nbb\n${ESC}${ESC}${ESC}${ESC}i${ESC}`)]);
+});
 // MSGTYPE semantics: hide the welcome or a look message by a pattern that
 // GNU and BSD regex may read differently.
 const MSG_PATTERNS = [String.raw`\w+ to NetHack`, String.raw`\bwelcome\b`, 'welcome{,2}',
@@ -238,18 +253,24 @@ MSG_PATTERNS.forEach((pat, i) => {
 });
 
 // ------------------------------------------------- enhanced colour parsing
-// coloratt.c check_enhanced_colors() and rgbstr_to_int32() parse '#rrggbb'
-// with sscanf("%02x"), whose handling of a width-exhausted 0x, a sign or a
-// space is libc-specific.
+// coloratt.c rgbstr_to_int32() parses 'R-G-B' with atoi() and otherwise
+// calls check_enhanced_colors(), which parses '#rrggbb' with
+// sscanf("#%02x%02x%02x%c"); how scanf treats a width-exhausted 0x, a sign
+// or a space is libc-specific. A glyph: line (which needs a symset first)
+// reaches it; this build has no palette option. The capture (patch 006)
+// records only term_start_color(), not term_start_extracolor(), so an RGB
+// result does not show on a recorded screen. MENUCOLOR and hilite_status colours go
+// through match_str2clr() instead; those recipes probe colour-name parsing.
 const RGB = ['#ff0000', '#0x0102', '#+1+2+3', '#-1-2-3', '#12345', '# 1 2 3', '#ff00ff00',
     '#0X0X0X', '#fg0000', '255-0-0', '999-0-0', '-1-2-3', '1-2'];
 RGB.forEach((spec, i) => {
-    // (A glyph: line would reach rgbstr_to_int32(), but this build rejects
-    // glyph: in the nethackrc as an unimplemented customization.)
-    add(`rgb-hilite-${String(i).padStart(2, '0')}`, 'enhanced-colors',
+    const n = String(i).padStart(2, '0');
+    add(`rgb-glyph-${n}`, 'enhanced-colors', `symset:plain, glyph:S_room:U+002E/${spec}`, 'Dlvl',
+        [seg(VAL + `OPTIONS=symset:plain\nOPTIONS=glyph:S_room:U+002E/${spec}\n`, `${CFG_OK}s${ESC}`)]);
+    add(`rgb-hilite-${n}`, 'enhanced-colors',
         `hilite_status:hitpoints/always/${spec}`, 'Dlvl',
         [seg(VAL + `OPTIONS=statushilites:10,hilite_status:hitpoints/always/${spec}\n`, `${CFG_OK}s${ESC}`)]);
-    add(`rgb-menucolor-${String(i).padStart(2, '0')}`, 'enhanced-colors',
+    add(`rgb-menucolor-${n}`, 'enhanced-colors',
         `MENUCOLOR="spear"=${spec}`, 'Weapons',
         [seg(VAL + `OPTIONS=menucolors\nMENUCOLOR="spear"=${spec}\n`, `${CFG_OK}i${ESC}`)]);
 });
@@ -331,6 +352,11 @@ const DATES = [
     ['y9999', '99991231235959'], ['y1970', '19700101120000'],
     ['y1969', '19690720201700'], ['y1900', '19000101120000'],
     ['y1800', '18000704120000'], ['y2000-leap', '20000229000000'],
+    // Between 1800, where macOS fell back to the real clock in the first
+    // run of this sample, and 1900, where it did not.
+    ['y1899', '18991231120000'], ['y1890', '18900615120000'], ['y1850', '18500615120000'],
+    ['y1825', '18250615120000'], ['y1801', '18010101120000'], ['y1900-0000', '19000101000000'],
+    ['y1901-int32min', '19011213154552'], ['y1901-after', '19011213154553'],
 ];
 for (const [name, datetime] of DATES) {
     add(`date-${name}`, 'date', `Tourist on ${datetime}: shirt, ^X, #chronicle`, 'design',
@@ -339,7 +365,7 @@ for (const [name, datetime] of DATES) {
 // The tombstone prints the year (rip.c yyyymmdd()); debug mode lets the
 // hero die at once with a wished-for wand of death.
 const WIZ = rc('Valkyrie', '', { debug: true });
-for (const [name, datetime] of DATES.filter(([n]) => /fri13|midnight-winter|dst-gap-0230|dst-fall-0130|newyear|y2038-after|y9999|y1969|y1900|y1800|winter-noon/.test(n))) {
+for (const [name, datetime] of DATES.filter(([n]) => /fri13|midnight-winter|dst-gap-0230|dst-fall-0130|newyear|y2038-after|y9999|y1969|y1900|y18|winter-noon/.test(n))) {
     add(`rip-${name}`, 'date', `debug death on ${datetime}: tombstone year`, 'REST',
         [seg(WIZ, `${ctrl('w')}wand of death\nze.${' '.repeat(2)}ynnnnn${' '.repeat(6)}`, { datetime })]);
 }
@@ -392,6 +418,26 @@ add('byte-number-pad', 'high-byte', 'high bytes with number_pad:1', 'Dlvl',
     [seg(VAL + 'OPTIONS=number_pad:1\n', `¸òé${ESC}${ESC}s`)]);
 add('byte-name-nethackrc', 'high-byte', 'player name with high bytes in nethackrc', 'Dlvl',
     [seg(rc('Valkyrie').replace('name:Probe', 'name:Prébeÿ'), `${ctrl('x')}${' '.repeat(4)}${ESC}`)]);
+
+// ------------------------------------------- reads outside an array in C
+// Committed debug-mode recipes in which C reads svd.dungeons[-1] or
+// gl.luathemes[-1] for a wished magic portal "to nowhere"; the port models
+// those bytes from the Linux recorder's memory layout (js/dungeon_table.js,
+// js/mklev.js), which the macOS build need not share.
+const OOB = [
+    'dog.c/portal-nowhere-jingle-monster-arrival', 'dog.c/portal-nowhere-migration-panic',
+    'do.c/portal-to-nowhere-one-note-jingle', 'mklev.c/niche-depth-dungeon-minus-one',
+    'mklev.c/sanity-check-portal-nowhere-unconnected-rooms',
+    'music.c/improvised-notes-stale-byte-portal-depth',
+    'teleport.c/pet-enters-wished-portal-one-note-jingle', 'trap.c/portal-nowhere-hero-escape',
+    'trap.c/portal-nowhere-hero-jingle-overview', 'makemon.c/random-monster-in-dungeon-minus-one',
+];
+for (const rel of OOB) {
+    const src = JSON.parse(fs.readFileSync(path.join(HERE, '../../../recipes', `${rel}.session.json`), 'utf8'));
+    // Copied as they are, without the leading ESC that seg() adds.
+    add(`oob-${path.basename(rel)}`, 'out-of-bounds', `copy of recipes/${rel}`, 'Dlvl',
+        src.segments.map(({ seed, datetime, nethackrc, moves }) => ({ seed, datetime, nethackrc, moves })));
+}
 
 // ------------------------------------------------------------- write files
 fs.rmSync(OUT, { recursive: true, force: true });
