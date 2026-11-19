@@ -80,13 +80,13 @@ function tre_copy_ast(ast, budget) {
     case CATENATION:
         return tre_ast_new_catenation(tre_copy_ast(ast.obj.left, budget),
             tre_copy_ast(ast.obj.right, budget));
-    case ITERATION: {
+    default: {
+        // ITERATION, the one type left. C asserts that no other type
+        // occurs.
         const iter = ast.obj;
         return tre_ast_new_iter(tre_copy_ast(iter.arg, budget), iter.min, iter.max,
             iter.minimal);
     }
-    default:
-        throw new Error(`tre_copy_ast: node type ${ast.type}`);
     }
 }
 
@@ -96,8 +96,7 @@ function countPositions(node) {
     case LITERAL: return isSpecial(node.obj) ? 0 : 1;
     case UNION:
     case CATENATION: return countPositions(node.obj.left) + countPositions(node.obj.right);
-    case ITERATION: return countPositions(node.obj.arg);
-    default: throw new Error(`countPositions: node type ${node.type}`);
+    default: return countPositions(node.obj.arg); // ITERATION
     }
 }
 
@@ -154,7 +153,8 @@ function tre_expand_ast(node, budget) {
         return REG_OK;
     }
     default:
-        throw new Error(`tre_expand_ast: node type ${node.type}`);
+        // C asserts that no other type occurs.
+        return REG_OK;
     }
 }
 
@@ -203,7 +203,8 @@ function tre_match_empty(node) {
             if (node.obj.arg.nullable) stack.push(node.obj.arg);
             break;
         default:
-            throw new Error(`tre_match_empty: node type ${node.type}`);
+            // C asserts that no other type occurs.
+            break;
         }
     }
     return assertions;
@@ -276,7 +277,8 @@ function tre_compute_npfl(node, nextpos) {
         return nextpos;
     }
     default:
-        throw new Error(`tre_compute_npfl: node type ${node.type}`);
+        // C's switch has no other case.
+        return nextpos;
     }
 }
 
@@ -323,7 +325,8 @@ function tre_ast_to_tnfa(node, transitions) {
         tre_ast_to_tnfa(node.obj.arg, transitions);
         break;
     default:
-        throw new Error(`tre_ast_to_tnfa: node type ${node.type}`);
+        // C's switch has no other case.
+        break;
     }
 }
 

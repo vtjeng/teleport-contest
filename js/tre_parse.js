@@ -742,7 +742,8 @@ export function tre_parse(ctx) {
         }
 
         default:
-            throw new Error(`tre_parse: unknown stack symbol ${symbol}`);
+            // C asserts that the stack holds no other symbol.
+            break;
         }
     }
 

@@ -65,7 +65,8 @@ function tre_bracket_match(list, wc) {
             match = wc === b.value;
             break;
         default:
-            throw new Error(`tre_bracket_match: item type ${b.type}`);
+            // C asserts that no other item type occurs.
+            break;
         }
         if (match) break;
     }

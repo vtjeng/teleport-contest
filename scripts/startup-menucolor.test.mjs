@@ -103,8 +103,9 @@ test('menu color diagnostics reject only their own rows', () => {
             "Unknown text attribute 'sparkle'",
         ],
         [
+            // macOS regerror() for REG_EBRACK (Apple Libc regerror.c).
             'MENUCOLOR="["=red',
-            'Menucolor regex error: Invalid regular expression',
+            'Menucolor regex error: brackets ([ ]) not balanced',
         ],
     ];
     for (const [line, message] of cases) {
