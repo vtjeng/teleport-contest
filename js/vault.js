@@ -53,7 +53,7 @@ import { panic } from './end.js';
 import {
     map_invisible, map_location, newsym, unset_seenv, xy_set_wall_state,
 } from './display.js';
-import { assign_level, on_level } from './dungeon.js';
+import { assign_level, mapseen_room, on_level } from './dungeon.js';
 import { impossible, verbalize, youHear, youSee } from './pline.js';
 import { reset_faint } from './eat.js';
 import { del_engr_at } from './engrave.js';
@@ -112,7 +112,7 @@ import { Blind, Deaf, Punished, Strangled } from './youprop.js';
 export function vault_occupied(array, state = game) {
     for (const room of array ?? []) {
         if (!room) break;
-        if (state.level?.rooms?.[room - ROOMOFFSET]?.rtype === VAULT)
+        if (mapseen_room(room - ROOMOFFSET, state)?.rtype === VAULT)
             return room;
     }
     return 0;
@@ -377,7 +377,7 @@ async function move_gold(gold, vroom, state, env) {
     const objectEnv = objectGenerationEnv({ ...env, state });
     remove_object(gold, objectEnv);
     newsym(gold.ox, gold.oy, state);
-    const room = state.level.rooms[vroom];
+    const room = mapseen_room(vroom, state);
     const nx = room.lx + env.random.rn2(2);
     const ny = room.ly + env.random.rn2(2);
     await place_object(gold, nx, ny, objectEnv);
@@ -391,7 +391,7 @@ async function move_gold(gold, vroom, state, env) {
 // boundary is rebuilt.
 async function wallify_vault(grd, state, env) {
     const vlt = EGD(grd).vroom;
-    const room = state.level.rooms[vlt];
+    const room = mapseen_room(vlt, state);
     const lox = room.lx - 1;
     const hix = room.hx + 1;
     const loy = room.ly - 1;
@@ -1316,7 +1316,7 @@ export async function invault(state, env = {}) {
     EGD(guard).fakecorr[0].fy = y;
     let typ = state.level.at(x, y).typ;
     if (!IS_WALL(typ)) {
-        const room = state.level.rooms[vroom];
+        const room = mapseen_room(vroom, state);
         const lowx = room.lx;
         const hix = room.hx;
         const lowy = room.ly;
@@ -1366,7 +1366,7 @@ export async function paygd(silently, state = game, rawEnv = {}) {
         }
         await mnexto(grd, RLOC_NOMSG, env);
         if (!silently) await message(`${Monnam(grd, state)} remits your gold to the vault.`, state);
-        const room = state.level.rooms[EGD(grd).vroom];
+        const room = mapseen_room(EGD(grd).vroom, state);
         gdx = room.lx + random.rn2(2);
         gdy = room.ly + random.rn2(2);
         const role = pmname(state.mons[state.u.umonster], state.flags.female ? FEMALE : MALE);

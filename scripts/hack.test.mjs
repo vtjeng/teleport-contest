@@ -38,6 +38,7 @@ import {
     MAX_TYPE,
     MELT_ICE_AWAY,
     LAVAPOOL,
+    MAXNROFROOMS,
     PARANOID_SWIM,
     PASSES_WALLS,
     PIT,
@@ -458,6 +459,35 @@ test('furniture_present checks inclusive bounds and irregular interiors', () => 
     corner.edge = false;
     corner.typ = ROOM;
     assert.equal(furniture_present(THRONE, roomno, state), false);
+});
+
+test('furniture_present reads a subroom by its svr.rooms[] index', () => {
+    // hack.c:3485 indexes svr.rooms[roomno], and gs.subrooms[] starts at
+    // svr.rooms[MAXNROFROOMS + 1] (decl.c:1169), so the first subroom's index
+    // is MAXNROFROOMS + 1. The parent is top-level room 0; the subroom is a
+    // 3x3 room at (20-22, 4-6) with a throne in its centre (21, 5), the shape
+    // a Lua des.room nested in another room produces.
+    const level = new GameMap();
+    const subroomIndex = MAXNROFROOMS + 1;
+    const subroom = {
+        lx: 20, ly: 4, hx: 22, hy: 6, irregular: false,
+        roomnoidx: subroomIndex, nsubrooms: 0, sbrooms: [],
+    };
+    level.rooms[0] = {
+        lx: 15, ly: 2, hx: 30, hy: 10, irregular: false,
+        roomnoidx: 0, nsubrooms: 1, sbrooms: [subroom],
+    };
+    level.rooms[1] = { hx: -1 };
+    level.nroom = 1;
+    const state = { level, subrooms: [subroom, { hx: -1 }] };
+    level.at(21, 5).typ = THRONE;
+
+    assert.equal(furniture_present(THRONE, subroomIndex, state), true);
+    // The parent's bounds also cover the throne; C's inside_room() for a
+    // regular room tests only the bounds, so the parent finds it too.
+    assert.equal(furniture_present(THRONE, 0, state), true);
+    level.at(21, 5).typ = ROOM;
+    assert.equal(furniture_present(THRONE, subroomIndex, state), false);
 });
 
 test('legal-move terrain switching classifies only at the source gate', async () => {

@@ -6,7 +6,7 @@ import { panic } from './end.js';
 // vision.js — C ref: vision.c Algorithm C shadow-casting
 
 import { game } from './gstate.js';
-import { on_level } from './dungeon.js';
+import { mapseen_room, on_level } from './dungeon.js';
 import { isok } from './cmd_isok.js';
 import { do_light_sources } from './light.js';
 import { is_pool } from './dbridge.js';
@@ -774,7 +774,7 @@ function* rogue_vision(next, rmin, rmax, state, draw) {
     const rnum = level.at(u.ux, u.uy).roomno - ROOMOFFSET; /* no SHARED... */
 
     if (rnum >= 0) {
-        const room = level.rooms[rnum];
+        const room = mapseen_room(rnum, state);
         for (let zy = room.ly - 1; zy <= room.hy + 1; zy++) {
             const start = rmin[zy] = room.lx - 1;
             const stop = rmax[zy] = room.hx + 1;

@@ -26,6 +26,7 @@ import {
     init_mapseen,
     insert_branch,
     level_difficulty,
+    mapseen_room,
     on_level,
 } from './dungeon.js';
 import {
@@ -1655,7 +1656,7 @@ function create_altar(a, croom, frame, env) {
         get_location_coord(c, DRY, croom, a.coord, { frame, state });
         const sprooms = in_rooms(c.x, c.y, TEMPLE, state);
         if (sprooms.length > 0)
-            croom = state.level.rooms[sprooms[0] - ROOMOFFSET];
+            croom = mapseen_room(sprooms[0] - ROOMOFFSET, state);
         else
             croom_is_temple = false;
     }
