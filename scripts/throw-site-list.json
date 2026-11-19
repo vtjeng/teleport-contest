@@ -3264,12 +3264,6 @@
       "c": "include/rm.h",
       "reason": "C indexes the symbol array or converts the value with a macro unchecked; callers pass values in range."
     },
-    "js/symbols.js | do_symset | 'do_symset requires the options menu selector'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/symbols.js | get_othersym | `other symbol ${index} is outside MAXOTHER`": {
       "count": 1,
       "class": "guard",

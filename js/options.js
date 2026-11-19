@@ -276,7 +276,7 @@ import {
 } from './glyphs.js';
 import { reset_customsymbols } from './utf8map.js';
 import { add_menu_heading, choose_classes_menu, getlin, select_menu } from './windows.js';
-import { displayTtyTextWindow, menuTitleStyle } from './tty_menu.js';
+import { displayTtyTextWindow } from './tty_menu.js';
 import { note_unported } from './unported.js';
 import { choose_disco_sort } from './o_init.js';
 import { game } from './gstate.js';
@@ -4191,10 +4191,7 @@ async function handler_symset(state, optionName, helpers) {
     if (!glyphid_cache_status(state)) fill_glyphid_cache(state);
     try {
         const result = await do_symset(optionName === 'roguesymset', state, {
-            selectMenu: helpers?.selectMenu ?? ((spec) => select_menu(state, {
-                ...spec,
-                ...menuTitleStyle(state),
-            })),
+            selectMenu: helpers?.selectMenu,
             message: helpers?.message
                 ?? ((message) => ttyPline(message, state)),
             preferenceUpdate: (pref) => preference_update(state, pref),
