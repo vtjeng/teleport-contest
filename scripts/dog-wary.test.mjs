@@ -8,7 +8,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { RIDE_COMMAND, loadRideDismountRecipe } from './run-ride-dismount.mjs';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { can_saddle } from '../js/steed.js';
-import { game } from '../js/gstate.js';
+import { game, initialGb } from '../js/gstate.js';
 import { SPE_STONE_TO_FLESH, SPBOOK_CLASS } from '../js/objects.js';
 import { M_AP_MONSTER, M_AP_NOTHING } from '../js/const.js';
 import { M1_NOEYES, PM_PLAINS_CENTAUR, S_FELINE, S_HUMAN } from '../js/monsters.js';
@@ -138,7 +138,7 @@ test('stone-to-flesh beam leaves ordinary creatures asleep after statue revival'
     assert.match(source, /case SPE_STONE_TO_FLESH:\s+if \(mtmp->data->mlet == S_GOLEM\)/u);
     const monster = { data: { mlet: S_FELINE }, mx: 4, my: 5,
         mhp: 6, msleeping: true, m_ap_type: M_AP_NOTHING };
-    const state = { u: { ustuck: null }, gn: {} };
+    const state = { u: { ustuck: null }, gb: initialGb(), gn: {} };
     const result = await bhitm(monster,
         { otyp: SPE_STONE_TO_FLESH, oclass: SPBOOK_CLASS }, state,
         { rn2: () => assert.fail('ordinary flesh has no RNG branch') });

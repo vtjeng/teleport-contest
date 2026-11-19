@@ -1730,6 +1730,7 @@ test('weffects dispatches every source spell-ray type with integer level dice', 
         const random = Object.fromEntries(Object.entries(base).map(([name, fn]) =>
             [name, (...args) => { calls.push([name, ...args]); return fn(...args); }]));
         const messages = [];
+        const priorHit = { ...game.gb.bhitpos };
         await weffects(spell, game, random, {
             message: async text => { messages.push(text); }, statusRefresh: () => {},
         });
@@ -1738,7 +1739,7 @@ test('weffects dispatches every source spell-ray type with integer level dice', 
         assert.deepEqual(calls.filter(([name]) => name === 'd'),
             dice.map(args => ['d', ...args]), 'source damage/sleep dice count');
         if (flash) assert.ok(messages.includes('The ' + flash + ' hits you!'));
-        assert.equal(game.gb.bhitpos, undefined, 'beam restores shared position before returning');
+        assert.deepEqual(game.gb.bhitpos, priorHit, 'beam restores shared position before returning');
     }
     // Odd/even levels straddle C integer-division boundaries. Magic missile
     // has no status effect to mask nd and the scripted d(n,6) returns n.

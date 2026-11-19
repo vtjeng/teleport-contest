@@ -501,7 +501,8 @@ export async function fightm(mtmp, rawEnv = {}) {
             }
 
             state.gb ??= {};
-            state.gb.bhitpos = { x: mon.mx, y: mon.my };
+            state.gb.bhitpos.x = mon.mx;
+            state.gb.bhitpos.y = mon.my;
             state.gn ??= {};
             state.gn.notonhead = false;
             const result = await mattackm(mtmp, mon, env);
@@ -517,7 +518,8 @@ export async function fightm(mtmp, rawEnv = {}) {
                     mon.movement -= NORMAL_SPEED;
                 else
                     mon.movement = 0;
-                state.gb.bhitpos = { x: mtmp.mx, y: mtmp.my };
+                state.gb.bhitpos.x = mtmp.mx;
+                state.gb.bhitpos.y = mtmp.my;
                 state.gn.notonhead = false;
                 await mattackm(mon, mtmp, env);
             }

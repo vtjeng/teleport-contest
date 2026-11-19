@@ -8,6 +8,7 @@ import {
     ART_SUNSWORD,
     init_artifacts,
 } from '../js/artifacts.js';
+import { initialGb } from '../js/gstate.js';
 import {
     P_ATTACK_SPELL,
     P_BARE_HANDED_COMBAT,
@@ -169,6 +170,7 @@ function cFunction(source, name, nextName) {
 
 function makeState() {
     const state = {
+        gb: initialGb(),
         invent: null,
         uwep: null,
         youmonst: {},

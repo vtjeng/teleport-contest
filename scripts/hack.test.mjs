@@ -109,7 +109,7 @@ import {
     unmul,
     weight_cap,
 } from '../js/hack.js';
-import { game, resetGame } from '../js/gstate.js';
+import { game, initialGb, resetGame } from '../js/gstate.js';
 import { Boots_on } from '../js/do_wear.js';
 import { GameMap } from '../js/game.js';
 import { initRng } from '../js/rng.js';
@@ -1587,6 +1587,7 @@ function runState(overrides = {}) {
     const uprops = [];
     uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     return {
+        gb: initialGb(),
         level,
         u: {
             ux: 10, uy: 10, dx: 1, dy: 0, umonnum: 0,

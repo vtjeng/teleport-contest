@@ -3725,7 +3725,8 @@ export async function m_move(monster, rawEnv = {}) {
         if (intruder && intruder !== monster
             && dist2(monster.mx, monster.my, targetX, targetY) <= 2) {
             state.gb ??= {};
-            state.gb.bhitpos = { x: targetX, y: targetY };
+            state.gb.bhitpos.x = targetX;
+            state.gb.bhitpos.y = targetY;
             state.gn ??= {};
             state.gn.notonhead = intruder.mx !== targetX
                 || intruder.my !== targetY;
@@ -4188,7 +4189,8 @@ export async function m_move_aggress(mtmp, x, y, env = {}) {
     const mtmp2 = m_at(x, y, state);
     if (mtmp2) {
         state.gb ??= {};
-        state.gb.bhitpos = { x, y };
+        state.gb.bhitpos.x = x;
+        state.gb.bhitpos.y = y;
         state.gn ??= {};
         state.gn.notonhead = (x !== mtmp2.mx || y !== mtmp2.my);
         mstatus = await mattackm(mtmp, mtmp2, env);
@@ -4204,7 +4206,8 @@ export async function m_move_aggress(mtmp, x, y, env = {}) {
         else
             mtmp2.movement = 0;
         state.gb ??= {};
-        state.gb.bhitpos = { x: mtmp.mx, y: mtmp.my };
+        state.gb.bhitpos.x = mtmp.mx;
+        state.gb.bhitpos.y = mtmp.my;
         state.gn ??= {};
         state.gn.notonhead = false;
         mstatus = await mattackm(mtmp2, mtmp, env); /* return attack */

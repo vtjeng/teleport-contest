@@ -2004,9 +2004,6 @@ export async function cast_chain_lightning(state = game, env = {}) {
             const zap = { ...clq.q[clq.head++] };
             const mon = m_at(zap.x, zap.y, state);
             if (mon) {
-                // decl.c gb starts zeroed; this may be the first ray to read
-                // bhitpos. Keep its prior position once another ray sets it.
-                state.gb.bhitpos ??= { x: 0, y: 0 };
                 state.gn.notonhead = mon.mx !== state.gb.bhitpos.x
                     || mon.my !== state.gb.bhitpos.y;
                 // C BZ_U_SPELL(AD_ELEC - 1) = 10 + AD_ELEC - 1.

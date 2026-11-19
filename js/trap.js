@@ -1821,7 +1821,6 @@ export async function fire_damage_chain(
             rawEnv.hooks?.extractExternalObject ?? remove_object,
     };
     state.gb ??= {};
-    state.gb.bhitpos ??= { x: 0, y: 0 };
     state.gb.bhitpos.x = x;
     state.gb.bhitpos.y = y;
 

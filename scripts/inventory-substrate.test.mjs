@@ -141,7 +141,7 @@ import {
     start_timer,
     timeout_globals_init,
 } from '../js/timeout.js';
-import { game } from '../js/gstate.js';
+import { game, initialGb } from '../js/gstate.js';
 import { oname } from '../js/do_name.js';
 import {
     ART_EXCALIBUR, ART_EYE_OF_THE_AETHIOPICA, ART_GRAYSWANDIR,
@@ -223,6 +223,7 @@ function initializedState() {
         // Object/monster id 1 is reserved; startup begins from 2.
         context: { ident: 2 },
         disp: {},
+        gb: initialGb(),
         // options.c initoptions_init() (7207) starts flags.pickup_burden at
         // MOD_ENCUMBER, which is what an rc file that never names the option
         // leaves behind; invent.c:1261-1264 reads it on every hold.

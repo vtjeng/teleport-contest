@@ -2311,11 +2311,10 @@ function clearThrownObject(state) {
 // square. The delay owner records each transient frame in patched C replays.
 async function sho_obj_return_to_u(obj, state) {
     const { u } = state;
-    const hit = state.gb.bhitpos;
-    if (!(u.dx || u.dy) || (hit.x === u.ux && hit.y === u.uy)) return;
+    if (!(u.dx || u.dy) || (state.gb.bhitpos.x === u.ux && state.gb.bhitpos.y === u.uy)) return;
 
-    let x = hit.x - u.dx;
-    let y = hit.y - u.dy;
+    let x = state.gb.bhitpos.x - u.dx;
+    let y = state.gb.bhitpos.y - u.dy;
     await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
     while (isok(x, y) && (x !== u.ux || y !== u.uy)) {
         await tmp_at(x, y, state);
@@ -2586,7 +2585,8 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
             state.uball.oy = state.uchain.oy = u.uy;
         }
         mon = u.ustuck;
-        state.gb.bhitpos = { x: mon.mx, y: mon.my };
+        state.gb.bhitpos.x = mon.mx;
+        state.gb.bhitpos.y = mon.my;
         if (tetheredWeapon)
             await tmp_at(DISP_TETHER, obj_to_glyph(obj, state), state);
     } else if (u.dz) {
@@ -3286,9 +3286,6 @@ async function throw_gold(obj, state = game) {
         return ECMD_TIME;
     }
 
-    /* C's gb.bhitpos is a struct member and always exists; this port creates
-       the struct on first use, and both arms below write into it. */
-    state.gb ??= {};
     if (u.dz) {
         if (u.dz < 0 && !Is_airlevel(u.uz, state) && !u.uinwater
             && !Is_waterlevel(u.uz, state)) {
@@ -3306,7 +3303,8 @@ async function throw_gold(obj, state = game) {
                 );
             }
         }
-        state.gb.bhitpos = { x: u.ux, y: u.uy };
+        state.gb.bhitpos.x = u.ux;
+        state.gb.bhitpos.y = u.uy;
     } else {
         /* consistent with range for normal objects */
         const range = Math.trunc(acurrstr(state) / 2)
@@ -3318,7 +3316,8 @@ async function throw_gold(obj, state = game) {
         if (!isok(odx, ody)
             || !ZAP_POS(state.level.at(odx, ody).typ)
             || closed_door(odx, ody, state)) {
-            state.gb.bhitpos = { x: u.ux, y: u.uy };
+            state.gb.bhitpos.x = u.ux;
+            state.gb.bhitpos.y = u.uy;
         } else {
             const pobj = { obj };
             const mon = await bhit(u.dx, u.dy, range, THROWN_WEAPON, null, null,

@@ -1,9 +1,11 @@
+import { initialGb } from '../js/gstate.js';
 // Fresh inert state shared by monster-generation characterization tests.
 // Suites own catalog initialization, map allocation, special-level locations,
 // and every field that selects the production path under test.
 export function rawMonsterGenerationState() {
     return {
         branches: [],
+        gb: initialGb(),
         // Dungeon zero begins at depth one and has enough ordinary floors to
         // exercise level-one generation without reaching an end boundary.
         dungeons: [{

@@ -962,10 +962,10 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     if (!obj || obj.where !== OBJ_FREE)
         throw new Error('flooreffects: obj not free');
-    const previous = state.gb?.bhitpos
-        ? { ...state.gb.bhitpos } : null;
-    state.gb ??= {};
-    state.gb.bhitpos = { x, y };
+    // C do.c:182-183 copies gb.bhitpos and restores it at 357.
+    const save_bhitpos = { ...state.gb.bhitpos };
+    state.gb.bhitpos.x = x;
+    state.gb.bhitpos.y = y;
     obj.nobj = null;
     obj.nexthere = null;
     let result = false;
@@ -1191,8 +1191,8 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
         }
         return result;
     } finally {
-        if (previous) state.gb.bhitpos = previous;
-        else delete state.gb.bhitpos;
+        state.gb.bhitpos.x = save_bhitpos.x;
+        state.gb.bhitpos.y = save_bhitpos.y;
     }
 }
 

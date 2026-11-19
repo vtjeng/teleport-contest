@@ -36,7 +36,7 @@ import {
     mon_catchup_elapsed_time,
 } from '../js/dog.js';
 import { GameMap } from '../js/game.js';
-import { game } from '../js/gstate.js';
+import { game, initialGb } from '../js/gstate.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { NethackGame, runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -87,6 +87,7 @@ const MIGRATION_TURN = 77;
 function migrationState() {
     const state = {
         context: {},
+        gb: initialGb(),
         dungeons: [
             // Three main-dungeon levels exercise upward migration.
             {

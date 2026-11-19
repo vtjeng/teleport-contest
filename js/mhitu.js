@@ -1517,7 +1517,6 @@ export function calc_mattacku_vars(mtmp, rawEnv = {}) {
         youseeit: seeMonster(mtmp, state),
     };
     state.gb ??= {};
-    state.gb.bhitpos ??= {};
     state.gb.bhitpos.x = state.u.ux;
     state.gb.bhitpos.y = state.u.uy;
     state.gn ??= {};
