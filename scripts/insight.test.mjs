@@ -135,7 +135,7 @@ import {
     VANQ_MSTR_MNDX,
 } from '../js/const.js';
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
-import { game } from '../js/gstate.js';
+import { game, initialGb } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     AD_ACID,
@@ -1907,6 +1907,9 @@ test('set_vanq_order preserves the current mode on Return and Space', async () =
         const state = {
             flags: { vanq_sortmode: mode },
             nhDisplay: new GameDisplay(null),
+            // windows.c select_menu() raises gb.bot_disabled; every game
+            // state starts with the gb that initialGb() builds.
+            gb: initialGb(),
         };
         state.nhDisplay.pushKey(key.charCodeAt(0));
         const result = await set_vanq_order(false, state);
