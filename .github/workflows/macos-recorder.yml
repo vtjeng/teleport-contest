@@ -72,6 +72,23 @@ jobs:
         if: always()
         run: experiments/host-parity/record-sample.sh macos-recordings/sample2 4 experiments/host-parity/sample2/recipes/*.session.json
 
+      # NetHack's regex patterns (MENUCOLOR, MSGTYPE, AUTOPICKUP_EXCEPTION)
+      # go to the C library's regcomp() through sys/share/posixregex.c, and
+      # js/regcomp.js ports macOS's (docs/testing.md, "The regex
+      # difference"). The oracle asks this host's regcomp(), regexec() and
+      # regerror() every case in experiments/host-parity/regex-oracle/; the
+      # recipes listed there are the committed recipes whose games compile a
+      # pattern, and their macOS recordings are the ones committed under
+      # recordings/.
+      - name: Ask the regex oracle
+        if: always()
+        run: node experiments/host-parity/regex-oracle/run-oracle.mjs macos-recordings/regex-oracle
+      - name: Record the regex recipes
+        if: always()
+        run: >-
+          experiments/host-parity/record-sample.sh macos-recordings/regex 4
+          $(cat experiments/host-parity/regex-oracle/recipes.txt)
+
       - name: Upload recordings
         if: always()
         uses: actions/upload-artifact@v7
