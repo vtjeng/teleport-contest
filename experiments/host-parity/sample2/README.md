@@ -115,8 +115,10 @@ same.
 
 `sys/share/posixregex.c regex_compile()` calls the C library's
 `regcomp(REG_EXTENDED | REG_NOSUB)` (line 70) and `regex_error_desc()`
-calls `regerror()` (line 84). macOS ships BSD regex; `js/posixregex.js`,
-`js/regcomp.js` and `js/regexec.js` port glibc's. The differences:
+calls `regerror()` (line 84). macOS ships BSD regex; when this sample
+ran, `js/posixregex.js`, `js/regcomp.js` and `js/regexec.js` ported
+glibc's. The port now follows macOS (docs/testing.md, "The regex
+difference"). The differences:
 
 - Every rejected pattern has different error text, for example
   `parentheses not balanced.` against `Unmatched ( or \(.`, and
@@ -134,10 +136,12 @@ calls `regerror()` (line 84). macOS ships BSD regex; `js/posixregex.js`,
 - The two hosts agree on `\d` (the letter d), `\+`, `\(`, `.`, anchors,
   `{m,n}`, ordinary words, and the bracket expressions `[a-]`, `[]a]x`,
   `[^]]`, `[\d]`, `[[=a=]]` and `[[:alpha:]]`.
-- "The plain letter", "the digit 1" and "literal text" above are read from
-  which inventory rows each pattern highlighted
-  (`results/regex-highlights-44619874537.txt`), not from the macOS
-  source.
+- "The plain letter", "the digit 1" and "literal text" above were read
+  from which inventory rows each pattern highlighted
+  (`results/regex-highlights-44619874537.txt`). Apple Libc's
+  `tre-parse.c` (its "unenhanced_backslash" branch and
+  `ERE_LITERAL_LBRACE_ON_NON_NUMERIC_BOUND`) and the regex oracle of run
+  44628090866 (`../regex-oracle/`) confirm them.
 
 A judged session reaches this with single-byte keys and no debug mode:
 `#optionsfull` (or `O`), then `menu colors`, `message types` or
@@ -146,8 +150,10 @@ might well type, such as `+1`, `+0 dagger`, `*dagger` and `?spear`, are
 rejected on both hosts with different text, which changes one or two
 screens and no RNG call (`re-typed-03` to `re-typed-06`). `MENUCOLOR`,
 `MSGTYPE` and `AUTOPICKUP_EXCEPTION` lines in a session's nethackrc
-reach it too; none of the 44 public sessions has one. The port replays
-all 75 Linux recordings and none of the 75 macOS ones.
+reach it too; none of the 44 public sessions has one. When this sample
+ran, the port replayed all 75 Linux recordings and none of the 75 macOS
+ones. It now follows macOS's regex and replays all 119 macOS regex
+recordings of run 44628090866, which recorded this sample again.
 
 ### Dates before 1900
 
