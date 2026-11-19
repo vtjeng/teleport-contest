@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9310300,
+      "datetime": "20460917083412",
+      "nethackrc": "OPTIONS=name:Ragnheiður Sæunn Hallgrímsdótti\nOPTIONS=role:Wizard,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=playmode:explore\n",
+      "comment": "dokick.c impact_drop() says \"<plname>, you are a thief!\" when shop goods fall through a hole while the hero stands off the shop's costly squares and the peaceful shopkeeper is in view. It first copies plname into ESHK customer with strncpy(..., PL_NSIZ), which never cuts, because plname holds at most 31 bytes. The nethackrc name is 31 characters but 35 UTF-8 bytes; options.c nmcpy() keeps 31 bytes, so plname ends with the first byte of the o-acute. A cut by characters would keep the whole name, so the quoted name shows the byte cut. Explore mode keeps the name (debug mode would rename the hero \"wizard\" and give no way to choose the name). Seeds 9310000-9310399 were scanned with the port for a Wizard whose random starting wand is digging, with Str of at least 10 so that she can break it, and a shop on level 2; the name and clock were chosen before the scan. She steps off the up stairs, zaps the wand down and lands inside a level-2 bookstore. The row beside the door wall holds no stock, so she picks up two scrolls and a spellbook and drops them on the square beside the shopkeeper's post, which returns them to the shop. She opens the door, steps out and back so that the shopkeeper leaves the squares next to the door, waits one turn (the wait count was chosen with the port so that the broken wand opens a hole under the goods), and breaks the wand in the doorway. Some of the goods fall, robbed rises, and the shopkeeper calls her a thief before the hole under the doorway drops her to level 3.",
+      "moves": "  lzc>  j, l, l, udpdqdrlkkkhlj sacy          "
+    }
+  ]
+}
