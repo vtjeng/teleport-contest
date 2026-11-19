@@ -223,10 +223,12 @@ import {
     unpaid_cost,
 } from './shk.js';
 import { in_rooms } from './rooms.js';
-import { impossible, impossible_printer, verbalize, youSee } from './pline.js';
+import {
+    impossible, impossible_printer, verbalize, with_impossibles, youSee,
+} from './pline.js';
 import { fmt_ptr } from './alloc.js';
 import { panic } from './end.js';
-import { ImpossibleCall, collect_impossibles, finish_steps } from './source_steps.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { set_voice } from './sounds.js';
 // encumber_msg() compares the old and new encumbrance after glob weight
 // changes. pickup.js imports from this file; both sides use the other's
@@ -3661,13 +3663,16 @@ export async function insane_object(obj, fmt, mesg, mon, state = game) {
     let objnm = 'null!';
     let monnm = 'null!';
     if (obj) {
-        state.iflags.override_ID = (state.iflags.override_ID ?? 0) + 1;
         // doname() can itself call impossible() (a leash whose monster is
         // gone, an unpaid object on no bill); C prints those first.
-        const named = collect_impossibles(state, () => donameFresh(obj, state));
-        state.iflags.override_ID -= 1;
-        for (const text of named.texts) await impossible(text, state);
-        objnm = named.value;
+        objnm = await with_impossibles(() => {
+            state.iflags.override_ID = (state.iflags.override_ID ?? 0) + 1;
+            try {
+                return donameFresh(obj, state);
+            } finally {
+                state.iflags.override_ID -= 1;
+            }
+        }, state);
     }
     if (mon || (strstri(mesg, 'minvent') && !strstri(mesg, 'contained'))) {
         const altfmt = `${fmt} held by mon %s (%s)`;

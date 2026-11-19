@@ -199,10 +199,11 @@ import {
     S_water,
 } from './symbols.js';
 
-// A zero room record: a gs.subrooms[] slot no add_subroom() has written in
-// this process. C's clear_level_structures() resets only subrooms[0].hx
-// (mklev.c:909), so a slot an earlier level used keeps that level's record;
-// the port starts each level's gs.subrooms[] empty and cannot reproduce it.
+// A zero room record: what a gs.subrooms[] slot holds when restore.c getlev()
+// reads a level. gs.subrooms[] lies inside svr.rooms[] (decl.c:1169,
+// decl.h:1203), and every getlev() follows a savelev() that frees the level
+// it leaves and zeroes all of svr.rooms[] (save.c:560-564), or starts a
+// fresh process, so a slot rest_room() does not read is all zero.
 function zero_room() {
     return {
         lx: 0, hx: 0, ly: 0, hy: 0, rtype: 0, orig_rtype: 0, rlit: 0,
@@ -227,8 +228,10 @@ function read_mkroom(slot, record) {
 // slot's address. C reads a subroom's own subrooms into that same slot,
 // because gn.nsubroom only advances after the inner read returns; the
 // slot then holds the innermost record, the loop re-reads the overwritten
-// nsubrooms, and the skipped slot after it keeps its old contents. Themed
-// rooms nest subrooms this way, so the port follows C here.
+// nsubrooms, and the skipped slot after it keeps its zero record. Themed
+// rooms nest subrooms this way, so the port follows C here. The map still
+// gives the skipped slot's room number to the inner subroom's squares, and
+// js/dungeon.js mapseen_room() reads that slot as C reads svr.rooms[].
 function rest_room(slot, records, state) {
     read_mkroom(slot, records.next().value);
     for (let i = 0; i < (slot.nsubrooms ?? 0); i++) {
@@ -271,7 +274,9 @@ export function rest_rooms(state = game) {
         level.rooms[i].resident = null;
     }
     level.rooms[level.nroom] = { hx: -1 }; /* restore ending flags */
-    state.subrooms[state.nsubroom] = { hx: -1 };
+    // The ending flag goes into a zero slot. A second save keeps only the
+    // innermost subroom, so this slot can be one the map still names.
+    state.subrooms[state.nsubroom] = { ...zero_room(), hx: -1 };
 }
 
 export function cmap_to_type(symbol) {

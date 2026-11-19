@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Seed 5311035's Dlvl 1 has themerms.lua 'Nesting rooms' (344-373): outer room (33,7)-(44,17), its subroom S (33,9)-(39,15) in gs.subrooms[0] and S's own subroom T (35,12)-(35,15) in gs.subrooms[1] (port-only scanSeeds() probe over 5310001-5311035 for a Dlvl 1 subroom with nsubrooms > 0, third of 3 hits). mkroom.c rest_room() (875-886) reads T over S in slot 0 and skips slot 1, which every getlev() finds zeroed (save.c:560-564 memset of svr.rooms[], which holds gs.subrooms[]: decl.h:1203, decl.c:1169); T's squares keep slot 1's room number, so u.urooms names that zero slot when the hero stands in T, and dungeon.c recalc_mapseen() (3136-3144) reads svr.rooms[ridx].rtype for it. A debug-mode Samurai level-teleports to Dlvl 2 and back (do.c goto_level() -> getlev() -> mkroom.c rest_rooms()), teleports to (35,13) inside T, and runs #overview (^O, dungeon.c show_overview() 3316 -> recalc_mapseen()), dismisses it and searches. Seeds, datetimes, character and inputs were chosen independently of every recorded session and batch game.",
+  "segments": [
+    {
+      "seed": 5311035,
+      "datetime": "20270611093000",
+      "nethackrc": "OPTIONS=name:Inner,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!tips\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001b\u00162\n\u00161\n\u0014Hjj.\u000f\u001bs"
+    }
+  ]
+}
