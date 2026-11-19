@@ -41,8 +41,10 @@ function initialGameState() {
 
 // C decl.c:219 starts gb.bhitpos at { 0, 0 } once per process, and
 // savelev()/savegamestate() do not store it, so each segment starts from zero
-// too. scripts/bhitpos-access.test.mjs checks that js/ never guards, defaults
-// or deletes it. Test states built by hand take their gb from here as well.
+// too. Like C's struct, the object is never replaced: code writes its .x and
+// .y and saves it with a spread copy. scripts/bhitpos-access.test.mjs checks
+// both rules and that js/ never guards, defaults or deletes it. Test states
+// built by hand take their gb from here as well.
 export function initialGb() {
     return { bhitpos: { x: 0, y: 0 } };
 }

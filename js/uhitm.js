@@ -2227,7 +2227,8 @@ export async function do_attack(monster, state = game, env = {}) {
     state.go ??= {};
     state.go.override_confirmation = false;
     state.gb ??= {};
-    state.gb.bhitpos = { x: state.u.ux + state.u.dx, y: state.u.uy + state.u.dy };
+    state.gb.bhitpos.x = state.u.ux + state.u.dx;
+    state.gb.bhitpos.y = state.u.uy + state.u.dy;
     state.gn ??= {};
     state.gn.notonhead = state.gb.bhitpos.x !== monster.mx
         || state.gb.bhitpos.y !== monster.my;
@@ -2475,7 +2476,7 @@ export async function hitum_cleave(target, uattk, state = game, env = {}) {
     direction = (direction + (clockwise ? 6 : 2)) % 8;
 
     const oldMortality = u.umortality;
-    const oldHitPosition = state.gb.bhitpos;
+    const oldHitPosition = { ...state.gb.bhitpos };
     const oldNotOnHead = state.gn.notonhead;
 
     for (let count = 3; count > 0; count--) {
@@ -2498,7 +2499,8 @@ export async function hitum_cleave(target, uattk, state = game, env = {}) {
         mon_maybe_unparalyze(mon, random);
         const dieroll = random.rnd(20);
         const mhit = { value: needed > dieroll };
-        state.gb.bhitpos = { x: tx, y: ty };
+        state.gb.bhitpos.x = tx;
+        state.gb.bhitpos.y = ty;
         state.gn.notonhead = mon.mx !== tx || mon.my !== ty;
         await known_hitum(
             mon, state.uwep, mhit, needed, counters.role_roll_penalty,
@@ -2515,7 +2517,8 @@ export async function hitum_cleave(target, uattk, state = game, env = {}) {
     }
 
     state.cleaverClockwise = !clockwise;
-    state.gb.bhitpos = oldHitPosition;
+    state.gb.bhitpos.x = oldHitPosition.x;
+    state.gb.bhitpos.y = oldHitPosition.y;
     state.gn.notonhead = oldNotOnHead;
     return !(target && target.mhp < 1);
 }

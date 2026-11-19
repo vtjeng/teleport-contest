@@ -6,6 +6,13 @@
 // write, so a reader reached before any write threw (zap.c hit() and miss()
 // from ball.c drag_ball()) or substituted a default of its own. This test
 // pins the initial value and fails when js/ guards, defaults or deletes it.
+//
+// C assigns the struct by value: `save = gb.bhitpos` is a copy, and a write
+// changes the one struct every reader sees. The port therefore never
+// replaces the object. Code reads and writes its .x and .y fields, and saves
+// it with a spread copy; holding the object itself would let a later field
+// write change a saved value, and replacing it would leave a held reference
+// stale. accessFindings() fails on any other use.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -51,6 +58,25 @@ export function absentFormFindings(source, file = '<source>') {
     return findings;
 }
 
+// Every bhitpos token in code must be a field access (`bhitpos.x`,
+// `bhitpos.y`) or the operand of a spread copy (`{ ...state.gb.bhitpos }`).
+// The one exception is the initializer in js/gstate.js initialGb().
+export function accessFindings(source, file = '<source>') {
+    const findings = [];
+    stripComments(source).split('\n').forEach((line, index) => {
+        for (const match of line.matchAll(/\bbhitpos\b/gu)) {
+            const after = line.slice(match.index + match[0].length);
+            const before = line.slice(0, match.index);
+            if (/^\s*\.\s*[xy]\b/u.test(after)) continue;
+            if (/\.\.\.\s*[\w$.]*$/u.test(before)) continue;
+            if (file === 'js/gstate.js'
+                && /return \{ bhitpos: \{ x: 0, y: 0 \} \};/u.test(line)) continue;
+            findings.push(`${file}:${index + 1}`);
+        }
+    });
+    return findings;
+}
+
 function jsFiles() {
     return readdirSync(JS_DIR)
         .filter((name) => name.endsWith('.js'))
@@ -80,6 +106,39 @@ test('the absent-form scan flags each guard and ignores comments', () => {
 
 test('no js/ file treats gb.bhitpos as possibly absent', () => {
     const findings = jsFiles().flatMap((name) => absentFormFindings(
+        readFileSync(join(JS_DIR, name), 'utf8'),
+        `js/${name}`,
+    ));
+    assert.deepEqual(findings, []);
+});
+
+test('the access scan allows only field access and spread copies', () => {
+    // Allowed forms first, then each form the port used before.
+    const sample = [
+        'state.gb.bhitpos.x = x;',
+        'state.gb.bhitpos.y += dy;',
+        'const save_bhitpos = { ...state.gb.bhitpos };',
+        'if (m_at(state.gb.bhitpos.x, state.gb.bhitpos.y)) return;',
+        'state.gb.bhitpos = { x, y };',
+        'const hit = state.gb.bhitpos;',
+        'see(mon, { observedAt: state.gb.bhitpos });',
+        'state.gb.bhitpos = save_bhitpos;',
+        '// state.gb.bhitpos = { x, y } in a comment',
+    ].join('\n');
+    assert.deepEqual(accessFindings(sample, 'sample.js'), [
+        'sample.js:5',
+        'sample.js:6',
+        'sample.js:7',
+        'sample.js:8',
+    ]);
+    // The initializer is exempt only in js/gstate.js.
+    const init = '    return { bhitpos: { x: 0, y: 0 } };';
+    assert.deepEqual(accessFindings(init, 'js/gstate.js'), []);
+    assert.deepEqual(accessFindings(init, 'js/other.js'), ['js/other.js:1']);
+});
+
+test('every js/ use of gb.bhitpos is a field access or a spread copy', () => {
+    const findings = jsFiles().flatMap((name) => accessFindings(
         readFileSync(join(JS_DIR, name), 'utf8'),
         `js/${name}`,
     ));

@@ -4068,7 +4068,8 @@ async function domove_core(state = game) {
     u.ux0 = oldx;
     u.uy0 = oldy;
     state.gb ??= {};
-    state.gb.bhitpos = { x: newx, y: newy };
+    state.gb.bhitpos.x = newx;
+    state.gb.bhitpos.y = newy;
     const targetGlyph = glyph_at(newx, newy, state);
 
     // C ref: domove_core():2787-2800, which reaches domove_attackmon_at()

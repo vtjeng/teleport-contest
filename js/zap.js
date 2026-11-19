@@ -325,7 +325,8 @@ export async function boomhit(
     let direction = xytodir(dx, dy);
     let nhits = Math.max(1, (obj.spe ?? 0) + 1);
     state.gb ??= {};
-    state.gb.bhitpos = { x: state.u.ux, y: state.u.uy };
+    state.gb.bhitpos.x = state.u.ux;
+    state.gb.bhitpos.y = state.u.uy;
     let boom = counterclockwise ? S_BOOMLEFT : S_BOOMRIGHT;
 
     const boomGlyph = map_glyphinfo(cmap_to_glyph(boom, state), state);
@@ -4160,10 +4161,8 @@ export async function bhit(
     // missile so a web or another early stop can cancel that return before
     // throwit() handles the landing tail.
     const wasReturning = state.iflags?.returning_missile === obj ? obj : null;
-    state.gb ??= {};
-    state.gb.bhitpos = kicked
-        ? { x: state.u.ux + ddx, y: state.u.uy + ddy }
-        : { x: state.u.ux, y: state.u.uy };
+    state.gb.bhitpos.x = kicked ? state.u.ux + ddx : state.u.ux;
+    state.gb.bhitpos.y = kicked ? state.u.uy + ddy : state.u.uy;
     if (kicked) range--;
 
     if (weapon === THROWN_WEAPON && obj && obj.otyp === ROCK) {
@@ -5821,7 +5820,7 @@ export async function dobuzz(
     if (dx === 0 && dy === 0)
         range = 1;
     state.gb ??= {};
-    const save_bhitpos = state.gb.bhitpos;
+    const save_bhitpos = { ...state.gb.bhitpos };
     // C's `boolean shopdamage`, taken by address. Only the door arm of
     // zap_over_floor() raises it and that arm stops, so the tail below reads
     // it back false on every reachable path.
@@ -5855,7 +5854,8 @@ export async function dobuzz(
             }
 
             /* hit() and miss() need gb.bhitpos to match the target */
-            state.gb.bhitpos = { x: sx, y: sy };
+            state.gb.bhitpos.x = sx;
+            state.gb.bhitpos.y = sy;
             // C ref: zap.c:4852-4862. Fireballs damage only on explosion;
             // poison gas defers zap_over_floor until after hit/miss logic.
             gas_hit = (damgtype === ZT_POISON_GAS);
@@ -6067,7 +6067,8 @@ export async function dobuzz(
                     : damgtype === ZT_DEATH ? 'disintegrate' : 'destroy';
         await pay_for_damage(damageText, false, state, env);
     }
-    state.gb.bhitpos = save_bhitpos;
+    state.gb.bhitpos.x = save_bhitpos.x;
+    state.gb.bhitpos.y = save_bhitpos.y;
 }
 
 // C ref: zap.c ubuzz() (4758-4762). The hero's own ray, fired from their own
@@ -6210,7 +6211,8 @@ export async function zap_steed(obj, state = game, random = coreRandom, rawEnv =
     const steed = state.u?.usteed;
     if (!steed) return false;
     state.gb ??= {};
-    state.gb.bhitpos = { x: steed.mx, y: steed.my };
+    state.gb.bhitpos.x = steed.mx;
+    state.gb.bhitpos.y = steed.my;
     state.gn ??= {};
     state.gn.notonhead = false;
 

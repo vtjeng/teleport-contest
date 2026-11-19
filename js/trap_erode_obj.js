@@ -195,21 +195,20 @@ export async function erode_obj(obj, description, type, flags, env) {
         'canSeeMonster',
         canseemon,
     )(monsterVictim, state);
-    const hit = state.gb.bhitpos;
     let pool = false;
     if (floorVictim) {
         const poolAt = env.poolAt
             ?? (await import('./dbridge.js')).is_pool;
-        pool = await poolAt(hit.x, hit.y, state);
+        pool = await poolAt(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     }
     const visibleAtObject = floorVictim
         && (typeof env.canSeeObject === 'function'
-            ? env.canSeeObject(obj, hit.x, hit.y, state)
-            : cansee(hit.x, hit.y, state));
+            ? env.canSeeObject(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, state)
+            : cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state));
     const visobj = Boolean(visibleAtObject
         && (!pool
             || (Boolean(state.u?.uinwater)
-                && dist2(hit.x, hit.y, state.u.ux, state.u.uy) <= 2)));
+                && dist2(state.gb.bhitpos.x, state.gb.bhitpos.y, state.u.ux, state.u.uy) <= 2)));
     const visible = uvictim || vismon || visobj;
 
     // trap.c:202-206 and 218-222, inside the switch that also selects the

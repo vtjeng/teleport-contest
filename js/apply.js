@@ -1080,7 +1080,8 @@ export async function use_pole(obj, autohit, state = game) {
     }
 
     pole.hitmon = null;
-    state.gb.bhitpos = { x: target.x, y: target.y };
+    state.gb.bhitpos.x = target.x;
+    state.gb.bhitpos.y = target.y;
     const monster = m_at(target.x, target.y, state);
     if (monster) {
         if (await attack_checks(monster, state.uwep, state))
@@ -1545,7 +1546,8 @@ export async function use_grapple(obj, state = game, env = {}) {
         }
         break;
     case 2:
-        state.gb.bhitpos = { x: cc.x, y: cc.y };
+        state.gb.bhitpos.x = cc.x;
+        state.gb.bhitpos.y = cc.y;
         monster = m_at(cc.x, cc.y, state);
         if (!monster) break;
         state.gn.notonhead = state.gb.bhitpos.x !== monster.mx
@@ -1663,7 +1665,7 @@ export async function do_blinding_ray(
             await see_monster_closeup(monster, true, {
                 ...env,
                 state,
-                observedAt: state.gb.bhitpos,
+                observedAt: { ...state.gb.bhitpos },
             });
         }
     }
@@ -4768,7 +4770,8 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
     for (let i = 0; i <= N_DIRS; i++) {
         const x = obj.ox + xdir[i];
         const y = obj.oy + ydir[i];
-        state.gb.bhitpos = { x, y };
+        state.gb.bhitpos.x = x;
+        state.gb.bhitpos.y = y;
         if (!isok(x, y)) continue;
 
         if (obj.otyp === WAN_DIGGING) {

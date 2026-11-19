@@ -2399,7 +2399,8 @@ async function mbhit(mon, range, fhitm, fhito_fn, obj, state, rawEnv = {}) {
     const otyp = obj.otyp;
 
     state.gb ??= {};
-    state.gb.bhitpos = { x: mon.mx, y: mon.my };
+    state.gb.bhitpos.x = mon.mx;
+    state.gb.bhitpos.y = mon.my;
     const ddx = sgn(mon.mux - mon.mx);
     const ddy = sgn(mon.muy - mon.my);
 

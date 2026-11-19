@@ -360,7 +360,8 @@ export async function maybe_kick_monster(mon, x, y, state = game) {
     if (!mon) return false;
     const env = kickEnvironment(state);
     state.gb ??= {};
-    state.gb.bhitpos = { x, y };
+    state.gb.bhitpos.x = x;
+    state.gb.bhitpos.y = y;
     const saveForcefight = state.context?.forcefight;
     if (!mon.mpeaceful || !canspotmon(mon, state)) {
         state.context ??= {};
@@ -751,15 +752,14 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
             : await thitmonst(monster, object(), state, env)) return 1;
     }
     if (object().where === OBJ_MIGRATING) return 1;
-    const end = state.gb.bhitpos;
-    const room = in_rooms(end.x, end.y, SHOPBASE, state)[0];
-    if (costly && (!costly_spot(end.x, end.y, state)
+    const room = in_rooms(state.gb.bhitpos.x, state.gb.bhitpos.y, SHOPBASE, state)[0];
+    if (costly && (!costly_spot(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
         || in_rooms(x, y, SHOPBASE, state)[0] !== room)) {
         if (isGold) await costly_gold(x, y, object().quan, false, state, env);
         else await stolen_value(object(), x, y, Boolean(keeper.mpeaceful), false, state);
         costly = false;
     }
-    if (await flooreffects(object(), end.x, end.y, 'fall', env)) return 1;
+    if (await flooreffects(object(), state.gb.bhitpos.x, state.gb.bhitpos.y, 'fall', env)) return 1;
     if (costly) {
         if (object().unpaid) subfrombill(object(), keeper, state, env);
         const containedGold = Has_contents(object())
@@ -767,7 +767,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
         if (containedGold > 0)
             await donate_gold(containedGold, keeper, false, state, env);
     }
-    const placement = place_object(object(), end.x, end.y, env);
+    const placement = place_object(object(), state.gb.bhitpos.x, state.gb.bhitpos.y, env);
     if (placement && typeof placement.then === 'function') await placement;
     impact_disturbs_zombies(object(), true, state);
     stackobj(object(), env);
