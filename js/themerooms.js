@@ -179,8 +179,8 @@ export class ThemeroomSelection {
         throw new RangeError('selection RNG returned an out-of-range result');
     }
 
-    // C ref: selvar.c selection_filter_mapchar() reads the live map
-    // (levl[x][y]); locationAt lets a caller read another level's map.
+    // selvar.c selection_filter_mapchar() reads the live map (levl[x][y]),
+    // the default here; locationAt lets a caller read another level's map.
     filter_mapchar(wanted, locationAt = (x, y) => game.level.at(x, y),
         options = {}) {
         const lit = options.lit ?? -2;
@@ -381,8 +381,8 @@ export function selection_negate(selection = null) {
     return (selection ?? new ThemeroomSelection(null, true)).negate();
 }
 
-// C ref: selvar.c selection_from_mkroom() reads the live map (levl[x][y]);
-// locationAt lets a caller read another level's map.
+// selvar.c selection_from_mkroom() reads the live map (levl[x][y]), the
+// default here; locationAt lets a caller read another level's map.
 export function selection_room(room, locationAt = (x, y) => game.level.at(x, y)) {
     if (!room || !Number.isInteger(room.roomnoidx))
         throw new TypeError('selection_room requires an indexed room');
