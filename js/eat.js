@@ -2952,9 +2952,8 @@ async function eatcorpse(otmp, state, env = {}) {
         tp++;
         await ttyPline('Ecch - that must have been poisonous!', state);
         if (!Poison_resistance(state.u)) {
-            // attrib.c poison_strdmg() takes hack.c losehp() and, through
-            // adjattrib(), pickup.c encumber_msg() from its caller; both
-            // files import attrib.js, so attrib.js cannot import them back.
+            // These bindings are poison_strdmg()'s own defaults, hack.c
+            // losehp() and pickup.c encumber_msg(), with this caller's state.
             await poison_strdmg(
                 rnd(4), rnd(15),
                 !glob ? 'poisonous corpse' : 'poisonous glob',
