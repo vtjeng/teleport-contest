@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Source review 5a: options.c handler_menu_colors() (6436-6445) passes each typed pattern to test_regex_pattern() (7871-7901), whose regex_compile() failure reaches config_error_add() outside a configuration read, so cfgfiles.c config_erradd() (1557-1563) prints the error with pline() and wait_synch() and the add/list/remove menu returns. Two bad patterns (an open bracket, then an open parenthesis) are typed before the menu is left with its preselected exit.",
+  "comment": "Source review 5a: options.c handler_menu_colors() (6436-6445) passes each typed pattern to test_regex_pattern() (7871-7901), whose regex_compile() failure reaches config_error_add() outside a configuration read, so cfgfiles.c config_erradd() (1557-1563) prints the error with pline() and wait_synch() and the add/list/remove menu returns. Two bad patterns (an open bracket, then an open parenthesis) are typed before the menu is left with its preselected exit. macOS regerror() reports 'brackets ([ ]) not balanced' and 'parentheses not balanced'; glibc's text differs. Recorded on macOS, the judge's host, by .github/workflows/macos-recorder.yml (run 44628090866), because regcomp() and regerror() differ between macOS and glibc (docs/testing.md, \"The regex difference\").",
   "segments": [
     {
       "seed": 40618273,

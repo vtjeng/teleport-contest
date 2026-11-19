@@ -8,5 +8,5 @@
       "moves": ":s:"
     }
   ],
-  "comment": "posixregex.c regex_match(): a backreference to a group inside an unbounded repeat with a fixed-text body. 'Hello Brook, ...' has 'ook', so MSGTYPE=hide swallows the welcome; 'There is a staircase up out of the dungeon here.' has 'up ou', so the stop rule waits at --More--."
+  "comment": "posixregex.c regex_match(): MSGTYPE=hide \"(o)+\\1k\" and MSGTYPE=stop \"((u)p )+o\\2\". macOS regcomp() (Apple Libc TRE) reads \\1 and \\2 in an extended regex as the digits 1 and 2, so neither rule matches: the welcome 'Velkommen Brook, ...' shows and 'There is a staircase up out of the dungeon here.' does not stop at --More--. glibc reads them as back-references; there the hide rule swallows the welcome and the stop rule waits. Recorded on macOS, the judge's host, by .github/workflows/macos-recorder.yml (run 44628090866), because regcomp() and regerror() differ between macOS and glibc (docs/testing.md, \"The regex difference\")."
 }

@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Source review 5a: options.c handler_msgtype() (6518-6526) passes the typed message pattern to test_regex_pattern() (7871-7901); a pattern ending in a lone backslash fails regex_compile(), and config_error_add() outside a configuration read prints 'MSGTYPE regex: Trailing backslash.' with pline() and wait_synch() (cfgfiles.c config_erradd() 1557-1563) before the add/list/remove menu returns and is escaped.",
+  "comment": "Source review 5a: options.c handler_msgtype() (6518-6526) passes the typed message pattern to test_regex_pattern() (7871-7901); a pattern ending in a lone backslash fails regex_compile(), and config_error_add() outside a configuration read prints 'MSGTYPE regex: trailing backslash (\\).' (macOS regerror(); glibc prints 'Trailing backslash.') with pline() and wait_synch() (cfgfiles.c config_erradd() 1557-1563) before the add/list/remove menu returns and is escaped. Recorded on macOS, the judge's host, by .github/workflows/macos-recorder.yml (run 44628090866), because regcomp() and regerror() differ between macOS and glibc (docs/testing.md, \"The regex difference\").",
   "segments": [
     {
       "seed": 77320514,
