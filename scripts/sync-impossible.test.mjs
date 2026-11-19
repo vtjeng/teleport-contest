@@ -83,10 +83,12 @@ test('sync_impossible() is called only from synchronous functions', () => {
 });
 
 // Recordings whose impossible() reports come from synchronous port code:
-// shk.c unpaid_cost() and same_price() through doname() and mergable(), and
+// shk.c unpaid_cost() and same_price() through doname() and mergable(),
+// onbill() and sub_one_frombill() through a bite of unpaid food, and
 // timeout.c start_timer() through the melting-ice wish.
 const RECORDINGS = [
     'mkobj.c/unpaid-ship-object-keeper-away-drop',
+    'shk.c/onbill-carried-out-eat-food',
     'shk.c/same-price-carried-out-throw-pickup',
     'shk.c/unpaid-cost-carried-out-drop',
     'shk.c/unpaid-cost-carried-out-inventory',
