@@ -429,7 +429,7 @@ export async function hell_cold_maze(des, state, random = rn2) {
     const icey = selection_negate()
         .percentage(10, random)
         .grow()
-        .filter_mapchar(ROOM, (x, y) => state.level.at(x, y), { random });
+        .filter_mapchar(ROOM, undefined, { random });
     await des.terrain(icey, 'I');
     if (cwid > 1)
         await des.terrain(icey.percentage(1, random), 'W');

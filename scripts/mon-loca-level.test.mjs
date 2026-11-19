@@ -8,6 +8,7 @@ test('Mon-loca has a production loader for the whole Monk locate program', () =>
 });
 
 import { readFileSync } from 'node:fs';
+import { game } from '../js/gstate.js';
 import { initRng, enableRngLog, getRngLog, rn2 } from '../js/rng.js';
 import { selection_negate } from '../js/themerooms.js';
 import { MON_LOCA_LEVEL_MAP } from '../js/mon_loca_level_data.js';
@@ -24,9 +25,13 @@ function harness(pending) {
     const calls = [];
     // Deliberately nonzero map origin exercises nhlsel.c relative conversion.
     const frame = { xstart: 2, ystart: 0 };
-    const state = { level: { at(x, y) {
+    // The level goes on the game, since filter_mapchar() reads game.level as
+    // selvar.c reads levl[][]. resetGame() would also reset the generator
+    // each test seeds before calling this.
+    const state = game;
+    state.level = { at(x, y) {
         return { typ: MON_LOCA_LEVEL_MAP[y]?.[x - frame.xstart] === '.' ? ROOM : STONE };
-    } } };
+    } };
     const des = new Proxy({ frame }, { get(target, method) {
         if (method === 'frame') return frame;
         return async (...args) => {
@@ -40,7 +45,7 @@ function harness(pending) {
 test('whole Monk locate orders descriptors and shares one nonremoved tin coordinate', async () => {
     initRng(172031); // Fixed arbitrary seed; no runtime branch search.
     const { des, state, calls } = harness();
-    const places = selection_negate().filter_mapchar(ROOM, (x, y) => state.level.at(x, y));
+    const places = selection_negate().filter_mapchar(ROOM);
     const count = places.numpoints();
     assert.ok(count > 0); // Source cave floors must be eligible before the draw.
     const expected = places.rndcoord(false, rn2, { x: des.frame.xstart, y: des.frame.ystart });

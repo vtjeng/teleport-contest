@@ -3223,7 +3223,7 @@ async function monLoca(des, state) {
     await des.stair('down');
     await des.non_diggable(selection_area(0, 0, 75, 20));
     for (let i = 0; i < 15; ++i) await des.object();
-    const tinplace = selection_negate().filter_mapchar(ROOM, (x, y) => state.level.at(x, y));
+    const tinplace = selection_negate().filter_mapchar(ROOM);
     const tinloc = tinplace.rndcoord(false, rn2, { x: des.frame.xstart, y: des.frame.ystart });
     await des.object({ id: 'tin', coord: tinloc, quantity: 2, buc: 'blessed', montype: 'spinach' });
     await des.engraving({ coord: tinloc, type: 'burn', text: 'Elbereth' });
