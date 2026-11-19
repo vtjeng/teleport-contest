@@ -22,10 +22,12 @@ import {
     MENU_PARTIAL, MENU_TRADITIONAL, PICK_ONE,
 } from './const.js';
 import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
-import { menuTitleStyle } from './tty_menu.js';
+import { displayTtyTextWindow, menuTitleStyle } from './tty_menu.js';
 import { add_menu_heading, select_menu } from './windows.js';
 import { def_char_to_objclass } from './drawing.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
+import { NO_COLOR } from './terminal.js';
+import { yn_function } from './cmd.js';
 import {
     AMULET_CLASS,
     AMULET_OF_YENDOR,
@@ -640,15 +642,28 @@ function classSymbol(oclass) {
     return String.fromCharCode(DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass]);
 }
 
+// o_init.c dodiscovered() and doclassdisco() write their headings with
+// putstr(tmpwin, iflags.menu_headings.attr, ...): the attribute but not the
+// color. `heading` marks those lines.
+function discoveriesTextWindow(lines, state) {
+    return displayTtyTextWindow(
+        state,
+        lines.map((line) => (line.heading
+            ? {
+                ...line,
+                attr: menuTitleStyle(state).titleAttr,
+                color: NO_COLOR,
+            }
+            : line)),
+    );
+}
+
 // C ref: o_init.c doclassdisco() (891-1128), the #knownclass command.
-// The command owns menu and text-window creation in this port.
 export async function doclassdisco(state = game, {
     message = ttyPline,
-    textWindow,
-    yesNo,
+    textWindow = discoveriesTextWindow,
+    yesNo = yn_function,
 } = {}) {
-    if (typeof textWindow !== 'function' || typeof yesNo !== 'function')
-        throw new TypeError('doclassdisco needs textWindow and yesNo owners');
 
     if (!state.flags.discosort || !DISCO_ORDER_LET.includes(state.flags.discosort))
         state.flags.discosort = 'o';
@@ -880,10 +895,8 @@ function disco_fmt_uniq(uidx, state) {
 // uses. `heading` marks the lines C writes with iflags.menu_headings.attr.
 export async function dodiscovered(
     state = game,
-    { message, textWindow } = {},
+    { message = ttyPline, textWindow = discoveriesTextWindow } = {},
 ) {
-    if (typeof message !== 'function' || typeof textWindow !== 'function')
-        throw new TypeError('dodiscovered needs message and window owners');
     if (!state.flags.discosort
         || !DISCO_ORDER_LET.includes(state.flags.discosort))
         state.flags.discosort = 'o';

@@ -84,7 +84,6 @@ import {
     Never_mind,
     PARANOID_CONFIRM,
     PICK_ANY,
-    PICK_NONE,
     PICK_ONE,
     PARANOID_QUIT,
     PLNMSG_UNKNOWN,
@@ -108,7 +107,6 @@ import {
     has_mgivenname,
     FUZZER_IMPOSSIBLE_CONTINUE,
 } from './const.js';
-import { NO_COLOR } from './terminal.js';
 import {
     doapply,
     dojump,
@@ -3093,56 +3091,17 @@ async function runShowspellsCommand(key, state) {
 
 // C ref: o_init.c dodiscovered().
 async function runKnownCommand(key, state) {
-    return failClosedCommand(key, state, () => dodiscovered(state, {
-        message: ttyPline,
-        // o_init.c dodiscovered() writes its headings with putstr(tmpwin,
-        // iflags.menu_headings.attr, ...): the attribute but not the color.
-        textWindow: (lines) => displayTtyTextWindow(
-            state,
-            lines.map((line) => (line.heading
-                ? {
-                    ...line,
-                    attr: menuTitleStyle(state).titleAttr,
-                    color: NO_COLOR,
-                }
-                : line)),
-        ),
-    }));
+    return failClosedCommand(key, state, () => dodiscovered(state));
 }
 
 // C ref: o_init.c doclassdisco(), reached by cmd.c #knownclass.
 async function runKnownClassCommand(key, state) {
-    return failClosedCommand(key, state, () => doclassdisco(state, {
-        message: ttyPline,
-        // o_init.c doclassdisco() putstr()s its headings with
-        // iflags.menu_headings.attr and no color.
-        textWindow: (lines) => displayTtyTextWindow(
-            state,
-            lines.map((line) => (line.heading
-                ? {
-                    ...line,
-                    attr: menuTitleStyle(state).titleAttr,
-                    color: NO_COLOR,
-                }
-                : line)),
-        ),
-        yesNo: yn_function,
-    }));
+    return failClosedCommand(key, state, () => doclassdisco(state));
 }
 
 // C ref: insight.c doattributes().
 async function runAttributesCommand(key, state) {
-    return failClosedCommand(key, state, () => doattributes(state, {
-        // insight.c enlightenment() ends its menu with end_menu(win, NULL), so
-        // the window carries no prompt line, and asks select_menu() for
-        // PICK_NONE; every line is an add_menu_str() entry with no selector or
-        // highlight. Escape answers null.
-        menu: (lines) => select_menu(state, {
-            lines,
-            how: PICK_NONE,
-            cancelValue: null,
-        }),
-    }));
+    return failClosedCommand(key, state, () => doattributes(state));
 }
 
 // C ref: detect.c dosearch(). Unlike the four wrappers above, this one returns
@@ -3653,27 +3612,7 @@ async function runChatCommand(key, state) {
 // returns its own ECMD_* result, which for this command is always ECMD_OK.
 // The whole skill listing is formatted before select_menu() draws anything.
 async function runEnhanceCommand(key, state) {
-    return failClosedCommand(key, state, () => enhance_weapon_skill(state, {
-        // weapon.c add_skills_to_menu() opens each skill range with
-        // add_menu_heading(), which draws it with iflags.menu_headings;
-        // menuTitleStyle() reads that style. end_menu()'s prompt line takes
-        // the same style through allmain.c adjust_menu_promptstyle().
-        menu: (items, how, prompt) => select_menu(state, {
-            items: items.map((item) => (item.heading
-                ? {
-                    ...item,
-                    attr: menuTitleStyle(state).titleAttr,
-                    color: menuTitleStyle(state).titleColor,
-                }
-                : item)),
-            how,
-            title: prompt,
-            ...menuTitleStyle(state),
-            cancelValue: null,
-        }),
-        ask: (query) => y_n(query, state),
-        message: ttyPline,
-    }));
+    return failClosedCommand(key, state, () => enhance_weapon_skill(state));
 }
 
 // C ref: options.c doset_simple() ('O') and doset() ('#optionsfull'). Both

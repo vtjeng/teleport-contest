@@ -245,6 +245,7 @@ import { handle_tip } from './hack.js';
 import { select_menu, ttyMenuColorAttribute } from './windows.js';
 import { youFeel } from './pline.js';
 import { ttyPline } from './tty_message.js';
+import { menuTitleStyle } from './tty_menu.js';
 import { note_unported } from './unported.js';
 import { cansee, couldsee } from './vision.js';
 import { mwelded } from './wield.js';
@@ -1833,12 +1834,31 @@ export async function show_skills(
 // the C `anything.a_int - 1` readback after select_menu().
 //
 // Returns ECMD_OK, which is C's only result.
+//
+// add_skills_to_menu() opens each skill range with add_menu_heading(), which
+// draws it with iflags.menu_headings; menuTitleStyle() reads that style.
+// end_menu()'s prompt line takes the same style through allmain.c
+// adjust_menu_promptstyle().
 export async function enhance_weapon_skill(
     state = game,
-    { menu, ask = (query) => y_n(query, state), message = ttyPline } = {},
+    {
+        menu = (items, how, prompt) => select_menu(state, {
+            items: items.map((item) => (item.heading
+                ? {
+                    ...item,
+                    attr: menuTitleStyle(state).titleAttr,
+                    color: menuTitleStyle(state).titleColor,
+                }
+                : item)),
+            how,
+            title: prompt,
+            ...menuTitleStyle(state),
+            cancelValue: null,
+        }),
+        ask = (query) => y_n(query, state),
+        message = ttyPline,
+    } = {},
 ) {
-    if (typeof menu !== 'function')
-        throw new TypeError('enhance_weapon_skill needs a menu owner');
 
     /* player knows about #enhance, don't show tip anymore */
     // hack.c handle_tip() is the only reader, and give_may_advance_msg() is

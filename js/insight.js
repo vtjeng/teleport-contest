@@ -166,6 +166,7 @@ import {
     OVERLOADED,
     P_ISRESTRICTED,
     P_NONE,
+    PICK_NONE,
     PICK_ONE,
     P_SKILLED,
     P_TWO_WEAPON_COMBAT,
@@ -3228,9 +3229,17 @@ export async function ustatusline(state = game) {
 
 // C ref: insight.c doattributes(), bound to `^X`. Returns whether the command
 // took game time, which for this one is never.
-export async function doattributes(state = game, { menu } = {}) {
-    if (typeof menu !== 'function')
-        throw new TypeError('doattributes needs a menu owner');
+//
+// enlightenment() ends its menu with end_menu(win, NULL), so the window
+// carries no prompt line, and asks select_menu() for PICK_NONE; every line is
+// an add_menu_str() entry with no selector or highlight. Escape answers null.
+export async function doattributes(state = game, {
+    menu = (lines) => select_menu(state, {
+        lines,
+        how: PICK_NONE,
+        cancelValue: null,
+    }),
+} = {}) {
     const lines = await enlightenment(
         BASICENLIGHTENMENT
             | ((state.wizard || state.discover) ? MAGICENLIGHTENMENT : 0),

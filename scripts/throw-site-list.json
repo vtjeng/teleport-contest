@@ -1116,12 +1116,6 @@
       "c": null,
       "reason": "Replay harness contract (input queue, display, or module-level game); no C counterpart."
     },
-    "js/insight.js | doattributes | 'doattributes needs a menu owner'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/invent.js | add_to_buried | 'add_to_buried requires an object'": {
       "count": 1,
       "class": "invariant",
@@ -2429,18 +2423,6 @@
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
-    },
-    "js/o_init.js | doclassdisco | 'doclassdisco needs textWindow and yesNo owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/o_init.js | dodiscovered | 'dodiscovered needs message and window owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/o_init.js | init_objects | `init_objects: generic object ${i} has class ${objects[i].oc": {
       "count": 1,
@@ -3769,12 +3751,6 @@
       "reason": "C view_from() panics on a range outside 1..MAX_RADIUS; the function is synchronous."
     },
     "js/weapon.js | drain_weapon_skill | 'drain_weapon_skill requires rn2'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/weapon.js | enhance_weapon_skill | 'enhance_weapon_skill needs a menu owner'": {
       "count": 1,
       "class": "invariant",
       "c": null,
