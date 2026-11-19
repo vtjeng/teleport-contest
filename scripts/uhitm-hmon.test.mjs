@@ -156,6 +156,7 @@ import {
 } from '../js/uhitm.js';
 import { will_hurtle } from '../js/dothrow.js';
 import { Invisible } from '../js/youprop.js';
+import { setToplinesDirectly } from '../js/topl.js';
 
 const UHITM_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/uhitm.c', import.meta.url),
@@ -1030,7 +1031,7 @@ test('the pet and pudding arms pass an ordinary hostile through', async () => {
     // supply, so the topline is cleared before the blow and after each read.
     const clearTopLine = () => {
         game._pending_message = '';
-        game.nhDisplay.toplines = '';
+        setToplinesDirectly('', game);
         game.nhDisplay.toplin = 0;
     };
     clearTopLine();
@@ -1040,7 +1041,7 @@ test('the pet and pudding arms pass an ordinary hostile through', async () => {
     await hmon(pet, game.uwep, HMON_MELEE, 10, game, petEnv);
     assert.deepEqual(petEnv.bounds,
                      ['rnd(3)', 'rn2(4)', 'rnd(2)', 'rn2(3)', 'rn2(6)']);
-    assert.equal(game.nhDisplay.toplines, 'The little dog yelps!');
+    assert.equal(game._ttyToplines, 'The little dog yelps!');
     clearTopLine();
     // dog.c:1370-1373: one point of tameness and one more recorded abuse.
     assert.equal(pet.mtame, 4);
@@ -1057,7 +1058,7 @@ test('the pet and pudding arms pass an ordinary hostile through', async () => {
     await hmon(growler, game.uwep, HMON_MELEE, 10, game, growlEnv);
     assert.deepEqual(growlEnv.bounds,
                      ['rnd(3)', 'rn2(4)', 'rnd(2)', 'rn2(3)', 'rn2(6)']);
-    assert.equal(game.nhDisplay.toplines, 'The little dog growls!');
+    assert.equal(game._ttyToplines, 'The little dog growls!');
     clearTopLine();
     assert.equal(growler.mtame, 4);
     assert.equal(growler.mfleetim, 10);
@@ -1729,7 +1730,7 @@ test('the melee arm separates every guard a recording leaves undecided',
         const woken = hitEnv({ rolls: [1, 1, 1] });
         game.nhDisplay.pushKey(' '.charCodeAt(0));
         await hmon(drowsy, game.uwep, HMON_MELEE, 10, game, woken);
-        assert.equal(game.nhDisplay.toplines, 'The jackal growls!');
+        assert.equal(game._ttyToplines, 'The jackal growls!');
         assert.deepEqual(woken.lines,
                          ['You hit the jackal.', 'The jackal wakes up!']);
     });

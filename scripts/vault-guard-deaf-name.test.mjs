@@ -16,7 +16,7 @@ async function replay(moves) {
         onBoundary: (error) => { boundary = error; },
     });
     assert.equal(boundary, undefined);
-    return game.nhDisplay?.toplines ?? '';
+    return game._ttyToplines ?? '';
 }
 
 test('deaf hero sees guard fail to recognize their name', async () => {

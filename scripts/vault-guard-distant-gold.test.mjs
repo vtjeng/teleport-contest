@@ -25,5 +25,5 @@ test('distant guard approaches then collects corridor gold beneath the hero', as
     assert.deepEqual([guard.mx, guard.my], [73, 13],
         'the guard returned to its original corridor square');
     assert.equal(guard.mextra.egd.warncnt, 5, 'the escort warning resets');
-    assert.match(game.nhDisplay?.toplines ?? '', /picks up the gold from beneath you/u);
+    assert.match(game._ttyToplines ?? '', /picks up the gold from beneath you/u);
 });

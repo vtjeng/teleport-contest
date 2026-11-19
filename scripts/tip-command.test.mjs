@@ -99,7 +99,7 @@ test('dotip routes an unreachable floor through cant_reach_floor',
         // false return follows C into the inventory-selection fallback only
         // after the helper message; Escape cancels that fallback.
         assert.equal(await dotip(state), ECMD_CANCEL);
-        assert.equal(state.nhDisplay?.toplines, 'Never mind.');
+        assert.equal(state._ttyToplines, 'Never mind.');
         assert.equal(state.unported.has('engrave.c cant_reach_floor'), false);
         assert.equal(surface(ux, uy, state), 'stairs');
     });
@@ -125,7 +125,7 @@ test('dotip with a single container prompts ynq and quit returns ECMD_OK',
         assert.equal(result, ECMD_OK,
             'dotip returns ECMD_OK when the player answers q');
         // The toplines should contain the prompt text.
-        const toplines = state.nhDisplay?.toplines ?? '';
+        const toplines = state._ttyToplines ?? '';
         assert.ok(toplines.includes('here, tip it?'),
             `expected "here, tip it?" in "${toplines}"`);
     });
@@ -246,7 +246,7 @@ test('dotip y-branch with empty container prints the empty message',
         // C ref: pickup.c:4047-4050 calls "You have to open %s to tip it."
         // for locked, then check for empty which prints "%s is empty."
         // with the container name.
-        const toplines = state.nhDisplay?.toplines ?? '';
+        const toplines = state._ttyToplines ?? '';
         assert.ok(toplines.includes('is empty'),
             `expected "is empty" in toplines: "${toplines}"`);
     });

@@ -31,7 +31,7 @@ export async function verifyPrintLevelAnnotationSegment(segment) {
     const mapseen = find_mapseen({ dnum: 0, dlevel: 5 }, game);
     assert.equal(mapseen?.custom, 'Upper landing');
     assert.match(
-        game.nhDisplay?.toplines ?? '',
+        game._ttyToplines ?? '',
         /You remember this level as Upper landing\./u,
     );
     assert.equal(game.nhDisplay.inputQueueLength, 0);

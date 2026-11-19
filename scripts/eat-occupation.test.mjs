@@ -588,7 +588,7 @@ test('a new hostile group member appears before it stops the meal', async () => 
     assert.equal(replay.getScreens().length, 4);
     assert.equal(game.go.occupation, null);
     assert.equal(
-        game.nhDisplay.toplines,
+        game._ttyToplines,
         'You stop eating the food ration.',
     );
 
@@ -629,7 +629,7 @@ test('a monster nine squares away stops the meal before it is adjacent',
         assert.equal(segment.moves, '.ed..');
         assert.equal(await boundaryFor(segment, segment.moves), null);
         assert.equal(
-            game.nhDisplay.toplines,
+            game._ttyToplines,
             'You stop eating the food ration.',
         );
         // The turn the stop landed on. Two waits followed it, so a stop one
@@ -657,7 +657,7 @@ test('an adjacent monster stops the meal and flags it for reset', async () => {
     const segment = interruptSegment(3100021);
     assert.equal(segment.moves, 'ed');
     assert.equal(await boundaryFor(segment, segment.moves), null);
-    assert.equal(game.nhDisplay.toplines, 'You stop eating the food ration.');
+    assert.equal(game._ttyToplines, 'You stop eating the food ration.');
     assert.equal(game.go.occupation, null);
     // start_eating()'s bite plus the one this turn's occupation call took.
     assert.equal(game.context.victual.usedtime, 2);
@@ -693,7 +693,7 @@ test('an interruption on the meal\'s last turn finishes it instead',
         const segment = interruptSegment(3100246);
         assert.equal(segment.moves, 'ed ');
         assert.equal(await boundaryFor(segment, segment.moves), null);
-        assert.equal(game.nhDisplay.toplines, "You're finally finished.");
+        assert.equal(game._ttyToplines, "You're finally finished.");
         assert.equal(game.go.occupation, null);
         // done_eating() zeroed the victual, so the food is gone rather than
         // partly eaten, and reset_eat() found nothing left to flag.

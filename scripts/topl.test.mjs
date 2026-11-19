@@ -109,7 +109,6 @@ test('update_topl replaces stale pending text after an answered prompt', async (
     const stalePrompt = 'Dry up fountain? [yn] (n) ';
     state._pending_message = stalePrompt;
     state._ttyToplines = stalePrompt;
-    state.nhDisplay.toplines = stalePrompt;
     state.nhDisplay.toplin = TOPLINE_EMPTY;
 
     await update_topl('Someone removes your blindfold.', state, {
@@ -234,7 +233,6 @@ test('saved message history keeps update_topl() newlines and restores each layou
 test('SUPPRESS_HISTORY shows feedback but keeps it out of Ctrl-P history', async () => {
     const state = historyState();
     state._ttyToplines = 'previous message';
-    state.nhDisplay.toplines = 'previous message';
 
     await ttyCustomPline('Unknown command', SUPPRESS_HISTORY, state);
 
@@ -398,7 +396,6 @@ test('wrapped Escape more redraws lower rows from the current glyph buffer',
         const message = 'wrapped TTY history message '.repeat(5);
         state._pending_message = message;
         state._ttyToplines = message;
-        display.toplines = message;
         display.topMessage = message;
         display.toplin = 1;
         for (let column = 0; column < display.cols; ++column)

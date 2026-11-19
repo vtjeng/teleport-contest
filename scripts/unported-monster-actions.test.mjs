@@ -215,7 +215,9 @@ import {
 import { completeSecondTurnSnapshot } from './second-turn-snapshot.mjs';
 import { expectTerminated } from './expect-terminated.mjs';
 import { set_ulycn } from '../js/were.js';
-import { free_msghistory_snapshot, msghistory_snapshot } from '../js/topl.js';
+import {
+    free_msghistory_snapshot, msghistory_snapshot, setToplinesDirectly,
+} from '../js/topl.js';
 import { coreRandom, cloneIsaacContext, createCoreRandom, initRng } from '../js/rng.js';
 
 // C permonst.h:48 has NATTK attack slots; AD_PHYS (include/monattk.h) and
@@ -1312,7 +1314,7 @@ test('a ranged attacker spends its turn wielding a bow',
         // dismissed startup output. Clearing that inherited line prevents the
         // wield message from asking this direct caller for an unrelated key.
         game._pending_message = '';
-        game.nhDisplay.toplines = '';
+        setToplinesDirectly('', game);
         game.nhDisplay.toplin = 0;
         assert.equal(target.monster.mw, null);
         assert.equal(bow.owornmask ?? 0, 0);
@@ -1321,7 +1323,7 @@ test('a ranged attacker spends its turn wielding a bow',
         assert.equal(target.monster.mw, bow);
         assert.equal(bow.owornmask, W_WEP);
         assert.equal(target.monster.weapon_check, NEED_WEAPON);
-        assert.match(game.nhDisplay.toplines, /The gnome wields a bow!/u);
+        assert.match(game._ttyToplines, /The gnome wields a bow!/u);
     });
 
 // C refs: mthrowu.c thrwmu():1183-1189 and weapon.c
@@ -1344,7 +1346,7 @@ test('a ranged attacker replaces a non-welded current weapon before flight',
         game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
         game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
         game._pending_message = '';
-        game.nhDisplay.toplines = '';
+        setToplinesDirectly('', game);
         game.nhDisplay.toplin = 0;
 
         assert.equal(target.monster.mw, dagger);
@@ -1357,7 +1359,7 @@ test('a ranged attacker replaces a non-welded current weapon before flight',
         assert.equal(bow.owornmask, W_WEP);
         assert.equal(target.monster.weapon_check, NEED_WEAPON);
         assert.match(
-            game.nhDisplay.toplines,
+            game._ttyToplines,
             /The gnome wields a bow!/u,
         );
     });

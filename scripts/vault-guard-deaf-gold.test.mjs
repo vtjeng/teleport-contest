@@ -23,6 +23,6 @@ test('deaf guard demands the hero’s picked-up vault gold', async () => {
     assert.equal(guard.mpeaceful, 1);
     assert.equal(guard.mextra.egd.dropgoldcnt, 1, 'the gold demand was recorded');
     assert.equal(guard.mextra.egd.fcend, 1, 'the guard opened its entrance');
-    assert.match(game.nhDisplay?.toplines ?? '',
+    assert.match(game._ttyToplines ?? '',
         /The guard holds out his palm and beckons with his other hand\./u);
 });

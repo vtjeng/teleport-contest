@@ -671,7 +671,7 @@ test('reroll choice increments only for y and supports cancel fallback', async (
         assert.equal(rowText(state, 0), 'Reroll this character? [yn] (n)');
         assert.equal(state.nhDisplay.toplin, TOPLINE_NON_EMPTY);
         assert.equal(
-            state.nhDisplay.toplines,
+            state._ttyToplines,
             'Reroll this character? [yn] (n) y',
         );
     }

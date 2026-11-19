@@ -17,6 +17,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GUARD, PM_LITTLE_DOG } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { gd_move, newegd } from '../js/vault.js';
+import { setToplinesDirectly } from '../js/topl.js';
 
 // The seed, date and options of scripts/vault-guard-escort.test.mjs: any
 // started game works, since the test builds the vault and its occupants.
@@ -33,7 +34,7 @@ async function startedGame() {
         moves: ' ',
     });
     game._pending_message = '';
-    game.nhDisplay.toplines = '';
+    setToplinesDirectly('', game);
     game.nhDisplay.toplin = 0;
 }
 
@@ -90,7 +91,7 @@ test('wallify_vault makes a tame monster on a broken vault wall yelp', async () 
         message: async (text) => { messages.push(text); },
     });
 
-    const shown = `${game.nhDisplay.toplines ?? ''} ${messages.join(' ')}`;
+    const shown = `${game._ttyToplines ?? ''} ${messages.join(' ')}`;
     // The hero cannot see the vault wall, so Monnam() names the dog "It".
     assert.match(shown, /\bIt yelps!/u);
     assert.notDeepEqual([dog.mx, dog.my], [wx, wy], 'dog was moved off');

@@ -719,7 +719,7 @@ test('random arrival defers corpse effects to the source pickup caller',
             },
             floor: game.level.objects[destination.x][destination.y],
             list: game.level.objlist,
-            toplines: game._ttyToplines,
+            ttyToplines: game._ttyToplines,
             grid: structuredClone(game.nhDisplay.grid),
             cursor: [
                 game.nhDisplay.cursorCol,
@@ -749,7 +749,7 @@ test('random arrival defers corpse effects to the source pickup caller',
         assert.equal(game.level.objects[destination.x][destination.y],
             before.floor);
         assert.equal(game.level.objlist, before.list);
-        assert.equal(game._ttyToplines, before.toplines);
+        assert.equal(game._ttyToplines, before.ttyToplines);
         assert.deepEqual(game.nhDisplay.grid, before.grid);
         assert.deepEqual([
             game.nhDisplay.cursorCol,
@@ -937,7 +937,7 @@ test('random-arrival pickup early returns preserve the live state during admissi
                 },
                 floor: game.level.objects[destination.x][destination.y],
                 list: game.level.objlist,
-                toplines: game._ttyToplines,
+                ttyToplines: game._ttyToplines,
                 grid: structuredClone(game.nhDisplay.grid),
                 cursor: [
                     game.nhDisplay.cursorCol,
@@ -971,7 +971,7 @@ test('random-arrival pickup early returns preserve the live state during admissi
             assert.equal(game.level.objects[destination.x][destination.y],
                 before.floor, guard.name);
             assert.equal(game.level.objlist, before.list, guard.name);
-            assert.equal(game._ttyToplines, before.toplines, guard.name);
+            assert.equal(game._ttyToplines, before.ttyToplines, guard.name);
             assert.deepEqual(game.nhDisplay.grid, before.grid, guard.name);
             assert.deepEqual([
                 game.nhDisplay.cursorCol,

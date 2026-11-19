@@ -728,7 +728,7 @@ test('STOP after an Escaped More neither waits nor clears suppression', async ()
         row: state.nhDisplay.grid[0].map((cell) => cell.ch)
             .join('').trimEnd(),
         cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
-        toplines: state._ttyToplines,
+        ttyToplines: state._ttyToplines,
     });
     // 68 characters leave no room for "halt" on the same line (CO - 8).
     await ttyPline('P'.repeat(68), state);
@@ -739,7 +739,7 @@ test('STOP after an Escaped More neither waits nor clears suppression', async ()
         {
             row: `${'P'.repeat(68)}--More--`,
             cursor: [76, 0],
-            toplines: 'P'.repeat(68),
+            ttyToplines: 'P'.repeat(68),
         },
     ]);
     assert.equal(state.nhDisplay.grid[0].map((cell) => cell.ch)
@@ -862,7 +862,7 @@ test('normalized-equal long messages compare equal before NOREP', async () => {
     await ttyPline(first, state);
     const before = {
         previous: state._ttyPreviousMessage,
-        toplines: state._ttyToplines,
+        ttyToplines: state._ttyToplines,
         pending: state._pending_message,
         grid: state.nhDisplay.grid.map(
             (row) => row.map((cell) => ({ ...cell })),
@@ -872,7 +872,7 @@ test('normalized-equal long messages compare equal before NOREP', async () => {
     };
     await ttyPline(second, state);
     assert.equal(state._ttyPreviousMessage, before.previous);
-    assert.equal(state._ttyToplines, before.toplines);
+    assert.equal(state._ttyToplines, before.ttyToplines);
     assert.equal(state._pending_message, before.pending);
     assert.deepEqual(state.nhDisplay.grid, before.grid);
     assert.deepEqual(

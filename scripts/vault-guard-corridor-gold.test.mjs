@@ -23,5 +23,5 @@ test('vault guard collects gold dropped beneath the hero in its corridor', async
     assert.equal(money_cnt(guard.minvent), 100, 'gold belongs to the guard');
     assert.equal(g_at(game.u.ux, game.u.uy, game), null, 'the floor gold is gone');
     assert.equal(guard.mextra.egd.warncnt, 5, 'the escort warning resets');
-    assert.match(game.nhDisplay?.toplines ?? '', /picks up the gold from beneath you/u);
+    assert.match(game._ttyToplines ?? '', /picks up the gold from beneath you/u);
 });

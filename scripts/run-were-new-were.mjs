@@ -47,7 +47,7 @@ export async function verifyWereNewWereSegment(segment) {
         }
     }
     assert.ok(wererat, 'new_were did not produce a wererat animal form');
-    assert.equal(game.nhDisplay.toplines, 'The wererat changes into a rat.');
+    assert.equal(game._ttyToplines, 'The wererat changes into a rat.');
 }
 
 export async function runWereNewWereMatrix() {

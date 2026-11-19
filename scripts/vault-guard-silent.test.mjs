@@ -21,7 +21,7 @@ for (const hearing of ['deaf', 'hearing']) {
         assert.equal(boundary, undefined);
         assert.ok(is_silent(game.youmonst.data), 'the actual polymorphed hero cannot speak');
         assert.equal(findgd(game), null, 'mongone removes the summoned guard');
-        assert.match(game.nhDisplay.toplines, hearing === 'deaf'
+        assert.match(game._ttyToplines, hearing === 'deaf'
             ? /The guard huffs and turns to leave\./u
             : /I'll be back when you're ready to speak to me!/u);
     });

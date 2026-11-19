@@ -66,7 +66,7 @@ export async function verifyReadEnchantWeaponSegment(segment) {
     // Startup begins with one move already elapsed; the opening wait, read,
     // and trailing wait account for the three subsequent moves.
     assert.equal(game.moves, 4);
-    assert.equal(game.nhDisplay.toplines,
+    assert.equal(game._ttyToplines,
         'Your quarterstaff glows blue for a moment.');
     const selectionIndex = segment.moves.indexOf(
         `${ENCHANT_READ_KEY}${ENCHANT_READ_SLOT}`,

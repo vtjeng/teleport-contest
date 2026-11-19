@@ -162,61 +162,109 @@ test('each writer sets the unsplit mark from the path its caller names', () => {
     setToplinesDirectly(line, state);
     assert.equal(state._ttyToplines, line);
     assert.equal(state._ttyUnsplitToplines, line);
-    assert.equal(state.nhDisplay.toplines, line);
     // A later update_topl() write of the same text clears the mark, as C's
     // copy then holds update_topl()'s newline.
     setToplinesViaUpdateTopl(line, state);
     assert.equal(state._ttyToplines, line);
     assert.equal(state._ttyUnsplitToplines, null);
-    assert.equal(state.nhDisplay.toplines, line);
+    // Neither writer leaves a copy of the line on the display.
+    assert.equal(Object.hasOwn(state.nhDisplay, 'toplines'), false);
 });
 
-// GameDisplay.toplines copies state._ttyToplines for the tests that read
-// it. Game code must not read it: a fallback that did could return a line
-// C's gt.toplines no longer holds. Outside js/game_display.js, which declares
-// the field, only writeToplines() in js/topl.js may name it.
-export function displayCopyUses(source, isTopl = false) {
+// C keeps gt.toplines in one place, and the port keeps it in
+// state._ttyToplines. GameDisplay once held a second copy, `toplines`, that
+// game code had stopped reading and only tests read; a test that read it
+// checked the copy, not the line the game uses. No code in js/ or scripts/
+// may name a `toplines` property again, as a member, an object or pattern
+// key, or a class field. A local snapshot of the line uses another name,
+// such as ttyToplines. Comments that name C's gt.toplines are not code and
+// are not scanned.
+const REPO_DIR = resolve(JS_DIR, '..');
+const SCANNED_DIRS = ['js', 'scripts'];
+
+function staticKey(node, computed) {
+    if (!computed) return propertyName(node);
+    if (node.type === 'Literal' && typeof node.value === 'string') return node.value;
+    if (node.type === 'TemplateLiteral' && node.expressions.length === 0)
+        return node.quasis[0].value.cooked;
+    return null;
+}
+
+// The lines of `source` that name a `toplines` property.
+export function toplinesProperties(source) {
     const ast = acorn.parse(source, {
         ecmaVersion: 'latest', sourceType: 'module', locations: true,
     });
     const findings = [];
-    function visit(node, owner) {
+    function visit(node) {
         if (!node || typeof node.type !== 'string') return;
-        let current = owner;
-        if (FUNCTION_TYPES.has(node.type)) current = node.id?.name ?? null;
-        if (node.type === 'MemberExpression'
-            && (node.computed ? propertyName(node.property)
-                : node.property.name) === 'toplines'
-            && !(isTopl && current === 'writeToplines'))
-            findings.push(node.loc.start.line);
-        for (const key of Object.keys(node)) {
-            if (key === 'loc') continue;
-            const child = node[key];
-            if (Array.isArray(child)) for (const item of child) visit(item, current);
-            else if (child && typeof child.type === 'string') visit(child, current);
+        let key = null;
+        if (node.type === 'MemberExpression')
+            key = staticKey(node.property, node.computed);
+        else if (node.type === 'Property' || node.type === 'PropertyDefinition'
+            || node.type === 'MethodDefinition')
+            key = staticKey(node.key, node.computed);
+        if (key === 'toplines') findings.push(node.loc.start.line);
+        for (const name of Object.keys(node)) {
+            if (name === 'loc') continue;
+            const child = node[name];
+            if (Array.isArray(child)) for (const item of child) visit(item);
+            else if (child && typeof child.type === 'string') visit(child);
         }
     }
-    visit(ast, null);
+    visit(ast);
     return findings;
 }
 
-test('game code does not read the display copy of the top line', () => {
+// Every .js and .mjs file under `dir`, relative to the repository.
+function sourceFiles(dir) {
+    const files = [];
+    for (const entry of readdirSync(join(REPO_DIR, dir), { withFileTypes: true })) {
+        const path = join(dir, entry.name);
+        if (entry.isDirectory()) files.push(...sourceFiles(path));
+        else if (/\.m?js$/u.test(entry.name)) files.push(path);
+    }
+    return files.sort();
+}
+
+test('no code names a toplines property', () => {
     const findings = [];
-    for (const file of readdirSync(JS_DIR).filter((name) => name.endsWith('.js')).sort()) {
-        if (file === 'game_display.js') continue;
-        const source = readFileSync(join(JS_DIR, file), 'utf8');
-        for (const line of displayCopyUses(source, file === 'topl.js'))
-            findings.push(`js/${file}:${line}`);
+    let scanned = 0;
+    for (const dir of SCANNED_DIRS) {
+        for (const file of sourceFiles(dir)) {
+            // A file that does not parse fails the test rather than going
+            // unscanned.
+            const source = readFileSync(join(REPO_DIR, file), 'utf8');
+            for (const line of toplinesProperties(source))
+                findings.push(`${file}:${line}`);
+            ++scanned;
+        }
     }
     assert.deepEqual(findings, []);
+    // This file and js/topl.js are among those scanned, so an empty walk
+    // cannot pass.
+    assert.ok(scanned > 2, `scanned ${scanned} files`);
 });
 
-test('the copy scan finds a read and a write outside writeToplines()', () => {
+test('GameDisplay has no toplines property', () => {
+    assert.equal('toplines' in new GameDisplay(), false);
+});
+
+test('the toplines scan finds each way to name the property', () => {
+    // Each numbered line names a toplines property.
     const source = [
-        "const line = state._ttyToplines ?? state.nhDisplay.toplines;", // 1: read
-        "display['toplines'] = line;", // 2: computed write
-        "function writeToplines(state) { state.nhDisplay.toplines = ''; }", // 3
+        'const line = state.nhDisplay.toplines;', // 1: read
+        'display.toplines = line;', // 2: write
+        "assert.equal(display?.['toplines'], line);", // 3: optional, computed
+        'const a = display[`toplines`];', // 4: template key
+        'const snapshot = { toplines: line };', // 5: object literal key
+        'const { toplines: copy } = display;', // 6: destructuring key
+        "class Display { toplines = ''; }", // 7: class field
+        'class Copy { get toplines() { return 1; } }', // 8: accessor
+        '// gt.toplines in a comment', // 9: not code
+        "const text = 'gt.toplines';", // 10: a string, not a property
+        'const toplines = state._ttyToplines;', // 11: a local variable
+        'const b = display[toplines];', // 12: a variable key
     ].join('\n');
-    assert.deepEqual(displayCopyUses(source), [1, 2, 3]);
-    assert.deepEqual(displayCopyUses(source, true), [1, 2]);
+    assert.deepEqual(toplinesProperties(source), [1, 2, 3, 4, 5, 6, 7, 8]);
 });

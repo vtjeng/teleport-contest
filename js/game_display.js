@@ -1,7 +1,7 @@
 // game_display.js — NetHack-specific display wrapper around Terminal.
 // Edit freely; the contest only freezes isaac64.js and terminal.js.
 //
-// Adds game state properties (topMessage, toplines, toplin) and
+// Adds game state properties (topMessage, toplin) and
 // message window handling. Delegates all terminal operations to
 // the wrapped Terminal instance.
 //
@@ -105,7 +105,6 @@ export class GameDisplay {
 
         // NetHack-specific message state
         this.topMessage = null;
-        this.toplines = '';
         this.messages = [];
         this.toplin = TOPLINE_EMPTY;
         this.messageWinFlags = 0;
@@ -229,7 +228,6 @@ export class GameDisplay {
         this.clearRow(0);
         this.putstr(0, 0, msg, CLR_GRAY);
         this.topMessage = msg.trimEnd();
-        this.toplines = this.topMessage;
         this.toplin = this.topMessage ? TOPLINE_NEED_MORE : TOPLINE_EMPTY;
         this.messages.push(this.topMessage);
         if (this.messages.length > 20) this.messages.shift();

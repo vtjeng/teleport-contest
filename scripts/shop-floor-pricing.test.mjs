@@ -207,7 +207,7 @@ function movementSnapshot(state, target, keeper = null) {
         priceQuotes: priceQuoteSnapshot(state, target),
         shop: keeper ? structuredClone(keeper.mextra.eshk) : null,
         uachieved: structuredClone(state.u.uachieved),
-        toplines: state._ttyToplines,
+        ttyToplines: state._ttyToplines,
         grid: structuredClone(state.nhDisplay.grid),
         cursor: [
             state.nhDisplay.cursorCol,
@@ -232,7 +232,7 @@ function assertMovementSnapshot(state, target, before, keeper = null) {
     assert.deepEqual(priceQuoteSnapshot(state, target), before.priceQuotes);
     if (keeper) assert.deepEqual(keeper.mextra.eshk, before.shop);
     assert.deepEqual(state.u.uachieved, before.uachieved);
-    assert.equal(state._ttyToplines, before.toplines);
+    assert.equal(state._ttyToplines, before.ttyToplines);
     assert.deepEqual(state.nhDisplay.grid, before.grid);
     assert.deepEqual([
         state.nhDisplay.cursorCol,

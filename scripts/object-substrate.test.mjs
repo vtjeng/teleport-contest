@@ -1742,7 +1742,7 @@ test('hornoplenty identifies a cursed item spilled onto an altar', async () => {
     assert.equal(spilled.cursed, 1);
     assert.equal(spilled.bknown, 1);
     assert.equal(game.u.uconduct.gnostic, 1);
-    assert.match(game.nhDisplay.toplines, /black flash as .* hits the altar/u);
+    assert.match(game._ttyToplines, /black flash as .* hits the altar/u);
     assert.equal(game.iflags.suppress_price, 0);
 });
 
@@ -1796,6 +1796,6 @@ test('hornoplenty wires the default carried-object encumbrance callback', async 
         'the carried weight includes the generated object',
     );
     assert.equal(game.go.oldcap, near_capacity(game));
-    assert.match(game.nhDisplay.toplines, /movements are now unencumbered/u);
+    assert.match(game._ttyToplines, /movements are now unencumbered/u);
     assert.equal(game.iflags.suppress_price, 0);
 });

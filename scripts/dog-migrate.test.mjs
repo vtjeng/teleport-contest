@@ -591,7 +591,7 @@ test('ordinary failed arrival returns through limbo migration', async () => {
         }
         throw new Error(`unexpected empty input boundary: ${JSON.stringify({
             fullScreen,
-            topline: display.toplines,
+            topline: game._ttyToplines,
             pendingMessage,
             queueLength: display.inputQueueLength,
             waitEpoch: display.waitEpoch,

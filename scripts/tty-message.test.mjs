@@ -40,7 +40,6 @@ function messageState(message, toplin) {
         _ttyToplines: message,
     };
     state.nhDisplay.toplin = toplin;
-    state.nhDisplay.toplines = message;
     state.nhDisplay.putstr(0, 0, message);
     state.nhDisplay.setCursor(message.length, 0);
     return state;

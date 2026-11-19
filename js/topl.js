@@ -49,16 +49,14 @@ function topline(state) {
 // The port keeps gt.toplines without newlines in state._ttyToplines and lays
 // it out with wrapTtyTopline(); state._ttyUnsplitToplines holds the same
 // text when the line was written directly, and null otherwise (see
-// toplineRows()).  nhDisplay.toplines is a copy of the same line that
-// tests read; no game code reads it, so it cannot stand in for
-// state._ttyToplines.  Every writer calls one of the two functions below,
-// naming the C path it ports; scripts/toplines-writer.test.mjs rejects any
-// other assignment to these fields and any other use of the copy.
+// toplineRows()).  The port keeps no other copy of the line.  Every writer
+// calls one of the two functions below, naming the C path it ports;
+// scripts/toplines-writer.test.mjs rejects any other assignment to these
+// fields and any `toplines` property that could hold a second copy.
 function writeToplines(text, state, unsplit) {
     const line = String(text);
     state._ttyToplines = line;
     state._ttyUnsplitToplines = unsplit ? line : null;
-    if (state.nhDisplay) state.nhDisplay.toplines = line;
 }
 
 // A write of gt.toplines inside update_topl() (topl.c:266-267, 281).

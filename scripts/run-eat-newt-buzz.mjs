@@ -42,7 +42,7 @@ export async function verifyEatNewtBuzzSegment(segment) {
     assert.equal(game.u.uenmax, 3);
     assert.equal(game.u.uenpeak, 3);
     assert.equal(
-        game.nhDisplay.toplines,
+        game._ttyToplines,
         'This newt corpse is stringy.  You finish eating the newt corpse.',
     );
     assert.equal(replay.getScreens().length, segment.moves.length + 1);

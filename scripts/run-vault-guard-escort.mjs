@@ -32,7 +32,7 @@ export async function verifyVaultGuardEscortSegment(segment) {
     });
     assert.equal(boundary, undefined);
     assert.match(
-        game.nhDisplay?.toplines ?? '',
+        game._ttyToplines ?? '',
         /Suddenly, the guard disappears\./,
         'gd_move_cleanup reaches its awaited disappearance message',
     );

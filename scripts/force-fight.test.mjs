@@ -828,7 +828,7 @@ async function monsterSeedSegment(moves) {
         rng: replay.getRngLog(),
         screens: replay.getScreens().length,
         boundary,
-        toplines: game._ttyToplines ?? '',
+        ttyToplines: game._ttyToplines ?? '',
     };
 }
 
@@ -845,8 +845,8 @@ test('a force-fight at a monster strikes it', async () => {
     const plain = await monsterSeedSegment('h');
     assert.equal(prefixed.boundary, null);
     assert.deepEqual(prefixed.rng, plain.rng);
-    assert.equal(prefixed.toplines, 'You kill the fox!');
-    assert.equal(plain.toplines, prefixed.toplines);
+    assert.equal(prefixed.ttyToplines, 'You kill the fox!');
+    assert.equal(plain.ttyToplines, prefixed.ttyToplines);
 
     // The prefix on its own draws nothing and spends no turn, so the equality
     // above is the attack's doing rather than the square's.

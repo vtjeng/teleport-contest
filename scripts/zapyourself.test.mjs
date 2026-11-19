@@ -423,7 +423,7 @@ test('stone-to-flesh charges a successful floor figurine before deletion', async
         return [...state.unported];
     };
     const actorErrorBoundary = (display, moreCount) => ({
-        screen: display.serialize(), topline: display.toplines,
+        screen: display.serialize(), topline: game._ttyToplines,
         queueLength: display.inputQueueLength, epoch: display.waitEpoch,
         pending: display.terminal?._inputResolver != null, moreCount,
     });
@@ -538,7 +538,7 @@ test('stone-to-flesh charges a successful floor figurine before deletion', async
                 vegetarian: vegetarian(species), golem: is_golem(species), vital },
             marker: stateMarker(state), actors: actorsBefore, floor: floorBefore,
             inventory: inventoryRows(state), rng: gameInstance.getRngLog().slice(),
-            screen: display.serialize(), topline: display.toplines,
+            screen: display.serialize(), topline: state._ttyToplines,
             input: actorErrorBoundary(display, moreCount) });
         const beforePath = join(projectionDir, 'before.json');
         writeFileSync(beforePath, JSON.stringify(before, null, 2) + '\n', { flag: 'wx' });
@@ -576,7 +576,7 @@ test('stone-to-flesh charges a successful floor figurine before deletion', async
         stillOnFloor: floorAfter.some(row => row.id === before.figurine.id) },
         newMonsters, actors: actorsAfter, floor: floorAfter,
         inventory: inventoryRows(state), marker: stateMarker(state), markerAdded,
-        messages: display.messages, topline: display.toplines,
+        messages: display.messages, topline: state._ttyToplines,
         screen: display.serialize(), rng: gameInstance.getRngLog().slice(),
         input: actorErrorBoundary(display, moreCount) });
     const outputName = markerAdded ? 'original-red.json' : 'candidate-green.json';
@@ -598,7 +598,7 @@ test('stone-to-flesh charges a successful floor figurine before deletion', async
     assert.equal(eshk.billct, before.keeper.billct);
     assert.equal(markerAdded, false,
         'the implemented path no longer records the missing stolen_value gap');
-    const text = `${display.toplines}\n${JSON.stringify(display.messages)}\n${display.serialize()}`;
+    const text = `${state._ttyToplines ?? ''}\n${JSON.stringify(display.messages)}\n${display.serialize()}`;
     assert.match(text, /owe .* for it/u,
         'the ordinary peaceful-keeper debt message is retained');
 });
@@ -848,7 +848,7 @@ test('stone-to-flesh bills a shop statue after its animation message', async () 
         if (display.toplin === TOPLINE_NEED_MORE
             && display.serialize().includes('--More--') && ++moreCount <= 16)
             return ' '.charCodeAt(0);
-        throw new Error(`unexpected input boundary: ${display.toplines}`);
+        throw new Error(`unexpected input boundary: ${game._ttyToplines}`);
     };
     try {
         const session = new NethackGame({
@@ -915,7 +915,7 @@ test('stone-to-flesh bills a shop statue after its animation message', async () 
             /statue .*comes to life|statue .*moves/u);
         assert.equal(animationMessages[0].debit, 0,
             'animation message precedes the charge');
-        assert.match(display.toplines, /owe .* for it/u);
+        assert.match(state._ttyToplines, /owe .* for it/u);
     } finally {
         display.onEmptyQueue = oldOnEmptyQueue;
     }

@@ -769,7 +769,6 @@ test('a stopped top line is replaced by death without a second More wait', async
     game._ttyToplines = prior;
     game._ttyMessageStopped = true;
     game.nhDisplay.topMessage = prior;
-    game.nhDisplay.toplines = prior;
     game.nhDisplay.toplin = TOPLINE_NEED_MORE;
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     const queuedBefore = game.nhDisplay.terminal._inputQueue.length;
@@ -1046,7 +1045,6 @@ test('raw output dismissal restores map waits while recorder mode stays active',
         const pending = 'Map synchronization';
         state._pending_message = pending;
         state.nhDisplay.topMessage = pending;
-        state.nhDisplay.toplines = pending;
         state.nhDisplay.toplin = TOPLINE_NEED_MORE;
         state.nhDisplay.pushKey('x'.charCodeAt(0));
         await tty_wait_synch(state);

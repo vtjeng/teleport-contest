@@ -408,7 +408,7 @@ test('an ordinary enchant-weapon scroll raises the wielded weapon', async () => 
         && entry.text === 'became literate by reading a scroll'
     )));
     assert.equal(game.moves, 4);
-    assert.equal(game.nhDisplay.toplines,
+    assert.equal(game._ttyToplines,
         'Your quarterstaff glows blue for a moment.');
     assert.ok(!inventorySnapshot().some(
         (obj) => obj.otyp === SCR_ENCHANT_WEAPON,
@@ -1017,7 +1017,7 @@ test('successful ordinary spellbook study completes its learn occupation',
     assert.equal(game.context.spbook.book, null);
     assert.equal(game.context.spbook.o_id, 0);
     assert.equal(game.go?.occupation ?? null, null);
-    assert.match(game.nhDisplay.toplines,
+    assert.match(game._ttyToplines,
         /learn.*detect monsters/u);
 
     // The read path consumes the ordinary-book difficulty draw before
