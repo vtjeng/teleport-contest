@@ -178,6 +178,14 @@ If macOS prints `Key binding failed?!` for the four probes that use
 `Strcat()` and binds the `bind-param` key, the judge's behavior is
 consistent enough to port.
 
+Run [41286167639](https://github.com/vtjeng/teleport-contest/actions/runs/41286167639)
+recorded the five probes on macOS. It printed `Key binding failed?!` in
+the four that use `Strcat()`, for both binds in `bind-twice`, and bound
+the `bind-param` key; the RNG logs matched Linux in all five. The port now
+follows macOS, and the committed recipes `recipes/cmd.c/*bind*-live`,
+recorded on macOS, cover these paths and command-first unbinding
+(`docs/testing.md`, "The key-binding difference").
+
 ### Level-teleport menu probes
 
 `levtele-menu-unreachable-knox-letter` and `levtele-menu-endgame-dummy-letter`

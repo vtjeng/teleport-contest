@@ -48,6 +48,21 @@ jobs:
       - name: Record the key-binding probes
         run: experiments/host-parity/record-sample.sh macos-recordings/probes 5 experiments/host-parity/probes/*.session.json
 
+      # The committed recordings of the options-menu rebind recipes
+      # (recipes/cmd.c/*bind*-live) come from this step, because cmd.c
+      # handler_rebind_keys_add() fails on macOS where a Linux recorder
+      # binds the key (docs/testing.md, "The key-binding difference").
+      # Copy each one to recordings/cmd.c/ under the same name.
+      # scripts/bind-keys-live.test.mjs fails if one is recorded on Linux.
+      # The two parameter-path recipes after the glob bind on both hosts;
+      # they are recorded here only to compare with their Linux recordings.
+      - name: Record the options-menu rebind recipes
+        run: >-
+          experiments/host-parity/record-sample.sh macos-recordings/cmd.c 5
+          recipes/cmd.c/*bind*-live.session.json
+          recipes/cmd.c/toggle-bound-param-menu.session.json
+          recipes/cmd.c/bind-toggle-empty-param-reports-and-lists-null.session.json
+
       - name: Upload recordings
         if: always()
         uses: actions/upload-artifact@v7
