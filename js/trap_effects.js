@@ -411,17 +411,6 @@ import {
     Passes_walls, See_invisible, Unchanging, Punished,
 } from './youprop.js';
 
-// Effects receive the source owners through their caller's environment.
-// mintrap() supplies live defaults for state-only production callers. Every
-// supplied environment is checked here so an invalid operation fails before
-// it is used.
-function requireTrapOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`a trap effect requires the ${name} owner`);
-    return operation;
-}
-
 // trap.c:77-78, the two article tables, each indexed by trap->madeby_u. The
 // bear trap's four messages read the capitalized one and trapeffect_pit()'s
 // monster arm reads the lowercase one.
@@ -495,9 +484,10 @@ export function fixed_tele_trap(trap) {
         && isok(trap.teledest?.x, trap.teledest?.y);
 }
 
-// C ref: trap.c seetrap(). The redraw is injected by the caller.
-export function seetrap(trap, env) {
-    const redraw = requireTrapOperation(env, 'redraw');
+// C ref: trap.c seetrap(). C redraws with newsym(); a caller may pass its
+// own env.redraw in its place.
+export function seetrap(trap, env = {}) {
+    const redraw = env.redraw ?? newsym;
     if (!trap.tseen) {
         // C writes 1 into a bitfield; js/trap.js resetTrap() keeps tseen as a
         // boolean, and this is the same value in one representation.
@@ -512,8 +502,8 @@ export function seetrap(trap, env) {
 // then rewrites the square from whatever really covers it -- C's comment says
 // "in case it's beneath something, redisplay the something", and the hero
 // herself is one such something.
-export function feeltrap(trap, env) {
-    const redraw = requireTrapOperation(env, 'redraw');
+export function feeltrap(trap, env = {}) {
+    const redraw = env.redraw ?? newsym;
     // C writes 1 into a bitfield; js/trap.js resetTrap() keeps tseen as a
     // boolean, and this is the same value in one representation.
     trap.tseen = true;
@@ -547,7 +537,7 @@ export async function mu_maybe_destroy_web(monster, domsg, trap, env) {
             }
         }
         deltrap(trap, state);
-        requireTrapOperation(env, 'redraw')(trap.tx, trap.ty);
+        (env.redraw ?? newsym)(trap.tx, trap.ty);
         return true;
     }
     if (domsg) {
@@ -760,7 +750,7 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
             );
         }
         deltrap(trap, state);
-        requireTrapOperation(env, 'redraw')(mtmp.mx, mtmp.my, state);
+        (env.redraw ?? newsym)(mtmp.mx, mtmp.my, state);
         return Trap_Is_Gone;
     }
 
@@ -782,7 +772,7 @@ export async function thitm(tlev, mon, obj, d_override, nocorpse, env) {
     const { state } = env;
     const random = env.random;
     const message = env.message ?? ttyPline;
-    const redraw = requireTrapOperation(env, 'redraw');
+    const redraw = env.redraw ?? newsym;
     let trapkilled = false;
 
     let strike;
@@ -893,7 +883,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
     const message = env.message ?? ttyPline;
-    const redraw = requireTrapOperation(env, 'redraw');
+    const redraw = env.redraw ?? newsym;
     const objectEnv = objectGenerationEnv({ state, random });
 
     if (mtmp === state.youmonst) {
@@ -1016,7 +1006,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
     const message = env.message ?? ttyPline;
-    const redraw = requireTrapOperation(env, 'redraw');
+    const redraw = env.redraw ?? newsym;
     const objectEnv = objectGenerationEnv({ state, random });
 
     if (mtmp === state.youmonst) {
@@ -1805,7 +1795,7 @@ async function domagictrap(env) {
             // the true arm clears it before redraw.
             state.u.uprops[INVIS].intrinsic = HInvis(state.u)
                 ? 0 : HInvis(state.u) | FROMOUTSIDE;
-            requireTrapOperation(env, 'redraw')(
+            (env.redraw ?? newsym)(
                 state.u.ux,
                 state.u.uy,
             );
@@ -2316,7 +2306,7 @@ async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
         seetrap(trap, env);
         if (!random.rn2(30)) {
             deltrap(trap, state);
-            requireTrapOperation(env, 'redraw')(state.u.ux, state.u.uy);
+            (env.redraw ?? newsym)(state.u.ux, state.u.uy);
             const message = env.message ?? ttyPline;
             await message('You are caught in a magical explosion!', state, env);
             await losehp(
@@ -2965,7 +2955,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
 async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
     const { state } = env;
     const message = env.message ?? ttyPline;
-    const redraw = requireTrapOperation(env, 'redraw');
+    const redraw = env.redraw ?? newsym;
 
     if (monster === state.youmonst) {
         let style = ROLL | (trap.tseen ? LAUNCH_KNOWN : 0);
@@ -3127,7 +3117,7 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
 export async function trapeffect_web(monster, trap, trflags, env) {
     const { state, random } = env;
     const message = env.message ?? ttyPline;
-    const redraw = requireTrapOperation(env, 'redraw');
+    const redraw = env.redraw ?? newsym;
     const article = a_your[Number(Boolean(trap.madeby_u))];
     if (monster === state.youmonst) {
         let webmsgok = (trflags & NOWEBMSG) === 0;
@@ -3739,7 +3729,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
         if (random.rn2(3))
             return Trap_Effect_Finished;
         if (inSight) {
-            requireTrapOperation(env, 'redraw')(mtmp.mx, mtmp.my);
+            (env.redraw ?? newsym)(mtmp.mx, mtmp.my);
             await message(
                 // C uses pline_The(), which leaves the message unpositioned;
                 // this differs from the preceding pline_mon() line.
@@ -3749,7 +3739,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
             );
         }
     } else if (inSight) {
-        requireTrapOperation(env, 'redraw')(mtmp.mx, mtmp.my);
+        (env.redraw ?? newsym)(mtmp.mx, mtmp.my);
         await message(
             messageAt(
                 `${Deaf(state.u) ? '' : 'KAABLAMM!!!  '}`
@@ -4006,21 +3996,17 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
         ...rawEnv,
         state,
     };
-    // Checked here rather than on entry because C makes no draw for a monster
-    // standing on no trap, and postmov() calls this on every completed move.
-    // Everything the admitted path can need is proven present here, before the
-    // first write or draw: seetrap() and trapeffect_sqky_board() used to
-    // resolve their own owners, which put those throws after mintrap() had
-    // already written mtrapseen and spent rnl(5), and after the squeak had
-    // been emitted. A refusal has to precede the state change, not follow it.
-    // The random set covers every operation trapeffect_selector() can dispatch
-    // to, not only mintrap()'s own rn2(4) and rnl(5): the dart arm reaches
-    // mksobj() and next_ident(), which need rn1, rnd and rne, while the fire
-    // and anti-magic trap arms need d(). Proving these owners here rather than
-    // in the arm matters, because the arm runs after
-    // mon_learns_traps() has written mtrapseen on the victim and every
-    // onlooker, and after the rn2(4) and rnl(5) gates may have drawn -- so a
-    // late proof would refuse with state already changed.
+    // A caller-supplied random set is checked here rather than on entry
+    // because C makes no draw for a monster standing on no trap, and
+    // postmov() calls this on every completed move. The check precedes the
+    // first write or draw: the arm runs after mon_learns_traps() has written
+    // mtrapseen on the victim and every onlooker, and after the rn2(4) and
+    // rnl(5) gates may have drawn, so a later refusal would leave state
+    // already changed. The set covers every operation trapeffect_selector()
+    // can dispatch to, not only mintrap()'s own rn2(4) and rnl(5): the dart
+    // arm reaches mksobj() and next_ident(), which need rn1, rnd and rne,
+    // while the fire and anti-magic trap arms need d(). The output operations
+    // need no check: every reader falls back to ttyPline() and newsym().
     const random = env.random;
     const tt = trap.ttyp;
     const randomNames = ['rn1', 'rn2', 'rnd', 'rne', 'rnl'];
@@ -4029,7 +4015,6 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     for (const name of randomNames)
         if (typeof random?.[name] !== 'function')
             throw new TypeError(`mintrap requires ${randomNames.join(', ')}`);
-    requireTrapOperation(env, 'redraw');
     const message = env.message ?? ttyPline;
 
     if (monster.mtrapped) { /* is currently in the trap */

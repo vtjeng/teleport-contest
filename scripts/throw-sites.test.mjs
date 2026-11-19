@@ -30,7 +30,7 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // remove-injected-ops replaced injected operations with direct calls and
 // removed 36 invariant throws, 708 left under 703 keys; 28 of them matched
 // INJECTED_OPERATION_PIN below.
-const LIST_PINS = { entries: 703, sites: 708 };
+const LIST_PINS = { entries: 702, sites: 707 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());

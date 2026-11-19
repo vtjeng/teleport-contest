@@ -3726,12 +3726,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/trap_effects.js | requireTrapOperation | `a trap effect requires the ${name} owner`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/trap_erode_obj.js | burnarmor | 'burnarmor() slot selection out of range'": {
       "count": 1,
       "class": "guard",
