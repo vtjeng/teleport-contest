@@ -995,14 +995,18 @@ function decodedGlyphText(glyph, rendered, state) {
 function lookedGlyphText(glyph, location, state) {
     const info = map_glyphinfo(glyph, state);
     const cell = visibleGlyphCharacter(info);
+    // decode_mixed() writes the glyph's gs.showsyms[] byte into the message,
+    // so gt.toplines and the message history hold the high-bit byte itself,
+    // one cell wide. Only topl.c redotoplin()'s first display, under
+    // ttyDisplay->mixed, sends it through g_putch(), which recorder patch 006
+    // captures with the high bit stripped: the DEC line-drawing character,
+    // or symbol_at()'s `ch` for an H_IBM byte. Any later redraw of the line
+    // prints the byte as a signed char, which the capture ignores.
+    if (location?.disp_decgfx && (info.ttychar & 0x80))
+        return { text: String.fromCharCode(info.ttychar), cell };
     if (location?.disp_decgfx) return { text: location.disp_ch, cell };
-    if ((info.ttychar & 0x80) && info.ch != null) {
-        // topl.c redotoplin() sends a mixed line's high-bit first byte
-        // through g_putch(), which recorder patch 006 captures with the high
-        // bit stripped: symbol_at()'s `ch` for an H_IBM byte. That byte is
-        // one cell wide.
-        return { text: info.ch, cell: info.ch };
-    }
+    if ((info.ttychar & 0x80) && info.ch != null)
+        return { text: String.fromCharCode(info.ttychar), cell: info.ch };
     // Otherwise the message holds the display character's UTF-8 bytes.
     return { text: utf8Text(cell), cell: null };
 }

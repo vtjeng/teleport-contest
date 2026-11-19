@@ -7753,9 +7753,17 @@ function _buildScreenOutput(cursorOnHero = true) {
         const rowZeroLength = Math.min(
             msgRows ? msgRows[0].length : msg.length, display.cols,
         );
+        // Recorder patch 006 ignores a control or signed high-bit TTY byte
+        // after the source cursor has advanced past it (GameDisplay.putch()),
+        // so restore the physical cell which clearScreen() temporarily
+        // erased instead of projecting the byte. A mixed line's first cell
+        // is redotoplin()'s g_putch() glyph, which the capture keeps.
+        const mixedFirstCell = game._ttyMixedFirstCell;
+        const skipsCell = (c) => !(c === 0 && mixedFirstCell)
+            && nomux_putch_byte(msg.charCodeAt(c)) === null;
         let skippedMessageCells = null;
         for (let c = 0; c < rowZeroLength; ++c) {
-            if (msg[c] === '\0') {
+            if (skipsCell(c)) {
                 skippedMessageCells ??= [];
                 skippedMessageCells[c] = { ...display.grid[0][c] };
             }
@@ -7763,18 +7771,13 @@ function _buildScreenOutput(cursorOnHero = true) {
         if (!bufferedOnly) display.clearScreen();
         // Message line
         for (let c = 0; !bufferedOnly && c < rowZeroLength; c++) {
-            // Recorder patch 006 ignores signed high-bit TTY bytes after the
-            // source cursor has advanced. tty_message.js represents each such
-            // byte as NUL, so restore the physical cell which clearScreen()
-            // temporarily erased instead of projecting the marker.
-            if (msg[c] === '\0') {
+            if (skipsCell(c)) {
                 const cell = skippedMessageCells[c];
                 display.setCell(c, 0, cell.ch, cell.color, cell.attr);
             } else {
                 display.setCell(
                     c, 0,
-                    c === 0 && game._ttyMixedFirstCell
-                        ? game._ttyMixedFirstCell : msg[c],
+                    c === 0 && mixedFirstCell ? mixedFirstCell : msg[c],
                     NO_COLOR, 0,
                 );
             }
@@ -7869,17 +7872,14 @@ function _buildScreenOutput(cursorOnHero = true) {
         }
         // topl_putsym('\n') cleared each continuation row from column 0
         // before writing it, and flush_screen() reprints only changed map
-        // cells, so the wrapped text stays over the map.  A NUL is
-        // ttyByteText()'s marker for a high or control byte, which the
-        // capture leaves as the cleared blank.
+        // cells, so the wrapped text stays over the map.  The capture
+        // leaves a high or control byte as the cleared blank.
         for (let row = 1; !bufferedOnly && msgRows && row < msgRows.length
             && row < display.rows; ++row) {
             display.clearRow(row);
             const text = msgRows[row];
-            for (let c = 0; c < Math.min(text.length, display.cols); ++c) {
-                if (text[c] !== '\0')
-                    display.setCell(c, row, text[c], NO_COLOR, 0);
-            }
+            for (let c = 0; c < Math.min(text.length, display.cols); ++c)
+                display.putch(c, row, text[c]);
         }
         // C's flush_screen() still redraws the map while botl.c bot() returns
         // early with gb.bot_disabled.  Keep that suppression visible in the

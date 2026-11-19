@@ -18,6 +18,7 @@ import {
     ATR_INVERSE,
     ATR_UNDERLINE,
 } from './terminal.js';
+import { nomux_putch_byte } from './termcap.js';
 
 const TOPLINE_EMPTY = 0;
 const TOPLINE_NEED_MORE = 1;
@@ -136,6 +137,21 @@ export class GameDisplay {
     setCell(col, row, ch, color, attr) {
         if (this.windowprocsHup) return undefined;
         return this.terminal.setCell(col, row, ch, color, attr);
+    }
+    // C's putchar(c) of a `char`, followed by recorder patch 006's
+    // nomux_putch(c): topl_putsym(), tty_putstr(), tty_putsym(), dmore(),
+    // tty_putstatusfield() and the menu and text window loops. The char is
+    // signed on the recorder's x86-64 build, so a high byte arrives negative
+    // and, like a control byte, leaves the shadow cell as it was
+    // (termcap.js nomux_putch_byte()). NUL, the port's marker for such a
+    // byte (tty_message.js ttyByteText()), is a control byte too. `ch` is one
+    // byte as a one-character string; a code unit above 0xFF is not a byte
+    // and is left out the same way. Returns true when the cell was written.
+    putch(col, row, ch, color = NO_COLOR, attr = 0) {
+        const stored = nomux_putch_byte(String(ch).charCodeAt(0));
+        if (stored === null) return false;
+        this.setCell(col, row, String.fromCharCode(stored), color, attr);
+        return true;
     }
     putstr(col, row, str, color, attr) {
         if (this.windowprocsHup) return undefined;
