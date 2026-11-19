@@ -189,8 +189,9 @@ test('the repository itself has no missing namespace member', async () => {
     assert.deepEqual(problems, []);
     // What the scan could not verify, pinned both ways. On 9f7e42e6
     // (8 November 2026): 8 namespace imports skipped, all of the acorn
-    // package from scripts/, and 30 computed member accesses.
-    const PINS = { skippedImports: 8, computedAccesses: 30 };
+    // package from scripts/, and 30 computed member accesses. On 19 November
+    // 2026 scripts/cell-writer.test.mjs added a ninth acorn import.
+    const PINS = { skippedImports: 9, computedAccesses: 30 };
     assertExceptionCount(notes.length, PINS.skippedImports, {
         what: 'namespace imports the scan skipped',
         pin: 'PINS.skippedImports in scripts/check-namespace-members.test.mjs',
