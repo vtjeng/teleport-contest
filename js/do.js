@@ -217,7 +217,8 @@ import { artifact_has_invprop } from './artifacts.js';
 import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
 import {
-    impossible, impossible_printer, livelog_printf, youFeel, youSee,
+    impossible, impossible_printer, livelog_printf, with_impossibles, youFeel,
+    youSee,
 } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { dist2, s_suffix, upstart, lcase } from './hacklib.js';
@@ -1704,7 +1705,8 @@ async function drop(obj, state = game) {
                 state.u.uprops[LEVITATION].extrinsic = W_ART;
             }
             if (state.flags.verbose)
-                await ttyPline(`You drop ${donameFresh(obj, state)}.`, state);
+                await ttyPline(`You drop ${await with_impossibles(
+                    () => donameFresh(obj, state), state)}.`, state);
             await freeinv(obj, { state });
             const { hitfloor } = await import('./dothrow.js');
             await hitfloor(obj, true, state);
@@ -1719,7 +1721,8 @@ async function drop(obj, state = game) {
             return ECMD_TIME;
         }
         if (!IS_ALTAR(here.typ) && state.flags.verbose)
-            await ttyPline(`You drop ${donameFresh(obj, state)}.`, state);
+            await ttyPline(`You drop ${await with_impossibles(
+                () => donameFresh(obj, state), state)}.`, state);
     }
     obj.how_lost = LOST_DROPPED;
     await dropx(obj, dropCommandEnv(state));

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c unpaid_cost() (3260-3305) reports through impossible() when the hero is in no shop or no bill holds an unpaid object (\"unpaid_cost: object wasn't on any bill.\"); objnam.c doname() calls it for every unpaid object, so C prints the report while it formats the name, before the message that uses it. Seed 6120158's Dlvl 3 has an armor shop (72,14)-(77,18) whose keeper stands at (73,14) inside an open door at (73,13) (port-only scanSeeds() probe over 6120040-6120400 for an armor or weapon shop with an open or empty doorway, fifth hit). The debug-mode Valkyrie level-teleports there, lands on a banded mail, picks it up (unpaid), wishes for a hole under herself (objnam.c wizterrainwish()), flings the keeper out of the door with #wiztelekinesis (wizcmds.c wiz_telekinesis() -> mhurtle()), and plunges through the hole with '>'. shk.c u_left_shop() returns early because the keeper is not inhishop(), so the mail stays unpaid on Dlvl 4. She wishes for a second hole there and drops the mail. Standing on a hole she cannot reach the floor, so do.c dodrop() prints \"You drop %s.\" (doname: report first) and hitfloor() prints \"%s hits the edge of the hole.\" (Doname2: report first) before dokick.c ship_object(). The mail falls through, so shk.c stolen_value() reports \"onbill: unpaid obj without shopkeeper?\" and mkobj.c add_to_migration() reports \"unpaid object migrating to another level? [banded mail]\". Seed, datetime, character and inputs were chosen independently of every recorded session and batch game.",
+  "segments": [
+    {
+      "seed": 6120158,
+      "datetime": "20270822154500",
+      "nethackrc": "OPTIONS=name:Shipper,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!tips\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001b\u00163\n\n\n,\n\u0017hole\n#wiztelekinesis\nhhhkk.k\u001b>\u0017hole\nde\n\n\n\n\n\n\n\n\n\n\n\n\n\nss"
+    }
+  ]
+}

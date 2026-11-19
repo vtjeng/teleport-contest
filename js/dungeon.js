@@ -2635,7 +2635,12 @@ export function mapseen_room(roomIndex, state) {
         const subroom = findSubroom(room);
         if (subroom) return subroom;
     }
-    return null;
+    // C indexes svr.rooms[] directly, so a subroom slot that no parent links
+    // to still reads as the record held there. mkroom.c rest_room() (875-886)
+    // leaves one such slot after a subroom that has its own subroom: the
+    // level's map still names it, and C reads a zero record from it.
+    const slot = roomIndex - (MAXNROFROOMS + 1);
+    return slot >= 0 ? state.subrooms?.[slot] ?? null : null;
 }
 
 // C ref: dungeon.c recalc_mapseen() (3073-3261). Rebuilds the current level's

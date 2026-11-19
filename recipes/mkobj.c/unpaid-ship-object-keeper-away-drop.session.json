@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Drop variation of unpaid-ship-object-keeper-away-throw. mkobj.c add_to_migration() (2703-2705) reports an unpaid object through impossible(). Seed 6120158's Dlvl 3 has an armor shop (72,14)-(77,18) whose keeper stands at (73,14) inside an open door at (73,13) (port-only scanSeeds() probe over 6120040-6120400 for an armor or weapon shop with an open or empty doorway, fifth hit); ^V 3 lands the debug-mode Valkyrie on a banded mail at (76,16) inside the shop. She picks it up (unpaid), wishes for a hole under herself (objnam.c wizterrainwish() 3573), and #wiztelekinesis (wizcmds.c 515 mhurtle()) flings the keeper north out of the door, so shk.c inhishop() is false. She drops the mail on the hole (do.c dropx() 790 -> dokick.c ship_object() 1639), it falls through, and ship_object() calls stolen_value() for the unpaid object (1700-1702). stolen_value() then finds no billable keeper: shk.c billable() returns FALSE without setting the keeper, and onbill() with no keeper prints \"onbill: unpaid obj without shopkeeper?\"; the object stays unpaid, so add_to_migration() prints \"unpaid object migrating to another level? [banded mail]\". Seed, datetime, character and inputs were chosen independently of every recorded session and batch game.",
+  "segments": [
+    {
+      "seed": 6120158,
+      "datetime": "20270822154500",
+      "nethackrc": "OPTIONS=name:Shipper,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!tips\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001b\u00163\n\n\n,\n\u0017hole\n#wiztelekinesis\nhhhkk.k\u001bde\n\n\n\n\n\n\n\nss"
+    }
+  ]
+}

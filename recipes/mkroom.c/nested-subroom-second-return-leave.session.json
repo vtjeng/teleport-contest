@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of nested-subroom-skipped-slot-overview with a second round trip. Seed 5311035's Dlvl 1 has themerms.lua 'Nesting rooms' (344-373): outer room (33,7)-(44,17), its subroom S (33,9)-(39,15) in gs.subrooms[0] and S's own subroom T (35,12)-(35,15) in gs.subrooms[1] (port-only scanSeeds() probe over 5310001-5311035 for a Dlvl 1 subroom with nsubrooms > 0, third of 3 hits). mkroom.c rest_room() (875-886) reads T over S in slot 0 and skips slot 1, which every getlev() finds zeroed (save.c:560-564 memset of svr.rooms[], which holds gs.subrooms[]: decl.h:1203, decl.c:1169); T's squares keep slot 1's room number, so u.urooms names that zero slot when the hero stands in T, and dungeon.c recalc_mapseen() (3136-3144) reads svr.rooms[ridx].rtype for it. After the first return, savelev() keeps only T under the outer room, so the second getlev() reads one subroom and slot 1 becomes rest_rooms()' hx = -1 ending flag (905) in a zeroed slot, still named by T's squares. The debug-mode Samurai level-teleports Dlvl 2, 1, 2, 1, teleports to (35,13) inside T, runs #overview, then level-teleports to Dlvl 2 from inside T (do.c goto_level() 1625 recalc_mapseen()) and searches. Seeds, datetimes, character and inputs were chosen independently of every recorded session and batch game.",
+  "segments": [
+    {
+      "seed": 5311035,
+      "datetime": "20270611093000",
+      "nethackrc": "OPTIONS=name:Inner,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!tips\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001b\u00162\n\u00161\n\u00162\n\u00161\n\u0014HHHjjjjjj.\u000f\u001b\u00162\n\n\ns"
+    }
+  ]
+}
