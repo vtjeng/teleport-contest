@@ -3389,9 +3389,16 @@ test('status highlight thresholds keep their source relationship', () => {
         // reach EQ_VALUE.
         ['alignment/up/red', ['changed', '=', null, '']],
         // A text match is TXT_VALUE, the arm below EQ_VALUE's, and carries
-        // the same '=' for the same reason.
-        ['carrying-capacity/overtaxed/red', ['text', '=', null, 'overtaxed']],
-        ['title/stripling/red', ['text', '=', null, 'stripling']],
+        // the same '=' for the same reason.  parse_status_hl1() lowercases
+        // every group, and parse_status_hl2() then stores the table's own
+        // spelling for the three fields with a table (botl.c:2903-2916):
+        // enc_stat[] for carrying-capacity, aligntxt[] for alignment, and
+        // hu_stat[] for hunger, whose padding trimspaces() removes (3096).
+        // A field without a table, such as title, keeps the lowercased text.
+        ['carrying-capacity/overtaxed/red', ['text', '=', null, 'Overtaxed']],
+        ['hunger/HUNGRY/red', ['text', '=', null, 'Hungry']],
+        ['alignment/Lawful/red', ['text', '=', null, 'lawful']],
+        ['title/Stripling/red', ['text', '=', null, 'stripling']],
     ]) {
         const parsed = parseNethackrc(`OPTIONS=hilite_status:${value}\n`);
         assert.deepEqual(parsed.configErrorFrame.output, [], value);

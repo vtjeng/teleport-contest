@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c parse_status_hl2() stores the table spelling of a text threshold: enc_stat[] for carrying-capacity and hu_stat[] (trimmed at 3096) for hunger, which are capitalised, and aligntxt[] for alignment, which is not (2903-2916); a field with no table, such as title, keeps the text parse_status_hl1() lowercased. The rc rules use mixed case; the status highlight rules editor then shows every listing: config format and each field. A typed hilite_status value in #optionsfull reaches the same parser through parseoptions() and is listed again. Seed, clock, character and keys chosen for this case.",
+  "segments": [
+    {
+      "seed": 6603319,
+      "datetime": "20330611204517",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,!autopickup,statushilites:4\nOPTIONS=hilite_status:hunger/Hungry/yellow/WEAK/red\nOPTIONS=hilite_status:cap/Burdened/cyan/overloaded/red&bold\nOPTIONS=hilite_status:alignment/Lawful/green\nOPTIONS=hilite_status:title/Hatamoto/blue&underline\nOPTIONS=hilite_status:condition/Blind+Stun/red\n",
+      "moves": " #optionsfull\n>>>>>>l\na\nr\u001bj\u001bi\u001bb\u001b\u001b#optionsfull\n>>>>>c\nhunger/SATIATED/green cap/stressed/blue\n#optionsfull\n>>>>>>l\na\n\u001bs"
+    }
+  ]
+}
