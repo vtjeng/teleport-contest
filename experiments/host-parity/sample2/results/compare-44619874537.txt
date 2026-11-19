@@ -1,0 +1,451 @@
+Compared 643 recipes recorded on both macOS and Linux.
+RNG logs identical: 626 of 643
+Recipes with differing screens: 72; with differing cursors: 35
+
+Recipes that differ:
+  date-y1800; RNG identical; screens differ: 0:3 of 24 compared
+  date-y1801; RNG identical; screens differ: 0:3 of 24 compared
+  date-y1825; RNG differs at segment 0 step 0 call 2401 (macOS: rnd(9000)=6262 @ moveloop_preamble(allmain.c:72); Linux: none)
+  date-y1850; RNG identical; screens differ: 0:3 of 24 compared
+  date-y1890; RNG identical; screens differ: 0:3 of 24 compared
+  date-y1899; RNG differs at segment 0 step 0 call 2401 (macOS: rnd(9000)=6262 @ moveloop_preamble(allmain.c:72); Linux: none)
+  hl-hsbuf-21; RNG identical; screens differ: 0:0 0:1 of 41 compared; cursors differ: 0:0 0:1 0:2 0:3 0:4 0:5 0:6 0:7 0:8 0:9 0:10 0:11 0:12 0:13 0:14 0:15 0:16 0:17 0:18 0:19 0:20 0:21 0:22 0:23 0:24 0:25 0:26 0:27 0:28 0:29 0:30 0:31 0:32 0:33 0:34 0:35 0:36 0:37 0:38 0:39 0:40
+  hl-hsbuf-22; RNG identical; screens differ: 0:0 0:1 of 41 compared; cursors differ: 0:0 0:1 0:2 0:3 0:4 0:5 0:6 0:7 0:8 0:9 0:10 0:11 0:12 0:13 0:14 0:15 0:16 0:17 0:18 0:19 0:20 0:21 0:22 0:23 0:24 0:25 0:26 0:27 0:28 0:29 0:30 0:31 0:32 0:33 0:34 0:35 0:36 0:37 0:38 0:39 0:40
+  re-bad-menu-00; RNG identical; screens differ: 0:25 0:26 of 35 compared; cursors differ: 0:25 0:26
+  re-bad-menu-02; RNG identical; screens differ: 0:25 of 32 compared; cursors differ: 0:25
+  re-bad-menu-04; RNG identical; screens differ: 0:25 0:26 0:27 of 33 compared; cursors differ: 0:25 0:26 0:27
+  re-bad-menu-06; RNG identical; screens differ: 0:26 0:27 0:28 of 36 compared; cursors differ: 0:26 0:27 0:28
+  re-bad-menu-07; RNG identical; screens differ: 0:27 0:28 of 35 compared; cursors differ: 0:27 0:28
+  re-bad-menu-08; RNG identical; screens differ: 0:28 of 35 compared; cursors differ: 0:28
+  re-bad-menu-09; RNG identical; screens differ: 0:30 0:31 of 40 compared; cursors differ: 0:30 0:31
+  re-bad-menu-10; RNG identical; screens differ: 0:25 0:26 of 33 compared; cursors differ: 0:25 0:26
+  re-bad-menu-11; RNG identical; screens differ: 0:25 of 32 compared
+  re-bad-menu-12; RNG identical; screens differ: 0:25 0:26 of 35 compared; cursors differ: 0:25 0:26
+  re-bad-menu-13; RNG identical; screens differ: 0:25 0:26 of 33 compared; cursors differ: 0:25 0:26
+  re-bad-menu-14; RNG identical; screens differ: 0:26 of 33 compared; cursors differ: 0:26
+  re-bad-menu-15; RNG identical; screens differ: 0:33 0:34 of 43 compared; cursors differ: 0:33 0:34
+  re-bad-menu-16; RNG identical; screens differ: 0:26 0:27 of 34 compared; cursors differ: 0:26 0:27
+  re-bad-menu-17; RNG identical; screens differ: 0:26 of 33 compared; cursors differ: 0:26
+  re-bad-menu-19; RNG identical; screens differ: 0:33 0:34 of 41 compared; cursors differ: 0:33 0:34
+  re-bad-menu-20; RNG identical; screens differ: 0:33 of 40 compared; cursors differ: 0:33
+  re-bad-menu-21; RNG identical; screens differ: 0:29 0:30 of 39 compared; cursors differ: 0:29 0:30
+  re-bad-menu-22; RNG identical; screens differ: 0:32 0:33 of 40 compared; cursors differ: 0:32 0:33
+  re-bad-menu-23; RNG identical; screens differ: 0:31 0:32 of 38 compared; cursors differ: 0:31 0:32
+  re-bad-menu-24; RNG identical; screens differ: 0:27 0:28 0:29 0:35 of 37 compared; cursors differ: 0:27 0:28 0:29
+  re-bad-menu-26; RNG identical; screens differ: 0:26 0:27 of 33 compared; cursors differ: 0:26 0:27
+  re-bad-menu-27; RNG identical; screens differ: 0:29 0:30 0:31 of 39 compared; cursors differ: 0:29 0:30 0:31
+  re-bad-menu-29; RNG identical; screens differ: 0:25 0:26 of 32 compared; cursors differ: 0:25 0:26
+  re-bad-menu-31; RNG identical; screens differ: 0:28 0:29 0:30 of 36 compared; cursors differ: 0:28 0:29 0:30
+  re-bad-menu-32; RNG identical; screens differ: 0:27 0:28 of 34 compared; cursors differ: 0:27 0:28
+  re-bad-rc-00; RNG identical; screens differ: 0:0 0:1 of 5 compared; cursors differ: 0:0 0:1 0:2 0:3 0:4
+  re-bad-rc-01; RNG identical; screens differ: 0:0 0:1 of 5 compared; cursors differ: 0:0 0:1 0:2 0:3 0:4
+  re-bad-rc-02; RNG identical; screens differ: 0:0 0:1 of 5 compared
+  re-bad-rc-03; RNG identical; screens differ: 0:0 0:1 of 5 compared
+  re-bad-rc-04; RNG identical; screens differ: 0:0 0:1 0:2 of 5 compared; cursors differ: 0:0 0:1 0:2 0:3 0:4
+  re-bad-rc-05; RNG identical; screens differ: 0:0 0:1 0:2 of 5 compared
+  re-bad-rc-06; RNG differs at segment 0 step 0 call 0 (macOS: none; Linux: rn2(2)=1 @ randomize_gem_colors(o_init.c:89))
+  re-match-00; RNG identical; screens differ: 0:3 of 5 compared
+  re-match-01; RNG identical; screens differ: 0:3 of 5 compared
+  re-match-02; RNG identical; screens differ: 0:3 of 5 compared
+  re-match-03; RNG differs at segment 0 step 0 call 0 (macOS: rn2(2)=1 @ randomize_gem_colors(o_init.c:89); Linux: none)
+  re-match-06; RNG identical; screens differ: 0:3 of 5 compared
+  re-match-07; RNG identical; screens differ: 0:3 of 5 compared
+  re-match-08; RNG identical; screens differ: 0:3 of 5 compared
+  re-match-10; RNG differs at segment 0 step 0 call 0 (macOS: none; Linux: rn2(2)=1 @ randomize_gem_colors(o_init.c:89))
+  re-match-11; RNG differs at segment 0 step 0 call 0 (macOS: none; Linux: rn2(2)=1 @ randomize_gem_colors(o_init.c:89))
+  re-match-12; RNG identical; screens differ: 0:3 of 5 compared
+  re-match-13; RNG differs at segment 0 step 0 call 0 (macOS: none; Linux: rn2(2)=1 @ randomize_gem_colors(o_init.c:89))
+  re-match-14; RNG differs at segment 0 step 0 call 0 (macOS: none; Linux: rn2(2)=1 @ randomize_gem_colors(o_init.c:89))
+  re-match-17; RNG identical; screens differ: 0:3 of 5 compared
+  re-match-18; RNG identical; screens differ: 0:3 of 5 compared
+  re-match-22; RNG differs at segment 0 step 0 call 0 (macOS: rn2(2)=1 @ randomize_gem_colors(o_init.c:89); Linux: none)
+  re-match-28; RNG identical; screens differ: 0:0 0:1 of 5 compared
+  re-match-29; RNG identical; screens differ: 0:0 0:1 of 5 compared
+  re-match-34; RNG identical; screens differ: 0:0 0:1 of 5 compared
+  re-match-35; RNG identical; screens differ: 0:0 0:1 of 5 compared
+  re-match-37; RNG identical; screens differ: 0:0 0:1 of 5 compared
+  re-match-40; RNG differs at segment 0 step 0 call 0 (macOS: none; Linux: rn2(2)=1 @ randomize_gem_colors(o_init.c:89))
+  re-match-41; RNG differs at segment 0 step 0 call 0 (macOS: none; Linux: rn2(2)=1 @ randomize_gem_colors(o_init.c:89))
+  re-match-42; RNG identical; screens differ: 0:0 0:1 of 5 compared
+  re-match-44; RNG differs at segment 0 step 0 call 0 (macOS: none; Linux: rn2(2)=1 @ randomize_gem_colors(o_init.c:89))
+  re-match-45; RNG differs at segment 0 step 0 call 0 (macOS: none; Linux: rn2(2)=1 @ randomize_gem_colors(o_init.c:89))
+  re-msgtype-0; RNG identical; screens differ: 0:0 0:5 of 7 compared
+  re-msgtype-1; RNG identical; screens differ: 0:0 0:5 of 7 compared
+  re-msgtype-2; RNG identical; screens differ: 0:0 0:5 of 7 compared
+  re-msgtype-4; RNG differs at segment 0 step 0 call 0 (macOS: rn2(2)=1 @ randomize_gem_colors(o_init.c:89); Linux: none)
+  re-msgtype-6; RNG differs at segment 0 step 0 call 0 (macOS: none; Linux: rn2(2)=1 @ randomize_gem_colors(o_init.c:89))
+  re-typed-03; RNG identical; screens differ: 0:26 0:27 0:28 of 36 compared; cursors differ: 0:26 0:27 0:28
+  re-typed-04; RNG identical; screens differ: 0:33 0:34 0:35 of 43 compared; cursors differ: 0:33 0:34 0:35
+  re-typed-05; RNG identical; screens differ: 0:31 0:32 0:33 of 41 compared; cursors differ: 0:31 0:32 0:33
+  re-typed-06; RNG identical; screens differ: 0:30 0:31 0:32 of 40 compared; cursors differ: 0:30 0:31 0:32
+  re-typed-14; RNG identical; screens differ: 0:31 0:37 of 39 compared
+  re-typed-15; RNG identical; screens differ: 0:41 of 43 compared
+  re-typed-16; RNG identical; screens differ: 0:41 of 43 compared
+  re-typed-17; RNG identical; screens differ: 0:42 of 44 compared
+  re-typed-18; RNG identical; screens differ: 0:40 of 42 compared
+  re-typed-19; RNG identical; screens differ: 0:28 0:29 0:30 0:31 of 38 compared; cursors differ: 0:28 0:29 0:30 0:31
+  re-typed-20; RNG identical; screens differ: 0:30 0:36 of 38 compared
+  re-typed-22; RNG identical; screens differ: 0:40 of 42 compared
+  rip-y1800; RNG identical; screens differ: 0:33 of 34 compared
+  rip-y1801; RNG identical; screens differ: 0:33 of 34 compared
+  rip-y1825; RNG differs at segment 0 step 0 call 2660 (macOS: rnd(9000)=6129 @ moveloop_preamble(allmain.c:72); Linux: none)
+  rip-y1850; RNG identical; screens differ: 0:33 of 34 compared
+  rip-y1890; RNG identical; screens differ: 0:33 of 34 compared
+  rip-y1899; RNG differs at segment 0 step 0 call 2660 (macOS: rnd(9000)=6129 @ moveloop_preamble(allmain.c:72); Linux: none)
+  (554 other recipes are identical)
+
+Host-difference kinds, by recipes affected:
+  1. 8 recipes, 9 screens; example re-bad-menu-04 segment 0 step 27
+     macOS: ""
+     Linux: "(end)"
+  2. 7 recipes, 8 screens; example re-bad-menu-04 segment 0 step 25
+     macOS: "(end)"
+     Linux: ""
+  3. 6 recipes, 16 screens; example re-bad-menu-10 segment 0 step 25
+     macOS: "repetition-operator operand invalid.--More--"
+     Linux: "Invalid preceding regular expression.--More--"
+  4. 6 recipes, 13 screens; example re-bad-menu-11 segment 0 step 25
+     macOS: "repetition-operator operand invalid."
+     Linux: "Invalid preceding regular expression."
+  5. 6 recipes, 6 screens; example re-match-00 segment 0 step 3
+     macOS: "[attributes]                                a - a +1 spear (weapon in right hand)"
+     Linux: "[attributes]"
+  6. 5 recipes, 6 screens; example re-bad-menu-04 segment 0 step 25
+     macOS: ""
+     Linux: "Probe the Stripling St:18/01 Dx:14 Co:18 In:7 Wi:9 Ch:8 Neutral Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1"
+  7. 5 recipes, 6 screens; example re-bad-menu-23 segment 0 step 31
+     macOS: "Probe the Stripling St:18/01 Dx:14 Co:18 In:7 Wi:9 Ch:8 Neutral Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1"
+     Linux: ""
+  8. 5 recipes, 5 screens; example re-match-01 segment 0 step 3
+     macOS: "[attributes]                                b - a +0 dagger (alternate weapon; not wielded)"
+     Linux: "[attributes]"
+  9. 5 recipes, 5 screens; example re-bad-rc-04 segment 0 step 2
+     macOS: "Velkommen Probe, welcome to NetHack! You are a neutral human Valkyrie."
+     Linux: ""
+  10. 4 recipes, 4 screens; example re-bad-menu-23 segment 0 step 31
+     macOS: ""
+     Linux: "x * exit this menu"
+  11. 4 recipes, 4 screens; example re-bad-menu-24 segment 0 step 35
+     macOS: "[attributes]                                a - a +1 spear (weapon in right hand) /                                b - a +0 dagger (alternate weapon; not wie..."
+     Linux: "[attributes]"
+  12. 3 recipes, 6 screens; example re-bad-menu-15 segment 0 step 33
+     macOS: "invalid"
+     Linux: "Invalid"
+  13. 3 recipes, 3 screens; example re-bad-menu-23 segment 0 step 31
+     macOS: ""
+     Linux: "r - remove existing autopickup exception"
+  14. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 27
+     macOS: "(end)"
+     Linux: "Probe the Stripling St:18/01 Dx:14 Co:18 In:7 Wi:9 Ch:8 Neutral Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1"
+  15. 3 recipes, 3 screens; example re-msgtype-0 segment 0 step 5
+     macOS: "are a neutral human Valkyrie."
+     Linux: "see no objects here."
+  16. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 27
+     macOS: "c - dim"
+     Linux: ""
+  17. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 26
+     macOS: "c - green"
+     Linux: ""
+  18. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 26
+     macOS: "d - brown"
+     Linux: ""
+  19. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 27
+     macOS: "d - italic"
+     Linux: ""
+  20. 3 recipes, 3 screens; example re-bad-menu-23 segment 0 step 32
+     macOS: "Do what? a - add new autopickup exception x * exit this menu"
+     Linux: ""
+  21. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 26
+     macOS: "e - blue"
+     Linux: ""
+  22. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 27
+     macOS: "e - underline"
+     Linux: ""
+  23. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 27
+     macOS: "f - blink"
+     Linux: ""
+  24. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 26
+     macOS: "f - magenta"
+     Linux: ""
+  25. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 26
+     macOS: "g - cyan"
+     Linux: ""
+  26. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 27
+     macOS: "g - inverse"
+     Linux: ""
+  27. 3 recipes, 3 screens; example re-bad-menu-06 segment 0 step 26
+     macOS: "h - gray i - orange j - light green k - yellow l - light blue m - light magenta n - light cyan o - white p * no color (end)"
+     Linux: "Probe the Stripling St:18/01 Dx:14 Co:18 In:7 Wi:9 Ch:8 Neutral Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1"
+  28. 3 recipes, 3 screens; example re-msgtype-0 segment 0 step 5
+     macOS: "Velkommen Probe, welcome to NetHack!"
+     Linux: ""
+  29. 3 recipes, 3 screens; example re-bad-menu-04 segment 0 step 26
+     macOS: "x * exit this menu"
+     Linux: ""
+  30. 2 recipes, 4 screens; example hl-hsbuf-21 segment 0 step 0
+     macOS: "/Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-ha"
+     Linux: "/Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-har"
+  31. 2 recipes, 4 screens; example re-bad-rc-03 segment 0 step 0
+     macOS: "class."
+     Linux: "class name."
+  32. 2 recipes, 4 screens; example re-bad-rc-04 segment 0 step 0
+     macOS: "invalid character range."
+     Linux: "Invalid range end."
+  33. 2 recipes, 4 screens; example re-bad-rc-00 segment 0 step 0
+     macOS: "parentheses not balanced."
+     Linux: "Unmatched ( or \\(."
+  34. 2 recipes, 3 screens; example re-bad-menu-07 segment 0 step 27
+     macOS: "braces not balanced.--More--"
+     Linux: "Unmatched \\{.--More--"
+  35. 2 recipes, 3 screens; example re-bad-menu-19 segment 0 step 33
+     macOS: "invalid collating element.--More--"
+     Linux: "Invalid collation character.--More--"
+  36. 2 recipes, 3 screens; example re-bad-menu-00 segment 0 step 25
+     macOS: "parentheses not balanced.--More--"
+     Linux: "Unmatched ( or \\(.--More--"
+  37. 2 recipes, 3 screens; example re-bad-menu-13 segment 0 step 25
+     macOS: "trailing backslash (\\).--More--"
+     Linux: "Trailing backslash.--More--"
+  38. 2 recipes, 2 screens; example re-bad-menu-06 segment 0 step 28
+     macOS: ""
+     Linux: "|............- |............|"
+  39. 2 recipes, 2 screens; example re-typed-14 segment 0 step 31
+     macOS: "[attributes]                                          a - add new menucolor /                                          l - list menucolors /  -------------- ..."
+     Linux: "[attributes]"
+  40. 2 recipes, 2 screens; example re-bad-menu-06 segment 0 step 28
+     macOS: "|............|"
+     Linux: "--------------"
+  41. 2 recipes, 2 screens; example re-bad-menu-06 segment 0 step 28
+     macOS: "l - list menucolors -------------- r - remove existing menucolor |............-"
+     Linux: ""
+  42. 2 recipes, 2 screens; example re-bad-menu-29 segment 0 step 25
+     macOS: "regex error in AUTOPICKUP_EXCEPTION: empty (sub)expression.--More--"
+     Linux: "Do what? a - add new autopickup exception l - list autopickup exceptions"
+  43. 2 recipes, 2 screens; example date-y1801 segment 0 step 3
+     macOS: "water nymphs"
+     Linux: "orchids"
+  44. 1 recipes, 4 screens; example re-bad-rc-01 segment 0 step 0
+     macOS: "braces not balanced."
+     Linux: "Unmatched \\{."
+  45. 1 recipes, 4 screens; example re-bad-rc-02 segment 0 step 0
+     macOS: "trailing backslash (\\)."
+     Linux: "Trailing backslash."
+  46. 1 recipes, 2 screens; example re-bad-rc-01 segment 0 step 0
+     macOS: ""
+     Linux: "MSGTYPE=hide \"a{\" * Line 5: MSGTYPE regex error: Unmatched \\{."
+  47. 1 recipes, 2 screens; example re-bad-rc-05 segment 0 step 0
+     macOS: "7: Menucolor"
+     Linux: "5: MSGTYPE"
+  48. 1 recipes, 2 screens; example re-bad-rc-05 segment 0 step 0
+     macOS: "8: MSGTYPE"
+     Linux: "6:"
+  49. 1 recipes, 2 screens; example re-bad-rc-03 segment 0 step 0
+     macOS: "brackets ([ ]) not balanced."
+     Linux: "Unmatched [, [^, [:, [., or [=."
+  50. 1 recipes, 2 screens; example re-bad-rc-00 segment 0 step 0
+     macOS: "brackets ([ ]) not balanced. 2"
+     Linux: "Invalid regular expression. MSGTYPE=hide \"{\" * Line 8: MSGTYPE regex error: Invalid preceding regular expression. 3"
+  51. 1 recipes, 2 screens; example re-bad-menu-16 segment 0 step 26
+     macOS: "brackets ([ ]) not balanced.--More--"
+     Linux: "Unmatched [, [^, [:, [., or [=.--More--"
+  52. 1 recipes, 2 screens; example re-bad-menu-15 segment 0 step 33
+     macOS: "class.--More--"
+     Linux: "class name.--More--"
+  53. 1 recipes, 2 screens; example hl-hsbuf-21 segment 0 step 0
+     macOS: "color '<'. * Line 3: bad color '16 -1'. 2 errors"
+     Linux: "behavior '6zp�X'. 1 error"
+  54. 1 recipes, 2 screens; example hl-hsbuf-22 segment 0 step 0
+     macOS: "color '�'. * Line 3: bad color '16 -1'. 2 errors"
+     Linux: "behavior '6ZOʉa'. 1 error"
+  55. 1 recipes, 2 screens; example re-bad-rc-05 segment 0 step 0
+     macOS: "empty (sub)expression. MSGTYPE=hide \"|\""
+     Linux: "Invalid back reference. AUTOPICKUP_EXCEPTION=\"<(a)\\2\""
+  56. 1 recipes, 2 screens; example re-bad-rc-05 segment 0 step 0
+     macOS: "error: empty (sub)expression."
+     Linux: "error in AUTOPICKUP_EXCEPTION: Invalid back reference."
+  57. 1 recipes, 2 screens; example re-bad-menu-21 segment 0 step 29
+     macOS: "invalid character range.--More--"
+     Linux: "Invalid range end.--More--"
+  58. 1 recipes, 2 screens; example re-bad-rc-03 segment 0 step 0
+     macOS: "invalid collating element."
+     Linux: "Invalid collation character."
+  59. 1 recipes, 2 screens; example re-bad-rc-01 segment 0 step 0
+     macOS: "invalid repetition count(s). 3"
+     Linux: "Invalid content of \\{\\}. 4"
+  60. 1 recipes, 2 screens; example re-bad-menu-09 segment 0 step 30
+     macOS: "invalid repetition count(s).--More--"
+     Linux: "Invalid content of \\{\\}.--More--"
+  61. 1 recipes, 2 screens; example re-bad-rc-04 segment 0 step 0
+     macOS: "maximum repetition exceeds 255. MENUCOLOR=\"a{1}{2}\"=red * Line 7: Menucolor regex error: repetition-operator operand invalid. MSGTYPE=hide \"a**\" * Line 8: MS..."
+     Linux: "Regular expression too big. 3"
+  62. 1 recipes, 2 screens; example re-bad-menu-22 segment 0 step 32
+     macOS: "maximum repetition exceeds 255.--More--"
+     Linux: "Regular expression too big.--More--"
+  63. 1 recipes, 2 screens; example re-bad-rc-05 segment 0 step 0
+     macOS: "MENUCOLOR=\"\"=red"
+     Linux: "MSGTYPE=hide \"\\1\""
+  64. 1 recipes, 2 screens; example re-bad-rc-02 segment 0 step 0
+     macOS: "repetition-operator operand inva"
+     Linux: "Invalid preceding regular expres"
+  65. 1 recipes, 1 screens; example re-bad-menu-04 segment 0 step 27
+     macOS: ""
+     Linux: "Do what? a - add new message type x * exit this menu"
+  66. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 27
+     macOS: ""
+     Linux: "c - green"
+  67. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 27
+     macOS: ""
+     Linux: "d - brown"
+  68. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 27
+     macOS: ""
+     Linux: "e - blue"
+  69. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 27
+     macOS: ""
+     Linux: "f - magenta"
+  70. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 27
+     macOS: ""
+     Linux: "g - cyan"
+  71. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 28
+     macOS: ""
+     Linux: "c - dim"
+  72. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 28
+     macOS: ""
+     Linux: "d - italic"
+  73. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 28
+     macOS: ""
+     Linux: "e - underline"
+  74. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 28
+     macOS: ""
+     Linux: "f - blink"
+  75. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 28
+     macOS: ""
+     Linux: "g - inverse"
+  76. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 29
+     macOS: ""
+     Linux: "l - list menucolors -------------- r - remove existing menucolor |............-"
+  77. 1 recipes, 1 screens; example re-bad-menu-26 segment 0 step 27
+     macOS: ""
+     Linux: "Do what? a - add new autopickup exception x * exit this menu"
+  78. 1 recipes, 1 screens; example re-bad-menu-31 segment 0 step 28
+     macOS: ""
+     Linux: "c - Prompt for more after the message"
+  79. 1 recipes, 1 screens; example re-bad-menu-31 segment 0 step 28
+     macOS: ""
+     Linux: "d - Do not repeat the message"
+  80. 1 recipes, 1 screens; example re-bad-menu-31 segment 0 step 29
+     macOS: ""
+     Linux: "r - remove existing message type"
+  81. 1 recipes, 1 screens; example re-typed-19 segment 0 step 31
+     macOS: ""
+     Linux: "Do what? a - add new menucolor x * exit this menu"
+  82. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 29
+     macOS: "-------------- (end) |............-"
+     Linux: ""
+  83. 1 recipes, 1 screens; example re-match-08 segment 0 step 3
+     macOS: "[attributes]                                a - a +1 spear (weapon in right hand) /                                b - a +0 dagger (alternate weapon; not wie..."
+     Linux: "[attributes]"
+  84. 1 recipes, 1 screens; example re-match-18 segment 0 step 3
+     macOS: "[attributes]  |............|                d - an uncursed food ration"
+     Linux: "[attributes]"
+  85. 1 recipes, 1 screens; example rip-y1800 segment 0 step 33
+     macOS: "2026"
+     Linux: "1900"
+  86. 1 recipes, 1 screens; example rip-y1801 segment 0 step 33
+     macOS: "2026"
+     Linux: "1901"
+  87. 1 recipes, 1 screens; example rip-y1850 segment 0 step 33
+     macOS: "2026"
+     Linux: "1950"
+  88. 1 recipes, 1 screens; example rip-y1890 segment 0 step 33
+     macOS: "2026"
+     Linux: "1990"
+  89. 1 recipes, 1 screens; example date-y1890 segment 0 step 3
+     macOS: "a geometric"
+     Linux: "an abstract"
+  90. 1 recipes, 1 screens; example date-y1850 segment 0 step 3
+     macOS: "a patterned"
+     Linux: "an orange"
+  91. 1 recipes, 1 screens; example re-bad-menu-02 segment 0 step 25
+     macOS: "brackets ([ ]) not balanced.--More--"
+     Linux: "Invalid regular expression.--More--"
+  92. 1 recipes, 1 screens; example re-bad-menu-04 segment 0 step 25
+     macOS: "c - Prompt for more after the message"
+     Linux: ""
+  93. 1 recipes, 1 screens; example re-bad-menu-04 segment 0 step 25
+     macOS: "d - Do not repeat the message"
+     Linux: ""
+  94. 1 recipes, 1 screens; example re-bad-menu-26 segment 0 step 26
+     macOS: "Do what? a - add new autopickup exception l - list autopickup exceptions"
+     Linux: "regex error in AUTOPICKUP_EXCEPTION: Invalid back reference.--More--"
+  95. 1 recipes, 1 screens; example re-typed-19 segment 0 step 30
+     macOS: "Do what? a - add new menucolor l - list menucolors"
+     Linux: "MENUCOLORS regex: Invalid preceding regular expression.--More--"
+  96. 1 recipes, 1 screens; example re-bad-menu-04 segment 0 step 26
+     macOS: "Do what? a - add new message type l - list message types"
+     Linux: "MSGTYPE regex: Invalid preceding regular expression.--More--"
+  97. 1 recipes, 1 screens; example re-bad-menu-31 segment 0 step 30
+     macOS: "Do what? a - add new message type x * exit this menu"
+     Linux: ""
+  98. 1 recipes, 1 screens; example date-y1800 segment 0 step 3
+     macOS: "giant eels"
+     Linux: "orchids"
+  99. 1 recipes, 1 screens; example re-bad-menu-04 segment 0 step 25
+     macOS: "How to show the message a - Show message normally b - Hide message"
+     Linux: "MSGTYPE regex: Invalid preceding regular expression.--More--"
+  100. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 27
+     macOS: "MENUCOLORS regex: repetition-operator operand invalid.--More--"
+     Linux: "Pick a color a - black b - red"
+  101. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 28
+     macOS: "MENUCOLORS regex: repetition-operator operand invalid.--More--"
+     Linux: "Pick an attribute a * none b - bold"
+  102. 1 recipes, 1 screens; example re-bad-menu-31 segment 0 step 28
+     macOS: "MSGTYPE regex: empty (sub)expression.--More--"
+     Linux: "How to show the message a - Show message normally b - Hide message"
+  103. 1 recipes, 1 screens; example re-bad-menu-31 segment 0 step 29
+     macOS: "MSGTYPE regex: empty (sub)expression.--More--"
+     Linux: "Do what? a - add new message type l - list message types"
+  104. 1 recipes, 1 screens; example date-y1801 segment 0 step 3
+     macOS: "patterned"
+     Linux: "purple"
+  105. 1 recipes, 1 screens; example re-bad-menu-06 segment 0 step 26
+     macOS: "Pick a color a - black b - red"
+     Linux: "MENUCOLORS regex: Unmatched \\{.--More--"
+  106. 1 recipes, 1 screens; example re-bad-menu-27 segment 0 step 29
+     macOS: "Pick a color a - black b - red"
+     Linux: "MENUCOLORS regex: Invalid back reference.--More--"
+  107. 1 recipes, 1 screens; example re-typed-19 segment 0 step 28
+     macOS: "Pick a color a - black b - red"
+     Linux: "MENUCOLORS regex: Invalid preceding regular expression.--More--"
+  108. 1 recipes, 1 screens; example re-bad-menu-06 segment 0 step 27
+     macOS: "Pick an attribute a * none b - bold"
+     Linux: "MENUCOLORS regex: Unmatched \\{.--More--"
+  109. 1 recipes, 1 screens; example re-bad-menu-27 segment 0 step 30
+     macOS: "Pick an attribute a * none b - bold"
+     Linux: "MENUCOLORS regex: Invalid back reference.--More--"
+  110. 1 recipes, 1 screens; example re-typed-19 segment 0 step 29
+     macOS: "Pick an attribute a * none b - bold"
+     Linux: "MENUCOLORS regex: Invalid preceding regular expression.--More--"
+  111. 1 recipes, 1 screens; example date-y1890 segment 0 step 3
+     macOS: "plumerias"
+     Linux: "water nymphs"
+  112. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 27
+     macOS: "Probe the Stripling St:18/01 Dx:14 Co:18 In:7 Wi:9 Ch:8 Neutral Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1"
+     Linux: "h - gray i - orange j - light green k - yellow l - light blue m - light magenta n - light cyan o - white p * no color (end)"
+  113. 1 recipes, 1 screens; example re-bad-menu-24 segment 0 step 28
+     macOS: "Probe the Stripling St:18/01 Dx:14 Co:18 In:7 Wi:9 Ch:8 Neutral Dlvl:1 $:0 HP:16(16) Pw:2(2) AC:6 Xp:1"
+     Linux: "(end)"
+  114. 1 recipes, 1 screens; example date-y1800 segment 0 step 3
+     macOS: "purple"
+     Linux: "geometric"
+  115. 1 recipes, 1 screens; example re-bad-menu-26 segment 0 step 26
+     macOS: "r - remove existing autopickup exception"
+     Linux: ""
+  116. 1 recipes, 1 screens; example re-typed-19 segment 0 step 30
+     macOS: "r - remove existing menucolor"
+     Linux: ""
+  117. 1 recipes, 1 screens; example re-bad-menu-04 segment 0 step 26
+     macOS: "r - remove existing message type"
+     Linux: ""
+  118. 1 recipes, 1 screens; example re-bad-menu-23 segment 0 step 31
+     macOS: "regex error in AUTOPICKUP_EXCEPTION: repetition-operator operand invalid. --More--"
+     Linux: "Do what? a - add new autopickup exception l - list autopickup exceptions"

@@ -15,6 +15,12 @@ The files are:
   and a marker string.
 - `check-markers.mjs`: checks that each recipe's Linux recording shows its
   marker, that is, that the recipe reached the screen it was written for.
+- `results/`: the comparison report for run 44619874537
+  (`compare-44619874537.txt`), the inventory rows each `re-match` and
+  `re-typed` pattern highlighted on each host
+  (`regex-highlights-44619874537.txt`; `ERR(...)` is the error text), and
+  the port's replay of the 89 macOS recordings that differ from Linux
+  (`port-vs-macos-differing-44619874537.txt`).
 - `trims.json` (absent while no recipe needs it): for a recipe whose game
   ends before its last key, the number of final keys `make-sample2.mjs`
   drops, measured on Linux.
@@ -77,15 +83,33 @@ differing screens; 89 recipes differ in all, in three groups.
 | `date` | 12 of 65: every date from 1800 to 1899 | `mktime()` before 1900 |
 | `status-highlights` | 2 of 37: `hl-hsbuf-21`, `hl-hsbuf-22` | A read past `hsbuf[]` |
 
+The 17 RNG differences are not game differences. In 13 regex recipes one
+host stops at the config-error screen before the game starts. In four
+pre-1900 date recipes Linux prints a date-dependent start message with a
+`--More--` that macOS, on its own clock's date, does not, which moves an
+input boundary.
+
 The other 554 recipes are identical on both hosts: every options menu,
 help screen, `^P` mode and high-byte key, every date from 1900 to 9999
 (the DST gap and repeated hour, Friday the 13th, both moons, midnight,
 2038), the save and restore pairs, the colour strings and the ten
-out-of-bounds portal recipes. The 17 RNG differences are not game
-differences: in 13 regex recipes one host stops at the config-error
-screen before the game starts, and in four pre-1900 date recipes Linux
-prints a date-dependent start message with a `--More--` that macOS, on
-its own clock's date, does not, which moves an input boundary.
+out-of-bounds portal recipes. Every text pager in the `?` menu was paged to its end. The
+port replays the Linux recordings of all 643 recipes except the two
+`hl-hsbuf` ones; the 554 macOS recordings that equal Linux were not
+replayed separately.
+
+The dates show that macOS `mktime()` gives the same `time_t` as glibc
+from 1900 on, when the recorder copies the fields of a standard-time
+`localtime()` and forces `tm_isdst` to 1, which leaves the copied
+`tm_gmtoff` contradicting `tm_isdst`. The shirt motif resolves the
+`time_t` to well under an hour: on Linux it differs between 01:59:59,
+02:00, 02:30 and 03:00 on 8 March 2026. A macOS recording made in
+daylight time, as the judge's were, was not tested.
+
+The ten out-of-bounds recipes matching means that this runner's build
+had the same bytes before `svd.dungeons` and `gl.luathemes` as the Linux
+recorder in these games. It does not show that the layouts are the
+same.
 
 ### Regex
 
@@ -108,7 +132,12 @@ calls `regerror()` (line 84). macOS ships BSD regex; `js/posixregex.js`,
   as a back-reference and macOS as the digit 1. glibc reads `{,n}` as
   `{0,n}` and macOS as literal text.
 - The two hosts agree on `\d` (the letter d), `\+`, `\(`, `.`, anchors,
-  bracket expressions, `{m,n}` and ordinary words.
+  `{m,n}`, ordinary words, and the bracket expressions `[a-]`, `[]a]x`,
+  `[^]]`, `[\d]`, `[[=a=]]` and `[[:alpha:]]`.
+- "The plain letter", "the digit 1" and "literal text" above are read from
+  which inventory rows each pattern highlighted
+  (`results/regex-highlights-44619874537.txt`), not from the macOS
+  source.
 
 A judged session reaches this with single-byte keys and no debug mode:
 `#optionsfull` (or `O`), then `menu colors`, `message types` or
@@ -122,7 +151,7 @@ all 75 Linux recordings and none of the 75 macOS ones.
 
 ### Dates before 1900
 
-For every date from 1800 to 1899 macOS shows a different Hawaiian-shirt
+For each of the six dates from 1800 to 1899 macOS shows a different Hawaiian-shirt
 motif and a tombstone dated 2026, the year of the run, where Linux shows
 the requested date (the tombstone prints 1900 for 1800, through the
 `tm_year < 70` rule in `calendar.c yyyymmdd()`). `19000101000000` and
@@ -143,7 +172,8 @@ the stack held. Two Linux recordings of `hl-hsbuf-21` differ from each
 other, so no port can match either host. The port reports a fixed
 configuration error (`js/options.js`). A judged session reaches it
 through such a `hilite_status` line in its nethackrc, or by typing the
-value at the `hilite_status` prompt of `#optionsfull`.
+value at the `hilite_status` prompt of `#optionsfull`; two Linux
+recordings of that path showed different garbage as well.
 
 ### Uninitialized memory
 
@@ -151,8 +181,8 @@ A Linux recorder built with `-ftrivial-auto-var-init=pattern` (stack
 variables start as a nonzero pattern instead of whatever the stack held)
 was checked against the normal Linux build:
 
-- It prints `Key binding failed?!` for the key-binding probes, as macOS
-  does.
+- It prints `Key binding failed?!` for the `bind-key-first` probe, as
+  macOS does; the normal Linux build binds the key.
 - Of the 4,136 committed recipes that have a committed recording, 3
   differ: `cmd.c/unbind-unbound-key-reports-nothing` (the `cmdstr`
   buffer in `cmd.c handler_rebind_keys_add()`) and the two
@@ -162,12 +192,14 @@ was checked against the normal Linux build:
   on a rule.
 - Its recordings of the first 500-recipe sample match macOS run
   44619874537 in all 500, `g04439` included.
-- In this sample only the two `hl-hsbuf` recipes differ.
+- Of the first 580 recipes of this sample, only the two `hl-hsbuf`
+  recipes differ.
 
 The normal build with `MALLOC_PERTURB_=165` (heap blocks start as a
 nonzero pattern) recorded 579 of the first 580 recipes; 577 match the
 normal recordings and the two `hl-hsbuf` recipes do not. The one that did
-not record, `optc-runmode-esc`, was rewritten while the run was going.
+not record, `optc-runmode-esc`, was missing (`ENOENT`) because
+`make-sample2.mjs` rewrote the recipes while the run was going.
 
 A text scan of `cmd.c`, `options.c`, `invent.c`, `pager.c`, `insight.c`,
 `botl.c` and `wintty.c` for local `char` arrays whose first use reads
@@ -182,9 +214,21 @@ write, and the rest were not checked one by one.
   macOS), `^C`, `^Z` and `^O`, is not tested.
 - The judge's terminfo entry. Both runs used the runner's
   `xterm-256color`.
-- A recording made in daylight time on macOS: `mktime()` agreed with
-  glibc for every date from 1900 on with `tm_isdst` forced to 1 in
-  standard time, which leaves `tm_gmtoff` and `tm_isdst` disagreeing.
+- A recording made in daylight time on macOS.
 - RGB colours, which the capture does not record.
 - Heap perturbation of the committed recipes, and stack or heap
   perturbation on macOS itself.
+- The short `O` menu row by row; its rows are a subset of `#optionsfull`.
+- The order in which `qsort()` calls a comparator. Patch 002 makes the
+  sorted result independent of the C library, but a comparator with side
+  effects, such as `sortloot_cmp()`, still runs in the library's order.
+- `snprintf()` truncation, and `scanf()` overflow other than the typed
+  value `99999999999` at the compound-option prompts.
+- `WARNINGS=` with fewer than six values, which leaves part of an array
+  uninitialized (`js/cfgfiles.js cnf_line_WARNINGS()`).
+- The other sites where a `js/` comment says the port follows glibc
+  (`atoi()`/`atol()` and `scanf()` conversions in `js/hacklib.js`,
+  `js/minion.js`, `js/sounds.js`, `js/files.js` and `js/topten.js`).
+  `%s` with a null pointer prints `(null)` on both hosts: the macOS
+  recording of `recipes/cmd.c/bind-toggle-empty-param-reports-and-lists-null`
+  from run 44607258217 equals the committed Linux one.
