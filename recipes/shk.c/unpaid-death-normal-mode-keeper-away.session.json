@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 41190016,
+      "datetime": "20261119103000",
+      "nethackrc": "OPTIONS=name:Kicker,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup\n",
+      "moves": "kyhhkyhhhhhhbbhjjjjn> kuukkkkykkhyy, \u0004k\u0004k\u0004k\u0004k10s\u0004k  y nnnn  ",
+      "comment": "Normal mode: the hero picks up an unpaid potion in a D:2 general store and kicks the shop wall until it kills him, with the peaceful keeper two squares away. The bill alone selects shk.c inherits()'s \"takes\" arm, its !m_next2u() branch adds \"comes and\", and end.c really_done() appends the message beside the pending \"You die...\" before display_nhwindow(WIN_MESSAGE). Seed 41190016 is the only one of 41190001-41190100 for which a port-only scan found a route of at most 30 steps to the D:1 downstairs and at most 45 steps on D:2 to a single shop object beside a wall, away from the keeper."
+    }
+  ]
+}
