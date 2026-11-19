@@ -6,8 +6,13 @@
 // (see the comment above GameDisplay.setCell()). A redraw that wrote with
 // setCell() directly drew bytes C's capture ignores (batch 23 D1: ^P
 // redrawing a typed high-byte name), so this test fails when code in js/
-// writes a cell other than through those writers, and pins every
-// putCaptured() caller, the one writer that trusts its caller's capture.
+// writes a cell other than through those writers, and pins every caller of
+// putCaptured() and restoreCell(), the two writers that trust what their
+// caller passes.
+//
+// The scan reads member names, so it cannot follow a grid row held in a
+// variable (`const row = display.grid[r]; row[c].ch = 'x'`); it does catch
+// an assignment whose target names `grid` and a destructured writer.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -32,9 +37,11 @@ const BANNED = new Set([
     'setCell', 'putChar', 'putString', 'putCharAtCursor', 'terminal',
 ]);
 
-// Each putCaptured() caller, as file:function, and the hook whose capture it
-// has already applied. A new caller must be added here with its reason; a
-// removed one must be deleted, so the count moves in both directions.
+// Each caller of a trusting writer, as file:function, and why it may trust
+// its argument. A new caller must be added here with its reason; a removed
+// one must be deleted, so the count moves in both directions.
+//
+// putCaptured(): the hook whose capture the caller has already applied.
 const CAPTURED = Object.freeze({
     // The rebuilt screen: redotoplin()'s g_putch() of a mixed line's first
     // byte, which pager.js lookedGlyphText() rendered, and each map cell
@@ -57,6 +64,20 @@ const CAPTURED = Object.freeze({
     'tty_rawprint.js:flush': 1,
 });
 
+// restoreCell(): where the cell it puts back was copied from.
+const RESTORED = Object.freeze({
+    // The rebuilt screen puts back a message cell the capture left alone
+    // and the status cells held while bot() is disabled, both copied from
+    // the grid before clearScreen().
+    'display.js:_buildScreenOutput': 2,
+    // _screenOverlay() cells, each recorded as C's shadow screen got it.
+    'display.js:_applyScreenOverlay': 1,
+    // The screen under the legacy introduction, from snapshotDisplay().
+    'legacy_startup.js:restoreDisplay': 1,
+    // The rows a menu covered, from copyRegion().
+    'tty_menu.js:restoreRegion': 1,
+});
+
 const FUNCTION_TYPES = new Set([
     'FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression',
 ]);
@@ -68,14 +89,23 @@ function memberName(node) {
         ? node.property.value : null;
 }
 
-// The banned member accesses in `source`, and the putCaptured() calls by
-// enclosing named function, as { banned: [{ line, name }], captured: Map }.
+// The banned member accesses in `source`, and the putCaptured() and
+// restoreCell() calls by enclosing named function, as
+// { banned: [{ line, name }], captured: Map, restored: Map }.
 export function cellWrites(source) {
     const ast = acorn.parse(source, {
         ecmaVersion: 'latest', sourceType: 'module', locations: true,
     });
     const banned = [];
     const captured = new Map();
+    const restored = new Map();
+    const count = (map, owner) => map.set(owner, (map.get(owner) ?? 0) + 1);
+    // An assignment target that reaches into a `grid`.
+    const intoGrid = (node) => {
+        for (let at = node; at?.type === 'MemberExpression'; at = at.object)
+            if (memberName(at) === 'grid') return true;
+        return false;
+    };
     function visit(node, owner) {
         if (!node || typeof node.type !== 'string') return;
         let current = owner;
@@ -85,8 +115,16 @@ export function cellWrites(source) {
             current = node.id.name;
         const name = memberName(node);
         if (name && BANNED.has(name)) banned.push({ line: node.loc.start.line, name });
-        if (name === 'putCaptured')
-            captured.set(current, (captured.get(current) ?? 0) + 1);
+        if (name === 'putCaptured') count(captured, current);
+        if (name === 'restoreCell') count(restored, current);
+        // `const { setCell } = display` takes the method without a member
+        // expression.
+        if (node.type === 'Property' && !node.computed
+            && BANNED.has(node.key?.name ?? node.key?.value))
+            banned.push({ line: node.loc.start.line, name: node.key.name ?? node.key.value });
+        if ((node.type === 'AssignmentExpression' && intoGrid(node.left))
+            || (node.type === 'UpdateExpression' && intoGrid(node.argument)))
+            banned.push({ line: node.loc.start.line, name: 'grid' });
         for (const key of Object.keys(node)) {
             if (key === 'loc') continue;
             const child = node[key];
@@ -95,45 +133,55 @@ export function cellWrites(source) {
         }
     }
     visit(ast, null);
-    return { banned, captured };
+    return { banned, captured, restored };
 }
 
 function scanRepository() {
     const banned = [];
     const captured = {};
+    const restored = {};
     for (const file of readdirSync(JS_DIR).filter((name) => name.endsWith('.js')).sort()) {
         if (WRITER_FILES.has(file)) continue;
         const found = cellWrites(readFileSync(join(JS_DIR, file), 'utf8'));
         for (const { line, name } of found.banned) banned.push(`js/${file}:${line} ${name}`);
-        for (const [owner, count] of found.captured) captured[`${file}:${owner}`] = count;
+        for (const [owner, n] of found.captured) captured[`${file}:${owner}`] = n;
+        for (const [owner, n] of found.restored) restored[`${file}:${owner}`] = n;
     }
-    return { banned, captured };
+    return { banned, captured, restored };
 }
 
 test('code in js/ writes cells only through the GameDisplay writers', () => {
     assert.deepEqual(scanRepository().banned, []);
 });
 
-test('every putCaptured() caller is listed with its reason', () => {
-    assert.deepEqual(scanRepository().captured, { ...CAPTURED });
+test('every putCaptured() and restoreCell() caller is listed with its reason', () => {
+    const { captured, restored } = scanRepository();
+    assert.deepEqual(captured, { ...CAPTURED });
+    assert.deepEqual(restored, { ...RESTORED });
 });
 
 test('the scan finds each way around the writers', () => {
     // Each numbered line bypasses the writers.
-    const { banned, captured } = cellWrites([
+    const { banned, captured, restored } = cellWrites([
         "display.setCell(0, 0, 'x', 7, 0);", // 1: direct call
         "state.nhDisplay['setCell'](0, 0, 'x');", // 2: computed key
         'const write = display.setCell;', // 3: method taken as a value
         "display.terminal.putstr(0, 0, 'x');", // 4: the Terminal behind it
         "display.putString('x');", // 5
+        'const { setCell } = display;', // 6: destructured
+        "display.grid[0][0].ch = 'x';", // 7: into the grid
+        "display.grid[0][1] = { ch: 'x', color: 7, attr: 0 };", // 8
         'function redraw(display) {',
         "    display.putCaptured(0, 0, 'q');", // counted for redraw
+        '    display.restoreCell(0, 1, cell);', // counted for redraw
         '}',
         "const paint = (display) => display.putCaptured(1, 0, 'q');",
         "display.putch(0, 0, 'x');", // a writer: allowed
+        'const ch = display.grid[0][0].ch;', // a read: allowed
     ].join('\n'));
-    assert.deepEqual(banned.map(({ line }) => line), [1, 2, 3, 4, 5]);
+    assert.deepEqual(banned.map(({ line }) => line), [1, 2, 3, 4, 5, 6, 7, 8]);
     assert.deepEqual(Object.fromEntries(captured), { redraw: 1, paint: 1 });
+    assert.deepEqual(Object.fromEntries(restored), { redraw: 1 });
 });
 
 function display() {
