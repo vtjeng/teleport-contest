@@ -8596,26 +8596,24 @@ export function status_hilite2str(rule) {
         const value = Number(BigInt.asIntN(32, BigInt(rule.value ?? 0)));
         if (['<', '<=', '=', '>=', '>'].includes(rel)) behavior = `${rel}${value}${rule.behavior === 'percentage' ? '%' : ''}`;
         else if (rule.behavior === 'percentage') {
-            // C: impossible("hl->behavior=percentage, rel error");
-            note_unported('pline.c impossible');
+            sync_impossible('hl->behavior=percentage, rel error', game);
         } else {
-            // C: impossible("hl->behavior=absolute, rel error");
-            note_unported('pline.c impossible');
+            sync_impossible('hl->behavior=absolute, rel error', game);
         }
     } else if (rule.behavior === 'changed') {
         if (rel === '<') behavior = 'down';
         else if (rel === '>') behavior = 'up';
         else if (rel === '=') behavior = 'changed';
-        // C: impossible("hl->behavior=updown, rel error");
-        else note_unported('pline.c impossible');
+        else sync_impossible('hl->behavior=updown, rel error', game);
     } else if (rule.behavior === 'text') {
         if (rel === '=' && rule.text) behavior = rule.text;
-        // C: impossible("hl->behavior=textmatch, rel or textmatch error");
-        else note_unported('pline.c impossible');
+        else {
+            sync_impossible(
+                'hl->behavior=textmatch, rel or textmatch error', game);
+        }
     } else if (rule.behavior === 'condition') {
         if (rel === '=') behavior = conditionbitmask2str(rule.value);
-        // C: impossible("hl->behavior=condition, rel error");
-        else note_unported('pline.c impossible');
+        else sync_impossible('hl->behavior=condition, rel error', game);
     } else if (rule.behavior === 'always') behavior = 'always';
     else if (rule.behavior === 'critical') behavior = 'criticalhp';
     let color = (clr2colorname(rule.style.color) ?? '').replaceAll(' ', '-');

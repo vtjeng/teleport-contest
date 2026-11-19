@@ -4,10 +4,10 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { parse } from 'acorn';
 
 // shk.c onbill() prints impossible("onbill: unpaid obj ...?") when it does not
-// find an unpaid object and its caller passed silent = FALSE. The port's
-// impossible() is async, so js/shk.js has two entry points: onbill_async(),
-// the whole function, and onbill(), the synchronous bill search. onbill()
-// records the diagnostic as a gap when silent is false.
+// find an unpaid object and its caller passed silent = FALSE. js/shk.js has
+// two entry points: onbill_async(), which prints the report where C does, and
+// onbill(), the synchronous bill search, which queues it through
+// sync_impossible() for the next output to print.
 //
 // This check fails on two patterns:
 // - an onbill() call whose silent argument is not the literal `true`, unless

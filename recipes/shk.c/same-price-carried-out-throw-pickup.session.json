@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c same_price() report for two unpaid stacks on no bill. Seed 8452217's Dlvl 4 has a weapon shop whose keeper stands at (54,5) inside an open door at (53,5); a debug-mode Samurai who level-teleports there lands at (58,3) on 10 darts (port-only scanSeeds() probe over 8452000-8452400 for a hero who lands on an object inside a shop with its keeper at home: 16 hits, this one chosen for its weapon shop). He picks up the darts (unpaid), hurls the keeper west through the door with #wiztelekinesis (wizcmds.c wiz_telekinesis() -> mhurtle()), wishes for a hole under himself (objnam.c wizterrainwish()) and plunges through it with '>'. shk.c u_left_shop() returns early because the keeper is not inhishop(), so the darts stay unpaid on Dlvl 5, where no bill holds them. He throws one dart down with 't' and '>': mkobj.c splitobj() reaches shk.c splitbill(), which reports \"splitbill: no resident shopkeeper??\", and dothrow.c hitfloor() names the dart (unpaid_cost()'s report). Picking it up again with ',' makes invent.c addinv_core0() try merged() against the other nine; mergable() calls shk.c same_price(), which finds neither stack on a bill and reports \"same_price: object wasn't on any bill!\" (977) before prinv() names the dart. The port plans the pickup's merges in advance (invent.js preflight_addinv_sequence()); that plan must not print the report a second time. Seed, datetime, character and inputs were chosen independently of every recorded session and batch game.",
+  "segments": [
+    {
+      "seed": 8452217,
+      "datetime": "20270314101500",
+      "nethackrc": "OPTIONS=name:Peddler,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!tips\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001b\u00164\n\n\n,\n#wiztelekinesis\nhhhhjj.h\u001b\u0017hole\n>tg>\n\n\n\n\n\n\n,\n\n\n\n\n\n"
+    }
+  ]
+}

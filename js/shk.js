@@ -1021,7 +1021,7 @@ export function same_price(obj1, obj2, state = game) {
     }
 
     if (!bp1 || !bp2) {
-        note_unported('pline.c impossible');
+        sync_impossible('same_price: object wasn\'t on any bill!', state);
         return false;
     }
     return shkp1 === shkp2 && bp1.price === bp2.price;
@@ -1688,7 +1688,8 @@ export function billable(owner, obj, roomno, reset_nocharge, state = game) {
         if (!shkp || !inhishop(shkp, state)) return false;
         owner.value = shkp;
     }
-    if (onbill(obj, shkp, false) || (obj.oclass === FOOD_CLASS && obj.oeaten))
+    if (onbill(obj, shkp, false, state)
+        || (obj.oclass === FOOD_CLASS && obj.oeaten))
         return false;
     if (obj.no_charge) {
         if (!hasContents(obj) || (contained_gold(obj, true) === 0
@@ -4141,23 +4142,29 @@ export function gem_learned(oindx, state = game) {
     }
 }
 
-// C ref: shk.c onbill() (1135-1155), the bill search. C returns the bill
-// entry; this returns it or null, which is the same test for every ported
-// caller. When silent is FALSE, C prints impossible() for an unpaid object it
-// does not find; the port's impossible() is async, so async callers use
-// onbill_async(), and the synchronous callers that scripts/
-// onbill-async-callers.test.mjs lists record that diagnostic as a gap. C's
-// "paid obj on bill?" impossible() is a check on bill bookkeeping that valid
-// play keeps; neither function prints it.
-export function onbill(obj, shopkeeper, silent) {
+// C ref: shk.c onbill() (1135-1155). C returns the bill entry; this returns
+// it or null, which is the same test for every ported caller. When silent is
+// FALSE, C prints impossible() for an unpaid object it does not find. An
+// async caller uses onbill_async(), which prints it there; the synchronous
+// callers that scripts/onbill-async-callers.test.mjs lists queue it through
+// sync_impossible(), and the next output prints it. Both report C's
+// "paid obj on bill?" through sync_impossible().
+export function onbill(obj, shopkeeper, silent, state = game) {
     const eshkp = shopkeeper?.mextra?.eshk;
     if (eshkp) {
         for (let ct = 0; ct < eshkp.billct; ++ct) {
             const bp = (eshkp.bill_p ?? [])[ct];
-            if (bp && bp.bo_id === obj.o_id) return bp;
+            if (bp && bp.bo_id === obj.o_id) {
+                if (!obj.unpaid)
+                    sync_impossible('onbill: paid obj on bill?', state);
+                return bp;
+            }
         }
     }
-    if (obj.unpaid && !silent) note_unported('pline.c impossible');
+    if (obj.unpaid && !silent) {
+        sync_impossible(`onbill: unpaid obj ${!shopkeeper
+            ? 'without shopkeeper' : "not on shk's bill"}?`, state);
+    }
     return null;
 }
 
@@ -4222,7 +4229,7 @@ export function obfree_shop_bill(obj, merge, env = {}) {
         }
     }
     if (!shkp) shkp = shop_keeper(firstRoom(state.u.ushops), state);
-    const bill = onbill(obj, shkp, false);
+    const bill = onbill(obj, shkp, false, state);
     if (!bill) return 'unbilled';
     if (!merge) {
         bill.useup = true;
@@ -4232,7 +4239,7 @@ export function obfree_shop_bill(obj, merge, env = {}) {
         add_to_billobjs(obj, state, env);
         return 'retained';
     }
-    const targetBill = onbill(merge, shkp, false);
+    const targetBill = onbill(merge, shkp, false, state);
     if (!targetBill) {
         note_unported('pline.c impossible');
         return 'preserved'; // C returns before deallocating either object.
@@ -4295,7 +4302,7 @@ export function alter_cost(obj, amount, state = game, env = {}) {
 
 // C ref: shk.c sub_one_frombill() (3661-3690).
 function sub_one_frombill(obj, shkp, state, env) {
-    const bill = onbill(obj, shkp, false);
+    const bill = onbill(obj, shkp, false, state);
     if (bill) {
         obj.unpaid = 0;
         if (bill.bquan > obj.quan) {
@@ -4314,7 +4321,7 @@ function sub_one_frombill(obj, shkp, state, env) {
         --eshk.billct;
         Object.assign(bill, eshk.bill_p[eshk.billct]);
     } else if (obj.unpaid) {
-        note_unported('pline.c impossible');
+        sync_impossible('sub_one_frombill: unpaid object not on bill', state);
         obj.unpaid = 0;
     }
 }

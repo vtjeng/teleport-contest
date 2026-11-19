@@ -44,7 +44,7 @@ const WIRED_WHEN_REACHED = 'an internal-error report, wired when a game reaches 
 export const SKIPPED_CALL_REASONS = new Map([
     // Includes the mklev.js mkinvpos() call whose argument names alloc.c panic
     // in its other arm, and the topten.js classmon() template.
-    ['pline.c impossible', { count: 265, reason: WIRED_WHEN_REACHED }],
+    ['pline.c impossible', { count: 257, reason: WIRED_WHEN_REACHED }],
     ['end.c panic', { count: 1, reason: WIRED_WHEN_REACHED }],
     ['alloc.c panic', { count: 1, reason: WIRED_WHEN_REACHED }],
     // js/files.js: a playground file other than the config file, or a name

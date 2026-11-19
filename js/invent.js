@@ -372,6 +372,7 @@ import { is_quest_artifact } from './questpgr.js';
 import { artitouch } from './quest.js';
 import { note_unported } from './unported.js';
 import { sync_impossible } from './source_steps.js';
+import { projectionNoticeFields } from './startup_a11y.js';
 import { panic } from './end.js';
 import { unpunish } from './read.js';
 import { record_achievement } from './insight.js';
@@ -4459,6 +4460,7 @@ export function preflight_addinv_sequence(objects, env = {}, options = {}) {
     );
     const projectedState = {
         ...normalized.state,
+        ...projectionNoticeFields(),
         flags: { ...(normalized.state.flags ?? {}) },
         invent: projectedHead,
         lastinvnr: normalized.state.lastinvnr,

@@ -18,19 +18,26 @@ import { PROJECT_ROOT, UPSTREAM_ROOT, jsFunctionNames } from './c-functions.mjs'
 
 const JS_ROOT = join(PROJECT_ROOT, 'js');
 
-// impossible() is ported as js/pline.js impossible(), which is async; many of
-// these callers are synchronous and would need to become async to wait for
-// it. Each site is an arm C reaches only on inconsistent game state. Every
-// impossible() marker uses this label, whatever C file it sits in, because
-// scripts/c-diagnostic-markers.test.mjs counts markers by it.
-const IMPOSSIBLE = 'impossible() diagnostic not yet wired to js/pline.js impossible()';
+// impossible() is ported as js/pline.js impossible(); a synchronous caller
+// reports through js/source_steps.js sync_impossible(), which the next output
+// prints. Each remaining marker is an arm that a review of every site on
+// 2026-11-19 found ordinary play does not reach: C gets there only on
+// inconsistent game state, in debug mode, or (light.c write_ls(), sp_lev.c
+// get_location()) on a path that review left unsettled. A site that a game
+// reaches gets the call instead. Every impossible() marker uses this label,
+// whatever C file it sits in, because scripts/c-diagnostic-markers.test.mjs
+// counts markers by it.
+const IMPOSSIBLE = 'impossible() diagnostic for an arm ordinary play does not reach';
 
 const EXCEPTIONS = new Map([
     // 266: timeout.c start_timer()'s duplicate-timer report goes through
     // sync_impossible(), which the melting-ice wish prints (2026-11-14).
     // 264: light.c del_light_source()'s two reports are steps, which a
     // yellow light's death inside polymon() prints (2026-11-15).
-    ['pline.c impossible', { count: 264, reason: IMPOSSIBLE }],
+    // 256: shk.c same_price(), onbill() and sub_one_frombill(), and botl.c
+    // status_hilite2str()'s five, queue their reports through
+    // sync_impossible() (2026-11-19).
+    ['pline.c impossible', { count: 256, reason: IMPOSSIBLE }],
     // js/shknam.js shkname() must stay synchronous (its value is used inside
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.

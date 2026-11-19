@@ -672,6 +672,16 @@ const NOTICE_MON_YOU_BUF = 'You %s %s.';
 // (js/tty_message.js emitQueuedNotices()), and at the command loop's turn
 // boundaries. A synchronous port of C code that calls impossible() reports
 // through source_steps.js sync_impossible(), which calls this.
+// The notice fields of a projected copy of the game state, one that plans
+// an action without performing it (invent.js preflight_addinv_sequence(),
+// hack.js's projected arrival pickup). C runs that code once, for real; a
+// report the projection's synchronous code raises, such as shk.c
+// same_price()'s for an unpaid stack on no bill, goes to this queue of its
+// own and is discarded with the copy instead of printing twice.
+export function projectionNoticeFields() {
+    return { _glyphUpdateNotices: [], _glyphNoticeFrameTracker: null };
+}
+
 export function queueImpossibleNotice(text, state) {
     const glyphFrame = takeNoticeGlyphFrame(state);
     (state._glyphUpdateNotices ??= []).push({

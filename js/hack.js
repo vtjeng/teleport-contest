@@ -467,6 +467,7 @@ import {
     collectMonsterNoticeMessages,
     emitGlyphUpdateNotices,
     messageAt,
+    projectionNoticeFields,
 } from './startup_a11y.js';
 import { exercise_steed, rider_cant_reach, stucksteed } from './steed.js';
 import { P_SKILL } from './startup_skills.js';
@@ -1447,6 +1448,7 @@ export function requireSimpleHeroDestination(
         // the projected destination before the move spends its rng calls.
         const projected = {
             ...state,
+            ...projectionNoticeFields(),
             gw: { ...(state.gw ?? {}) },
             u: { ...state.u, ux: x, uy: y },
         };
@@ -1580,6 +1582,7 @@ function requireOrdinarySafeMonsterSwap(monster, x, y, state) {
         // hero coordinates while sharing the read-only level and inventory.
         const projected = {
             ...state,
+            ...projectionNoticeFields(),
             gw: { ...(state.gw ?? {}) },
             u: { ...state.u, ux: x, uy: y },
         };
