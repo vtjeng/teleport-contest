@@ -1799,27 +1799,9 @@ export async function defaultSearchMessage(text, x, y, env) {
 }
 
 function defaultVisionMutation(x, y, env) {
-    if (env.state !== game) {
-        throw new Error(
-            'automatic search requires an injected vision mutation '
-            + 'for non-global state',
-        );
-    }
     // This is a point mutation, not a level reset: preserve the current view
     // while rebuilding opacity through the existing vision.c point owner.
     recalc_block_point(x, y, env.state);
-}
-
-function defaultSearchDisplay(x, y, env) {
-    if (env.state !== game) {
-        throw new Error(
-            'automatic search requires an injected display mutation '
-            + 'for non-global state',
-        );
-    }
-    // C's newsym() is side-effect-only. find_trap() then compares levl's
-    // canonical remembered glyph, not the presentation currently covering it.
-    newsym(x, y);
 }
 
 // C ref: detect.c mfind0()'s map_invisible() call.
@@ -1864,7 +1846,9 @@ function defaultFeelSearchNewSym(x, y, env) {
         defaultFeelSearchLocation(x, y, env);
         return;
     }
-    defaultSearchDisplay(x, y, env);
+    // C's newsym() is side-effect-only. find_trap() then compares levl's
+    // canonical remembered glyph, not the presentation currently covering it.
+    newsym(x, y);
 }
 
 async function defaultFoundTrapDisplay(trap, x, y, env) {
@@ -1893,12 +1877,6 @@ async function defaultFoundTrapDisplay(trap, x, y, env) {
 }
 
 async function defaultRevealFoundTrap(trap, env) {
-    if (env.state !== game) {
-        throw new Error(
-            'automatic search requires an injected trap reveal '
-            + 'for non-global state',
-        );
-    }
     await cls();
     // C ref: detect.c find_trap() calls map_trap(trap, 1), not merely
     // show_glyph().  The discovered trap must survive the following docrt(),
@@ -1909,12 +1887,6 @@ async function defaultRevealFoundTrap(trap, env) {
 }
 
 async function defaultWaitFoundTrap(env) {
-    if (env.state !== game) {
-        throw new Error(
-            'automatic search requires an injected trap-map wait '
-            + 'for non-global state',
-        );
-    }
     // C ref: detect.c find_trap() display_nhwindow(WIN_MAP, TRUE), then
     // docrt(). tty waits at --More-- only when the topline holds the
     // message; WIN_STOP or a MSGTYPE=hide match leaves nothing to wait for.
@@ -1966,8 +1938,9 @@ function normalizeSearchEnv(rawEnv = {}) {
             defaultFeelSearchNewSym,
         ),
         // detect.c mfind0()'s bare newsym(), which is not routed through
-        // feel_location() the way the two secret-terrain arms are.
-        newSym: operation('newSym', defaultSearchDisplay),
+        // feel_location() the way the two secret-terrain arms are. newsym()
+        // draws the global game, the state every production search uses.
+        newSym: operation('newSym', newsym),
         mapInvisible: operation('mapInvisible', defaultMapInvisible),
         seemimic: operation(
             'seemimic',
@@ -2014,8 +1987,7 @@ function normalizeSearchEnv(rawEnv = {}) {
         // owns along with the end_running(TRUE) inside it.
         nomulZero: operation('nomulZero', ({ state }) => nomul(0, state)),
         // The live fallback is the coordinate-aware pline path. A state other
-        // than game gets a silent operation without becoming an injected
-        // caller, so preflightTrap() keeps its source wait contract unchanged.
+        // than game, which only tests build, gets a silent one.
         message: operation(
             'message',
             state === game ? defaultSearchMessage : silentSearchMessage,
@@ -2036,22 +2008,6 @@ function normalizeSearchEnv(rawEnv = {}) {
     return env;
 }
 
-function requireOperation(env, name, detail) {
-    if (typeof env[name] !== 'function') {
-        throw new Error(
-            `automatic search requires ${name}${detail ? ` for ${detail}` : ''}`,
-        );
-    }
-}
-
-function requireInjected(env, name, detail) {
-    if (!env.injected.has(name)) {
-        throw new Error(
-            `automatic search requires an injected ${name} for ${detail}`,
-        );
-    }
-}
-
 function requireExerciseRandom(env) {
     if (!env.injected.has('exerciseWisdom')
         && typeof env.random.rn2 !== 'function') {
@@ -2061,40 +2017,11 @@ function requireExerciseRandom(env) {
     }
 }
 
-function validateDisplayCapability(env, name, detail) {
-    requireOperation(env, name, detail);
-    if (env.state !== game) requireInjected(env, name, 'non-global state');
-}
-
-function preflightSecretDoor(env) {
-    requireOperation(env, 'recalcBlockPoint', 'a secret door');
-    validateDisplayCapability(env, 'feelLocation', 'a secret door');
-    requireOperation(env, 'exerciseWisdom', 'a secret door');
-    requireExerciseRandom(env);
-    requireOperation(env, 'nomulZero', 'a secret door');
-    requireOperation(env, 'message', 'a secret door');
-}
-
-function preflightSecretCorridor(env) {
-    requireOperation(env, 'unblockPoint', 'a secret corridor');
-    validateDisplayCapability(env, 'feelNewSym', 'a secret corridor');
-    requireOperation(env, 'exerciseWisdom', 'a secret corridor');
-    requireExerciseRandom(env);
-    requireOperation(env, 'nomulZero', 'a secret corridor');
-    requireOperation(env, 'message', 'a secret corridor');
-}
-
+// normalizeSearchEnv() gives every operation a function, so a search
+// refuses only an injected random source that lacks a draw it needs.
 function preflightTrap(env, trap) {
-    requireOperation(env, 'nomulZero', 'an unseen trap');
-    requireOperation(env, 'exerciseWisdom', 'an unseen trap');
     requireExerciseRandom(env);
-    if (trap.ttyp === STATUE_TRAP) {
-        requireOperation(env, 'activateStatueTrap', 'a statue trap');
-        return;
-    }
-    validateDisplayCapability(env, 'displayFoundTrap', 'an unseen trap');
-    requireOperation(env, 'message', 'an unseen trap');
-    requireOperation(env, 'trapName', 'an unseen trap');
+    if (trap.ttyp === STATUE_TRAP) return;
     if (Hallucination(env.state.u) && !env.injected.has('trapName')) {
         if (typeof env.random.rn2 !== 'function') {
             throw new TypeError(
@@ -2103,36 +2030,6 @@ function preflightTrap(env, trap) {
             );
         }
     }
-    if (env.injected.has('message')
-        && !env.injected.has('waitFoundTrap')) {
-        throw new Error(
-            'automatic search requires an injected waitFoundTrap '
-            + 'when trap messaging is injected',
-        );
-    }
-    if (env.state !== game) {
-        requireInjected(
-            env, 'revealFoundTrap', 'non-global trap display',
-        );
-        requireInjected(
-            env, 'waitFoundTrap', 'non-global trap display',
-        );
-    }
-}
-
-/**
- * Validate the operations mfind0() can use before explicit search spends its
- * first random draw.  The discovery branches themselves are source-owned now;
- * this check only verifies their operation seams, so a mimic, hidden hider,
- * or unspotted monster is allowed to reach the corresponding C behavior.
- */
-function preflightSearchMonster(monster, env) {
-    validateDisplayCapability(env, 'newSym', 'an adjacent monster');
-    requireOperation(env, 'exerciseWisdom', 'an adjacent monster');
-    requireOperation(env, 'message', 'an adjacent monster');
-    requireOperation(env, 'mapInvisible', 'an unseen adjacent monster');
-    if (M_AP_TYPE(monster))
-        requireOperation(env, 'seemimic', 'a mimicking adjacent monster');
 }
 
 /**
@@ -2155,18 +2052,12 @@ function preflightExplicitSearch(env) {
             if (!isok(x, y) || (x === u.ux && y === u.uy)) continue;
             const location = state.level.at(x, y);
             // detect.c deliberately finds nothing else on an SDOOR or SCORR.
-            if (location.typ === SDOOR) {
-                preflightSecretDoor(env);
+            if (location.typ === SDOOR || location.typ === SCORR) {
+                requireExerciseRandom(env);
                 continue;
             }
-            if (location.typ === SCORR) {
-                preflightSecretCorridor(env);
-                continue;
-            }
-            const monster = m_at(x, y, state);
-            if (monster) preflightSearchMonster(monster, env);
-            // detect.c:2076-2077's unmap_invisible() needs no preflight: both
-            // of its arms are ported now, and neither draws.
+            // mfind0() and detect.c:2076-2077's unmap_invisible() need no
+            // preflight: both are ported whole.
             const trap = t_at(x, y, state);
             if (trap && !trap.tseen) preflightTrap(env, trap);
         }
@@ -2645,17 +2536,8 @@ async function findTrap(trap, env) {
         trap.ty,
         env,
     );
-    if (typeof trapVisible !== 'boolean') {
-        throw new TypeError(
-            'automatic search displayFoundTrap must return a Boolean',
-        );
-    }
-    const cleared = Hallucination(env.state.u) || trapVisible === false;
-    if (cleared) {
-        requireOperation(env, 'revealFoundTrap', 'a cluttered trap');
-        requireOperation(env, 'waitFoundTrap', 'a cluttered trap');
-        await env.revealFoundTrap(trap, env);
-    }
+    const cleared = Hallucination(env.state.u) || !trapVisible;
+    if (cleared) await env.revealFoundTrap(trap, env);
     const name = env.trapName(trap, env);
     await env.message(
         `You find ${indefinite(name)}.`,
@@ -2730,7 +2612,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
             }
             if (location.typ === SDOOR) {
                 if (env.random.rnl(7 - fund)) continue;
-                preflightSecretDoor(env);
+                requireExerciseRandom(env);
                 cvt_sdoor_to_door(location, state);
                 env.recalcBlockPoint(x, y, env);
                 await env.exerciseWisdom(env);
@@ -2741,7 +2623,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
                 );
             } else if (location.typ === SCORR) {
                 if (env.random.rnl(7 - fund)) continue;
-                preflightSecretCorridor(env);
+                requireExerciseRandom(env);
                 location.typ = CORR;
                 env.unblockPoint(x, y, env);
                 await env.exerciseWisdom(env);

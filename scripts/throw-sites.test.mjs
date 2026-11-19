@@ -32,7 +32,7 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // INJECTED_OPERATION_PIN below. Branches ops2-mon and ops2-trap removed
 // 13 more (mon.js, monmove.js, mondata.js, mcastu.js, version.js and the
 // trap files), 695 left under 690 keys; 2 still match the pin.
-const LIST_PINS = { entries: 688, sites: 693 };
+const LIST_PINS = { entries: 680, sites: 685 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());

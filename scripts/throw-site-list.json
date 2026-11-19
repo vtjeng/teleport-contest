@@ -336,30 +336,6 @@
       "c": null,
       "reason": "An argument of the wrong type or shape; C's types rule it out."
     },
-    "js/detect.js | defaultRevealFoundTrap | 'automatic search requires an injected trap reveal ' + 'for ": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
-    "js/detect.js | defaultSearchDisplay | 'automatic search requires an injected display mutation ' + ": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
-    "js/detect.js | defaultVisionMutation | 'automatic search requires an injected vision mutation ' + '": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
-    "js/detect.js | defaultWaitFoundTrap | 'automatic search requires an injected trap-map wait ' + 'fo": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/detect.js | dosearch0 | 'dosearch0 takes the automatic (1) or explicit (0) search fl": {
       "count": 1,
       "class": "invariant",
@@ -378,23 +354,11 @@
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
     },
-    "js/detect.js | findTrap | 'automatic search displayFoundTrap must return a Boolean'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/detect.js | map_redisplay | 'map_redisplay() redraws the global game'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called on a state other than the live game, which the port does not support for this function."
-    },
-    "js/detect.js | preflightTrap | 'automatic search requires an injected waitFoundTrap ' + 'wh": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/detect.js | preflightTrap | 'automatic search requires random.rn2 ' + 'for hallucinatory": {
       "count": 1,
@@ -407,18 +371,6 @@
       "class": "invariant",
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
-    },
-    "js/detect.js | requireInjected | `automatic search requires an injected ${name} for ${detail}": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
-    "js/detect.js | requireOperation | `automatic search requires ${name}${detail ? ` for ${detail}": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/detect.js | reveal_terrain | 'reveal_terrain() redraws the global game'": {
       "count": 1,
