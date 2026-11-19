@@ -2239,16 +2239,6 @@ export function mon_allowflags(monster, env = {}) {
     return allowflags;
 }
 
-function liquidOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function') {
-        throw new TypeError(
-            'monster liquid effects require ' + name,
-        );
-    }
-    return operation;
-}
-
 function liquidCanSee(monster, env) {
     const state = env.state ?? game;
     return typeof env.canSee === 'function'
@@ -2273,8 +2263,6 @@ async function liquidMessage(text, monster, env) {
 async function liquidPlainMessage(text, env) {
     const state = env.state ?? game;
     const message = env.message ?? ttyPline;
-    if (typeof message !== 'function')
-        throw new TypeError('monster liquid effects require message');
     await message(text, state, env);
 }
 
@@ -2290,7 +2278,7 @@ async function liquidTeleportRestricted(monster, env) {
 // directly. A caller that supplies neither gets those owners.
 function liquidLiveOperation(env, name, owner) {
     if (typeof env[name] === 'function')
-        return liquidOperation(env, name);
+        return env[name];
     return owner;
 }
 
@@ -3962,11 +3950,6 @@ export async function wake_msg(monster, interesting, rawEnv = {}) {
     const seeMonster = rawEnv.canSeeMonster
         ?? ((subject) => canseemon(subject, state));
     const message = rawEnv.message ?? ttyPline;
-    if (typeof seeMonster !== 'function' || typeof message !== 'function') {
-        throw new TypeError(
-            'wake_msg requires visibility and message owners',
-        );
-    }
     if (!monster.msleeping || !seeMonster(monster, rawEnv)) return;
 
     const alive = (monster.data === state.mons?.[PM_FLESH_GOLEM]
@@ -4082,12 +4065,6 @@ export async function wake_nearto_core(
     const disturbBuriedZombies = rawEnv.disturbBuriedZombies
         ?? ((nearX, nearY) =>
             disturb_buried_zombies(nearX, nearY, state));
-    if (typeof seeMonster !== 'function'
-        || typeof message !== 'function') {
-        throw new TypeError(
-            'wake_nearto requires visibility and message owners',
-        );
-    }
     for (let monster = state.level?.monlist ?? null;
         monster;
         monster = monster.nmon) {

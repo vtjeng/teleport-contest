@@ -505,8 +505,6 @@ function movementEnv(env = {}) {
     if (typeof random.rn2 !== 'function')
         throw new TypeError('monster movement random injection requires rn2');
     const couldSee = env.couldSee ?? ((x, y) => couldsee(x, y, state));
-    if (typeof couldSee !== 'function')
-        throw new TypeError('monster movement couldSee must be a function');
     return {
         ...env,
         state,

@@ -1524,12 +1524,6 @@
       "c": null,
       "reason": "A JavaScript control-flow contract (prepared plans, async continuations, hook return values); C has no counterpart."
     },
-    "js/makemon_create.js | makemon_runtime | 'makemon_runtime requires message operations'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/makemon_create.js | neweshk | 'neweshk requires a monster instance'": {
       "count": 1,
       "class": "invariant",
@@ -2034,18 +2028,6 @@
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/mon.js | liquidOperation | 'monster liquid effects require ' + name": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/mon.js | liquidPlainMessage | 'monster liquid effects require message'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | mongone | 'mongone requires a monster instance'": {
       "count": 1,
       "class": "invariant",
@@ -2093,18 +2075,6 @@
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
-    },
-    "js/mon.js | wake_msg | 'wake_msg requires visibility and message owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/mon.js | wake_nearto_core | 'wake_nearto requires visibility and message owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/mon.js | were_change | 'were_change requires initialized gw.were_changes'": {
       "count": 1,
@@ -2213,12 +2183,6 @@
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
-    },
-    "js/monmove.js | movementEnv | 'monster movement couldSee must be a function'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/monmove.js | movementEnv | 'monster movement random injection requires rn2'": {
       "count": 1,

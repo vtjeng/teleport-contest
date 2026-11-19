@@ -3586,30 +3586,6 @@ test('nasty runtime creation admits explicit species by the C pointer contract',
         }
     });
 
-test('runtime creation validates output owners before RNG or state', async () => {
-    for (const owners of [
-        { message: null, norepMessage: async () => {} },
-        { message: async () => {}, norepMessage: null },
-    ]) {
-        const state = initialLevelState();
-        state.in_mklev = false;
-        const random = scriptedRandom([]);
-        const ident = state.context.ident;
-
-        await assert.rejects(
-            makemon_runtime(null, 0, 0, 0, {
-                state,
-                random: random.random,
-                ...owners,
-            }),
-            /message operations/u,
-        );
-        random.assertExhausted();
-        assert.equal(state.context.ident, ident);
-        assert.equal(state.level.monlist, null);
-    }
-});
-
 test('runtime creation sends a visible appearance through norepMessage',
     async () => {
         const state = initialLevelState();
