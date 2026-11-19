@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "options.c handler_petattr() sets go.opt_need_redraw only when !go.opt_initial (6160), and initoptions_finish() clears that flag at startup (7382); doset() then repaints with docrt() through reset_needed_visuals(). The first option change of the game is petattr, picked from #optionsfull, set to bold, so the Wizard's adjacent kitten must be redrawn bold at once. Seed, clock, character and keys chosen for this case.",
+  "segments": [
+    {
+      "seed": 51830417,
+      "datetime": "20290314093012",
+      "nethackrc": "OPTIONS=name:Ottilie,role:Wizard,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#optionsfull\n:petattr\n\nbss"
+    }
+  ]
+}

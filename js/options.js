@@ -7080,6 +7080,11 @@ export function initoptions_finish(parsedOptions = {}, state = game, env = {}) {
     apply_customizations(state.gc?.currentgraphics ?? PRIMARYSET, state);
     reglyph_darkroom(state);
     finishStartupBooleanOptions(state);
+    // options.c:7382 ends the configuration pass. Each parseoptions() call
+    // rewrites go.opt_initial from its tinitial argument, but doset()'s
+    // compound handlers run without one, so handler_petattr() reads the
+    // value this leaves behind.
+    state.go.opt_initial = false;
 }
 
 // C ref: options.c longest_option_name().  The two passes differ only in

@@ -30,3 +30,19 @@ for (const entry of CASES) {
         assert.equal(Boolean(game.iflags.menu_requested), false);
     });
 }
+
+// options.c initoptions_finish() ends with `go.opt_initial = FALSE` (7382).
+// parseoptions() rewrites the flag on every call, but doset() runs a compound
+// option's handler without one, so a handler that tests the flag, such as
+// handler_petattr() (6160), reads what startup left. When startup left it
+// set, picking 'petattr' before any boolean toggle skipped the redraw and
+// the pet kept its old attribute (recordings/options.c/
+// petattr-first-pick-redraws-pet.session.json).
+test('startup leaves go.opt_initial clear for doset() handlers', async () => {
+    const recipe = JSON.parse(readFileSync(new URL(
+        '../recipes/cmd.c/options-full-typed-independent.session.json',
+        import.meta.url)));
+    // One key reaches the first command prompt; no option has been touched.
+    await runSegment({ ...recipe.segments[0], moves: '.' });
+    assert.equal(game.go.opt_initial, false);
+});
