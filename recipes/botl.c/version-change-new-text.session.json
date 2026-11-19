@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Control for version-change-same-text: adding the game name changes versinfo from 1 to 3 and the text to 'nethack 5.0.0', so a text compare and C's int compare both colour it.",
+  "segments": [
+    {
+      "seed": 48213907,
+      "datetime": "20410305143002",
+      "nethackrc": "OPTIONS=name:Ivo,role:Ranger,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=showvers,versinfo:1,statushilites:20\nOPTIONS=hilite_status:version/changed/red\n",
+      "moves": "\u001b#optionsfull\n:versinfo\n\ng\n\nss"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c compare_blstats() on the BL_VERS row. init_blstats() copies initblstats[j] into blstats[][j], and initblstats[26] is terrain's entry, so the BL_VERS row's fld is BL_TERRAIN and the version compares flags.versinfo as an int. Adding the branch bit, unavailable in this build, changes versinfo from 1 to 5 but keeps the text 5.0.0; C still colours it with the 'changed' rule.",
+  "segments": [
+    {
+      "seed": 48213907,
+      "datetime": "20410305143002",
+      "nethackrc": "OPTIONS=name:Ivo,role:Ranger,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=showvers,versinfo:1,statushilites:20\nOPTIONS=hilite_status:version/changed/red\n",
+      "moves": "\u001b#optionsfull\n:versinfo\n\nb\n\nss"
+    }
+  ]
+}

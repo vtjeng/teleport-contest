@@ -131,7 +131,7 @@ import { fuzzymatch, push_front, truncateByteString } from './hacklib.js';
 import { hu_stat } from './eat.js';
 import { observe_object } from './o_init.js';
 import { can_reach_floor, engr_at, engr_can_be_felt } from './engrave.js';
-import { status_version } from './version.js';
+import { status_version, VI_NUMBER } from './version.js';
 import { is_weptool } from './obj.js';
 import { cmap_to_type } from './mkroom.js';
 import { newuexp } from './exper.js';
@@ -6520,7 +6520,13 @@ function _statusFieldData(field, valueSnapshot = null) {
             value: u?.uexp ?? 0,
             percent: _statusExperiencePercentage(u),
         };
-    case 'version': return { text: status_version(game.flags) };
+    case 'version':
+        // compare_blstats() compares this row by flags.versinfo, not by its
+        // text; see the BL_TERRAIN note in _collectStatusHilites().
+        return {
+            text: status_version(game.flags),
+            compareValue: game.flags?.versinfo ?? VI_NUMBER,
+        };
     case 'weapon': return { text: weapon_status(game) };
     case 'armor': return { text: armor_status(game) };
     case 'terrain': return { text: _terrainStatus(game) };
@@ -6982,10 +6988,15 @@ function _collectStatusHilites(layouts, onlyField = null) {
         // BL_ARMOR and the cheat never fires. Moving between wall types,
         // which all read "Wall", is therefore no change
         // (recordings/botl.c/terrain-wall-change;
-        // scripts/terrain-status-compare.test.mjs).
+        // scripts/terrain-status-compare.test.mjs). The same shift puts
+        // terrain's entry, fld BL_TERRAIN, in blstats[][BL_VERS], so the
+        // cheat fires there instead: the version compares flags.versinfo
+        // as an int, and a versinfo change that leaves the text alone, such
+        // as adding the unavailable branch bit, is still a change
+        // (recordings/botl.c/version-change-same-text).
         let change = previousCompareValue == null || compareValue == null
             ? 0 : Math.sign(compareValue - previousCompareValue);
-        if (data.value == null && text != null && previousText != null
+        if (compareValue == null && text != null && previousText != null
             && text !== previousText)
             change = previousText > text ? 1 : -1;
         if (data.percentChange) change = data.percentChange;
