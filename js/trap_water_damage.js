@@ -234,12 +234,13 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
     const visible = floorFireVisible(x, y, state);
 
     // C trap.c calls apply.c catch_lit() before fire damage; TRUE means the
-    // controlled burn handled this object, so skip destruction.
+    // controlled burn handled this object, so skip destruction. catch_lit()
+    // tests cansee() at the object's square (apply.c:1598), not this
+    // function's !Blind && couldsee() in_sight, so it keeps its own test.
     if (await catch_lit(obj, {
         ...rawEnv,
         state,
         random,
-        squareVisible: (sx, sy) => floorFireVisible(sx, sy, state),
         message,
     })) return false;
 
