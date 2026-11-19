@@ -31,13 +31,7 @@ const OWNERS = Object.freeze({
 
 // Calls that bypass the pair, as `file:line name`, each with the reason it
 // is tolerated.
-const ALLOWED = [
-    // bones.js converts only the level flags of a bones file; routing it
-    // through the pair changes the former pets' clocks and is its own change.
-    'bones.js:800 save_adjust_levelflags',
-    'bones.js:811 rest_adjust_levelflags',
-    'bones.js:1376 rest_adjust_levelflags',
-];
+const ALLOWED = [];
 
 // The name of the function whose body contains `index`: the nearest
 // preceding `function name(` line at column 0, which is how js/ declares
