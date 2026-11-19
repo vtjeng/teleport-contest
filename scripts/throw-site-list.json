@@ -3420,12 +3420,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/teleport.js | teleds | 'teleds on a non-live state requires a redraw callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/teleport.js | teleportEnv | 'teleport random injection requires rn2'": {
       "count": 1,
       "class": "invariant",
@@ -3468,12 +3462,6 @@
       "c": null,
       "reason": "A JavaScript hook that replaces coordinate selection reported failure."
     },
-    "js/themerooms.js | filter_mapchar | 'filter_mapchar requires a location accessor'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/themerooms.js | iterate | 'selection iterate requires a callback'": {
       "count": 1,
       "class": "invariant",
@@ -3505,12 +3493,6 @@
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
     "js/themerooms.js | selection_iterate | 'selection_iterate requires a selection'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/themerooms.js | selection_room | 'selection_room requires a location accessor'": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -3647,42 +3629,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Refuses state used before the initialization every game performs first."
-    },
-    "js/trap.js | preflightPitTerrain | 'maketrap requires obj_ice_effects when removing ice'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "A missing injected operation that maketrap() needs."
-    },
-    "js/trap.js | preflightPitTerrain | 'maketrap requires spot_stop_timers when removing ice'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "A missing injected operation that maketrap() needs."
-    },
-    "js/trap.js | preflightPitTerrain | 'maketrap requires the buried-object subsystem'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "A missing injected operation that maketrap() needs."
-    },
-    "js/trap.js | preflightTrapCreation | 'maketrap requires hero-trap reset support'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "A missing injected operation that maketrap() needs."
-    },
-    "js/trap.js | preflightTrapCreation | 'maketrap requires the rolling-boulder launch subsystem'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "A missing injected operation that maketrap() needs."
-    },
-    "js/trap.js | resetHeroTrap | 'maketrap resetUtrap must clear u.utrap and u.utraptype'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected reset operation did not clear the hero trap state."
     },
     "js/tty_menu.js | displayTtyMenuTextWindow | 'tty menu text window requires an initialized display'": {
       "count": 1,

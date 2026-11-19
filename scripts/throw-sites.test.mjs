@@ -31,8 +31,11 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // removed 36 invariant throws, 708 left under 703 keys; 28 of them matched
 // INJECTED_OPERATION_PIN below. Branches ops2-mon and ops2-trap removed
 // 13 more (mon.js, monmove.js, mondata.js, mcastu.js, version.js and the
-// trap files), 695 left under 690 keys; 2 still match the pin.
-const LIST_PINS = { entries: 680, sites: 685 };
+// trap files), 695 left under 690 keys; 2 still match the pin. Branches
+// ops3-a and ops3-b removed 19 more (the last 2 in apply_catch_lit.js and
+// apply_splash_lit.js, and guards in detect.js, trap.js, teleport.js and
+// themerooms.js), 676 left under 671 keys; none still match the pin.
+const LIST_PINS = { entries: 671, sites: 676 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());

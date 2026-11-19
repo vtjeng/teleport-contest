@@ -179,9 +179,10 @@ export class ThemeroomSelection {
         throw new RangeError('selection RNG returned an out-of-range result');
     }
 
-    filter_mapchar(wanted, locationAt, options = {}) {
-        if (typeof locationAt !== 'function')
-            throw new TypeError('filter_mapchar requires a location accessor');
+    // selvar.c selection_filter_mapchar() reads the live map (levl[x][y]),
+    // the default here; locationAt lets a caller read another level's map.
+    filter_mapchar(wanted, locationAt = (x, y) => game.level.at(x, y),
+        options = {}) {
         const lit = options.lit ?? -2;
         const random = options.random ?? rn2;
         const result = this.#derived();
@@ -380,11 +381,11 @@ export function selection_negate(selection = null) {
     return (selection ?? new ThemeroomSelection(null, true)).negate();
 }
 
-export function selection_room(room, locationAt) {
+// selvar.c selection_from_mkroom() reads the live map (levl[x][y]), the
+// default here; locationAt lets a caller read another level's map.
+export function selection_room(room, locationAt = (x, y) => game.level.at(x, y)) {
     if (!room || !Number.isInteger(room.roomnoidx))
         throw new TypeError('selection_room requires an indexed room');
-    if (typeof locationAt !== 'function')
-        throw new TypeError('selection_room requires a location accessor');
     // The room's bounds are map coordinates, so the selection is built in the
     // absolute frame, as selection_match() in bigrm.js is.
     const result = new ThemeroomSelection(null, true);

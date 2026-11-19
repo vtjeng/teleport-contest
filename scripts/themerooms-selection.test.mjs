@@ -23,6 +23,8 @@ import {
     select_themeroom_fill,
     set_selection_floodfillchk,
 } from '../js/themerooms.js';
+import { GameMap } from '../js/game.js';
+import { resetGame } from '../js/gstate.js';
 
 function selectedPoints(selection) {
     const points = [];
@@ -155,6 +157,23 @@ test('selection_room excludes room edges and mismatched room numbers', () => {
         [3, 3], [4, 3],
         [2, 4], [3, 4],
     ]);
+});
+
+test('selection_room and filter_mapchar read the live level by default', () => {
+    // selection_from_mkroom() and selection_filter_mapchar() read levl[][]
+    // directly; with no accessor the port reads game.level.
+    const state = resetGame();
+    state.level = new GameMap();
+    // A 2x1 room at <5,6>-<6,6>; only <5,6> carries the room's number
+    // (room index 0), so the selection has exactly that square.
+    const room = { lx: 5, ly: 6, hx: 6, hy: 6, roomnoidx: 0 };
+    state.level.at(5, 6).roomno = ROOMOFFSET;
+    state.level.at(5, 6).typ = ROOM;
+    assert.deepEqual(selectedPoints(selection_room(room)), [[5, 6]]);
+
+    // <6,6> stays STONE, so filtering both squares for ROOM keeps <5,6>.
+    const both = selection_area(5, 6, 6, 6);
+    assert.deepEqual(selectedPoints(both.filter_mapchar(ROOM)), [[5, 6]]);
 });
 
 test('D:1 fill chooser follows source order and lit eligibility', () => {

@@ -305,64 +305,6 @@ test('maketrap rejects non-map trap kinds and protected terrain', () => {
     assert.equal(t_at(11, 5, state), portal);
 });
 
-test('maketrap preflights buried-object effects before changing terrain', () => {
-    const state = initializedState();
-    state.level.buriedobjlist = { ox: 10, oy: 5, nobj: null };
-    state.level.at(10, 5).flags = 37;
-    assert.throws(
-        () => maketrap(10, 5, PIT, { state, unearthObjects: false }),
-        /buried-object subsystem/,
-    );
-    assert.equal(state.level.at(10, 5).typ, ROOM);
-    assert.equal(state.level.at(10, 5).flags, 37);
-    assert.equal(state.level.traps.length, 0);
-});
-
-test('maketrap preflights terrain seams before changing an existing trap', () => {
-    const state = initializedState();
-    const existing = maketrap(10, 5, ARROW_TRAP, { state });
-    // Each nondefault value is a field resetTrap() would overwrite if a
-    // missing subsystem were discovered too late.
-    Object.assign(existing, {
-        madeby_u: true,
-        once: true,
-        tnote: 9,
-        vl: { launch_otyp: 27 },
-    });
-    const original = structuredClone(existing);
-
-    state.level.buriedobjlist = { ox: 10, oy: 5, nobj: null };
-    assert.throws(
-        () => maketrap(10, 5, PIT, { state, unearthObjects: false }),
-        /buried-object subsystem/,
-    );
-    assert.deepEqual(existing, original);
-
-    state.level.buriedobjlist = null;
-    const location = state.level.at(10, 5);
-    location.typ = ICE;
-    location.flags = 0;
-    assert.throws(
-        () => maketrap(10, 5, PIT, { state, objIceEffects: false }),
-        /obj_ice_effects when removing ice/,
-    );
-    assert.deepEqual(existing, original);
-    assert.deepEqual([location.typ, location.flags], [ICE, 0]);
-
-    location.typ = DRAWBRIDGE_UP;
-    location.flags = DB_ICE;
-    assert.throws(
-        () => maketrap(10, 5, PIT, { state, objIceEffects: false }),
-        /obj_ice_effects/,
-    );
-    assert.deepEqual(existing, original);
-    assert.deepEqual(state.level.traps, [existing]);
-    assert.deepEqual(
-        [location.typ, location.flags],
-        [DRAWBRIDGE_UP, DB_ICE],
-    );
-});
-
 test('maketrap resets only incompatible hero trap states during replacement', () => {
     const state = initializedState();
     const existing = maketrap(10, 5, ARROW_TRAP, { state });
@@ -374,25 +316,9 @@ test('maketrap resets only incompatible hero trap states during replacement', ()
         utraptype: TT_BEARTRAP,
     });
 
-    // trap.c:471-477 calls the existing reset_utrap(FALSE) owner before
-    // replacement; no injected reset callback is required in production.
+    // trap.c:471-477 calls reset_utrap(FALSE) before replacement.
     assert.equal(maketrap(10, 5, WEB, { state }), existing);
     assert.equal(existing.ttyp, WEB);
-    assert.deepEqual([state.u.utrap, state.u.utraptype], [0, TT_NONE]);
-    state.u.utrap = 7; // Re-enter the incompatible bear trap for the seam check.
-    state.u.utraptype = TT_BEARTRAP;
-
-    const resets = [];
-    const replacement = maketrap(10, 5, WEB, {
-        state,
-        resetUtrap(showMessage, env) {
-            resets.push(showMessage);
-            env.state.u.utrap = 0;
-            env.state.u.utraptype = TT_NONE;
-        },
-    });
-    assert.equal(replacement, existing);
-    assert.deepEqual(resets, [false]);
     assert.deepEqual([state.u.utrap, state.u.utraptype], [0, TT_NONE]);
 
     const compatibleCases = [
