@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "shk.c unpaid_cost() report from multi-object windows. Seed 8452217's Dlvl 4 has a weapon shop whose keeper stands at (54,5) inside an open door at (53,5); a debug-mode Samurai who level-teleports there lands at (58,3) on 10 darts (port-only scanSeeds() probe over 8452000-8452400 for a hero who lands on an object inside a shop with its keeper at home: 16 hits, this one chosen for its weapon shop). He picks up the darts (unpaid), hurls the keeper west through the door with #wiztelekinesis (wizcmds.c wiz_telekinesis() -> mhurtle()), wishes for a hole under himself (objnam.c wizterrainwish()) and plunges through it with '>'. shk.c u_left_shop() returns early because the keeper is not inhishop(), so the darts stay unpaid on Dlvl 5, where no bill holds them. He throws one dart down with 't' and '>' and drops the other nine with 'd', which leaves two unpaid stacks on his square. ':' then reaches invent.c look_here()'s window branch, which formats each object with doname_with_price() while it fills the text window (4306), so both reports come before \"Things that are here:\" appears. ',' builds pickup.c's \"Pick up what?\" menu with doname() for each entry, so both reports again come before the menu; Escape closes it. Seed, datetime, character and inputs were chosen independently of every recorded session and batch game.",
+  "segments": [
+    {
+      "seed": 8452217,
+      "datetime": "20270314101500",
+      "nethackrc": "OPTIONS=name:Peddler,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!tips\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": "\u001b\u00164\n\n\n,\n#wiztelekinesis\nhhhhjj.h\u001b\u0017hole\n>tg>\n\n\n\n\n\n\ndg\n\n\n:\n\n\n\n\n\n\n,\n\n\n\n\n\n\u001b"
+    }
+  ]
+}

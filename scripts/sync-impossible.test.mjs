@@ -91,6 +91,7 @@ const RECORDINGS = [
     'shk.c/unpaid-cost-carried-out-drop',
     'shk.c/unpaid-cost-carried-out-inventory',
     'shk.c/unpaid-cost-carried-out-look-here',
+    'shk.c/unpaid-cost-carried-out-pile',
     'timeout.c/melting-ice-wish-duplicate-timer',
 ];
 
