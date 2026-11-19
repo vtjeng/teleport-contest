@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: BSD-2-Clause
+//
+// A JavaScript translation of TRE as Apple Libc ships it.
+// Copyright (c) 2001-2009 Ville Laurikari <vl@iki.fi>. All rights reserved.
+// Distributed under the licence in licenses/TRE-LICENSE.txt.
+//
 // tre_internal.js -- the constants and C-locale character tables that the
 // port of macOS's regex shares: js/tre_parse.js, js/tre_compile.js,
 // js/tre_match_parallel.js, js/regcomp.js, js/regexec.js and

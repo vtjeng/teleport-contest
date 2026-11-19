@@ -1,3 +1,11 @@
+// SPDX-License-Identifier: BSD-3-Clause
+//
+// A JavaScript translation of FreeBSD regex's regerror.c as Apple Libc
+// ships it. Copyright (c) 1992, 1993, 1994 Henry Spencer. Copyright (c)
+// 1992, 1993, 1994 The Regents of the University of California. All rights
+// reserved. Distributed under the licence in
+// licenses/FreeBSD-regex-LICENSE.txt.
+//
 // regerror.js -- Apple Libc regex/FreeBSD/regerror.c (tag
 // Libc-1752.120.2) regerror(), which macOS uses with TRE. See
 // js/tre_internal.js for the source.

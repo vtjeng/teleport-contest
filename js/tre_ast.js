@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: BSD-2-Clause
+//
+// A JavaScript translation of TRE as Apple Libc ships it.
+// Copyright (c) 2001-2009 Ville Laurikari <vl@iki.fi>. All rights reserved.
+// Distributed under the licence in licenses/TRE-LICENSE.txt.
+//
 // tre_ast.js -- Apple Libc regex/TRE/lib/tre-ast.c (tag Libc-1752.120.2):
 // the syntax-tree nodes that js/tre_parse.js builds and js/tre_compile.js
 // turns into an automaton. See js/tre_internal.js for the source and the

@@ -1,3 +1,9 @@
+// SPDX-License-Identifier: BSD-2-Clause
+//
+// A JavaScript translation of TRE as Apple Libc ships it.
+// Copyright (c) 2001-2009 Ville Laurikari <vl@iki.fi>. All rights reserved.
+// Distributed under the licence in licenses/TRE-LICENSE.txt.
+//
 // tre_match_parallel.js -- Apple Libc regex/TRE/lib/tre-match-parallel.c
 // (tag Libc-1752.120.2) tre_tnfa_run_parallel(), with the macros and
 // tre_bracket_match() it uses from tre-match-utils.h. See
