@@ -3990,12 +3990,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/version.js | doversion | 'doversion requires the pline operation'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/vision.js | do_clear_area | 'do_clear_area alternate state must share active ' + 'vision": {
       "count": 1,
       "class": "invariant",
