@@ -118,7 +118,8 @@ prints the judge's macOS text. The recorder now prints that text too: on
 Linux, `nethack-c/build-recorder.sh` applies a macOS-output profile (see
 "Linux output profile"), and on every host the recorder prints the judge's
 `HOME` (patch 008). One measured difference remains, a key binding that
-depends on uninitialized memory.
+depends on uninitialized memory. The port follows macOS there, so its
+regression recordings are made on macOS.
 
 ### Known differences
 
@@ -132,7 +133,7 @@ The last column says what a recorder built from this repository prints.
 | The `v` and `#version` text | `MacOS NetHack Version 5.0.0 ...` | `Unix NetHack Version 5.0.0 ...` | `PORT_ID` in `include/global.h:191-193` (`__APPLE__`) and `:217-219` (`UNIX`), put into the version string by `src/mdlib.c:341` | macOS text on both hosts (Linux profile) |
 | Eating an apple | `Delicious!  Must be a Macintosh!` | `Core dumped.` | `src/eat.c:2179-2185`, `fprefx()`: the `MACOS` branch comes before the `UNIX` one. A pear prints `Core dumped.` on both hosts. | macOS text on both hosts (Linux profile) |
 | The build options in `#version` | `strong PRNG seed from /dev/random` | `strong PRNG seed from /dev/urandom` | `DEV_RANDOM` in `include/unixconf.h:424-430`, printed by `src/mdlib.c:511-513`. The extra letter can move a line break in the paragraph that follows. | macOS text on both hosts (Linux profile) |
-| Binding a key to a command from the options menu | `Key binding failed?!` in the one recorded case | The key is bound | `handler_rebind_keys_add()` in `src/cmd.c` appends the command name to an uninitialized buffer, so the result depends on stack contents; see below | Differs: Linux binds the key, and so does the port |
+| Binding a key from the options menu to `nothing` or to a command without a parameter | `Key binding failed?!` | The key is bound | `handler_rebind_keys_add()` in `src/cmd.c` appends the command name to an uninitialized buffer, so the result depends on stack contents; see below | Differs: Linux binds the key. The port fails as macOS does, and the recordings of this path are made on macOS. |
 | The options help text (`Set options as OPTIONS=<options> in ...`) and other messages that name the config file | The judge's `HOME`, given in `docs/recording-environment.md` | The `HOME` the game runs with | `src/options.c:9471` prints `get_configfile()`, which is `$HOME/.nethackrc`. The path's length decides how many lines the help text takes, and so which lines fall on each page of the pager. | The judge's path on every host (patch 008) |
 
 Save files are compressed with `/usr/bin/compress`, as on macOS
@@ -227,23 +228,41 @@ command of that name and the menu prints `Key binding failed?!`. The
 buffer holds whatever earlier calls left at that place on the stack. That
 depends on the compiler and on the C library's own use of the stack, so
 it can differ between macOS and Linux even though `strcat()` behaves the
-same on both. This has not been confirmed on macOS beyond the one case.
-A command that takes a parameter, such as `toggle`, writes the buffer
-whole with `Snprintf()` (line 2376) and is unaffected;
-`recordings/cmd.c/toggle-bound-param-menu` records that path.
+same on both. A command that takes a parameter, such as `toggle`, writes
+the buffer whole with `Snprintf()` (line 2376) and is unaffected.
 
-Every Linux recording that reaches this code binds the key, so its
-buffer started with a zero. That includes the committed
-`recordings/cmd.c/bind-new-key-live`, `bind-existing-key-live` and
-`unbind-key-live`. The port follows that reading: it replays the
-Linux `g04439` recording completely. The one macOS case fails. The port
-should print what the judge's recorder prints, but one case does not
-show whether macOS fails on every path through this code. The next macOS
-run should therefore record probes of each path
-(`experiments/host-parity/README.md` lists them). If macOS fails on every path that uses `Strcat()` and
-binds on the parameter path, a line-preserving edit to the Linux profile
-can start `cmdstr` with a nonzero byte, the port can fail the same way,
-and the three committed recordings above need recording again.
+macOS runs [41286167639](https://github.com/vtjeng/teleport-contest/actions/runs/41286167639)
+(the probes in `experiments/host-parity/README.md`) and
+[44607258217](https://github.com/vtjeng/teleport-contest/actions/runs/44607258217)
+(the `recipes/cmd.c/*bind*-live` recipes; run 44605509215 recorded the
+same steps) measured every path:
+
+- Key first or command first, unbinding or binding a command without a
+  parameter, to a bound or an unbound key: `Key binding failed?!`, and
+  the binding is unchanged. A Linux recorder binds the key in every case.
+- A bind without a parameter straight after a parameter bind in the same
+  visit to the menu fails as well, on macOS only.
+- A command with a parameter binds on both hosts; the macOS and Linux
+  recordings of the three parameter recipes are identical.
+- The RNG log is the same on both hosts in every one of these recipes;
+  the screens differ from the failing bind on.
+
+The port follows macOS: `handler_rebind_keys_add()` in `js/cmd.js`
+prints `Key binding failed?!` on the two `Strcat()` arms without calling
+`bind_key()`. Bindings from the config file (`BIND=`, read by
+`options.c` `parsebindings()`) do not use this buffer and are unchanged.
+The committed recordings of the options-menu rebind recipes,
+`recordings/cmd.c/*bind*-live`, are therefore macOS recordings, made by
+`macos-recorder.yml`, which records them into `cmd.c/` in its artifact.
+Record them again on macOS, not with a Linux recorder;
+`scripts/bind-keys-live.test.mjs` fails when a recording under
+`recordings/` shows a `Strcat()` bind succeeding.
+
+Recordings made on Linux disagree with the port on these paths. That
+includes `g04439` in batch 1, which the port now fails against its Linux
+recording and matches against macOS. A line-preserving edit to the Linux
+profile that starts `cmdstr` with a nonzero byte could make Linux record
+what macOS does.
 
 ### Private installs
 

@@ -3867,25 +3867,37 @@ export async function handler_rebind_keys_add(keyfirst = false, state = game) {
     });
     if (selected == null) return;
 
-    // C builds cmdstr with Strcat() into an uninitialized buffer (cmd.c
-    // 2356, 2363, 2379), so its text is the command name only when the stack
-    // left a zero byte there.  Every Linux recording binds the key, which is
-    // what this reads; the judge's macOS recorder printed "Key binding
-    // failed?!" in the one case measured (docs/testing.md, "The key-binding
-    // difference").  The CMD_PARAM arm's Snprintf() is defined on both.
+    // The port follows the judge's macOS build here, not Linux. C line 2356
+    // declares `char cmdstr[BUFSZ];` without initializing it, and two arms
+    // append to it: Strcat(cmdstr, "nothing") to unbind (line 2363) and
+    // Strcat(cmdstr, ec->ef_txt) for a command without a parameter (line
+    // 2379). Strcat() appends after the buffer's first zero byte, wherever
+    // the stack left one. On macOS the buffer does not start with a zero,
+    // so bind_key() receives a garbled name, matches no command and returns
+    // FALSE having changed nothing and reported nothing, and line 2402 prints
+    // "Key binding failed?!". On Linux the first byte happens to be zero and
+    // the key is bound. macOS workflow runs 41286167639 (probes) and
+    // 44607258217 (recordings/cmd.c/*bind*-live) show the failure on all
+    // four Strcat() paths, key first and command first, and on a Strcat()
+    // bind that follows a Snprintf() bind in the same visit to the menu; the
+    // RNG matches Linux in every case. A command with a parameter fills
+    // cmdstr whole with Snprintf() (line 2376) and binds on both hosts.
+    // `cmdstr` stays null for the two Strcat() arms (docs/testing.md, "The
+    // key-binding difference").
     let command = null;
-    let commandText = 'nothing';
+    let cmdstr = null;
     if (selected !== -1) {
         command = extcmds_getentry(selected - 1);
         if (!command) return;
-        commandText = command.ef_txt;
         if (command.flags & CMD_PARAM) {
             const parameter = mungspaces(await getlin(
                 'Command ' + command.ef_txt + ' requires a parameter:', state,
             ));
-            commandText = command.ef_txt + '(' + parameter + ')';
+            cmdstr = command.ef_txt + '(' + parameter + ')';
         }
     }
+    // A command-first bind still asks for the key (line 2384) before it
+    // fails, and ESC here still returns without a message.
     if (!key) {
         await ttyPline('Bind which key? ', state);
         key = await pgetchar(state);
@@ -3893,7 +3905,7 @@ export async function handler_rebind_keys_add(keyfirst = false, state = game) {
     }
     const previous = cmdbind_get(key, state);
     const errors = [];
-    const bound = bind_key(key, commandText, true, state, errors);
+    const bound = cmdstr !== null && bind_key(key, cmdstr, true, state, errors);
     await plineConfigErrors(state, errors);
     if (!bound) {
         await ttyPline('Key binding failed?!', state);
@@ -3901,19 +3913,20 @@ export async function handler_rebind_keys_add(keyfirst = false, state = game) {
     }
     // cmdbind_add() overwrites an existing C Cmd_bind in place. `prevcmd`
     // therefore sees the new command after bind_key() and the changed-key
-    // message is suppressed for a successful rebind. Unbinding removes that
-    // node and follows the separate `nothing` message arm below.  C's
-    // `else if (!prevcmd)` arm does not test the command, so unbinding a key
-    // that had no binding reports binding it to "nothing".
+    // message is suppressed for a successful rebind. C's
+    // `else if (!prevcmd)` arm does not test the command. Only the
+    // parameter arm reaches this point on the judge's host, so `command` is
+    // never null here and the first arm, which C prints after unbinding a
+    // bound key, does not run; it stays to match C lines 2394-2400.
     if (previous && !command) {
         await ttyPline(
             "Changed key '" + key2txt(key) + "' from \""
-            + previous.cmd.ef_txt + "\" to \"" + commandText + '".',
+            + previous.cmd.ef_txt + "\" to \"" + cmdstr + '".',
             state,
         );
     } else if (!previous) {
         await ttyPline(
-            "Bound key '" + key2txt(key) + "' to \"" + commandText + '".',
+            "Bound key '" + key2txt(key) + "' to \"" + cmdstr + '".',
             state,
         );
     }
