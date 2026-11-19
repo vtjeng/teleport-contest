@@ -3930,12 +3930,6 @@
       "c": null,
       "reason": "A missing injected operation."
     },
-    "js/write.js | dowrite | 'write.c dowrite() requires fingersOrGloves and dropx'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/zap.js | blank_novel | 'blank_novel requires a blank spellbook'": {
       "count": 1,
       "class": "panic",

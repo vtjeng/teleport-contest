@@ -5031,12 +5031,7 @@ export async function doapply(state = game, env = {}) {
         return ECMD_TIME;
     case MAGIC_MARKER:
         // apply.c:4361-4362. dowrite() handles the full magic marker flow.
-        return dowrite(obj, state, {
-            ...env,
-            fingersOrGloves: fingers_or_gloves,
-            // write.c discards dropx()'s result.
-            dropx: (object) => dropx(object, { ...env, state }),
-        });
+        return dowrite(obj, state, env);
     case TIN_OPENER: {
         // apply.c:4364-4366 assigns this ECMD result before the common
         // artifact-speech tail; use_tin_opener() selects a tin and calls
