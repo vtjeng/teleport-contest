@@ -566,26 +566,6 @@ test('vision_recalc against another state leaves the live view alone', () => {
     );
 });
 
-// The other half of the same contract, and the one the caller cannot repair
-// after the fact: newsym() ignores its state argument and paints the
-// module-level game, so a clone that omits `redraw` recomputes for itself and
-// repaints the live map. vision_recalc() refuses that shape rather than
-// leaving it to be noticed on a frame.
-test('vision_recalc refuses another state with no painter', () => {
-    const state = darkRoomState();
-    // The live call keeps its newsym default: the refusal is about the clone.
-    // It also fills the shared transparency index, which is what makes the
-    // clone's recalc terminate at all.
-    vision_reset();
-    vision_recalc(0);
-
-    const foreign = { ...state, _visionBuffers: makeVisionBuffers() };
-    assert.throws(
-        () => vision_recalc(0, { state: foreign }),
-        /vision_recalc on a state other than game requires a redraw/u,
-    );
-});
-
 test('do_clear_area uses the cached hero-centered vision circle', async () => {
     const state = darkRoomState();
     const visited = [];

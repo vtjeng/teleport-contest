@@ -942,12 +942,6 @@
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
     },
-    "js/exper.js | pluslvl | 'pluslvl needs a message owner'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/explode.js | scatter | `scatter() has no operation ${name}`": {
       "count": 1,
       "class": "invariant",
@@ -1386,18 +1380,6 @@
       "c": null,
       "reason": "Replay harness contract (input queue, display, or module-level game); no C counterpart."
     },
-    "js/light.js | do_light_sources | 'do_light_sources requires circleOffset'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/light.js | do_light_sources | 'do_light_sources requires clearPath'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/light.js | lightGlobals | 'light sources require light_globals_init()'": {
       "count": 1,
       "class": "invariant",
@@ -1421,12 +1403,6 @@
       "class": "panic",
       "c": "src/light.c:558",
       "reason": "C panic(\"relink_light_sources: bad type (%d)\"); synchronous function."
-    },
-    "js/light.js | transientLightOperation | `transient light requires ${name}`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/lock.js | doopen_indir | 'doopen_indir requires a door location'": {
       "count": 1,
@@ -1944,12 +1920,6 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/mktrap.js | roomCoordinate | 'mktrap requires room-coordinate selection'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | dealloc_monst | 'dealloc_monst with nmon still linked'": {
       "count": 1,
       "class": "panic",
@@ -2136,12 +2106,6 @@
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/monmove.js | undesirable_disp | 'undesirable_disp requires cursedObjectAt for a pet'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | undesirable_disp | 'undesirable_disp requires rn2'": {
       "count": 1,
       "class": "invariant",
@@ -2279,18 +2243,6 @@
       "class": "guard",
       "c": "src/muse.c:1826",
       "reason": "C use_offensive() dereferences gm.m.offensive, which every caller sets through find_offensive() first; the port keeps the selection on state.m_offense."
-    },
-    "js/muse.js | use_offensive | 'use_offensive requires message and monsterName owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/muse.js | use_offensive | 'use_offensive requires throwMissile'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/nhlsel.js | checkSelection | 'selection operator requires two selections'": {
       "count": 1,
@@ -3721,12 +3673,6 @@
       "reason": "A non-live state used without sharing the live vision transparency."
     },
     "js/vision.js | do_clear_area | 'do_clear_area requires a callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/vision.js | recalc_steps | 'vision_recalc on a state other than game requires a redraw'": {
       "count": 1,
       "class": "invariant",
       "c": null,
