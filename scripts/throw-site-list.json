@@ -1,11 +1,5 @@
 {
   "entries": {
-    "js/allmain.js | clairvoyancePlan | 'active clairvoyance requires doVicinityMap'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/allmain.js | clairvoyancePlan | 'clairvoyance cadence requires initialized moves and seer_tu": {
       "count": 1,
       "class": "invariant",
@@ -18,35 +12,17 @@
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
     },
-    "js/allmain.js | finishHeroTimeEffects | 'hero time effects require encumber_msg'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/allmain.js | finishHeroTimeEffects | 'hero time effects require initialized hero_seq'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
     },
-    "js/allmain.js | interrupt_multi | 'allmain.c interrupt_multi() requires norepMessage'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/allmain.js | maybe_generate_rnd_mon | 'maybe_generate_rnd_mon requires initialized level globals'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
-    },
-    "js/allmain.js | requireOccupationOperation | `allmain.c stop_occupation() requires ${name}`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/allmain.js | u_calc_moveamt | 'u_calc_moveamt requires initialized hero form'": {
       "count": 1,
@@ -635,12 +611,6 @@
       "class": "panic",
       "c": "src/do_wear.c:2393",
       "reason": "C accessory_or_armor_on() panics when the armor just worn is in no armor slot (after setworn(); the port checks the mask before it); the throw stays, as in flooreffects()."
-    },
-    "js/do_wear.js | glibr | 'do_wear.c glibr() requires canletgo and dropx'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/do.js | consumeDropAdmission | 'drop admission belongs to another hook set'": {
       "count": 1,
@@ -2814,12 +2784,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/regen.js | reachedFull | `${kind} reaching full requires interruptMulti`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/regen.js | regen_hp | 'regen_hp requires rn2'": {
       "count": 1,
       "class": "invariant",
@@ -3863,12 +3827,6 @@
       "class": "invariant",
       "c": null,
       "reason": "The monster catalog lacks the Wizard of Yendor record."
-    },
-    "js/wizard.js | intervene | 'intervene requires rndcurse for the curse arm'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
     "js/wizard.js | intervene | `intervene selected an invalid arm: ${which}`": {
       "count": 1,

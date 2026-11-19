@@ -381,7 +381,7 @@ import {
     query_category, query_objlist, u_safe_from_fatal_corpse,
 } from './pickup.js';
 import { body_part, change_sex, float_vs_flight, livelog_newform, poly_gender } from './polyself.js';
-import { trycall } from './do.js';
+import { canletgo, dropx, trycall } from './do.js';
 import {
     incr_itimeout, make_hallucinated, make_slimed, self_invis_message,
     make_glib, toggle_blindness,
@@ -2993,16 +2993,13 @@ export function fingers_or_gloves(check_gloves, state) {
 }
 
 // C ref: do_wear.c glibr() (2528-2627), called once per elapsed turn from
-// allmain.c moveloop_core() when Glib is active. The injected drop hooks are
-// do.c dropx()'s production tail; canletgo()'s return controls whether C drops
-// each item after clearing its equipment slot.
+// allmain.c moveloop_core() when Glib is active. C calls do.c canletgo() and
+// dropx(); canletgo()'s return controls whether C drops each item after
+// clearing its equipment slot. A caller may replace either.
 export async function glibr(state = game, env = {}) {
     const message = env.message ?? ttyPline;
-    const canLetGo = env.canletgo;
-    const drop = env.dropx;
-    if (typeof canLetGo !== 'function' || typeof drop !== 'function') {
-        throw new TypeError('do_wear.c glibr() requires canletgo and dropx');
-    }
+    const canLetGo = env.canletgo ?? canletgo;
+    const drop = env.dropx ?? ((object) => dropx(object, { state }));
 
     const lefty = state.u.uhandedness === LEFT_HANDED;
     const leftFall = Boolean(state.uleft && !state.uleft.cursed

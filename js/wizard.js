@@ -95,6 +95,7 @@ import { m_next2u } from './mhitu.js';
 import { impossible_printer, verbalize, youFeel } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { Blind, Deaf, Protection_from_shape_changers } from './youprop.js';
+import { rndcurse } from './sit.js';
 
 // C wizard.c:52-56, ROLL_FROM(wizapp) in clonewiz().
 const WIZARD_APPEARANCES = Object.freeze([
@@ -339,7 +340,7 @@ export function wizdeadorgone(state = game, random = coreRandom) {
 
 // C ref: wizard.c:intervene() (785-810). Allmain calls this only when the
 // demigod countdown expires, after engraving wear and before level effects.
-// The caller supplies rndcurse because sit.c already imports this module.
+// C calls sit.c rndcurse(); a caller may replace it.
 export async function intervene(state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const message = rawEnv.message ?? ttyPline;
@@ -354,9 +355,7 @@ export async function intervene(state = game, rawEnv = {}) {
     case 2:
         if (!Blind(state.u))
             await message(`You notice a ${hcolor('black', state)} glow surrounding you.`, state);
-        if (typeof rawEnv.rndcurse !== 'function')
-            throw new TypeError('intervene requires rndcurse for the curse arm');
-        await rawEnv.rndcurse(state, effectEnv);
+        await (rawEnv.rndcurse ?? rndcurse)(state, effectEnv);
         break;
     case 3:
         await finish_steps(aggravate_steps(state, random),
