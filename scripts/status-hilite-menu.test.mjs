@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
+import { initialGb } from '../js/gstate.js';
 import { STATUS_FIELDS, STATUS_CONDITIONS } from '../js/status_field_data.js';
 import * as C from '../js/const.js';
 import {
@@ -14,7 +15,10 @@ import {
 import { parseNethackrc, optfn_o_status_hilites } from '../js/options.js';
 // options.c request enums: HANDLER3, GET4, GET_CNF5; optn_err is0.
 const DO_HANDLER = 3, GET_VAL = 4, GET_CNF_VAL = 5, optn_err = 0;
-const state = () => parseNethackrc('OPTIONS=!legacy,pettype:none\n');
+// The live game's gb, which js/gstate.js initialGb() builds, holds the
+// highlight lines; parseNethackrc()'s result carries only options.
+const state = () => Object.assign(
+    parseNethackrc('OPTIONS=!legacy,pettype:none\n'), { gb: initialGb() });
 const botl = readFileSync(new URL('../nethack-c/upstream/src/botl.c', import.meta.url), 'utf8');
 
 test('whole menu and option callback retain source boundaries and known declaration order', () => {
