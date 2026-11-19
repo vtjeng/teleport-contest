@@ -867,9 +867,12 @@ export async function u_left_shop(
 // the other IS_SHOP() callers do, so it reads svr.rooms[index + 3]: another
 // room, a subroom, or a slot past the level's last room. The shopkeeper
 // blocks only when that slot holds a shop, which on most levels it does not.
-// A slot past the last live room keeps whatever an earlier level of the same
-// process wrote there; this port does not keep those leftovers, and
-// mapseen_room() reads such a slot as no room for every caller.
+// No slot past the last live room holds a shop. savelev() zeroes all of
+// svr.rooms[] before the next level is made or read (save.c:560-564), and a
+// new process starts zeroed, so such a slot holds zeros or what this level's
+// own generation staged there: the hx = -1 ending flag or a vault's staged
+// lx and ly. mapseen_room() returns null for such a slot, and IS_SHOP()
+// reads null as not a shop.
 export async function block_door(x, y, state = game, { message = ttyPline } = {}) {
     const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
     if (roomno < 0 || !IS_SHOP(roomno, state)) return false;

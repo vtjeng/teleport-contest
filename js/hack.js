@@ -247,6 +247,7 @@ import {
     depth,
     get_level,
     Invocation_lev,
+    mapseen_room,
     on_level,
     surface,
     u_on_newpos,
@@ -5421,7 +5422,7 @@ export function monstinroom(mdat, roomno, state = game) {
 // C ref: hack.c furniture_present() (3482-3497). The inclusive bounds and
 // inside_room() test both matter for edge furniture and irregular rooms.
 export function furniture_present(furniture, roomno, state = game) {
-    const sroom = state.level?.rooms?.[roomno];
+    const sroom = mapseen_room(roomno, state);
     if (!sroom) return false;
     for (let y = sroom.ly; y <= sroom.hy; ++y) {
         for (let x = sroom.lx; x <= sroom.hx; ++x) {

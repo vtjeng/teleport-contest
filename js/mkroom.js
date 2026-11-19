@@ -67,7 +67,9 @@ import {
     TEMPLE,
     LEPREHALL,
 } from './const.js';
-import { In_hell, induced_align, level_difficulty } from './dungeon.js';
+import {
+    In_hell, induced_align, level_difficulty, mapseen_room,
+} from './dungeon.js';
 import { del_engr_at } from './engrave.js';
 import { dist2 } from './hacklib.js';
 import { game } from './gstate.js';
@@ -1067,7 +1069,7 @@ export function fill_zoo(sroom, env = {}) {
 // C ref: mkroom.c shrine_pos(). Returns the center of a room, adjusted
 // randomly when either dimension is even.
 function shrine_pos(roomno, state, random) {
-    const troom = state.level.rooms[roomno - ROOMOFFSET];
+    const troom = mapseen_room(roomno - ROOMOFFSET, state);
     let deltaX = troom.hx - troom.lx;
     let x = troom.lx + Math.trunc(deltaX / 2);
     // When the width is even (delta is odd), the center lies between two

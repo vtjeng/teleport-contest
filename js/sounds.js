@@ -117,7 +117,7 @@ import {
     rndmonnam,
 } from './do_name.js';
 import { night, midnight } from './calendar.js';
-import { on_level, lastseentyp_grid } from './dungeon.js';
+import { lastseentyp_grid, mapseen_room, on_level } from './dungeon.js';
 import { game } from './gstate.js';
 import { could_seduce, doseduce } from './mhitu.js';
 import { nomul } from './hack.js';
@@ -266,7 +266,7 @@ function vaultContainsGold(room, state) {
 function mon_in_room(monster, roomType, state) {
     const roomno = state.level?.at(monster.mx, monster.my)?.roomno ?? 0;
     return roomno >= ROOMOFFSET
-        && state.level?.rooms?.[roomno - ROOMOFFSET]?.rtype === roomType;
+        && mapseen_room(roomno - ROOMOFFSET, state)?.rtype === roomType;
 }
 
 // C ref: sounds.c:115-129 zoo_mon_sound(). The callback's selection draw is

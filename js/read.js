@@ -403,7 +403,7 @@ import {
 // these imported helpers are first read during gameplay.
 import { closed_door, monflee, youHear } from './monmove.js';
 import {
-    avoid_ceiling, ceiling, has_ceiling, on_level,
+    avoid_ceiling, ceiling, has_ceiling, mapseen_room, on_level,
 } from './dungeon.js';
 import {
     impossible_printer, livelog_printf, verbalize, youFeel,
@@ -2076,7 +2076,7 @@ export async function litroom(on, object, state) {
     if (Is_rogue_level(state.u?.uz, state)) {
         const roomNumber = (state.level.at(state.u.ux, state.u.uy)?.roomno ?? 0)
             - ROOMOFFSET;
-        const room = state.level.rooms?.[roomNumber];
+        const room = mapseen_room(roomNumber, state);
         if (room) {
             for (let x = room.lx - 1; x <= room.hx + 1; ++x) {
                 for (let y = room.ly - 1; y <= room.hy + 1; ++y)
