@@ -1001,9 +1001,8 @@ function lookedGlyphText(glyph, location, state) {
     // captures with the high bit stripped: the DEC line-drawing character,
     // or symbol_at()'s `ch` for an H_IBM byte. Any later redraw of the line
     // prints the byte as a signed char, which the capture ignores.
-    if (location?.disp_decgfx && (info.ttychar & 0x80))
+    if (location?.disp_decgfx)
         return { text: String.fromCharCode(info.ttychar), cell };
-    if (location?.disp_decgfx) return { text: location.disp_ch, cell };
     if ((info.ttychar & 0x80) && info.ch != null)
         return { text: String.fromCharCode(info.ttychar), cell: info.ch };
     // Otherwise the message holds the display character's UTF-8 bytes.
