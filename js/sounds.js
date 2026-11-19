@@ -117,7 +117,7 @@ import {
     rndmonnam,
 } from './do_name.js';
 import { night, midnight } from './calendar.js';
-import { lastseentyp_grid, mapseen_room, on_level } from './dungeon.js';
+import { lastseentyp_grid, mapseen_room, on_level, ROOM_INDEX } from './dungeon.js';
 import { game } from './gstate.js';
 import { could_seduce, doseduce } from './mhitu.js';
 import { nomul } from './hack.js';
@@ -513,7 +513,7 @@ export async function dosounds(
             const selection = random(2) + hallu;
             if (selection === 1
                 && vault_occupied(hero?.urooms, state)
-                    !== (room.roomnoidx ?? 0) + ROOMOFFSET) {
+                    !== ROOM_INDEX(room) + ROOMOFFSET) {
                 if (vaultContainsGold(room, state)) {
                     await hear(
                         hallu
@@ -590,7 +590,7 @@ export async function dosounds(
         }
         if (tended_shop(sroom, state)
             && !roomStringContainsValue(
-                hero?.ushops, (sroom.roomnoidx ?? 0) + ROOMOFFSET,
+                hero?.ushops, ROOM_INDEX(sroom) + ROOMOFFSET,
             )) {
             const shopMessages = [
                 'someone cursing shoplifters.',

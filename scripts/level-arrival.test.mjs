@@ -393,6 +393,8 @@ function roomLevel(state, { lx, ly, hx, hy, doorx, doory }) {
     state.level.rooms = [{
         lx, ly, hx, hy, rtype: OROOM, doorct: 1, fdoor: 0, rlit: 1,
         needfill: 0, irregular: false, nsubrooms: 0, sbrooms: [],
+        // Its slot, svr.rooms[0], for js/dungeon.js ROOM_INDEX().
+        roomnoidx: 0,
     }];
     state.level.nroom = 1;
     state.level.doors = [{ x: doorx, y: doory }];
@@ -571,14 +573,17 @@ test('check_special_room handles Court and Morgue and stops later families',
     // Put the Court at rooms[3].  hack.c subtracts ROOMOFFSET before its
     // wake-loop comparison but compares that index with the still-encoded
     // levl.roomno.  A sleeper in rooms[0] is therefore the one it visits.
+    // Each copy carries its own slot as roomnoidx, so mapseen_room() finds
+    // it at rooms[1], rooms[2] and rooms[3].
     const court = {
         ...state.level.rooms[0],
         rtype: COURT,
         orig_rtype: COURT,
+        roomnoidx: 3,
     };
     state.level.rooms.push(
-        { ...state.level.rooms[0], rtype: OROOM },
-        { ...state.level.rooms[0], rtype: OROOM },
+        { ...state.level.rooms[0], rtype: OROOM, roomnoidx: 1 },
+        { ...state.level.rooms[0], rtype: OROOM, roomnoidx: 2 },
         court,
     );
     state.level.rooms[0].rtype = OROOM;

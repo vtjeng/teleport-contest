@@ -28,6 +28,7 @@ import {
     level_difficulty,
     mapseen_room,
     on_level,
+    ROOM_INDEX,
 } from './dungeon.js';
 import {
     antholemon,
@@ -7120,7 +7121,7 @@ function do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, _rtype, special, i
 }
 
 // C ref: mklev.c sort_rooms()
-function sort_rooms() {
+export function sort_rooms() {
     const g = game;
     const n = g.level.nroom;
     const oldToNew = new Array(n).fill(0);
@@ -7147,10 +7148,10 @@ function sort_rooms() {
 // C ref: mklev.c topologize()
 export function topologize(croom, state = game) {
     if (!croom || croom.irregular) return;
-    const roomno = (croom.roomnoidx ?? -1) + ROOMOFFSET;
+    const roomno = ROOM_INDEX(croom) + ROOMOFFSET;
     const lowx = croom.lx, lowy = croom.ly;
     const hix = croom.hx, hiy = croom.hy;
-    if (!state.level || roomno < ROOMOFFSET) return;
+    if (!state.level) return;
     if ((state.level.at(lowx, lowy)?.roomno ?? 0) === roomno) return;
     for (let x = lowx; x <= hix; x++)
         for (let y = lowy; y <= hiy; y++) {
@@ -7175,7 +7176,7 @@ export function topologize(croom, state = game) {
 
 function good_rm_wall_doorpos(x, y, dir, room) {
     const map = game.level;
-    const rmno = game.level.rooms.indexOf(room) + ROOMOFFSET;
+    const rmno = ROOM_INDEX(room) + ROOMOFFSET;
     if (!isok(x, y) || !room.needjoining) return false;
     const loc = map.at(x, y);
     if (!loc) return false;
@@ -7583,8 +7584,8 @@ export function create_room_door(spec, broom, random = rn2) {
 function shared_with_room(x, y, droom) {
     const map = game.level;
     const loc = map.at(x, y);
-    const rmno = (droom.roomnoidx ?? -1) + ROOMOFFSET;
-    if (!loc || rmno < ROOMOFFSET) return false;
+    const rmno = ROOM_INDEX(droom) + ROOMOFFSET;
+    if (!loc) return false;
     if (loc.roomno === rmno && !loc.edge) return false;
     if (isok(x - 1, y) && map.at(x - 1, y).roomno === rmno
         && x - 1 <= droom.hx) return true;
@@ -7599,7 +7600,7 @@ function shared_with_room(x, y, droom) {
 
 function maybe_add_door(x, y, droom) {
     const loc = game.level.at(x, y);
-    const rmno = (droom.roomnoidx ?? -1) + ROOMOFFSET;
+    const rmno = ROOM_INDEX(droom) + ROOMOFFSET;
     if (droom.hx >= 0 && loc
         && ((!droom.irregular && inside_room(droom, x, y))
             || loc.roomno === rmno
@@ -7876,7 +7877,7 @@ async function generate_stairs() {
 
 function cardinal_nextto_room(aroom, x, y) {
     const map = game.level;
-    const rmno = game.level.rooms.indexOf(aroom) + ROOMOFFSET;
+    const rmno = ROOM_INDEX(aroom) + ROOMOFFSET;
     for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1]]) {
         if (!isok(x + dx, y + dy)) continue;
         const loc = map.at(x + dx, y + dy);

@@ -9,6 +9,12 @@
 // store the room array indexes level.rooms itself, or when any file indexes
 // a room array with a room number (an index that subtracts ROOMOFFSET).
 //
+// The reverse direction, a room's slot (C's `croom - svr.rooms`), has one
+// reading too: js/dungeon.js ROOM_INDEX(). A second test below fails when
+// code outside dungeon.js reads roomnoidx, other than the lines that place
+// a room in its slot, or searches a room array for a room's position
+// (rooms.indexOf(room) gives a wrong number for every subroom).
+//
 // What the scan cannot see: an alias under a name it does not recognise;
 // level.rooms passed whole to a helper that indexes it; `.rooms.at(i)`; and,
 // in a home file, an index already offset before it reaches the brackets
@@ -120,6 +126,108 @@ test('ROOM_ARRAY_HOMES holds the pinned number of files', () => {
         what: 'ROOM_ARRAY_HOMES files',
         pin: 'PINNED_HOMES in scripts/room-index-lookup.test.mjs',
     });
+});
+
+// Lines that write a room's slot as it is placed, the only roomnoidx uses
+// outside js/dungeon.js. mklev.c sort_rooms() also reads each room's slot
+// from before the sort, which ROOM_INDEX() would misdescribe.
+const ROOM_SLOT_WRITES = {
+    'mklev.js': [
+        // add_room(): a new top-level room takes slot nroom.
+        'roomnoidx: g.level.nroom,',
+        // add_subroom(): subroom n takes slot MAXNROFROOMS + 1 + n.
+        'roomnoidx: MAXNROFROOMS + 1 + g.nsubroom,',
+        // sort_rooms() (mklev.c 218-219): the pre-sort slot, then the new one.
+        'oldToNew[g.level.rooms[i].roomnoidx] = i;',
+        'g.level.rooms[i].roomnoidx = i;',
+    ],
+    // rest_room(): each subroom slot it restores or skips.
+    'mkroom.js': [
+        'state.subrooms[advanced].roomnoidx = MAXNROFROOMS + 1 + advanced;',
+    ],
+};
+
+// A search of a room array for a room: rooms, subrooms or sbrooms, with
+// indexOf(), lastIndexOf() or findIndex(). `\b` keeps u.urooms out.
+const POSITION_SEARCH
+    = /\b(?:sub|sb)?rooms\s*(?:\?\.)?\.(?:indexOf|lastIndexOf|findIndex)\s*\(/u;
+
+// Returns "file:line: text" for each line that recomputes a room's slot
+// instead of calling ROOM_INDEX().
+export function roomSlotFindings(name, source) {
+    if (name === 'dungeon.js') return [];
+    const allowed = new Set(ROOM_SLOT_WRITES[name] ?? []);
+    const raw = source.split('\n');
+    const findings = [];
+    codeLines(source).forEach((code, index) => {
+        const slotRead = /\broomnoidx\b/u.test(code)
+            && !allowed.has(code.trim());
+        if (slotRead || POSITION_SEARCH.test(code))
+            findings.push(`${name}:${index + 1}: ${raw[index].trim()}`);
+    });
+    return findings;
+}
+
+test('only ROOM_INDEX() turns a room into its slot', () => {
+    const sources = readdirSync(JS_DIR)
+        .filter((name) => name.endsWith('.js'))
+        .map((name) => [name, readFileSync(join(JS_DIR, name), 'utf8')]);
+    assert.deepEqual(
+        sources.flatMap(([name, source]) => roomSlotFindings(name, source)),
+        [],
+        'compute a room\'s slot with js/dungeon.js ROOM_INDEX(), as C '
+        + 'subtracts svr.rooms (mkroom.h ROOM_INDEX)');
+    // Every allowed line must still be present, so the list cannot keep a
+    // stale entry that a later line could match.
+    const text = new Map(sources);
+    for (const [name, lines] of Object.entries(ROOM_SLOT_WRITES)) {
+        const present = new Set(codeLines(text.get(name)).map((l) => l.trim()));
+        for (const line of lines)
+            assert.ok(present.has(line), `${name} no longer has: ${line}`);
+    }
+});
+
+test('ROOM_SLOT_WRITES holds the pinned number of lines', () => {
+    // 5 lines on 19 November 2026: add_room(), add_subroom(), the two
+    // sort_rooms() lines and rest_room().
+    const PINNED_SLOT_WRITES = 5;
+    assertExceptionCount(Object.values(ROOM_SLOT_WRITES).flat().length,
+        PINNED_SLOT_WRITES, {
+            what: 'ROOM_SLOT_WRITES lines',
+            pin: 'PINNED_SLOT_WRITES in scripts/room-index-lookup.test.mjs',
+        });
+});
+
+test('the slot scan finds each recomputation and skips other rooms', () => {
+    // Lines 1-5 are the forms ROOM_INDEX() replaced: mklev.js
+    // good_rm_wall_doorpos(), priest.js priestini(), shknam.js
+    // good_shopdoor(), sounds.js dosounds() and themerooms.js
+    // selection_room(). Line 6 searches the subroom array. Line 7 is a
+    // placement line, allowed only in its own file. Lines 8-10 are u.urooms,
+    // a room string from in_rooms() and a comment.
+    const source = [
+        'const rmno = game.level.rooms.indexOf(room) + ROOMOFFSET;',
+        'epri.shroom = ((sroom.roomnoidx ?? state.level.rooms.indexOf(sroom))',
+        'const roomNumber = (sroom.roomnoidx ?? -1) + ROOMOFFSET;',
+        '!== (room.roomnoidx ?? 0) + ROOMOFFSET) {',
+        'const roomNumber = room.roomnoidx + ROOMOFFSET;',
+        'const slot = state.subrooms.indexOf(croom);',
+        'roomnoidx: g.level.nroom,',
+        'if (state.u.urooms?.includes(temple)) {',
+        'return rooms.includes(String.fromCharCode(roomno));',
+        '// C: (croom - svr.rooms), not rooms.indexOf(croom) or roomnoidx',
+    ].join('\n');
+    assert.deepEqual(
+        roomSlotFindings('shknam.js', source)
+            .map((f) => Number(f.split(':')[1])),
+        [1, 2, 3, 4, 5, 6, 7],
+    );
+    // mklev.js may write a slot on its placement lines, but not search for one.
+    assert.deepEqual(
+        roomSlotFindings('mklev.js', source)
+            .map((f) => Number(f.split(':')[1])),
+        [1, 2, 3, 4, 5, 6],
+    );
 });
 
 test('the scan finds each bypass and skips comments and top-level loops', () => {

@@ -62,7 +62,7 @@ import {
     rndmonnamDetails,
 } from './do_name.js';
 import {
-    assign_level, mapseen_room, mapseen_temple, on_level,
+    assign_level, mapseen_room, mapseen_temple, on_level, ROOM_INDEX,
 } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
@@ -505,11 +505,7 @@ export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
         if (!priest) return;
 
         const epri = priest.mextra.epri;
-        // C's `sroom - svr.rooms` spans top-level rooms and subrooms in one
-        // conceptual array. JS stores subrooms under their parent, so retain the
-        // source roomnoidx assigned by add_subroom() when available.
-        epri.shroom = ((sroom.roomnoidx ?? state.level.rooms.indexOf(sroom))
-            + ROOMOFFSET);
+        epri.shroom = ROOM_INDEX(sroom) + ROOMOFFSET;
         epri.shralign = Amask2align(state.level.at(sx, sy).flags);
         epri.shrpos = { x: sx, y: sy };
         assign_level(epri.shrlevel, lvl);

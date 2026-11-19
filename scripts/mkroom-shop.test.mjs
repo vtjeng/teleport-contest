@@ -1867,23 +1867,6 @@ test('the room search ends on the rooms[] terminator and on nothing else',
         assert.equal(reached.rtype, SHOPBASE + GENERAL_STORE);
     });
 
-test('topologize leaves a room the level does not own alone', () => {
-    // mklev.c topologize() derives its room number from the room's index in
-    // svr.rooms[]. The port carries that index on the room as roomnoidx, and a
-    // room that has none would write ROOMOFFSET - 1 over the map, so the guard
-    // returns before the first loop. A level with no map returns there too.
-    const state = initializedState();
-    const room = shopCandidate(state, { hx: 13, hy: 8 });
-    room.roomnoidx = -1;
-    do_mkroom(SHOPBASE, state, oneRoll(1).random);
-    assert.equal(state.level.at(room.lx, room.ly).roomno, 0);
-    assert.equal(state.level.at(room.lx - 1, room.ly - 1).edge, false);
-    // The roll and the marks either side of topologize() still happen, which
-    // is what shows the guard returned rather than the caller skipping it.
-    assert.equal(room.rtype, SHOPBASE + GENERAL_STORE);
-    assert.equal(room.needfill, FILL_NORMAL);
-});
-
 test('a shop mimic is disguised by the arm its own depth selects', async () => {
     // makemon.c set_mimic_sym():2467-2486, reached through shknam.c
     // mkshobj_at(), which turns a stocked square into a mimic on

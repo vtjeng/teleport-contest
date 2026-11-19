@@ -33,7 +33,7 @@ import {
     WET,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { on_level } from './dungeon.js';
+import { on_level, ROOM_INDEX } from './dungeon.js';
 import { game } from './gstate.js';
 
 import { sobj_at } from './invent.js';
@@ -63,7 +63,7 @@ export function somey(croom, rawEnv = {}) {
 
 export function inside_room(croom, x, y, state = game) {
     if (croom.irregular) {
-        const roomno = croom.roomnoidx + ROOMOFFSET;
+        const roomno = ROOM_INDEX(croom) + ROOMOFFSET;
         const loc = state.level?.at(x, y);
         return Boolean(loc && !loc.edge && loc.roomno === roomno);
     }
@@ -81,7 +81,7 @@ export function somexy(croom, c, rawEnv = {}) {
     let tryCnt = 0;
 
     if (croom.irregular) {
-        const roomno = croom.roomnoidx + ROOMOFFSET;
+        const roomno = ROOM_INDEX(croom) + ROOMOFFSET;
         while (tryCnt++ < 100) {
             c.x = somex(croom, env);
             c.y = somey(croom, env);

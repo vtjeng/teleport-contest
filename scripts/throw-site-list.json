@@ -852,6 +852,12 @@
       "c": "src/dungeon.c:print_mapseen()",
       "reason": "C reads svd.dungeons[dnum] directly; every mapseen record names an existing dungeon."
     },
+    "js/dungeon.js | ROOM_INDEX | 'ROOM_INDEX requires a placed room'": {
+      "count": 1,
+      "class": "invariant",
+      "c": null,
+      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
+    },
     "js/eat.js | eatcorpse | `eatcorpse: corpsenm ${mnum} is not a monster`": {
       "count": 1,
       "class": "guard",
@@ -3265,12 +3271,6 @@
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
     "js/themerooms.js | selection_iterate | 'selection_iterate requires a selection'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/themerooms.js | selection_room | 'selection_room requires an indexed room'": {
       "count": 1,
       "class": "invariant",
       "c": null,

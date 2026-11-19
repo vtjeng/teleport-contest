@@ -17,6 +17,7 @@ import {
     W_WEST,
 } from './const.js';
 import { isok } from './cmd_isok.js';
+import { ROOM_INDEX } from './dungeon.js';
 import { game } from './gstate.js';
 import { rn2 } from './rng.js';
 
@@ -384,12 +385,10 @@ export function selection_negate(selection = null) {
 // selvar.c selection_from_mkroom() reads the live map (levl[x][y]), the
 // default here; locationAt lets a caller read another level's map.
 export function selection_room(room, locationAt = (x, y) => game.level.at(x, y)) {
-    if (!room || !Number.isInteger(room.roomnoidx))
-        throw new TypeError('selection_room requires an indexed room');
     // The room's bounds are map coordinates, so the selection is built in the
     // absolute frame, as selection_match() in bigrm.js is.
     const result = new ThemeroomSelection(null, true);
-    const roomNumber = room.roomnoidx + ROOMOFFSET;
+    const roomNumber = ROOM_INDEX(room) + ROOMOFFSET;
     for (let y = room.ly; y <= room.hy; ++y) {
         for (let x = room.lx; x <= room.hx; ++x) {
             const location = locationAt(x, y);

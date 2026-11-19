@@ -16,7 +16,8 @@ async function templeSetup(hostile, mode) {
         moves: '' });
     game.level = new GameMap();
     const room = { lx: 3, hx: 13, ly: 3, hy: 10, rtype: OROOM, doorct: 1, fdoor: 0,
-        rlit: true, irregular: false, nsubrooms: 0 };
+        // roomnoidx is its slot, svr.rooms[0], for js/dungeon.js ROOM_INDEX().
+        rlit: true, irregular: false, nsubrooms: 0, roomnoidx: 0 };
     game.level.rooms = [room];
     game.level.nroom = 1;
     for (let x = 3; x <= 13; x++) for (let y = 3; y <= 10; y++)

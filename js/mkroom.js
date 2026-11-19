@@ -68,7 +68,7 @@ import {
     LEPREHALL,
 } from './const.js';
 import {
-    In_hell, induced_align, level_difficulty, mapseen_room,
+    In_hell, induced_align, level_difficulty, mapseen_room, ROOM_INDEX,
 } from './dungeon.js';
 import { del_engr_at } from './engrave.js';
 import { dist2 } from './hacklib.js';
@@ -243,9 +243,13 @@ function rest_room(slot, records, state) {
         state.subrooms[n] ??= slot.sbrooms[i] ?? zero_room();
         slot.sbrooms[i] = state.subrooms[n];
         rest_room(state.subrooms[n], records, state);
-        state.subrooms[n].roomnoidx = MAXNROFROOMS + 1 + n;
-        state.subrooms[state.nsubroom] ??= zero_room();
-        state.subrooms[state.nsubroom++].resident = null;
+        // Each slot gn.nsubroom advances past gets its slot number for
+        // js/dungeon.js ROOM_INDEX(): slot n, or after a nested read the
+        // skipped slot past it.
+        const advanced = state.nsubroom++;
+        state.subrooms[advanced] ??= zero_room();
+        state.subrooms[advanced].roomnoidx = MAXNROFROOMS + 1 + advanced;
+        state.subrooms[advanced].resident = null;
     }
 }
 
@@ -831,8 +835,7 @@ function mk_zoo_thronemon(x, y, normalized) {
 }
 
 export function courtCellIsFillable(sroom, x, y, state) {
-    const roomno = (sroom.roomnoidx ?? state.level.rooms.indexOf(sroom))
-        + ROOMOFFSET;
+    const roomno = ROOM_INDEX(sroom) + ROOMOFFSET;
     if (sroom.irregular) {
         const location = state.level.at(x, y);
         if (!location || location.roomno !== roomno || location.edge)
@@ -908,8 +911,7 @@ export function fill_zoo(sroom, env = {}) {
         tx = sroom.lx + Math.trunc((sroom.hx - sroom.lx + 1) / 2);
         ty = sroom.ly + Math.trunc((sroom.hy - sroom.ly + 1) / 2);
         if (sroom.irregular) {
-            const rmno = (sroom.roomnoidx
-                ?? state.level.rooms.indexOf(sroom)) + ROOMOFFSET;
+            const rmno = ROOM_INDEX(sroom) + ROOMOFFSET;
             const loc = state.level.at(tx, ty);
             if (!loc || loc.roomno !== rmno || loc.edge) {
                 const mm = { x: 0, y: 0 };
@@ -1089,8 +1091,7 @@ function mktemple(state, random) {
 
     sroom.rtype = TEMPLE;
 
-    const roomIndex = state.level.rooms.indexOf(sroom) + ROOMOFFSET;
-    const spot = shrine_pos(roomIndex, state, random);
+    const spot = shrine_pos(ROOM_INDEX(sroom) + ROOMOFFSET, state, random);
     const lev = state.level.at(spot.x, spot.y);
     lev.typ = ALTAR;
     lev.flags = induced_align(80, state, random.rn2);

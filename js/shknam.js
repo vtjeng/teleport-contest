@@ -21,7 +21,7 @@ import {
     SDOOR,
     ismnum,
 } from './const.js';
-import { depth, Is_special, ledger_no, on_level } from './dungeon.js';
+import { depth, Is_special, ledger_no, on_level, ROOM_INDEX } from './dungeon.js';
 import { cvt_sdoor_to_door } from './detect.js';
 import { in_town } from './hack.js';
 import { noit_mon_nam } from './do_name.js';
@@ -367,7 +367,7 @@ export function nameshk(shk, initialNames, normalized) {
 }
 
 function good_shopdoor(sroom, state) {
-    const roomNumber = (sroom.roomnoidx ?? -1) + ROOMOFFSET;
+    const roomNumber = ROOM_INDEX(sroom) + ROOMOFFSET;
     for (let offset = 0; offset < sroom.doorct; ++offset) {
         const index = sroom.fdoor + offset;
         const door = state.level.doors[index];
@@ -437,7 +437,7 @@ function shkinit(shop, sroom, normalized) {
         shk.msleeping = false;
         shk.mtrapseen = -1;
 
-        eshk.shoproom = (sroom.roomnoidx ?? -1) + ROOMOFFSET;
+        eshk.shoproom = ROOM_INDEX(sroom) + ROOMOFFSET;
         sroom.resident = shk;
         eshk.shoptype = sroom.rtype;
         eshk.shoplevel = { ...state.u.uz };
@@ -599,7 +599,7 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
             }
         }
 
-        const roomNumber = (sroom.roomnoidx ?? -1) + ROOMOFFSET;
+        const roomNumber = ROOM_INDEX(sroom) + ROOMOFFSET;
         let stockCount = 0;
         let specialSpot = 0;
         if (state.context?.tribute?.enabled

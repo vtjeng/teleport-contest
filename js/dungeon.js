@@ -2646,6 +2646,22 @@ export function mapseen_room(roomIndex, state) {
     return slot >= 0 ? state.subrooms?.[slot] ?? null : null;
 }
 
+// C ref: mkroom.h ROOM_INDEX(x), ((x) - svr.rooms): the slot a room occupies
+// in C's one rooms[] allocation, and mapseen_room()'s inverse. C's own
+// roomnoidx field goes stale once sort_rooms() reorders the top-level rooms
+// (mklev.c 210-228 reads it but never rewrites it); the port's roomnoidx is
+// that slot instead. mklev.js add_room() and add_subroom() set it when they
+// place a room, sort_rooms() rewrites it after sorting, and mkroom.js
+// rest_room() sets it for each restored subroom slot. A subroom's slot is
+// MAXNROFROOMS + 1 + its gs.subrooms[] index, which level.rooms.indexOf()
+// cannot give. scripts/room-index-lookup.test.mjs fails when other code
+// recomputes a room's slot.
+export function ROOM_INDEX(croom) {
+    if (!Number.isInteger(croom?.roomnoidx))
+        throw new TypeError('ROOM_INDEX requires a placed room');
+    return croom.roomnoidx;
+}
+
 // C ref: dungeon.c recalc_mapseen() (3073-3261). Rebuilds the current level's
 // overview summary from the rooms the hero has seen and the remembered
 // terrain, then refreshes the automatic special-level annotations and the
