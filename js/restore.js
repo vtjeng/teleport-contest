@@ -791,6 +791,17 @@ export function rest_adjust_levelflags(state) {
     if (flags) flags.stasis_until = (flags.stasis_until ?? 0) + state.moves;
 }
 
+// C ref: restore.c getlev(). The inverse of save.js
+// save_level_relative_times(): getlev() makes a level file's relative turn
+// stamps absolute with the reading game's turn, through
+// rest_adjust_levelflags() (1117) and restmon()'s
+// relative_time_to_moves() calls on each pet's droptime and hungrytime
+// (355-356). Every level read in the port converts through this function.
+export function rest_level_relative_times(state) {
+    rest_adjust_levelflags(state);
+    shift_level_edog_times(state.level, state.moves);
+}
+
 // C ref: restore.c restobj() (183-228). C reads the saved bytes into a struct
 // that newobj() allocated, so every restored object has struct obj's union
 // accessors (nexthere, ocontainer and ocarry over `v`) and its bit-field
@@ -1086,10 +1097,9 @@ export async function getlev(ledger, state = game) {
 
     // C ref: restore.c getlev():1117 rest_adjust_levelflags(), and
     // restmonchn()'s and restobjchn()'s restmon() calls (355-356): savelev()
-    // left these times relative to its turn (save.js
-    // shift_level_edog_times()); this read makes them absolute again.
-    rest_adjust_levelflags(state);
-    shift_level_edog_times(state.level, state.moves);
+    // left these times relative to its turn; this read makes them absolute
+    // again.
+    rest_level_relative_times(state);
 
     // ── Restore timers and lights ──
     //
