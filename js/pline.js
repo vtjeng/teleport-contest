@@ -12,6 +12,7 @@ import { BUFSZ, DEVTEAM_EMAIL, PLINE_VERBALIZE } from './const.js';
 import { messageAt } from './startup_a11y.js';
 import { ttyNorep, ttyPline, ttyUrgentPline } from './tty_message.js';
 import { isok } from './cmd_isok.js';
+import { collect_impossibles } from './source_steps.js';
 import { Blind, Deaf, Unaware } from './youprop.js';
 
 
@@ -123,6 +124,17 @@ export async function impossible(text, state = game, env = {}) {
     } finally {
         programState.in_impossible = 0;
     }
+}
+
+// Run the synchronous `fn`, typically an object name for a message, and
+// print each impossible() text that sync_impossible() queued while it ran
+// before returning its value. C prints those reports while it formats the
+// name, so they come before the caller's own message; doname() of an unpaid
+// object that no bill holds reaches shk.c unpaid_cost()'s report this way.
+export async function with_impossibles(fn, state = game) {
+    const { value, texts } = collect_impossibles(state, fn);
+    for (const text of texts) await impossible(text, state);
+    return value;
 }
 
 // C ref: pline.c Norep(): the no-repeat sink for a caller's env, which is
