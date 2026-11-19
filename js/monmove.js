@@ -489,6 +489,14 @@ import {
 import { dungeon_at } from './dungeon_table.js';
 import { stop_occupation } from './allmain.js';
 import { castmu } from './mcastu.js';
+// js/unported_monster_actions.js imports this file; these are hoisted
+// function declarations, which nothing reads at module scope.
+import {
+    attackHeroWithMattacku,
+    moveSimpleOrdinary,
+    moveSimplePet,
+    runDirectMonsterAction,
+} from './unported_monster_actions.js';
 
 
 function movementEnv(env = {}) {
@@ -882,14 +890,6 @@ function postmoveRegionEnv(env, state) {
     };
 }
 
-function requireDochugwOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function') {
-        throw new TypeError(`dochugw requires a ${name} operation`);
-    }
-    return operation;
-}
-
 
 // C ref: monmove.c dochugw():222-235, the test whether the hero notices a
 // threatening monster and stops the current activity.
@@ -919,8 +919,9 @@ function dochugwInterruptsOccupation(
         && !onscary(state.u?.ux, state.u?.uy, monster, state);
 }
 
-// C ref: monmove.c dochugw(). The injected dochug operation owns the complete
-// monster action.
+// C ref: monmove.c dochugw(). dochug() owns the complete monster action;
+// runDirectMonsterAction() is dochug() with the action operations the
+// running game binds, and a caller may replace it.
 //
 // C's `go.occupation` lives at state.go.occupation, where cmd.c
 // set_occupation() writes it. Both reads below name that field, and the second
@@ -929,9 +930,7 @@ function dochugwInterruptsOccupation(
 export async function dochugw(monster, chug, env = {}) {
     const state = env.state ?? game;
     const occupation = state.go?.occupation;
-    const dochugOperation = chug
-        ? requireDochugwOperation(env, 'dochug')
-        : null;
+    const dochugOperation = env.dochug ?? runDirectMonsterAction;
 
     const x = monster.mx;
     const y = monster.my;
@@ -2299,12 +2298,6 @@ export function set_apparxy(monster, env = {}) {
 
 // ---- monmove.c dochug(), ordinary-monster path, and its pre-move
 // ---- AT_WEAP weapon gate ----
-function requireDochugOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`dochug requires a ${name} operation`);
-    return operation;
-}
 
 // C ref: monmove.c dochug(), pre-move AT_WEAP gate. Weapon selection and
 // wield state remain owned by weapon.js mon_wield_item(); a caller may
@@ -2402,8 +2395,11 @@ export async function dochug(monster, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     // C captures mdat before movement; a trap may polymorph this monster.
     const preMoveSpecies = monster.data;
-    const moveMonster = requireDochugOperation(rawEnv, 'moveMonster');
-    const attackHero = requireDochugOperation(rawEnv, 'attackHero');
+    // C ref: monmove.c dochug() calls m_move() and mattacku(). These are
+    // the adapters the running game binds for them; a caller may replace
+    // either.
+    const moveMonster = rawEnv.moveMonster ?? moveSimpleOrdinary;
+    const attackHero = rawEnv.attackHero ?? attackHeroWithMattacku;
     // C ref: monmove.c:714 and :722. A caller may replace these.
     const monsterCanSeeHero = rawEnv.monsterCanSeeHero ?? m_canseeu;
     const usePreMoveItems = rawEnv.usePreMoveItems ?? use_pre_move_items;
@@ -3065,12 +3061,6 @@ export function m_search_items(
 }
 
 // ---- monmove.c m_move(), ordinary not_special path through postmov() ----
-function requireMoveOperation(env, name) {
-    const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`m_move requires a ${name} operation`);
-    return operation;
-}
 
 // C ref: monmove.c holds_up_web() (1227-1239). TRUE when the cell at (x,y) is
 // a wall, rock, or similar obstruction, an upward staircase or ladder, or iron
@@ -3636,7 +3626,9 @@ export async function m_move(monster, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     // C ref: monmove.c:1748 finish_meating(); a caller may replace it.
     const finishEating = rawEnv.finishEating ?? finish_meating;
-    const movePet = requireMoveOperation(rawEnv, 'movePet');
+    // C ref: monmove.c:1773 dog_move(); moveSimplePet() is the adapter the
+    // running game binds for it, and a caller may replace it.
+    const movePet = rawEnv.movePet ?? moveSimplePet;
     const env = { ...rawEnv, state, random };
     let oldX = monster.mx;
     let oldY = monster.my;
