@@ -3168,12 +3168,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/startup_a11y.js | emitGlyphUpdateNotices | 'emitGlyphUpdateNotices requires a pline callback'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/startup_reroll.js | reroll_menu | 'reroll_menu requires initialized u.uroleplay'": {
       "count": 1,
       "class": "invariant",
