@@ -9,8 +9,10 @@
 // store the room array indexes level.rooms itself, or when any file indexes
 // a room array with a room number (an index that subtracts ROOMOFFSET).
 //
-// What the scan cannot see: an alias under a name it does not recognise, or
-// level.rooms passed whole to a helper that indexes it. It catches aliases
+// What the scan cannot see: an alias under a name it does not recognise;
+// level.rooms passed whole to a helper that indexes it; `.rooms.at(i)`; and,
+// in a home file, an index already offset before it reaches the brackets
+// (`rooms[roomno]` where roomno = n - ROOMOFFSET). It catches aliases
 // declared with `const|let|var x = <expr>.rooms` and `{ rooms } =`.
 
 import assert from 'node:assert/strict';

@@ -869,10 +869,12 @@ export async function u_left_shop(
 // blocks only when that slot holds a shop, which on most levels it does not.
 // No slot past the last live room holds a shop. savelev() zeroes all of
 // svr.rooms[] before the next level is made or read (save.c:560-564), and a
-// new process starts zeroed, so such a slot holds zeros or what this level's
-// own generation staged there: the hx = -1 ending flag or a vault's staged
-// lx and ly. mapseen_room() returns null for such a slot, and IS_SHOP()
-// reads null as not a shop.
+// new process starts zeroed, so such a slot holds zeros or a record this
+// level's own generation left there, such as the hx = -1 ending flag, a
+// vault's staged lx and ly, or join_map()'s temporary OROOM rooms
+// (mkmap.c:244-275). None of these has a shop's rtype. mapseen_room()
+// returns the port's record for such a slot, or null where the port holds
+// none, and IS_SHOP() reads either as not a shop.
 export async function block_door(x, y, state = game, { message = ttyPline } = {}) {
     const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
     if (roomno < 0 || !IS_SHOP(roomno, state)) return false;
