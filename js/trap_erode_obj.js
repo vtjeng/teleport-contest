@@ -195,17 +195,17 @@ export async function erode_obj(obj, description, type, flags, env) {
         'canSeeMonster',
         canseemon,
     )(monsterVictim, state);
-    const hit = state.gb?.bhitpos;
+    const hit = state.gb.bhitpos;
     let pool = false;
-    if (floorVictim && hit) {
+    if (floorVictim) {
         const poolAt = env.poolAt
             ?? (await import('./dbridge.js')).is_pool;
         pool = await poolAt(hit.x, hit.y, state);
     }
     const visibleAtObject = floorVictim
         && (typeof env.canSeeObject === 'function'
-            ? env.canSeeObject(obj, hit?.x, hit?.y, state)
-            : hit && cansee(hit.x, hit.y, state));
+            ? env.canSeeObject(obj, hit.x, hit.y, state)
+            : cansee(hit.x, hit.y, state));
     const visobj = Boolean(visibleAtObject
         && (!pool
             || (Boolean(state.u?.uinwater)

@@ -34,7 +34,7 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
-import { game } from '../js/gstate.js';
+import { game, initialGb } from '../js/gstate.js';
 import { count_unpaid } from '../js/invent.js';
 import {
     AT_ENGL,
@@ -199,6 +199,7 @@ function monster(overrides = {}) {
 
 function state(overrides = {}) {
     const gameState = {
+        gb: initialGb(),
         gt: { thrownobj: null },
         gk: { kickedobj: null },
         u: {

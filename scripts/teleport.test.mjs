@@ -89,7 +89,7 @@ import {
     tele_restrict,
     u_teleport_mon,
 } from '../js/teleport.js';
-import { resetGame } from '../js/gstate.js';
+import { initialGb, resetGame } from '../js/gstate.js';
 import {
     cloneIsaacContext,
     createCoreRandom,
@@ -226,6 +226,7 @@ test('level_tele_trap preserves the whole C effect order in both callers', () =>
 function positionState() {
     const state = {
         astral_level: { dnum: 9, dlevel: 1 },
+        gb: initialGb(),
         dungeons: [{ flags: { hellish: false } }],
         level: new GameMap(),
         moves: 1,

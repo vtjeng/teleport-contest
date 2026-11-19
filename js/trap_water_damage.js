@@ -173,7 +173,6 @@ export async function water_damage_chain(obj, here = false, env = {}) {
     acidContext.ctx_valid = true;
 
     state.gb ??= {};
-    state.gb.bhitpos ??= { x: 0, y: 0 };
     const savedBhitpos = {
         x: state.gb.bhitpos.x,
         y: state.gb.bhitpos.y,

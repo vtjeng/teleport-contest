@@ -2561,7 +2561,6 @@ async function use_stethoscope(obj, state = game) {
     // gn.notonhead here is u.uswallow rather than a comparison with the
     // monster's own square.
     state.gb ??= {};
-    state.gb.bhitpos ??= {};
     state.gb.bhitpos.x = u.ux;
     state.gb.bhitpos.y = u.uy;
     state.gn ??= {};

@@ -3367,8 +3367,8 @@ export async function bhitm(monster, wand, state = game,
     random = coreRandom, rawEnv = {}) {
     // bhit() consumes the callback's return value while walking the ray.
     state.gn ??= {};
-    const hitpos = state.gb?.bhitpos ?? { x: monster.mx, y: monster.my };
-    state.gn.notonhead = monster.mx !== hitpos.x || monster.my !== hitpos.y;
+    state.gn.notonhead = monster.mx !== state.gb.bhitpos.x
+        || monster.my !== state.gb.bhitpos.y;
     let learn_it = false;
     let reveal_invis = false;
     let wake = true;
@@ -3620,7 +3620,7 @@ export async function bhitm(monster, wand, state = game,
     } else if (forceBolt) {
         const zap_type_text = otyp === WAN_STRIKING ? 'wand' : 'spell';
         reveal_invis = true;
-        learn_it = cansee(hitpos.x, hitpos.y, state);
+        learn_it = cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
         if (resists_magm(monster, state)) {
             if (disguised_mimic && !disguised_as_mon(monster))
                 seemimic(monster, state);
@@ -3834,9 +3834,9 @@ export async function bhitm(monster, wand, state = game,
             hot_pursuit(monster, state);
     }
     if (reveal_invis && monster.mhp >= 1
-        && cansee(hitpos.x, hitpos.y, state)
+        && cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
         && !canspotmon(monster, state))
-        map_invisible(hitpos.x, hitpos.y, state);
+        map_invisible(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     if (learn_it) learnwand(wand, state, { random });
     return ret;
 }

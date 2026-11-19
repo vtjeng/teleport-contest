@@ -839,7 +839,6 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
         && Boolean(arw?.tethered);
 
     state.gb ??= {};
-    state.gb.bhitpos ??= {};
     state.gb.bhitpos.x = x;
     state.gb.bhitpos.y = y;
     state.gn ??= {};

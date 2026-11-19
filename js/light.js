@@ -251,8 +251,8 @@ export async function show_transient_light(obj, x, y, state = game, env = {}) {
 
     if (obj) {
         const placeObject = transientLightOperation(env, 'placeObject');
-        const bhitpos = state.gb?.bhitpos;
-        await placeObject(obj, bhitpos?.x ?? x, bhitpos?.y ?? y);
+        // C light.c:296 places the object at gb.bhitpos, not at <x,y>.
+        await placeObject(obj, state.gb.bhitpos.x, state.gb.bhitpos.y);
     } else {
         // The zeroany.a_obj member is null for camera flashes. `source.x/y`
         // are the single stored location for this transient source.

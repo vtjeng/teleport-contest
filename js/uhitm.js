@@ -1150,8 +1150,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
 
     // 220: cache the shown glyph for the visibility and mimic tests below.
     // hack.c stores the destination in gb.bhitpos before calling do_attack().
-    const bhitpos = state.gb?.bhitpos ?? { x: mtmp.mx, y: mtmp.my };
-    const glyph = glyph_at(bhitpos.x, bhitpos.y, state);
+    const glyph = glyph_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
 
     // 230-252: a target the hero cannot spot, not hidden under something.
     if (!canspotmon(mtmp, state)
@@ -1163,7 +1162,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
             `Wait!  There's ${something} there you can't see!`,
             state,
         );
-        map_invisible(bhitpos.x, bhitpos.y, state);
+        map_invisible(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
         // An unseen mimic is treated as though the hero stumbled onto a
         // visible mimic, including the source's adjacent-sticking check.
         if (M_AP_TYPE(mtmp)

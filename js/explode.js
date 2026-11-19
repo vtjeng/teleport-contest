@@ -876,7 +876,6 @@ export async function scatter(
     let lostGoods = false;
 
     state.gb ??= {};
-    state.gb.bhitpos ??= { x: sx, y: sy };
     state.gt ??= {};
 
     if (individualObject && (obj.ox !== sx || obj.oy !== sy)) {

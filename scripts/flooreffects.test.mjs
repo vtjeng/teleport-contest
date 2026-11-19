@@ -22,7 +22,7 @@ import {
 } from '../js/const.js';
 import { boulder_hits_pool, flooreffects } from '../js/do.js';
 import { GameMap } from '../js/game.js';
-import { resetGame } from '../js/gstate.js';
+import { initialGb, resetGame } from '../js/gstate.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { objects_globals_init } from '../js/objects.js';
@@ -121,6 +121,7 @@ function fixture({
     level.flags.temperature = temperature;
     const state = {
         level,
+        gb: initialGb(),
         context: { mon_moving: monMoving },
         flags: { verbose: true },
         u: {
@@ -264,7 +265,8 @@ test('flooreffects answers FALSE on an ordinary floor and clears links', async (
     assert.equal(await land(state, obj), false);
     assert.equal(obj.nobj, null);
     assert.equal(obj.nexthere, null);
-    assert.deepEqual(state.gb.bhitpos, undefined);
+    // do.c:357 restores the saved gb.bhitpos, here decl.c's zero.
+    assert.deepEqual(state.gb.bhitpos, { x: 0, y: 0 });
 });
 
 test('flooreffects keeps ordinary corridor and altar arms source gated', async () => {

@@ -91,7 +91,7 @@ import {
     walk_path,
 } from '../js/dothrow.js';
 import { GameMap } from '../js/game.js';
-import { game, resetGame } from '../js/gstate.js';
+import { game, initialGb, resetGame } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { does_block, vision_reset } from '../js/vision.js';
 import { isThrowingWeapon } from '../js/invent.js';
@@ -988,7 +988,7 @@ function arena({
     uhpmax = 12,
 } = {}) {
     initRng(ARENA_SEED);
-    const state = {};
+    const state = { gb: initialGb() };
     state.level = new GameMap();
     for (let x = 1; x <= last; x++) state.level.at(x, 4).typ = ROOM;
     state.u = {

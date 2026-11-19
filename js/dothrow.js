@@ -3288,9 +3288,6 @@ async function throw_gold(obj, state = game) {
         return ECMD_TIME;
     }
 
-    /* C's gb.bhitpos is a struct member and always exists; this port creates
-       the struct on first use, and both arms below write into it. */
-    state.gb ??= {};
     if (u.dz) {
         if (u.dz < 0 && !Is_airlevel(u.uz, state) && !u.uinwater
             && !Is_waterlevel(u.uz, state)) {

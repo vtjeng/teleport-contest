@@ -35,7 +35,16 @@ function initialGameState() {
         n_rects: 0,
         rect_cnt: 0,
         nhrect: null,
+        gb: initialGb(),
     };
+}
+
+// C decl.c:219 starts gb.bhitpos at { 0, 0 } once per process, and
+// savelev()/savegamestate() do not store it, so each segment starts from zero
+// too. scripts/bhitpos-access.test.mjs checks that js/ never guards, defaults
+// or deletes it. Test states built by hand take their gb from here as well.
+export function initialGb() {
+    return { bhitpos: { x: 0, y: 0 } };
 }
 
 export let game = initialGameState();

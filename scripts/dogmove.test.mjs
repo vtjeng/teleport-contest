@@ -52,7 +52,7 @@ import {
 } from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
 import { newObject, place_object } from '../js/obj.js';
-import { game } from '../js/gstate.js';
+import { game, initialGb } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
 import { initrack, settrack } from '../js/track.js';
 import {
@@ -112,6 +112,7 @@ function petState() {
         }
     }
     const state = {
+        gb: initialGb(),
         gg: {},
         invent: null,
         level,
