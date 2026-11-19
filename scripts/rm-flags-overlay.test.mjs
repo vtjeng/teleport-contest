@@ -5,8 +5,9 @@
 // makeLocation() mirrors that: the port keeps them in `flags` and has no
 // separate field for any of them. A writer that set a separate field would
 // leave `flags`, which every reader uses, stale; a watchman's D_WARNED, for
-// instance, must land on the door's D_TRAPPED bit. This test fails when game
-// code names such a field again.
+// instance, must land on the door's D_TRAPPED bit. rm.h:224 likewise defines
+// arboreal_sdoor over `candig`, so the port keeps that bit only in candig.
+// This test fails when game code names such a field again.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -82,8 +83,14 @@ function fieldFindings(field, name, source) {
         .map((site) => `${name}:${site.line}: ${site.text}`);
 }
 
-for (const field of FIELDS) {
-    test(`no game code names a ${field} field apart from flags`, () => {
+// rm.h macros over a struct rm member other than `flags`, mapped to it.
+const OTHER_ALIASES = { arboreal_sdoor: 'candig' };
+
+for (const [field, home] of [
+    ...FIELDS.map((field) => [field, 'flags']),
+    ...Object.entries(OTHER_ALIASES),
+]) {
+    test(`no game code names the ${field} field apart from ${home}`, () => {
         const findings = readdirSync(JS_DIR)
             .filter((name) => name.endsWith('.js'))
             .flatMap((name) => fieldFindings(
@@ -157,7 +164,7 @@ test('the looted scan allows only the wish descriptor', () => {
 
 test('a fresh location keeps its door, wall and looted state only in flags', () => {
     const location = makeLocation();
-    for (const field of FIELDS)
+    for (const field of [...FIELDS, ...Object.keys(OTHER_ALIASES)])
         assert.equal(Object.hasOwn(location, field), false, field);
     assert.equal(location.flags, 0);
 });
