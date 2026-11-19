@@ -652,20 +652,8 @@ test('temporary status expiry accounting runs at the hero action boundary',
     assert.equal(state.disp.botl, true);
 });
 
-test('hero time effects validate due clairvoyance owners atomically',
+test('hero time effects validate the clairvoyance random source atomically',
     async () => {
-    const missingMap = clairvoyanceTurnState();
-    missingMap.u.uprops[CLAIRVOYANT].extrinsic = 1;
-    await assert.rejects(
-        () => finishHeroTimeEffects(missingMap, {
-            encumberMessage: () => assert.fail('missing map must not notify'),
-            random: { rn1: () => assert.fail('missing map must not draw') },
-        }),
-        /requires doVicinityMap/u,
-    );
-    assert.equal(missingMap.hero_seq, 160);
-    assert.equal(missingMap.context.seer_turn, 20);
-
     const missingRandom = clairvoyanceTurnState();
     await assert.rejects(
         () => finishHeroTimeEffects(missingRandom, {
@@ -2852,23 +2840,6 @@ test('interrupt_multi ends the count before Norep prints', async () => {
     assert.deepEqual(printed, [{ text: 'You are in full health.', multi: 0 }]);
     assert.equal(state.multi, 0);
     assert.equal(state.u.usleep, 0);
-});
-
-test('interrupt_multi refuses to end a count it cannot announce', async () => {
-    // A caller that reaches the printing arm without supplying Norep()'s owner
-    // is a programming error, and the count must survive it: half an
-    // interruption is worse than none, and js/jsmain.js does not convert a
-    // TypeError into a segment boundary.
-    const state = multiState({
-        context: { run: 0, travel: 0, travel1: 0, mv: 0 },
-    });
-    await assert.rejects(
-        () => interrupt_multi('You are in full health.', state, {}),
-        (error) => error instanceof TypeError
-            && /requires norepMessage/u.test(error.message),
-    );
-    assert.equal(state.multi, COLNO);
-    assert.equal(state.u.usleep, 3);
 });
 
 // The last terminal row, which is the second of the two status lines.

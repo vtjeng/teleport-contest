@@ -2586,12 +2586,8 @@ function* makemon_steps(ptr, x, y, mmflags, normalized) {
 // stops immediately after set_malign(); this continuation then preserves C's
 // awaited recursive group tails, parent inventory, and final output order.
 export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
-    const message = env.message === undefined ? ttyPline : env.message;
-    // An explicit null is a missing owner, not a request for the default.
-    const norepMessage = env.norepMessage === null ? null : norep_printer(env);
-    if (typeof message !== 'function' || typeof norepMessage !== 'function') {
-        throw new TypeError('makemon_runtime requires message operations');
-    }
+    const message = env.message ?? ttyPline;
+    const norepMessage = norep_printer(env);
     const runtimeContinuation = { claimed: false };
     // This caller waits, so level_difficulty()'s impossible() for dungeon -1
     // prints where C prints it (js/source_steps.js).

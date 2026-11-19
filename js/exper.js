@@ -329,9 +329,7 @@ export async function newexplevel(state = game, env = {}) {
 // livelog_printf() writes an external file this port cannot write, while its
 // in-memory chronicle event is retained by pline.js.
 export async function pluslvl(incr, state = game, env = {}) {
-    const message = env.message;
-    if (typeof message !== 'function')
-        throw new TypeError('pluslvl needs a message owner');
+    const message = env.message ?? ttyPline;
     const random = env.random ?? coreRandom;
     const u = state.u;
 

@@ -1,11 +1,5 @@
 {
   "entries": {
-    "js/allmain.js | clairvoyancePlan | 'active clairvoyance requires doVicinityMap'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/allmain.js | clairvoyancePlan | 'clairvoyance cadence requires initialized moves and seer_tu": {
       "count": 1,
       "class": "invariant",
@@ -18,35 +12,17 @@
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
     },
-    "js/allmain.js | finishHeroTimeEffects | 'hero time effects require encumber_msg'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/allmain.js | finishHeroTimeEffects | 'hero time effects require initialized hero_seq'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
     },
-    "js/allmain.js | interrupt_multi | 'allmain.c interrupt_multi() requires norepMessage'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/allmain.js | maybe_generate_rnd_mon | 'maybe_generate_rnd_mon requires initialized level globals'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
-    },
-    "js/allmain.js | requireOccupationOperation | `allmain.c stop_occupation() requires ${name}`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/allmain.js | u_calc_moveamt | 'u_calc_moveamt requires initialized hero form'": {
       "count": 1,
@@ -180,12 +156,6 @@
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
     },
-    "js/attrib.js | exerciseAttribute | 'exercise requires encumber_msg'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/attrib.js | exerper | 'periodic exercise requires initialized hero hunger'": {
       "count": 1,
       "class": "invariant",
@@ -197,18 +167,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
-    },
-    "js/attrib.js | requiredOperation | `attribute upkeep requires ${name}`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
-    "js/attrib.js | restore_attrib | 'restore_attrib requires encumber_msg'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
     },
     "js/attrib.js | roleAndRace | 'role and race must be initialized first'": {
       "count": 1,
@@ -636,12 +594,6 @@
       "c": "src/do_wear.c:2393",
       "reason": "C accessory_or_armor_on() panics when the armor just worn is in no armor slot (after setworn(); the port checks the mask before it); the throw stays, as in flooreffects()."
     },
-    "js/do_wear.js | glibr | 'do_wear.c glibr() requires canletgo and dropx'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation is missing or misused; every production caller supplies it."
-    },
     "js/do.js | consumeDropAdmission | 'drop admission belongs to another hook set'": {
       "count": 1,
       "class": "invariant",
@@ -924,12 +876,6 @@
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
     },
-    "js/eat.js | preflightGetHungry | 'gethungry requires nearCapacity'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
     "js/eat.js | preflightGetHungry | 'weakness transition requires hero attributes, role, and rac": {
       "count": 1,
       "class": "invariant",
@@ -941,12 +887,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
-    "js/eat.js | requireEatOperation | `eat.c requires ${name}`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/eat.js | ringConsumesNutrition | `gethungry requires object data for ring ${ring.otyp}`": {
       "count": 1,
@@ -977,12 +917,6 @@
       "class": "invariant",
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
-    "js/exper.js | pluslvl | 'pluslvl needs a message owner'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/explode.js | scatter | `scatter() has no operation ${name}`": {
       "count": 1,
@@ -1398,18 +1332,6 @@
       "c": null,
       "reason": "Replay harness contract (input queue, display, or module-level game); no C counterpart."
     },
-    "js/light.js | do_light_sources | 'do_light_sources requires circleOffset'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
-    "js/light.js | do_light_sources | 'do_light_sources requires clearPath'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
-    },
     "js/light.js | lightGlobals | 'light sources require light_globals_init()'": {
       "count": 1,
       "class": "invariant",
@@ -1433,12 +1355,6 @@
       "class": "panic",
       "c": "src/light.c:558",
       "reason": "C panic(\"relink_light_sources: bad type (%d)\"); synchronous function."
-    },
-    "js/light.js | transientLightOperation | `transient light requires ${name}`": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/lock.js | doopen_indir | 'doopen_indir requires a door location'": {
       "count": 1,
@@ -1475,12 +1391,6 @@
       "class": "invariant",
       "c": null,
       "reason": "A JavaScript control-flow contract (prepared plans, async continuations, hook return values); C has no counterpart."
-    },
-    "js/makemon_create.js | makemon_runtime | 'makemon_runtime requires message operations'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source is missing; every production caller passes it, and C calls the function directly."
     },
     "js/makemon_create.js | neweshk | 'neweshk requires a monster instance'": {
       "count": 1,
@@ -1962,12 +1872,6 @@
       "c": null,
       "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
-    "js/mktrap.js | roomCoordinate | 'mktrap requires room-coordinate selection'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/mon.js | dealloc_monst | 'dealloc_monst with nmon still linked'": {
       "count": 1,
       "class": "panic",
@@ -1985,18 +1889,6 @@
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
-    },
-    "js/mon.js | liquidOperation | 'monster liquid effects require ' + name": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/mon.js | liquidPlainMessage | 'monster liquid effects require message'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/mon.js | mongone | 'mongone requires a monster instance'": {
       "count": 1,
@@ -2045,18 +1937,6 @@
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
-    },
-    "js/mon.js | wake_msg | 'wake_msg requires visibility and message owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/mon.js | wake_nearto_core | 'wake_nearto requires visibility and message owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/mon.js | were_change | 'were_change requires initialized gw.were_changes'": {
       "count": 1,
@@ -2166,12 +2046,6 @@
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/monmove.js | movementEnv | 'monster movement couldSee must be a function'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
     "js/monmove.js | movementEnv | 'monster movement random injection requires rn2'": {
       "count": 1,
       "class": "invariant",
@@ -2183,12 +2057,6 @@
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
-    },
-    "js/monmove.js | undesirable_disp | 'undesirable_disp requires cursedObjectAt for a pet'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/monmove.js | undesirable_disp | 'undesirable_disp requires rn2'": {
       "count": 1,
@@ -2327,18 +2195,6 @@
       "class": "guard",
       "c": "src/muse.c:1826",
       "reason": "C use_offensive() dereferences gm.m.offensive, which every caller sets through find_offensive() first; the port keeps the selection on state.m_offense."
-    },
-    "js/muse.js | use_offensive | 'use_offensive requires message and monsterName owners'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
-    },
-    "js/muse.js | use_offensive | 'use_offensive requires throwMissile'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "An injected operation or random source that every production caller supplies is missing; C calls the function directly."
     },
     "js/nhlsel.js | checkSelection | 'selection operator requires two selections'": {
       "count": 1,
@@ -2785,12 +2641,6 @@
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
     "js/read.js | create_particular_parse | 'monster request must be text'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
-    "js/regen.js | reachedFull | `${kind} reaching full requires interruptMulti`": {
       "count": 1,
       "class": "invariant",
       "c": null,
@@ -3738,12 +3588,6 @@
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
-    "js/vision.js | recalc_steps | 'vision_recalc on a state other than game requires a redraw'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
-    },
     "js/vision.js | view_from | `view_from called with range ${range}`": {
       "count": 1,
       "class": "panic",
@@ -3803,12 +3647,6 @@
       "class": "invariant",
       "c": null,
       "reason": "The monster catalog lacks the Wizard of Yendor record."
-    },
-    "js/wizard.js | intervene | 'intervene requires rndcurse for the curse arm'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
     },
     "js/wizard.js | intervene | `intervene selected an invalid arm: ${which}`": {
       "count": 1,

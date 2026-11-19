@@ -55,6 +55,10 @@ import { end_burn, obj_is_local } from './timeout.js';
 import { rest_push_each } from './restore.js';
 import { panic } from './end.js';
 import { find_oid } from './shk.js';
+import { circle_offset, clear_path, vision_recalc_async } from './vision.js';
+import { canseemon, canspotmon, flush_screen, map_invisible, newsym } from './display.js';
+import { place_object, remove_object } from './obj.js';
+import { nh_delay_output } from './hack.js';
 
 // decl.c initializes gl.light_base for each game. Keep the source owner (`gl`)
 // separate from the flattened vision_full_recalc flag used by the current JS
@@ -210,18 +214,29 @@ export function del_light_source_async(type, id, state = game, env = {}) {
         impossible_printer(state, env));
 }
 
-function transientLightOperation(env, name) {
-    const operation = env?.[name];
-    if (typeof operation !== 'function') {
-        throw new TypeError(`transient light requires ${name}`);
-    }
-    return operation;
+// The display, vision and object-list callees light.c calls directly
+// (vision_recalc(), flush_screen(), canseemon(), canspotmon(),
+// map_invisible(), place_object(), remove_object() and delay_output()). A
+// caller may replace any of them through env.
+function transientLightOperation(env, name, state) {
+    if (env[name]) return env[name];
+    return {
+        visionRecalc: (control) => vision_recalc_async(control, {
+            state,
+            redraw: newsym,
+        }),
+        flushScreen: (mode) => flush_screen(mode),
+        canSeeMonster: (monster) => canseemon(monster, state),
+        canSpotMonster: (monster) => canspotmon(monster, state),
+        mapInvisible: (x, y) => map_invisible(x, y, state),
+        placeObject: (obj, x, y) => place_object(obj, x, y, { state }),
+        removeObject: (obj) => remove_object(obj, { state }),
+        delayOutput: () => nh_delay_output(state),
+    }[name];
 }
 
 // C ref: light.c show_transient_light(). A null object is a camera flash and
-// owns a range-zero LS_OBJECT node whose union member is null. The caller
-// supplies display, vision, and object-list operations so light.js does not
-// add a reverse module cycle through vision.js, display.js, or obj.js.
+// owns a range-zero LS_OBJECT node whose union member is null.
 export async function show_transient_light(obj, x, y, state = game, env = {}) {
     let source = null;
     if (!obj) {
@@ -250,7 +265,7 @@ export async function show_transient_light(obj, x, y, state = game, env = {}) {
     }
 
     if (obj) {
-        const placeObject = transientLightOperation(env, 'placeObject');
+        const placeObject = transientLightOperation(env, 'placeObject', state);
         // C light.c:296 places the object at gb.bhitpos, not at <x,y>.
         await placeObject(obj, state.gb.bhitpos.x, state.gb.bhitpos.y);
     } else {
@@ -260,8 +275,8 @@ export async function show_transient_light(obj, x, y, state = game, env = {}) {
         source.y = y;
     }
 
-    await transientLightOperation(env, 'visionRecalc')(0);
-    await transientLightOperation(env, 'flushScreen')(0);
+    await transientLightOperation(env, 'visionRecalc', state)(0);
+    await transientLightOperation(env, 'flushScreen', state)(0);
 
     const rangeSquared = source.range * source.range;
     for (let monster = state.level?.monlist ?? null;
@@ -269,14 +284,14 @@ export async function show_transient_light(obj, x, y, state = game, env = {}) {
         monster = monster.nmon) {
         if (monster.mhp < 1 || (monster.isgd && !monster.mx)) continue;
         if (dist2(monster.mx, monster.my, x, y) <= rangeSquared
-            && await transientLightOperation(env, 'canSeeMonster')(monster)) {
+            && await transientLightOperation(env, 'canSeeMonster', state)(monster)) {
             monster.mtemplit = 1;
         }
     }
 
     if (obj) {
-        await transientLightOperation(env, 'delayOutput')();
-        await transientLightOperation(env, 'removeObject')(obj);
+        await transientLightOperation(env, 'delayOutput', state)();
+        await transientLightOperation(env, 'removeObject', state)(obj);
     }
 }
 
@@ -286,7 +301,7 @@ export async function show_transient_light(obj, x, y, state = game, env = {}) {
 export async function transient_light_cleanup(state = game, env = {}) {
     await discard_flashes(state);
     if (state.vision_full_recalc)
-        await transientLightOperation(env, 'visionRecalc')(0);
+        await transientLightOperation(env, 'visionRecalc', state)(0);
 
     let temporaryCount = 0;
     for (let monster = state.level?.monlist ?? null;
@@ -296,14 +311,14 @@ export async function transient_light_cleanup(state = game, env = {}) {
         if (!monster.mtemplit) continue;
         monster.mtemplit = 0;
         ++temporaryCount;
-        if (!await transientLightOperation(env, 'canSpotMonster')(monster)) {
-            await transientLightOperation(env, 'mapInvisible')(
+        if (!await transientLightOperation(env, 'canSpotMonster', state)(monster)) {
+            await transientLightOperation(env, 'mapInvisible', state)(
                 monster.mx, monster.my,
             );
         }
     }
     if (temporaryCount)
-        await transientLightOperation(env, 'flushScreen')(0);
+        await transientLightOperation(env, 'flushScreen', state)(0);
 }
 
 // C ref: light.c discard_flashes().
@@ -647,12 +662,11 @@ export function arti_light_description(obj, state = game) {
 }
 
 // light.c:do_light_sources(). NetHack gets clear_path() and circle_data[]
-// from vision.c; this port receives the corresponding operations explicitly
-// so light.js and vision.js do not form an import cycle.
+// from vision.c; a caller may replace either through env.
 export function do_light_sources(csRows, env = {}) {
     const state = env.state ?? game;
-    const clearPath = env.clearPath;
-    const circleOffset = env.circleOffset;
+    const clearPath = env.clearPath ?? clear_path;
+    const circleOffset = env.circleOffset ?? circle_offset;
     let atHeroRange = 0;
 
     for (let source = state.gl?.light_base ?? null;
@@ -687,10 +701,6 @@ export function do_light_sources(csRows, env = {}) {
         }
 
         if (!(source.flags & LSF_SHOW)) continue;
-        if (typeof circleOffset !== 'function')
-            throw new TypeError('do_light_sources requires circleOffset');
-        if (!atHero && typeof clearPath !== 'function')
-            throw new TypeError('do_light_sources requires clearPath');
 
         const minY = Math.max(0, source.y - source.range);
         const maxY = Math.min(ROWNO - 1, source.y + source.range);

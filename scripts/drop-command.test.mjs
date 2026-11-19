@@ -1373,7 +1373,7 @@ test('a dry throne admits a carried object and a wielded weapon', async () => {
 });
 
 // allmain.c calls glibr before timeout, and do_wear.c clears uwep before
-// dropx. Use the canonical helper on the live state.
+// dropx. glibr() calls canletgo() and dropx() itself, as allmain.c's call does.
 test('slippery fingers drop onto a throne', async () => {
     const state = await startedGame();
     state.u.ux++; // A non-stairway square isolates the throne admission.
@@ -1381,9 +1381,7 @@ test('slippery fingers drop onto a throne', async () => {
     state.level.at(ux, uy).typ = THRONE;
     const weapon = state.uwep;
     const rngBefore = getRngLog().length;
-    await glibr(state, {
-        canletgo, dropx: obj => dropx(obj, dropCommandEnv(state)),
-    });
+    await glibr(state);
     assert.equal(state.uwep, null);
     assert.equal(weapon.where, OBJ_FLOOR);
     assert.ok(pileAt(state, ux, uy).includes(weapon));

@@ -480,7 +480,7 @@ export function clear_path(col1, row1, col2, row2) {
     return q3_path(row1, col1, row2, col2);
 }
 
-function circle_offset(range, rowOffset) {
+export function circle_offset(range, rowOffset) {
     return circle_data[circle_start[range] + rowOffset];
 }
 
@@ -856,11 +856,6 @@ export function vision_recalc(control = 0, env = {}) {
 // that supplies its own `redraw` draws synchronously instead.
 function* recalc_steps(control, env) {
     const state = env.state ?? game;
-    if (state !== game && typeof env.redraw !== 'function') {
-        throw new TypeError(
-            'vision_recalc on a state other than game requires a redraw',
-        );
-    }
     const redraw = env.redraw ?? newsym;
     const draw = redraw === newsym ? newsym_steps : function* (x, y) {
         redraw(x, y);
@@ -1019,11 +1014,7 @@ function* recalc_steps(control, env) {
     }
 
     // C ref: vision.c vision_recalc() -> light.c do_light_sources().
-    do_light_sources(next, {
-        state,
-        clearPath: clear_path,
-        circleOffset: circle_offset,
-    });
+    do_light_sources(next, { state });
 
     // Convert permanent and mobile lighting within line of sight to IN_SIGHT.
     for (let row = 0; row < ROWNO; row++) {

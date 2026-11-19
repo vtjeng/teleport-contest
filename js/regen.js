@@ -22,6 +22,7 @@ import {
     Breathless, EMagical_breathing, Energy_regeneration, Half_physical_damage,
     Regeneration, Sleepy,
 } from './youprop.js';
+import { interrupt_multi } from './allmain.js';
 
 
 
@@ -34,18 +35,12 @@ function canRegenerate(hero) {
 // allmain.c regen_hp() and regen_pw() call interrupt_multi() unconditionally
 // on reaching full, and interrupt_multi() owns the `gm.multi > 0 && !travel
 // && !run` test. Keeping that condition here too would give one C test two
-// owners, and would leave the injected dependency unchecked on every call that
-// happens to have multi <= 0.
+// owners. A caller may replace interrupt_multi().
 //
 // `norepMessage` travels with the call because interrupt_multi() prints
 // through it.
 async function reachedFull(kind, state, env) {
-    if (typeof env.interruptMulti !== 'function') {
-        throw new TypeError(
-            `${kind} reaching full requires interruptMulti`,
-        );
-    }
-    await env.interruptMulti(
+    await (env.interruptMulti ?? interrupt_multi)(
         kind === 'hp'
             ? 'You are in full health.'
             : 'You feel full of energy.',

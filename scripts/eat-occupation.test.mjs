@@ -918,19 +918,3 @@ test('stop_occupation clears the multi reason on its printing arm',
         assert.equal(state.multireasonbuf, '');
     });
 
-// The same function with an occupation installed and no operations at all.
-// js/jsmain.js converts only the named boundary classes, so a bare TypeError
-// here would discard the segment rather than end it; requiring the operation by
-// name is what keeps the failure legible.
-test('stop_occupation names the operation it is missing', async () => {
-    await assert.rejects(
-        () => stop_occupation({
-            go: { occupation: () => 0, occtxt: 'eating the food ration' },
-            multi: 0,
-            context: {},
-            u: {},
-            disp: {},
-        }, {}),
-        (error) => /stop_occupation\(\) requires message/u.test(error.message),
-    );
-});

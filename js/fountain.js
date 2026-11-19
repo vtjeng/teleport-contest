@@ -692,10 +692,9 @@ export async function drinkfountain(state = game, env = {}) {
             break;
         case 21: // Poisonous
             // C ref: fountain.c:299-310. hack.js and pickup.js are imported
-            // here rather than at the top of the file, for the same reason
-            // case 20 imports eat.js and hack.js: attrib.js, which owns
-            // poison_strdmg(), cannot import either of them back, so both
-            // reach it through this call.
+            // here rather than at the top of the file, as case 20 imports
+            // eat.js and hack.js. The losehp and encumberMessage bindings
+            // passed to poison_strdmg() below equal its own defaults.
             await message('The water is contaminated!', state);
             {
                 const { losehp } = await import('./hack.js');

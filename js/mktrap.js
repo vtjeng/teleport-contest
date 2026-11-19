@@ -112,6 +112,7 @@ import { finish_steps } from './source_steps.js';
 import { mkcorpstat } from './corpstat.js';
 import { begin_burn } from './timeout.js';
 import { dungeon_at } from './dungeon_table.js';
+import { somexyspace } from './mklev.js';
 
 function levelTrapEnv(env = {}) {
     return {
@@ -385,11 +386,9 @@ export function mktrap_victim(trap, rawEnv = {}) {
     return corpse;
 }
 
+// C calls mkroom.c somexyspace(); a caller may replace it.
 function roomCoordinate(croom, coordinate, env) {
-    const choose = env.hooks.somexyspace;
-    if (typeof choose !== 'function')
-        throw new Error('mktrap requires room-coordinate selection');
-    return choose(croom, coordinate, env);
+    return (env.hooks.somexyspace ?? somexyspace)(croom, coordinate, env);
 }
 
 function mazeCoordinate(coordinate, env) {

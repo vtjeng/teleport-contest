@@ -65,7 +65,7 @@ import { movebubbles, fumaroles } from './mkmaze.js';
 import { init_artifacts, mkot_trap_warn } from './artifacts.js';
 import { role_init, welcomeHallucinationMessage, welcomeIdentity,
     welcomeMessage } from './role_init.js';
-import { livelog_printf } from './pline.js';
+import { livelog_printf, norep_printer } from './pline.js';
 import { u_init_misc } from './u_init.js';
 import {
     find_ac,
@@ -84,7 +84,7 @@ import {
     cmdq_clear, dolookaround, end_of_input, failClosedCommandRefusals, rhack,
 } from './cmd.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { canletgo, deferred_goto, dropx, save_currentstate } from './do.js';
+import { deferred_goto, save_currentstate } from './do.js';
 import { glibr } from './do_wear.js';
 import {
     domove,
@@ -166,7 +166,6 @@ import { clear_splitobjs } from './obj.js';
 import { makewish } from './zap.js';
 import { clear_bypasses } from './worn.js';
 import { amulet, intervene } from './wizard.js';
-import { rndcurse } from './sit.js';
 import {
     BClairvoyant, Blind, EClairvoyant, ETelepat, Fast, Glib, HClairvoyant,
     Hallucination, Polymorph, Searching, Teleportation, Unchanging, Very_fast,
@@ -360,24 +359,10 @@ export function u_calc_moveamt(wtcap, state = game, random = rn2) {
 // `env` carries the caller's display operations. It is not only forwarded:
 // maybe_finished_meal() passes it on to eatfood(), which owns the finished
 // meal's object and message lifecycle, but this function also writes the
-// `You stop %s.` line itself, so
-// `message` is required whenever an occupation is installed. It is resolved by
-// name rather than read directly because the two ways of getting it wrong fail
-// in opposite directions: on this arm a missing `message` would be a bare
-// TypeError, which js/jsmain.js does not convert, so the segment is discarded
-// rather than ended; on the finished-meal arm it would fall through to
-// eatOperations()'s `message = ttyPline` default and quietly write to the
-// terminal.
-function requireOccupationOperation(env, name) {
-    const operation = env?.[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`allmain.c stop_occupation() requires ${name}`);
-    return operation;
-}
-
+// `You stop %s.` line itself, through env.message or C's pline().
 export async function stop_occupation(state = game, env = {}) {
     if (state.go?.occupation) {
-        const message = requireOccupationOperation(env, 'message');
+        const message = env.message ?? ttyPline;
         // A meal that finishes here reaches eat.c newuhs(), whose bot() call
         // C makes directly. Callers pass only their message seam; refresh
         // the status line for the game, and stay silent for any other state.
@@ -474,16 +459,16 @@ function clairvoyancePlan(state, env) {
     const mapRequired = Boolean(
         (state.u?.uhave?.amulet || active) && !inEndgame && !blocked,
     );
-    if (mapRequired && typeof env.doVicinityMap !== 'function') {
-        throw new Error('active clairvoyance requires doVicinityMap');
-    }
     return { due: true, mapRequired, moves, random };
 }
 
+// C calls detect.c do_vicinity_map(NULL); a caller may replace it.
 async function applyClairvoyancePlan(plan, state, env) {
     if (!plan.due) return false;
-    if (plan.mapRequired)
-        await env.doVicinityMap(null, { state });
+    if (plan.mapRequired) {
+        if (env.doVicinityMap) await env.doVicinityMap(null, { state });
+        else await do_vicinity_map(null, state, { random: plan.random });
+    }
     state.context.seer_turn = plan.moves + plan.random.rn1(31, 15);
     return true;
 }
@@ -501,14 +486,11 @@ export async function finishHeroTimeEffects(state = game, env = {}) {
     if (!Number.isSafeInteger(state.hero_seq) || state.hero_seq < 0) {
         throw new Error('hero time effects require initialized hero_seq');
     }
-    if (typeof env.encumberMessage !== 'function') {
-        throw new Error('hero time effects require encumber_msg');
-    }
-    // Validate injected owners before changing hero_seq. Once admitted,
-    // preserve C's increment -> encumbrance -> map -> schedule order.
+    // Validate the clairvoyance cadence before changing hero_seq. Once
+    // admitted, preserve C's increment -> encumbrance -> map -> schedule order.
     const plan = clairvoyancePlan(state, env);
     state.hero_seq++;
-    await env.encumberMessage(state);
+    await (env.encumberMessage ?? encumber_msg)(state);
     if (state.iflags?.hilite_delta)
         status_eval_next_unhilite(state);
     await applyClairvoyancePlan(plan, state, env);
@@ -616,22 +598,15 @@ async function runUnmulAtTurnBoundary(state) {
 // left to spend and answers 0, which is what clears it. A counted `s`
 // therefore searches one last time after the line prints.
 //
-// `norepMessage` is Norep()'s owner. Resolving it before nomul(0) keeps a
-// caller that omitted the seam from ending the count and then failing on the
-// line.
+// `norepMessage` replaces Norep(); C's Norep() is the default.
 export async function interrupt_multi(message, state, env = {}) {
     if (!((state.multi ?? 0) > 0)
         || state.context.travel || state.context.run) {
         return;
     }
     const printing = Boolean(state.flags?.verbose && message);
-    if (printing && typeof env.norepMessage !== 'function') {
-        throw new TypeError(
-            'allmain.c interrupt_multi() requires norepMessage',
-        );
-    }
     nomul(0, state);
-    if (printing) await env.norepMessage(message, state);
+    if (printing) await norep_printer(env)(message, state);
 }
 
 function regionEffectEnv(state, random) {
@@ -721,11 +696,7 @@ export async function finishElapsedTurn(state, random) {
     // hook and before nh_timeout(). do.c dropz() redraws the landing square
     // through the newsym hook.
     if (Glib(state.u)) {
-        await glibr(state, {
-            message: ttyPline,
-            canletgo,
-            dropx: (object) => dropx(object, { state }),
-        });
+        await glibr(state, { message: ttyPline });
     }
 
     await nh_timeout(state, {
@@ -753,13 +724,8 @@ export async function finishElapsedTurn(state, random) {
 
     if (state.u.ublesscnt) state.u.ublesscnt--;
     // Both regenerators reach allmain.c interrupt_multi() on the turn they top
-    // the hero up, and its Norep() is the only output either of them can make,
-    // so they share one env.
-    const regenEnv = {
-        random,
-        interruptMulti: interrupt_multi,
-        norepMessage: ttyNorep,
-    };
+    // the hero up; they share one env.
+    const regenEnv = { random };
     // C ref: allmain.c (286-294) substitutes UNENCUMBERED for an invulnerable
     // hero instead of healing, and the two consumers below then read the
     // substituted value rather than the snapshot taken above. Otherwise it
@@ -905,7 +871,6 @@ export async function finishElapsedTurn(state, random) {
             await intervene(state, {
                 random,
                 message: ttyPline,
-                rndcurse,
                 makemon: makemon_runtime,
                 hooks: {
                     stopOccupation: (_monster, hookEnv) => stop_occupation(
@@ -1043,12 +1008,7 @@ async function advanceElapsedTurn(state) {
     } while (state.u.umovement < NORMAL_SPEED);
 
     // C runs the once-per-hero-action block outside both loops.
-    await finishHeroTimeEffects(state, {
-        random,
-        encumberMessage: encumber_msg,
-        doVicinityMap: (sobj, { state: mapState } = {}) =>
-            do_vicinity_map(sobj, mapState ?? state, { random }),
-    });
+    await finishHeroTimeEffects(state, { random });
     // C allmain.c:432: redraw after stationary pool effects, before the
     // nearby-monster observation, only in the hero-took-time block.
     if (state.u.uinwater) await under_water(0, state);
