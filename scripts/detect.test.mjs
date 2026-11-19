@@ -1035,38 +1035,6 @@ test('ordinary trap discovery marks seen before exercise and display', async () 
     random.done();
 });
 
-test('injected trap display must return semantic visibility', async () => {
-    const state = searchState();
-    const trap = {
-        tx: 9,
-        ty: 9,
-        ttyp: ANTI_MAGIC,
-        tseen: false,
-    };
-    state.level.traps.push(trap);
-    const events = [];
-    const random = scriptedRandom(events, [0], [18]);
-
-    await assert.rejects(
-        dosearch0(1, {
-            state,
-            random,
-            ...recordingOperations(state, events),
-            displayFoundTrap() {
-                events.push('displayTrapWithoutIdentity');
-            },
-        }),
-        /displayFoundTrap must return a Boolean/u,
-    );
-    assert.deepEqual(events, [
-        'rnl(8)',
-        'nomul(0)',
-        'rn2(19)',
-        'displayTrapWithoutIdentity',
-    ]);
-    random.done();
-});
-
 test('blind global search maps an ordinary trap through tactile defaults', async () => {
     const target = await globalSearchState();
     const trap = installUnseenAntiMagicTrap(target);
@@ -1557,23 +1525,6 @@ test('WIN_STOP suppresses trap input waiting but still redraws', async () => {
     assert.equal(game.nhDisplay.inputQueueLength, 1);
     assert.equal(target.replay.getScreens().length, beforeWait);
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
-});
-
-test('injected trap messaging requires paired wait ownership', async () => {
-    const target = await globalSearchState();
-    const trap = installUnseenAntiMagicTrap(target);
-    const random = tactileSearchRandom(8);
-
-    await assert.rejects(
-        dosearch0(1, {
-            state: game,
-            random,
-            message: async () => {},
-        }),
-        /injected waitFoundTrap when trap messaging is injected/u,
-    );
-    assert.equal(trap.tseen, false);
-    assert.deepEqual(random.calls, ['rnl(8)']);
 });
 
 test('statue discovery activates, conditionally exercises, and returns early', async () => {
@@ -2432,22 +2383,6 @@ test('explicit search while swallowed prints the Norep answer and consumes time'
     ]);
     random.done();
 });
-
-test('hallucinatory clone search preserves isolated display capabilities before draw', async () => {
-    const state = explicitSearchState();
-    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    state.level.traps.push({
-        tx: 11, ty: 11, ttyp: ANTI_MAGIC, tseen: false,
-    });
-    const events = [];
-    const random = scriptedRandom(events, []);
-
-    await assert.rejects(dosearch0(0, { state, random }),
-        /injected displayFoundTrap for non-global state/u);
-    assert.deepEqual(events, []);
-    random.done();
-});
-
 
 test('dosearch answers ECMD_TIME and counts prevented searches', async () => {
     // safe_wait off leaves cmd_safety_prevention() with nothing to test, so

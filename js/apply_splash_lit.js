@@ -34,13 +34,6 @@ import {
     Blind, Deaf, EWwalking, Flying, HWwalking, Levitation,
 } from './youprop.js';
 
-function splashOperation(env, name, fallback) {
-    const operation = env[name] ?? fallback;
-    if (typeof operation !== 'function')
-        throw new TypeError(`lit-item splash requires a ${name} operation`);
-    return operation;
-}
-
 function sameLevel(left, right) {
     return Boolean(left && right
         && left.dnum === right.dnum
@@ -67,15 +60,12 @@ function monsterInventoryLocation(obj, state) {
 }
 
 async function stopBurn(obj, env) {
-    const endBurn = splashOperation(
-        env,
-        'endBurn',
-        (target, nestedEnv) => end_burn(
+    const endBurn = env.endBurn
+        ?? ((target, nestedEnv) => end_burn(
             target,
             true,
             objectGenerationEnv(nestedEnv),
-        ),
-    );
+        ));
     return endBurn(obj, env);
 }
 
@@ -94,12 +84,12 @@ export async function snuff_candle(obj, env = {}) {
         ? Math.trunc(obj.quan ?? 1) > 1
         : Math.trunc(obj.spe ?? 0) > 1;
     const visible = obj.where === OBJ_MINVENT
-        ? Boolean(location && splashOperation(
-            context, 'squareVisible', cansee,
-        )(location.x, location.y, state))
+        ? Boolean(location && (context.squareVisible ?? cansee)(
+            location.x, location.y, state,
+        ))
         : !(context.heroBlind ? context.heroBlind(state) : Blind(state.u));
     if (visible) {
-        const message = splashOperation(context, 'message', ttyPline);
+        const message = context.message ?? ttyPline;
         await message(
             `${Shk_Your(obj, state)}${candle ? '' : "candelabrum's "}`
             + `candle${many ? "s'" : "'s"} flame`
@@ -125,17 +115,14 @@ export async function snuff_lit(obj, env = {}) {
         || obj.otyp === POT_OIL) {
         const location = get_obj_location(obj, 0, state);
         const visible = obj.where === OBJ_MINVENT
-            ? Boolean(location && splashOperation(
-                context, 'squareVisible', cansee,
-            )(location.x, location.y, state))
+            ? Boolean(location && (context.squareVisible ?? cansee)(
+            location.x, location.y, state,
+        ))
             : !(context.heroBlind ? context.heroBlind(state) : Blind(state.u));
         if (visible) {
-            const message = splashOperation(context, 'message', ttyPline);
-            const objectYname = splashOperation(
-                context,
-                'objectYname',
-                (target) => Yname2(target, state),
-            );
+            const message = context.message ?? ttyPline;
+            const objectYname = context.objectYname
+                ?? ((target) => Yname2(target, state));
             await message(
                 `${objectYname(obj, state, context)} `
                 + `${otense(obj, 'go', state)} out!`,
@@ -161,7 +148,7 @@ export async function splash_lit(obj, env = {}) {
         let useeit = false;
         let uhearit = false;
         let snuff = true;
-        const poolAt = splashOperation(context, 'poolAt', is_pool);
+        const poolAt = context.poolAt ?? is_pool;
         if (obj.where === OBJ_INVENT) {
             useeit = !(context.heroBlind ? context.heroBlind(state) : Blind(state.u));
             uhearit = !Deaf(state.u);
@@ -179,12 +166,12 @@ export async function splash_lit(obj, env = {}) {
                    && humanoid(obj.ocarry.data)) {
             const monster = obj.ocarry;
             const location = monsterInventoryLocation(obj, state);
-            useeit = Boolean(location) && splashOperation(
-                context, 'squareVisible', cansee,
-            )(location.x, location.y, state);
-            uhearit = splashOperation(
-                context, 'squareCouldSee', couldsee,
-            )(location.x, location.y, state)
+            useeit = Boolean(location) && (context.squareVisible ?? cansee)(
+                location.x, location.y, state,
+            );
+            uhearit = (context.squareCouldSee ?? couldsee)(
+                location.x, location.y, state,
+            )
                 && distanceSquaredFromHero(location.x, location.y, state) < 25;
             dunk = poolAt(monster.mx, monster.my, state)
                 && ((!is_flyer(monster.data) && !is_floater(monster.data))
@@ -193,12 +180,9 @@ export async function splash_lit(obj, env = {}) {
             if (useeit) set_msg_xy(location.x, location.y, state);
         }
         if (useeit || uhearit) {
-            const message = splashOperation(context, 'message', ttyPline);
-            const objectYname = splashOperation(
-                context,
-                'objectYname',
-                (target) => Yname2(target, state),
-            );
+            const message = context.message ?? ttyPline;
+            const objectYname = context.objectYname
+                ?? ((target) => Yname2(target, state));
             await message(
                 consume_msg_xy(
                     `${objectYname(obj, state, context)} `
