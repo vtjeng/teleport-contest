@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Options menu, bind keys, command first: toggle with the parameter showexp (cmd.c handler_rebind_keys_add(), getlin() and Snprintf() at line 2376), then \"Bind which key?\" (line 2384) and '%', which has no binding; '%' then toggles showexp. Seed, character and inputs chosen independently. Recorded on macOS by .github/workflows/macos-recorder.yml, like the other *-live rebind recipes; this path writes cmdstr whole with Snprintf() (cmd.c line 2376), so it binds on both hosts (docs/testing.md, \"The key-binding difference\").",
+  "segments": [
+    {
+      "seed": 30917750,
+      "datetime": "20270523075500",
+      "nethackrc": "OPTIONS=name:Odo,role:Healer,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!showexp\n",
+      "moves": "#optionsfull\n      h\nb:toggle:\nshowexp\n%\u001b\u001b%"
+    }
+  ]
+}

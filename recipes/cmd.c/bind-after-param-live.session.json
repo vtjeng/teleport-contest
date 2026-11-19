@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Options menu, bind keys, key first, twice in one visit to the \"Do what?\" menu: '{' to toggle(autopickup) through Snprintf() (cmd.c line 2376), then '}' to pray through Strcat() (line 2379), which appends to whatever the parameter bind left in the reused stack slot. Seed, character and inputs chosen independently. Recorded on macOS by .github/workflows/macos-recorder.yml to measure what the judge's build does with a Strcat() bind after a Snprintf() one (docs/testing.md, \"The key-binding difference\").",
+  "segments": [
+    {
+      "seed": 30917751,
+      "datetime": "20270625120000",
+      "nethackrc": "OPTIONS=name:Rhea,role:Caveman,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#optionsfull\n      h\na{:toggle:\nautopickup\n\u001ba}:pray:\n\u001b\u001b{}\u001b"
+    }
+  ]
+}
