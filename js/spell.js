@@ -59,7 +59,8 @@ import {
 import { acurr, exercise, poison_strdmg } from './attrib.js';
 import { jump } from './apply.js';
 import {
-    cmdq_add_key, cmdq_key_char, cmdq_pop, getdir, set_occupation, yn_function,
+    cmdq_add_key, cmdq_key_char, cmdq_pop, getdir, set_occupation, y_n,
+    yn_function,
 } from './cmd.js';
 import { morehungry } from './eat.js';
 import { trycall } from './do.js';
@@ -884,7 +885,6 @@ export async function learn(state = game, env = {}) {
 export async function study_book(spellbook, state = game, env = {}) {
     const random = randomSource(env);
     const message = env.message ?? ttyPline;
-    const prompt = env.prompt;
     const booktype = spellbook.otyp;
     const confused = Boolean(Confusion(state.u));
     const type = objectType(booktype, state);
@@ -977,9 +977,7 @@ export async function study_book(spellbook, state = game, env = {}) {
                 state,
             );
             discover_object(booktype, true, true, true, state);
-            if (typeof prompt !== 'function')
-                throw new TypeError('study_book requires a prompt owner');
-            const answer = await prompt('Refresh your memory anyway?', state);
+            const answer = await y_n('Refresh your memory anyway?', state);
             if (answer === 'n') return 0;
         }
 
@@ -992,10 +990,8 @@ export async function study_book(spellbook, state = game, env = {}) {
                     + (state.ublindf?.otyp === LENSES ? 2 : 0);
                 if (state.urole?.mnum === PM_WIZARD
                     && readAbility < 20 && !confused) {
-                    if (typeof prompt !== 'function')
-                        throw new TypeError('study_book requires a prompt owner');
                     const wording = readAbility < 12 ? 'very ' : '';
-                    const answer = await prompt(
+                    const answer = await y_n(
                         `This spellbook is ${wording}difficult to comprehend.  Continue?`,
                         state,
                     );
