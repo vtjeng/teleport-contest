@@ -136,7 +136,7 @@ import {
     closed_door, monflee, mon_yells, set_apparxy, youHear,
 } from './monmove.js';
 import {
-    killed, m_in_air, maybe_mnexto, maybe_unhide_at, seemimic, setmangry,
+    killed, maybe_mnexto, maybe_unhide_at, seemimic, setmangry,
     angry_guards, get_iter_mons_async, wake_nearby, wake_nearto, wakeup,
 } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
@@ -267,8 +267,6 @@ function kickEnvironment(state) {
         nearCapacity: near_capacity,
         encumberMessage: encumber_msg,
         redraw: newsym,
-        mInAir: m_in_air,
-        heroDeaf: (hookState) => Deaf(hookState.u),
         youHear: (line, targetState) => youHear(line, targetState),
     };
 }

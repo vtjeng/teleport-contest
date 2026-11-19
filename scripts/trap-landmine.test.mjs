@@ -115,9 +115,6 @@ function landmineEnv({ damage = [4, 1], trigger = 400 } = {}) {
         message: async (line) => { lines.push(line); },
         redraw: (x, y) => { redraws.push(`${x},${y}`); },
         unsupported: (reason) => { throw new Error(reason); },
-        mInAir: () => false,
-        heroDeaf: () => false,
-        youHear: () => null,
     };
 }
 

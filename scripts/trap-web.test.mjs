@@ -74,9 +74,6 @@ function environment() {
         message: async (line) => { events.push(['message', line]); },
         redraw: (x, y) => { events.push(['redraw', x, y]); },
         unsupported: (reason) => { throw new Error(reason); },
-        mInAir: () => false,
-        heroDeaf: () => false,
-        youHear: (line) => `You hear ${line}`,
     };
 }
 
@@ -175,6 +172,9 @@ test('worm destruction counts visible tail segments in the supplied state', asyn
 test('unseen bugbear roars and remains caught without revealing the web', async () => {
     await setup();
     const { monster, trap } = victim(PM_BUGBEAR, { unseen: true });
+    // The RC turns acoustics off, which makes pline.c You_hear() print
+    // nothing; this case needs the default so the roar is printed.
+    game.flags.acoustics = true;
     const env = environment();
     assert.equal(await mintrap(monster, 0, env), Trap_Caught_Mon);
     assert.equal(trap.tseen, false);

@@ -115,7 +115,7 @@ test('every matrix segment fires a dart trap and replays to its last key',
 // can still override them, so reject an invalid override before the
 // first mtrapseen write or rnl(5) draw.
 test('mintrap refuses an invalid owner before it writes mtrapseen', async () => {
-    const owners = ['redraw', 'mInAir', 'heroDeaf', 'youHear', 'message'];
+    const owners = ['redraw', 'message'];
     for (const missing of owners) {
         const monster = {
             mx: 5,
@@ -141,9 +141,6 @@ test('mintrap refuses an invalid owner before it writes mtrapseen', async () => 
             },
             unsupported: (reason) => { throw new Error(reason); },
             redraw: () => {},
-            mInAir: () => false,
-            heroDeaf: () => false,
-            youHear: () => {},
             message: () => {},
         };
         // null overrides the live default and proves that supplied operations

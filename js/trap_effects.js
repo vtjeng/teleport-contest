@@ -621,10 +621,8 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
     // stepped on a squeaky board
     const inSight = canseemon(monster, state)
         || monster === state.u?.usteed;
-    const mInAir = requireTrapOperation(env, 'mInAir');
-    if (mInAir(monster, state)) return Trap_Effect_Finished;
+    if (m_in_air(monster, state)) return Trap_Effect_Finished;
     if (inSight) {
-        const heroDeaf = requireTrapOperation(env, 'heroDeaf');
         if (!Deaf(state.u)) {
             await message(
                 messageAt(
@@ -657,8 +655,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
             ? BOLT_LIM + 1 : BOLT_LIM - 3; /* 9 or 5 */
         const near = dist2(monster.mx, monster.my, state.u.ux, state.u.uy)
             <= range * range;
-        const youHear = requireTrapOperation(env, 'youHear');
-        const heard = youHear(
+        const heard = plineYouHear(
             `${trapnote(trap, false)} squeak `
             + `${near ? 'nearby' : 'in the distance'}.`,
             state,
@@ -1171,17 +1168,11 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
         || (is_you && (trflags & VIASITTING) !== 0);
 
     if (!is_you) {
-        // The two owners the hero arm never reads, so neither can move to the
-        // top of the function: dotrap()'s heroTrapEnv() binds neither. Both
-        // are resolved before the mtrapped write below, so a missing
-        // injection throws with nothing yet changed or drawn.
-        const mInAir = requireTrapOperation(env, 'mInAir');
-        const youHear = requireTrapOperation(env, 'youHear');
         const mptr = mtmp.data;
         const in_sight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
         let trapkilled = false;
 
-        if (mptr.msize > MZ_SMALL && !amorphous(mptr) && !mInAir(mtmp, state)
+        if (mptr.msize > MZ_SMALL && !amorphous(mptr) && !m_in_air(mtmp, state)
             && !is_whirly(mptr) && !unsolid(mptr)) {
             // C assigns 1 to an unsigned bitfield; js/monst.js and
             // js/makemon_create.js both keep mtrapped as a boolean.
@@ -1204,7 +1195,7 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
                 // Soundeffect() is a tty-sound hook and writes nothing to the
                 // terminal the recorder captures, as in
                 // trapeffect_sqky_board() above.
-                const heard = youHear('the roaring of an angry bear!', state);
+                const heard = plineYouHear('the roaring of an angry bear!', state);
                 if (heard) await message(heard, state, env);
             }
         } else if (forcetrap) {
@@ -2992,8 +2983,7 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
                     'Fortunately for you, no boulder was released.', state);
         }
     } else {
-        const mInAir = requireTrapOperation(env, 'mInAir');
-        if (!mInAir(monster, state)) {
+        if (!m_in_air(monster, state)) {
             const inSight = monster === state.u?.usteed
                 || (cansee(monster.mx, monster.my, state)
                     && canspotmon(monster, state));
@@ -3173,13 +3163,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
         if (steed && webmsgok) {
             steed.mx = state.u.ux;
             steed.my = state.u.uy;
-            // monmove.js imports mintrap(). Resolve its existing owners only
-            // at the mounted call, after module initialization has completed.
-            const { m_in_air } = await import('./mon.js');
-            const { youHear } = await import('./monmove.js');
-            const result = await mintrap(steed, trflags, {
-                ...env, mInAir: m_in_air, heroDeaf: (hookState) => Deaf(hookState.u), youHear,
-            });
+            const result = await mintrap(steed, trflags, env);
             if (result !== Trap_Effect_Finished) {
                 steed.mtrapped = false;
                 if (strongmonst(steed.data)) str = 17;
@@ -3220,7 +3204,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
     case PM_BUGBEAR:
         if (!inSight) {
             // Soundeffect(se_roar, 60) has no output in the tty recorder.
-            const heard = requireTrapOperation(env, 'youHear')(
+            const heard = plineYouHear(
                 'the roaring of a confused bear!', state,
             );
             if (heard) await message(heard, state, env);
@@ -3730,8 +3714,6 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
         return Trap_Effect_Finished;
     }
 
-    const mInAir = requireTrapOperation(env, 'mInAir');
-    const heroDeaf = requireTrapOperation(env, 'heroDeaf');
     const inSight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     const tx = trap.tx;
     const ty = trap.ty;
@@ -3739,7 +3721,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
     if (random.rn2(triggerWeight + 1) < WT_ELF / 2)
         return Trap_Effect_Finished;
 
-    if (mInAir(mtmp, state)) {
+    if (m_in_air(mtmp, state)) {
         const alreadySeen = Boolean(trap.tseen);
         if (inSight && !alreadySeen) {
             await message(
@@ -4021,9 +4003,6 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     const defaults = heroTrapEnv(state);
     const env = {
         ...defaults,
-        mInAir: m_in_air,
-        heroDeaf: (hookState) => Deaf(hookState.u),
-        youHear: plineYouHear,
         ...rawEnv,
         state,
     };
@@ -4050,8 +4029,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     for (const name of randomNames)
         if (typeof random?.[name] !== 'function')
             throw new TypeError(`mintrap requires ${randomNames.join(', ')}`);
-    for (const name of ['redraw', 'mInAir', 'heroDeaf', 'youHear'])
-        requireTrapOperation(env, name);
+    requireTrapOperation(env, 'redraw');
     const message = requireTrapOperation(env, 'message');
 
     if (monster.mtrapped) { /* is currently in the trap */

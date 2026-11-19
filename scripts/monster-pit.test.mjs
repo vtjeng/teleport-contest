@@ -127,9 +127,6 @@ function pitEnv(rolls = [], fallback = 1) {
         message: async (text) => { lines.push(text); },
         redraw: (x, y) => { redraws.push(`${x},${y}`); },
         unsupported: (reason) => { throw new Error(reason); },
-        mInAir: () => false,
-        heroDeaf: () => false,
-        youHear: () => null,
     };
 }
 
