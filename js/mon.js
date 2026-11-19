@@ -1392,13 +1392,24 @@ export async function movemon_singlemon(monster, env = {}) {
         return true;
     }
 
+    // Every callee below, the guard's and the every-turn effect's included,
+    // gets the resolved operations in its env, as the action env readers of
+    // canSeeMonster, canSeeSquare and visionRecalc expect.
+    const operations = activeMonsterOperations(env, state);
+    const normalized = {
+        ...env,
+        state,
+        random,
+        ...operations,
+    };
+
     const parkedGuard = monster.isgd
         && !monster.mx
         && !((monster.mstate ?? MON_FLOOR) & MON_MIGRATING);
     if (parkedGuard) {
         if ((state.moves ?? 0) > (monster.mlstmv ?? 0)) {
             const guardMove = env.guardMove ?? gd_move;
-            await guardMove(monster, { ...env, state, random });
+            await guardMove(monster, normalized);
             monster.mlstmv = state.moves;
         }
         return false;
@@ -1407,21 +1418,12 @@ export async function movemon_singlemon(monster, env = {}) {
 
     const everyTurnEffect = env.everyTurnEffect ?? m_everyturn_effect;
     const willSpendMovement = monster.movement >= NORMAL_SPEED;
-    const operations = willSpendMovement
-        ? activeMonsterOperations(env, state)
-        : null;
     if (willSpendMovement && monster.data?.mlet === S_EEL
         && typeof random.rn2 !== 'function') {
         throw new TypeError(
             'movemon_singlemon random injection requires rn2',
         );
     }
-    const normalized = {
-        ...env,
-        state,
-        random,
-        ...operations,
-    };
 
     await everyTurnEffect(monster, normalized);
     if (!willSpendMovement) return false;
