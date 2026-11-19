@@ -271,7 +271,7 @@ import { bagotricks, mkclass } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { mkundead } from './mkroom.js';
 import {
-    killed, m_in_air, mnexto, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto, xkilled,
+    killed, mnexto, seemimic, set_ustuck, wakeup, wake_nearby, wake_nearto, xkilled,
 } from './mon.js';
 import {
     can_blow,
@@ -4508,8 +4508,6 @@ export async function magic_whistled(obj, state = game, env = {}) {
                     random,
                     message,
                     redraw: newsym,
-                    mInAir: subject => m_in_air(subject, state),
-                    heroDeaf: () => Deaf(state.u),
                     youHear,
                 });
                 if (result === Trap_Killed_Mon) change_luck(-1, state);

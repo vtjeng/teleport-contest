@@ -381,7 +381,6 @@ import {
 import {
     curr_mon_load,
     hideunder,
-    m_in_air,
     minliquid,
     mnexto,
     maybe_unhide_at,
@@ -4806,8 +4805,6 @@ function domove_monster_trap_env(state, env = {}) {
         random,
         message,
         redraw: env.redraw ?? newsym,
-        mInAir: env.mInAir ?? ((mon, st) => m_in_air(mon, st)),
-        heroDeaf: env.heroDeaf ?? ((hookState) => Deaf(hookState.u)),
         youHear: env.youHear ?? ((line, st) => youHear(line, st)),
         // hack.c:2198-2199 calls minliquid() after the swap and consumes the
         // rloc() result inside that source function. Supply the complete

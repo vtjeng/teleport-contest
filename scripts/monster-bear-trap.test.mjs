@@ -57,6 +57,7 @@ import {
     PM_BUGBEAR,
     PM_DUST_VORTEX,
     PM_FLOATING_EYE,
+    PM_IRON_PIERCER,
     PM_JACKAL,
     PM_OWLBEAR,
     PM_PIT_FIEND,
@@ -94,6 +95,10 @@ async function hero() {
         seed: 7710044, datetime: DATETIME, nethackrc: RC, moves: '',
     });
     game.level.traps = [];
+    // The RC above turns acoustics off, so pline.c You_hear() would drop the
+    // roar this file checks for. Turned back on here, the default, so the
+    // roar cases read the real line.
+    game.flags.acoustics = true;
     return game;
 }
 
@@ -218,7 +223,6 @@ function bearEnv(rolls = [], fallback = 1) {
     const linesAtDraw = [];
     const lines = [];
     const redraws = [];
-    const heard = [];
     const queue = [...rolls];
     const take = (label) => {
         bounds.push(label);
@@ -230,7 +234,6 @@ function bearEnv(rolls = [], fallback = 1) {
         linesAtDraw,
         lines,
         redraws,
-        heard,
         state: game,
         random: {
             d: (n, x) => take(`d(${n},${x})`),
@@ -244,14 +247,6 @@ function bearEnv(rolls = [], fallback = 1) {
         message: async (text) => { lines.push(text); },
         redraw: (x, y) => { redraws.push(`${x},${y}`); },
         unsupported: (reason) => { throw new Error(reason); },
-        mInAir: () => false,
-        heroDeaf: () => false,
-        // pline.c You_hear() with acoustics on and no deafness, which is what
-        // the rc above gives. The composed line is C's, not this file's.
-        youHear: (line) => {
-            heard.push(line);
-            return `You hear ${line}`;
-        },
     };
 }
 
@@ -388,11 +383,14 @@ test('a bear trap closes through anything it cannot hold', async () => {
     assert.deepEqual(jellyEnv.bounds, [], 'amorphous');
     assert.equal(jelly.mon.mtrapped, false);
 
-    // mon.c m_in_air(), now defined in js/mon.js. A pony clears every other
-    // conjunct, so lifting it off the ground is the whole difference from
-    // the catch above.
-    const airborne = victimInBearTrap(PM_PONY, 13);
-    const airborneEnv = { ...bearEnv(), mInAir: () => true };
+    // mon.c m_in_air(). monsters.h gives the iron piercer MZ_MEDIUM, M1_CLING
+    // and no flight, so mintrap()'s check_in_air() lets it reach the trap.
+    // Hidden on the ceiling of this ordinary dungeon level, m_in_air() counts
+    // it as airborne, and that is the conjunct that refuses the catch.
+    const airborne = victimInBearTrap(PM_IRON_PIERCER, 13);
+    airborne.mon.mundetected = true;
+    assert.equal(m_in_air(airborne.mon, game), true, 'a ceiling clinger');
+    const airborneEnv = bearEnv();
     assert.equal(await mintrap(airborne.mon, 0, airborneEnv),
                  Trap_Effect_Finished);
     assert.deepEqual(airborneEnv.bounds, [], 'm_in_air');
@@ -411,9 +409,9 @@ test('a bear trap closes through anything it cannot hold', async () => {
     // own m_in_air() answers TRUE for every one of them and this conjunct is
     // dead behind the one before it; mintrap():3766's check_in_air() gate
     // turns a whirly monster away earlier still, which is why this case goes
-    // straight to trapeffect_selector() instead of through mintrap(). The
-    // injection holds the vortex down so that the conjunct itself is what
-    // refuses, and the assertion above it records why no game reaches it.
+    // straight to trapeffect_selector() instead of through mintrap(). The arm
+    // calls m_in_air() itself, so the vortex is refused one conjunct before
+    // is_whirly(), as in C; the case pins that refusal, not the dead conjunct.
     assert.equal(m_in_air(
         { data: game.mons[PM_DUST_VORTEX], mundetected: false }, game,
     ), true, 'C stops a vortex one conjunct earlier');
@@ -471,8 +469,6 @@ test('a bear trap under the hero own steed is reported unseen', async () => {
                          'C:1534 writes the ordinary catch line');
         assert.equal(trap.tseen, true, "and C:1537 runs seetrap()");
         assert.deepEqual(env.redraws, [`${x},${y}`], "seetrap()'s draw");
-        assert.deepEqual(env.heard, [],
-                         'C:1539 is the else of this branch, so no roar');
         assert.equal(mon.mhp, 8, 'the bite is unchanged');
     } finally {
         // scripts/wounded-legs.test.mjs clears the same field for the same
@@ -563,7 +559,6 @@ test('an unseen owlbear is heard roaring in a bear trap', async () => {
 
     const env = bearEnv([5]);
     assert.equal(await mintrap(owlbear.mon, 0, env), Trap_Caught_Mon);
-    assert.deepEqual(env.heard, ['the roaring of an angry bear!']);
     assert.deepEqual(env.lines, ['You hear the roaring of an angry bear!']);
     assert.deepEqual(env.redraws, [], 'no draw');
     assert.equal(owlbear.trap.tseen, false, 'the trap stays unmapped');
@@ -583,7 +578,6 @@ test('an unseen owlbear is heard roaring in a bear trap', async () => {
     const seen = victimInBearTrap(PM_OWLBEAR, 20);
     const seenEnv = bearEnv([5]);
     assert.equal(await mintrap(seen.mon, 0, seenEnv), Trap_Caught_Mon);
-    assert.deepEqual(seenEnv.heard, [], 'nothing is heard');
     assert.deepEqual(seenEnv.lines, ['The owlbear is caught in a bear trap!']);
 });
 

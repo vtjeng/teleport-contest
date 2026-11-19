@@ -440,7 +440,7 @@ import {
 import { bhit, boomhit, hit, miss } from './zap.js';
 import { hmon, passive_obj } from './uhitm.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { m_in_air, minliquid, seemimic, setmangry, wake_nearto, wakeup } from './mon.js';
+import { minliquid, seemimic, setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj, mpickobjRuntime, remove_worn_item } from './steal.js';
 import { goodpos, rloc, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -652,8 +652,6 @@ function mhurtleTrapEnvironment(rawEnv, state) {
         ...rawEnv,
         state,
         random: rawEnv.random ?? coreRandom,
-        mInAir: rawEnv.mInAir ?? m_in_air,
-        heroDeaf: rawEnv.heroDeaf ?? ((hookState) => Deaf(hookState.u)),
         youHear: rawEnv.youHear ?? youHear,
         message: rawEnv.message
             ?? ((line, target) => ttyPline(line, target ?? state)),

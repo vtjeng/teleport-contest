@@ -29,8 +29,10 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // added one guard for a missing C buffer size (source-review-3c). Branch
 // remove-injected-ops replaced injected operations with direct calls and
 // removed 36 invariant throws, 708 left under 703 keys; 28 of them matched
-// INJECTED_OPERATION_PIN below.
-const LIST_PINS = { entries: 693, sites: 698 };
+// INJECTED_OPERATION_PIN below. Branches ops2-mon and ops2-trap removed
+// 13 more (mon.js, monmove.js, mondata.js, mcastu.js, version.js and the
+// trap files), 695 left under 690 keys; 2 still match the pin.
+const LIST_PINS = { entries: 690, sites: 695 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());
@@ -71,7 +73,7 @@ test('the list holds the pinned number of entries and throws', () => {
 // ported callee and call it. The pin counts the throws that remain and comes
 // down to 0; a new one fails here.
 const INJECTED_OPERATION_THROW = /requires an? \S+ operation/u;
-const INJECTED_OPERATION_PIN = 4;
+const INJECTED_OPERATION_PIN = 2;
 
 test('no new missing-operation throw', () => {
     // The whole message, not the key's 60-character head, which can cut

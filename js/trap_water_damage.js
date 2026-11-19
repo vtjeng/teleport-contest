@@ -202,16 +202,6 @@ export async function water_damage_chain(obj, here = false, env = {}) {
     }
 }
 
-function waterOperation(env, name, fallback) {
-    const operation = env[name] ?? fallback;
-    if (typeof operation !== 'function') {
-        throw new TypeError(
-            `monster water damage requires a ${name} operation`,
-        );
-    }
-    return operation;
-}
-
 function floorFireVisible(x, y, state) {
     return !Blind(state.u) && couldsee(x, y, state);
 }
@@ -402,11 +392,7 @@ export async function water_damage_monster_equipment(
         );
     }
 
-    const splashLight = waterOperation(
-        env,
-        'splashLight',
-        splash_lit,
-    );
+    const splashLight = env.splashLight ?? splash_lit;
     if (await splashLight(obj, env)) return ER_DAMAGED;
 
     if (obj.greased) {
@@ -414,11 +400,7 @@ export async function water_damage_monster_equipment(
         return ER_GREASED;
     }
 
-    const erodeObject = waterOperation(
-        env,
-        'erodeObject',
-        erode_obj,
-    );
+    const erodeObject = env.erodeObject ?? erode_obj;
     return erodeObject(
         obj,
         description,

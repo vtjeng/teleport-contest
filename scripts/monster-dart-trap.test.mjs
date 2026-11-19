@@ -5,7 +5,6 @@ import { DART_TRAP } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { DART } from '../js/objects.js';
-import { mintrap } from '../js/trap_effects.js';
 import {
     loadMonsterDartTrapRecipe,
 } from './run-monster-dart-trap.mjs';
@@ -110,53 +109,3 @@ test('every matrix segment fires a dart trap and replays to its last key',
             );
         }
     });
-
-// mintrap() supplies omitted operations from its live environment. A caller
-// can still override them, so reject an invalid override before the
-// first mtrapseen write or rnl(5) draw.
-test('mintrap refuses an invalid owner before it writes mtrapseen', async () => {
-    const owners = ['redraw', 'mInAir', 'heroDeaf', 'youHear', 'message'];
-    for (const missing of owners) {
-        const monster = {
-            mx: 5,
-            my: 4,
-            mhp: 4,
-            data: { mflags1: 0, mflags2: 0, mflags3: 0 },
-            mtrapseen: 0,
-            mtrapped: 0,
-        };
-        const trap = { tx: 5, ty: 4, ttyp: DART_TRAP, tseen: false, once: false };
-        const state = {
-            level: { traps: [trap], monlist: monster },
-            u: { ux: 5, uy: 5, uprops: [] },
-            flags: {},
-        };
-        const env = {
-            state,
-            // A complete random set, so the refusal under test is the owner
-            // one rather than the random one beside it.
-            random: {
-                rn1: () => 0, rn2: () => 0, rnd: () => 1,
-                rne: () => 1, rnl: () => 0,
-            },
-            unsupported: (reason) => { throw new Error(reason); },
-            redraw: () => {},
-            mInAir: () => false,
-            heroDeaf: () => false,
-            youHear: () => {},
-            message: () => {},
-        };
-        // null overrides the live default and proves that supplied operations
-        // remain subject to the complete environment check.
-        env[missing] = null;
-
-        await assert.rejects(
-            mintrap(monster, 0, env),
-            (error) => error instanceof TypeError,
-            `an invalid ${missing} must be refused`,
-        );
-        assert.equal(monster.mtrapseen, 0, `${missing}: mtrapseen`);
-        assert.equal(trap.tseen, false, `${missing}: tseen`);
-        assert.equal(trap.once, false, `${missing}: once`);
-    }
-});
