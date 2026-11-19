@@ -220,9 +220,22 @@ export function shift_level_edog_times(level, delta) {
 // value in the snapshot; restore.js rest_adjust_levelflags() converts it
 // back. C converts the live value back after the write (524), which the
 // snapshot does not need.
-export function save_adjust_levelflags(state) {
+function save_adjust_levelflags(state) {
     const flags = state.level?.flags;
     if (flags) flags.stasis_until = (flags.stasis_until ?? 0) - state.moves;
+}
+
+// C ref: save.c savelev_core(). Every level file C writes, a saved level or a
+// bones file, holds the level's turn stamps relative to the turn of the
+// write: the level flags' stasis_until (save_adjust_levelflags(), 520-522)
+// and each pet's edog droptime and hungrytime (savemon() 861-870, reached
+// through savemonchn() and saveobj()). Each level write in the port converts
+// through this one function, and restore.js rest_level_relative_times() is
+// its inverse for each level read. scripts/level-relative-times.test.mjs
+// fails when other code calls the conversions it combines.
+export function save_level_relative_times(state) {
+    save_adjust_levelflags(state);
+    shift_level_edog_times(state.level, -state.moves);
 }
 
 // C ref: save.c savelev()/savelev_core(), called from do.c goto_level() with
@@ -297,8 +310,7 @@ export function savelev(ledger, state = game, options = {}) {
     if (!freeing) {
         // save.c:521-524 save_adjust_levelflags() and savemonchn()'s and
         // saveobjchn()'s savemon() calls (861-870) store relative times.
-        save_adjust_levelflags(state);
-        shift_level_edog_times(state.level, -state.moves);
+        save_level_relative_times(state);
         // Store the snapshot. The key is the ledger number of the level.
         state._savedLevels ??= {};
         state._savedLevels[ledger] = {

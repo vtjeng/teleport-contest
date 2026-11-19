@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "save.c savemon() 861-870 writes each pet's edog droptime and hungrytime relative to the turn of the write, in a bones file as in any level file, and restore.c restmon() 355-356 adds the loading game's turn; bones.c savebones() 546-547 leaves a former pet its edog. A human Priestess in debug mode drops two tripe rations for her kitten, which eats both, raising its hungrytime to about 3400; she waits and kills herself with a wished-for wand of death on turn 54, and saves bones on level 1. The second game, a Valkyrie with no pet, keeps the bones, reads a scroll of taming beside the old kitten (dog.c tamedog() -> initedog(mtmp, FALSE), which keeps a hungrytime above moves + 1000), and applies a stethoscope to it: debug mode's mstatusline() (insight.c 3285-3287) shows the hunger clock moved to the new game's turn, 'hungry 3346'. Seeds, dates, characters and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 6620417,
+      "datetime": "20320919141500",
+      "nethackrc": "OPTIONS=name:Ottilie,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:cat,playmode:debug,!debug_mongen,time\n",
+      "moves": "\u001b\u00172 tripe rations\ndill20s30s\u0017wand of death\nzj.  ynnnny  "
+    },
+    {
+      "seed": 6620418,
+      "datetime": "20320920101500",
+      "nethackrc": "OPTIONS=name:Ottilie,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,playmode:debug,!debug_mongen,time\n",
+      "moves": "y  \u0017scroll of taming\nre \u0017stethoscope\nafl s"
+    }
+  ]
+}

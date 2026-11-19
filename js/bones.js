@@ -117,10 +117,10 @@ import { deltrap } from './trap.js';
 import { rest_engravings, sanitize_engravings } from './engrave.js';
 import { bytesText, textBytes } from './hacklib.js';
 import {
-    ghostfruit, reset_oattached_mids, rest_adjust_levelflags, rest_stairs,
+    ghostfruit, reset_oattached_mids, rest_level_relative_times, rest_stairs,
     rest_traps, restdamage,
 } from './restore.js';
-import { save_adjust_levelflags, savefruitchn, savemonchn } from './save.js';
+import { save_level_relative_times, savefruitchn, savemonchn } from './save.js';
 import { update_mlstmv } from './dog.js';
 import { dismount_steed } from './steed.js';
 import {
@@ -794,10 +794,13 @@ export async function savebones(how, when, corpse, state) {
     // dogmove.c dog_move() does before a pet's victim strikes back.
     update_mlstmv(state);
     savemonchn(state.level.monlist, state);
-    // C ref: save.c savelev_core():520-522 writes the level flags' turn
-    // stamps (stasis_until) relative to this turn and converts them back
-    // after the write; getlev() adds the loading game's turn.
-    save_adjust_levelflags(state);
+    // C ref: save.c savelev_core() writes the level's turn stamps relative
+    // to this turn and converts them back after the write: the level flags'
+    // stasis_until (520-524) and, in savemon() (861-870), the edog droptime
+    // and hungrytime of every former pet on the level and of every pet
+    // remembered by a corpse, statue or figurine. getlev() adds the loading
+    // game's turn.
+    save_level_relative_times(state);
     const bonesData = serializeBonesLevel(state);
     // Strip functions from the serialized output. The cloneObjChain and
     // cloneMon helpers above already break object-graph cycles (ocontainer,
@@ -808,7 +811,7 @@ export async function savebones(how, when, corpse, state) {
         return val;
     };
     const bonesText = JSON.stringify(bonesData, safeReplacer);
-    rest_adjust_levelflags(state);
+    rest_level_relative_times(state);
     write_bonesfile(state.u.uz, bonesText, state);
 }
 
@@ -1371,9 +1374,6 @@ async function restoreBonesLevel(bonesData, state) {
     restobjchn_ghostly(level.objlist, false, ghost, state);
 
     installLevel(level, state);
-    // C ref: restore.c getlev():1117 rest_adjust_levelflags() makes the
-    // flags' relative turn stamps absolute in the loading game.
-    rest_adjust_levelflags(state);
     // getlev() reads the bones file's svl.lastseentyp[][].
     state.lastseentyp = copy_lastseentyp_grid(bonesData.lastseentyp);
     await find_lev_obj(state);
@@ -1381,6 +1381,13 @@ async function restoreBonesLevel(bonesData, state) {
     // Buried objects
     level.buriedobjlist = rebuildObjChain(bonesData.buriedObjects ?? []);
     restobjchn_ghostly(level.buriedobjlist, false, ghost, state);
+
+    // C ref: restore.c getlev():1117 rest_adjust_levelflags() and
+    // restmon()'s relative_time_to_moves() calls (355-356) make the bones
+    // file's relative turn stamps absolute in the loading game: the level
+    // flags' and those of each former pet, in the monster chain and in the
+    // remembered monsters of the floor and buried objects, all read by now.
+    rest_level_relative_times(state);
 
     // C ref: restore.c getlev():1166 rest_engravings(), after the object
     // chains. save_engravings() writes head_engr in chain order and

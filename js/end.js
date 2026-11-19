@@ -140,8 +140,8 @@ import {
 import { endmultishot } from './dothrow.js';
 import { upstart, lcase } from './hacklib.js';
 import {
-    carrying, currency, display_inventory, money_cnt, obfree, sortloot, stackobjRuntime, update_inventory,
-    useup,
+    carrying, currency, display_inventory, money_cnt, obfree, set_cknown_lknown, sortloot, stackobjRuntime,
+    update_inventory, useup,
 } from './invent.js';
 import { bless, isContainer, mksobj, place_object } from './obj.js';
 import { discover_object } from './o_init.js';
@@ -153,7 +153,6 @@ import {
     POT_RESTORE_ABILITY,
     POT_WATER,
     STATUE,
-    TIN,
     AMULET_CLASS,
     BELL_OF_OPENING,
     CANDELABRUM_OF_INVOCATION,
@@ -1034,10 +1033,7 @@ async function identifyInventoryForDisclosure(state) {
     for (let obj = state.invent; obj; obj = obj.nobj) {
         discover_object(obj.otyp, true, true, false, state);
         obj.known = obj.bknown = obj.dknown = obj.rknown = 1;
-        if (isContainer(obj) || obj.otyp === STATUE)
-            obj.cknown = obj.lknown = 1;
-        else if (obj.otyp === TIN)
-            obj.cknown = 1;
+        set_cknown_lknown(obj); /* set flags when applicable */
         if (obj.otyp === LARGE_BOX && obj.spe === 1) {
             // C resolves the coin flip once here so disclosure and dumplog
             // see the same cat.  Keep pickup.c as the sole owner; the
