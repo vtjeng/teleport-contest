@@ -29,9 +29,9 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
 | gameplay | 4068 | 4004 | 64 | 0 |
-| diagnostic | 726 | 361 | 6 | 359 |
+| diagnostic | 726 | 369 | 6 | 351 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4914 | 4368 | 70 | 476 |
+| total | 4914 | 4376 | 70 | 468 |
 
 ## Missing by C file
 
@@ -46,7 +46,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/attrib.c | yes | 0 | 0 | 10 |
 | src/ball.c | yes | 0 | 4 | 0 |
 | src/bones.c | yes | 0 | 0 | 2 |
-| src/botl.c | no | 0 | 13 | 0 |
+| src/botl.c | no | 0 | 8 | 0 |
 | src/cfgfiles.c | yes | 0 | 0 | 2 |
 | src/cmd.c | yes | 0 | 1 | 0 |
 | src/dbridge.c | yes | 0 | 1 | 17 |
@@ -105,7 +105,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/rumors.c | yes | 0 | 2 | 0 |
 | src/save.c | yes | 0 | 3 | 1 |
 | src/selvar.c | yes | 0 | 1 | 0 |
-| src/shk.c | yes | 0 | 25 | 1 |
+| src/shk.c | yes | 0 | 22 | 1 |
 | src/shknam.c | yes | 0 | 3 | 0 |
 | src/sp_lev.c | yes | 0 | 8 | 3 |
 | src/spell.c | yes | 0 | 2 | 0 |
@@ -225,13 +225,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 
 - `percentage()`
   - 1989 impossible: `percentage: bad istat pointer`
-
-- `status_hilite2str()`
-  - 3617 impossible: `hl->behavior=percentage, rel error`
-  - 3627 impossible: `hl->behavior=updown, rel error`
-  - 3633 impossible: `hl->behavior=absolute, rel error`
-  - 3639 impossible: `hl->behavior=textmatch, rel or textmatch error`
-  - 3645 impossible: `hl->behavior=condition, rel error`
 
 ### src/cmd.c
 
@@ -956,16 +949,10 @@ Each line gives the C line, the message function, and the fragment searched for.
   - 191 impossible: `payment in money2u!`
   - 195 impossible: `paying without`
 
-- `same_price()`
-  - 977 impossible: `same_price: object wasn't on any bill!`
-
 - `shop_keeper()`
   - 1065 impossible: `? (rmno=`
   - 1066 impossible: `shopkeeper career change`
   - 1067 impossible: `shop resident not shopkeeper`
-
-- `onbill()`
-  - 1146 impossible: `onbill: paid obj on bill?`
 
 - `obfree()`
   - 1240 impossible: `obfree: not on bill,`
@@ -989,9 +976,6 @@ Each line gives the C line, the message function, and the fragment searched for.
 - `splitbill()`
   - 3640 impossible: `Negative quantity on bill??`
   - 3643 impossible: `Zero quantity on bill??`
-
-- `sub_one_frombill()`
-  - 3687 impossible: `sub_one_frombill: unpaid object not on bill`
 
 - `doinvbill()`
   - 4211 impossible: `doinvbill: no shopkeeper?`

@@ -1,7 +1,8 @@
 // C functions that report a bad state through pline.c impossible() and
 // carry on. The port used to throw at these points, ending the game where C
 // goes on. Each is synchronous here, so the report is recorded with
-// note_unported('pline.c impossible') and the function continues as C does;
+// note_unported('pline.c impossible'), or queued with sync_impossible() for
+// the next output to print, and the function continues as C does;
 // del_light_source() also has an async form that prints the report. Each
 // test builds the bad state directly and pins what C does after the report.
 
@@ -108,7 +109,14 @@ test('maybe_write_ls reports a bad source type and treats it as local', () => {
     const odd = { next: null, type: LS_NONE, id: { mx: 1 } };
     state.gl.light_base = odd;
     assert.deepEqual(light_sources_in_range(RANGE_LEVEL, state), [odd]);
-    assert.ok(game.unported.has('pline.c impossible'));
+    // The report waits on the notice queue for the next output
+    // (js/source_steps.js sync_impossible()).
+    assert.deepEqual(
+        state._glyphUpdateNotices.filter((notice) => notice.impossible)
+            .map((notice) => notice.message),
+        // LS_NONE is 0 and RANGE_LEVEL is 0 (light.c:592's format).
+        ['maybe_write_ls: bad type (0) [range=0]'],
+    );
 });
 
 // C ref: mon.c dmonsfree():2504-2509. A purge count that does not match the
