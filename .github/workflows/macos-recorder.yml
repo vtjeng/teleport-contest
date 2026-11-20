@@ -76,10 +76,10 @@ jobs:
       # go to the C library's regcomp() through sys/share/posixregex.c, and
       # js/regcomp.js ports macOS's (docs/testing.md, "The regex
       # difference"). The oracle asks this host's regcomp(), regexec() and
-      # regerror() every case in experiments/host-parity/regex-oracle/; the
-      # recipes listed there are the committed recipes whose games compile a
-      # pattern, and their macOS recordings are the ones committed under
-      # recordings/.
+      # regerror() every case in experiments/host-parity/regex-oracle/;
+      # recipes.txt there lists the committed recipes whose games compile a
+      # pattern, and the recordings of those that differ between the hosts
+      # are committed from this step's output.
       - name: Ask the regex oracle
         if: always()
         run: node experiments/host-parity/regex-oracle/run-oracle.mjs macos-recordings/regex-oracle

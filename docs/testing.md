@@ -300,36 +300,45 @@ The port follows macOS. `js/regcomp.js`, `js/regexec.js`,
 translation leaves out. To check it against macOS itself,
 `experiments/host-parity/regex-oracle/` builds a small program that calls
 the three functions as `posixregex.c` does and asks it 17,700 patterns
-against 76 texts. `macos-recorder.yml` runs it and records the 88
-committed recipes whose games compile a pattern
-(`experiments/host-parity/regex-oracle/recipes.txt`). In run
+against 76 texts. `macos-recorder.yml` runs it and records the committed
+recipes whose games compile a pattern, listed in
+`experiments/host-parity/regex-oracle/recipes.txt`. In run
 [44628090866](https://github.com/vtjeng/teleport-contest/actions/runs/44628090866)
 the port gave macOS's answer for every pattern and text, and glibc 2.39
 differed on 10,422 patterns. The answers are in
 `experiments/host-parity/regex-oracle/results/`, and
 `scripts/posixregex.test.mjs` fails if the port's answer for any of them
-changes.
+changes. The runner was macOS 26.7.2; the judge's macOS version is not
+known.
 
-Of the 88 recipes, 82 record identically on both hosts. The committed
-recordings of the other six are the macOS ones:
+`recipes.txt` lists 157 recipes. 38 are earlier recipes whose games
+compile a pattern from a config line or the options menu; 32 of them
+record alike on both hosts, and the committed recordings of the other six
+are the macOS ones:
 `recordings/options.c/autopickup-exception-regex-errors`,
 `handler_menu_colors-unmatched-bracket-and-paren-regex-errors-elf-priest`,
 `handler_msgtype-trailing-backslash-regex-error-dwarf-valkyrie`, and
 `recordings/posixregex.c/msgtype-fixed-repeat-backref`,
-`trial-repeated-greeting` and `trial-simple-greeting-control`. Record them
-again on macOS, not with a Linux recorder; each recipe's comment says so,
-and `scripts/posixregex-recordings.test.mjs` fails when any recording under
+`trial-repeated-greeting` and `trial-simple-greeting-control`. The other
+119 are the regex recipes of the second host-parity sample, committed as
+`recipes/posixregex.c/re-*` with their macOS recordings; 75 of them differ
+between the hosts. Record all of these again on macOS, not with a Linux
+recorder; each recipe's comment says so, and
+`scripts/posixregex-recordings.test.mjs` fails when any recording under
 `recordings/` shows glibc's `regerror()` text. A new recipe whose pattern
 the two libraries read differently needs a macOS recording too: add it to
 `recipes.txt`, run the workflow and copy the recording from the artifact's
 `regex/` directory.
 
-Nested bounds multiply TRE's work: `(a{0,255}){0,255}` took macOS 9.3
-seconds and the port 3.4 seconds and 1.1 GB, and macOS answered
-`out of memory` for `((a{255}){255}){255}`. The port refuses any pattern
-whose expansion passes 2^20 positions with that error
-(`js/tre_compile.js`, `MAX_POSITIONS`). A Mac with more memory than the
-runner might compile some patterns the port refuses.
+Nested bounds multiply TRE's work. On the runner, macOS returned
+`out of memory` for `((a{255}){255}){255}`, and compiling
+`(a{0,255}){0,255}` and matching it against the oracle's texts took 9.3
+seconds; the port compiles that pattern in about 3.5 seconds and 1.1 GB.
+The port refuses with the same error a pattern whose expansion passes
+2^20 positions, or whose position sets and transitions pass 2^26 entries
+(`js/tre_compile.js`, `MAX_POSITIONS` and `MAX_WORK`). A Mac with more
+memory than the runner might compile some patterns the port refuses, such
+as `((a{0,8}){0,255}){0,255}`.
 
 ### Private installs
 

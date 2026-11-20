@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310442,
+      "datetime": "20261115143000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=menucolors\n",
+      "moves": "\u001b#optionsfull\n>>>>>>g\naa{1,\n\u001b\u001b\u001b\u001bi\u001b"
+    }
+  ],
+  "comment": "posixregex.c regex_compile()/regex_match(), from the second host-parity sample (experiments/host-parity/sample2/, recipe re-bad-menu-08): #optionsfull ape add, pattern \"a{1,\". macOS and glibc regex answer differently here. Recorded on macOS, the judge's host, by .github/workflows/macos-recorder.yml (run 44628090866), because regcomp(), regexec() and regerror() differ between macOS and glibc (docs/testing.md, \"The regex difference\")."
+}
