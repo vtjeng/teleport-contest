@@ -1,0 +1,328 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-elf-ranger-reentry-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-ability-traversals-20261029"
+  ],
+  "provenance": {
+    "jsSha": "fff7d038a5ffc028e44390c504960ae90a02077a",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/wizcmds.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/insight.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fff7d038a5ffc028e44390c504960ae90a02077a"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fff7d038a5ffc028e44390c504960ae90a02077a"
+    },
+    {
+      "side": "JS",
+      "path": "js/wizcmds.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fff7d038a5ffc028e44390c504960ae90a02077a"
+    },
+    {
+      "side": "JS",
+      "path": "js/insight.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fff7d038a5ffc028e44390c504960ae90a02077a"
+    }
+  ],
+  "hypothesis": "Elf Ranger racial and role ability loss/re-entry needs an executed pairing-specific witness.",
+  "expectedBehavior": "C and JS match full output and show sleep resistance and experience-granted stealth only at the qualifying levels.",
+  "observedBehavior": "Control at level 3 and target 3->4->7->3->7 match all screens/cursors/RNG. Sleep resistance appears at 4; experience stealth at 7; both revert at 3 and return at 7.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Supported wizard level changes plus attribute displays, ordinary non-polymorphed elf Ranger.",
+    "limitations": [
+      "Wizard transitions, not natural XP or drain histories.",
+      "Starting equipment is unchanged; no object effects are invoked or investigated.",
+      "Preinstalled recorder lacks retained build attestation; prior hash/source provenance limitations persist.",
+      "No natural practice, depleted-state setup or level-30 threshold evidence."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/result.json"
+    ],
+    "reason": "Supported public wizard commands and attribute displays, with explicit reached-state assertions."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/run.mjs",
+        "control",
+        "/tmp/hero-elf-ranger-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/recipes/control.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/run.mjs",
+        "target",
+        "/tmp/hero-elf-ranger-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/recipes/target.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/README.md",
+      "sha256": "5279213f4ec70334f3119ff9dcfb4ee02e1f2d3f8ac3d387554854c0961d4f67",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/control/js-output.json.gz",
+      "sha256": "f0c2842efb7dccfaa42f10ccfd3b05079676213be341fe6d82dcd4467a7a8617",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/control/recipe.session.json",
+      "sha256": "32a854ed47db5dfe7c3e97226599033d69816e8bd49deac297d24ebb9aa85e49",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/control/recorded.session.json.gz",
+      "sha256": "7d3751da6702db6f1075c3b662d71d61667c8a600b643ff61d5e437ef626b7eb",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/control/recorder.json",
+      "sha256": "484de6d77b60a7c52d590ae17fe1e69ae03eb10baf06b8735d6a38482a0e5a84",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/control/result.json",
+      "sha256": "50381d0501136281539f56d47f65158fa95d6ad7cb466c9b4cc3d09278518867",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/control/worker.json",
+      "sha256": "c6ca5fe21dc61ad903544b9c6a305ffe22123a07fdbec3a5f6fdca09e8c34424",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/control-receipt.json",
+      "sha256": "eabf0b2131d20891a44ba2884f09be858dfe301eed13460891a6bc543c4439b9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/recipes/control.json",
+      "sha256": "bf061aecd9ba0fa6875d4477084811be8a2934aef438de66ad15e2a437734610",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/recipes/target.json",
+      "sha256": "a9bf68408034e175b448a63d3e3294805dea40bcdc3cba56db514778fa7e2b5b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/js-output.json.gz",
+      "sha256": "6fb3112c03c849a1a6e149e3e110da78558300ff5d05a387a395551a4ffae501",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/recipe.session.json",
+      "sha256": "6fdaafdeef5c3e88fd60e75c5893597ea57ea9cce092eb155d896ec376cb63ab",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/recorded.session.json.gz",
+      "sha256": "a15860f063ec5b845d277b0c9df8844dcbfd09c46151cc78fdb4a29014c1fe3a",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/recorder.json",
+      "sha256": "d79e93ad5b9abdaf93604f9d9476f7e0c183c4ab82a89887b03abe801f5664a9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/result.json",
+      "sha256": "13e6238a78b588edfa51944266b88535b369da391922b3167303b04c5da6d939",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target/worker.json",
+      "sha256": "2f77735e815b5d3eea2e0b1e4aa3e967a2d7c51aabfca2845b5f924fea458077",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/target-receipt.json",
+      "sha256": "815b6c2bfeda12bd44dc416a3e92512ce0ac8f0f462e2e07bea25dd1ee134ed7",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/verification.txt",
+      "sha256": "0ec4ebaadd11cf9616bed895ac86e2cf637acdff44edd28f02ff0731188eef68",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/elf-ranger-reentry-20261029/verify.mjs",
+      "sha256": "f9c52c0c4a08af7207e2628c1993bfb9f3982f2dbcbea0de3390f5cc417cc8c1",
+      "role": "audit artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/wizcmds.c",
+      "sha256": "4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "nethack-c/upstream/src/insight.c",
+      "sha256": "190e28746d8e11d297df8bccce183c588833c97434627660cda0b903d9cebc50",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "js/wizcmds.js",
+      "sha256": "1ae1874ae26e7c588057c0862345b33b035ddd0a25ee443296c4cf503fb5c5b2",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "js/insight.js",
+      "sha256": "c39130119f72f5df928926a45d22ac60983fae4866568a411f8077b9dcae5510",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source, tooling or prior provenance"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/environment.json",
+      "sha256": "72eae41b57d6a940b584176ec444383d9c01d7be9899cae1c565f621db2fc01d",
+      "role": "pinned source, tooling or prior provenance"
+    }
+  ]
+}

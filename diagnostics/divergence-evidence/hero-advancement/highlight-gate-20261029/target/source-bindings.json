@@ -1,0 +1,32 @@
+[
+  {
+    "file": "nethack-c/upstream/src/exper.c",
+    "symbol": "newuexp",
+    "sha256": "f97660eff5d465837586d27fba47c6612c613febabc47bc02e9245d4631279db"
+  },
+  {
+    "file": "nethack-c/upstream/src/botl.c",
+    "symbol": "percentage",
+    "sha256": "4f5c7ca58fab8561ce07619116d64c9ad1f656d98f2dada31d8308b67eee5064"
+  },
+  {
+    "file": "nethack-c/upstream/src/botl.c",
+    "symbol": "exp_percentage",
+    "sha256": "1c22833a37465e44ac224ec931644de100ae7a45ce971ffe30f8635616229f29"
+  },
+  {
+    "file": "nethack-c/upstream/src/botl.c",
+    "symbol": "get_hilite",
+    "sha256": "fb2a3d014332f3cbfa9db9bd062144efa614a2c2ffeae28fde108e8fbdb62ab5"
+  },
+  {
+    "file": "nethack-c/upstream/src/botl.c",
+    "symbol": "exp_percent_changing",
+    "sha256": "605c20b864ef4dacfaa8f9a746ac41bbcb11757764d9d5d17f649e63c2314223"
+  },
+  {
+    "file": "nethack-c/upstream/src/exper.c",
+    "symbol": "more_experienced",
+    "sha256": "7f51216c7613038bc881cf3c425032f3d93510b87061b9cc8422d86137d98577"
+  }
+]

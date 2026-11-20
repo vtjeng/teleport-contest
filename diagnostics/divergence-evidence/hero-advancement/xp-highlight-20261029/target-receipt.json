@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/run.mjs",
+    "target",
+    "/tmp/hero-xp-highlight-target-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "1d2ad76f770232281a6e5abaeeb539f2da479509",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:14:51.424418+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/recipes/target.json": "0117c0e86562e5384f3de3d9d747ce555cfc3cc5dc167a7aa5b398ef6736e581"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/target/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/target/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/target/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/target/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/target/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/target/worker.json"
+  ]
+}

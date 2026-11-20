@@ -1,0 +1,22 @@
+[
+  {
+    "file": "nethack-c/upstream/src/weapon.c",
+    "symbol": "slots_required",
+    "sha256": "e62cdd41b6fdebed6929b551db2770369f56e2759d6997c2756554684f81a4d5"
+  },
+  {
+    "file": "nethack-c/upstream/src/weapon.c",
+    "symbol": "can_advance",
+    "sha256": "d64739baa73003c5037ed9f42e28bddf6c680e6c03ac0ffb7cf3c112fb669ef6"
+  },
+  {
+    "file": "nethack-c/upstream/src/weapon.c",
+    "symbol": "give_may_advance_msg",
+    "sha256": "69b2761316645273951a3d55b2c92f966cd41199900c333be69c116aacf62d02"
+  },
+  {
+    "file": "nethack-c/upstream/src/weapon.c",
+    "symbol": "add_weapon_skill",
+    "sha256": "ffcb6f5dfa29d858834aa1d5e22dea9ee28a9892f962d17c0be74c2ba50d8dbd"
+  }
+]

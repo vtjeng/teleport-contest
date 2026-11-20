@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73160352,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:HighlightAudit,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,!showexp,statushilites:5\nOPTIONS=hilite_status:experience-level/<50%/red experience-level/>=50%/green\n",
+      "moves": "\u00169\n        "
+    }
+  ]
+}

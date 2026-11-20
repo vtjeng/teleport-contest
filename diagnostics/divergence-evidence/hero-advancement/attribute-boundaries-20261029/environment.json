@@ -1,0 +1,36 @@
+{
+  "node": "v24.19.0",
+  "gcc": "gcc (Debian 14.2.0-19) 14.2.0",
+  "runs": {
+    "control": {
+      "binarySha256": "52b3d8894c7c67b8a71c277392baa48d09099cfdb93ae885f3aecd33aba9a08f",
+      "compileArgv": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "/tmp/hero-attribute-oracle-Xo7BQB/oracle.c",
+        "-o",
+        "/tmp/hero-attribute-oracle-Xo7BQB/oracle"
+      ],
+      "elapsedSeconds": 0.07600116729736328,
+      "scope": "generated source to saved result; elapsed, not active compute; excludes setup/publication"
+    },
+    "target": {
+      "binarySha256": "9c8795190cb711da7aa684e8fe9883bf6cc3e1eb39d12014fe9019a291b9c647",
+      "compileArgv": [
+        "gcc",
+        "-std=c11",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "/tmp/hero-attribute-oracle-MvOQeh/oracle.c",
+        "-o",
+        "/tmp/hero-attribute-oracle-MvOQeh/oracle"
+      ],
+      "elapsedSeconds": 0.39200448989868164,
+      "scope": "generated source to saved result; elapsed, not active compute; excludes setup/publication"
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "jsSha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "sourceScriptUnchanged": true,
+  "inputs": [
+    {
+      "path": "nethack-c/build-recorder.sh",
+      "sha256": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38"
+    },
+    {
+      "path": "nethack-c/upstream/sys/unix/hints/linux-minimal",
+      "sha256": "ba958b4e6f4e7f2dceb0d4911d1ca52e3b253405f2a3053036ea242a9dbe0a5a"
+    },
+    {
+      "path": "scripts/smoke-recorder.mjs",
+      "sha256": "97488f3d2f61478495e4b5a2936885433b5728dede3ef9deab6149102b370b10"
+    },
+    {
+      "path": "nethack-c/patches/001-deterministic-runtime.patch",
+      "sha256": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58"
+    },
+    {
+      "path": "nethack-c/patches/002-deterministic-qsort.patch",
+      "sha256": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425"
+    },
+    {
+      "path": "nethack-c/patches/003-rng-log-core.patch",
+      "sha256": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9"
+    },
+    {
+      "path": "nethack-c/patches/004-rng-log-lua-context.patch",
+      "sha256": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36"
+    },
+    {
+      "path": "nethack-c/patches/005-rng-display-logging.patch",
+      "sha256": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966"
+    },
+    {
+      "path": "nethack-c/patches/006-nomux-capture.patch",
+      "sha256": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95"
+    },
+    {
+      "path": "nethack-c/patches/007-stable-pointer-format.patch",
+      "sha256": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033"
+    }
+  ],
+  "activationSha256": "9c017d9f25ffa832ef13d84e5f336a841a9371c98e02549d08b7a1835b9636c6",
+  "activatedExecutables": {
+    "clang": {
+      "path": "/workspace/.setup/bin/clang",
+      "resolvedPath": "/workspace/.setup/toolchain/usr/lib/llvm-19/bin/clang",
+      "sha256": "0a3c55936ac43954fbe4914e6e73b577ca9e35e75d89ef13d3e28c187f41ca1a"
+    },
+    "bison": {
+      "path": "/workspace/.setup/toolchain/usr/bin/bison",
+      "resolvedPath": "/workspace/.setup/toolchain/usr/bin/bison",
+      "sha256": "39fc36c38e29481dc3be2d08652e0564b9ea9aa297e38ed21ff0da0ff36967e8"
+    },
+    "flex": {
+      "path": "/workspace/.setup/toolchain/usr/bin/flex",
+      "resolvedPath": "/workspace/.setup/toolchain/usr/bin/flex",
+      "sha256": "2f756d9099e5e926d938e916b342b36f11e209a413e2bbedee059fa4a87560bf"
+    },
+    "rsync": {
+      "path": "/workspace/.setup/toolchain/usr/bin/rsync",
+      "resolvedPath": "/workspace/.setup/toolchain/usr/bin/rsync",
+      "sha256": "a56c05b960beb734169619d5760b43ff495e84f85a93eb1f54fe58118262fb20"
+    },
+    "make": {
+      "path": "/usr/bin/make",
+      "resolvedPath": "/usr/bin/make",
+      "sha256": "8a229baf64671988cfb5af43ba3070c6ce7214cf32bcf96155115559d1466fa7"
+    },
+    "git": {
+      "path": "/usr/local/bin/git",
+      "resolvedPath": "/usr/local/bin/git",
+      "sha256": "9dae295c1a4ffae4ee772e6205fcf22b26e1bfeeb5ee98f278b5139bda7ca22f"
+    },
+    "node": {
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "resolvedPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+    }
+  },
+  "binary": {
+    "path": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir/nethack",
+    "sha256": "cb8a2a847d3c4f1c52213757abdbedd2e74c872339691cd5bef5489c64b891ad",
+    "bytes": 10041680
+  },
+  "oldBinarySha256": "d0e5dceb8871d889b5bd46a5ec27ce1dd060b8aec49a0412d3b8a7458d6a7b13",
+  "sourceDateEpoch": 1777723200,
+  "luaInput": "cached-lua-source.tar.gz; source only; compiled objects/libraries excluded before build",
+  "isolation": "Detached checkout; tracked files unchanged; shared recorder untouched",
+  "reproducibilityLimit": "One recorded build, not an independent bit-for-bit rebuild; historical binary origin remains unattested."
+}

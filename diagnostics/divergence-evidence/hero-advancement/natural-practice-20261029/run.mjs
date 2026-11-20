@@ -1,0 +1,12 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+import {resolve,dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {runDifferential,formatReport} from '../../../../scripts/diff-fresh.mjs';
+const here=dirname(fileURLToPath(import.meta.url));
+const name=process.argv[2];if(!/^[a-z0-9-]+$/.test(name))throw new Error('Invalid row');
+const recipe=JSON.parse(readFileSync(resolve(here,'recipes',`${name}.json`)));
+const out=resolve(process.argv[3]||`/tmp/hero-integration-${name}-${Date.now()}`);
+const result=await runDifferential(recipe,process.env,{evidenceDir:out});
+writeFileSync(resolve(out,'result.json'),JSON.stringify(result,null,2));
+console.log(formatReport(result));console.log(`Evidence: ${out}`);
+process.exitCode=result.passed?0:1;

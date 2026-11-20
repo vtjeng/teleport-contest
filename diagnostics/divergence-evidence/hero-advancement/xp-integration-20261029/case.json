@@ -1,0 +1,355 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-xp-integration-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-ability-traversals-20261029"
+  ],
+  "provenance": {
+    "jsSha": "fdaa960271b2eab9d9e2314d413f80258122b577",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/do.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/teleport.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fdaa960271b2eab9d9e2314d413f80258122b577"
+    },
+    {
+      "side": "JS",
+      "path": "js/do.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fdaa960271b2eab9d9e2314d413f80258122b577"
+    },
+    {
+      "side": "JS",
+      "path": "js/teleport.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "fdaa960271b2eab9d9e2314d413f80258122b577"
+    }
+  ],
+  "hypothesis": "Incremental XP overshoot, revisit and below-threshold maximum-level awards require full-runtime comparison.",
+  "expectedBehavior": "Full C and JS screens, cursors and RNG match, with asserted reached XP/resource states.",
+  "observedBehavior": "Three recordings match. Overshoot caps at 39, next award reaches level 3, revisit gives no new XP; level 30 receives 20 XP below its next threshold.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Public debug-assisted transport and levelchange; production sightseeing XP application.",
+    "limitations": [
+      "Preinstalled C binary has no retained build attestation; prior environment hashes identify it only.",
+      "Level-30 award stays below 110000000 threshold and does not isolate MAXULEV guard.",
+      "No ordinary walking/practice/depleted-resource history claimed."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-control/result.json"
+    ],
+    "reason": "Executed public command transcripts and reached-state assertions; debug-assisted setup."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "xp-overshoot-revisit",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/run.mjs",
+        "xp-overshoot-revisit",
+        "/tmp/hero-xp-overshoot-revisit-final-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/recipes/xp-overshoot-revisit.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit-receipt.json"
+    },
+    {
+      "id": "xp-maxlevel",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/run.mjs",
+        "xp-maxlevel",
+        "/tmp/hero-xp-maxlevel-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/recipes/xp-maxlevel.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-receipt.json"
+    },
+    {
+      "id": "xp-maxlevel-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/run.mjs",
+        "xp-maxlevel-control",
+        "/tmp/hero-xp-maxlevel-control-final-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/recipes/xp-maxlevel-control.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-control-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/README.md",
+      "sha256": "d1a8ff27b186d25102a5a0427c2825d63839279a6fe59d055b6b74928b1a6d93",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/recipes/xp-maxlevel-control.json",
+      "sha256": "bc3ac07507539c9d20244fd70a7b51d089ec674cbfce6dd18f5b568f58522071",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/recipes/xp-maxlevel.json",
+      "sha256": "e6be7eb8a57f11f25e516bb101c1d5b296a549d9ab0cc9139651ac252d878638",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/recipes/xp-overshoot-revisit.json",
+      "sha256": "35a1e050343c3fe14aa4220c41afd66d965c3b64ef33c62ce7d79fba62875119",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/verification.txt",
+      "sha256": "3463dcbc3ea338794c0f9c3974a4e8f4c919d9e7ecbc5c7ecb9a631b2cf2391f",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/verify.mjs",
+      "sha256": "4e8d587ddf0665c5fc3c787ee63cc8146971201621f2ca0c2c570c4f1b68d748",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/js-output.json.gz",
+      "sha256": "0f7f503bfe350285e0395aa8afd340b4da452599498e6dea99dd0efc0b42f829",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/recipe.session.json",
+      "sha256": "4a29b143d12dd91dbbd1e134c726624d890e8102f6445e23664d66b41dcb5c24",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/recorded.session.json.gz",
+      "sha256": "b10e174beca47ba358947c1c50ce846417f4515608d788084843c94c9435c01a",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/recorder.json",
+      "sha256": "54a420d5db8b46c760bee44cab26b6d74f04052023f7a19e0000c76291559138",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/result.json",
+      "sha256": "251b31ce24eccb6cb371652019f3a53cdd75d8212ba1c9727cc4f5cd86eff5a3",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel/worker.json",
+      "sha256": "e953a4e96aab1bf11af05c3a4bdae6aa94c4cc451be4066d7241a20f6b0f4a90",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-control/js-output.json.gz",
+      "sha256": "78ed6675fd05bbd072207ece13c60931e473d002f80a4828bba5ec8b53afbdb4",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-control/recipe.session.json",
+      "sha256": "fba7b5865a42e0a87f6fcb73406673e317fa78d52c69c12c349034b4e05d88e2",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-control/recorded.session.json.gz",
+      "sha256": "527cdd4b70301e60424c3509c2659bc4dfa89ffe31d5b01e101fc60c0394cdcc",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-control/recorder.json",
+      "sha256": "982ebfc10490007ce45f640234da8fb84f6e888424705f29e6652d784d91d56c",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-control/result.json",
+      "sha256": "9bba789801d5331eca4783a5fdbd7aec8986f8ce1d2247cddfc708a55b682c86",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-control/worker.json",
+      "sha256": "8fc92454c9a5c62b26625c3472f9037c1c975b6ed190a51052de9af279fd71ab",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-control-receipt.json",
+      "sha256": "dc83fd8ad704791956d433cb65228f9f1296aaca6cda18b5ba2933ca34c6f702",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-maxlevel-receipt.json",
+      "sha256": "d4c95d58ba5a2cb961fed8f9d9e6c4c9adca4e7d9e65fca0bdb982108a237984",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/js-output.json.gz",
+      "sha256": "b1b452162ed229fb86fd2c32ec470f0a2e30ecde0c94b912c2428dc4fd928935",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/recipe.session.json",
+      "sha256": "57a350ba139df2719b19cf83265095f1b50cb0cdf0807895344d887cc1dc01ed",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/recorded.session.json.gz",
+      "sha256": "649877b0b9bf9229aca2d77645924746764e570866a7b81b6fb1ced8dc9372bc",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/recorder.json",
+      "sha256": "7416513322f334cceebb84afef32cfc5e2dfe62cba833387e56316ca2a962593",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/result.json",
+      "sha256": "6eaf40f20a9a2b279bfecfb0e1109c20216457e24a472360c8f171101f4ee1c8",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit/worker.json",
+      "sha256": "18db008b227c9e0927051a012cfd0d036099569ad43847587f60e6a1d3246a58",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-integration-20261029/xp-overshoot-revisit-receipt.json",
+      "sha256": "b9a22b2f9f1b7ee4db0ec0a59775d4a2fc65e3799f36d67275709ce6f3cefd1e",
+      "role": "audit evidence or pinned dependency"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/environment.json",
+      "sha256": "72eae41b57d6a940b584176ec444383d9c01d7be9899cae1c565f621db2fc01d",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/do.js",
+      "sha256": "7e87c976d9b1dfa1f92c784ab8cb9be64334a06cac7b311831ba30893ab40c0a",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "js/teleport.js",
+      "sha256": "a8ea7e9815480ed26d18bd23c8c9c38129f1634358953eb48b49497f3fc9806c",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/do.c",
+      "sha256": "e2fe19b83f22dcf496d2ced54f8d727433ef29aa4c3a3151a64e66350cae985f",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/teleport.c",
+      "sha256": "e1d9d4255ac148caa4618dc4f275ddf5417d2a2830beca738c3821cf7678e5c8",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "audit evidence or pinned dependency"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "audit evidence or pinned dependency"
+    }
+  ]
+}

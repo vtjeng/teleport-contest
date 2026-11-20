@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "commandId": "underflow-control",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+    "underflow-control",
+    "/tmp/hero-depleted-underflow-control-20261029"
+  ],
+  "cwd": ".",
+  "environment": {
+    "NETHACK_INSTALL": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir",
+    "NETHACK_BINARY": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir/nethack"
+  },
+  "activation": "/workspace/.setup/activate.sh",
+  "jsSha": "e2d85fff23ed92836eee08cd03f21d41809c8751",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:49:35.434318+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/underflow-control.json": "8a6db304401a6c1b991d78b543af1bb52e822ca74c14fa57f0ae15c36668dd38",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/underflow-control/worker.json"
+  ]
+}

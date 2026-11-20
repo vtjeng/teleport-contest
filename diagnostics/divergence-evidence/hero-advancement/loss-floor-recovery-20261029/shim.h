@@ -1,0 +1,67 @@
+/* Narrow oracle adapter: resource/XP fields only, no natural-play claim.
+ * Field types follow include/you.h; bounded fixtures avoid overflow. */
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdarg.h>
+#include <assert.h>
+#define staticfn static
+#define TRUE 1
+#define FALSE 0
+#define MAXULEV 30
+#define max(a,b) ((a)>(b)?(a):(b))
+#define Upolyd 0
+#define A_CON 4
+#define A_WIS 2
+#define ACURR(a) (10)
+#define Role_switch PM_WIZARD
+#define PM_WIZARD 343
+#define PM_CLERIC 337
+#define PM_HEALER 334
+#define PM_KNIGHT 335
+#define PM_BARBARIAN 331
+#define PM_VALKYRIE 342
+#define LL_MINORAC 0
+#define sa2_xpleveldown 0
+#define sa2_xplevelup 0
+#define KILLED_BY 0
+#define DIED 0
+#define Strcpy strcpy
+typedef int boolean;
+typedef int16_t xint16;
+struct { int ulevel,ulevelmax,ulevelpeak,uhp,uhpmax,uhppeak,uen,uenmax,uenpeak,mh,mhmax; long uexp; xint16 uhpinc[30],ueninc[30]; struct {int type,record;} ualign; } u;
+struct advance {int infix,inrnd,lofix,lornd,hifix,hirnd;};
+struct role {struct advance hpadv,enadv;int xlev,initrecord;};
+/* Independently pinned to the Wizard and human entries in src/role.c. */
+struct {struct role urole,urace;} gu={{{10,0,0,8,1,0},{4,3,0,2,0,3},12,0},{{2,0,0,2,1,0},{1,0,2,0,2,0},0,0}};
+struct {int botl;} disp;
+struct {int youmonst;} gy;
+struct {long moves;} svm={1};
+struct {int initalign;} flags;
+struct {int value;} aligns[3];
+struct {struct {int format;char name[256];} killer;} svk;
+static int upper,draws,adjcalls;
+static char rng[1024],messages[2048];
+static void forbidden(void){fputs("outside qualified oracle scope\n",stderr);exit(3);}
+static int rnd(int n){int result=upper?n:1;assert(n>0);char b[64];snprintf(b,sizeof b,"rnd(%d)=%d;",n,result);strcat(rng,b);draws++;return result;}
+static int rn1(int n,int b){int result=b+(upper?n-1:0);assert(n>0);char text[64];snprintf(text,sizeof text,"rn1(%d,%d)=%d;",n,b,result);strcat(rng,text);draws++;return result;}
+static void pline(const char *fmt,...){char b[256],snap[512];va_list ap;va_start(ap,fmt);vsnprintf(b,sizeof b,fmt,ap);va_end(ap);snprintf(snap,sizeof snap,"%s|%d,%d,%d;",b,u.ulevel,u.uhp,u.uen);strcat(messages,snap);}
+static void You_feel(const char *s){char b[256];snprintf(b,sizeof b,"You feel %s",s);pline("%s",b);}
+static const char *Goodbye(void){return "Goodbye";}
+static void adjabil(int old,int next){assert(abs(next-old)==1);assert(!((old<15&&next>=15)||(old>=15&&next<15)||(old<17&&next>=17)||(old>=17&&next<17)));adjcalls++;}
+/* Notifications/achievements are outside the resource projection. No stub
+ * reads or writes the projected fields. Polymorph/death/resistance abort. */
+static void livelog_printf(int type,const char *fmt,...){(void)type;(void)fmt;}
+static void SoundAchievement(int a,int b,int c){(void)a;(void)b;(void)c;}
+static int xlev_to_rank(int level){(void)level;return 0;}
+static int count_achievements(void){return 0;}
+static void record_achievement(int a){(void)a;}
+static int achieve_rank(int a){return a;}
+static int resists_drli(void *m){(void)m;forbidden();return 0;}
+static int monhp_per_lvl(void *m){(void)m;forbidden();return 0;}
+static void rehumanize(void){forbidden();}
+static void done(int a){(void)a;forbidden();}
+long newuexp(int);
+void newexplevel(void),pluslvl(boolean),losexp(const char *),setuhpmax(int,boolean);
+int newhp(void),newpw(void),minuhpmax(int);

@@ -1,0 +1,368 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-rank-chronicle-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-integration-20261029"
+  ],
+  "provenance": {
+    "jsSha": "029dbe6ffb8fbf04dc6d1b3dd16153b7054363f1",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/attrib.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/insight.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/pline.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/wizcmds.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "029dbe6ffb8fbf04dc6d1b3dd16153b7054363f1"
+    },
+    {
+      "side": "JS",
+      "path": "js/attrib.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "029dbe6ffb8fbf04dc6d1b3dd16153b7054363f1"
+    },
+    {
+      "side": "JS",
+      "path": "js/insight.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "029dbe6ffb8fbf04dc6d1b3dd16153b7054363f1"
+    },
+    {
+      "side": "JS",
+      "path": "js/pline.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "029dbe6ffb8fbf04dc6d1b3dd16153b7054363f1"
+    },
+    {
+      "side": "JS",
+      "path": "js/wizcmds.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "029dbe6ffb8fbf04dc6d1b3dd16153b7054363f1"
+    }
+  ],
+  "hypothesis": "Repeated rank gain must avoid a duplicate achievement and log regained rather than first attainment.",
+  "expectedBehavior": "Chronicle contains one Conjurer achievement, then ordered loss and regain events on re-entry.",
+  "observedBehavior": "Both public recordings match; target chronicle contains one attainment followed by lost level 3 and regained level 3.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Ordinary human male Wizard; supported wizard levelchange 1->3->2->3 plus public chronicle.",
+    "limitations": [
+      "Wizard resets ulevelmax; this is not a natural Welcome back witness.",
+      "Only first male rank and repeated event path are asserted.",
+      "Preinstalled full recorder has no retained build attestation."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/target/result.json"
+    ],
+    "reason": "Public supported wizard transitions and chronicle event assertions."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/run.mjs",
+        "control",
+        "/tmp/hero-rank-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/recipes/control.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/run.mjs",
+        "target",
+        "/tmp/hero-rank-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/recipes/target.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/target-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/README.md",
+      "sha256": "09a744e05a680520e3ec8e71780a54b6bcd7bcaf9be346f17f0178ea5905f9ea",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/control/js-output.json.gz",
+      "sha256": "a287d6bb5635e919cd7ace0891ef58e78ef9126981cc425e4de78aee4f576e54",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/control/recipe.session.json",
+      "sha256": "ac702a9223191b092caae2cf261ee7418409d6b1d39cb3c429c0104e96286aa3",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/control/recorded.session.json.gz",
+      "sha256": "1af99a84a09620e577a78e1011486abf82468dac61c55b41780fd1d09a7f380f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/control/recorder.json",
+      "sha256": "643b678e2b2bde2727e99886a730b7706e4412e2285a757162e5786abcca963b",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/control/result.json",
+      "sha256": "8060cbd6dbe994cc04c595da54d415018cbc81f1ff97f8848018ab62ac52f14f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/control/worker.json",
+      "sha256": "61ac67f0c9681449182536f33ff89202f31aa4d7cc54378d387cb703c1693e3c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/control-receipt.json",
+      "sha256": "8a7a4939907f798f8da2e2bf8119512d04f9acf6745f90a2b5a307a0b57ba16d",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/focused-tests.txt",
+      "sha256": "81502e95d2b706852d8b9e98a2cd774da4bfd669d9713fe09c52c5cd952fb164",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/recipes/control.json",
+      "sha256": "9fc33a2c3108f3194877c3ecd1bbe1c4f26d7bfe18a3efe5196d8f75cb20e47f",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/recipes/target.json",
+      "sha256": "4b3e861eeb9ece2bc007dd4a8f9f3092bb107b3fbdf0d4c62780b42a8bb6a6e7",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/target/js-output.json.gz",
+      "sha256": "b4b26ec7165c2a23673d1a9f1e25aaf6302b2bf4c1d9abf432f935031e3cba70",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/target/recipe.session.json",
+      "sha256": "32dec0aa510c692dac647901fcc96460b2ab89059ecc83cdfe1077592e212f6c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/target/recorded.session.json.gz",
+      "sha256": "cb9d73cba7e901c0c1baca79fde1510ad1d928c88ebfaccd11b16094171ffa28",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/target/recorder.json",
+      "sha256": "96f2acb5e76814be86353755e97c48c6bfa8dd79942330eedb518ab459e71c46",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/target/result.json",
+      "sha256": "ec781fce6ccb175cd373219b440fabfb95546daa177abfa0535a586fbf872776",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/target/worker.json",
+      "sha256": "9dddbc536b8e4c1cbaf94f61054d3fb492561cbdebefa9a0d653d22dda804e16",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/target-receipt.json",
+      "sha256": "e5403cfcb56714259d6ad3155d03d7fe18213279d717eb93be1e8adfda460e6c",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/verification.txt",
+      "sha256": "32ca8290487beeab9fcb8d231f349318e2023ad26e677d98c008d1450d5649bc",
+      "role": "audit artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/rank-chronicle-20261029/verify.mjs",
+      "sha256": "21a3354b5e5a034b787c2102c0760aafbbd788768ac967d4959186a9d2e64132",
+      "role": "audit artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/attrib.c",
+      "sha256": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/insight.c",
+      "sha256": "190e28746d8e11d297df8bccce183c588833c97434627660cda0b903d9cebc50",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/pline.c",
+      "sha256": "394d4d33f3ecfa66005a0df96cacf582782c79437f34daeaaa9bf25238d857ff",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "nethack-c/upstream/src/wizcmds.c",
+      "sha256": "4611d620caedc59dc270f5d6b6f9a2497831dc88325edc90f3770e75afd9b71f",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "js/attrib.js",
+      "sha256": "92c557e2fcdc75a6df8cdd57a9e2cd746810bde2c381fee383e80d6ea8ec6c52",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "js/insight.js",
+      "sha256": "c39130119f72f5df928926a45d22ac60983fae4866568a411f8077b9dcae5510",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "js/pline.js",
+      "sha256": "a2ce2402f9df63db196778241a47e6afaffb20f9145e7fd0e5d3a536924014cb",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "js/wizcmds.js",
+      "sha256": "1ae1874ae26e7c588057c0862345b33b035ddd0a25ee443296c4cf503fb5c5b2",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "scripts/level-arrival.test.mjs",
+      "sha256": "2106e33b97f8eb20c3a704a3b8362cacb2c61945905b766d37e65be3a8dc7f2d",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "scripts/level-change.test.mjs",
+      "sha256": "d109251b95e7bdff9554cccea4da6451fab060fed99a556ebc312501e5db7a42",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "audit artifact or pinned dependency"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/integration-20261029/environment.json",
+      "sha256": "72eae41b57d6a940b584176ec444383d9c01d7be9899cae1c565f621db2fc01d",
+      "role": "audit artifact or pinned dependency"
+    }
+  ]
+}

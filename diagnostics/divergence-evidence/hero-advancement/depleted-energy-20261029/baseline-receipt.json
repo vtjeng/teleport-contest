@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "commandId": "baseline",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/run.mjs",
+    "baseline",
+    "/tmp/hero-depleted-baseline-20261029"
+  ],
+  "cwd": ".",
+  "environment": {
+    "NETHACK_INSTALL": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir",
+    "NETHACK_BINARY": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir/nethack"
+  },
+  "activation": "/workspace/.setup/activate.sh",
+  "jsSha": "e2d85fff23ed92836eee08cd03f21d41809c8751",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:47:28.130039+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/recipes/baseline.json": "cf088a6c6733fa996168b2b1310db05a55480a01f47ffaf49e3fae0e53b7b6ec",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/depleted-energy-20261029/baseline/worker.json"
+  ]
+}

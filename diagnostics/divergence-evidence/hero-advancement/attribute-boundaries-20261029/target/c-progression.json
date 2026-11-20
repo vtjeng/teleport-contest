@@ -1,0 +1,415 @@
+{
+  "roles": [
+    {
+      "filecode": "Arc",
+      "symbol": "PM_ARCHEOLOGIST",
+      "allow": "MH_HUMAN | MH_DWARF | MH_GNOME | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL\n          | ROLE_NEUTRAL",
+      "hpadv": [
+        11,
+        0,
+        0,
+        8,
+        1,
+        0
+      ],
+      "enadv": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "xlev": 14,
+      "initrecord": 10
+    },
+    {
+      "filecode": "Bar",
+      "symbol": "PM_BARBARIAN",
+      "allow": "MH_HUMAN | MH_ORC | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL\n          | ROLE_CHAOTIC",
+      "hpadv": [
+        14,
+        0,
+        0,
+        10,
+        2,
+        0
+      ],
+      "enadv": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "xlev": 10,
+      "initrecord": 10
+    },
+    {
+      "filecode": "Cav",
+      "symbol": "PM_CAVE_DWELLER",
+      "allow": "MH_HUMAN | MH_DWARF | MH_GNOME | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL\n          | ROLE_NEUTRAL",
+      "hpadv": [
+        14,
+        0,
+        0,
+        8,
+        2,
+        0
+      ],
+      "enadv": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "xlev": 10,
+      "initrecord": 0
+    },
+    {
+      "filecode": "Hea",
+      "symbol": "PM_HEALER",
+      "allow": "MH_HUMAN | MH_GNOME | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL",
+      "hpadv": [
+        11,
+        0,
+        0,
+        8,
+        1,
+        0
+      ],
+      "enadv": [
+        1,
+        4,
+        0,
+        1,
+        0,
+        2
+      ],
+      "xlev": 20,
+      "initrecord": 10
+    },
+    {
+      "filecode": "Kni",
+      "symbol": "PM_KNIGHT",
+      "allow": "MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL",
+      "hpadv": [
+        14,
+        0,
+        0,
+        8,
+        2,
+        0
+      ],
+      "enadv": [
+        1,
+        4,
+        0,
+        1,
+        0,
+        2
+      ],
+      "xlev": 10,
+      "initrecord": 10
+    },
+    {
+      "filecode": "Mon",
+      "symbol": "PM_MONK",
+      "allow": "MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL\n          | ROLE_CHAOTIC",
+      "hpadv": [
+        12,
+        0,
+        0,
+        8,
+        1,
+        0
+      ],
+      "enadv": [
+        2,
+        2,
+        0,
+        2,
+        0,
+        2
+      ],
+      "xlev": 10,
+      "initrecord": 10
+    },
+    {
+      "filecode": "Pri",
+      "symbol": "PM_CLERIC",
+      "allow": "MH_HUMAN | MH_ELF | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL\n          | ROLE_CHAOTIC",
+      "hpadv": [
+        12,
+        0,
+        0,
+        8,
+        1,
+        0
+      ],
+      "enadv": [
+        4,
+        3,
+        0,
+        2,
+        0,
+        2
+      ],
+      "xlev": 10,
+      "initrecord": 0
+    },
+    {
+      "filecode": "Rog",
+      "symbol": "PM_ROGUE",
+      "allow": "MH_HUMAN | MH_ORC | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC",
+      "hpadv": [
+        10,
+        0,
+        0,
+        8,
+        1,
+        0
+      ],
+      "enadv": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "xlev": 11,
+      "initrecord": 10
+    },
+    {
+      "filecode": "Ran",
+      "symbol": "PM_RANGER",
+      "allow": "MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | ROLE_MALE | ROLE_FEMALE\n          | ROLE_NEUTRAL | ROLE_CHAOTIC",
+      "hpadv": [
+        13,
+        0,
+        0,
+        6,
+        1,
+        0
+      ],
+      "enadv": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "xlev": 12,
+      "initrecord": 10
+    },
+    {
+      "filecode": "Sam",
+      "symbol": "PM_SAMURAI",
+      "allow": "MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL",
+      "hpadv": [
+        13,
+        0,
+        0,
+        8,
+        1,
+        0
+      ],
+      "enadv": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "xlev": 11,
+      "initrecord": 10
+    },
+    {
+      "filecode": "Tou",
+      "symbol": "PM_TOURIST",
+      "allow": "MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL",
+      "hpadv": [
+        8,
+        0,
+        0,
+        8,
+        0,
+        0
+      ],
+      "enadv": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "xlev": 14,
+      "initrecord": 0
+    },
+    {
+      "filecode": "Val",
+      "symbol": "PM_VALKYRIE",
+      "allow": "MH_HUMAN | MH_DWARF | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL",
+      "hpadv": [
+        14,
+        0,
+        0,
+        8,
+        2,
+        0
+      ],
+      "enadv": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "xlev": 10,
+      "initrecord": 0
+    },
+    {
+      "filecode": "Wiz",
+      "symbol": "PM_WIZARD",
+      "allow": "MH_HUMAN | MH_ELF | MH_GNOME | MH_ORC | ROLE_MALE | ROLE_FEMALE\n          | ROLE_NEUTRAL | ROLE_CHAOTIC",
+      "hpadv": [
+        10,
+        0,
+        0,
+        8,
+        1,
+        0
+      ],
+      "enadv": [
+        4,
+        3,
+        0,
+        2,
+        0,
+        3
+      ],
+      "xlev": 12,
+      "initrecord": 0
+    }
+  ],
+  "races": [
+    {
+      "filecode": "Hum",
+      "allow": "MH_HUMAN | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL | ROLE_NEUTRAL\n            | ROLE_CHAOTIC",
+      "hpadv": [
+        2,
+        0,
+        0,
+        2,
+        1,
+        0
+      ],
+      "enadv": [
+        1,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      "conmax": 18,
+      "wismax": 18
+    },
+    {
+      "filecode": "Elf",
+      "allow": "MH_ELF | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC",
+      "hpadv": [
+        1,
+        0,
+        0,
+        1,
+        1,
+        0
+      ],
+      "enadv": [
+        2,
+        0,
+        3,
+        0,
+        3,
+        0
+      ],
+      "conmax": 16,
+      "wismax": 20
+    },
+    {
+      "filecode": "Dwa",
+      "allow": "MH_DWARF | ROLE_MALE | ROLE_FEMALE | ROLE_LAWFUL",
+      "hpadv": [
+        4,
+        0,
+        0,
+        3,
+        2,
+        0
+      ],
+      "enadv": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "conmax": 20,
+      "wismax": 16
+    },
+    {
+      "filecode": "Gno",
+      "allow": "MH_GNOME | ROLE_MALE | ROLE_FEMALE | ROLE_NEUTRAL",
+      "hpadv": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "enadv": [
+        2,
+        0,
+        2,
+        0,
+        2,
+        0
+      ],
+      "conmax": 18,
+      "wismax": 18
+    },
+    {
+      "filecode": "Orc",
+      "allow": "MH_ORC | ROLE_MALE | ROLE_FEMALE | ROLE_CHAOTIC",
+      "hpadv": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "enadv": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        0
+      ],
+      "conmax": 18,
+      "wismax": 16
+    }
+  ]
+}

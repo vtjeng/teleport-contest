@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "commandId": "last-refund-observer",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/run.mjs",
+    "last-refund-observer",
+    "/tmp/hero-multi-last-refund-observer-20261029"
+  ],
+  "cwd": ".",
+  "environment": {
+    "NETHACK_INSTALL": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir",
+    "NETHACK_BINARY": "/tmp/hero-recorder-build-activated-20261029/nethack-c/recorder/install/games/lib/nethackdir/nethack"
+  },
+  "activation": "/workspace/.setup/activate.sh",
+  "jsSha": "f9cd7116b1bc66b48272cc290c638a85bdc7b7fc",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T06:17:45.352219+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/recipes/last-refund-observer.json": "18e8a60989b24d376b375762765fe5eff5e52d973a33c53ed5a3185f625a93db",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/natural-multi-advancement-20261029/last-refund-observer/worker.json"
+  ]
+}
