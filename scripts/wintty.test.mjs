@@ -567,10 +567,10 @@ test('state.wintty holds only window state, not ttyDisplay fields', () => {
     // message-window field on the display, such as the starter skeleton's
     // unread messageWinFlags, would be a second copy.
     const messageWindowCopy = /\b(?:display|nhDisplay|this)\??\.messageWin\w*/u;
-    // BASE_WINDOW's row is wins[BASE_WINDOW].cury (baseWindow()); a _tty*
-    // cursor, row or column property, such as the former
-    // `_ttyBaseCursorRow` on the game state, would be a second copy.
-    const ttyCursorCopy = /\._tty\w*(?:Cursor|Row|Col|cury|curx)/u;
+    // BASE_WINDOW's row is wins[BASE_WINDOW].cury (baseWindow()); a _ttyBase*
+    // or _tty*Cursor* property, such as the former `_ttyBaseCursorRow` on
+    // the game state, would be a second copy.
+    const ttyCursorCopy = /\._tty(?:Base|\w*Cursor)/u;
     const cursorCopies = [];
     const messageWindowCopies = [];
     for (const dir of ['js', 'scripts']) {
