@@ -527,12 +527,20 @@ test('state.wintty holds only window state, not ttyDisplay fields', () => {
     // ttyDisplay->curx and cury are the display's cursorCol and cursorRow;
     // a curx or cury property on the display would be a second cursor.
     const displayCursor = /\b(?:display|nhDisplay)\??\.(?:curx|cury)\b/u;
+    // The message window's flags are wins[messageWindow].flags; a
+    // message-window field on the display, such as the starter skeleton's
+    // unread messageWinFlags, would be a second copy.
+    const messageWindowCopy = /\b(?:display|nhDisplay|this)\??\.messageWin\w*/u;
     const cursorCopies = [];
+    const messageWindowCopies = [];
     for (const name of readdirSync('js')) {
         if (!name.endsWith('.js')) continue;
         readFileSync(`js/${name}`, 'utf8').split('\n').forEach((line, index) => {
             if (displayCursor.test(line)) cursorCopies.push(`js/${name}:${index + 1}`);
+            if (messageWindowCopy.test(line))
+                messageWindowCopies.push(`js/${name}:${index + 1}`);
         });
     }
     assert.deepEqual(cursorCopies, []);
+    assert.deepEqual(messageWindowCopies, []);
 });

@@ -106,7 +106,6 @@ export class GameDisplay {
         this.topMessage = null;
         this.messages = [];
         this.toplin = TOPLINE_EMPTY;
-        this.messageWinFlags = 0;
     }
 
     // --- Delegate all Terminal properties and methods ---
