@@ -38,11 +38,13 @@ jobs:
             node --version
           } | tee macos-recordings/host.txt
 
-      # Branch integration-checkpoint/macos-regex-flips only: the batch
-      # games whose Linux recordings the regex port no longer replays.
-      - name: Record the regex flip games
+      # Branch integration-checkpoint/macos-regex-flips-trim only: the batch
+      # games whose macOS game ends before the Linux key list is used up.
+      # record-trim.mjs cuts a segment to the keys C read and records again.
+      # TMPDIR=/tmp as in record-sample.sh.
+      - name: Record the trimmed regex flip games
         if: always()
-        run: experiments/host-parity/record-sample.sh macos-recordings/flips 4 experiments/host-parity/regex-oracle/flips/*.session.json
+        run: TMPDIR=/tmp node experiments/host-parity/record-trim.mjs macos-recordings/flips-trim 4 experiments/host-parity/regex-oracle/flips-trim/*.session.json
 
       - name: Upload recordings
         if: always()
