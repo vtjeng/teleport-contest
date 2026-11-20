@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "nhlua.c nhl_loadlua() on the judge's case-insensitive APFS volume, through #wizloadlua (wizcmds.c wiz_load_lua()): './Rumors' opens the installed rumors file, whose first line fails luaL_loadbuffer() with \"unexpected symbol near '#'\" in the chunk '(./Rumors)'; 'SAVE/../NhLib.Lua' passes through the save directory and opens nhlib.lua, whose top level shuffles align and loads without a message. On Linux both print \"nhl_loadlua: Error opening\", so this recording must come from macOS (scripts/playground-case.test.mjs). Seed, date, gnomish Wizard and names chosen independently.",
+  "segments": [
+    {
+      "seed": 5208833,
+      "datetime": "20390714061500",
+      "nethackrc": "OPTIONS=name:Caser,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.4.3\n",
+      "moves": " #wizloadlua\n./Rumors\n  #wizloadlua\nSAVE/../NhLib.Lua\n:"
+    }
+  ]
+}

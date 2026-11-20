@@ -52,9 +52,9 @@ export const SKIPPED_CALL_REASONS = new Map([
     ['files.c fopen_wizkit_file', { count: 2, reason: 'the port has no copy of a host wizkit '
         + 'file\'s bytes, other than the config file the segment supplies' }],
     // js/nhlua.js: a directory, a file the game wrote, or the nethack and
-    // recover programs; and a level program reached through a directory part.
-    ['nhlua.c nhl_loadlua', { count: 2, reason: 'C would load a host file whose bytes the '
-        + 'port does not have, or a level program by a path with a directory part' }],
+    // recover programs.
+    ['nhlua.c nhl_loadlua', { count: 1, reason: 'C would load a host file whose bytes the '
+        + 'port does not have' }],
     // js/read.js seffect_mail().
     ['mail.c readmail', { count: 1, reason: 'C runs the host\'s mail reader on the host\'s '
         + 'mailbox, whose output the judge\'s host need not reproduce' }],

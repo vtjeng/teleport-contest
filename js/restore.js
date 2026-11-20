@@ -89,8 +89,9 @@ import { role_init } from './role_init.js';
 import { set_residency, restshk } from './shk.js';
 import { rest_rooms } from './mkroom.js';
 import { stairway_add, stairway_at, stairway_free_all } from './stairs.js';
-import { vfsReadFile, vfsDeleteFile } from './storage.js';
-import { get_saved_games, set_savefile_name } from './files.js';
+import {
+    get_saved_games, playgroundDeleteFile, playgroundReadFile, set_savefile_name,
+} from './files.js';
 import { initrack } from './track.js';
 import { _uInitInternals } from './u_init.js';
 import { set_uasmon } from './polyself.js';
@@ -311,7 +312,7 @@ export async function dorestore(state = game) {
     // C ref: files.c restore_saved_game() names the file from the current
     // svp.plname; dorecover() then reads the saved name over it.
     const savefile = set_savefile_name(state);
-    const raw = vfsReadFile(savefile);
+    const raw = playgroundReadFile(savefile);
     if (raw == null) return false;
 
     const snapshot = parseSnapshot(raw);
@@ -713,7 +714,7 @@ export async function dorestore(state = game) {
     // C ref: dorecover():904 delete_savefile(). The JS port deletes the
     // save from VFS so a subsequent segment does not restore it again.
     if (!state.wizard && !state.discover) {
-        vfsDeleteFile(savefile);
+        playgroundDeleteFile(savefile);
     }
 
     restore_msghistory(snapshot.msghistory, state);

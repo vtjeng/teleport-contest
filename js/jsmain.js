@@ -53,7 +53,7 @@ import {
 } from './tty_rawprint.js';
 import { GameDisplay } from './game_display.js';
 import { JUDGE_RECORDER_IS_DST } from './calendar.js';
-import { setStorageForTesting, vfsReadFile, vfsWriteFile, vfsDeleteFile } from './storage.js';
+import { setStorageForTesting } from './storage.js';
 import { light_globals_init } from './light.js';
 import { shk_globals_init } from './shk.js';
 import { objects_globals_init } from './objects.js';
@@ -78,7 +78,10 @@ import {
 } from './wintty.js';
 import { LL_NONE, NHW_MESSAGE, REST_CURRENT_LEVEL, Upolyd } from './const.js';
 import { dorestore } from './restore.js';
-import { set_savefile_name } from './files.js';
+import {
+    playgroundDeleteFile, playgroundReadFile, playgroundWriteFile,
+    set_savefile_name,
+} from './files.js';
 import { welcomeBackMessage, welcomeHallucinationMessage } from './role_init.js';
 import { udeadinside, ugenocided } from './polyself.js';
 import {
@@ -356,8 +359,8 @@ export class NethackGame {
         // record-session.mjs creates the recorder's scorefile before C
         // starts. Mirror that startup contract for the browser and judge
         // VFS, while preserving an existing scorefile across segments.
-        if (vfsReadFile('record') === null)
-            vfsWriteFile('record', '');
+        if (playgroundReadFile('record') === null)
+            playgroundWriteFile('record', '');
         // Recorder patch 001 routes calendar.c:getnow() through this fixed
         // YYYYMMDDHHMMSS value and leaks its current tm_isdst bit.
         g.fixedDatetime = this._datetime;
@@ -585,7 +588,7 @@ export class NethackGame {
         // for the current svp.plname, which set_playmode() has already made
         // "wizard" in debug mode, so another hero's save starts a new game.
         const savefile = set_savefile_name(g);
-        const haveSaveFile = !!g.plname && vfsReadFile(savefile) != null;
+        const haveSaveFile = !!g.plname && playgroundReadFile(savefile) != null;
         if (haveSaveFile) {
             // C ref: unixmain.c:255-262. A configuration raw_printf() leaves
             // its text on the screen, so the notice is raw output too rather
@@ -700,7 +703,7 @@ export class NethackGame {
             if (g.discover || g.wizard) {
                 if (await yn_function('Do you want to keep the save file?',
                     'yn', 'n', true, g) === 'n') {
-                    vfsDeleteFile(savefile);
+                    playgroundDeleteFile(savefile);
                 }
             }
 

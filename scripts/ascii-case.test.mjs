@@ -13,12 +13,13 @@ import {
     unexpectedFindings,
 } from './ascii-case.mjs';
 
-// The allowed sites, counted. 2 = js/terminal.js's two browser key-name
+// The allowed sites, counted. 4 = js/terminal.js's two browser key-name
 // tests (13 November 2026, when the other 302 sites in js/ were routed
-// through the hacklib.js helpers). A change that adds an allowed site must
-// give its reason in ALLOWED and raise this count; a change that removes
-// one must lower it.
-const ALLOWED_SITES = 2;
+// through the hacklib.js helpers) and js/files.js fileNameFold()'s
+// toUpperCase().toLowerCase(), APFS's Unicode file-name fold (19 November
+// 2026). A change that adds an allowed site must give its reason in ALLOWED
+// and raise this count; a change that removes one must lower it.
+const ALLOWED_SITES = 4;
 
 test('js/ changes letter case only through the ASCII-only helpers', () => {
     const findings = scanRepository();

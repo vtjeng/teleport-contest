@@ -36,11 +36,15 @@ function countsMatching(pattern) {
     return counts;
 }
 
-test('only hacklib.js encodes and only tty_rawprint.js decodes UTF-8', () => {
+test('only hacklib.js encodes, and only tty_rawprint.js and files.js decode UTF-8', () => {
     assert.deepEqual(countsMatching(/new TextEncoder\b/gu), { 'hacklib.js': 1 });
     // nomux_raw_write() decodes the recorder's raw-print capture rows, which
     // the capture file holds as UTF-8; it writes screen cells, not text.
-    assert.deepEqual(countsMatching(/new TextDecoder\b/gu), { 'tty_rawprint.js': 1 });
+    // files.js fileNameFold() decodes a file name only to compare it as
+    // APFS compares names (Unicode case folding); the decoded text is a
+    // comparison key and never becomes game text.
+    assert.deepEqual(countsMatching(/new TextDecoder\b/gu),
+        { 'files.js': 1, 'tty_rawprint.js': 1 });
 });
 
 test('encodeUtf8Text() has only its three callers', () => {

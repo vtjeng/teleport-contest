@@ -48,7 +48,7 @@ const EXCEPTIONS = new Map([
     // markers are the other playground files and names outside the
     // playground or HOME, whose bytes the port does not have.
     ['files.c fopen_wizkit_file', { count: 2, reason: 'reading a host wizkit file is unported' }],
-    ['nhlua.c nhl_loadlua', { count: 2, reason: 'loading a host file that is not a bundled Lua program is unported' }],
+    ['nhlua.c nhl_loadlua', { count: 1, reason: 'loading a host file that is not a bundled Lua program is unported' }],
     ['wizcmds.c wiz_fuzzer', { count: 1, reason: 'the fuzzer key loop is unported' }],
 ]);
 

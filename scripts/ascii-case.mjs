@@ -48,6 +48,23 @@ export const ALLOWED = Object.freeze([
             + 'its own copy (AGENTS.md, "Keep the game compatible with the '
             + 'scoring system")',
     },
+    // js/files.js fileNameFold(): one finding for each method in
+    // character.toUpperCase().toLowerCase().
+    {
+        file: 'js/files.js',
+        code: 'character.toUpperCase().toLowerCase',
+        count: 1,
+        reason: 'APFS, the judge\'s macOS volume, compares file names with '
+            + 'Unicode full case folding, not C\'s ASCII rule; macOS recorder '
+            + 'runs 44669396862 and 44670028619 showed LONG S and LIGATURE FI '
+            + 'opening installed files (scripts/playground-case.test.mjs)',
+    },
+    {
+        file: 'js/files.js',
+        code: 'character.toUpperCase',
+        count: 1,
+        reason: 'the toUpperCase() half of the same fileNameFold() fold',
+    },
 ]);
 
 function isNode(value) {

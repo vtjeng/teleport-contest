@@ -70,7 +70,11 @@ const SAVE_NAME_BINDINGS = [
 // In js/files_bones.js each bones function sets `name` from
 // set_bonesfile_name().
 const BONES_NAME = /^name\.file$/u;
-const STORAGE_CALL = /\bvfs(?:ReadFile|WriteFile|DeleteFile|ListFiles)\(\s*([^,)]*)/gu;
+// js/files.js playgroundReadFile(), playgroundWriteFile() and
+// playgroundDeleteFile() stand for the storage calls; inside them `stored` is
+// the stored name their caller's name reaches (playgroundKey()).
+const PLAYGROUND_KEY = /\bconst (\w+) = playgroundKey\(/gu;
+const STORAGE_CALL = /\b(?:vfs|playground)(?:ReadFile|WriteFile|DeleteFile|ListFiles)\(\s*([^,)]*)/gu;
 
 export function storageNameViolations(file, source) {
     const violations = [];
@@ -78,6 +82,9 @@ export function storageNameViolations(file, source) {
         .split('\n').map((line) => line.replace(/\/\/.*$/u, ''));
     const saveNames = new Set(SAVE_NAME_BINDINGS.flatMap(
         (pattern) => [...code.join('\n').matchAll(pattern)].map((m) => m[1])));
+    if (file === 'files.js') {
+        for (const m of code.join('\n').matchAll(PLAYGROUND_KEY)) saveNames.add(m[1]);
+    }
     code.forEach((line, index) => {
         for (const match of line.matchAll(STORAGE_CALL)) {
             const argument = match[1].trim();

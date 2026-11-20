@@ -7,7 +7,9 @@
 
 import { In_quest } from './const.js';
 import { Is_special } from './dungeon.js';
-import { vfsDeleteFile, vfsReadFile, vfsWriteFile } from './storage.js';
+import {
+    playgroundDeleteFile, playgroundReadFile, playgroundWriteFile,
+} from './files.js';
 import { dungeon_at } from './dungeon_table.js';
 
 // C ref: files.c set_bonesfile_name() (768-809). Returns C's file name
@@ -33,7 +35,7 @@ export function set_bonesfile_name(lev, state) {
 // Returns null, or the name, the bonesid and the file's contents.
 export function open_bonesfile(lev, state) {
     const name = set_bonesfile_name(lev, state);
-    const data = vfsReadFile(name.file);
+    const data = playgroundReadFile(name.file);
     return data != null ? { ...name, data } : null;
 }
 
@@ -41,7 +43,7 @@ export function open_bonesfile(lev, state) {
 // removed, as C's unlink() succeeding.
 export function delete_bonesfile(lev, state) {
     const name = set_bonesfile_name(lev, state);
-    return vfsDeleteFile(name.file);
+    return playgroundDeleteFile(name.file);
 }
 
 // C ref: files.c create_bonesfile() (832-912) and commit_bonesfile()
@@ -49,5 +51,5 @@ export function delete_bonesfile(lev, state) {
 // port's storage write replaces the entry in one step.
 export function write_bonesfile(lev, data, state) {
     const name = set_bonesfile_name(lev, state);
-    vfsWriteFile(name.file, data);
+    playgroundWriteFile(name.file, data);
 }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_datafile() on the judge's APFS volume, which applies Unicode full case folding to names. Keys are C's bytes. #wizloaddes LATIN SMALL LIGATURE FI + 're' folds to fire and builds the Plane of Fire; 'a' + LIGATURE ST + 'ral' folds to astral and builds the Astral Plane; 'f' + DOTLESS I + 're', which full folding leaves alone, and the lone byte 0x80 + 'Knox', which is not UTF-8, print \"nhl_loadlua: Error opening\" on both hosts. On Linux the first two fail too, so this recording must come from macOS (recorder run 44670028619; scripts/playground-case.test.mjs). Seed, date, dwarven Caveman and names chosen independently.",
+  "segments": [
+    {
+      "seed": 6100377,
+      "datetime": "20430521080000",
+      "nethackrc": "OPTIONS=name:Probe,role:Caveman,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.4.3\n",
+      "moves": " #wizloaddes\nï¬re\n          #wizloaddes\naï¬ral\n          #wizloaddes\nfÄ±re\n          #wizloaddes\nKnox\n          :"
+    }
+  ]
+}

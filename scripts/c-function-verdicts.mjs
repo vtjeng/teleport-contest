@@ -329,10 +329,10 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'files.c save_savefile_name': noEffect(FILE_IO),
     'files.c set_error_savefile': noEffect(FILE_IO),
     'files.c create_savefile': ported('js/save.js dosave0',
-        'vfsWriteFile(set_savefile_name()) stands for creat(); the failure arm needs a host '
+        'playgroundWriteFile(set_savefile_name()) stands for creat(); the failure arm needs a host '
         + 'error'),
     'files.c open_savefile': ported('js/save.js dosave0',
-        'vfsReadFile(savefile) != null is its success test, which decides the "old save file" '
+        'playgroundReadFile(savefile) != null is its success test, which decides the "old save file" '
         + 'prompt here and the restore in js/jsmain.js'),
     'files.c delete_savefile': ported('js/restore.js dorestore',
         'removing the save after a restore'),

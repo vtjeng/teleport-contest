@@ -437,14 +437,18 @@ export function luaO_chunkid(source) {
 
 // C ref: nhlua.c nhl_loadlua(), opening `name` in the playground and running
 // its top level in a Lua state that nhl_init() made. Returns false when the
-// file cannot be opened, after C's impossible(); 'library' after running a
-// library file's top level, whose nhlib.lua shuffle replaces `lua.align`;
-// and 'level' for a level program, which the caller runs, since only
-// load_special() has the coder its des.* calls need.
+// file cannot be opened, after C's impossible(); { kind: 'library', file }
+// after running a library file's top level, whose nhlib.lua shuffle
+// replaces `lua.align`; and { kind: 'level', file } for a level program,
+// which the caller runs, since only load_special() has the coder its des.*
+// calls need. `file` is the installed file the name reached; C's chunk name
+// and messages keep the name as typed.
 export async function nhl_loadlua(lua, name, state = game, random = rn2) {
     // dlb_fopen() (no DLB library in the unix build) falls back to
     // fopen_datafile(), whose fopen() resolves the name against C's working
-    // directory, the playground.
+    // directory, the playground. On the judge's case-insensitive APFS volume
+    // that fopen() opens castle.lua for "Castle.lua" or "CASTLE.LUA"
+    // (files.js resolvePlaygroundPath()).
     const target = resolvePlaygroundPath(name);
     // A name outside the playground reaches a host directory the game
     // cannot read; the port takes it to hold no such file, as the recorder's
@@ -473,17 +477,10 @@ export async function nhl_loadlua(lua, name, state = game, random = rn2) {
         note_unported('nhlua.c nhl_loadlua');
         return false;
     }
-    if (!LUA_LIBRARY_FILES.has(target.file)) {
-        // The caller runs a level program by the name it passed, so one
-        // reached through a directory part stays a gap.
-        if (target.file !== name) {
-            note_unported('nhlua.c nhl_loadlua');
-            return false;
-        }
-        return 'level';
-    }
+    if (!LUA_LIBRARY_FILES.has(target.file))
+        return { kind: 'level', file: target.file };
     if (target.file === 'nhlib.lua') lua.align = nhl_init(random);
-    return 'library';
+    return { kind: 'library', file: target.file };
 }
 
 // C ref: nhlua.c load_lua(), for the callers without a level coder:
@@ -496,7 +493,7 @@ export async function load_lua(name, sbi, state = game, env = {}) {
     // nhl_init() loads nhlib.lua, whose top level shuffles `align`.
     const lua = { align: nhl_init(random), nud };
     let loaded = await nhl_loadlua(lua, name, state, random);
-    if (loaded === 'level') {
+    if (loaded?.kind === 'level') {
         // C runs the level program's des.* calls on the current level with
         // no post-processing, in nhl_loadlua()'s protected call: a Lua
         // error prints impossible() and stops the program there, and
@@ -504,7 +501,7 @@ export async function load_lua(name, sbi, state = game, env = {}) {
         // this file.
         const { run_level_program } = await import('./mklev.js');
         if (await nhl_pcall_handle(lua,
-            () => run_level_program(name, lua, state), name, state))
+            () => run_level_program(name, loaded.file, lua, state), name, state))
             loaded = false;
     }
     nhl_done(lua, state);

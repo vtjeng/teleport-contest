@@ -20,7 +20,87 @@ import { TRIBUTE_DATA } from './tribute_data.js';
 import { RECORDER_UID, regularize } from './unixunix.js';
 import { aligns, genders } from './roles.js';
 import { parseSnapshot } from './snapshot.js';
-import { vfsListFiles, vfsReadFile } from './storage.js';
+import {
+    vfsDeleteFile, vfsListFiles, vfsReadFile, vfsWriteFile,
+} from './storage.js';
+
+// The judge's recorder ran on macOS, whose default volume format, APFS, is
+// case-insensitive and case-preserving: an open(), access() or fopen() of
+// "Castle.lua" opens the installed castle.lua, and creating "save/1000AGENT"
+// where "save/1000Agent" exists rewrites that file under its existing name.
+// On Linux's ext4 the same calls fail with ENOENT or create a second file.
+// The port follows macOS, so every lookup of a file name in the playground,
+// HOME or the scorer's storage compares names under this fold, and every
+// such lookup goes through this file (scripts/playground-case.test.mjs).
+//
+// `name` holds C's bytes, one per code unit. APFS compares a name as
+// UTF-8 text after canonical decomposition and Unicode case folding, so a
+// name with bytes above 0x7f is decoded and folded too. The macOS recorder
+// run 44669396862 showed it: #wizloaddes "\u212Anox" (KELVIN SIGN, which
+// decomposes to K) opened knox.lua, and "\u017Foko1-1" (LONG S, which folds
+// to s) opened soko1-1.lua. Run 44670028619 showed full folding: LIGATURE
+// FI + "re" opened fire.lua and "a" + LIGATURE ST + "ral" astral.lua, while
+// "f" + DOTLESS I + "re" and a byte that is not UTF-8 failed, and a save
+// made as "\u00c9lodie" restored as "\u00e9LODIE". toUpperCase().toLowerCase()
+// is JavaScript's nearest form of full case folding; DOTLESS I, which full
+// folding leaves alone, is kept, and CAPITAL SHARP S folds to "ss" as small
+// sharp s does.
+// Bytes that are not UTF-8, and text that is not one byte per code unit,
+// are compared exactly, behind a NUL no C string holds, so they never equal
+// a decoded name. A leading EF BB BF is a character of the name, not a
+// byte-order mark to drop.
+const UTF8 = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
+
+function unicodeFold(character) {
+    if (character === '\u0131') return character;
+    if (character === '\u1e9e') return 'ss';
+    return character.toUpperCase().toLowerCase();
+}
+
+export function fileNameFold(name) {
+    const text = String(name);
+    if (/^[\x00-\x7f]*$/u.test(text)) return asciiFold(text);
+    if (/[^\x00-\xff]/u.test(text)) return `\0${text}`;
+    let decoded;
+    try {
+        decoded = UTF8.decode(Uint8Array.from(text, (c) => c.charCodeAt(0)));
+    } catch {
+        return `\0${text}`;
+    }
+    return [...decoded.normalize('NFD')].map(unicodeFold).join('');
+}
+
+// C ref: the fopen(), access() and unlink() calls that files.c,
+// restore.c, save.c and topten.c make on the playground files the game
+// itself writes: save/<uid><plname> (set_savefile_name()), the bones files
+// (files_bones.js set_bonesfile_name()) and the record file. The port keeps
+// them in the scorer's storage under the name C used. On APFS a name that
+// differs only in case reaches the stored file, and a write keeps its name.
+// Returns the stored name `path` reaches, or `path` when none exists.
+function playgroundKey(path) {
+    const files = vfsListFiles('');
+    if (files.includes(path)) return path;
+    const folded = fileNameFold(path);
+    return files.find((file) => fileNameFold(file) === folded) ?? path;
+}
+
+// fopen(path, "r") of a playground file the game writes: its text, or null.
+export function playgroundReadFile(path) {
+    const stored = playgroundKey(path);
+    return vfsReadFile(stored);
+}
+
+// fopen(path, "w") and fwrite(): replaces the file `path` reaches.
+export function playgroundWriteFile(path, content) {
+    const stored = playgroundKey(path);
+    return vfsWriteFile(stored, content);
+}
+
+// unlink(path): true when a file was removed.
+export function playgroundDeleteFile(path) {
+    const stored = playgroundKey(path);
+    return vfsDeleteFile(stored);
+}
 
 // C ref: files.c nh_basename() (198-229), the non-VMS arm.  The backslash cut
 // at 207-210 is compiled only for WIN32 and MSDOS, so a UNIX build keeps a
@@ -55,7 +135,7 @@ export function set_savefile_name(state = game) {
 // '\0' character. A file that does not parse, which validate() would refuse,
 // gives null.
 export function plname_from_file(filename) {
-    const raw = vfsReadFile(filename);
+    const raw = playgroundReadFile(filename);
     if (raw == null) return null;
     let snapshot;
     try {
@@ -344,16 +424,26 @@ const PLAYGROUND_NON_LUA_FILES = new Set([
     'xlogfile',
 ]);
 
+// Every installed playground file under fileNameFold(), mapped to what an
+// open() of any spelling of it reaches on APFS: its kind and installed name.
+const INSTALLED_BY_FOLD = new Map([
+    ...[...DAT_LUA_FILES].map((file) => [fileNameFold(file), { kind: 'lua', file }]),
+    ...[...PLAYGROUND_NON_LUA_FILES].map((file) => [fileNameFold(file), { kind: 'file', file }]),
+]);
+
 // errno values that path resolution fails with; <errno.h> gives both the
 // same numbers on macOS, the judge's host, and on Linux.
 const ENOENT = 2;
 const ENOTDIR = 20;
 
 // What fopen(name, "r") reaches with C's working directory in the playground,
-// following POSIX path resolution: { kind: 'lua', file } for one of dat/'s
-// Lua files; 'file' for another playground file; 'directory' for the
-// playground or its save directory; 'unknown' for a name the game itself may
-// have written ("<lock>.<n>", "bonD0.<n>", anything in save/);
+// following POSIX path resolution on the judge's case-insensitive APFS
+// volume: { kind: 'lua', file } for one of dat/'s Lua files, with `file` its
+// installed name whatever case `name` spells it in (so "Castle.lua" reaches
+// castle.lua, where Linux's fopen() fails); 'file' for another playground
+// file; 'directory' for the playground or its save directory; 'unknown' for
+// a name the game itself may have written ("<lock>.<n>", "bonD0.<n>",
+// anything in save/);
 // { kind: 'absent', errno } when resolution fails inside the playground, with
 // ENOENT for no such entry and ENOTDIR for a file used as a directory; and
 // 'outside' for an absolute name or one that climbs above the playground,
@@ -374,10 +464,10 @@ export function resolvePlaygroundPath(name) {
             dir = 'playground';
         } else if (dir === 'save') {
             return { kind: 'unknown' };
-        } else if (part === 'save') {
+        } else if (fileNameFold(part) === 'save') {
             dir = 'save';
-        } else if (DAT_LUA_FILES.has(part) || PLAYGROUND_NON_LUA_FILES.has(part)) {
-            file = part;
+        } else if (INSTALLED_BY_FOLD.has(fileNameFold(part))) {
+            file = INSTALLED_BY_FOLD.get(fileNameFold(part));
         } else if (/\.\d+$/u.test(part)) {
             return { kind: 'unknown' };
         } else {
@@ -385,7 +475,7 @@ export function resolvePlaygroundPath(name) {
         }
     }
     if (file === null) return { kind: 'directory' };
-    return { kind: DAT_LUA_FILES.has(file) ? 'lua' : 'file', file };
+    return { ...file };
 }
 
 // What fopen_wizkit_file()'s fopen("$HOME/<name>", "r") reaches. The
@@ -394,13 +484,16 @@ export function resolvePlaygroundPath(name) {
 // 'directory' for HOME itself, 'outside' for a name that climbs above HOME,
 // and { kind: 'absent', errno } as resolvePlaygroundPath() gives it. C joins
 // HOME and the name with "/", so even an absolute name resolves inside HOME.
+// HOME is on the same case-insensitive APFS volume, so ".NETHACKRC" opens
+// the config file.
 export function resolveRecorderHomePath(name, configfile) {
     let file = false;
     for (const part of String(name).split('/')) {
         if (file) return { kind: 'absent', errno: ENOTDIR };
         if (part === '' || part === '.') continue;
         if (part === '..') return { kind: 'outside' };
-        if (part !== configfile) return { kind: 'absent', errno: ENOENT };
+        if (fileNameFold(part) !== fileNameFold(configfile))
+            return { kind: 'absent', errno: ENOENT };
         file = true;
     }
     return { kind: file ? 'file' : 'directory' };

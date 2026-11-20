@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_datafile() on the judge's APFS volume, which compares names as UTF-8 after canonical decomposition and Unicode case folding. Keys are C's bytes. #wizloaddes KELVIN SIGN + 'nox' (U+212A decomposes to K) opens knox.lua; LONG S + 'oko1-1' (U+017F folds to s) opens soko1-1.lua. The byte 0xFF ends getlin() as an escape would, so the third command loads nothing and the keys after it run as commands. On Linux the first two print \"nhl_loadlua: Error opening\", so this recording must come from macOS (recorder run 44669396862; scripts/playground-case.test.mjs). Seed, date, gnomish Healer and names chosen independently.",
+  "segments": [
+    {
+      "seed": 6100231,
+      "datetime": "20430117120000",
+      "nethackrc": "OPTIONS=name:Probe,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.4.3\n",
+      "moves": " #wizloaddes\nâªnox\n          #wizloaddes\nÅ¿oko1-1\n          #wizloaddes\nÿKnox\n          :"
+    }
+  ]
+}
