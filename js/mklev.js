@@ -2117,9 +2117,9 @@ export async function load_special(name, state, callerEnv = null) {
     // The port registers each level program under its name without ".lua";
     // nhl_loadlua() runs it in a protected call, and a Lua error prints
     // impossible() and fails the load.
-    if (!loaded || (loaded === 'level'
-        && await nhl_pcall_handle(lua, () => runLevelLoader(name, lua,
-            specialLevelApi, state), name, state))) {
+    if (!loaded || (loaded.kind === 'level'
+        && await nhl_pcall_handle(lua, () => runLevelLoader(name, loaded.file,
+            lua, specialLevelApi, state), name, state))) {
         state.gc.coder = null; // C: give_up: Free(gc.coder)
         return false;
     }
@@ -2139,22 +2139,25 @@ export async function load_special(name, state, callerEnv = null) {
 // the first creates gc.coder, nothing post-processes the level, and the coder
 // stays for the next special-level load to reuse. `align` is the shuffled
 // nhlib.lua table of the Lua state nhl_init() made.
-export async function run_level_program(name, lua, state) {
+export async function run_level_program(name, file, lua, state) {
     await ensureSpecialLevelLoaders();
     state.specialLevelAlign = lua.align;
-    await runLevelLoader(name, lua, createSpecialLevelApi(state, lua), state);
+    await runLevelLoader(name, file, lua, createSpecialLevelApi(state, lua),
+        state);
 }
 
-// The level program `name` as nhl_loadlua()'s lua_pcall() runs its main
-// chunk, called from C (the bottom "[C]: in ?" of a traceback). The chunk
-// keeps no line numbers except where a loader records them.
-async function runLevelLoader(name, lua, specialLevelApi, state) {
+// The level program in the installed `file` that nhl_loadlua() opened for
+// `name`, as its lua_pcall() runs the main chunk, called from C (the bottom
+// "[C]: in ?" of a traceback). The chunk is named "(<name>)" from the name as
+// typed, so "Castle.lua" runs castle.lua as "(Castle.lua)". The chunk keeps
+// no line numbers except where a loader records them.
+async function runLevelLoader(name, file, lua, specialLevelApi, state) {
     lua.chunk = luaO_chunkid(`(${name})`);
     lua.frames = [
         { desc: '?' },
         { lua: true, desc: 'main chunk', currentline: 0 },
     ];
-    await SPECIAL_LEVEL_LOADERS[name.slice(0, -'.lua'.length)](
+    await SPECIAL_LEVEL_LOADERS[file.slice(0, -'.lua'.length)](
         specialLevelApi, state);
 }
 

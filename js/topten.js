@@ -33,7 +33,7 @@ import {
 } from './monsters.js';
 import { christen_monst, oname } from './do_name.js';
 import { set_corpsenm } from './obj.js';
-import { vfsReadFile, vfsWriteFile } from './storage.js';
+import { playgroundReadFile, playgroundWriteFile } from './files.js';
 import { tty_raw_print, tty_raw_print_bold } from './tty_rawprint.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { ATR_BOLD } from './terminal.js';
@@ -229,7 +229,7 @@ export function get_rnd_toptenentry(rawEnv = {}) {
     // without inventing a second parser or a test-only empty-file fallback.
     const recordData = state.mockStorage
         ? state.mockStorage.getItem?.('vfs:record') ?? null
-        : vfsReadFile('record');
+        : playgroundReadFile('record');
     // A missing record file follows fopen's early return and consumes no RNG.
     // The recorder startup owner creates an empty file before gameplay, so an
     // existing empty file still takes C's rank draw below.
@@ -547,7 +547,7 @@ function toptenEntries(how, when, state) {
     t0.tt_next = null;
 
     // Read existing record file from VFS storage.
-    const recordData = vfsReadFile('record');
+    const recordData = playgroundReadFile('record');
     const existingLines = recordData
         ? recordData.split('\n').filter((l) => l.length > 0) : [];
 
@@ -617,7 +617,7 @@ function toptenEntries(how, when, state) {
         const lines = allEntries
             .filter((e) => e.points > 0)
             .map(writeentry);
-        vfsWriteFile('record', lines.join('\n') + '\n');
+        playgroundWriteFile('record', lines.join('\n') + '\n');
     }
 
     // Display

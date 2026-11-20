@@ -54,8 +54,9 @@ import {
 import { forget_temple_entry } from './priest.js';
 import { maybe_write_timer, save_timers } from './timeout.js';
 import { initrack } from './track.js';
-import { vfsReadFile, vfsWriteFile } from './storage.js';
-import { set_savefile_name } from './files.js';
+import {
+    playgroundReadFile, playgroundWriteFile, set_savefile_name,
+} from './files.js';
 import { docrt } from './display.js';
 import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
 import { tty_exit_nhwindows } from './wintty.js';
@@ -426,7 +427,7 @@ export async function dosave(state = game) {
 //   - notice_mon_off/on() — the port has no mon_warning display
 //   - iflags.save_uswallow/save_uinwater/save_uburied — no hangup handler
 //   - program_state.something_worth_saving — always true in the port
-//   - opening/closing the binary save file — replaced by vfsWriteFile()
+//   - opening/closing the binary save file — replaced by playgroundWriteFile()
 //   - store_version/store_plname — part of the JSON snapshot
 //   - set_ustuck(0), u.usteed = 0 — post-serialization cleanup only
 export async function dosave0(state = game) {
@@ -448,7 +449,7 @@ export async function dosave0(state = game) {
     // to overwrite leaves the old file in place and saves nothing.
     // nh_uncompress(), nh_sfconvert() and nh_compress() have no VFS
     // counterpart.
-    if (vfsReadFile(savefile) != null) {
+    if (playgroundReadFile(savefile) != null) {
         clearTtyMessageWindow(state);
         // pline.c There() adds only the prefix "There ".
         await ttyPline('There seems to be an old save file.', state);
@@ -509,7 +510,7 @@ export async function dosave0(state = game) {
     // monster and object chains keep C's order through their nmon and nobj
     // links.
     const snapshot = serializeGameState(state);
-    vfsWriteFile(savefile, serializeSnapshot(snapshot));
+    playgroundWriteFile(savefile, serializeSnapshot(snapshot));
 
     return 1;
 }
