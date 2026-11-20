@@ -11,6 +11,10 @@ on:
 
 jobs:
   record:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0]
     runs-on: macos-latest
     timeout-minutes: 60
     steps:
@@ -38,35 +42,16 @@ jobs:
             node --version
           } | tee macos-recordings/host.txt
 
-      - name: Record the sample
-        run: experiments/host-parity/record-sample.sh macos-recordings
-
-      # The key-binding probes (experiments/host-parity/README.md, "Key-binding
-      # probes") test which paths of cmd.c handler_rebind_keys_add() fail on
-      # macOS. They go into their own directory so the 500-recipe comparison
-      # is unchanged.
-      - name: Record the key-binding probes
-        run: experiments/host-parity/record-sample.sh macos-recordings/probes 5 experiments/host-parity/probes/*.session.json
-
-      # The committed recordings of the options-menu rebind recipes
-      # (recipes/cmd.c/*bind*-live) come from this step, because cmd.c
-      # handler_rebind_keys_add() fails on macOS where a Linux recorder
-      # binds the key (docs/testing.md, "The key-binding difference").
-      # Copy each one to recordings/cmd.c/ under the same name.
-      # scripts/bind-keys-live.test.mjs fails if one is recorded on Linux.
-      # The two parameter-path recipes after the glob bind on both hosts;
-      # they are recorded here only to compare with their Linux recordings.
-      - name: Record the options-menu rebind recipes
-        run: >-
-          experiments/host-parity/record-sample.sh macos-recordings/cmd.c 5
-          recipes/cmd.c/*bind*-live.session.json
-          recipes/cmd.c/toggle-bound-param-menu.session.json
-          recipes/cmd.c/bind-toggle-empty-param-reports-and-lists-null.session.json
+      # Branch integration-checkpoint/host-parity-3* only: batch games chosen
+      # for the host-parity scan (experiments/host-parity/hp3/C/).
+      - name: Record shard ${{ matrix.shard }}
+        if: always()
+        run: experiments/host-parity/record-sample.sh macos-recordings/C 4 experiments/host-parity/hp3/C/*.session.json
 
       - name: Upload recordings
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: macos-recordings
+          name: macos-recordings-${{ matrix.shard }}
           path: macos-recordings/
           if-no-files-found: error
