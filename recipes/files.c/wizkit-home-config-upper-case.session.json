@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_wizkit_file() with WIZKIT=.NETHACKRC on the judge's case-insensitive APFS volume: access() in the playground fails with ENOENT (\"Access to .NETHACKRC denied (2).\"), then fopen(\"$HOME/.NETHACKRC\") opens the config file the harness wrote as .nethackrc, so read_wizkit() wishes for its item lines: an elven mithril-coat and two potions of gain level. On Linux the second fopen() fails too and no item is made, so this recording must come from macOS (scripts/playground-case.test.mjs). Seed, date, elven Priest and items chosen independently.",
+  "segments": [
+    {
+      "seed": 3381207,
+      "datetime": "20470603221000",
+      "nethackrc": "OPTIONS=name:Upcase,role:Priest,race:elf,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=.NETHACKRC\nelven mithril-coat\n2 potions of gain level\n",
+      "moves": "\n i "
+    }
+  ]
+}
