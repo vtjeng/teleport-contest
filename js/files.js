@@ -32,11 +32,39 @@ import {
 // The port follows macOS, so every lookup of a file name in the playground,
 // HOME or the scorer's storage compares names under this fold, and every
 // such lookup goes through this file (scripts/playground-case.test.mjs).
-// APFS folds Unicode case after normalizing; the fold here covers ASCII
-// letters only, which is every installed name (see that test) and every
-// name a game builds from ASCII text.
+//
+// `name` holds C's bytes, one per code unit. APFS compares a name as
+// UTF-8 text after canonical decomposition and Unicode case folding, so a
+// name with bytes above 0x7f is decoded and folded too. The macOS recorder
+// run 44669396862 showed it: #wizloaddes "\u212Anox" (KELVIN SIGN, which
+// decomposes to K) opened knox.lua, and "\u017Foko1-1" (LONG S, which folds
+// to s) opened soko1-1.lua. Run 44670028619 showed full folding: LIGATURE
+// FI + "re" opened fire.lua and "a" + LIGATURE ST + "ral" astral.lua, while
+// "f" + DOTLESS I + "re" and a byte that is not UTF-8 failed, and a save
+// made as "\u00c9lodie" restored as "\u00e9LODIE". toUpperCase().toLowerCase()
+// is JavaScript's nearest form of full case folding; DOTLESS I, which full
+// folding leaves alone, is kept, and CAPITAL SHARP S folds to "ss" as small
+// sharp s does.
+// Bytes that are not UTF-8 are compared exactly, behind a NUL no C string
+// holds, so they never equal a decoded name.
+const UTF8 = new TextDecoder('utf-8', { fatal: true });
+
+function unicodeFold(character) {
+    if (character === '\u0131') return character;
+    if (character === '\u1e9e') return 'ss';
+    return character.toUpperCase().toLowerCase();
+}
+
 export function fileNameFold(name) {
-    return asciiFold(name);
+    const text = String(name);
+    if (/^[\x00-\x7f]*$/u.test(text)) return asciiFold(text);
+    let decoded;
+    try {
+        decoded = UTF8.decode(Uint8Array.from(text, (c) => c.charCodeAt(0)));
+    } catch {
+        return `\0${text}`;
+    }
+    return [...decoded.normalize('NFD')].map(unicodeFold).join('');
 }
 
 // C ref: the fopen(), access() and unlink() calls that files.c,

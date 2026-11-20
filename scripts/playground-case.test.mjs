@@ -20,7 +20,9 @@ import {
 } from '../js/files.js';
 import { game } from '../js/gstate.js';
 import { InMemoryStorage, setStorageForTesting, vfsListFiles } from '../js/storage.js';
+import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { listRecordings, RECORDINGS_DIR } from './score-recordings.mjs';
+import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
 const JS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'js');
 
@@ -57,8 +59,35 @@ test('other playground files, save/ and HOME fold too', () => {
     assert.deepEqual(resolveRecorderHomePath('./.NetHackRC', '.nethackrc'), { kind: 'file' });
     assert.deepEqual(resolveRecorderHomePath('.nethackrc2', '.nethackrc'),
         { kind: 'absent', errno: 2 });
-    // The fold leaves bytes above 0x7f alone.
-    assert.equal(fileNameFold('ÉA-z'), 'Éa-z');
+});
+
+// C's bytes, one per code unit, as getlin() and the config file hold them.
+function utf8Bytes(text) {
+    return [...Buffer.from(text, 'utf8')].map((byte) => String.fromCharCode(byte)).join('');
+}
+
+test('names with bytes above 0x7f fold as APFS folds UTF-8', () => {
+    // macOS recorder run 44669396862 (probe-nonascii-names): KELVIN SIGN
+    // (decomposes to K) + "nox" opened knox.lua, and LONG S (folds to s) +
+    // "oko1-1" opened soko1-1.lua.
+    assert.deepEqual(resolvePlaygroundPath(utf8Bytes('\u212Anox.lua')),
+        { kind: 'lua', file: 'knox.lua' });
+    assert.deepEqual(resolvePlaygroundPath(utf8Bytes('\u017Foko1-1.lua')),
+        { kind: 'lua', file: 'soko1-1.lua' });
+    // Precomposed and decomposed accents, in either case, are one name.
+    assert.equal(fileNameFold(utf8Bytes('\u00c9lodie')), fileNameFold(utf8Bytes('e\u0301LODIE')));
+    // Run 44670028619 (probe-unicode-fold): full case folding takes LIGATURE
+    // FI to "fi" and LIGATURE ST to "st", so these built the Plane of Fire
+    // and the Astral Plane.
+    assert.deepEqual(resolvePlaygroundPath(utf8Bytes('\uFB01re.lua')),
+        { kind: 'lua', file: 'fire.lua' });
+    assert.deepEqual(resolvePlaygroundPath(utf8Bytes('a\uFB06ral.lua')),
+        { kind: 'lua', file: 'astral.lua' });
+    // DOTLESS I has no case folding, so it does not reach fire.lua.
+    assert.deepEqual(resolvePlaygroundPath(utf8Bytes('f\u0131re.lua')), { kind: 'absent', errno: 2 });
+    // A byte that is not UTF-8 is compared exactly and matches nothing installed.
+    assert.deepEqual(resolvePlaygroundPath('\x80Knox.lua'), { kind: 'absent', errno: 2 });
+    assert.notEqual(fileNameFold('\xc9'), fileNameFold(utf8Bytes('\u00c9')));
 });
 
 test('stored playground files open and keep their name under any case', () => {
@@ -139,3 +168,52 @@ test('no recording shows a Linux-only failure to open an installed file', () => 
     }
     assert.deepEqual([...new Set(offenders)], []);
 });
+
+function screens(recording) {
+    return recording.segments.flatMap(({ steps }) => steps.map(({ screen }) => screen ?? ''));
+}
+
+// The recordings of these paths come from .github/workflows/macos-recorder.yml
+// (runs 44669396862 and 44670028619, on branches
+// integration-checkpoint/case-open-rec1 and -rec2), because a Linux recorder
+// fails each open. [recording under recordings/, text only
+// the macOS recording shows, text only the Linux one shows]
+const MACOS_CASES = [
+    // "Knox" builds Fort Ludios; "Knoxx" fails on both hosts.
+    ['files.c/wizloaddes-case-variant-names', 'Error opening (Knoxx.lua)',
+        'Error opening (Knox.lua)'],
+    // "./Rumors" reaches the rumors file and fails in luaL_loadbuffer().
+    ['files.c/wizloadlua-case-variant-files', 'Error loading (./Rumors)',
+        'Error opening (./Rumors)'],
+    // $HOME/.NETHACKRC is the config file, so its item lines are wished for.
+    ['files.c/wizkit-home-config-upper-case', 'an elven mithril-coat', null],
+    // KASUMI restores Kasumi's save.
+    ['files.c/save-restore-name-case', 'Kasumi, the human Samurai, welcome back to NetHack!',
+        'Konnichi wa KASUMI, welcome to NetHack!'],
+    // KELVIN SIGN + "nox" opens knox.lua; the later 0xFF escapes getlin().
+    ['files.c/wizloaddes-unicode-fold-names', 'Load which des lua file?', 'Error opening'],
+    // LIGATURE ST + "ral" builds the Astral Plane; DOTLESS I fails on both hosts.
+    ['files.c/wizloaddes-unicode-full-fold-names', 'You arrive on the Astral Plane!', null],
+    // éLODIE restores Élodie's save.
+    ['files.c/save-restore-name-accent-case', 'the human Tourist, welcome back to NetHack!', null],
+];
+
+for (const [name, macos, linux] of MACOS_CASES) {
+    test(`macOS recording ${name} shows the case-insensitive open`, async () => {
+        const recording = JSON.parse(readFileSync(`${RECORDINGS_DIR}/${name}.session.json`, 'utf8'));
+        const shown = screens(recording);
+        assert.ok(shown.some((screen) => screen.includes(macos)),
+            `${name} must show ${JSON.stringify(macos)}`);
+        if (linux) {
+            assert.ok(!shown.some((screen) => screen.includes(linux)),
+                `${name} must not show ${JSON.stringify(linux)}`);
+        }
+        const root = createScoringWorkspace(process.cwd(), []);
+        try {
+            const result = compareSessionOutputs(recording, await runJsSession(recording, root));
+            assert.equal(result.passed, true, formatReport(result));
+        } finally {
+            removeScoringWorkspace(root);
+        }
+    });
+}

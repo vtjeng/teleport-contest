@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "files.c set_savefile_name() and restore_saved_game() on the judge's APFS volume, which folds case after decomposing accents: a normal-mode Tourist named Élodie (UTF-8 bytes) saves, and the next segment's hero éLODIE opens the same save file and restores Élodie. On Linux the second segment starts a new game, so this recording must come from macOS (recorder run 44670028619; scripts/playground-case.test.mjs). Seed, date, Tourist and names chosen independently.",
+  "segments": [
+    {
+      "seed": 6100391,
+      "datetime": "20430610120000",
+      "nethackrc": "OPTIONS=name:Élodie,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.4.3\n",
+      "moves": "hSy"
+    },
+    {
+      "seed": 6100392,
+      "datetime": "20430611120000",
+      "nethackrc": "OPTIONS=name:éLODIE,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.4.3\n",
+      "moves": "i "
+    }
+  ]
+}
