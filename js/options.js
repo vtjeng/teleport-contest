@@ -3309,7 +3309,7 @@ function illegalMenuCommandKey(result, key) {
 // raw_print() (pline.c:239).
 function add_menu_cmd_alias(result, fromKey, command) {
     if (result.iflags.mapped_menu_cmds.length >= MAX_MENU_MAPPED_CMDS) {
-        result.startupEvents.push({ text: 'out of menu map space.' });
+        result.startupEvents.push({ text: 'out of menu map space.', pline: true });
     } else {
         result.iflags.mapped_menu_cmds += String.fromCharCode(fromKey);
         result.iflags.mapped_menu_op += command;
@@ -5158,7 +5158,7 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
         {
             const text = "There is no underlying support for"
                 + " 'idlecheckpoint' compiled in.";
-            result.startupEvents.push({ text });
+            result.startupEvents.push({ text, pline: true });
         }
         result.iflags.idlecheckpoint = false;
         result.give_opt_msg = false;

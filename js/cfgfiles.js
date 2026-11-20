@@ -242,8 +242,9 @@ export function handle_config_section(buf, state = game) {
 // C prints each error the moment config_error_add() receives it. pline() is
 // raw_print() this early because iflags.window_inited is still false
 // (pline.c:239). startupEvents preserves that source order when another rc
-// handler waits before config_error_done(); output remains the complete error
-// report used by parser callers and focused tests.
+// handler waits before config_error_done(), and js/jsmain.js replays each
+// through ttyPline(), whose vplineRawArm() takes that arm; output remains the
+// complete error report used by parser callers and focused tests.
 export function config_error_init(startupEvents = [], sourcename = '') {
     return {
         source: truncateByteString(sourcename ?? '', BUFSZ - 1),
@@ -256,9 +257,11 @@ export function config_error_init(startupEvents = [], sourcename = '') {
     };
 }
 
+// Both callers print with pline(), which js/jsmain.js replays through
+// vpline()'s raw_print() arm (pline: true).
 function appendConfigOutput(frame, text) {
     frame.output.push(text);
-    frame.startupEvents?.push({ text });
+    frame.startupEvents?.push({ text, pline: true });
 }
 
 // C ref: cfgfiles.c config_error_nextline(), called from parse_conf_buf() once

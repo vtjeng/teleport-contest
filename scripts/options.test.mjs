@@ -354,8 +354,11 @@ test('startup boolean post-write effects preserve their source order', () => {
     const idle = parseNethackrc('OPTIONS=idlecheckpoint\n');
     assert.equal(idle.iflags.idlecheckpoint, false);
     assert.equal(idle.give_opt_msg, false);
+    // options.c:5315 prints it with pline(), so it is replayed through
+    // vpline()'s raw_print() arm.
     assert.deepEqual(idle.startupEvents, [{
         text: "There is no underlying support for 'idlecheckpoint' compiled in.",
+        pline: true,
     }]);
 });
 

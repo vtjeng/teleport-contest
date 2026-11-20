@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "allmain.c init_sound_disp_gamewindows() display_nhwindow(WIN_MESSAGE, FALSE), the first display of the message window, which raises iflags.window_inited (wintty.c:1883) between the configuration read and the restore. Segment 1: a gnome Healer searches once and saves. Segment 2: the same hero restarts with two configuration errors. BOULDER=48x is a raw_printf() syntax error from cfgfiles.c get_uchars(), which counts in ge.early_raw_messages and waits; OPTIONS=bogusoption is a config_error_add() pline() that vpline() raw_print()s because window_inited is still FALSE. The windows are then displayed, unixmain.c raw_print()s 'Restoring save file...' because early_raw_messages is set, and dorecover() waits before docrt(). The hero searches after the welcome back. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 7310442,
+      "datetime": "20510311093000",
+      "nethackrc": "OPTIONS=name:Quenna,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "sSy"
+    },
+    {
+      "seed": 7310442,
+      "datetime": "20510312174500",
+      "nethackrc": "OPTIONS=name:Quenna,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nBOULDER=48x\nOPTIONS=bogusoption\n",
+      "moves": "\n\n\n s"
+    }
+  ]
+}
