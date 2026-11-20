@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 import { assertExceptionCount } from './exception-count.mjs';
 import { HALF_PHDAM } from '../js/const.js';
+import { setArgumentMisuseRecording } from '../js/gstate.js';
 import { Half_physical_damage, Maybe_Half_Phys } from '../js/youprop.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -243,11 +244,16 @@ test('Half_physical_damage and Maybe_Half_Phys follow youprop.h and hack.h', () 
     assert.ok(Maybe_Half_Phys(-2, hero) == 0);
 });
 
-test('Half_physical_damage reads the hero, not the game state', () => {
+test('Half_physical_damage reads the hero, not the game state', (t) => {
     // Given the game state in place of the hero, the call must throw rather
     // than answer FALSE, which would leave the damage unhalved. With no hero
     // at all it reads as a hero with no properties, as every youprop.js
     // accessor does (js/youprop.js slot()).
+    // js/gstate.js records a misuse and lets the call go on unless throwing is
+    // selected. This test relied on scripts/run-test-suite.mjs preloading
+    // that selection, so it failed when run alone; it now selects it itself.
+    const previous = setArgumentMisuseRecording(false);
+    t.after(() => setArgumentMisuseRecording(previous));
     assert.throws(() => Half_physical_damage({ u: { uprops: [] } }), TypeError);
     assert.throws(() => Maybe_Half_Phys(5, { u: { uprops: [] } }), TypeError);
     assert.equal(Half_physical_damage(undefined), false);

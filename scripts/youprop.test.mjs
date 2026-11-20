@@ -292,7 +292,11 @@ test('Maybe_Half_Phys halves rounding up (hack.h:1236-1237)', () => {
     assert.equal(Y.Maybe_Half_Phys(7, hero()), 7);
 });
 
-test('locally, a hero macro given the game state, or a state macro given the hero, throws', () => {
+test('locally, a hero macro given the game state, or a state macro given the hero, throws', (t) => {
+    // Select throwing here rather than rely on scripts/run-test-suite.mjs
+    // preloading it, so the test also passes when its file runs alone.
+    const previous = setArgumentMisuseRecording(false);
+    t.after(() => setArgumentMisuseRecording(previous));
     const u = hero();
     assert.throws(() => Y.Blind({ u }),
         { name: 'TypeError', message: /^youprop\.js Blind\(\) was given the game state in place of the hero/u });
