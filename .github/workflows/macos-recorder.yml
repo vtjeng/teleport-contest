@@ -2,97 +2,23 @@ name: macOS recorder
 on:
   workflow_dispatch:
 
-# The judge's reference recordings were made on macOS; local recordings are
-# made on Linux. This workflow builds the C recorder on macOS, records the
-# host-parity sample (experiments/host-parity/recipes/) and uploads the
-# recordings, so scripts/compare-host-recordings.mjs can list every screen
-# that differs between the two hosts. docs/testing.md, "Local recordings and
-# the judge's host", gives the whole procedure.
+# Branch integration-checkpoint/macos-clock only (throwaway): run the clock
+# driver (experiments/host-parity/clock/), which applies the recorder's
+# fixed-datetime conversion (calendar.c time_from_yyyymmddhhmmss() with
+# patches 001 and 009) on this host's C library, TZ=America/New_York.
 
 jobs:
   record:
     runs-on: macos-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
-        with:
-          # nethack-c/build-recorder.sh builds from the NetHack source in
-          # the nethack-c/upstream submodule.
-          submodules: true
-      - uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-
-      - name: Build the recorder
-        run: bash nethack-c/build-recorder.sh
-
-      - name: Describe the host
-        run: |
-          mkdir -p macos-recordings
-          {
-            echo "commit: $GITHUB_SHA"
-            echo "run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-            sw_vers
-            uname -a
-            clang --version | head -n 1
-            node --version
-          } | tee macos-recordings/host.txt
-
-      - name: Record the sample
-        run: experiments/host-parity/record-sample.sh macos-recordings
-
-      # The key-binding probes (experiments/host-parity/README.md, "Key-binding
-      # probes") test which paths of cmd.c handler_rebind_keys_add() fail on
-      # macOS. They go into their own directory so the 500-recipe comparison
-      # is unchanged.
-      - name: Record the key-binding probes
-        run: experiments/host-parity/record-sample.sh macos-recordings/probes 5 experiments/host-parity/probes/*.session.json
-
-      # The committed recordings of the options-menu rebind recipes
-      # (recipes/cmd.c/*bind*-live) come from this step, because cmd.c
-      # handler_rebind_keys_add() fails on macOS where a Linux recorder
-      # binds the key (docs/testing.md, "The key-binding difference").
-      # Copy each one to recordings/cmd.c/ under the same name.
-      # scripts/bind-keys-live.test.mjs fails if one is recorded on Linux.
-      # The two parameter-path recipes after the glob bind on both hosts;
-      # they are recorded here only to compare with their Linux recordings.
-      - name: Record the options-menu rebind recipes
-        run: >-
-          experiments/host-parity/record-sample.sh macos-recordings/cmd.c 5
-          recipes/cmd.c/*bind*-live.session.json
-          recipes/cmd.c/toggle-bound-param-menu.session.json
-          recipes/cmd.c/bind-toggle-empty-param-reports-and-lists-null.session.json
-
-      # The second host-parity sample (experiments/host-parity/sample2/)
-      # probes options menus, help screens, dates, regex, colour parsing and
-      # one-byte keys. It runs last because record-sample.sh fails the step
-      # when any recipe fails, which would skip the steps after it, and it
-      # runs even when an earlier recording step failed.
-      - name: Record the second sample
-        if: always()
-        run: experiments/host-parity/record-sample.sh macos-recordings/sample2 4 experiments/host-parity/sample2/recipes/*.session.json
-
-      # NetHack's regex patterns (MENUCOLOR, MSGTYPE, AUTOPICKUP_EXCEPTION)
-      # go to the C library's regcomp() through sys/share/posixregex.c, and
-      # js/regcomp.js ports macOS's (docs/testing.md, "The regex
-      # difference"). The oracle asks this host's regcomp(), regexec() and
-      # regerror() every case in experiments/host-parity/regex-oracle/;
-      # recipes.txt there lists the committed recipes whose games compile a
-      # pattern, and the recordings of those that differ between the hosts
-      # are committed from this step's output.
-      - name: Ask the regex oracle
-        if: always()
-        run: node experiments/host-parity/regex-oracle/run-oracle.mjs macos-recordings/regex-oracle
-      - name: Record the regex recipes
-        if: always()
-        run: >-
-          experiments/host-parity/record-sample.sh macos-recordings/regex 4
-          $(cat experiments/host-parity/regex-oracle/recipes.txt)
-
-      - name: Upload recordings
+      - name: Run the clock driver
+        run: experiments/host-parity/clock/run.sh experiments/host-parity/clock/grid.txt macos-clock
+      - name: Upload results
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: macos-recordings
-          path: macos-recordings/
+          name: macos-clock
+          path: macos-clock/
           if-no-files-found: error
