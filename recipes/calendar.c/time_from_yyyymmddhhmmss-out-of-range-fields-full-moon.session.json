@@ -1,10 +1,11 @@
 {
   "version": 5,
-  "comment": "calendar.c time_from_yyyymmddhhmmss() (recorder patch 001): every field but the year is out of range, and mktime() carries month 15 into 2105, day 59 past April, hour 26, minute 75 and second 99, giving 2105-04-29 03:16:39 EDT. That night is a full moon, so moveloop_preamble() announces it and adds luck; a debug Samurai then zaps a wished-for wand of death at himself, and the tombstone prints 2105.",
+  "comment": "calendar.c time_from_yyyymmddhhmmss() (recorder patch 001): every field but the year is out of range, and mktime() carries month 15 into 2105, day 59 past April, hour 26, minute 75 and second 99, giving 2105-04-29 03:16:39 EDT. That night is a full moon, so moveloop_preamble() announces it and adds luck; a debug Samurai then zaps a wished-for wand of death at himself, and the tombstone prints 2105. The datetime is out of range on purpose, so the segment sets datetimeOutOfRange.",
   "segments": [
     {
       "seed": 4417203,
       "datetime": "21041559267599",
+      "datetimeOutOfRange": true,
       "nethackrc": "OPTIONS=name:Kaito,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
       "moves": " \u0017wand of death\nzg.  y nnnnn  "
     }

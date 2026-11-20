@@ -1,10 +1,11 @@
 {
   "version": 5,
-  "comment": "calendar.c time_from_yyyymmddhhmmss() (recorder patch 001) and rip.c genl_outrip(): year 9999 with month 15 carries into year 10000, and day 59, hour 26, minute 75 and second 99 carry on to 10000-04-29 03:16:39 EDT. The same debug Samurai as time_from_yyyymmddhhmmss-out-of-range-fields-full-moon zaps a wished-for wand of death at himself; the tombstone prints (yyyymmdd() / 10000) % 10000, which is 0 for year 10000.",
+  "comment": "calendar.c time_from_yyyymmddhhmmss() (recorder patch 001) and rip.c genl_outrip(): year 9999 with month 15 carries into year 10000, and day 59, hour 26, minute 75 and second 99 carry on to 10000-04-29 03:16:39 EDT. The same debug Samurai as time_from_yyyymmddhhmmss-out-of-range-fields-full-moon zaps a wished-for wand of death at himself; the tombstone prints (yyyymmdd() / 10000) % 10000, which is 0 for year 10000. The datetime is out of range on purpose, so the segment sets datetimeOutOfRange.",
   "segments": [
     {
       "seed": 4417203,
       "datetime": "99991559267599",
+      "datetimeOutOfRange": true,
       "nethackrc": "OPTIONS=name:Kaito,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
       "moves": " \u0017wand of death\nzg.  y nnnnn  "
     }

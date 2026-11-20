@@ -30,7 +30,7 @@ import {
     ROWS_24,
 } from '../frozen/screen-decode.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
-import { time_from_yyyymmddhhmmss } from '../js/calendar.js';
+import { fixedDatetimeRefusal, OUT_OF_RANGE_KEY } from './fixed-datetime-rule.mjs';
 import {
     createScoringWorkspace,
     PROJECT_ROOT,
@@ -276,14 +276,6 @@ export function isPathWithinDirectory(candidate, directory) {
     }
 }
 
-// A recipe's datetime must reach the fixed clock: calendar.c getnow() uses
-// the wall clock when time_from_yyyymmddhhmmss() gives 0, so a recording
-// would depend on when it was made. Any other value is deterministic, an
-// out-of-range field included, since mktime() normalizes it.
-function validFixedDatetime(value) {
-    return typeof value === 'string' && time_from_yyyymmddhhmmss(value) !== 0;
-}
-
 export function validateCleanRecipe(
     data,
     label = 'recipe',
@@ -303,8 +295,11 @@ export function validateCleanRecipe(
         if (!Number.isSafeInteger(segment.seed) || segment.seed < 0) {
             throw new Error(`${prefix} seed must be a non-negative safe integer`);
         }
-        if (!validFixedDatetime(segment.datetime)) {
-            throw new Error(`${prefix} datetime must be a YYYYMMDDHHMMSS value that sets the fixed clock`);
+        const datetimeRefusal = fixedDatetimeRefusal(segment.datetime, {
+            outOfRange: segment[OUT_OF_RANGE_KEY] === true,
+        });
+        if (datetimeRefusal) {
+            throw new Error(`${prefix} datetime ${datetimeRefusal}`);
         }
         if (typeof segment.nethackrc !== 'string') throw new Error(`${prefix} nethackrc must be text`);
         if (typeof segment.moves !== 'string') throw new Error(`${prefix} moves must be text`);

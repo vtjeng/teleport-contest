@@ -3,6 +3,8 @@
   "segments": [
     { "datetime": "20260304100000", "nethackrc": "", "moves": "" },
     { "datetime": "2026-03-04 10:00:00", "nethackrc": "", "moves": "" },
-    { "datetime": 20260304100000, "nethackrc": "", "moves": "" }
+    { "datetime": 20260304100000, "nethackrc": "", "moves": "" },
+    { "datetime": "20571311091011", "nethackrc": "", "moves": "" },
+    { "datetime": "2057131109101", "datetimeOutOfRange": true, "nethackrc": "", "moves": "" }
   ]
 }
