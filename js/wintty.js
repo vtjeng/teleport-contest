@@ -251,7 +251,8 @@ export function tty_suspend_nhwindows(str, state = game) {
 // C ref: wintty.c tty_exit_nhwindows() (810-845).  After the farewell, C
 // frees every tty window and the pickinv cache and shuts the terminal down;
 // only raw output follows, so the observable result is the cleared or
-// farewell screen and window_inited, which tty_init_nhwindows() set.
+// farewell screen and window_inited, which tty_display_nhwindow() set when it
+// first showed WIN_MESSAGE (wintty.c:1883).
 export function tty_exit_nhwindows(str, state = game) {
     tty_suspend_nhwindows(str, state);
     if (state.nhDisplay) state.nhDisplay.ttyDisplayFreed = true;
