@@ -210,6 +210,7 @@ import {
 import {
     createCommandBindingModel,
     keyForCommand,
+    updateRestOnSpaceModel,
 } from './command_bindings.js';
 import {
     count_autocompletions,
@@ -7091,14 +7092,25 @@ export function finishStartupBooleanOptions(state) {
 //
 // reset_glyphmap(gm_optionchange) follows reglyph_darkroom() in C.  This port
 // resolves glyph presentation on demand and has no stored glyphmap to reset.
-// update_rest_on_space() follows that reset; command binding initialization
-// consumes the already-recorded rest_on_space operation later in start().
+//
+// update_rest_on_space() (options.c:7364) follows that reset.  It is the last
+// point at which C derives the <space> binding from flags.rest_on_space
+// without an option change: gc.Cmd's bindings are not in the save file, and
+// restore.c restgamestate() replaces flags without rebinding.  A restored
+// game therefore keeps the binding this segment's configuration made, even
+// when the saved flags.rest_on_space disagrees.  The binding model is built
+// here, from the configuration's flags, so that no later caller builds it
+// from restored ones.
 export function initoptions_finish(parsedOptions = {}, state = game, env = {}) {
     finish_fruit_option(parsedOptions, state, env);
     finish_boulder_symbol(state);
     if (glyphid_cache_status(state)) free_glyphid_cache(state);
     apply_customizations(state.gc?.currentgraphics ?? PRIMARYSET, state);
     reglyph_darkroom(state);
+    updateRestOnSpaceModel(
+        state.commandBindings ??= createCommandBindingModel(state),
+        Boolean(state.flags?.rest_on_space),
+    );
     finishStartupBooleanOptions(state);
     // options.c:7382 ends the configuration pass. Each parseoptions() call
     // rewrites go.opt_initial from its tinitial argument, but doset()'s
