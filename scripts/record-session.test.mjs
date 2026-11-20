@@ -14,6 +14,7 @@ import {
     NETHACKDIR_MAX_LENGTH,
     successfulTerminalExit,
     terminalInputKey,
+    terminalSignal,
 } from './record-session.mjs';
 
 test('the NETHACKDIR limit is BUFSZ / 2 from the C source', () => {
@@ -153,6 +154,52 @@ test('explicit terminal input accepts only successful natural process closure wi
         { moves: '#save\nn' },
         { stepCount: 0 },
         { stepCount: 6 },
+    ]) {
+        assert.equal(successfulTerminalExit({ ...expected, ...invalid }), false);
+    }
+});
+
+test('terminal-signal intent accepts only SIGABRT beside a terminal key', () => {
+    // A debug-mode "#panic", "yes" and the Enter that dismisses "Oops...":
+    // the last key is the one after which end.c NH_abort() raises SIGABRT.
+    const panicMoves = '#panic\nyes\n\n';
+    assert.equal(terminalSignal({ moves: panicMoves, terminalInputKey: '\n' }), null);
+    assert.equal(terminalSignal({
+        moves: panicMoves, terminalInputKey: '\n', terminalSignal: 'SIGABRT',
+    }), 'SIGABRT');
+    // SIGTERM is how the recorder itself stops a segment, never a game ending.
+    assert.throws(
+        () => terminalSignal({ moves: panicMoves, terminalInputKey: '\n', terminalSignal: 'SIGTERM' }),
+        /terminalSignal must be one of SIGABRT/u,
+    );
+    assert.throws(
+        () => terminalSignal({ moves: panicMoves, terminalSignal: 'SIGABRT' }),
+        /terminalSignal requires terminalInputKey/u,
+    );
+});
+
+test('a declared terminal signal replaces the successful exit status', () => {
+    // Twelve keys of " #panic\nyes\n" and the final Enter: thirteen keys, so
+    // thirteen boundaries plus the startup one are expected, and the abort
+    // leaves the last one uncaptured.
+    const expected = {
+        exitCode: null,
+        signal: 'SIGABRT',
+        terminalKey: '\n',
+        terminalSignal: 'SIGABRT',
+        moves: ' #panic\nyes\n\n',
+        nextKeyIndex: 13,
+        stepCount: 13,
+        expectedSteps: 14,
+    };
+    assert.equal(successfulTerminalExit(expected), true);
+    for (const invalid of [
+        { terminalSignal: null },
+        { signal: 'SIGSEGV' },
+        { signal: null, exitCode: 0 },
+        { exitCode: 134 },
+        { nextKeyIndex: 12 },
+        { stepCount: 12 },
     ]) {
         assert.equal(successfulTerminalExit({ ...expected, ...invalid }), false);
     }
