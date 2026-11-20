@@ -93,11 +93,13 @@ import {
     ROGUESET,
     ROWNO,
     MAX_MENU_MAPPED_CMDS,
+    SATIATED,
     RUN_CRAWL,
     RUN_LEAP,
     RUN_STEP,
     RUN_TPORT,
     SLT_ENCUMBER,
+    STARVED,
     STONE,
     SYM_BOULDER,
     UNENCUMBERED,
@@ -185,9 +187,11 @@ import {
     flush_screen,
     reglyph_darkroom,
     count_status_hilites, status_hilite_menu, s_to_anything, status_hilite_add_threshold,
+    enc_stat,
     reset_status_hilites,
     status_initialize,
 } from './display.js';
+import { hu_stat } from './eat.js';
 import { set_vanq_order } from './insight.js';
 import { reassign, update_inventory } from './invent.js';
 import { ttyPline } from './tty_message.js';
@@ -2031,23 +2035,21 @@ const STATUS_PERCENT_FIELDS = new Set([
     'power', 'experience-level', 'hitpoints', 'experience',
 ]);
 
-const STATUS_TEXT_THRESHOLDS = Object.freeze({
-    'carrying-capacity': Object.freeze({
-        burdened: 'burdened',
-        stressed: 'stressed',
-        strained: 'strained',
-        overtaxed: 'overtaxed',
-        overloaded: 'overloaded',
-    }),
-    hunger: Object.freeze({
-        satiated: 'satiated',
-        hungry: 'hungry',
-        weak: 'weak',
-        fainting: 'fainting',
-        fainted: 'fainted',
-        starved: 'starved',
-    }),
-});
+// C ref: botl.c parse_status_hl2()'s aligntxt[] and hutxt[] (2816-2821).
+// hutxt[] is hu_stat[] without the padding; parse_status_hl2() matches the
+// threshold against it and then stores hu_stat[], as it stores enc_stat[].
+const STATUS_HL2_ALIGNTXT = Object.freeze(['chaotic', 'neutral', 'lawful']);
+const STATUS_HL2_HUTXT = Object.freeze([
+    'Satiated', '', 'Hungry', 'Weak', 'Fainting', 'Fainted', 'Starved',
+]);
+
+// C ref: botl.c is_fld_arrayvalues() (2730-2744): the index of the first
+// entry in [arrmin, arrmax) that strcmpi() matches, or -1 for C's FALSE.
+function is_fld_arrayvalues(str, arr, arrmin, arrmax) {
+    for (let i = arrmin; i < arrmax; i++)
+        if (!strcmpi(str, arr[i])) return i;
+    return -1;
+}
 
 // C ref: botl.c fieldids_alias[] (2186-2212), spelled and ordered as C has
 // them; fldname_to_bl_indx() compares them with fuzzymatch().
@@ -2471,13 +2473,6 @@ function parse_status_hl2(result, s) {
     if (field === 'condition') return parse_condition(result, s, sidx);
 
     const fieldType = STATUS_HILITE_FIELDS[field];
-    // C ref: is_fld_arrayvalues() over enc_stat[] for BL_CAP and hutxt[] for
-    // BL_HUNGER, both compared with strcmpi() rather than fuzzymatch().  Its
-    // third caller, aligntxt[] for BL_ALIGN, needs no table: alignment is a
-    // string field, so the same spellings reach the ANY_STR arm below and
-    // store the same text.
-    const textThresholds = Object.hasOwn(STATUS_TEXT_THRESHOLDS, field)
-        ? STATUS_TEXT_THRESHOLDS[field] : null;
     let successes = 0;
 
     sidx += 1;
@@ -2498,6 +2493,7 @@ function parse_status_hl2(result, s) {
         let gte = false;
         let txtval = false;
         let value = null;
+        let kidx;
 
         const nextField = fieldAt(sidx + 1);
         if (!nextField || threshold === 'always') {
@@ -2515,8 +2511,24 @@ function parse_status_hl2(result, s) {
                 else up = true;
             }
             changed = true;
-        } else if (textThresholds && Object.hasOwn(textThresholds, threshold)) {
-            text = textThresholds[threshold];
+        } else if (field === 'carrying-capacity'
+                   && (kidx = is_fld_arrayvalues(threshold, enc_stat,
+                       SLT_ENCUMBER, OVERLOADED + 1)) >= 0) {
+            // botl.c:2903-2906 stores enc_stat[]'s own spelling, which is
+            // what every listing of the rule shows: "Burdened", not the
+            // lowercased threshold parse_status_hl1() handed over.
+            text = enc_stat[kidx];
+            txtval = true;
+        } else if (field === 'alignment'
+                   && (kidx = is_fld_arrayvalues(threshold, STATUS_HL2_ALIGNTXT,
+                       0, 3)) >= 0) {
+            text = STATUS_HL2_ALIGNTXT[kidx];
+            txtval = true;
+        } else if (field === 'hunger'
+                   && (kidx = is_fld_arrayvalues(threshold, STATUS_HL2_HUTXT,
+                       SATIATED, STARVED + 1)) >= 0) {
+            /* store hu_stat[] val, not hutxt[] */
+            text = hu_stat[kidx];
             txtval = true;
         } else if (threshold === 'changed') {
             changed = true;
@@ -7080,6 +7092,11 @@ export function initoptions_finish(parsedOptions = {}, state = game, env = {}) {
     apply_customizations(state.gc?.currentgraphics ?? PRIMARYSET, state);
     reglyph_darkroom(state);
     finishStartupBooleanOptions(state);
+    // options.c:7382 ends the configuration pass. Each parseoptions() call
+    // rewrites go.opt_initial from its tinitial argument, but doset()'s
+    // compound handlers run without one, so handler_petattr() reads the
+    // value this leaves behind.
+    state.go.opt_initial = false;
 }
 
 // C ref: options.c longest_option_name().  The two passes differ only in

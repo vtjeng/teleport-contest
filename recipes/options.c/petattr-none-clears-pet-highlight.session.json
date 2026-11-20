@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation on petattr-first-pick-redraws-pet: hilite_pet in the rc gives the Caveman's little dog inverse video (optfn_boolean, options.c:5300-5308), then the first live option change sets petattr to none through handler_petattr(), which clears iflags.hilite_pet and asks for the repaint (6152-6162), so the dog is drawn plain at once. Seed, clock, character and keys chosen for this case.",
+  "segments": [
+    {
+      "seed": 7240913,
+      "datetime": "20310927181540",
+      "nethackrc": "OPTIONS=name:Brokk,role:Caveman,race:dwarf,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,!autopickup,hilite_pet\n",
+      "moves": "#optionsfull\n:petattr\n\nas"
+    }
+  ]
+}

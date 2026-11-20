@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 276,
+    otherName: 275,
     unreachable: 174,
     noVisibleEffect: 215,
     unportedVisible: 2,
@@ -142,7 +142,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'botl.c bl_idx_to_fldname': unreachable('X11 only'),
     'botl.c hilite_reset_needed': ported('js/display.js _statusFieldNotice',
         'the status highlight timer test'),
-    'botl.c is_fld_arrayvalues': ported('js/options.js parse_status_hl2'),
     'botl.c all_options_statushilites': noEffect(SAVEOPTIONS),
 
     // calendar.c
