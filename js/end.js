@@ -206,6 +206,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import { shkname, shkname_is_pname } from './shknam.js';
 import { accessible } from './monmove.js';
 import { note_unported } from './unported.js';
+import { set_error_savefile } from './files.js';
 import { keepdogs } from './dog.js';
 import { make_sick, peffects, set_itimeout } from './potion.js';
 import { coreRandom } from './rng.js';
@@ -1116,19 +1117,17 @@ export async function panic(str, state = game) {
         else
             tty_raw_print(state, `Report error to "wizard"${maybe_rebuild}`);
     }
+    // set_error_savefile() points gs.SAVEF at the ".e" panic save file, which
+    // the next segment's unixmain.c finds through check_panic_save().
     if (state.program_state.something_worth_saving
         && !state.iflags?.debug_fuzzer) {
-        // files.c set_error_savefile() appends ".e" to the save file name and
-        // dosave0() writes the game there, a host file. The port's dosave0()
-        // writes only the set_savefile_name() file, which the next segment
-        // would restore. C's next process would find the ".e" file through
-        // CHECK_PANIC_SAVE (include/unixconf.h:134, unixmain.c
-        // check_panic_save()) and ask whether to start a new game, but no
-        // recording reaches one: CRASHREPORT (config.h:244-256) makes panic()
-        // end in NH_abort() (end.c:463-467), which the recorder reports as a
-        // failure. dosave0()'s result selects only the sysopt.recover line,
-        // which the recorder's sysconf leaves unset.
-        note_unported('files.c set_error_savefile');
+        // Loaded on use: js/save.js imports this module.
+        const { dosave0 } = await import('./save.js');
+        if (await dosave0(state, set_error_savefile(state))) {
+            /* os/win port specific recover instructions */
+            if (state.sysopt?.recover)
+                tty_raw_print(state, state.sysopt.recover);
+        }
     }
 
     tty_raw_print(state, str);

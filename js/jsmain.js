@@ -79,9 +79,10 @@ import {
 import { LL_NONE, NHW_MESSAGE, REST_CURRENT_LEVEL, Upolyd } from './const.js';
 import { dorestore } from './restore.js';
 import {
-    playgroundDeleteFile, playgroundReadFile, playgroundWriteFile,
-    set_savefile_name,
+    check_panic_save, playgroundDeleteFile, playgroundReadFile,
+    playgroundWriteFile, set_savefile_name,
 } from './files.js';
+import { ask_about_panic_save } from './unixunix.js';
 import { welcomeBackMessage, welcomeHallucinationMessage } from './role_init.js';
 import { udeadinside, ugenocided } from './polyself.js';
 import {
@@ -723,6 +724,12 @@ export class NethackGame {
         }
 
         await tty_player_selection(g);
+
+        // C ref: unixmain.c:306-311. With no save file to restore, a panic
+        // save file left by an earlier segment's panic() makes C ask whether
+        // to start a new game; any other answer ends the program there.
+        if (check_panic_save(g))
+            await ask_about_panic_save(g);
 
         // Run game startup
         await newgame();

@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "comment": "C ref: unixmain.c's \"Do you want to keep the save file?\" after a debug-mode restore. Segment 0 saves a debug-mode gnomish Ranger. Segment 1 restores it, keeps the save file, moves and stops mid-game without saving. Segment 2 restores the same kept file again (the moves made in segment 1 are gone), declines to keep it, pages back with ^P, and shows that the rc's time and showexp are overridden by the saved flags. Seeds, clocks, character and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 27730913,
+      "datetime": "20460909051500",
+      "nethackrc": "OPTIONS=name:Rosalind,role:Ranger,race:gnome,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!autopickup\n",
+      "moves": " lljj4sSy"
+    },
+    {
+      "seed": 27730919,
+      "datetime": "20460910051500",
+      "nethackrc": "OPTIONS=name:Rosalind,role:Ranger,race:gnome,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!autopickup\n",
+      "moves": " y kkhh2s"
+    },
+    {
+      "seed": 27730921,
+      "datetime": "20460911051500",
+      "nethackrc": "OPTIONS=name:Rosalind,role:Ranger,race:gnome,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!autopickup\nOPTIONS=time,showexp\n",
+      "moves": " n\u0010\u0010jj"
+    }
+  ]
+}

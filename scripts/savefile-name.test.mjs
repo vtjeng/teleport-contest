@@ -1,12 +1,16 @@
-// js/files.js set_savefile_name(), plname_from_file() and get_saved_games(),
-// and js/unixunix.js regularize(), name, read and list save files as the UNIX
-// build of files.c does, so a segment restores only its own hero's save.
+// js/files.js set_savefile_name(), set_error_savefile(), check_panic_save(),
+// plname_from_file() and get_saved_games(), and js/unixunix.js regularize(),
+// name, read and list save files as the UNIX build of files.c does, so a
+// segment restores only its own hero's save.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { get_saved_games, plname_from_file, set_savefile_name } from '../js/files.js';
+import {
+    check_panic_save, get_saved_games, plname_from_file, set_error_savefile,
+    set_savefile_name,
+} from '../js/files.js';
 import { PL_NSIZ_PLUS } from '../js/const.js';
 import { resetGame } from '../js/gstate.js';
 import { InMemoryStorage, setStorageForTesting } from '../js/storage.js';
@@ -55,6 +59,30 @@ test('set_savefile_name() follows the UNIX arm of files.c', () => {
     assert.ok(UNIXMAIN_C.indexOf('set_playmode(); /* sets plname to "wizard" for wizard mode */')
         < UNIXMAIN_C.indexOf('nhfp = restore_saved_game()'));
     assert.match(OPTIONS_C, /if \(authorize_wizard_mode\(\)\)\s*gp\.plnamelen = \(int\) strlen\(strcpy\(svp\.plname, "wizard"\)\);/u);
+});
+
+test('set_error_savefile() and check_panic_save() name and find the panic save', () => {
+    // The UNIX arm appends ".e" to gs.SAVEF; check_panic_save() looks for
+    // that name with COMPRESS_EXTENSION, then without it.
+    assert.match(FILES_C, /#else\s*Strcat\(gs\.SAVEF, "\.e"\);\s*#endif\s*#endif\s*\}/u);
+    assert.match(FILES_C, /set_error_savefile\(\);\s*savef = fqname\(gs\.SAVEF, SAVEPREFIX, 0\);/u);
+    assert.match(UNIXMAIN_C, /if \(check_panic_save\(\)\)\s*ask_about_panic_save\(\);/u);
+    // Debug mode's "wizard" and a name regularize() changes.
+    assert.equal(set_error_savefile({ plname: 'wizard' }), `save/${RECORDER_UID}wizard.e`);
+    assert.equal(set_error_savefile({ plname: 'Bob x.y' }), `save/${RECORDER_UID}Bob_x_y.e`);
+    const storage = new InMemoryStorage();
+    setStorageForTesting(storage);
+    try {
+        // A regular save alone is not a panic save.
+        storage.setItem(`vfs:${set_savefile_name({ plname: 'wizard' })}`, '{}');
+        assert.equal(check_panic_save({ plname: 'wizard' }), false);
+        storage.setItem(`vfs:${set_error_savefile({ plname: 'wizard' })}`, '{}');
+        assert.equal(check_panic_save({ plname: 'wizard' }), true);
+        // Another hero's name does not reach it.
+        assert.equal(check_panic_save({ plname: 'Alice' }), false);
+    } finally {
+        setStorageForTesting(null);
+    }
 });
 
 test('get_saved_games() lists this uid\'s save files by saved name, sorted', () => {

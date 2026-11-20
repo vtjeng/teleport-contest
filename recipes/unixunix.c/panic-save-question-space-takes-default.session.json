@@ -1,0 +1,20 @@
+{
+  "version": 5,
+  "comment": "C ref: sys/unix/unixunix.c ask_about_panic_save(): yn_function() turns a space into the default n, so the program ends before newgame() and the segment draws no map and calls no RNG. Segment 0: a debug-mode elven Wizard runs #panic and the process ends on SIGABRT after \"Oops...\". Segment 1 is the session's last and answers every --More-- and the question with a space. Seeds, clocks, character and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 63340027,
+      "datetime": "20490101000500",
+      "nethackrc": "OPTIONS=name:Hildegard,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": " #panic\nyes\n\n",
+      "terminalInputKey": "\n",
+      "terminalSignal": "SIGABRT"
+    },
+    {
+      "seed": 63340031,
+      "datetime": "20490102000500",
+      "nethackrc": "OPTIONS=name:Hildegard,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": "   "
+    }
+  ]
+}

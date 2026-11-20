@@ -39,8 +39,6 @@ const FILE_VERSION = 'a save or bones file written by another build; every segme
 const MKMAZE_BUBBLE = 'mk_bubble() places each bubble inside gbxmin..gbxmax and '
     + 'gbymin..gbymax, and mv_bubble() turns a one-square move back at the border, '
     + 'so these bounds reports never fire';
-const PANIC_SAVE = 'needs a panic save file without a regular one, which only a '
-    + 'panic in an earlier segment leaves; a correct game does not panic';
 const REVEAL_PATHS = commandLine('output of the --showpaths option '
     + '(files.c do_deferred_showpaths())');
 const SHOPDOOR_DEBUG = 'part of the impossible("Where is shopdoor?") report, '
@@ -156,10 +154,6 @@ export const C_MESSAGE_EXEMPTIONS = Object.freeze([
         FILE_VERSION),
     entry('src/windows.c', 'choose_windows', 'No window types supported?',
         'build check that some window port is compiled in; the recorder build has tty'),
-    entry('sys/unix/unixunix.c', 'ask_about_panic_save',
-        'There is no regular save file but there is a panic one.', PANIC_SAVE),
-    entry('sys/unix/unixunix.c', 'ask_about_panic_save',
-        'It might be recoverable with demi-divine intervention.', PANIC_SAVE),
     entry('sys/unix/unixunix.c', 'child', 'Fork failed.  Try again.',
         'fork() failed when starting a shell or mail reader; the operating system '
         + 'decides that, not game input'),

@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "comment": "C ref: save.c dosave0() (111-124 and 146-147): the \"old save file\" question and the message-window clear sit under HUP, so a hangup save overwrites a kept save file without asking. Segment 0 saves a debug-mode Tourist. Segment 1 restores her and keeps the save file, walks two squares south, then ^A repeats the farlook command and 0377 bytes reach cmd.c hangup() through pgetchar(); end_of_input() saves over the kept file. Segment 2 restores that hangup save, so the hero stands where segment 1 left her, and declines to keep it. Seeds, clocks, character and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 91550041,
+      "datetime": "20500615123000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!autopickup,!tips,pettype:none\n",
+      "moves": " sSy"
+    },
+    {
+      "seed": 91550043,
+      "datetime": "20500616123000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!autopickup,!tips,pettype:none\n",
+      "moves": " y jj;.\u0001\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff\u00ff"
+    },
+    {
+      "seed": 91550047,
+      "datetime": "20500617123000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!autopickup,!tips,pettype:none\n",
+      "moves": " n\u0010\u0010:"
+    }
+  ]
+}

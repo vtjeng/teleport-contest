@@ -61,9 +61,6 @@ export const SKIPPED_CALL_REASONS = new Map([
     // js/wizcmds.js wiz_fuzzer().
     ['wizcmds.c wiz_fuzzer', { count: 1, reason: 'the fuzz-testing branches are not all '
         + 'ported, so the port does not enter fuzzer mode' }],
-    // js/end.js: panic()'s save; CRASHREPORT ends panic() in NH_abort().
-    ['files.c set_error_savefile', { count: 1, reason: 'C saves to a host ".e" file that no '
-        + 'recording reaches, since panic() aborts the recorder' }],
     // js/end.js done() and js/cmd.js yn_function().
     ['files.c paniclog', { count: 2, reason: 'C appends to a host log file that a game cannot '
         + 'see, and discards the result' }],

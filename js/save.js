@@ -430,7 +430,7 @@ export async function dosave(state = game) {
 //   - opening/closing the binary save file — replaced by playgroundWriteFile()
 //   - store_version/store_plname — part of the JSON snapshot
 //   - set_ustuck(0), u.usteed = 0 — post-serialization cleanup only
-export async function dosave0(state = game) {
+export async function dosave0(state = game, savefile = set_savefile_name(state)) {
     // C ref: save.c:86. A hangup save could arrive mid-prayer.
     state.u.uinvulnerable = 0;
     // C ref: save.c:98 done_object_cleanup(). Besides objects in transit,
@@ -440,16 +440,20 @@ export async function dosave0(state = game) {
     await done_object_cleanup(state);
 
     // C ref: save.c:100-101. program_state.something_worth_saving is always
-    // set in the port, and gs.SAVEF is set_savefile_name() of the hero's name.
-    const savefile = set_savefile_name(state);
+    // set in the port. `savefile` is gs.SAVEF: set_savefile_name() of the
+    // hero's name, or for end.c panic() the files.c set_error_savefile()
+    // name that has ".e" appended.
 
-    // C ref: save.c:111-124. An old save file exists when a debug or explore
-    // mode restore kept it (unixmain.c:266-273 restores its permissions);
-    // otherwise dorecover() or the keep-save question deleted it. Declining
-    // to overwrite leaves the old file in place and saves nothing.
-    // nh_uncompress(), nh_sfconvert() and nh_compress() have no VFS
-    // counterpart.
-    if (playgroundReadFile(savefile) != null) {
+    // C ref: save.c:111-124, under HUP (no hangup has arrived) and
+    // iflags.window_inited (panic() has not closed the windows). An old save
+    // file exists when a debug or explore mode restore kept it
+    // (unixmain.c:266-273 restores its permissions); otherwise dorecover()
+    // or the keep-save question deleted it. Declining to overwrite leaves the
+    // old file in place and saves nothing. nh_uncompress(), nh_sfconvert()
+    // and nh_compress() have no VFS counterpart.
+    const windowsUp = !state.program_state?.done_hup
+        && state.iflags?.window_inited !== false;
+    if (windowsUp && playgroundReadFile(savefile) != null) {
         clearTtyMessageWindow(state);
         // pline.c There() adds only the prefix "There ".
         await ttyPline('There seems to be an old save file.', state);
@@ -470,9 +474,9 @@ export async function dosave0(state = game) {
         change_luck(1, state);
     }
 
-    // C ref: save.c:147: retire Saving before serializing the game.
-    // This command runs after the TTY message window is initialized.
-    clearTtyMessageWindow(state);
+    // C ref: save.c:146-147: `if (iflags.window_inited) HUP
+    // clear_nhwindow(WIN_MESSAGE);` retires Saving before serializing.
+    if (windowsUp) clearTtyMessageWindow(state);
 
     // C ref: save.c:168 savelev(nhfp, ledger_no(&u.uz)). savelev_core()
     // first purges the monsters that died since movemon() last did

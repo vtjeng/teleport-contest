@@ -114,18 +114,40 @@ export function terminalInputKey(segment) {
     return key;
 }
 
+// The judge's recorder (upstream scripts/record-session.mjs) keeps the steps
+// of a segment whose process dies on a signal and goes on to the next
+// segment. A debug-mode #panic ends that way: end.c panic() writes the panic
+// save file and then NH_abort() raises SIGABRT, and the next segment's
+// unixmain.c finds that file through check_panic_save(). A segment opts in to
+// that ending with terminalSignal: "SIGABRT" beside its terminalInputKey.
+export const TERMINAL_SIGNALS = Object.freeze(['SIGABRT']);
+
+export function terminalSignal(segment) {
+    if (!Object.hasOwn(segment, 'terminalSignal')) return null;
+    const name = segment.terminalSignal;
+    if (!TERMINAL_SIGNALS.includes(name)) {
+        throw new Error(`terminalSignal must be one of ${TERMINAL_SIGNALS.join(', ')}`);
+    }
+    if (!Object.hasOwn(segment, 'terminalInputKey')) {
+        throw new Error('terminalSignal requires terminalInputKey');
+    }
+    return name;
+}
+
 export function successfulTerminalExit({
     exitCode,
     signal,
     terminalKey,
+    terminalSignal: expectedSignal = null,
     moves,
     nextKeyIndex,
     stepCount,
     expectedSteps,
 }) {
     return terminalKey !== null
-        && exitCode === 0
-        && signal === null
+        && (expectedSignal === null
+            ? exitCode === 0 && signal === null
+            : exitCode === null && signal === expectedSignal)
         && moves.at(-1) === terminalKey
         && nextKeyIndex === moves.length
         && stepCount > 0
@@ -603,6 +625,7 @@ export async function recordSegment({
         expectedSteps = moves.length + 1;
     }
     const terminalKey = terminalInputKey(seg);
+    const terminalSig = terminalSignal(seg);
     const steps = [];
     let lastRngBytes = 0;
     let nextKeyIdx = 0;
@@ -860,6 +883,7 @@ export async function recordSegment({
                 exitCode: code,
                 signal,
                 terminalKey,
+                terminalSignal: terminalSig,
                 moves,
                 nextKeyIndex: nextKeyIdx,
                 stepCount: steps.length,
@@ -872,7 +896,7 @@ export async function recordSegment({
             }
             const expectedTerminationSignal = terminationWasRequested
                 && (signal === 'SIGTERM' || signal === 'SIGKILL');
-            if (signal && !expectedTerminationSignal) {
+            if (signal && !expectedTerminationSignal && !terminalExit) {
                 throw new Error(`recorder exited unexpectedly with ${exitDescription}`);
             }
             resolveDone({
@@ -881,6 +905,7 @@ export async function recordSegment({
                 terminalExit: terminalExit ? {
                     key: terminalKey,
                     exitCode: code,
+                    ...(signal ? {signal} : {}),
                     finalBoundaryCaptured: steps.length === expectedSteps,
                 } : null,
             });
@@ -964,6 +989,7 @@ async function main() {
         }
         if (session.segments.length !== 1 || Object.hasOwn(session.segments[0], 'steps')
             || Object.hasOwn(session.segments[0], 'terminalInputKey')
+            || Object.hasOwn(session.segments[0], 'terminalSignal')
             || typeof session.segments[0].moves !== 'string'
             || !session.segments[0].moves || session.segments[0].moves.length > 10000)
             throw new Error('prompt mode requires one input-only nonterminal segment with 1..10000 prefix keys');

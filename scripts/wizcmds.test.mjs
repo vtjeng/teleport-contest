@@ -694,13 +694,17 @@ test('wiz_fuzzer reads the panic() after impossible() answer and records the gap
 
 // end.c panic() (392-472) past tty_wait_synch()'s getret() wait. The key
 // that answers it leads to exit_nhwindows(), the raw prints, the error save
-// and NH_abort(), which ends the process without another input boundary, so
-// no recording reaches this far: the C recorder fails ("recorder exited
-// before recording all input boundaries ... SIGABRT") on such a recipe.
+// and NH_abort(), which ends the process without another input boundary.
+// recordings/unixunix.c/panic-save-question-across-segments records that
+// ending (terminalSignal) and the next segment's question.
 test('panic ends the segment after getret() without another screen', async () => {
     const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const gstate = await import('../js/gstate.js');
+    const { InMemoryStorage } = await import('../js/storage.js');
+    const { RECORDER_UID } = await import('../js/unixunix.js');
+    const storage = new InMemoryStorage();
     const replay = await runSegment({
+        storage,
         seed: 18534099, // Independent startup; only the panic path matters.
         datetime: '20381010124532',
         nethackrc: 'OPTIONS=name:PanicTail,role:Barbarian,race:human,gender:female,align:neutral,playmode:debug\n'
@@ -719,5 +723,9 @@ test('panic ends the segment after getret() without another screen', async () =>
     assert.equal(game.program_state.gameover, true);
     assert.equal(game.program_state.panicking, 1);
     assert.equal(game.iflags.window_inited, false);
-    assert.ok(game.unported.has('files.c set_error_savefile'));
+    // The error save: set_error_savefile() names save/<uid>wizard.e, and
+    // dosave0() writes the game there, not to the regular save file.
+    assert.ok(!game.unported.has('files.c set_error_savefile'));
+    assert.notEqual(storage.getItem(`vfs:save/${RECORDER_UID}wizard.e`), null);
+    assert.equal(storage.getItem(`vfs:save/${RECORDER_UID}wizard`), null);
 });

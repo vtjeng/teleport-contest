@@ -126,6 +126,23 @@ export function set_savefile_name(state = game) {
     return `save/${regularize(`${RECORDER_UID}${state.plname ?? ''}`)}`;
 }
 
+// C ref: files.c set_error_savefile() (1137-1155), the UNIX arm: gs.SAVEF
+// with ".e" appended. Its callers, end.c panic() and check_panic_save(), have
+// gs.SAVEF set to set_savefile_name() of the current hero; the port returns
+// the panic save file's storage name instead of keeping gs.SAVEF.
+export function set_error_savefile(state = game) {
+    return `${set_savefile_name(state)}.e`;
+}
+
+// C ref: files.c check_panic_save() (1311-1351). C tests for the panic save
+// file with COMPRESS_EXTENSION appended and then without it; the port's
+// storage keeps every file uncompressed, so one test covers both. The
+// closing set_savefile_name(TRUE) only resets gs.SAVEF, which the port does
+// not keep.
+export function check_panic_save(state = game) {
+    return playgroundReadFile(set_error_savefile(state)) != null;
+}
+
 // C ref: files.c plname_from_file() (1355-1388) and the get_plname_from_file()
 // (restore.c 1338-1362) call it makes with name_only FALSE. The save file's
 // header is the PL_NSIZ_PLUS-byte buffer that save.c store_plname_in_file()

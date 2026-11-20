@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "C ref: restore.c restgamestate() (567-595): the saved struct flag replaces the one the new segment's options built, while instance flags and the symbol set come from the new rc. Segment 0 saves a gnomish Healer with time, showexp, showrace, mention_walls, standout and lit_corridor on. Segment 1 restores her with all of those turned off in the rc, DECgraphics, !color, !hilite_pet and menustyle:traditional: the status line keeps T: and Xp:1/0, the hero is drawn as G, and walking into a wall prints \"It's a wall.\" from the saved flags, while the map uses the new rc's DEC symbols without color. Seeds, clock, character and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 80412207,
+      "datetime": "20381104071500",
+      "nethackrc": "OPTIONS=name:Wilhelmina,role:Healer,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!autopickup\nOPTIONS=time,showexp,!verbose,standout,lit_corridor,!dark_room,showrace,mention_walls,!sparkle,hilite_pet,number_pad:0,runmode:teleport\n",
+      "moves": " llllkkkkhhhhh20sSy"
+    },
+    {
+      "seed": 80412211,
+      "datetime": "20381105171500",
+      "nethackrc": "OPTIONS=name:Wilhelmina,role:Healer,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!autopickup\nOPTIONS=!time,!showexp,verbose,!standout,!lit_corridor,dark_room,!showrace,!mention_walls,sparkle,!hilite_pet,symset:DECgraphics,!color,menustyle:traditional\n",
+      "moves": "   kkkkllllljjjjj10s^Xi  d\u001b"
+    }
+  ]
+}

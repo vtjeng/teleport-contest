@@ -1,0 +1,38 @@
+{
+  "version": 5,
+  "comment": "C ref: end.c panic() (443-450) writes the game to the files.c set_error_savefile() name, save/<uid>wizard.e, before NH_abort(); unixmain.c (306-311) then calls files.c check_panic_save() and sys/unix/unixunix.c ask_about_panic_save() before newgame() whenever no regular save file exists. Segment 0: a debug-mode Cavewoman runs #panic, answers yes and dismisses \"Oops...\"; the process ends on SIGABRT (terminalSignal). Segment 1: the two messages and \"Start a new game instead?\" appear, and n ends the program. Segment 2: Escape at the first --More-- skips the second message, y starts a new Priest game, which saves. Segment 3: the regular save file is restored without the question, the save file is not kept, and the segment stops mid-game. Segment 4: the panic file is still there, so the question comes again, and Escape ends the program. Seeds, clocks, characters and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 47011353,
+      "datetime": "20470203101500",
+      "nethackrc": "OPTIONS=name:Hildegard,role:Caveman,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": " llj#panic\nyes\n\n",
+      "terminalInputKey": "\n",
+      "terminalSignal": "SIGABRT"
+    },
+    {
+      "seed": 47011361,
+      "datetime": "20470204101500",
+      "nethackrc": "OPTIONS=name:Hildegard,role:Caveman,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": "  n"
+    },
+    {
+      "seed": 47011367,
+      "datetime": "20470205101500",
+      "nethackrc": "OPTIONS=name:Hildegard,role:Priest,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": "\u001by kkh4sSy"
+    },
+    {
+      "seed": 47011371,
+      "datetime": "20470206101500",
+      "nethackrc": "OPTIONS=name:Hildegard,role:Priest,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=time\n",
+      "moves": " n jjl"
+    },
+    {
+      "seed": 47011373,
+      "datetime": "20470207101500",
+      "nethackrc": "OPTIONS=name:Hildegard,role:Monk,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": "  \u001b"
+    }
+  ]
+}

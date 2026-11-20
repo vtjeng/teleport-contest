@@ -28,10 +28,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
-| gameplay | 4068 | 4004 | 64 | 0 |
+| gameplay | 4068 | 4006 | 62 | 0 |
 | diagnostic | 726 | 369 | 6 | 351 |
 | debug | 120 | 3 | 0 | 117 |
-| total | 4914 | 4376 | 70 | 468 |
+| total | 4914 | 4378 | 68 | 468 |
 
 ## Missing by C file
 
@@ -1747,10 +1747,6 @@ Whole file not ported by design: the port keeps game state between segments thro
   - 194 pline: `I don't think your shell has job control.`
 
 ### sys/unix/unixunix.c
-
-- `ask_about_panic_save()`: needs a panic save file without a regular one, which only a panic in an earlier segment leaves; a correct game does not panic (approved: Vincent, 2026-11-13)
-  - 269 pline: `There is no regular save file but there is a panic one.`
-  - 270 pline: `It might be recoverable with demi-divine intervention.`
 
 - `child()`: fork() failed when starting a shell or mail reader; the operating system decides that, not game input (approved: Vincent, 2026-11-13)
   - 390 pline: `Fork failed.  Try again.`
