@@ -12,8 +12,7 @@ import {
 } from './const.js';
 import { game } from './gstate.js';
 import { appendLongDigit, textBytes } from './hacklib.js';
-import { nomux_putch_byte } from './termcap.js';
-import { ATR_NONE, NO_COLOR } from './terminal.js';
+import { ATR_NONE } from './terminal.js';
 import {
     emitQueuedNotices,
     TOPLINE_EMPTY,
@@ -128,11 +127,7 @@ export function addtopl(text, state = game) {
             if (cw) cw.cury = display.cursorRow;
             column = 0;
         }
-        const stored = nomux_putch_byte(byte);
-        if (stored !== null) {
-            display.setCell(column, display.cursorRow ?? 0,
-                String.fromCharCode(stored), NO_COLOR, 0);
-        }
+        display.putch(column, display.cursorRow ?? 0, String.fromCharCode(byte));
         ++column;
     }
     display.setCursor(column, display.cursorRow ?? 0);
@@ -186,19 +181,15 @@ export function wrapTtyTopline(message, columns) {
         }));
 }
 
-// topl_putsym() passes a control byte such as a tab to putchar(), and
-// recorder patch 006's nomux_putch() leaves its cell as it was
-// (termcap.js nomux_putch_byte()) while the cursor moves past it.
-function leavesCell(ch) {
-    return ch.charCodeAt(0) < 0x20;
-}
-
+// topl_putsym() passes each byte to putchar(), and recorder patch 006's
+// nomux_putch() leaves the cell of a control or high byte as it was
+// (GameDisplay.putch()) while the cursor moves past it.
 export function writeRecorderTtyLine(display, row, value) {
     const line = String(value);
     let column = 0;
     for (const ch of line) {
         if (column >= display.cols) break;
-        if (!leavesCell(ch)) display.setCell(column, row, ch, NO_COLOR, 0);
+        display.putch(column, row, ch);
         ++column;
     }
     display.setCursor(column, row);
@@ -209,7 +200,7 @@ export function appendRecorderTtyLine(display, startColumn, row, value) {
     let column = startColumn;
     for (const ch of String(value)) {
         if (column >= display.cols) break;
-        if (ch !== '\0') display.setCell(column, row, ch, NO_COLOR, 0);
+        display.putch(column, row, ch);
         ++column;
     }
     display.setCursor(column, row);
@@ -239,7 +230,8 @@ function redrawTtyTopline(state, message, mixedFirstCell = null) {
         }
         writeRecorderTtyLine(display, row, lines[row]);
     }
-    if (mixedFirstCell) display.setCell(0, 0, mixedFirstCell, NO_COLOR, 0);
+    // redotoplin()'s g_putch() of a mixed line's first byte.
+    if (mixedFirstCell) display.putCaptured(0, 0, mixedFirstCell);
     display.setCursor(lines.at(-1)?.length ?? 0, lines.length - 1);
 }
 
@@ -293,8 +285,13 @@ export async function redotoplin(text, state = game, unsplit = undefined) {
     const lines = toplineRows(text, display.cols, state, unsplit);
     for (let row = 0; row < lines.length && row < display.rows; ++row) {
         display.setCursor(0, row);
+        // home() leaves row 0 as it was; topl_putsym('\n') clears each row
+        // it moves onto (topl.c:339-340) before putsyms() writes it.
+        if (row > 0) display.clearToEol();
+        // putsyms() prints each byte with topl_putsym(), whose capture
+        // leaves the cell of a high or control byte as it was.
         for (let col = 0; col < lines[row].length && col < display.cols; ++col)
-            display.setCell(col, row, lines[row][col], NO_COLOR, 0);
+            display.putch(col, row, lines[row][col]);
         display.setCursor(Math.min(lines[row].length, display.cols - 1), row);
         display.clearToEol();
     }
@@ -444,8 +441,7 @@ export function topl_putsym(ch, state = game) {
         // putchar(c) passes a signed char: recorder patch 006's
         // nomux_putch() leaves the cell as it was for a high or control
         // byte, while ttyDisplay->curx has already advanced past it.
-        if (nomux_putch_byte(ch.charCodeAt(0)) !== null)
-            display.setCell(display.cursorCol, display.cursorRow, ch, NO_COLOR, 0);
+        display.putch(display.cursorCol, display.cursorRow, ch);
         display.setCursor(display.cursorCol + 1, display.cursorRow);
     }
 }
@@ -944,7 +940,7 @@ export function show_topl(text, state = game) {
     // topl.c:157, cw->curx = cw->cury = 0.
     if (win) win.curx = win.cury = 0;
     display.setCursor(0, 0);
-    for (let col = 0; col < display.cols; ++col) display.setCell(col, 0, ' ', NO_COLOR, 0);
+    for (let col = 0; col < display.cols; ++col) display.clearCell(col, 0);
     addtopl(text, state);
     display.toplin = TOPLINE_NEED_MORE;
     if (display.cursorRow) display.toplin = TOPLINE_NON_EMPTY;

@@ -8,19 +8,18 @@
 // Usage:
 //   const terminal = new Terminal('game-container');
 //   const display = new GameDisplay(terminal);
-//   // display.setCell, display.readKey etc. all delegate to terminal
-//   // display.topMessage, display.putstr_message are NetHack-specific
+//   // display.putch, display.readKey etc. delegate to terminal
+//   // display.topMessage is NetHack-specific
 
 import {
     Terminal,
-    CLR_GRAY,
     NO_COLOR,
     ATR_INVERSE,
     ATR_UNDERLINE,
 } from './terminal.js';
+import { nomux_putch_byte } from './termcap.js';
 
 const TOPLINE_EMPTY = 0;
-const TOPLINE_NEED_MORE = 1;
 
 // Attributes that paint a space: frozen/screen-decode.mjs SPACE_VISIBLE_ATTRS.
 const SPACE_VISIBLE_ATTRS = ATR_INVERSE | ATR_UNDERLINE;
@@ -133,13 +132,60 @@ export class GameDisplay {
     hangup() { this.windowprocsHup = true; }
 
     // Display methods
+    //
+    // Game code writes a terminal cell only through the writers below, each
+    // named for the rule recorder patch 006 (nethack-c/patches/
+    // 006-nomux-capture.patch) applies to the C output it ports: putch() and
+    // putstr() for a char, putCaptured() for a byte some other hook already
+    // decided, clearCell(), clearRow() and clearScreen() for an erase, and
+    // restoreCell() for a cell the screen already showed. setCell() itself is
+    // for this class and for tests; scripts/cell-writer.test.mjs fails when
+    // code in js/ calls it, or reaches the terminal some other way.
     setCell(col, row, ch, color, attr) {
         if (this.windowprocsHup) return undefined;
         return this.terminal.setCell(col, row, ch, color, attr);
     }
-    putstr(col, row, str, color, attr) {
-        if (this.windowprocsHup) return undefined;
-        return this.terminal.putstr(col, row, str, color, attr);
+    // C's putchar(c) of a `char`, followed by recorder patch 006's
+    // nomux_putch(c): topl_putsym(), tty_putstr(), tty_putsym(), dmore(),
+    // tty_putstatusfield() and the menu and text window loops. The char is
+    // signed on the recorder's x86-64 build, so a high byte arrives negative
+    // and, like a control byte, leaves the shadow cell as it was
+    // (termcap.js nomux_putch_byte()). NUL, the port's marker for such a
+    // byte (tty_message.js ttyByteText()), is a control byte too. `ch` is one
+    // byte as a one-character string; a code unit above 0xFF is not a byte
+    // and is left out the same way. Returns true when the cell was written.
+    putch(col, row, ch, color = NO_COLOR, attr = 0) {
+        const stored = nomux_putch_byte(String(ch).charCodeAt(0));
+        if (stored === null) return false;
+        this.setCell(col, row, String.fromCharCode(stored), color, attr);
+        return true;
+    }
+    // tty_putstr() and dmore() print a string a char at a time, each through
+    // the hook putch() models.
+    putstr(col, row, str, color = NO_COLOR, attr = 0) {
+        const text = String(str);
+        for (let i = 0; i < text.length && col + i < this.cols; ++i)
+            this.putch(col + i, row, text[i], color, attr);
+    }
+    // A cell whose captured character the caller has already worked out
+    // under a hook other than putch()'s: g_putch(), which strips the high
+    // bit (termcap.js nomux_g_putch_byte()), a hook given an int, which
+    // stores a high byte, or nomux_raw_putch(). `ch` may be the rendering
+    // the scorer reads for that byte, such as a DEC line-drawing character.
+    // scripts/cell-writer.test.mjs pins every caller.
+    putCaptured(col, row, ch, color = NO_COLOR, attr = 0) {
+        return this.setCell(col, row, ch, color, attr);
+    }
+    // One cell of an erase: cl_end(), cl_eos(), term_clear_screen() or
+    // docorner(). CLR_GRAY is kept only where a caller already stored it.
+    clearCell(col, row, color = NO_COLOR) {
+        return this.setCell(col, row, ' ', color, 0);
+    }
+    // Put back a cell copied from this screen's grid, such as one a window
+    // covered or one a full rebuild cleared before reprojecting it. Nothing
+    // is printed in C, so no capture rule applies.
+    restoreCell(col, row, cell) {
+        return this.setCell(col, row, cell.ch, cell.color, cell.attr);
     }
     setCursor(col, row) {
         if (this.windowprocsHup) return undefined;
@@ -156,7 +202,7 @@ export class GameDisplay {
     }
     clearRow(row) {
         for (let column = 0; column < this.cols; ++column)
-            this.setCell(column, row, ' ', NO_COLOR, 0);
+            this.clearCell(column, row);
     }
     scrollUp() {
         if (this.windowprocsHup) return undefined;
@@ -166,19 +212,7 @@ export class GameDisplay {
         if (this.windowprocsHup) return undefined;
         return this.terminal.moveCursor(x, y);
     }
-    putChar(x, y, ch, attr) {
-        if (this.windowprocsHup) return undefined;
-        return this.terminal.putChar(x, y, ch, attr);
-    }
     getChar(x, y) { return this.terminal.getChar(x, y); }
-    putString(str) {
-        if (this.windowprocsHup) return undefined;
-        return this.terminal.putString(str);
-    }
-    putCharAtCursor(ch) {
-        if (this.windowprocsHup) return undefined;
-        return this.terminal.putCharAtCursor(ch);
-    }
     clearToEol() {
         if (this.windowprocsHup) return undefined;
         return this.terminal.clearToEol();
@@ -222,16 +256,6 @@ export class GameDisplay {
     onEmptyQueue = null;
 
     // --- NetHack-specific methods ---
-
-    putstr_message(msg) {
-        if (this.windowprocsHup) return;
-        this.clearRow(0);
-        this.putstr(0, 0, msg, CLR_GRAY);
-        this.topMessage = msg.trimEnd();
-        this.toplin = this.topMessage ? TOPLINE_NEED_MORE : TOPLINE_EMPTY;
-        this.messages.push(this.topMessage);
-        if (this.messages.length > 20) this.messages.shift();
-    }
 
     renderStatus(_player) {
         // TODO: full status line rendering from player stats

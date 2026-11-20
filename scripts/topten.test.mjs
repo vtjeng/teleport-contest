@@ -57,7 +57,7 @@ test('topten prints wizard mode message and returns without writing record', () 
                 rows: 24,
                 cols: 80,
                 clearScreen() { this._cleared = true; },
-                setCell() {},
+                putCaptured() {},
             },
         };
         topten(DIED, at(20260101), state);
@@ -355,7 +355,7 @@ function makeDeathState({
             rows: 24,
             cols: 80,
             clearScreen() {},
-            setCell() {},
+            putCaptured() {},
         },
     };
 }

@@ -184,6 +184,7 @@ import {
     d, enableRngLog, getRngLog, initRng, rn1, rn2, rne, rnl, rnd,
 } from '../js/rng.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
+import { GameDisplay } from '../js/game_display.js';
 import { HeadlessTerminal } from '../js/terminal.js';
 import {
     peek_timer,
@@ -1038,7 +1039,7 @@ function arena({
     for (let x = 0; x <= last + 1; x++) state.viz_array[4][x] = 0x2;
     // getdir()'s prompt reads a key through the window port, so the direction
     // tests push one onto this queue.
-    state.nhDisplay = new HeadlessTerminal({ cols: 80, rows: 24 });
+    state.nhDisplay = new GameDisplay(new HeadlessTerminal({ cols: 80, rows: 24 }));
     return state;
 }
 

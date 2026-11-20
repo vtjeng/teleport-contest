@@ -341,9 +341,9 @@ test('NHW_MENU text emits ASCII at recorder-byte columns', async () => {
     // cl_end() left; the signed continuation byte is ignored, and X lands at
     // byte offset two. The C recordings recordings/wintty.c/
     // utf8-symset-text-window-first-byte.session.json (every first byte under
-    // H_UTF8) and recipes/topl.c/decgraphics-history-high-first-byte (a
-    // DECgraphics glyph opening a Message History line) both leave the first
-    // byte's own column blank.
+    // H_UTF8) and recordings/topl.c/decgraphics-history-high-first-byte.session.json
+    // (a DECgraphics glyph opening a Message History line) both leave the
+    // first byte's own column blank.
     assert.equal(boundary.leadingHighRow[start], ' ');
     assert.equal(boundary.leadingHighRow[start + 1], 'C');
     assert.equal(boundary.leadingHighRow[start + 2], 'X');

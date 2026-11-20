@@ -29,6 +29,7 @@ import { newObject } from '../js/obj.js';
 import { monst_globals_init, PM_HUMAN } from '../js/monsters.js';
 import { initRng } from '../js/rng.js';
 import { timeout_globals_init } from '../js/timeout.js';
+import { GameDisplay } from '../js/game_display.js';
 import { HeadlessTerminal } from '../js/terminal.js';
 import { Boots_off } from '../js/do_wear.js';
 import { lava_effects } from '../js/trap.js';
@@ -75,7 +76,7 @@ function stateWithLava() {
     init_objects(state, () => 0);
     timeout_globals_init(state);
     state.youmonst = { data: state.mons[PM_HUMAN] };
-    state.nhDisplay = new HeadlessTerminal({ cols: 80, rows: 24 });
+    state.nhDisplay = new GameDisplay(new HeadlessTerminal({ cols: 80, rows: 24 }));
     state._ttyToplines = '';
     return state;
 }

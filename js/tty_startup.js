@@ -119,7 +119,8 @@ export async function ttyAsknameImpl(state = game) {
                 if (characters.length > 0) {
                     characters.pop();
                     const column = WHO_ARE_YOU.length + characters.length;
-                    display.setCell(column, promptRow, ' ', NO_COLOR);
+                    // The recorder hunk for tty_askname()'s erase puts a space.
+                    display.putch(column, promptRow, ' ');
                     display.setCursor(column, promptRow);
                 }
                 continue;
@@ -128,12 +129,10 @@ export async function ttyAsknameImpl(state = game) {
             const ch = ttyNameCharacter(code, characters.length);
             if (characters.length < PL_NSIZ - 1) {
                 characters.push(ch);
-                display.setCell(
-                    display.cursorCol,
-                    display.cursorRow,
-                    ch,
-                    NO_COLOR,
-                );
+                // tty_askname() hands nomux_putch() an int, but the name
+                // filter above leaves only printable ASCII, which the char
+                // rule stores the same way.
+                display.putch(display.cursorCol, display.cursorRow, ch);
                 display.setCursor(display.cursorCol + 1, display.cursorRow);
             }
         }

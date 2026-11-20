@@ -105,7 +105,8 @@ test('serialize writes CLR_BLACK as the default foreground, as the recorder does
 test('after hangup() every GameDisplay write leaves the screen as it was', () => {
     // windows.c nhwindows_hangup() swaps in hup_procs, whose output routines
     // draw nothing. Every terminal write in js/ goes through these methods
-    // (none reaches display.terminal directly), so each must be a no-op.
+    // (scripts/cell-writer.test.mjs fails if one reaches display.terminal
+    // directly), so each must be a no-op.
     const disp = display();
     // A top-line prompt and a map cursor at (9,5) stand for the screen
     // getpos() leaves when the hangup arrives; any visible cell and any
@@ -120,15 +121,15 @@ test('after hangup() every GameDisplay write leaves the screen as it was', () =>
     disp.clearRow(0);
     disp.setCell(0, 0, 'X', CLR_RED, ATR_BOLD);
     disp.putstr(0, 1, 'text', CLR_RED, 0);
-    disp.putstr_message('message');
+    disp.putch(1, 1, 'p', CLR_RED, 0);
+    disp.putCaptured(1, 2, 'q', CLR_RED, 0);
+    disp.clearCell(0, 0);
+    disp.restoreCell(2, 2, { ch: 'r', color: CLR_RED, attr: 0 });
     disp.setCursor(0, 0);
     disp.moveCursor(1, 1);
     disp.cursorCol = 3;
     disp.cursorRow = 3;
     disp.clearToEol();
-    disp.putString('abc');
-    disp.putCharAtCursor('z');
-    disp.putChar(2, 2, 'q', 0);
     disp.scrollUp();
     assert.equal(disp.serialize(), before);
     assert.deepEqual([disp.cursorCol, disp.cursorRow], [9, 5]);

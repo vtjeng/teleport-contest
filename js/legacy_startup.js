@@ -130,14 +130,13 @@ function snapshotDisplay(display) {
 function clearFrom(display, column, row) {
     if (row < 0 || row >= display.rows) return;
     for (let col = Math.max(0, column); col < display.cols; ++col)
-        display.setCell(col, row, ' ', CLR_GRAY, 0);
+        display.clearCell(col, row, CLR_GRAY);
 }
 
 function restoreDisplay(display, snapshot) {
     for (let row = 0; row < display.rows; ++row) {
         for (let col = 0; col < display.cols; ++col) {
-            const cell = snapshot.grid[row][col];
-            display.setCell(col, row, cell.ch, cell.color, cell.attr);
+            display.restoreCell(col, row, snapshot.grid[row][col]);
         }
     }
     display.setCursor(...snapshot.cursor);

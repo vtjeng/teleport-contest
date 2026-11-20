@@ -62,7 +62,7 @@ import {
 } from './windows.js';
 import { pmatchi } from './strutil.js';
 import { impossible } from './pline.js';
-import { nomux_g_putch_byte, nomux_putch_byte } from './termcap.js';
+import { nomux_g_putch_byte } from './termcap.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
 // calls tty_getlin("Search for:") and skips an empty or Escaped answer.
@@ -140,24 +140,21 @@ function writeStyledText(
         const compressed = spaces && end - index >= 5;
         for (; index < end && column + index < maxColumn; ++index) {
             const byte = bytes[index];
-            let cellColumn = column + index;
-            let stored;
+            const cellColumn = column + index;
+            const cellColor = compressed ? NO_COLOR : color;
+            const cellAttr = compressed ? 0 : attr;
             if (index === 0 && textWindowUtf8 !== undefined
                 && (textWindowUtf8 || byte >= 0x80)) {
                 // g_putch()'s hook, at the pre-incremented curx.
-                stored = nomux_g_putch_byte(byte);
-                ++cellColumn;
+                const stored = nomux_g_putch_byte(byte);
+                if (stored !== null) {
+                    display.putCaptured(cellColumn + 1, row,
+                        String.fromCharCode(stored), cellColor, cellAttr);
+                }
             } else {
-                stored = nomux_putch_byte(byte);
+                display.putch(cellColumn, row, String.fromCharCode(byte),
+                    cellColor, cellAttr);
             }
-            if (stored === null) continue;
-            display.setCell(
-                cellColumn,
-                row,
-                String.fromCharCode(stored),
-                compressed ? NO_COLOR : color,
-                compressed ? 0 : attr,
-            );
         }
     }
 }
@@ -196,15 +193,14 @@ function copyRegion(display, firstColumn, rowCount) {
 
 function clearRegion(display, firstColumn, rowCount) {
     for (let row = 0; row < rowCount; row++) {
-        for (let column = firstColumn; column < display.cols; column++) {
-            display.setCell(column, row, ' ', NO_COLOR, 0);
-        }
+        for (let column = firstColumn; column < display.cols; column++)
+            display.clearCell(column, row);
     }
 }
 
 function clearRowFrom(display, firstColumn, row) {
     for (let column = firstColumn; column < display.cols; ++column)
-        display.setCell(column, row, ' ', NO_COLOR, 0);
+        display.clearCell(column, row);
 }
 
 // C ref: wintty.c erase_menu_or_text() repairs a window with a nonzero offx
@@ -244,14 +240,8 @@ async function restoreCorner(state, display, repairColumn, snapshot) {
 function restoreRegion(display, firstColumn, snapshot) {
     for (let row = 0; row < snapshot.length; row++) {
         for (let offset = 0; offset < snapshot[row].length; offset++) {
-            const cell = snapshot[row][offset];
-            display.setCell(
-                firstColumn + offset,
-                row,
-                cell.ch,
-                cell.color,
-                cell.attr,
-            );
+            display.restoreCell(firstColumn + offset, row,
+                snapshot[row][offset]);
         }
     }
 }
@@ -900,7 +890,7 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
             // U+FFFD; the raw byte itself remains on glyphInfo.ttychar.
             const ttychar = glyphInfo.ttychar & 0xFF;
             const printable = ttychar >= 32;
-            display.setCell(
+            display.putCaptured(
                 layout.startColumn + 2,
                 row,
                 !printable ? ' '
@@ -910,15 +900,8 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
             );
         }
     }
-    for (let index = 0; index < layout.footerText.length; index++) {
-        display.setCell(
-            layout.startColumn + index,
-            layout.footerRow,
-            layout.footerText[index],
-            NO_COLOR,
-            0,
-        );
-    }
+    // dmore()'s prompt, a char at a time.
+    display.putstr(layout.startColumn, layout.footerRow, layout.footerText);
     // tty_end_menu() retains the trailing space in the single-page
     // "(end) " prompt.  For pagination, process_menu_window() replaces the
     // sizing template with "(x of y)" without that trailing space.
@@ -972,7 +955,7 @@ export async function dismissTtyMenu(state = game, rendered) {
 // writes each line and again before each --More--.
 function clearRow(display, row) {
     for (let column = 0; column < display.cols; column++)
-        display.setCell(column, row, ' ', NO_COLOR, 0);
+        display.clearCell(column, row);
 }
 
 // C ref: win/tty/getline.c xwaitforspace(), which sets morc to Escape for
@@ -989,7 +972,7 @@ async function dmore(state, display, row) {
     // A text window offsets the prompt by one column where a menu offsets it
     // by two; both start from a curx that tty_curs() has just homed to 0.
     for (let index = 0; index < MORE_PROMPT.length; index++)
-        display.setCell(index, row, MORE_PROMPT[index], NO_COLOR, 0);
+        display.putch(index, row, MORE_PROMPT[index]);
     display.setCursor(MORE_PROMPT.length, row);
     return xwaitforspace(state);
 }
@@ -1098,9 +1081,10 @@ export async function displayTtyTextWindow(state = game, lines) {
             // one column to the right; its own column stays cleared.
             if (cell.column === 0 && firstByteGPutch) continue;
             if (cell.ch == null) {
-                display.setCell(cell.column, n, ' ', NO_COLOR, 0);
+                display.clearCell(cell.column, n);
             } else {
-                display.setCell(
+                // The glyph's capture, which the caller worked out.
+                display.putCaptured(
                     cell.column,
                     n,
                     cell.ch,
@@ -1302,7 +1286,7 @@ function unsetPickOneLines(state, spec, rendered, allPages) {
                 * rendered.layout.pageSize) {
             const localRow = globalLine
                 - rendered.layout.pageIndex * rendered.layout.pageSize;
-            state.nhDisplay.setCell(
+            state.nhDisplay.putch(
                 rendered.layout.startColumn + 2,
                 localRow,
                 '-',
@@ -1533,7 +1517,8 @@ function refreshVisibleSelections(state, rendered, changedItems = null) {
     for (let row = 0; row < rendered.layout.lines.length; ++row) {
         const item = rendered.layout.lines[row].item;
         if (!item || (changedItems && !changedItems.has(item))) continue;
-        state.nhDisplay.setCell(
+        // set_item_state()'s char.
+        state.nhDisplay.putch(
             rendered.layout.startColumn + 2,
             row,
             selectionMarker(item),
