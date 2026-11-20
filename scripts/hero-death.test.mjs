@@ -999,8 +999,9 @@ test('the map wait leaves the dirty status line unchanged after bones clears coo
     // before the next status refresh. bones.c:560-562 then clears u.ux/u.uy
     // while the map window remains live. A direct map-window wait must use
     // that window rather than falling into getret(), preserve the previous
-    // HP:10(10) row, and expose the pending More marker without consuming a
-    // key. This follows wintty.c:3633's WIN_MAP/rawprint gate.
+    // HP:10(10) row, and leave the pending message without a More marker
+    // (more() is not active) and without consuming a key. This follows
+    // wintty.c:3633's WIN_MAP/rawprint gate and its 3634 inmore test.
     assert.match(
         WINTTY_C,
         /if \(WIN_MAP == WIN_ERR \|\| !ttyDisplay \|\| ttyDisplay->rawprint\)/u,
@@ -1010,15 +1011,15 @@ test('the map wait leaves the dirty status line unchanged after bones clears coo
     game.u.uy = 0;
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     assert.match(statusRow(), STARTING_HP_STATUS);
+    const topRows = () => game.nhDisplay.grid.slice(0, 2)
+        .map((row) => row.map(({ ch }) => ch).join('')).join('\n');
+    const before = topRows();
     await tty_wait_synch(game);
     assert.match(statusRow(), STARTING_HP_STATUS);
     assert.equal(game.nhDisplay.toplin, TOPLINE_NEED_MORE);
     assert.equal(game.nhDisplay.inputQueueLength, 1);
-    assert.match(
-        game.nhDisplay.grid.slice(0, 2)
-            .map((row) => row.map(({ ch }) => ch).join('')).join('\n'),
-        /--More--/u,
-    );
+    assert.equal(topRows(), before);
+    assert.doesNotMatch(topRows(), /--More--/u);
 });
 
 test('raw output dismissal restores map waits while recorder mode stays active',
@@ -1026,7 +1027,8 @@ test('raw output dismissal restores map waits while recorder mode stays active',
         // tty_raw_print() increments C ttyDisplay->rawprint, whereas the
         // recorder's nomux_raw_active remains set after that output. The
         // first wait therefore consumes its dismissing space; the second
-        // wait must repaint the live map even with hero coordinates at zero.
+        // wait must take the map arm even with hero coordinates at zero, and
+        // with more() idle it writes no marker on the pending message.
         const state = {
             nhDisplay: new GameDisplay(null),
             iflags: { cbreak: true, window_inited: true },
@@ -1050,7 +1052,7 @@ test('raw output dismissal restores map waits while recorder mode stays active',
         await tty_wait_synch(state);
         assert.equal(state.nhDisplay.inputQueueLength, 1);
         assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
-        assert.match(
+        assert.doesNotMatch(
             state.nhDisplay.grid[0].map(({ ch }) => ch).join(''),
             /--More--/u,
         );

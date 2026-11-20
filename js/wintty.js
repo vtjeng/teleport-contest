@@ -464,16 +464,17 @@ export function tty_init_nhwindows(argcp = null, argv = null, state = game) {
         writable: true,
     });
     wt.ttyDisplay = display;
-    wt.toplin = TOPLINE_EMPTY;
+    // toplin, inmore, inread, intr and dismiss_more each live only on the
+    // display, where topl.js, getline.js, tty_message.js and tty_rawprint.js
+    // read them; scripts/wintty.test.mjs rejects a copy on state.wintty.
+    display.toplin = TOPLINE_EMPTY;
     wt.topl_utf8 = 0;
     wt.rows = hgt;
     wt.cols = wid;
     wt.curx = 0;
     wt.cury = 0;
-    wt.inmore = 0;
-    wt.inread = 0;
-    wt.intr = 0;
-    wt.dismiss_more = 0;
+    display.inmore = display.inread = display.intr = 0;
+    display.dismiss_more = 0;
     wt.color = NO_COLOR;
     wt.attrs = 0;
     wt.mixed = 0;

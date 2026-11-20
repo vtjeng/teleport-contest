@@ -4,12 +4,13 @@
 // recorder patch 006's nomux_enter_raw_mode(), nomux_raw_putch(),
 // nomux_raw_emit() and nomux_get_cursor().
 
+import { TOPLINE_SPECIAL_PROMPT } from './const.js';
 import { recordRawShadowCells } from './display.js';
 import { game } from './gstate.js';
 import { textBytes } from './hacklib.js';
 import { ATR_BOLD, NO_COLOR } from './terminal.js';
 import {
-    showPendingTtyMessage,
+    MORE_PROMPT,
     TOPLINE_NEED_MORE,
     xwaitforspace,
 } from './tty_message.js';
@@ -165,36 +166,48 @@ async function getret(state) {
 
 // C ref: win/tty/wintty.c tty_wait_synch() (3623-3647). The startup/raw-print
 // arm waits for a space. Once a map is live, the window arm repaints it and
-// leaves any pending message's --More-- marker for the next reader.  Only a
-// message still awaiting acknowledgement (TOPLINE_NEED_MORE) has one: C
-// writes no marker here, and the next more() or
-// tty_display_nhwindow(WIN_MESSAGE) draws it, so drawing it early is
-// invisible.  An answered tty_yn_function() prompt such as debug mode's
-// "Die?" leaves TOPLINE_NON_EMPTY, and its line gets no marker.  The
-// recorder's sticky `active` mode does not select this arm; only the
-// resettable ttyDisplay->rawprint state does.
+// writes --More-- only while more() is active (ttyDisplay->inmore), which an
+// interrupt alone can arrange. A message merely awaiting acknowledgement
+// (TOPLINE_NEED_MORE) gets no marker here: the next more() or
+// tty_display_nhwindow(WIN_MESSAGE) draws it. The recorder's sticky `active`
+// mode does not select this arm; only the resettable ttyDisplay->rawprint
+// state does.
 export async function tty_wait_synch(state = game) {
+    const display = state.nhDisplay;
+    // HUPSKIP(): after a hangup, return before either arm with morc = ESC.
+    if (state.program_state?.done_hup) {
+        if (display) display.morc = 27;
+        return;
+    }
     // The preceding death pline() has already flushed the canonical map. C's
     // tty_display_nhwindow(WIN_MAP, FALSE) has no status refresh here, so do
     // not route this arm through flush_screen(), which calls bot() first.
-    const rawprint = Number(state.nhDisplay?.nomuxRaw?.rawprint ?? 0);
+    const rawprint = Number(display?.nomuxRaw?.rawprint ?? 0);
     const mapWindow = mapWindowLive(state) && rawprint === 0;
     if (mapWindow) {
         // tty_display_nhwindow(WIN_MAP, FALSE) clears this C counter before
         // repainting.  Keep the assignment explicit for displays created by
         // older focused fixtures that did not initialize the field.
-        if (state.nhDisplay.nomuxRaw)
-            state.nhDisplay.nomuxRaw.rawprint = 0;
-        if (state.nhDisplay.toplin === TOPLINE_NEED_MORE)
-            showPendingTtyMessage(state);
-        // wintty.c tty_wait_synch(): when an interrupted read is still live,
-        // recall twice so the first single-mode redraw does not consume the
-        // prompt transition as the displayed history item.
-        if ((state.nhDisplay?.inread ?? 0) > Number(state.program_state?.gameover ?? 0)) {
+        if (display.nomuxRaw)
+            display.nomuxRaw.rawprint = 0;
+        if (display.inmore) {
+            // topl.c addtopl() starts at the message window's cw->curx + 1,
+            // which topl_putsym() keeps equal to the terminal cursor; the
+            // port's addtopl() writes at that cursor.  addtopl() ends by
+            // setting TOPLINE_NEED_MORE (topl.c:201).
+            const { addtopl } = await import('./topl.js');
+            addtopl(MORE_PROMPT, state);
+            display.toplin = TOPLINE_NEED_MORE;
+        } else if ((display.inread ?? 0)
+            > Number(state.program_state?.gameover ?? 0)) {
+            // An interrupted read: recall twice so the first single-mode
+            // redraw does not consume the prompt transition as the displayed
+            // history item.
+            display.toplin = TOPLINE_SPECIAL_PROMPT;
             const { tty_doprev_message } = await import('./topl.js');
             await tty_doprev_message(state);
             await tty_doprev_message(state);
-            state.nhDisplay.intr = (state.nhDisplay.intr ?? 0) + 1;
+            display.intr = (display.intr ?? 0) + 1;
         }
         return;
     }
