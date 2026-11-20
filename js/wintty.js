@@ -159,6 +159,22 @@ function winttyState(state) {
     return state.wintty;
 }
 
+// wins[BASE_WINDOW].  Its cury is the row tty_putstr(BASE_WINDOW) writes
+// next; the port keeps no other copy of it.  C moves that row with every
+// tty_curs(BASE_WINDOW, ...).  The port updates it only where a later
+// base-window write reads it: tty_init_nhwindows()'s banner, tty_askname(),
+// tty_putstr(BASE_WINDOW), erase_tty_screen() through tty_clear_nhwindow()
+// of the map or base window, and docorner()'s role-selection menu repair.
+// The other tty_curs(BASE_WINDOW) callers, such as topl.c addtopl() and
+// topl_putsym() and docorner() during play, are not modeled because no
+// base-window write follows them.
+export function baseWindow(state = game) {
+    const wt = state.wintty;
+    const cw = wt?.wins?.[wt.BASE_WINDOW];
+    if (!cw) throw new Error('BASE_WINDOW does not exist');
+    return cw;
+}
+
 function windowAt(wt, id) {
     if (id === WIN_ERR) return null;
     return wt.wins?.[id] ?? null;
@@ -346,7 +362,9 @@ export function tty_clear_map_window(state = game) {
     if (!display?.grid) return;
     display.clearScreen();
     erase_status_rows(state);
-    if (state._ttyBaseCursorRow !== undefined) state._ttyBaseCursorRow = 0;
+    // erase_tty_screen()'s tty_curs(BASE_WINDOW, 1, 0).
+    const base = baseWindow(state);
+    base.curx = base.cury = 0;
 }
 
 // C ref: wintty.c tty_clear_nhwindow() NHW_BASE arm (1079-1090) and its
@@ -358,7 +376,8 @@ export function tty_clear_base_window(state = game) {
     if (!display?.grid) return;
     display.clearScreen();
     display.setCursor(0, 0);
-    state._ttyBaseCursorRow = 0;
+    const base = baseWindow(state);
+    base.curx = base.cury = 0;
 }
 
 // C ref: wintty.c tty_putstr() NHW_BASE arm with attribute 0, for a line
@@ -368,10 +387,12 @@ export function tty_clear_base_window(state = game) {
 export function tty_putstr_base(str, state = game) {
     const display = state.nhDisplay;
     if (!display?.grid) return;
-    const row = state._ttyBaseCursorRow ?? display.cursorRow;
+    const base = baseWindow(state);
+    const row = base.cury;
     display.putstr(0, row, str, NO_COLOR);
     display.setCursor(str.length, row);
-    state._ttyBaseCursorRow = row + 1;
+    base.curx = 0;
+    ++base.cury;
 }
 
 // C ref: wintty.c tty_clear_nhwindow() NHW_STATUS arm (1059-1073): cl_end()

@@ -36,7 +36,7 @@ import {
     ttyMenuTextLayout,
     ttyTextWindowData,
 } from '../js/tty_menu.js';
-import { renderTtyStartupBanner } from '../js/tty_startup.js';
+import { tty_init_nhwindows } from '../js/wintty.js';
 import { tty_raw_print } from '../js/tty_rawprint.js';
 import {
     init_vision_globals,
@@ -55,7 +55,7 @@ function menuState(keys = '') {
     monst_globals_init(game);
     game.youmonst = { data: game.mons[PM_HUMAN] };
     for (const ch of keys) game.nhDisplay.pushKey(ch.charCodeAt(0));
-    renderTtyStartupBanner(game);
+    tty_init_nhwindows(null, null, game);
     return game;
 }
 

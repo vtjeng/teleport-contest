@@ -25,7 +25,7 @@ import {
 } from '../js/roles.js';
 import { ATR_NONE, NO_COLOR } from '../js/terminal.js';
 import { renderTtyMenu } from '../js/tty_menu.js';
-import { renderTtyStartupBanner } from '../js/tty_startup.js';
+import { baseWindow, tty_init_nhwindows } from '../js/wintty.js';
 import { expectTerminated } from './expect-terminated.mjs';
 
 function selectionState(keys = '') {
@@ -41,7 +41,7 @@ function selectionState(keys = '') {
     };
     game.iflags = { menu_overlay: true };
     game.program_state = {};
-    renderTtyStartupBanner(game);
+    tty_init_nhwindows(null, null, game);
     for (const key of keys) game.nhDisplay.pushKey(key.charCodeAt(0));
     return game;
 }
@@ -325,8 +325,9 @@ test('confirmation rename preserves facets and tty base-window position', async 
     state.plname = 'Alice';
     state.iflags.renameallowed = true;
     // Initial tty_askname at row 12 leaves BASE_WINDOW on the following row;
-    // the confirmation menu's docorner dismissal later supersedes this.
-    state._ttyBaseCursorRow = 13;
+    // the confirmation menu's docorner dismissal later supersedes this, so
+    // the rename prompt below lands on row 10, not 14.
+    baseWindow(state).cury = 13;
     const captures = captureBoundaries(state);
     // Reuse the Ranger tuple so this case isolates rename display/state from
     // character-selection randomness.

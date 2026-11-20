@@ -8,6 +8,7 @@ import { nhgetch } from './input.js';
 import { plnamesuffix } from './role_init.js';
 import { NO_COLOR } from './terminal.js';
 import { copyright_banner_line } from './version.js';
+import { baseWindow } from './wintty.js';
 
 const WHO_ARE_YOU = 'Who are you? ';
 const GENERIC_USERS = new Set([
@@ -44,7 +45,9 @@ export function renderTtyStartupBanner(state = game) {
     // tty_init_nhwindows() leaves BASE_WINDOW at (1, 11); tty_askname()
     // emits one empty base-window line before placing its prompt on row 12.
     display.setCursor(0, 11);
-    state._ttyBaseCursorRow = 11;
+    const base = baseWindow(state);
+    base.curx = 0;
+    base.cury = 11;
 }
 
 export function isGenericPlayerName(name, plnamelen = 0) {
@@ -78,9 +81,10 @@ export async function ttyAsknameImpl(state = game) {
     // The initial empty tty_putstr() advances BASE_WINDOW one row on every
     // invocation. That is observable when plnamesuffix() strips a suffix-only
     // name and calls askname again; the retry counter itself is per-call.
-    const entryRow = state._ttyBaseCursorRow ?? display.cursorRow;
-    const promptRow = entryRow + 1;
-    state._ttyBaseCursorRow = promptRow;
+    const base = baseWindow(state);
+    const promptRow = base.cury + 1;
+    base.curx = 0;
+    base.cury = promptRow;
     let tryct = 0;
     for (;;) {
         tryct++;
@@ -139,7 +143,9 @@ export async function ttyAsknameImpl(state = game) {
 
         if (!retry && characters.length > 0) {
             state.plname = characters.join('');
-            state._ttyBaseCursorRow = promptRow + 1;
+            // wintty.c:750 tty_curs(BASE_WINDOW, 1, cury + 1).
+            base.curx = 0;
+            base.cury = promptRow + 1;
             display.setCursor(0, promptRow + 1);
             state.iflags ??= {};
             state.iflags.renameallowed = true;

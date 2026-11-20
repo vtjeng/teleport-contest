@@ -21,6 +21,7 @@ import { parseCFunctions } from './c-functions.mjs';
 import { expectTerminated } from './expect-terminated.mjs';
 import {
     bail,
+    baseWindow,
     new_status_window,
     newclipping,
     print_vt_code,
@@ -28,9 +29,11 @@ import {
     tty_create_nhwindow,
     tty_curs,
     tty_askname,
+    tty_clear_base_window,
     tty_cliparound,
     tty_init_nhwindows,
     tty_preference_update,
+    tty_putstr_base,
 } from '../js/wintty.js';
 import { initUnported } from '../js/unported.js';
 import { InMemoryStorage, setStorageForTesting } from '../js/storage.js';
@@ -283,7 +286,40 @@ test('tty_init_nhwindows creates the base descriptor and preserves banner placem
         [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
         [0, 11],
     );
+    // wintty.c:583 tty_curs(BASE_WINDOW, 1, 11): curx is x - 1.
+    assert.deepEqual(
+        [baseWindow(state).curx, baseWindow(state).cury],
+        [0, 11],
+    );
     assert.deepEqual([...state.unported], []);
+});
+
+// C ref: wintty.c tty_putstr() NHW_BASE arm (2348-2363) and
+// erase_tty_screen()'s tty_curs(BASE_WINDOW, 1, 0) (2053), the base-window
+// writes restore.c restore_menu() makes.
+test('BASE_WINDOW row lives in wins[BASE_WINDOW].cury', () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    initUnported();
+    tty_init_nhwindows(null, null, state);
+
+    tty_clear_base_window(state);
+    assert.deepEqual([baseWindow(state).curx, baseWindow(state).cury], [0, 0]);
+    // Two short lines: each goes on cury from column 0, leaves the terminal
+    // cursor after its text and advances cury by one.
+    tty_putstr_base('ab', state);
+    tty_putstr_base('cde', state);
+    assert.deepEqual(
+        state.nhDisplay.grid.slice(0, 2)
+            .map((row) => row.map((cell) => cell.ch).join('').trimEnd()),
+        ['ab', 'cde'],
+    );
+    assert.deepEqual([baseWindow(state).curx, baseWindow(state).cury], [0, 2]);
+    assert.deepEqual(
+        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        [3, 1],
+    );
+    assert.match(C_SOURCE, /case NHW_BASE:\n\s*tty_curs\(window, cw->curx \+ 1, cw->cury\);/u);
 });
 
 test('tty_askname keeps the source input filter behind the C entry point', async () => {
@@ -531,15 +567,23 @@ test('state.wintty holds only window state, not ttyDisplay fields', () => {
     // message-window field on the display, such as the starter skeleton's
     // unread messageWinFlags, would be a second copy.
     const messageWindowCopy = /\b(?:display|nhDisplay|this)\??\.messageWin\w*/u;
+    // BASE_WINDOW's row is wins[BASE_WINDOW].cury (baseWindow()); a _tty*
+    // cursor, row or column property, such as the former
+    // `_ttyBaseCursorRow` on the game state, would be a second copy.
+    const ttyCursorCopy = /\._tty\w*(?:Cursor|Row|Col|cury|curx)/u;
     const cursorCopies = [];
     const messageWindowCopies = [];
-    for (const name of readdirSync('js')) {
-        if (!name.endsWith('.js')) continue;
-        readFileSync(`js/${name}`, 'utf8').split('\n').forEach((line, index) => {
-            if (displayCursor.test(line)) cursorCopies.push(`js/${name}:${index + 1}`);
-            if (messageWindowCopy.test(line))
-                messageWindowCopies.push(`js/${name}:${index + 1}`);
-        });
+    for (const dir of ['js', 'scripts']) {
+        for (const name of readdirSync(dir)) {
+            if (!/\.m?js$/u.test(name)) continue;
+            readFileSync(`${dir}/${name}`, 'utf8').split('\n').forEach((line, index) => {
+                const where = `${dir}/${name}:${index + 1}`;
+                if (dir === 'js' && displayCursor.test(line)) cursorCopies.push(where);
+                if (ttyCursorCopy.test(line)) cursorCopies.push(where);
+                if (dir === 'js' && messageWindowCopy.test(line))
+                    messageWindowCopies.push(where);
+            });
+        }
     }
     assert.deepEqual(cursorCopies, []);
     assert.deepEqual(messageWindowCopies, []);
