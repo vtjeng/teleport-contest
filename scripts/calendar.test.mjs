@@ -99,6 +99,8 @@ const MKTIME_CASES = [
 ];
 
 test('fixed datetimes follow patch 001 and glibc mktime() for any 14 bytes', () => {
+    // An arbitrary real-clock time, far from every case, that getnow()
+    // returns when the fixed datetime gives 0.
     const clock = new Date('2030-01-02T03:04:05.000Z');
     for (const [value, isDst, time, local] of MKTIME_CASES) {
         const label = `${value} tm_isdst=${Number(isDst)}`;
