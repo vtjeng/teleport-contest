@@ -9,7 +9,6 @@ import {
     hhmmss,
     midnight,
     night,
-    parseFixedDatetime,
     phase_of_the_moon,
     time_from_yyyymmddhhmmss,
     yyyymmdd,
@@ -46,12 +45,87 @@ test('fixed datetimes retain recorder wall-clock fields when DST agrees', () => 
     );
 });
 
-test('invalid fixed datetimes are rejected instead of normalized', () => {
-    // February 30 and a missing seconds field exercise calendar validation
-    // separately from the fixed-width format check.
-    assert.equal(parseFixedDatetime('20240230010203'), null);
-    assert.equal(parseFixedDatetime('202402290102'), null);
-    assert.equal(parseFixedDatetime('00990228010203')?.year, 99);
+// Each row is [NETHACK_FIXED_DATETIME, NETHACK_FIXED_ISDST, the time_t
+// getnow() returns, and calendar.c's yyyymmddhhmmss((time_t) 0) of it].
+// The values come from a glibc 2.39 driver that runs patch 001's
+// time_from_yyyymmddhhmmss() and patch 009's fixed_isdst() verbatim under
+// TZ=America/New_York; a time_t of 0 means getnow() falls back to the clock.
+const MKTIME_CASES = [
+    // Month 13 carries into January 2058, the shape of the challenge v19
+    // datetimes. Under tm_isdst=1 the winter time is an hour earlier.
+    ['20571311091011', true, 2777980211, '20580111081011'],
+    ['20571311091011', false, 2777983811, '20580111091011'],
+    // Month 16 and hour 25 together, the challenge v47 datetime: April 2112,
+    // then one hour into the next day.
+    ['21111610253000', true, 4489795800, '21120411013000'],
+    // February 30 is 1 March in a leap year.
+    ['20240230010203', false, 1709272923, '20240301010203'],
+    // Day 0 is the last day of the previous month, across the year end.
+    ['20260100120000', false, 1767200400, '20251231120000'],
+    // Hour 24 is midnight of the next day, here into the next year.
+    ['20261231240000', false, 1798779600, '20270101000000'],
+    // Minute 60 carries into the hour.
+    ['20260615126000', true, 1781542800, '20260615130000'],
+    // Seconds 60 and 99 carry into the minute: glibc clamps tm_sec to 59
+    // while matching the local time and adds the rest afterwards.
+    ['20260615120060', true, 1781539260, '20260615120100'],
+    ['20260615120099', true, 1781539299, '20260615120139'],
+    // Hour 26 of 7 March is 02:30 on the spring-forward day, the same
+    // nonexistent wall time as 20260308023000, so both give 01:30 EST.
+    ['20260307263000', true, 1772951400, '20260308013000'],
+    // Hour 25 of 31 October is the repeated 01:30 of 1 November; the
+    // inherited tm_isdst=0 picks the standard-time side.
+    ['20261031253000', false, 1793514600, '20261101013000'],
+    // atoi() reads each slice up to its first non-digit: "-0" is month 0
+    // (December 2025), "3-" is day 3, " 1" is minute 1, "0:" is second 0.
+    ['2026-03-04 10:', false, 1764752460, '20251203040100'],
+    // C counts bytes: U+00E9 is two UTF-8 bytes, so twelve digits and it
+    // make fourteen, and atoi() of its bytes is second 0.
+    ['202606151200\u00e9', false, 1781542800, '20260615130000'],
+    // Thirteen digits and U+00E9 are fifteen bytes, which C does not parse.
+    ['2026061512000\u00e9', false, 0, null],
+    // Year 0 (1 BC) serializes through the tm_year < 70 branch as 0100.
+    ['00000601120000', false, -62154025438, '01000601120000'],
+    // Year 9999 month 99 is year 10007; datestr[15] keeps 14 characters.
+    ['99999999999999', true, 253637167239, '10007061104403'],
+    // A year of -150 serializes as -50, and "%04ld" pads after the sign.
+    ['-1500101120000', false, -66900668638, '-0500101120000'],
+    // Under tm_isdst=1 these are time_t -1, mktime()'s error value, and
+    // time_t 0, which getnow() treats as unset; both use the clock. Under
+    // tm_isdst=0 the same strings are 3599 and 3600.
+    ['19691231195959', true, 0, null],
+    ['19691231200000', true, 0, null],
+    ['19691231195959', false, 3599, '20691231195959'],
+];
+
+test('fixed datetimes follow patch 001 and glibc mktime() for any 14 bytes', () => {
+    const clock = new Date('2030-01-02T03:04:05.000Z');
+    for (const [value, isDst, time, local] of MKTIME_CASES) {
+        const label = `${value} tm_isdst=${Number(isDst)}`;
+        assert.equal(time_from_yyyymmddhhmmss(value, isDst), time, label);
+        const state = fixed(value, isDst);
+        assert.equal(getnow(state, clock), time || clock.getTime() / 1000, label);
+        if (local) assert.equal(yyyymmddhhmmss(state), local, label);
+    }
+    // Any width other than fourteen bytes is not parsed.
+    assert.equal(time_from_yyyymmddhhmmss('202402290102', false), 0);
+    assert.equal(time_from_yyyymmddhhmmss('', false), 0);
+    assert.equal(time_from_yyyymmddhhmmss(null, false), 0);
+});
+
+test('local time fields keep proleptic years at and before year 0', () => {
+    // Intl reports 1 BC as year 1 of its era; C's localtime() reports
+    // tm_year -1900. glibc: 0000-06-01 11:00:00 under tm_isdst=1, a Thursday.
+    assert.deepEqual(getLocalTime(fixed('00000601120000', true)), {
+        year: 0,
+        month: 6,
+        day: 1,
+        hour: 11,
+        minute: 0,
+        second: 0,
+        yday: 152,
+        wday: 4,
+    });
 });
 
 test('fixed timestamps inherit the recorder patch current DST bit', () => {

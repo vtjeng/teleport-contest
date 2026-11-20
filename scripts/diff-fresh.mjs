@@ -30,6 +30,7 @@ import {
     ROWS_24,
 } from '../frozen/screen-decode.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
+import { time_from_yyyymmddhhmmss } from '../js/calendar.js';
 import {
     createScoringWorkspace,
     PROJECT_ROOT,
@@ -275,25 +276,12 @@ export function isPathWithinDirectory(candidate, directory) {
     }
 }
 
+// A recipe's datetime must reach the fixed clock: calendar.c getnow() uses
+// the wall clock when time_from_yyyymmddhhmmss() gives 0, so a recording
+// would depend on when it was made. Any other value is deterministic, an
+// out-of-range field included, since mktime() normalizes it.
 function validFixedDatetime(value) {
-    const match = typeof value === 'string'
-        ? value.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/u)
-        : null;
-    if (!match) return false;
-    const [, yearText, monthText, dayText, hourText, minuteText, secondText]
-        = match;
-    const year = Number(yearText);
-    const month = Number(monthText);
-    const day = Number(dayText);
-    const hour = Number(hourText);
-    const minute = Number(minuteText);
-    const second = Number(secondText);
-    if (year < 1 || month < 1 || month > 12
-        || hour > 23 || minute > 59 || second > 59) return false;
-    const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-    const monthLengths = [31, leap ? 29 : 28, 31, 30, 31, 30,
-        31, 31, 30, 31, 30, 31];
-    return day >= 1 && day <= monthLengths[month - 1];
+    return typeof value === 'string' && time_from_yyyymmddhhmmss(value) !== 0;
 }
 
 export function validateCleanRecipe(
@@ -316,7 +304,7 @@ export function validateCleanRecipe(
             throw new Error(`${prefix} seed must be a non-negative safe integer`);
         }
         if (!validFixedDatetime(segment.datetime)) {
-            throw new Error(`${prefix} datetime must be a valid YYYYMMDDHHMMSS value`);
+            throw new Error(`${prefix} datetime must be a YYYYMMDDHHMMSS value that sets the fixed clock`);
         }
         if (typeof segment.nethackrc !== 'string') throw new Error(`${prefix} nethackrc must be text`);
         if (typeof segment.moves !== 'string') throw new Error(`${prefix} moves must be text`);

@@ -146,9 +146,9 @@ test('the malformed fixtures are all refused, and the clean ones are not',
         assert.equal(malformed.problems.length, 6);
         assert.equal(malformed.unresolved, 0);
         assert.match(malformed.problems[0], /rejected\.mjs:10: datetime '2026-03-04 10:00:00'/u);
-        // Fourteen digits are necessary but not sufficient: February 30 is no
-        // instant, and js/calendar.js rejects it rather than normalizing.
-        assert.match(malformed.problems[1], /rejected\.mjs:13: datetime '20240230010203'/u);
+        // Fourteen digits are necessary but not sufficient: mktime() maps
+        // 1969-12-31 19:59:59 under tm_isdst=1 to -1, its error result.
+        assert.match(malformed.problems[1], /rejected\.mjs:13: datetime '19691231195959'/u);
         // A site reached through a constant names that constant, because the
         // line the check reports is not where the value has to be edited.
         assert.match(malformed.problems[2], /rejected\.mjs:15: datetime, from DATETIME,/u);

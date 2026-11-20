@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
-// Reject a fixed datetime under scripts/ that js/calendar.js cannot parse.
+// Reject a fixed datetime under scripts/ that calendar.c getnow() replaces
+// with the wall clock.
 //
 // Recorder patch 001 rewrites calendar.c getnow() to read
 // NETHACK_FIXED_DATETIME, and returns time_from_yyyymmddhhmmss() of it only
-// when that parses; otherwise it falls through to time(). The patch leaves
+// when that is nonzero; otherwise it falls through to time(). The patch leaves
 // time_from_yyyymmddhhmmss() guarded by `strlen(buf) == 14`, so a value of any
-// other width parses as 0 and the reference program silently uses the wall
-// clock. js/calendar.js getnow() reproduces that fall-through exactly, which is
+// other width gives 0, as does a value whose mktime() result is -1 or 0, and
+// the reference program silently uses the wall clock. js/calendar.js getnow() reproduces that fall-through exactly, which is
 // correct and must stay: a port that refused the value instead would diverge
 // from the reference.
 //
@@ -25,11 +26,12 @@
 //
 // The rule this check enforces is the one getnow() actually applies: every
 // fixed datetime a source under scripts/ supplies must satisfy
-// parseFixedDatetime(), which is fourteen digits naming a real instant. It is
-// imported rather than restated so the check cannot drift from the gate. A
-// value that is fourteen digits but names no real date, such as 20240230010203,
-// fails here too: js/calendar.js rejects it rather than normalizing, so it
-// would reach the wall clock the same way.
+// a nonzero time_from_yyyymmddhhmmss() under the judge's tm_isdst. It is
+// imported rather than restated so the check cannot drift from the gate. Any
+// fourteen bytes pass that gate unless mktime() lands on -1 or 0: mktime()
+// normalizes an out-of-range field, so 20240230010203 is 1 March, a fixed time.
+// 19691231195959 is one second before the epoch under tm_isdst=1, so mktime()
+// returns -1, which calendar.c cannot tell from its error result.
 //
 // `npm test` runs the assertion over the whole repository in
 // check-fixed-datetime.test.mjs, and `npm run check:fixed-datetime` runs the
@@ -45,10 +47,9 @@
 // - A recipe names it at any `datetime` key. Recipes are JSON, so those are
 //   parsed and walked rather than scanned, and a problem is located by its key
 //   path instead of a line. scripts/diff-fresh.mjs validateCleanRecipe() also
-//   refuses a malformed datetime, with a stricter rule that additionally
-//   requires a year of 1 or more; that check runs when a recipe is replayed,
-//   and this one runs on every committed recipe whether or not anything
-//   replays it.
+//   refuses such a datetime with the same rule; that check runs when a recipe
+//   is replayed, and this one runs on every committed recipe whether or not
+//   anything replays it.
 //
 // A site whose value is neither a string literal nor a same-file constant is
 // unresolved: `datetime: segment.datetime` reads a recorded session, and
@@ -61,7 +62,7 @@ import { readFile } from 'node:fs/promises';
 import { isAbsolute, join, dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { parseFixedDatetime } from '../js/calendar.js';
+import { time_from_yyyymmddhhmmss } from '../js/calendar.js';
 import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -181,9 +182,9 @@ export function findRecipeDatetimes(node, path = []) {
 function refusal(value) {
     if (typeof value !== 'string')
         return `is a ${typeof value} rather than a string`;
-    if (parseFixedDatetime(value) !== null) return null;
-    return 'is not fourteen digits naming a real instant, so calendar.c '
-        + 'getnow() falls back to the wall clock';
+    if (time_from_yyyymmddhhmmss(value) !== 0) return null;
+    return 'is not fourteen bytes that mktime() maps to a nonzero time, '
+        + 'so calendar.c getnow() falls back to the wall clock';
 }
 
 /**

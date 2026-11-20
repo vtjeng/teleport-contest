@@ -129,23 +129,39 @@ test('fresh recipes reject recorded answers while C output requires them', () =>
     );
 });
 
-test('fresh recipes reject impossible fixed datetimes', () => {
+test('fresh recipes reject datetimes that leave the clock unfixed', () => {
     const parsed = parseArgs(['--seed', '271828']);
     const recipe = buildFreshRecipe(parsed);
-    for (const datetime of [
-        '20230229010203',
-        '20241301010203',
-        '20241231246000',
-        '00000101000000',
+    for (const [datetime, fixesClock] of [
+        // Thirteen bytes: patch 001's strlen(buf) == 14 test fails.
+        ['2024022901020', false],
+        // Fourteen code units but fifteen UTF-8 bytes.
+        ['2024022901020\u00e9', false],
+        // 1969-12-31 19:59:59 under the judge's tm_isdst=1 is time_t -1,
+        // mktime()'s error value.
+        ['19691231195959', false],
+        // One second later is time_t 0, which getnow() treats as unset.
+        ['19691231200000', false],
+        // mktime() normalizes each of these to a fixed time: 1 March 2023,
+        // January 2025, 1 January 2025 at 01:00, and year 0 (1 BC).
+        ['20230229010203', true],
+        ['20241301010203', true],
+        ['20241231246000', true],
+        ['00000101000000', true],
+        // An ordinary leap day.
+        ['20000229010203', true],
     ]) {
         recipe.segments[0].datetime = datetime;
-        assert.throws(
-            () => validateCleanRecipe(recipe),
-            /must be a valid YYYYMMDDHHMMSS value/u,
-        );
+        if (fixesClock) {
+            assert.equal(validateCleanRecipe(recipe), recipe, datetime);
+        } else {
+            assert.throws(
+                () => validateCleanRecipe(recipe),
+                /must be a YYYYMMDDHHMMSS value that sets the fixed clock/u,
+                datetime,
+            );
+        }
     }
-    recipe.segments[0].datetime = '20000229010203';
-    assert.equal(validateCleanRecipe(recipe), recipe);
 });
 
 test('recorded replay inputs must exactly match the requested recipe', () => {

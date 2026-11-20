@@ -8,9 +8,9 @@ export function segments() {
     return [
         // The same value as a direct literal.
         { seed: 1, datetime: '2026-03-04 10:00:00', moves: '' },
-        // Fourteen digits, but February 30 is no instant, so js/calendar.js
-        // rejects it rather than normalizing it to March 1.
-        { seed: 2, datetime: '20240230010203', moves: '' },
+        // Fourteen digits, but under tm_isdst=1 mktime() maps it to time_t
+        // -1, which calendar.c cannot tell from mktime()'s error result.
+        { seed: 2, datetime: '19691231195959', moves: '' },
         // Reached through the constant above.
         { seed: 3, datetime: DATETIME, moves: '' },
     ];
