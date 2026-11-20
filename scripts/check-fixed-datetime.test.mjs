@@ -126,13 +126,22 @@ test('a recipe datetime is found at any depth, with its key path', () => {
         segments: [
             { datetime: '20260304100000' },
             { datetime: '20401231235958', nested: { datetime: '20240229060000' } },
+            // The opt-out applies to the datetime beside it only. The value
+            // is in range because this source is itself scanned, and a
+            // source cannot opt out.
+            { datetime: '20260101000000', datetimeOutOfRange: true },
         ],
     };
 
     assert.deepEqual(findRecipeDatetimes(recipe), [
-        { path: 'segments/0/datetime', value: '20260304100000' },
-        { path: 'segments/1/datetime', value: '20401231235958' },
-        { path: 'segments/1/nested/datetime', value: '20240229060000' },
+        { path: 'segments/0/datetime', value: '20260304100000', outOfRange: false },
+        { path: 'segments/1/datetime', value: '20401231235958', outOfRange: false },
+        {
+            path: 'segments/1/nested/datetime',
+            value: '20240229060000',
+            outOfRange: false,
+        },
+        { path: 'segments/2/datetime', value: '20260101000000', outOfRange: true },
     ]);
 });
 
@@ -141,13 +150,14 @@ test('the malformed fixtures are all refused, and the clean ones are not',
         const malformed = await checkFiles(
             datetimeSourcesIn(fixtureDir('malformed')));
 
-        // Four in the source and two in the recipe. Each is a distinct way to
-        // reach calendar.c getnow()'s wall-clock fall-through.
-        assert.equal(malformed.problems.length, 6);
+        // Four in the source and four in the recipe. Each is a distinct way to
+        // reach calendar.c getnow()'s wall-clock fall-through or to write an
+        // out-of-range value without opting out.
+        assert.equal(malformed.problems.length, 8);
         assert.equal(malformed.unresolved, 0);
         assert.match(malformed.problems[0], /rejected\.mjs:10: datetime '2026-03-04 10:00:00'/u);
         // Fourteen digits are necessary but not sufficient: February 30 is no
-        // instant, and js/calendar.js rejects it rather than normalizing.
+        // date, and only a recipe segment can opt out of that rule.
         assert.match(malformed.problems[1], /rejected\.mjs:13: datetime '20240230010203'/u);
         // A site reached through a constant names that constant, because the
         // line the check reports is not where the value has to be edited.
@@ -158,12 +168,17 @@ test('the malformed fixtures are all refused, and the clean ones are not',
         // A JSON number would satisfy the digit pattern after coercion, so it
         // is refused on its type instead.
         assert.match(malformed.problems[5], /segments\/2\/datetime is a number/u);
+        // Month 13 without the opt-out is refused as a likely typo.
+        assert.match(malformed.problems[6], /segments\/3\/datetime is not fourteen digits naming a real date/u);
+        // The opt-out does not excuse a value of thirteen bytes.
+        assert.match(malformed.problems[7], /segments\/4\/datetime is not fourteen bytes/u);
 
         const clean = await checkFiles(datetimeSourcesIn(fixtureDir('clean')));
         assert.deepEqual(clean.problems, []);
-        // Four in the source and two in the recipe, so the clean fixture is
-        // proved to have been read rather than skipped.
-        assert.equal(clean.checked, 6);
+        // Four in the source and three in the recipe, the third an opted-out
+        // month 13, so the clean fixture is proved to have been read rather
+        // than skipped.
+        assert.equal(clean.checked, 7);
         assert.equal(clean.unresolved, 0);
     });
 
@@ -192,7 +207,7 @@ test('the check exits nonzero on a malformed datetime', () => {
     );
 
     assert.equal(result.status, 1);
-    assert.match(result.stdout, /unparseable: 6/u);
+    assert.match(result.stdout, /unparseable: 8/u);
     assert.match(result.stderr, /getnow\(\) falls back to the wall clock/u);
 
     // The same command over the corrected form succeeds, which is the whole

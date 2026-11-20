@@ -3,8 +3,8 @@
 // NETHACK_FIXED_DATETIME; jsmain.js stores the same value on game.fixedDatetime.
 
 import { game } from './gstate.js';
+import { atoi, utf8Text } from './hacklib.js';
 
-const FIXED_DATETIME_PATTERN = /^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/;
 const RECORDER_TIME_ZONE = 'America/New_York';
 const HOUR_MILLIS = 3_600_000;
 const TRANSITION_PROBE_MILLIS = 36 * HOUR_MILLIS;
@@ -13,11 +13,14 @@ const TRANSITION_PROBE_MILLIS = 36 * HOUR_MILLIS;
 // always one hour; glibc mktime() uses that adjustment when the requested
 // tm_isdst type is absent near the target date.
 const NEW_YORK_DAYLIGHT_OFFSET_MILLIS = -4 * HOUR_MILLIS;
+// The era part turns Intl's year of era back into C's proleptic year:
+// 1 BC is year 0, which a fixed datetime of 0000 or a carried month reaches.
 const RECORDER_TIME_FORMAT = new Intl.DateTimeFormat(
     'en-CA-u-ca-gregory-nu-latn',
     {
         timeZone: RECORDER_TIME_ZONE,
         hourCycle: 'h23',
+        era: 'short',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -29,50 +32,32 @@ const RECORDER_TIME_FORMAT = new Intl.DateTimeFormat(
 
 function utcDate(year, month, day, hour = 0, minute = 0, second = 0) {
     // Date.UTC treats years 0..99 as 1900..1999. setUTCFullYear does not.
+    // Both setters carry out-of-range values: a 13th month is January of the
+    // next year, day 0 is the last day of the previous month, hour 24 is
+    // midnight of the next day.
     const date = new Date(0);
     date.setUTCFullYear(year, month - 1, day);
     date.setUTCHours(hour, minute, second, 0);
     return date;
 }
 
-// Parse recorder patch 001's fixed local datetime without consulting the host
-// timezone. This validates the wall-clock input; getLocalTime() below applies
-// the recorder patch's mktime() normalization before exposing calendar fields.
-export function parseFixedDatetime(value) {
-    const match = FIXED_DATETIME_PATTERN.exec(value ?? '');
-    if (!match) return null;
-
-    const [, yearText, monthText, dayText, hourText, minuteText, secondText] = match;
-    const year = Number(yearText);
-    const month = Number(monthText);
-    const day = Number(dayText);
-    const hour = Number(hourText);
-    const minute = Number(minuteText);
-    const second = Number(secondText);
-    const check = utcDate(year, month, day, hour, minute, second);
-
-    // The contest supplies valid datetimes. Reject normalization here so an
-    // invalid recipe cannot silently become a different deterministic date.
-    if (check.getUTCFullYear() !== year
-        || check.getUTCMonth() !== month - 1
-        || check.getUTCDate() !== day
-        || check.getUTCHours() !== hour
-        || check.getUTCMinutes() !== minute
-        || check.getUTCSeconds() !== second) {
-        return null;
-    }
-
-    const startOfYear = utcDate(year, 1, 1).getTime();
-    const startOfDay = utcDate(year, month, day).getTime();
+// C ref: calendar.c time_from_yyyymmddhhmmss(), the field split. Recorder
+// patch 001 passes NETHACK_FIXED_DATETIME's bytes, which
+// scripts/record-session.mjs writes as UTF-8, so the length test and the
+// 4/2/2/2/2/2 split count bytes. C accepts any 14-byte string and converts
+// each slice with atoi(): leading whitespace and a sign are read, anything
+// after the digits is ignored, and a slice with no digits is 0. Returns null
+// for any other length, where C returns 0 without calling mktime().
+function fixedDatetimeFields(value) {
+    const text = utf8Text(String(value ?? ''));
+    if (text.length !== 14) return null;
     return {
-        year,
-        month,
-        day,
-        hour,
-        minute,
-        second,
-        yday: Math.trunc((startOfDay - startOfYear) / 86_400_000),
-        wday: check.getUTCDay(),
+        year: atoi(text.slice(0, 4)),
+        month: atoi(text.slice(4, 6)),
+        day: atoi(text.slice(6, 8)),
+        hour: atoi(text.slice(8, 10)),
+        minute: atoi(text.slice(10, 12)),
+        second: atoi(text.slice(12, 14)),
     };
 }
 
@@ -89,11 +74,14 @@ function fixedFieldsUtcMillis(fields) {
 
 function recorderFieldsAt(epochMillis) {
     const fields = {};
+    let era = null;
     for (const part of RECORDER_TIME_FORMAT.formatToParts(
         new Date(epochMillis),
     )) {
-        if (part.type !== 'literal') fields[part.type] = Number(part.value);
+        if (part.type === 'era') era = part.value;
+        else if (part.type !== 'literal') fields[part.type] = Number(part.value);
     }
+    if (era === 'BC') fields.year = 1 - fields.year;
     const check = utcDate(fields.year, fields.month, fields.day);
     fields.yday = Math.trunc(
         (check.getTime() - utcDate(fields.year, 1, 1).getTime())
@@ -137,7 +125,11 @@ function compatibleOffset(wallMillis, fields, offsets) {
         recorderFieldsAt(candidate.epoch), fields,
     ));
     // Match mktime()'s ordinary New York disambiguation: the earlier side of
-    // a repeated time and the later instant for a skipped wall time.
+    // a repeated time and the later instant for a skipped wall time. The one
+    // repeat whose two sides share a tm_isdst, 12:00:00-12:03:57 on
+    // 1883-11-18 (LMT, then EST), glibc resolves from the offset its previous
+    // mktime() call left in a static variable, so that window under
+    // tm_isdst=0 depends on the recorder's earlier mktime() calls.
     return (exact[0] ?? candidates.at(-1)).offset;
 }
 
@@ -150,33 +142,59 @@ function compatibleOffset(wallMillis, fields, offsets) {
 // local recording uses it whatever the date it is made.
 export const JUDGE_RECORDER_IS_DST = true;
 
-// C ref: calendar.c time_from_yyyymmddhhmmss(). record-session.mjs fixes the
-// canonical recorder process to America/New_York. Patch 001 copies the current
-// local struct tm, including tm_isdst, then overwrites only the six date/time
-// fields before calling mktime(). Preserve that quirk: a fixed winter time
-// parsed while the recorder is in summer is normalized one hour backward, and
-// vice versa. The judge's recorder inherited JUDGE_RECORDER_IS_DST, so that is
-// the default; callers can supply the inherited bit explicitly.
-export function time_from_yyyymmddhhmmss(
-    value, inheritedIsDst = JUDGE_RECORDER_IS_DST,
-) {
-    const fields = parseFixedDatetime(value);
-    if (!fields) return 0;
-
-    const wallMillis = fixedFieldsUtcMillis(fields);
+// C ref: glibc mktime() as calendar.c time_from_yyyymmddhhmmss() calls it,
+// for America/New_York with tm_isdst set to inheritedIsDst. glibc's
+// __mktime_internal() carries tm_mon into tm_year and counts tm_mday, tm_hour
+// and tm_min linearly from the start of that month, as utcDate() does. It
+// clamps tm_sec to 0..59 while it matches the local time and its tm_isdst,
+// then adds the clamped-off seconds as elapsed time.
+function mktime(fields, inheritedIsDst) {
+    const second = Math.min(Math.max(fields.second, 0), 59);
+    const wallMillis = utcDate(
+        fields.year, fields.month, fields.day,
+        fields.hour, fields.minute, second,
+    ).getTime();
+    const wallDate = new Date(wallMillis);
+    const wall = {
+        year: wallDate.getUTCFullYear(),
+        month: wallDate.getUTCMonth() + 1,
+        day: wallDate.getUTCDate(),
+        hour: wallDate.getUTCHours(),
+        minute: wallDate.getUTCMinutes(),
+        second: wallDate.getUTCSeconds(),
+    };
     const nearbyOffsets = recorderOffsetsNear(wallMillis);
     const matchingOffsets = nearbyOffsets.filter((offset) => (
         (offset === NEW_YORK_DAYLIGHT_OFFSET_MILLIS) === inheritedIsDst
     ));
     let inheritedOffset;
     if (matchingOffsets.length) {
-        inheritedOffset = compatibleOffset(wallMillis, fields, matchingOffsets);
+        inheritedOffset = compatibleOffset(wallMillis, wall, matchingOffsets);
     } else {
-        const actualOffset = compatibleOffset(wallMillis, fields, nearbyOffsets);
+        const actualOffset = compatibleOffset(wallMillis, wall, nearbyOffsets);
         inheritedOffset = actualOffset
             + (inheritedIsDst ? HOUR_MILLIS : -HOUR_MILLIS);
     }
-    const result = Math.trunc((wallMillis - inheritedOffset) / 1000);
+    return Math.trunc((wallMillis - inheritedOffset) / 1000)
+        + fields.second - second;
+}
+
+// C ref: calendar.c time_from_yyyymmddhhmmss(). record-session.mjs fixes the
+// canonical recorder process to America/New_York. Patch 001 copies the current
+// local struct tm, including tm_isdst, then overwrites only the six date/time
+// fields before calling mktime(). Preserve that quirk: a fixed winter time
+// parsed while the recorder is in summer is normalized one hour backward, and
+// vice versa. The judge's recorder inherited JUDGE_RECORDER_IS_DST, so that is
+// the default; callers can supply the inherited bit explicitly. Out-of-range
+// fields are normalized as mktime() normalizes them. C returns 0 for a value
+// that is not 14 bytes and for mktime()'s -1, and getnow() also treats a
+// result of 0 as no fixed time, so all three fall back to the clock.
+export function time_from_yyyymmddhhmmss(
+    value, inheritedIsDst = JUDGE_RECORDER_IS_DST,
+) {
+    const fields = fixedDatetimeFields(value);
+    if (!fields) return 0;
+    const result = mktime(fields, inheritedIsDst);
     return result === -1 ? 0 : result;
 }
 
@@ -220,16 +238,23 @@ export function hhmmss(state = game, now) {
     return ((local.hour * 100 + local.minute) * 100) + local.second;
 }
 
+// C ref: calendar.c yyyymmddhhmmss(). Snprintf() formats "%04ld" (the zero
+// padding follows a minus sign: -50 is "-050") into datestr[15], and
+// nh_snprintf() cuts a longer result to its first 14 characters, as a
+// serialized year of 10000 or more produces.
 export function yyyymmddhhmmss(state = game, now) {
     const local = getLocalTime(state, now);
+    const year = serializedYear(local.year);
     return [
-        String(serializedYear(local.year)).padStart(4, '0'),
+        year < 0
+            ? `-${String(-year).padStart(3, '0')}`
+            : String(year).padStart(4, '0'),
         String(local.month).padStart(2, '0'),
         String(local.day).padStart(2, '0'),
         String(local.hour).padStart(2, '0'),
         String(local.minute).padStart(2, '0'),
         String(local.second).padStart(2, '0'),
-    ].join('');
+    ].join('').slice(0, 14);
 }
 
 // C ref: calendar.c phase_of_the_moon(). Returns 0..7; 0 is new moon and

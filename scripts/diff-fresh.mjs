@@ -30,6 +30,7 @@ import {
     ROWS_24,
 } from '../frozen/screen-decode.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';
+import { fixedDatetimeRefusal, OUT_OF_RANGE_KEY } from './fixed-datetime-rule.mjs';
 import {
     createScoringWorkspace,
     PROJECT_ROOT,
@@ -275,27 +276,6 @@ export function isPathWithinDirectory(candidate, directory) {
     }
 }
 
-function validFixedDatetime(value) {
-    const match = typeof value === 'string'
-        ? value.match(/^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})$/u)
-        : null;
-    if (!match) return false;
-    const [, yearText, monthText, dayText, hourText, minuteText, secondText]
-        = match;
-    const year = Number(yearText);
-    const month = Number(monthText);
-    const day = Number(dayText);
-    const hour = Number(hourText);
-    const minute = Number(minuteText);
-    const second = Number(secondText);
-    if (year < 1 || month < 1 || month > 12
-        || hour > 23 || minute > 59 || second > 59) return false;
-    const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-    const monthLengths = [31, leap ? 29 : 28, 31, 30, 31, 30,
-        31, 31, 30, 31, 30, 31];
-    return day >= 1 && day <= monthLengths[month - 1];
-}
-
 export function validateCleanRecipe(
     data,
     label = 'recipe',
@@ -315,8 +295,11 @@ export function validateCleanRecipe(
         if (!Number.isSafeInteger(segment.seed) || segment.seed < 0) {
             throw new Error(`${prefix} seed must be a non-negative safe integer`);
         }
-        if (!validFixedDatetime(segment.datetime)) {
-            throw new Error(`${prefix} datetime must be a valid YYYYMMDDHHMMSS value`);
+        const datetimeRefusal = fixedDatetimeRefusal(segment.datetime, {
+            outOfRange: segment[OUT_OF_RANGE_KEY] === true,
+        });
+        if (datetimeRefusal) {
+            throw new Error(`${prefix} datetime ${datetimeRefusal}`);
         }
         if (typeof segment.nethackrc !== 'string') throw new Error(`${prefix} nethackrc must be text`);
         if (typeof segment.moves !== 'string') throw new Error(`${prefix} moves must be text`);

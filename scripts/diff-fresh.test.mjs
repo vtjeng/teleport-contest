@@ -129,23 +129,45 @@ test('fresh recipes reject recorded answers while C output requires them', () =>
     );
 });
 
-test('fresh recipes reject impossible fixed datetimes', () => {
+test('fresh recipes reject impossible datetimes unless opted out', () => {
     const parsed = parseArgs(['--seed', '271828']);
     const recipe = buildFreshRecipe(parsed);
-    for (const datetime of [
-        '20230229010203',
-        '20241301010203',
-        '20241231246000',
-        '00000101000000',
+    const segment = recipe.segments[0];
+    const typo = /is not fourteen digits naming a real date and time/u;
+    const clock = /falls back to the wall clock/u;
+    // [datetime, refusal by default, refusal with datetimeOutOfRange: true]
+    for (const [datetime, byDefault, optedOut] of [
+        // No 29 February in 2023; mktime() would make it 1 March.
+        ['20230229010203', typo, null],
+        // Month 13, January 2025 after normalization.
+        ['20241301010203', typo, null],
+        // Hour 24 and minute 60 carry into 1 January 2025 at 01:00.
+        ['20241231246000', typo, null],
+        // Year 0 is 1 BC to mktime(); refused by default as year < 1.
+        ['00000101000000', typo, null],
+        // Thirteen bytes: patch 001's strlen(buf) == 14 test fails, so even
+        // the opt-out leaves the game on the wall clock.
+        ['2024022901020', clock, clock],
+        // Fourteen code units but fifteen UTF-8 bytes.
+        ['2024022901020\u00e9', clock, clock],
+        // A real date that mktime() maps to time_t -1 under the judge's
+        // tm_isdst=1, its error value.
+        ['19691231195959', clock, clock],
+        // An ordinary leap day passes either way.
+        ['20000229010203', null, null],
     ]) {
-        recipe.segments[0].datetime = datetime;
-        assert.throws(
-            () => validateCleanRecipe(recipe),
-            /must be a valid YYYYMMDDHHMMSS value/u,
-        );
+        segment.datetime = datetime;
+        for (const [optOut, expected] of [[false, byDefault], [true, optedOut]]) {
+            if (optOut) segment.datetimeOutOfRange = true;
+            else delete segment.datetimeOutOfRange;
+            const label = `${datetime} datetimeOutOfRange=${optOut}`;
+            if (expected) {
+                assert.throws(() => validateCleanRecipe(recipe), expected, label);
+            } else {
+                assert.equal(validateCleanRecipe(recipe), recipe, label);
+            }
+        }
     }
-    recipe.segments[0].datetime = '20000229010203';
-    assert.equal(validateCleanRecipe(recipe), recipe);
 });
 
 test('recorded replay inputs must exactly match the requested recipe', () => {
