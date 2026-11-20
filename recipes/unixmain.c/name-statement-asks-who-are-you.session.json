@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 594027,
+      "datetime": "20280122195100",
+      "nethackrc": "NAME=Grimble\nOPTIONS=role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!tutorial,!splash_screen,pettype:none,!autopickup,!legacy\n",
+      "moves": "Thorvald\n\u0018\u001b"
+    }
+  ],
+  "comment": "The nethackrc names the hero with the NAME statement, which the recorder (scripts/record-session.mjs recordSegment()) does not read: it looks only for an OPTIONS name: value and passes \"-u ''\". sys/unix/unixmain.c process_options() (385-396) copies the empty argument over the configured name after initoptions(), so plnamesuffix() asks \"Who are you?\" and the game uses the typed name (js/unixmain.js parseNethackrcName(), process_options())."
+}

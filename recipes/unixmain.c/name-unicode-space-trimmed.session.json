@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 731406,
+      "datetime": "20310508140300",
+      "nethackrc": "OPTIONS=name:　Hayato ,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!tutorial,!splash_screen,pettype:none,!autopickup,!legacy\n",
+      "moves": "\u0018\u001bs"
+    }
+  ],
+  "comment": "The recorder (scripts/record-session.mjs recordSegment()) launches C as \"nethack -u <name>\", taking <name> from the first OPTIONS name: value after JavaScript trim(), which removes Unicode white space: here an ideographic space (U+3000) before the name and a no-break space (U+00A0) after it. sys/unix/unixmain.c process_options() (385-396) runs after initoptions() and copies that argument over the name the nethackrc set, so C plays as 'Hayato' and the welcome message, the status line and the ^X attribute screen show it without the spaces (js/unixmain.js parseNethackrcName(), process_options())."
+}

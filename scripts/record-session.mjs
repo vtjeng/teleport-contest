@@ -25,6 +25,7 @@ import path from 'node:path';
 import {createPromptController, digest, validatePromptPlan} from './recorder-prompt-plan.mjs';
 import {RECORDER_HOME} from '../js/cfgfiles.js';
 import {JUDGE_RECORDER_IS_DST} from '../js/calendar.js';
+import {recorderArguments} from '../js/unixmain.js';
 
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_ROOT = path.resolve(SCRIPT_DIR, '..');
@@ -450,31 +451,17 @@ async function loadSession(p) {
     return data;
 }
 
-function parseNethackrcName(rc) {
-    if (!rc) return null;
-    for (const rawLine of rc.split('\n')) {
-        const line = rawLine.trim();
-        const upper = line.toUpperCase();
-        if (!(upper.startsWith('OPTIONS=') || upper.startsWith('OPTIONS ='))) continue;
-        const opts = line.slice(line.indexOf('=') + 1);
-        for (const opt of opts.split(',')) {
-            const t = opt.trim();
-            if (t.toLowerCase().startsWith('name:')) {
-                return t.slice('name:'.length).trim();
-            }
-        }
-    }
-    return null;
-}
-
-// The name the recorder passes to C as `-u <name>`. C's early_options()
+// The name the recorder passes to C as `-u <name>`, which
+// js/unixmain.js parseNethackrcName() reads from the nethackrc; the port
+// imports the same parse and argument vector to reproduce the name C plays
+// under (unixmain.c process_options()). C's early_options()
 // (earlyarg.c) reads every argument that starts with '-' as an option, the one
 // after -u included, so a name such as "-s" or "--showpaths" would run a
 // command-line feature instead of a game. Such names are outside the port's
 // scope (Vincent, 2026-11-13), so the recorder refuses them, as keyByte()
 // refuses keys above U+00FF; scripts/c-message-exemptions.mjs relies on this.
 export function recorderPlayerName(rc) {
-    const name = parseNethackrcName(rc) ?? '';
+    const [, name] = recorderArguments(rc);
     if (name.startsWith('-')) {
         throw new Error(`player name ${JSON.stringify(name)} starts with '-'; the recorder `
             + 'passes it to NetHack as "-u <name>", which would read it as a command-line option');
@@ -556,8 +543,8 @@ export async function recordSegment({
     if (isFirstSegment) await clearStaleState(installDir);
     else await clearLockFiles(installDir);
 
-    const playerName = recorderPlayerName(seg.nethackrc);
-    const args = ['-u', playerName];
+    recorderPlayerName(seg.nethackrc);
+    const args = recorderArguments(seg.nethackrc);
 
     const env = {
         ...process.env,

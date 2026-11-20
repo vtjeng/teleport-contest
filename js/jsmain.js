@@ -98,6 +98,7 @@ import {
     vision_reset,
 } from './vision.js';
 import { initUnported } from './unported.js';
+import { process_options, recorderArguments } from './unixmain.js';
 
 // Every Unsupported*Error is a fail-closed refusal of an unported code path.
 // runSegment() catches them as boundary stops so the session scan and scorer
@@ -531,6 +532,13 @@ export class NethackGame {
         // C ref: options.c:initoptions_finish() runs after the complete
         // configuration has been parsed and before player selection.
         initoptions_finish(opts, g);
+
+        // unixmain.c:170 process_options() follows initoptions() and
+        // whoami(); the recorder always passes "-u <name>", so the name it
+        // parses from the nethackrc (scripts/record-session.mjs
+        // recordSegment(), js/unixmain.js parseNethackrcName()) replaces the
+        // one the configuration set, and an empty name clears it.
+        process_options(recorderArguments(this._nethackrc), g);
 
         // tty_init_nhwindows() precedes plnamesuffix() and any role menus, and
         // clears the terminal over whatever the configuration read printed.

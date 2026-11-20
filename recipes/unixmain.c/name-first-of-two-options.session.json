@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 286915,
+      "datetime": "20290913061700",
+      "nethackrc": "OPTIONS=name:Ottilie,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!tutorial,!splash_screen,pettype:none,!autopickup,!legacy\nOPTIONS=name:Ludmila\n",
+      "moves": "\n\u0018\u001b"
+    }
+  ],
+  "comment": "The nethackrc sets name twice, and C reports the second as a compound option specified multiple times before the first key dismisses the error. The recorder (scripts/record-session.mjs recordSegment()) passes the first OPTIONS name: value as \"-u Ottilie\", and sys/unix/unixmain.c process_options() (385-396) copies it over the configured name after initoptions(), so the game greets Ottilie and ^X lists her (js/unixmain.js parseNethackrcName(), process_options())."
+}
