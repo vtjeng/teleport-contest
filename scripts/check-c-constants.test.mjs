@@ -127,10 +127,10 @@ test('every js/ constant that names a C constant has its C value', async () => {
     // and 101 PORT_ONLY names. wizkit-banner (13 November 2026) removed
     // BUILD_TIME with const.js's stale build constants and added ENOENT and
     // ENOTDIR for files.c fopen_wizkit_file(): 102. macos-regex (19 November
-    // 2026) replaced the 65 glibc regex names with 72 Apple Libc TRE names
-    // (109) and added REG_NOSUB and RE_DUP_MAX, whose macOS values differ
+    // 2026) replaced the 65 glibc regex names with 73 Apple Libc TRE names
+    // (110) and added REG_NOSUB and RE_DUP_MAX, whose macOS values differ
     // from the glibc header the check compiles, to KNOWN_MISMATCHES (5).
-    const PINS = { known: 5, uncompared: 91, portOnly: 109 };
+    const PINS = { known: 5, uncompared: 91, portOnly: 110 };
     assertExceptionCount(KNOWN_MISMATCHES.size, PINS.known, {
         what: 'KNOWN_MISMATCHES entries',
         pin: 'PINS.known in scripts/check-c-constants.test.mjs',
