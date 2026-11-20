@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "comment": "C ref: unixmain.c attempt_restore and restore.c dorecover(), which delete the save file after a normal-mode restore. Segment 0 saves a Knight. Segment 1 restores him and stops mid-game, so no save file is left. Segment 2 uses the same name with time added to the rc and starts a new game rather than restoring. Seeds, clocks, character and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 39120571,
+      "datetime": "20450602141500",
+      "nethackrc": "OPTIONS=name:Percival,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!autopickup\n",
+      "moves": " lllljj5sSy"
+    },
+    {
+      "seed": 39120577,
+      "datetime": "20450603141500",
+      "nethackrc": "OPTIONS=name:Percival,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!autopickup\n",
+      "moves": "  hhkk3s"
+    },
+    {
+      "seed": 39120583,
+      "datetime": "20450604141500",
+      "nethackrc": "OPTIONS=name:Percival,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!autopickup\nOPTIONS=time\n",
+      "moves": " jjll"
+    }
+  ]
+}

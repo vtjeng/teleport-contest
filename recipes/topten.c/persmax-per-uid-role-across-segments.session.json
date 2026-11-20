@@ -1,0 +1,42 @@
+{
+  "version": 5,
+  "comment": "C ref: topten.c topten() (628-926) reading the record file that earlier segments wrote. The recorder build has PERS_IS_UID 1 and PERSMAX 3 (config.h), so every entry shares one uid and the per-person limit counts entries of the same role whatever the name. Segments 0-2: three dwarvish Archeologists dig down and quit with 150, 150 and 100 points; the tie keeps the earlier entry first. Segment 3: a 50-point Archeologist meets the limit at rank 3 and prints \"You didn't beat your previous score of 100 points.\", the old entry in bold and its own unranked line. Segment 4: a 200-point Archeologist takes rank 1 and the fourth Archeologist entry (100 points) is dropped from the rewritten file. Segment 5: a Valkyrie quits with 0 points (below POINTSMIN, not entered) with scores:2 top/1 around/own, where own matches every entry by uid. Seeds, clocks, names and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 61170023,
+      "datetime": "20410317083000",
+      "nethackrc": "OPTIONS=name:Ottoline,role:Archeologist,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": " jae  >ae>    ae>ae>    ae>ae>    ae>ae>    #quit\ny "
+    },
+    {
+      "seed": 61170043,
+      "datetime": "20410318093000",
+      "nethackrc": "OPTIONS=name:Barnaby,role:Archeologist,race:dwarf,gender:male,align:lawful,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": " jae  >ae>    ae>ae>    ae>ae>    ae>ae>    #quit\ny "
+    },
+    {
+      "seed": 61170031,
+      "datetime": "20410319103000",
+      "nethackrc": "OPTIONS=name:Cordelia,role:Archeologist,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": " jae  >ae>    ae>ae>    #quit\ny "
+    },
+    {
+      "seed": 61170047,
+      "datetime": "20410320113000",
+      "nethackrc": "OPTIONS=name:Dorian,role:Archeologist,race:dwarf,gender:male,align:lawful,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": " jae  >ae>    #quit\ny "
+    },
+    {
+      "seed": 61170097,
+      "datetime": "20410321123000",
+      "nethackrc": "OPTIONS=name:Eulalia,role:Archeologist,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": " jae  >ae>    ae>ae>    ae>ae>    ae>ae>    ae>ae>    #quit\ny "
+    },
+    {
+      "seed": 61170101,
+      "datetime": "20410322133000",
+      "nethackrc": "OPTIONS=name:Fennimore,role:Valkyrie,race:human,gender:male,align:neutral,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=scores:2 top/1 around/own\n",
+      "moves": " #quit\ny "
+    }
+  ]
+}
