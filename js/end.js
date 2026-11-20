@@ -1487,8 +1487,14 @@ async function really_done(how, state) {
 
     // C: display_nhwindow(WIN_MESSAGE, TRUE) -- consume the pending message
     // boundary after the synchronous wait, before the tombstone window.
-    if (haveWindows)
+    if (haveWindows) {
         await displayPendingTtyMessageWindow(state);
+        // end.c:1388 destroy_nhwindow(WIN_MESSAGE): tty_destroy_nhwindow()
+        // clears iflags.window_inited for the message window
+        // (wintty.c:2021-2022), so a pline() from here on is raw_print()ed
+        // (js/tty_message.js vplineRawArm()).
+        state.iflags.window_inited = false;
+    }
 
     // C: if (how < GENOCIDED && flags.tombstone && endwin != WIN_ERR)
     //        outrip(endwin, how, endtime);

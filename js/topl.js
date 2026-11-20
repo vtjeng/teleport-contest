@@ -19,6 +19,7 @@ import {
     TOPLINE_NEED_MORE,
     TOPLINE_NON_EMPTY,
     dismissPendingTtyMessage,
+    vplineRawArm,
     vplineVisionRecalc,
 } from './tty_message.js';
 
@@ -739,26 +740,33 @@ export async function tty_yn_function(query, resp, def, state = game) {
     } else {
         prompt = `${query} `;
     }
-    if (state.u?.ux && !state._bonesRestorePrompt) {
-        // C custompline() enters vpline(): deferred vision precedes the map
-        // flush even for a restricted or unrestricted input prompt. Keep the
-        // same live owner as ttyPlineCore and the existing restore safeguard.
-        await vplineVisionRecalc(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, state);
-        const { flush_screen } = await import('./display.js');
-        await flush_screen(1);
-    }
-    // custompline(SUPPRESS_HISTORY) remembers the old line, then draws this
-    // prompt without adding it to history yet.
-    remember_topl(state);
-    show_topl(prompt, state);
-    // remember_topl() emptied gt.toplines and addtopl() does not write it, so
-    // until clean_up rewrites it the prompt is on screen but not in
-    // gt.toplines; tty_doprev_message() reads the empty string.
-    setToplinesDirectly('', state);
-    state._pending_message = '';
-    // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
-    display.toplin = TOPLINE_NEED_MORE;
-    state._ttyPreviousMessage = prompt;
+    // vpline() raw_print()s the prompt instead when the windows are not
+    // initialized (vplineRawArm()); the rest of the custompline() is below.
+    await vplineRawArm(prompt, state, async () => {
+        if (state.u?.ux && !state._bonesRestorePrompt) {
+            // C custompline() enters vpline(): deferred vision precedes the
+            // map flush even for a restricted or unrestricted input prompt.
+            // Keep the same live owner as ttyPlineCore and the existing
+            // restore safeguard.
+            await vplineVisionRecalc(
+                OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, state,
+            );
+            const { flush_screen } = await import('./display.js');
+            await flush_screen(1);
+        }
+        // custompline(SUPPRESS_HISTORY) remembers the old line, then draws
+        // this prompt without adding it to history yet.
+        remember_topl(state);
+        show_topl(prompt, state);
+        // remember_topl() emptied gt.toplines and addtopl() does not write
+        // it, so until clean_up rewrites it the prompt is on screen but not
+        // in gt.toplines; tty_doprev_message() reads the empty string.
+        setToplinesDirectly('', state);
+        state._pending_message = '';
+        // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
+        display.toplin = TOPLINE_NEED_MORE;
+        state._ttyPreviousMessage = prompt;
+    });
 
     // Every key below is the byte readchar() returns, as on the unrestricted
     // arm; `def` arrives as the one-character string its callers spell, and
