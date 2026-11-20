@@ -39,8 +39,12 @@ test('a 101st live fruit name is refused with a pline, not a frame error', async
     const answer = await parseoptions(game, 'fruit:mango', false, false);
     assert.equal(answer, true);
     assert.equal(game.svp.pl_fruit, 'fig');
+    // C's tty_wait_synch() draws --More-- only while ttyDisplay->inmore is
+    // set (wintty.c:3623-3647), which it is not here, so the message stands
+    // alone until the next window call; the regex-error recordings named
+    // above show what follows at a key wait.
     assert.equal(
         game.nhDisplay.serialize().split('\n')[0],
-        'Doing that so many times isn\'t very fruitful.--More--',
+        'Doing that so many times isn\'t very fruitful.',
     );
 });
