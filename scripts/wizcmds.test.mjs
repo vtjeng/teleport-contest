@@ -191,7 +191,8 @@ test('wiz_intrinsic routes blinded to make_blinded without generic timeout text'
     async () => {
         const state = resetGame();
         state.wizard = true;
-        state.iflags = { cbreak: true };
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        state.iflags = { window_inited: true, cbreak: true };
         state.disp = { botl: false };
         state.u = {
             uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
@@ -221,7 +222,8 @@ test('wiz_intrinsic sets STONED and records its delayed killer through the menu'
     async () => {
         const state = resetGame();
         state.wizard = true;
-        state.iflags = { cbreak: true };
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        state.iflags = { window_inited: true, cbreak: true };
         state.disp = { botl: false };
         state.u = {
             uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
@@ -271,7 +273,8 @@ test('wiz_intrinsic routes SLIMED through potion.c make_slimed', async () => {
 
     const state = resetGame();
     state.wizard = true;
-    state.iflags = { cbreak: true };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, cbreak: true };
     state.disp = { botl: false };
     state.u = {
         uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
@@ -591,7 +594,8 @@ test('wiz_panic restores the four fuzzer resource fields before returning withou
         });
     }
     // No display/input exists: the fuzzer arm must return before the query.
-    assert.equal(await wiz_panic({ u, iflags: { debug_fuzzer: true } }), ECMD_OK);
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    assert.equal(await wiz_panic({ u, iflags: { window_inited: true, debug_fuzzer: true } }), ECMD_OK);
     assert.deepEqual(writes, [
         ['uhpmax', 1000], ['uhp', 1000], ['uenmax', 1000], ['uen', 1000],
     ]);

@@ -503,10 +503,9 @@ export function tty_init_nhwindows(argcp = null, argv = null, state = game) {
 // preference update is a void no-op in this TTY build; statuslines still
 // rebuilds the status window and clipping geometry before that call.
 export function tty_preference_update(pref, state = game) {
-    // The JS startup path does not store window_inited, so only an explicit
-    // false means windows are not yet initialized.
+    // wintty.c:598-599: only once iflags.window_inited is set.
     const newstatuslines = pref === 'statuslines'
-        && state.iflags?.window_inited !== false;
+        && Boolean(state.iflags?.window_inited);
     if (newstatuslines) {
         new_status_window(state);
         newclipping(state.u?.ux ?? 0, state.u?.uy ?? 0, state);

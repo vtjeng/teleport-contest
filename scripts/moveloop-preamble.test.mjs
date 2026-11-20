@@ -35,7 +35,9 @@ function preambleState(datetime, keys = '') {
     game.recorderIsDst = true;
     game.nhDisplay = new GameDisplay(null);
     game.flags = {};
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
     game.iflags = {
+        window_inited: true,
         menu_overlay: true,
         menu_headings: { attr: 1, color: 8 },
         // Every boundary below sits inside the move loop, long after

@@ -39,7 +39,8 @@ function selectionState(keys = '') {
         initalign: ROLE_NONE,
         randomall: false,
     };
-    game.iflags = { menu_overlay: true };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    game.iflags = { window_inited: true, menu_overlay: true };
     game.program_state = {};
     tty_init_nhwindows(null, null, game);
     for (const key of keys) game.nhDisplay.pushKey(key.charCodeAt(0));

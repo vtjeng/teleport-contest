@@ -78,11 +78,13 @@ test('is_inuse recognizes an active tool and rejects an uncarried tool', () => {
 });
 
 test('mime_action and silly_thing preserve their source messages', async () => {
-    const mimeState = {};
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const windowsUp = () => ({ iflags: { window_inited: true } });
+    const mimeState = windowsUp();
     await mime_action('rub the royal jelly on', mimeState);
     assert.equal(mimeState._ttyToplines, 'You mime rubbing the royal jelly on something.');
 
-    const state = {};
+    const state = windowsUp();
     await silly_thing('call', {
         otyp: AMULET_OF_YENDOR,
         known: false,
@@ -91,7 +93,8 @@ test('mime_action and silly_thing preserve their source messages', async () => {
 });
 
 test('ggetobj reports the empty inventory result and all-finished flag', async () => {
-    const state = {};
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = { iflags: { window_inited: true } };
     const resultflags = { value: 0 };
     const result = await ggetobj('drop', () => 1, 0, false, resultflags, state);
     assert.equal(result, 0);

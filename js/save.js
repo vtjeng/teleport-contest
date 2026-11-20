@@ -452,7 +452,7 @@ export async function dosave0(state = game, savefile = set_savefile_name(state))
     // old file in place and saves nothing. nh_uncompress(), nh_sfconvert()
     // and nh_compress() have no VFS counterpart.
     const windowsUp = !state.program_state?.done_hup
-        && state.iflags?.window_inited !== false;
+        && Boolean(state.iflags?.window_inited);
     if (windowsUp && playgroundReadFile(savefile) != null) {
         clearTtyMessageWindow(state);
         // pline.c There() adds only the prefix "There ".

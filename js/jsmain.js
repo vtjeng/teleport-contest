@@ -70,7 +70,11 @@ import {
 import {
     initialize_symbols_from_options,
 } from './symbols.js';
-import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
+import {
+    clearTtyMessageWindow,
+    displayPendingTtyMessageWindow,
+    ttyPline,
+} from './tty_message.js';
 import {
     tty_create_nhwindow,
     tty_init_nhwindows,
@@ -584,6 +588,10 @@ export class NethackGame {
         // the restore-or-new-game branch, so a restored game has the status
         // banks too. gb.blinit and the banks are not in the save file.
         status_initialize(g, false);
+        // allmain.c:756 display_nhwindow(WIN_MESSAGE, FALSE), the first
+        // display of the new message window: wintty.c:1883 raises
+        // iflags.window_inited, so pline() stops raw_print()ing from here.
+        await displayPendingTtyMessageWindow(g);
 
         // ── Branch: restore saved game or start new one ──
         // C ref: unixmain.c nethack_main() checks for a save file between

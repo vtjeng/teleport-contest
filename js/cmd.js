@@ -729,12 +729,10 @@ export function key2txt(c) {
 // says so with yn_function()'s `sharedResp: false`. In upstream C only
 // insight.c list_vanquished() (Strcpy(allow_yn, ynaqchars)) and
 // list_genocided() (the literal "ynaq") pass a copy equal to one of the five.
-// An omitted window_inited flag represents the initialized browser window; an
-// explicit false keeps the C pre-window behavior.
 function yn_menuable_resp(resp, state, sharedResp = true) {
     return sharedResp
         && Boolean(state.iflags?.query_menu)
-        && state.iflags?.window_inited !== false
+        && Boolean(state.iflags?.window_inited)
         && [ynchars, ynqchars, ynaqchars, rightleftchars, hidespinchars]
             .includes(resp);
 }
@@ -1956,10 +1954,10 @@ export async function end_of_input(state = game) {
     if (state.program_state.something_worth_saving)
         await dosave0(state);
     // exit_nhwindows() reaches hup_exit_nhwindows(), which runs the tty's
-    // tty_exit_nhwindows() with no farewell (windows.c:643-654).
-    // An omitted window_inited stands for the initialized window (see
-    // cmd.js:757).
-    if (state.iflags.window_inited !== false) tty_exit_nhwindows(null, state);
+    // tty_exit_nhwindows() with no farewell (windows.c:643-654), but only
+    // when iflags.window_inited was set as the hangup arrived
+    // (windows.c:627-629).
+    if (state.iflags.window_inited) tty_exit_nhwindows(null, state);
     await nh_terminate(state);
 }
 

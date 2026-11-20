@@ -560,6 +560,14 @@ function defaultResult() {
             // options.c initializes instance_flags to zero, which is STONE.
             // Its boolean handler restores this value on every toggle.
             prev_decor: STONE,
+            // flag.h:303 iflags.window_inited starts FALSE in every process,
+            // so in every segment. wintty.c:1883 tty_display_nhwindow()
+            // raises it when allmain.c init_sound_disp_gamewindows() first
+            // shows WIN_MESSAGE (js/tty_message.js
+            // displayPendingTtyMessageWindow()); wintty.c:844, :2022 and
+            // end.c:410 clear it. Readers test it as C does, by truth value;
+            // scripts/window-inited.test.mjs keeps every write at those sites.
+            window_inited: false,
             // options.c initoptions_init() sets these after zeroing iflags.
             wc_align_message: ALIGN_TOP,
             wc_align_status: ALIGN_BOTTOM,

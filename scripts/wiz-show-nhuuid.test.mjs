@@ -38,7 +38,8 @@ test('UUID display reads the stored value and reset owns a fresh empty field', a
         assert.equal(state.svn.nhuuid, '');
         state.svn.nhuuid = uuid;
         state.flags = {};
-        state.iflags = {};
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        state.iflags = { window_inited: true };
         state.nhDisplay = new GameDisplay(null);
         assert.equal(await wiz_show_nhuuid(state), ECMD_OK);
         assert.equal(state.nhDisplay.topMessage, `The NHUUID for this game is { ${uuid} }.`);

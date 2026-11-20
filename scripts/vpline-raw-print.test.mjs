@@ -135,10 +135,18 @@ test('with window_inited false a pline() is raw_print()ed', async () => {
     assert.equal(state.in_pline, 0);
 });
 
-test('a pline() nested in another vpline() is raw_print()ed', async () => {
-    // window_inited is omitted, which stands for the initialized window; the
-    // outer call's raised in_pline alone selects the raw arm.
+test('with window_inited never set a pline() is raw_print()ed', async () => {
+    // C's iflags starts zeroed, so an absent flag is FALSE, not "windows up".
     const state = messageState({});
+    assert.equal(await ttyPline('Too early.', state), true);
+    assert.equal(screenText(state.nhDisplay)[0].trimEnd(), 'Too early.');
+    assert.equal(state._pending_message, undefined);
+});
+
+test('a pline() nested in another vpline() is raw_print()ed', async () => {
+    // The windows are up, so the outer call's raised in_pline alone selects
+    // the raw arm.
+    const state = messageState({ window_inited: true });
     let outerSawRaw = null;
     await vplineRawArm('outer', state, async () => {
         assert.equal(state.in_pline, 1);

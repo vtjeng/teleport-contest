@@ -347,6 +347,21 @@ export async function displayPendingTtyMessageWindow(state) {
     } else if (state.nhDisplay) {
         state.nhDisplay.toplin = TOPLINE_EMPTY;
     }
+    // wintty.c:1882-1883 and 1949. The first display of WIN_MESSAGE, which
+    // allmain.c init_sound_disp_gamewindows() makes, finds it inactive and
+    // raises iflags.window_inited; every display leaves it active. Only
+    // tty_destroy_nhwindow()'s tty_dismiss_nhwindow() deactivates it, just
+    // before freeing it, and tty_exit_nhwindows() frees it outright, so no
+    // later display raises the flag again. Without the window (C's
+    // ttywindowpanic()) nothing changes.
+    const cw = state.wintty?.wins?.[state.wintty.messageWindow];
+    if (cw) {
+        if (!cw.active) {
+            state.iflags ??= {};
+            state.iflags.window_inited = true;
+        }
+        cw.active = true;
+    }
 }
 
 // pline.c You(), Your(), You_cant(), pline_The() and There() prefixes; the
@@ -614,8 +629,7 @@ export async function vplineVisionRecalc(pflags, state = game) {
 // init_sound_disp_gamewindows() first displays WIN_MESSAGE (wintty.c:1883),
 // after end.c really_done() destroys WIN_MESSAGE (end.c:1388,
 // wintty.c:2021-2022) or tty_exit_nhwindows() runs (wintty.c:844), and once
-// panic() has closed the windows (end.c:410). An omitted flag stands for the
-// initialized window, as at its other readers.
+// panic() has closed the windows (end.c:410).
 // The raw line skips the MSGTYPE lookup, the vision recalculation, the map
 // flush, putmesg() and gp.prevmsg, and resets iflags.last_msg. raw_print() is
 // the window port's tty_raw_print(), whose output recorder patch 006 mirrors.
@@ -629,7 +643,7 @@ export async function vplineRawArm(line, state, putmesg) {
     const nested = state.in_pline ?? 0;
     state.in_pline = nested + 1;
     try {
-        if (nested || state.iflags?.window_inited === false) {
+        if (nested || !state.iflags?.window_inited) {
             /* [we should probably be using raw_printf("\n%s", line) here] */
             tty_raw_print(state, line);
             state.iflags ??= {};

@@ -40,7 +40,8 @@ function trapIdState() {
     const state = {
         level: new GameMap(), nhDisplay: new GameDisplay(null),
         u: { ux: 10, uy: 10, uprops: [] },
-        flags: {}, iflags: {}, context: {}, program_state: {},
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        flags: {}, iflags: { window_inited: true }, context: {}, program_state: {},
     };
     // Central room coordinate leaves every cardinal/vertical probe in bounds.
     state.level.at(10, 10).typ = ROOM;

@@ -61,7 +61,9 @@ function rerollState({ role = M.PM_HEALER, lootabc = false } = {}) {
     init_objects(game, () => 0);
     monst_globals_init(game);
     game.flags = { implicit_uncursed: true, lootabc };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
     game.iflags = {
+        window_inited: true,
         menu_overlay: true,
         menu_headings: { attr: 7 /* C ATR_INVERSE */, color: 8 },
     };
@@ -904,7 +906,8 @@ test('newgame applies startup effects only after multiple rerolls are accepted',
 // either way, so no recording can show the path; this pins it.
 test('the fallback reroll answer is filed as a line written directly', async () => {
     const state = {
-        iflags: { msg_history: 20, cbreak: true },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true, msg_history: 20, cbreak: true },
         nhDisplay: new GameDisplay(null),
         program_state: {},
         wintty: { wins: [] },

@@ -79,7 +79,7 @@ function mapWindowLive(state) {
     return Boolean(
         state.nhDisplay
         && state.level?.at
-        && state.iflags?.window_inited !== false,
+        && state.iflags?.window_inited,
     );
 }
 

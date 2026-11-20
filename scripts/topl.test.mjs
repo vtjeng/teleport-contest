@@ -69,7 +69,8 @@ const QUESTPGR_JS = readFileSync(
 
 function historyState() {
     const state = {
-        iflags: { msg_history: 20, cbreak: true },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true, msg_history: 20, cbreak: true },
         nhDisplay: new GameDisplay(null),
         program_state: {},
         wintty: { wins: [] },
@@ -477,7 +478,8 @@ test('docorner clears physical rows without requiring status inventory state',
         display.setCell(3, 1, 'M', 5, 2);
         const state = {
             nhDisplay: display,
-            iflags: {},
+            // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+            iflags: { window_inited: true },
             wintty: { WIN_MAP: 1, wins: [null, { offy: 1 }] },
         };
 

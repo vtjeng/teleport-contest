@@ -88,7 +88,8 @@ function wishState(keys, { verbose = false, cmdassist = false } = {}) {
     // The --More-- the verbose announcement needs is dismissed with a space,
     // which xwaitforspace() accepts only once setftty() raised iflags.cbreak
     // inside tty_init_nhwindows(); every wish happens well after that.
-    state.iflags = { cbreak: true, cmdassist };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, cbreak: true, cmdassist };
     state.urole = { ...roles[0] };
     // readobjnam() reads the shuffled objects[] from its first block onward,
     // so even a line it refuses needs the catalog in place.  Zero choices

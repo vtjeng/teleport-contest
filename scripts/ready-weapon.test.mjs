@@ -72,7 +72,8 @@ function makeState() {
         // The --More-- prompts below sit inside the move loop, where
         // tty_init_nhwindows() has already raised iflags.cbreak through
         // setftty(); without it xwaitforspace() would read only Return.
-        iflags: { cbreak: true },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true, cbreak: true },
         disp: {},
         multi: 0,
         urole: roles[ROLE_SAMURAI],

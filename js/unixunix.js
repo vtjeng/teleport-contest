@@ -38,7 +38,7 @@ export async function ask_about_panic_save(state = game) {
     const c = await yn_function('Start a new game instead?', 'yn\x1bq', 'n', false,
         state, { sharedResp: false });
     if (c !== 'y') {
-        if (state.iflags?.window_inited !== false) tty_exit_nhwindows(null, state);
+        if (state.iflags?.window_inited) tty_exit_nhwindows(null, state);
         await nh_terminate(state);
     }
 }

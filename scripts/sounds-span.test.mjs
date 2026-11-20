@@ -349,7 +349,8 @@ test('set_voice and sound_speak carry source voice state through vpline',
     async () => {
         const calls = [];
         const state = {
-            iflags: { voices: true },
+            // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+            iflags: { window_inited: true, voices: true },
             gp: { pline_flags: PLINE_VERBALIZE },
             gv: {
                 voice: {
@@ -394,7 +395,8 @@ test('sound_speak passes an empty buffer instead of truncating oversized text',
     () => {
         const spoken = [];
         const state = {
-            iflags: { voices: true },
+            // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+            iflags: { window_inited: true, voices: true },
             gp: { pline_flags: 0 },
             gv: { voice: { gender: 0, tone: 1, volume: 2, moreinfo: 3 } },
             soundprocs: {

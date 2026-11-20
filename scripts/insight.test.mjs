@@ -1919,7 +1919,11 @@ test('set_vanq_order preserves the current mode on Return and Space', async () =
 });
 
 test('list_vanquished handles both an empty list and source formatting', async () => {
-    const empty = { svm: { mvitals: [] }, mons: [], program_state: {} };
+    const empty = {
+        svm: { mvitals: [] }, mons: [], program_state: {},
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true },
+    };
     await list_vanquished('y', false, empty, {
         displayTextWindow: () => {},
     });
@@ -1975,7 +1979,8 @@ test('list_vanquished preserves C class-heading attributes', async () => {
     state.svm.mvitals[PM_WOLF].died = 1;
     state.svm.mvitals[PM_VAMPIRE].died = 1;
     state.flags = { vanq_sortmode: VANQ_MCLS_LTOH };
-    state.iflags = { menu_headings: { attr: 1 /* C ATR_BOLD */ } };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, menu_headings: { attr: 1 /* C ATR_BOLD */ } };
     state.program_state = {};
 
     let commandLines;
@@ -2025,7 +2030,8 @@ test('list_vanquished uses the canonical default query owner', async () => {
 
 test('dovanquished consumes the menu-requested flag', async () => {
     const state = {
-        iflags: { menu_requested: true },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true, menu_requested: true },
         flags: { vanq_sortmode: 0 },
         svm: { mvitals: [] },
         mons: [],
@@ -2347,7 +2353,8 @@ test('list_genocided preserves C class-heading attributes', async () => {
     state.svm.mvitals[PM_WOLF].mvflags = G_GENOD;
     state.svm.mvitals[PM_VAMPIRE].mvflags = G_GENOD;
     state.flags = { vanq_sortmode: VANQ_MCLS_LTOH };
-    state.iflags = { menu_headings: { attr: 1 /* C ATR_BOLD */ } };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, menu_headings: { attr: 1 /* C ATR_BOLD */ } };
     state.program_state = {};
 
     let commandLines;
@@ -2385,7 +2392,8 @@ test('dogenocided admits the command and formats the selected list', async () =>
     state.svm.mvitals[PM_VAMPIRE].mvflags = G_GENOD;
     state.svm.mvitals[PM_WOLF].mvflags = G_GENOD;
     state.flags = { vanq_sortmode: VANQ_MLVL_MNDX };
-    state.iflags = { menu_requested: true };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, menu_requested: true };
     state.program_state = {};
     let menuRows;
     let lines;

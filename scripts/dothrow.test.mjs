@@ -1016,7 +1016,8 @@ function arena({
     state.flags = {};
     // iflags.fireassist is on by default in C, and dofire()'s launcher search
     // is the arm it gates.
-    state.iflags = { fireassist: true };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, fireassist: true };
     state.gw = {};
     // mkobj.c next_ident() refuses a zero ident, and every splitobj() in
     // throw_obj()'s volley loop draws one.

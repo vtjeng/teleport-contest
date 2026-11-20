@@ -247,7 +247,8 @@ function terrainState(currentTyp, previousTyp = STAIRS) {
         lastseentyp: Array.from({ length: COLNO }, (_, x) => (
             x === 4 ? { 4: previousTyp } : x === 5 ? { 4: currentTyp } : []
         )),
-        iflags: { terrain_typ: previousTyp },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true, terrain_typ: previousTyp },
         flags: { terrainstatus: true },
         context: { run: 0 },
         disp: { botl: false },
@@ -604,7 +605,8 @@ test('pooleffects rereads levitation and flight after leaving water', async () =
     state.level = new GameMap();
     state.level.at(5, 4).typ = LAVAWALL;
     state.flags = { terrainstatus: false };
-    state.iflags = { in_lava_effects: 1 };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, in_lava_effects: 1 };
     state.unported = new Set();
     // docrt's cleared vision buffer redraws the hero's square, which reads
     // the initialized form just as a live game does.
@@ -772,7 +774,8 @@ test('sink arrival stops pending real levitation-boots donning before gear clean
     state.level = new GameMap();
     state.level.at(5, 4).typ = SINK;
     state.flags = { terrainstatus: false, verbose: true };
-    state.iflags = { terrain_typ: SINK };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, terrain_typ: SINK };
     state.context = { run: 0, travel: 0, travel1: 0, mv: 0 };
     state.unported = new Set();
 
@@ -817,7 +820,8 @@ test('sink arrival stops pending real levitation-boots donning before gear clean
     control.level = new GameMap();
     control.level.at(5, 4).typ = SINK;
     control.flags = { terrainstatus: false, verbose: true };
-    control.iflags = { terrain_typ: SINK };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    control.iflags = { window_inited: true, terrain_typ: SINK };
     control.context = { run: 0, travel: 0, travel1: 0, mv: 0 };
     const ordinaryBoots = newObject({
         otyp: LOW_BOOTS, oclass: ARMOR_CLASS, where: OBJ_INVENT,
@@ -1105,6 +1109,8 @@ function swimDangerState(destinationTyp = POOL) {
     level.at(11, 10).typ = destinationTyp;
     level.at(11, 10).seenv = 1;
     return {
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true },
         level,
         u: {
             ux: 10,
@@ -1416,7 +1422,8 @@ test('spoteffects piercer uses the canonical worn hard-helmet slot',
             for (let y = 3; y <= 5; ++y)
                 state.level.at(x, y).typ = ROOM;
         }
-        state.iflags = { terrain_typ: ROOM };
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        state.iflags = { window_inited: true, terrain_typ: ROOM };
         state.flags = { terrainstatus: false };
         state.unported = new Set();
         // HELMET is the source iron hard helmet; store it only in the C uarmh
@@ -1618,6 +1625,8 @@ function runState(overrides = {}) {
     uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     return {
         gb: initialGb(),
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true },
         level,
         u: {
             ux: 10, uy: 10, dx: 1, dy: 0, umonnum: 0,
@@ -1647,7 +1656,8 @@ function adjacentTravelState(targetType = ROOM) {
     }
     state.level.at(11, 10).typ = targetType;
     if (targetType === POOL) state.level.at(11, 10).seenv = 0;
-    state.iflags = { travelcc: { x: 0, y: 0 } };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, travelcc: { x: 0, y: 0 } };
     state.travelmap = new Uint8Array(COLNO * ROWNO);
     return state;
 }
@@ -1919,7 +1929,8 @@ test('travel validation does not consume the adjacent travel state', async () =>
             dy: 6,
         },
         context: { run: 8, travel: 1, travel1: 1, mv: 1 },
-        iflags: { travelcc: { x: 4, y: 5 } },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true, travelcc: { x: 4, y: 5 } },
         multi: 4,
     });
     state.level = new GameMap();

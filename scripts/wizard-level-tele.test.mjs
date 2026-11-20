@@ -81,7 +81,8 @@ function levelTeleState(keys, { confused = false, wizard = true, seed = 1 } = {
 }) {
     const state = resetGame();
     state.wizard = wizard;
-    state.iflags = {};
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true };
     state.flags = {};
     state.u = {
         uprops: Array.from(
