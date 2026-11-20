@@ -3761,6 +3761,12 @@
       "class": "guard",
       "c": "src/zap.c:zhitm",
       "reason": "C switches on the damage type with no default arm; zaptype() yields only the eight families."
+    },
+    "js/wintty.js | baseWindow | 'BASE_WINDOW does not exist'": {
+      "count": 1,
+      "class": "invariant",
+      "c": null,
+      "reason": "Called before tty_init_nhwindows() creates wins[BASE_WINDOW]; every production caller runs after it, as C's tty_curs(BASE_WINDOW) calls do."
     }
   }
 }

@@ -39,7 +39,7 @@ const CLASSES = new Set(['panic', 'lua-error', 'guard', 'invariant', 'unported']
 // operation or owner (allmain.js, attrib.js, eat.js, engrave.js, invent.js,
 // light.js, muse.js, o_init.js and others); argument-shape and random-source
 // checks stay.
-const LIST_PINS = { entries: 627, sites: 631 };
+const LIST_PINS = { entries: 628, sites: 632 };
 
 test('every throw in js/ is on the list with a class and a reason', () => {
     const current = scanThrowSites(readJsSources());
