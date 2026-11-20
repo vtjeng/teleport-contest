@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "C ref: restore.c dorecover():944-948 runs docrt(), clear_nhwindow(WIN_MESSAGE) and welcome(FALSE) with no flush_screen() or bot() of its own, so the first bot_via_windowport() after a restore is the one welcome()'s pline() reaches through flush_screen(). Each bot() toggles gn.now_or_before_idx (botl.c:973-974), and eval_notify_windowport_field() (1523-1543) compares a recomputed hit-point percentage with the other bank's, which is still 0 unless an earlier pass on that bank recomputed it. With hitpoints/up/blue/down/magenta, the restored Valkyrie kicks a wall: the bank parity decides whether the first loss of hit points after the restore reads as 'down' or as a rise from 0, and the colour stays while she looks around without taking a turn. Seeds, clock, character and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 30977412,
+      "datetime": "20350219160000",
+      "nethackrc": "OPTIONS=name:Brunhild,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=time,color,statushilites:6\nOPTIONS=hilite_status:hitpoints/up/blue/down/magenta\n",
+      "moves": "HKSy"
+    },
+    {
+      "seed": 30977419,
+      "datetime": "20350220083000",
+      "nethackrc": "OPTIONS=name:Brunhild,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=time,color,statushilites:6\nOPTIONS=hilite_status:hitpoints/up/blue/down/magenta\n",
+      "moves": " \u0004h:i\u001b3s"
+    }
+  ]
+}
