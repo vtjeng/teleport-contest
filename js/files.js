@@ -45,9 +45,11 @@ import {
 // is JavaScript's nearest form of full case folding; DOTLESS I, which full
 // folding leaves alone, is kept, and CAPITAL SHARP S folds to "ss" as small
 // sharp s does.
-// Bytes that are not UTF-8 are compared exactly, behind a NUL no C string
-// holds, so they never equal a decoded name.
-const UTF8 = new TextDecoder('utf-8', { fatal: true });
+// Bytes that are not UTF-8, and text that is not one byte per code unit,
+// are compared exactly, behind a NUL no C string holds, so they never equal
+// a decoded name. A leading EF BB BF is a character of the name, not a
+// byte-order mark to drop.
+const UTF8 = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 
 function unicodeFold(character) {
     if (character === '\u0131') return character;
@@ -58,6 +60,7 @@ function unicodeFold(character) {
 export function fileNameFold(name) {
     const text = String(name);
     if (/^[\x00-\x7f]*$/u.test(text)) return asciiFold(text);
+    if (/[^\x00-\xff]/u.test(text)) return `\0${text}`;
     let decoded;
     try {
         decoded = UTF8.decode(Uint8Array.from(text, (c) => c.charCodeAt(0)));

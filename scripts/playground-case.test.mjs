@@ -88,6 +88,11 @@ test('names with bytes above 0x7f fold as APFS folds UTF-8', () => {
     // A byte that is not UTF-8 is compared exactly and matches nothing installed.
     assert.deepEqual(resolvePlaygroundPath('\x80Knox.lua'), { kind: 'absent', errno: 2 });
     assert.notEqual(fileNameFold('\xc9'), fileNameFold(utf8Bytes('\u00c9')));
+    // EF BB BF (U+FEFF) before "castle" is part of the name, not a BOM to drop.
+    assert.deepEqual(resolvePlaygroundPath('\xef\xbb\xbfcastle.lua'), { kind: 'absent', errno: 2 });
+    // A code unit above 0xff is not one of C's bytes; it is compared exactly
+    // rather than truncated to a byte ("\u0143" would become 0x43, "C").
+    assert.deepEqual(resolvePlaygroundPath('\u0143astle.lua'), { kind: 'absent', errno: 2 });
 });
 
 test('stored playground files open and keep their name under any case', () => {
