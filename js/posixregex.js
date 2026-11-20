@@ -1,19 +1,28 @@
 // posixregex.js -- sys/share/posixregex.c: NetHack's nhregex interface over
-// libc regcomp()/regexec().
+// libc regcomp()/regexec()/regerror().
 //
-// The recorder links glibc 2.39, and regex_compile() calls regcomp() with
-// REG_EXTENDED | REG_NOSUB. js/regcomp.js and js/regexec.js port glibc's
-// implementation, so a pattern compiles, fails or matches exactly as it
-// does there, backreferences included.
+// NetHack hands MENUCOLOR, MSGTYPE and AUTOPICKUP_EXCEPTION patterns, from
+// the config file or typed in the options menu, to these functions:
+// coloratt.c add_menu_coloring_parsed(), options.c msgtype_add(),
+// test_regex_pattern() and add_autopickup_exception(), and the matches in
+// windows.c get_menu_coloring(), options.c msgtype_type() and pickup.c
+// check_autopickup_exceptions().
+// The judge's recorder ran on macOS, so the port follows macOS's C
+// library: Apple Libc's TRE regex (js/regcomp.js, js/regexec.js) and
+// FreeBSD's regerror() (js/regerror.js). js/tre_internal.js names the
+// source. Where macOS and glibc differ, in error texts, in the patterns
+// each accepts and in what \w, \1 or {,n} mean, this follows macOS;
+// docs/testing.md, "The regex difference", lists the differences.
 //
 // NetHack never calls setlocale() on the Unix tty path, so libc runs in the
-// "C" locale: one byte is one character, the character classes and \w hold
-// ASCII bytes only, and a bracket range compares byte values. The pattern
-// and text are therefore passed as byte strings, one UTF-8 byte per JS
+// "C" locale: one byte is one character, the character classes hold ASCII
+// bytes only, and a bracket range compares byte values. The pattern and
+// text are therefore passed as byte strings, one UTF-8 byte per JS
 // character (toByteString()).
 
 import { textBytes } from './hacklib.js';
-import { regcomp, regerror } from './regcomp.js';
+import { regcomp } from './regcomp.js';
+import { regerror } from './regerror.js';
 import { regexec } from './regexec.js';
 
 // The C string's bytes, each as one JS character from U+0000 to U+00FF.

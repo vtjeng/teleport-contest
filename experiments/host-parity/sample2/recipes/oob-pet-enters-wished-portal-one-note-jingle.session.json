@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 15573309,
+      "datetime": "20460203101530",
+      "nethackrc": "OPTIONS=name:PortalSwap,role:Wizard,race:elf,gender:female,align:chaotic,playmode:debug,pettype:cat,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\nl#wizwish\nmagic portal\naoy\u001baoy\u001baoy\u001baoy\u001baoy\u001blsss"
+    }
+  ]
+}

@@ -117,9 +117,10 @@ the game, its RNG calls and the rest of its screens are the same. The port
 prints the judge's macOS text. The recorder now prints that text too: on
 Linux, `nethack-c/build-recorder.sh` applies a macOS-output profile (see
 "Linux output profile"), and on every host the recorder prints the judge's
-`HOME` (patch 008). One measured difference remains, a key binding that
-depends on uninitialized memory. The port follows macOS there, so its
-regression recordings are made on macOS.
+`HOME` (patch 008). Two measured differences remain: a key binding that
+depends on uninitialized memory, and the C library's regular expressions.
+The port follows macOS in both, so the regression recordings of those
+paths are made on macOS.
 
 ### Known differences
 
@@ -134,6 +135,7 @@ The last column says what a recorder built from this repository prints.
 | Eating an apple | `Delicious!  Must be a Macintosh!` | `Core dumped.` | `src/eat.c:2179-2185`, `fprefx()`: the `MACOS` branch comes before the `UNIX` one. A pear prints `Core dumped.` on both hosts. | macOS text on both hosts (Linux profile) |
 | The build options in `#version` | `strong PRNG seed from /dev/random` | `strong PRNG seed from /dev/urandom` | `DEV_RANDOM` in `include/unixconf.h:424-430`, printed by `src/mdlib.c:511-513`. The extra letter can move a line break in the paragraph that follows. | macOS text on both hosts (Linux profile) |
 | Binding a key from the options menu to `nothing` or to a command without a parameter | `Key binding failed?!` | The key is bound | `handler_rebind_keys_add()` in `src/cmd.c` appends the command name to an uninitialized buffer, so the result depends on stack contents; see below | Differs: Linux binds the key. The port fails as macOS does, and the recordings of this path are made on macOS. |
+| A `MENUCOLOR`, `MSGTYPE` or `AUTOPICKUP_EXCEPTION` pattern, from the config file or typed in the options menu | Apple Libc's regex (TRE): BSD error texts, `\w` and `\1` literal, `[[:<:]]` accepted | glibc's regex | `sys/share/posixregex.c` calls the host's `regcomp()`, `regexec()` and `regerror()`; see below | Differs. The port follows macOS, and the recordings of these paths are made on macOS. |
 | The options help text (`Set options as OPTIONS=<options> in ...`) and other messages that name the config file | The judge's `HOME`, given in `docs/recording-environment.md` | The `HOME` the game runs with | `src/options.c:9471` prints `get_configfile()`, which is `$HOME/.nethackrc`. The path's length decides how many lines the help text takes, and so which lines fall on each page of the pager. | The judge's path on every host (patch 008) |
 
 Save files are compressed with `/usr/bin/compress`, as on macOS
@@ -263,6 +265,80 @@ includes `g04439` in batch 1, which the port now fails against its Linux
 recording and matches against macOS. A line-preserving edit to the Linux
 profile that starts `cmdstr` with a nonzero byte could make Linux record
 what macOS does.
+
+### The regex difference
+
+`sys/share/posixregex.c` compiles every `MENUCOLOR`, `MSGTYPE` and
+`AUTOPICKUP_EXCEPTION` pattern with the host C library's
+`regcomp(REG_EXTENDED | REG_NOSUB)` (line 70), matches with `regexec()`
+and reports errors with `regerror()` (line 84). NetHack never calls
+`setlocale()`, so the library runs in the "C" locale. macOS uses Apple
+Libc's regex, TRE with FreeBSD's `regerror()`; Linux uses glibc's. They
+differ:
+
+- Every error text. For example, macOS prints `parentheses not balanced`,
+  `repetition-operator operand invalid` and `trailing backslash (\)` where
+  glibc prints `Unmatched ( or \(`, `Invalid preceding regular expression`
+  and `Trailing backslash`.
+- Patterns only macOS rejects: an empty pattern or alternative (`a|`,
+  `|a`, `(a|)`: `empty (sub)expression`) and a repetition after another
+  (`a**`, `a+?`, `a{1}{2}`), which TRE reserves.
+- Patterns only glibc rejects: `[[:<:]]` and `[[:>:]]` (word start and
+  end on macOS), `[[.space.]]` and the other character names of
+  FreeBSD's `cname.h`, and `{,1}`.
+- Meaning. Without `REG_ENHANCED`, which NetHack does not pass, TRE reads
+  a backslash before any character as that character, so `\w`, `\s`,
+  `\b`, `\<` and `\1` are the letters and digit; glibc reads them as
+  operators and a back-reference. A `{` not followed by a digit is a
+  literal brace on macOS, so `a{,2}` is the text `a{,2}`; glibc reads it
+  as `a{0,2}`. A bound above 255 is `maximum repetition exceeds 255` on
+  macOS.
+
+The port follows macOS. `js/regcomp.js`, `js/regexec.js`,
+`js/regerror.js` and the `js/tre_*.js` files translate Apple Libc tag
+`Libc-1752.120.2`; `js/tre_internal.js` names the source and what the
+translation leaves out. To check it against macOS itself,
+`experiments/host-parity/regex-oracle/` builds a small program that calls
+the three functions as `posixregex.c` does and asks it 17,700 patterns
+against 76 texts. `macos-recorder.yml` runs it and records the committed
+recipes whose games compile a pattern, listed in
+`experiments/host-parity/regex-oracle/recipes.txt`. In run
+[44628090866](https://github.com/vtjeng/teleport-contest/actions/runs/44628090866)
+the port gave macOS's answer for every pattern and text, and glibc 2.39
+differed on 10,422 patterns. The answers are in
+`experiments/host-parity/regex-oracle/results/`, and
+`scripts/posixregex.test.mjs` fails if the port's answer for any of them
+changes. The runner was macOS 26.7.2; the judge's macOS version is not
+known.
+
+`recipes.txt` lists 157 recipes. 38 are earlier recipes whose games
+compile a pattern from a config line or the options menu; 32 of them
+record alike on both hosts, and the committed recordings of the other six
+are the macOS ones:
+`recordings/options.c/autopickup-exception-regex-errors`,
+`handler_menu_colors-unmatched-bracket-and-paren-regex-errors-elf-priest`,
+`handler_msgtype-trailing-backslash-regex-error-dwarf-valkyrie`, and
+`recordings/posixregex.c/msgtype-fixed-repeat-backref`,
+`trial-repeated-greeting` and `trial-simple-greeting-control`. The other
+119 are the regex recipes of the second host-parity sample, committed as
+`recipes/posixregex.c/re-*` with their macOS recordings; 75 of them differ
+between the hosts. Record all of these again on macOS, not with a Linux
+recorder; each recipe's comment says so, and
+`scripts/posixregex-recordings.test.mjs` fails when any recording under
+`recordings/` shows glibc's `regerror()` text. A new recipe whose pattern
+the two libraries read differently needs a macOS recording too: add it to
+`recipes.txt`, run the workflow and copy the recording from the artifact's
+`regex/` directory.
+
+Nested bounds multiply TRE's work. On the runner, macOS returned
+`out of memory` for `((a{255}){255}){255}`, and compiling
+`(a{0,255}){0,255}` and matching it against the oracle's texts took 9.3
+seconds; the port compiles that pattern in about 3.5 seconds and 1.1 GB.
+The port refuses with the same error a pattern whose expansion passes
+2^20 positions, or whose position sets and transitions pass 2^26 entries
+(`js/tre_compile.js`, `MAX_POSITIONS` and `MAX_WORK`). A Mac with more
+memory than the runner might compile some patterns the port refuses, such
+as `((a{0,8}){0,255}){0,255}`.
 
 ### Private installs
 

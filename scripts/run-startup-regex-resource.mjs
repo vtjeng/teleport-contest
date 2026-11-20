@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
     regex_compile,
+    regex_error_desc,
     regex_init,
     regex_match,
 } from '../js/posixregex.js';
@@ -35,6 +36,13 @@ function runSingleCase(entry) {
             REGEX_EXACT_BOUNDARY_BYTES);
         assert.equal(Buffer.byteLength(entry.input),
             REGEX_EXACT_BOUNDARY_BYTES);
+    }
+    if (entry.expected?.error) {
+        // A pattern regcomp() refuses, with regerror()'s text.
+        const regex = regex_init();
+        assert.equal(regex_compile(entry.pattern, regex), false, entry.pattern);
+        assert.equal(regex_error_desc(regex), entry.expected.error);
+        return;
     }
     assert.equal(compileAndMatch(entry.pattern, entry.input), entry.expected);
 }

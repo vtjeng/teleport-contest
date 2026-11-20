@@ -1,0 +1,17 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310442,
+      "datetime": "20260715120000",
+      "nethackrc": "OPTIONS=name:Probe,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u001brkSy"
+    },
+    {
+      "seed": 7310442,
+      "datetime": "20260115120000",
+      "nethackrc": "OPTIONS=name:Probe,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u001brk\u0018      \u001b"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310442,
+      "datetime": "20261115143000",
+      "nethackrc": "OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "\u001bØ\u001b\u001bÙ\u001b\u001bÚ\u001b\u001bÛ\u001b\u001bs"
+    }
+  ]
+}

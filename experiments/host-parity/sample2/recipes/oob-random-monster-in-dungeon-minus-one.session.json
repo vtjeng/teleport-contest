@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310944,
+      "datetime": "20480915141500",
+      "nethackrc": "OPTIONS=name:Osric,role:Priest,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\naiyh\u0017magic portal\nlh       \u00173 blessed potions of gain level\nqj qj qj 200s 200s            s"
+    }
+  ]
+}

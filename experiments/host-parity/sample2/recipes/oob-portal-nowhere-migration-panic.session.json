@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52130010,
+      "datetime": "20550712083015",
+      "nethackrc": "OPTIONS=name:Nowhere,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "  #wizloadlua\ntut-1\n20s"
+    }
+  ]
+}

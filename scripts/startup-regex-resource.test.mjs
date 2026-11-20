@@ -7,6 +7,7 @@ import { runBoundedChild } from './run-startup-regex-resource.mjs';
 import {
     EXACT_BOUNDARY_REGEX_CASES,
     FIXED_POINT_REGEX_RESOURCE_CASE,
+    NESTED_BOUND_REGEX_CASES,
     REGEX_EXACT_BOUNDARY_BYTES,
     REGEX_RESOURCE_CASES,
     REGEX_RESOURCE_OUTPUT_NAMES,
@@ -14,12 +15,13 @@ import {
 
 const RUNNER = resolve('scripts/run-startup-regex-resource.mjs');
 const REQUIRED_RESOURCE_NAMES = Object.freeze([
-    'literal-suffix-guard',
-    'suffix-reaching-direct-memo',
-    'suffix-reaching-reference-memo',
-    'suffix-reaching-zero-minimum',
-    'suffix-reaching-correlated-frontier',
-    'adjacent-repeat-fixed-point',
+    'wide-frontier-miss',
+    'wide-frontier-match',
+    'nullable-loop-chain-miss',
+    'nested-bound-65025-positions',
+    'nested-bound-work-limit',
+    'nested-bound-position-limit',
+    'nested-nullable-fixed-point',
 ]);
 
 test('adversarial regex inputs return the expected matches without hanging', () => {
@@ -27,7 +29,7 @@ test('adversarial regex inputs return the expected matches without hanging', () 
         encoding: 'utf8',
         // The children's hang watchdogs (ten seconds, or twice a case's CPU
         // budget), plus launcher time.
-        timeout: 5 * 10_000 + 2 * 12_000 + 5_000,
+        timeout: 5 * 10_000 + 2 * 2 * 10_000 + 5_000,
         maxBuffer: 1024 * 1024,
     });
     if (result.error || result.status !== 0) {
@@ -42,9 +44,9 @@ test('adversarial regex inputs return the expected matches without hanging', () 
 
 test('the resource gate allows scheduling delay and reports CPU and wall time',
     () => {
-        // Use the adversary that exceeded its wall budget in parallel tests.
+        // Use the costliest adversary.
         const entry = REGEX_RESOURCE_CASES.find(
-            ({ name }) => name === 'suffix-reaching-correlated-frontier',
+            ({ name }) => name === 'nested-bound-65025-positions',
         );
         const output = [];
         runBoundedChild(entry.name, entry, {
@@ -136,10 +138,11 @@ test('ordinary regex checks report timing variation without failing correctness'
     assert.match(output.join(''), /diagnostic measurements/u);
 });
 
-test('the fixture catalog completely owns exact and fixed-point resources', () => {
+test('the fixture catalog completely owns exact, bound and fixed-point resources', () => {
     assert.deepEqual(REGEX_RESOURCE_OUTPUT_NAMES, REQUIRED_RESOURCE_NAMES);
     assert.deepEqual(REGEX_RESOURCE_CASES, [
         ...EXACT_BOUNDARY_REGEX_CASES,
+        ...NESTED_BOUND_REGEX_CASES,
         FIXED_POINT_REGEX_RESOURCE_CASE,
     ]);
     assert.equal(new Set(REGEX_RESOURCE_OUTPUT_NAMES).size,
@@ -151,27 +154,7 @@ test('the fixture catalog completely owns exact and fixed-point resources', () =
         assert.equal(Buffer.byteLength(entry.input),
             REGEX_EXACT_BOUNDARY_BYTES, entry.name);
     }
+    for (const entry of NESTED_BOUND_REGEX_CASES) assert.equal(entry.kind, 'nested-bound');
     assert.equal(FIXED_POINT_REGEX_RESOURCE_CASE.kind, 'fixed-point');
     assert.ok(FIXED_POINT_REGEX_RESOURCE_CASE.cases.length > 0);
 });
-
-test('suffix-reaching fixtures enter the evaluator paths their names claim',
-    () => {
-        const fixture = Object.fromEntries(EXACT_BOUNDARY_REGEX_CASES.map(
-            (entry) => [entry.name, entry],
-        ));
-        for (const name of [
-            'suffix-reaching-direct-memo',
-            'suffix-reaching-reference-memo',
-            'suffix-reaching-correlated-frontier',
-        ]) {
-            assert.ok(fixture[name].pattern.endsWith('b$'), name);
-            assert.ok(fixture[name].input.endsWith('b'), name);
-        }
-        assert.ok(fixture['literal-suffix-guard'].pattern.endsWith('b$'));
-        assert.ok(!fixture['literal-suffix-guard'].input.endsWith('b'));
-        assert.equal(fixture['literal-suffix-guard'].expected, false);
-        assert.ok(!fixture['suffix-reaching-zero-minimum'].pattern
-            .endsWith('b$'));
-        assert.equal(fixture['suffix-reaching-zero-minimum'].expected, true);
-    });

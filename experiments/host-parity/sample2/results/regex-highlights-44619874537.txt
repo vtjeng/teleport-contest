@@ -1,0 +1,72 @@
+re-match-00	** mac=-	lin=a	MENUCOLOR "\w+ spear" in nethackrc, then the inventory
+re-match-01	** mac=-	lin=b	MENUCOLOR "\bdagger\b" in nethackrc, then the inventory
+re-match-02	** mac=-	lin=b	MENUCOLOR "\<dagger\>" in nethackrc, then the inventory
+re-match-03	** mac=b	lin=ERR(Invalid character class name.)	MENUCOLOR "[[:<:]]dagger" in nethackrc, then the inventory
+re-match-04	   mac=a	lin=a	MENUCOLOR "sp\ear" in nethackrc, then the inventory
+re-match-05	   mac=a	lin=a	MENUCOLOR "\+1" in nethackrc, then the inventory
+re-match-06	** mac=-	lin=b	MENUCOLOR "\s\+0" in nethackrc, then the inventory
+re-match-07	** mac=-	lin=b	MENUCOLOR "\S+ dagger" in nethackrc, then the inventory
+re-match-08	** mac=-	lin=abc	MENUCOLOR "\W\(" in nethackrc, then the inventory
+re-match-09	   mac=-	lin=-	MENUCOLOR "dagger\B" in nethackrc, then the inventory
+re-match-10	** mac=ERR(empty (sub)expression.)	lin=abcd	MENUCOLOR "(spear|)" in nethackrc, then the inventory
+re-match-11	** mac=ERR(empty (sub)expression.)	lin=abcd	MENUCOLOR "(|dagger)" in nethackrc, then the inventory
+re-match-12	** mac=-	lin=a	MENUCOLOR "spea{,1}r" in nethackrc, then the inventory
+re-match-13	** mac=ERR(repetition-operator operand invalid.)	lin=abcd	MENUCOLOR "x**" in nethackrc, then the inventory
+re-match-14	** mac=ERR(repetition-operator operand invalid.)	lin=abcd	MENUCOLOR "a+?" in nethackrc, then the inventory
+re-match-15	   mac=-	lin=-	MENUCOLOR "^a - " in nethackrc, then the inventory
+re-match-16	   mac=-	lin=-	MENUCOLOR "shield)$" in nethackrc, then the inventory
+re-match-17	** mac=a	lin=bcd	MENUCOLOR "(.)\1" in nethackrc, then the inventory
+re-match-18	** mac=-	lin=d	MENUCOLOR "(o)\1d" in nethackrc, then the inventory
+re-match-19	   mac=abcd	lin=abcd	MENUCOLOR "[a-]" in nethackrc, then the inventory
+re-match-20	   mac=-	lin=-	MENUCOLOR "[]a]x" in nethackrc, then the inventory
+re-match-21	   mac=abcd	lin=abcd	MENUCOLOR "[^]]" in nethackrc, then the inventory
+re-match-22	** mac=b	lin=ERR(Invalid collation character.)	MENUCOLOR "[[.space.]]dagger" in nethackrc, then the inventory
+re-match-23	   mac=-	lin=-	MENUCOLOR "[[=a=]]" in nethackrc, then the inventory
+re-match-24	   mac=abcd	lin=abcd	MENUCOLOR "[\d]" in nethackrc, then the inventory
+re-match-25	   mac=-	lin=-	MENUCOLOR "[[:alpha:]]+ spear" in nethackrc, then the inventory
+re-match-26	   mac=a	lin=a	MENUCOLOR "spe(ar)?" in nethackrc, then the inventory
+re-match-27	   mac=a	lin=a	MENUCOLOR "()spear" in nethackrc, then the inventory
+re-match-28	** mac=ERR(repetition-operator operand invalid.)	lin=ERR(Invalid preceding regular expression.)	MENUCOLOR "{1}a" in nethackrc, then the inventory
+re-match-29	** mac=ERR(repetition-operator operand invalid.)	lin=ERR(Invalid preceding regular expression.)	MENUCOLOR "a|*b" in nethackrc, then the inventory
+re-match-30	   mac=abc	lin=abc	MENUCOLOR "\(" in nethackrc, then the inventory
+re-match-31	   mac=b	lin=b	MENUCOLOR "dagger{1,2}" in nethackrc, then the inventory
+re-match-32	   mac=a	lin=a	MENUCOLOR "x{0}spear" in nethackrc, then the inventory
+re-match-33	   mac=abcd	lin=abcd	MENUCOLOR "\d" in nethackrc, then the inventory
+re-match-34	** mac=ERR(invalid character range.)	lin=ERR(Invalid range end.)	MENUCOLOR "[z-a]" in nethackrc, then the inventory
+re-match-35	** mac=ERR(repetition-operator operand invalid.)	lin=ERR(Invalid preceding regular expression.)	MENUCOLOR "(?i)SPEAR" in nethackrc, then the inventory
+re-match-36	   mac=-	lin=-	MENUCOLOR "SPEAR" in nethackrc, then the inventory
+re-match-37	** mac=ERR(invalid character class.)	lin=ERR(Invalid character class name.)	MENUCOLOR "[[:word:]]" in nethackrc, then the inventory
+re-match-38	   mac=a	lin=a	MENUCOLOR "é|spear" in nethackrc, then the inventory
+re-match-39	   mac=-	lin=-	MENUCOLOR "[à-ÿ]" in nethackrc, then the inventory
+re-match-40	** mac=ERR(repetition-operator operand invalid.)	lin=-	MENUCOLOR "a{1,2}{3}" in nethackrc, then the inventory
+re-match-41	** mac=ERR(repetition-operator operand invalid.)	lin=abcd	MENUCOLOR "b*+" in nethackrc, then the inventory
+re-match-42	** mac=ERR(repetition-operator operand invalid.)	lin=ERR(Invalid preceding regular expression.)	MENUCOLOR "^*spear" in nethackrc, then the inventory
+re-match-43	   mac=-	lin=-	MENUCOLOR "$a" in nethackrc, then the inventory
+re-match-44	** mac=ERR(empty (sub)expression.)	lin=abcd	MENUCOLOR "spear|" in nethackrc, then the inventory
+re-match-45	** mac=ERR(empty (sub)expression.)	lin=abcd	MENUCOLOR "|spear" in nethackrc, then the inventory
+re-typed-00	   mac=-	lin=-	#optionsfull menu colors add "blessed" red bold, then the inventory
+re-typed-01	   mac=cd	lin=cd	#optionsfull menu colors add "uncursed" red bold, then the inventory
+re-typed-02	   mac=a	lin=a	#optionsfull menu colors add "spear" red bold, then the inventory
+re-typed-03	** mac=ERR(repetition-operator operand invalid.)	lin=ERR(Invalid preceding regular expression.)	#optionsfull menu colors add "+1" red bold, then the inventory
+re-typed-04	** mac=ERR(repetition-operator operand invalid.)	lin=ERR(Invalid preceding regular expression.)	#optionsfull menu colors add "+0 dagger" red bold, then the inventory
+re-typed-05	** mac=ERR(repetition-operator operand invalid.)	lin=ERR(Invalid preceding regular expression.)	#optionsfull menu colors add "*dagger" red bold, then the inventory
+re-typed-06	** mac=ERR(repetition-operator operand invalid.)	lin=ERR(Invalid preceding regular expression.)	#optionsfull menu colors add "?spear" red bold, then the inventory
+re-typed-07	   mac=c	lin=c	#optionsfull menu colors add "\\(being worn\\)" red bold, then the inventory
+re-typed-08	   mac=c	lin=c	#optionsfull menu colors add "(being worn)" red bold, then the inventory
+re-typed-09	   mac=ab	lin=ab	#optionsfull menu colors add "(weapon|alternate)" red bold, then the inventory
+re-typed-10	   mac=a	lin=a	#optionsfull menu colors add "spear.*hand" red bold, then the inventory
+re-typed-11	   mac=abc	lin=abc	#optionsfull menu colors add "[0-9]+ " red bold, then the inventory
+re-typed-12	   mac=d	lin=d	#optionsfull menu colors add "food ration$" red bold, then the inventory
+re-typed-13	   mac=cd	lin=cd	#optionsfull menu colors add "^an " red bold, then the inventory
+re-typed-14	** mac=-	lin=abcd	#optionsfull menu colors add "a{,2}" red bold, then the inventory
+re-typed-15	** mac=-	lin=a	#optionsfull menu colors add "spea{,1}r" red bold, then the inventory
+re-typed-16	** mac=-	lin=a	#optionsfull menu colors add "spe{,2}ar" red bold, then the inventory
+re-typed-17	** mac=-	lin=a	#optionsfull menu colors add "x{,0}spear" red bold, then the inventory
+re-typed-18	** mac=-	lin=a	#optionsfull menu colors add "spear{,}" red bold, then the inventory
+re-typed-19	** mac=-	lin=ERR(Invalid preceding regular expression.)	#optionsfull menu colors add "{,1}" red bold, then the inventory
+re-typed-20	** mac=-	lin=abcd	#optionsfull menu colors add "a{,}" red bold, then the inventory
+re-typed-21	   mac=b	lin=b	#optionsfull menu colors add "dag{1,}er" red bold, then the inventory
+re-typed-22	** mac=-	lin=b	#optionsfull menu colors add "dagger\\b" red bold, then the inventory
+re-typed-23	   mac=-	lin=-	#optionsfull menu colors add "\\." red bold, then the inventory
+re-typed-24	   mac=abcd	lin=abcd	#optionsfull menu colors add "." red bold, then the inventory
+re-typed-25	   mac=abcd	lin=abcd	#optionsfull menu colors add " +" red bold, then the inventory

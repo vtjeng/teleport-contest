@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6603117,
+      "datetime": "20471111221500",
+      "nethackrc": "OPTIONS=name:Hrefna,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\naeyaeyaeyaeyaeyaeyaeyaeyaeyaeyaeyaeyaeyaeyl\u0017magic portal\nhl      "
+    }
+  ]
+}

@@ -79,6 +79,10 @@ export const KNOWN_MISMATCHES = new Map([
     // mfndpos.h defines 0x80000000UL. JavaScript's bitwise operators work on
     // signed 32-bit integers, so the port keeps the same bits as a negative.
     ['NOGARLIC', 'same 32 bits, stored signed for JavaScript bitwise operators'],
+    // js/tre_internal.js keeps macOS's <regex.h> and TRE values, the judge's
+    // host; the check compiles against the Linux host's glibc <regex.h>.
+    ['REG_NOSUB', 'macOS <regex.h> value (0004); glibc\'s is 8'],
+    ['RE_DUP_MAX', 'TRE\'s tre.h redefines it as 255; glibc\'s is 0x7fff'],
 ]);
 
 // js/ names that spell a C constant differently, other than by case alone
@@ -172,23 +176,25 @@ export const C_ALIASES = new Map([
 // entry here, or when an entry here no longer names a port-only constant.
 const portOnly = (reason, names) => names.map((name) => [name, reason]);
 export const PORT_ONLY = new Map([
-    ...portOnly('glibc 2.39 regex internals (posix/regex_internal.h, regcomp.c),'
-        + ' which no installed header declares', [
-        'ANCHOR', 'BACK_SLASH', 'BITSET_WORD_BITS', 'BRACKET_NAME_BUF_SIZE', 'BUF_FIRST',
-        'BUF_LAST', 'CHAR_CLASS', 'CHARACTER', 'COLL_SYM', 'CONCAT', 'CONTEXT_BEGBUF',
-        'CONTEXT_ENDBUF', 'CONTEXT_NEWLINE', 'CONTEXT_WORD', 'END_OF_RE', 'EPSILON_BIT',
-        'EQUIV_CLASS', 'INSIDE_NOTWORD', 'INSIDE_WORD', 'LINE_FIRST', 'LINE_LAST',
-        'NEWLINE_CHAR', 'NEXT_ENDBUF_CONSTRAINT', 'NEXT_NEWLINE_CONSTRAINT',
-        'NEXT_NOTWORD_CONSTRAINT', 'NEXT_WORD_CONSTRAINT', 'NON_TYPE', 'NOT_WORD_DELIM',
-        'NOT_WORD_DELIM_CONSTRAINT', 'OP_ALT', 'OP_BACK_REF', 'OP_CHARSET_RANGE',
-        'OP_CLOSE_BRACKET', 'OP_CLOSE_CHAR_CLASS', 'OP_CLOSE_COLL_ELEM', 'OP_CLOSE_DUP_NUM',
-        'OP_CLOSE_EQUIV_CLASS', 'OP_CLOSE_SUBEXP', 'OP_DUP_ASTERISK', 'OP_DUP_PLUS',
-        'OP_DUP_QUESTION', 'OP_NON_MATCH_LIST', 'OP_NOTSPACE', 'OP_NOTWORD',
-        'OP_OPEN_BRACKET', 'OP_OPEN_CHAR_CLASS', 'OP_OPEN_COLL_ELEM', 'OP_OPEN_DUP_NUM',
-        'OP_OPEN_EQUIV_CLASS', 'OP_OPEN_SUBEXP', 'OP_PERIOD', 'OP_SPACE', 'OP_WORD',
-        'PREV_BEGBUF_CONSTRAINT', 'PREV_NEWLINE_CONSTRAINT', 'PREV_NOTWORD_CONSTRAINT',
-        'PREV_WORD_CONSTRAINT', 'SB_CHAR', 'SBC_MAX', 'SIMPLE_BRACKET', 'SUBEXP',
-        'WORD_DELIM', 'WORD_DELIM_CONSTRAINT', 'WORD_FIRST', 'WORD_LAST',
+    ...portOnly('Apple Libc regex internals (TRE\'s tre-internal.h, tre-ast.h,'
+        + ' tre-parse.c and tre-compile.c, macOS <regex.h> codes 14-18 and REG_ENHANCED,'
+        + ' and _ctype.h class bits), which the Linux headers the check compiles do not'
+        + ' declare; js/tre_internal.js names each source', [
+        'ASSERTION', 'ASSERT_AT_BOL', 'ASSERT_AT_BOW', 'ASSERT_AT_EOL', 'ASSERT_AT_EOW',
+        'ASSERT_BRACKET_MATCH', 'CATENATION', 'CHAR_BACKSLASH', 'CHAR_CARET', 'CHAR_COLON',
+        'CHAR_COMMA', 'CHAR_DOLLAR', 'CHAR_EQUAL', 'CHAR_GREATER', 'CHAR_LBRACE',
+        'CHAR_LBRACKET', 'CHAR_LESS', 'CHAR_LPAREN', 'CHAR_MINUS', 'CHAR_PERIOD', 'CHAR_PIPE',
+        'CHAR_PLUS', 'CHAR_QUESTIONMARK', 'CHAR_RBRACE', 'CHAR_RBRACKET', 'CHAR_RPAREN',
+        'CHAR_STAR', 'CTYPE_A', 'CTYPE_B', 'CTYPE_C', 'CTYPE_D', 'CTYPE_G', 'CTYPE_I',
+        'CTYPE_L', 'CTYPE_P', 'CTYPE_Q', 'CTYPE_R', 'CTYPE_S', 'CTYPE_T', 'CTYPE_U', 'CTYPE_X',
+        'EMPTY', 'ITERATION', 'LITERAL', 'MAX_POSITIONS', 'MAX_WORK', 'PARSE_ATOM', 'PARSE_BRANCH',
+        'PARSE_CATENATION', 'PARSE_MARK_FOR_SUBMATCH', 'PARSE_PIECE', 'PARSE_POSTFIX',
+        'PARSE_POST_CATENATION', 'PARSE_POST_UNION', 'PARSE_RE', 'PARSE_UNION', 'REG_ASSERT',
+        'REG_BADMAX', 'REG_EMPTY', 'REG_ENHANCED', 'REG_ILLSEQ', 'REG_INVARG', 'REG_OK',
+        'SUBMATCH_ID_INVISIBLE_START', 'TRE_BRACKET_MATCH_FLAG_NEGATE',
+        'TRE_BRACKET_MATCH_TYPE_CHAR', 'TRE_BRACKET_MATCH_TYPE_CLASS',
+        'TRE_BRACKET_MATCH_TYPE_EQUIVALENCE', 'TRE_BRACKET_MATCH_TYPE_RANGE_BEGIN',
+        'TRE_BRACKET_MATCH_TYPE_RANGE_END', 'TRE_CHAR_MAX', 'TRE_INT_MAX', 'UNION',
     ]),
     ...portOnly('a key byte that C writes as a character literal',
         ['BACKSPACE', 'CTRL_P', 'DELETE', 'ESC']),
@@ -385,9 +391,9 @@ export async function collectJsConstants() {
 function prelude() {
     return [
         '#include "hack.h"',
-        // js/regcomp.js and js/regex_internal.js port the host's (glibc's)
-        // regex, which the recorder links through sys/share/posixregex.c,
-        // the file that includes <regex.h> after hack.h this way.
+        // sys/share/posixregex.c includes <regex.h> after hack.h this way.
+        // js/tre_internal.js keeps macOS's values, the judge's host, so
+        // the two that differ from this host's glibc are KNOWN_MISMATCHES.
         '#include <regex.h>',
         ...EXTRA_HEADERS.map((h) => `#include "${h}"`),
         // mcastu.c builds its spell enum from mcastu.h this way.
