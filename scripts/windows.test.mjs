@@ -21,6 +21,8 @@ function windowState(keys = '') {
     game.nhDisplay = new GameDisplay(null);
     for (const ch of keys) game.nhDisplay.pushKey(ch.charCodeAt(0));
     tty_init_nhwindows(null, null, game);
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    game.iflags.window_inited = true;
     return game;
 }
 
