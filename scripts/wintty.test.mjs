@@ -66,6 +66,34 @@ test('tty_create_nhwindow clamps the live message history size', () => {
     }
 });
 
+// C ref: win/tty/wintty.c tty_create_nhwindow() NHW_MESSAGE arm (885-895)
+// and the allocation after the switch (939-955).
+test('tty_create_nhwindow gives the message window C geometry', () => {
+    // A 24x80 GameDisplay: the message window must not copy its 80 columns.
+    const state = {
+        iflags: { msg_history: 37 },
+        nhDisplay: new GameDisplay(null),
+    };
+    const id = tty_create_nhwindow(NHW_MESSAGE, state);
+    const window = state.wintty.wins[id];
+    assert.deepEqual(
+        [window.offx, window.offy, window.rows, window.cols,
+            window.maxrow, window.maxcol],
+        // wintty.c:887 zeroes offx and offy; :893 sets rows to the
+        // normalized msg_history (37 is inside 20..MAX_MSG_HISTORY, so it is
+        // kept); :894 sets maxcol and cols to 0; :953-954 reset maxrow to 0
+        // after allocating 37 history slots.
+        [0, 0, 37, 0, 0, 0],
+    );
+    // wintty.c:944-952: one null line and a zero length per history slot.
+    assert.deepEqual(window.data, Array(37).fill(null));
+    assert.deepEqual(window.datlen, Array(37).fill(0));
+    assert.equal(state.wintty.messageWindow, id);
+    // The source lines the comments above cite.
+    assert.match(C_SOURCE, /newwin->maxrow = newwin->rows = iflags\.msg_history;\n\s*newwin->maxcol = newwin->cols = 0;/u);
+    assert.match(C_SOURCE, /if \(newwin->type == NHW_MESSAGE\)\n\s*newwin->maxrow = 0;/u);
+});
+
 test('tty_create_nhwindow keeps the unbuffered map geometry', () => {
     const state = { nhDisplay: new GameDisplay(null) };
     const mapId = tty_create_nhwindow(NHW_MAP, state);

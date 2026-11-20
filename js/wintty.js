@@ -57,9 +57,8 @@ export function term_startup(state = game) {
     if (wid < COLNO || hgt < ROWNO + 3) setclipped(state);
 }
 
-// C ref: win/tty/wintty.c tty_create_nhwindow() (850-895). The browser
-// descriptor stores the fields needed by startup, cursor movement, and later
-// resize code; message windows retain the earlier history-size normalization.
+// C ref: win/tty/wintty.c tty_create_nhwindow() (850-957). Each arm sets
+// offx, offy, rows, cols, maxrow and maxcol as its C arm does.
 export function tty_create_nhwindow(type, state = game) {
     const wt = winttyState(state);
     const { rows, cols } = state.nhDisplay;
@@ -79,7 +78,7 @@ export function tty_create_nhwindow(type, state = game) {
         offx: 0,
         offy: 0,
         rows: 0,
-        cols,
+        cols: 0,
         maxrow: 0,
         maxcol: 0,
         data: null,
@@ -87,6 +86,7 @@ export function tty_create_nhwindow(type, state = game) {
     };
     if (type === NHW_BASE) {
         window.rows = rows;
+        window.cols = cols;
         window.maxrow = 0;
     } else if (type === NHW_MESSAGE) {
         const history = state.iflags?.msg_history ?? 20;
@@ -99,7 +99,10 @@ export function tty_create_nhwindow(type, state = game) {
         // wintty.c allocates rows slots, then uses maxrow as the next history
         // slot (zero for an empty ring).
         window.maxrow = 0;
-        window.maxcol = 0;
+        // "1 line long, very wide": C sets maxcol and cols to 0. Its only
+        // reader of this window's cols is tty_curs()'s DEBUG bounds check,
+        // which complains about every window type except NHW_MESSAGE.
+        window.cols = window.maxcol = 0;
         window.data = Array(window.rows).fill(null);
         window.datlen = Array(window.rows).fill(0);
         wt.messageWindow = id;
@@ -111,6 +114,7 @@ export function tty_create_nhwindow(type, state = game) {
         window.cols = COLNO;
     } else if (type === NHW_MENU || type === NHW_TEXT) {
         window.rows = 0;
+        window.cols = cols;
         window.offx = 0;
         window.offy = 0;
     } else if (type === NHW_STATUS) {
