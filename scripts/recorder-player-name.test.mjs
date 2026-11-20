@@ -19,8 +19,9 @@ import { utf8Text } from '../js/hacklib.js';
 const ROLE = 'role:Valkyrie,race:human,gender:female,align:neutral';
 
 // [nethackrc, name the recorder passes]. The first twelve are the variants a
-// recorded C game showed the port getting wrong (2026-11-20, 110 name
-// variants, /tmp/claude-1000/fable-hunt/nm{,2}); the rest are common forms
+// recorded C game showed the port getting wrong (2026-11-20: 111 name
+// variants, of which 109 recorded; the recorder refused the name "-", and C
+// exited early for name:Foo-Wiz with race:elf); the rest are common forms
 // whose recorded games matched before and must keep matching.
 const NAME_TABLE = [
     // The rc parser may take a name from "name=Foo" inside OPTIONS or from
