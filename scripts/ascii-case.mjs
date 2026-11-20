@@ -65,6 +65,25 @@ export const ALLOWED = Object.freeze([
         count: 1,
         reason: 'the toUpperCase() half of the same fileNameFold() fold',
     },
+    // js/unixmain.js parseNethackrcName() is the recorder's own parse
+    // (scripts/record-session.mjs imports it), not NetHack's, and the name
+    // it finds reaches C as "-u <name>". JavaScript's Unicode case mapping
+    // is part of that parse: LONG S uppercases to S, so the recorder reads
+    // "optionſ=name:X" as an OPTIONS line (scripts/recorder-player-name.test.mjs).
+    {
+        file: 'js/unixmain.js',
+        code: 'line.toUpperCase',
+        count: 1,
+        reason: 'the recorder\'s Unicode-cased match of the OPTIONS keyword, '
+            + 'which decides the -u name C plays under',
+    },
+    {
+        file: 'js/unixmain.js',
+        code: 't.toLowerCase',
+        count: 1,
+        reason: 'the recorder\'s Unicode-cased match of the name: option, '
+            + 'which decides the -u name C plays under',
+    },
 ]);
 
 function isNode(value) {

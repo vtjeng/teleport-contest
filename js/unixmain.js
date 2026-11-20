@@ -5,7 +5,6 @@
 import { PL_NSIZ } from './const.js';
 import { game } from './gstate.js';
 import { truncateByteString, utf8Text } from './hacklib.js';
-import { note_unported } from './unported.js';
 
 // The player name the recorder passes to C as "-u <name>".
 // scripts/record-session.mjs recordSegment() launches every segment as
@@ -44,34 +43,17 @@ export function recorderArguments(rc) {
 // C ref: sys/unix/unixmain.c process_options() (328-486). nethack_main()
 // calls it after initoptions() and whoami() (unixmain.c:150-170), so a name
 // given with -u replaces the one the nethackrc set, and an empty one clears
-// it, which leaves plnamesuffix() to ask "Who are you?". This covers the
-// 'u' arm (385-396), the only option the recorder passes; any other
-// argument records the gap. Each argument is the UTF-8 bytes of a decoded
-// string; strncpy() stops at the first NUL and copies at most
-// sizeof plname - 1 bytes, and it has no comma stop, unlike nmcpy().
-export function process_options(argv, state = game) {
-    const plnameArgument = (text) => {
-        const bytes = utf8Text(text);
-        const nul = bytes.indexOf('\0');
-        state.plname = truncateByteString(
-            nul < 0 ? bytes : bytes.slice(0, nul), PL_NSIZ - 1);
-        state.gp.plnamelen = 0; /* plname[] might have -role-race attached */
-    };
-    let index = 0;
-    while (index < argv.length && argv[index][0] === '-') {
-        const arg = argv[index++];
-        if (arg[1] !== 'u') {
-            note_unported('unixmain.c process_options');
-            continue;
-        }
-        if (arg.length > 2) {
-            plnameArgument(arg.slice(2));
-        } else if (index < argv.length) {
-            plnameArgument(argv[index++]);
-        } else {
-            note_unported('unixmain.c process_options');
-        }
-    }
+// it, which leaves plnamesuffix() to ask "Who are you?". Its one caller
+// passes recorderArguments(), always ["-u", name], so this covers only the
+// 'u' arm's separate-argument branch (389-393). The argument is the UTF-8
+// bytes of a decoded string; strncpy() stops at the first NUL and copies at
+// most sizeof plname - 1 bytes, and it has no comma stop, unlike nmcpy().
+export function process_options([, name], state = game) {
+    const bytes = utf8Text(name);
+    const nul = bytes.indexOf('\0');
+    state.plname = truncateByteString(
+        nul < 0 ? bytes : bytes.slice(0, nul), PL_NSIZ - 1);
+    state.gp.plnamelen = 0; /* plname[] might have -role-race attached */
 }
 
 // The account name sys/unix/unixmain.c get_unix_pw() would answer for the

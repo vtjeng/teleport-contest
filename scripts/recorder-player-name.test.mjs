@@ -79,6 +79,9 @@ const NAME_TABLE = [
     [`OPTIONS=name:Sir Lancelot,${ROLE}\n`, 'Sir Lancelot'],
     // A non-ASCII name passes as decoded text; C receives its UTF-8 bytes.
     [`OPTIONS=name:Zoë,${ROLE}\n`, 'Zoë'],
+    // The keyword match uses JavaScript's Unicode case mapping, under which
+    // LONG S (U+017F) uppercases to S, so this line counts as OPTIONS.
+    [`option\u017f=name:LongS,${ROLE}\n`, 'LongS'],
 ];
 
 test('the recorder, the shared parse and the port agree on the player name', () => {
@@ -105,9 +108,6 @@ test('process_options() copies at most PL_NSIZ - 1 bytes of the -u name', () => 
     // strncpy() cuts bytes: 30 ASCII letters, then the first byte of 'ë'.
     process_options(['-u', `${'B'.repeat(30)}ë`], state);
     assert.equal(state.plname, `${'B'.repeat(30)}Ã`);
-    // The "-uName" form names the player in the same argument (386-388).
-    process_options(['-uJoined'], state);
-    assert.equal(state.plname, 'Joined');
 });
 
 test('record-session.mjs launches NetHack with the shared argument vector', () => {

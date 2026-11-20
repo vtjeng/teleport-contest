@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 840113,
+      "datetime": "20300716223500",
+      "nethackrc": "optionſ=name:Wendeline,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=role:Tourist,race:human,gender:female,align:neutral,!tutorial,!splash_screen,pettype:none,!autopickup,!legacy\n",
+      "moves": "\n\u0018\u001b"
+    }
+  ],
+  "comment": "The first line spells its keyword with LONG S (U+017F), which NetHack's parser rejects as an unknown config statement. The recorder (scripts/record-session.mjs recordSegment()) matches the keyword after JavaScript toUpperCase(), which maps LONG S to S, so it reads the line as OPTIONS and passes \"-u Wendeline\"; sys/unix/unixmain.c process_options() (385-396) copies that over the configured name after initoptions(), and the game greets Wendeline (js/unixmain.js parseNethackrcName(), process_options())."
+}

@@ -17,9 +17,10 @@ import {
 // tests (13 November 2026, when the other 302 sites in js/ were routed
 // through the hacklib.js helpers) and js/files.js fileNameFold()'s
 // toUpperCase().toLowerCase(), APFS's Unicode file-name fold (19 November
-// 2026). A change that adds an allowed site must give its reason in ALLOWED
+// 2026). 6 adds js/unixmain.js parseNethackrcName()'s two, the recorder's
+// own parse of the -u name (20 November 2026). A change that adds an allowed site must give its reason in ALLOWED
 // and raise this count; a change that removes one must lower it.
-const ALLOWED_SITES = 4;
+const ALLOWED_SITES = 6;
 
 test('js/ changes letter case only through the ASCII-only helpers', () => {
     const findings = scanRepository();
