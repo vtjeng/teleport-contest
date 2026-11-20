@@ -5,7 +5,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { nomux_g_putch_byte, nomux_putch_byte } from '../js/termcap.js';
+import { H_DEC, H_IBM, H_UNK, H_UTF8 } from '../js/const.js';
+import {
+    g_putch_graphics, nomux_g_putch_byte, nomux_putch_byte,
+} from '../js/termcap.js';
 
 test('putchar() hooks store printable ASCII and DEL only', () => {
     // 0x20 is the first byte nomux_putch() keeps (ch < 32 returns).
@@ -34,6 +37,35 @@ test('g_putch() strips the high bit before the same test', () => {
     assert.equal(nomux_g_putch_byte(0xa0), 0x20);
     // A plain control byte (\x1b from SYMBOLS=...:\x1b) is untouched.
     assert.equal(nomux_g_putch_byte(0x1b), null);
+});
+
+test('g_putch() switches to DEC graphics as wintty.c 3748-3779 does', () => {
+    // 0xE1 is the lead byte of a three-byte UTF-8 character and DECgraphics'
+    // S_corr; its low seven bits are 'a' (0x61), at or above 0x60.
+    // 0xC2 is a two-byte UTF-8 lead byte whose low bits, 'B' (0x42), are
+    // below 0x60. 0x61 is plain ASCII.
+    // SYMHANDLING(H_UTF8), line 3748: putchar(ch), never graph_on().
+    assert.equal(g_putch_graphics(0xE1, H_UTF8, false), false);
+    // SYMHANDLING(H_IBM), line 3750: putchar(ch) with or without
+    // eight_bit_tty.
+    assert.equal(g_putch_graphics(0xE1, H_IBM, false), false);
+    assert.equal(g_putch_graphics(0xE1, H_IBM, true), false);
+    // Lines 3758-3763: any other symset without eight_bit_tty prints a high
+    // byte after graph_on(), whatever its low bits.
+    assert.equal(g_putch_graphics(0xE1, H_UNK, false), true);
+    assert.equal(g_putch_graphics(0xC2, H_UNK, false), true);
+    assert.equal(g_putch_graphics(0xE1, H_DEC, false), true);
+    // Line 3764: a byte without the high bit is printed as it is.
+    assert.equal(g_putch_graphics(0x61, H_DEC, false), false);
+    // Lines 3754-3755: eight_bit_tty prints the byte itself unless the symset
+    // is DECgraphics and the low bits are 0x60 or above.
+    assert.equal(g_putch_graphics(0xE1, H_UNK, true), false);
+    assert.equal(g_putch_graphics(0xC2, H_DEC, true), false);
+    assert.equal(g_putch_graphics(0xE1, H_DEC, true), true);
+    // 0xE0 strips to 0x60, the boundary `(in_ch & 0x7f) < 0x60` excludes;
+    // 0xDF strips to 0x5F, the last byte it includes.
+    assert.equal(g_putch_graphics(0xE0, H_DEC, true), true);
+    assert.equal(g_putch_graphics(0xDF, H_DEC, true), false);
 });
 
 test('a map symbol whose capture is ignored leaves the cell untouched', async () => {

@@ -4,6 +4,7 @@
 // tty_select_menu().
 
 import {
+    SCORER_DEC_MAP,
     bot,
     docorner,
     docrt,
@@ -28,7 +29,7 @@ import {
     xwaitforspace,
 } from './tty_message.js';
 import {
-    BUFSZ, H_UTF8, PICK_ANY, PICK_NONE, PICK_ONE, PRIMARYSET,
+    BUFSZ, H_UNK, H_UTF8, PICK_ANY, PICK_NONE, PICK_ONE, PRIMARYSET,
 } from './const.js';
 import {
     ok_align,
@@ -62,7 +63,7 @@ import {
 } from './windows.js';
 import { pmatchi } from './strutil.js';
 import { impossible } from './pline.js';
-import { nomux_g_putch_byte } from './termcap.js';
+import { g_putch_graphics, nomux_g_putch_byte } from './termcap.js';
 import { baseWindow } from './wintty.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
@@ -120,17 +121,20 @@ export function menuTitleStyle(state = game) {
 //
 // process_text_window() alone sends the first byte of a line through
 // g_putch() when SYMHANDLING(H_UTF8) holds or the byte's high bit is set.
-// Its callers pass `textWindowUtf8` (see textWindowUtf8()); menu callers
+// Its callers pass `gPutch` (see textWindowGPutch()); menu callers
 // leave it undefined, since process_menu_window() has no g_putch() arm.
 // Both of patch 006's putchar hooks decrement curx around nomux_putch(), but
 // its g_putch() hook does not, and the loop has already pre-incremented curx.
 // The recorder therefore stores that first byte, high bit stripped, one
 // column to the right of where the terminal shows it, and the line's second
-// printable byte overwrites it there. The first byte's own column keeps what
-// the preceding clear left.
+// printable byte overwrites it there; a second byte the char hook ignores,
+// as in a multibyte UTF-8 character, leaves it showing. The first byte's own
+// column keeps what the preceding clear left. Outside a UTF8 or IBM symset
+// g_putch() prints a high byte after graph_on(), so the capture marks that
+// cell as DEC graphics (termcap.js g_putch_graphics()).
 function writeStyledText(
     display, column, row, text, color, attr, maxColumn = display.cols,
-    textWindowUtf8 = undefined,
+    gPutch = undefined,
 ) {
     const bytes = textBytes(text);
     for (let index = 0;
@@ -144,13 +148,17 @@ function writeStyledText(
             const cellColumn = column + index;
             const cellColor = compressed ? NO_COLOR : color;
             const cellAttr = compressed ? 0 : attr;
-            if (index === 0 && textWindowUtf8 !== undefined
-                && (textWindowUtf8 || byte >= 0x80)) {
+            if (index === 0 && gPutch !== undefined
+                && (gPutch.handling === H_UTF8 || byte >= 0x80)) {
                 // g_putch()'s hook, at the pre-incremented curx.
                 const stored = nomux_g_putch_byte(byte);
                 if (stored !== null) {
+                    const ch = String.fromCharCode(stored);
+                    const graphics = g_putch_graphics(
+                        byte, gPutch.handling, gPutch.eightBit);
                     display.putCaptured(cellColumn + 1, row,
-                        String.fromCharCode(stored), cellColor, cellAttr);
+                        graphics ? SCORER_DEC_MAP[ch] ?? ch : ch,
+                        cellColor, cellAttr);
                 }
             } else {
                 display.putch(cellColumn, row, String.fromCharCode(byte),
@@ -169,17 +177,22 @@ export function writeTextWindowLine(state, column, row, text, color, attr) {
         // process_text_window() pre-increments curx and tests curx < cols
         // before each byte.
         display.cols - 1,
-        textWindowUtf8(state),
+        textWindowGPutch(state),
     );
 }
 
-// C ref: wintty.c process_text_window() 1819-1820 and sym.h SYMHANDLING().
-// True when the active symbol set uses H_UTF8 handling, so every text-window
-// line's first byte goes through g_putch().
-function textWindowUtf8(state) {
-    return state.gs?.symset?.[
-        state.gc?.currentgraphics ?? PRIMARYSET
-    ]?.handling === H_UTF8;
+// C ref: wintty.c process_text_window() 1819-1824, g_putch() and sym.h
+// SYMHANDLING(). What decides how a text-window line's first byte is printed:
+// the active symbol set's handling (under H_UTF8 every first byte goes
+// through g_putch()) and iflags.eight_bit_tty, read as symbols.js symbol_at()
+// reads it for a map glyph.
+function textWindowGPutch(state) {
+    return {
+        handling: state.gs?.symset?.[
+            state.gc?.currentgraphics ?? PRIMARYSET
+        ]?.handling ?? H_UNK,
+        eightBit: Boolean(state.iflags?.wc_eight_bit_input),
+    };
 }
 
 function copyRegion(display, firstColumn, rowCount) {
@@ -557,7 +570,7 @@ export async function displayTtyMenuTextWindow(
                 // process_text_window() pre-increments curx and tests
                 // curx < cols before each byte.
                 display.cols - 1,
-                textWindowUtf8(state),
+                textWindowGPutch(state),
             );
         }
         clearRowFrom(display, layout.firstColumn, promptRow);
@@ -1062,16 +1075,16 @@ export async function displayTtyTextWindow(state = game, lines) {
         const line = lines[i];
         const text = String(line.text ?? '');
         clearRow(display, n);
-        const utf8 = textWindowUtf8(state);
+        const gPutch = textWindowGPutch(state);
         writeStyledText(
             display, 0, n, text, line.color ?? NO_COLOR, line.attr ?? 0,
             // wintty.c process_text_window() increments curx before each
             // byte and tests curx < cols, so a column-zero NHW_TEXT row
             // writes at most cols - 1 bytes.
             display.cols - 1,
-            utf8,
+            gPutch,
         );
-        const firstByteGPutch = utf8
+        const firstByteGPutch = gPutch.handling === H_UTF8
             || textBytes(text.slice(0, 1))[0] >= 0x80;
         // wintty.c process_text_window() sends putmixed() lines through
         // decode_mixed(). A decoded glyph can use a rendered DEC character

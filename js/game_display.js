@@ -149,8 +149,7 @@ export class GameDisplay {
     // tty_putstatusfield() and the menu and text window loops. The char is
     // signed on the recorder's x86-64 build, so a high byte arrives negative
     // and, like a control byte, leaves the shadow cell as it was
-    // (termcap.js nomux_putch_byte()). NUL, the port's marker for such a
-    // byte (tty_message.js ttyByteText()), is a control byte too. `ch` is one
+    // (termcap.js nomux_putch_byte()). `ch` is one
     // byte as a one-character string; a code unit above 0xFF is not a byte
     // and is left out the same way. Returns true when the cell was written.
     putch(col, row, ch, color = NO_COLOR, attr = 0) {

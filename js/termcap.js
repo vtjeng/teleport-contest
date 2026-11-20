@@ -10,6 +10,8 @@
 // advances the cursor past it. Every port of a wintty.c writer decides what
 // such a cell shows; these two functions say which bytes reach the cell.
 
+import { H_DEC, H_IBM, H_UTF8 } from './const.js';
+
 // The putchar() hooks (tty_putstr(), tty_putstatusfield(), the menu and text
 // window loops) pass a plain char, which is signed on the recorder's x86-64
 // build: a byte with its high bit set arrives negative and is ignored with
@@ -25,3 +27,19 @@ export function nomux_putch_byte(byte) {
 export function nomux_g_putch_byte(byte) {
     return nomux_putch_byte(byte & 0x80 ? byte ^ 0x80 : byte);
 }
+
+// wintty.c g_putch() 3748-3779: whether the byte is printed after graph_on(),
+// which sets the capture's nomux_decgfx_cur (patch 006, termcap.c graph_on()),
+// so the stored low seven bits are read as a DEC line-drawing character.
+// A UTF8 or IBM symset prints the byte as it is, and so does eight_bit_tty
+// unless the symset is DECgraphics and the low bits are 0x60 or above; of
+// the rest, only a byte with its high bit set switches the character set.
+// `handling` is the active symset's (sym.h SYMHANDLING()).
+export function g_putch_graphics(byte, handling, eightBit) {
+    if (handling === H_UTF8) return false;
+    if (handling === H_IBM
+        || (eightBit && (handling !== H_DEC || (byte & 0x7f) < 0x60)))
+        return false;
+    return (byte & 0x80) !== 0;
+}
+

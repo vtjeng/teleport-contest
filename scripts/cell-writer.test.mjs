@@ -193,8 +193,8 @@ test('putch() leaves the cell of a byte the char hook ignores', () => {
     // A visible 'Z' in each probed cell shows whether putch() wrote it.
     for (let col = 0; col < 7; ++col) disp.setCell(col, 0, 'Z', NO_COLOR, 0);
     // 0x20 and 0x7E bound the bytes nomux_putch() stores; 0x1F and 0x80 sit
-    // just outside them; 0xE9 is a typed Latin-1 letter; NUL is
-    // tty_message.js ttyByteText()'s marker; U+20AC is not a byte at all.
+    // just outside them; 0xE9 is a typed Latin-1 letter; NUL is the
+    // lowest control byte; U+20AC is not a byte at all.
     const probes = ['\x20', '\x7E', '\x1F', '\x80', '\xE9', '\0', '€'];
     const written = probes.map((ch, col) => disp.putch(col, 0, ch));
     assert.deepEqual(written, [true, true, false, false, false, false, false]);
