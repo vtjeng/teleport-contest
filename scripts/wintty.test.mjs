@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -230,6 +230,13 @@ test('tty_init_nhwindows creates the base descriptor and preserves banner placem
     );
     assert.equal(state.wintty.wins[0].type, NHW_BASE);
     assert.equal(state.wintty.wins[0].active, true);
+    // wintty.c:538-544 zeroes these ttyDisplay fields; the port keeps them on
+    // the display that its readers use.
+    assert.deepEqual(
+        ['toplin', 'inmore', 'inread', 'intr', 'dismiss_more']
+            .map((field) => state.nhDisplay[field]),
+        [0, 0, 0, 0, 0],
+    );
     assert.equal(
         state.nhDisplay.grid[4].map((cell) => cell.ch).join('').trimEnd(),
         'NetHack, Copyright 1985-2026',
@@ -429,4 +436,25 @@ test('new_status_window clears the JavaScript status rows', () => {
     ]);
     assert.equal(state._renderedStatusStyles, null);
     assert.deepEqual([...state.unported], []);
+});
+
+// C keeps ttyDisplay->toplin, inmore, inread, intr and dismiss_more in one
+// struct. The port reads them from the GameDisplay (state.nhDisplay), so a
+// second copy on state.wintty would be a value nothing reads. Reject any
+// such property access in js/.
+test('the top-line and more() descriptor fields have no copy on state.wintty', () => {
+    const jsDir = new URL('../js/', import.meta.url);
+    const fields = 'toplin|inmore|inread|intr|dismiss_more';
+    const copy = new RegExp(
+        `\\b(?:wt|wintty)\\??\\.(?:${fields})\\b`, 'u',
+    );
+    const offenders = [];
+    for (const name of readdirSync(jsDir)) {
+        if (!name.endsWith('.js')) continue;
+        const lines = readFileSync(new URL(name, jsDir), 'utf8').split('\n');
+        lines.forEach((line, index) => {
+            if (copy.test(line)) offenders.push(`js/${name}:${index + 1}`);
+        });
+    }
+    assert.deepEqual(offenders, []);
 });
