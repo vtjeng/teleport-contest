@@ -1116,6 +1116,11 @@ test('R without the prefix reaches the remove command handler',
 // line names. `Fmi` and `mFi` differ only in that order and name different
 // prefixes, which is what pins the assignment. `i` has a handler, so it takes
 // cmd.c:3714's "does not accept" line rather than :3703's.
+//
+// Both rows reach the was_m_prefix arm, whose custompline(SUPPRESS_HISTORY)
+// (cmd.c:3709) makes tty_putstr() remember the old line and show this one
+// without storing it: the refusal is on the top line, gt.toplines is empty,
+// and ^P never recalls it.
 const PREFIX_PAIR_ROWS = [
     // `i` is dodroptypes/inventory, which carries neither prefix flag, so the
     // refusal fires and names whichever prefix was seen last.
@@ -1135,7 +1140,8 @@ test('the second prefix of a pair is the one the refusal names', async () => {
             moves,
         }, { onBoundary: (error) => { boundary = error; } });
         assert.equal(boundary, null, moves);
-        assert.equal(game._ttyToplines, message, moves);
+        assert.equal(game.nhDisplay.topMessage, message, moves);
+        assert.equal(game._ttyToplines, '', moves);
     }
 });
 

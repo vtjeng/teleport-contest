@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8164093,
+      "datetime": "20390314071500",
+      "nethackrc": "OPTIONS=name:Unprefixed,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=pettype:none,!legacy,!tutorial,!splash_screen\n",
+      "moves": " m:\u0010\u0010"
+    }
+  ],
+  "comment": "rhack() 3708-3711: 'm' then ':' (look, no CMD_M_PREFIX) gives custompline(SUPPRESS_HISTORY, \"The look command does not accept 'm' prefix.\"). The two ^P presses that follow recall the welcome message and the line before it, never the refusal, because putmesg() passes ATR_NOHISTORY and tty_putstr() keeps it out of the message history."
+}

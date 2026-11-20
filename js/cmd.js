@@ -4920,11 +4920,12 @@ async function prefixRefusedCommand(prefixCommand, entry, wasMPrefix, state) {
             ? 'move-no-pickup or request-menu'
             : prefixEntry?.ef_txt ?? prefixCommand;
     if (wasMPrefix) {
-        // custompline(SUPPRESS_HISTORY, ...) is pline() that stays out of the
-        // message history doprev_message() recalls; no message history is
-        // ported, so the two are the same line.
-        await ttyPline(
+        // custompline(SUPPRESS_HISTORY, ...): putmesg() turns the flag into
+        // ATR_NOHISTORY, so ^P recalls the lines before this one and never
+        // this refusal.
+        await ttyCustomPline(
             `The ${entry.ef_txt} command does not accept '${which}' prefix.`,
+            SUPPRESS_HISTORY,
             state,
         );
         return;

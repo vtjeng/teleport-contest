@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2709351,
+      "datetime": "20381127203000",
+      "nethackrc": "OPTIONS=name:Prefixed,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=pettype:none,!legacy,!tutorial,!splash_screen,msg_window:reversed\n",
+      "moves": " F:\u0010"
+    }
+  ],
+  "comment": "Variation of m-prefix-refusal-stays-out-of-history: rhack() 3712-3720 prints the 'F' prefix's refusal with plain pline(), not custompline(SUPPRESS_HISTORY), so the ^P that follows, with msg_window:reversed, lists \"The 'F' prefix should be followed by a movement command.\" in the message history window."
+}
