@@ -52,9 +52,11 @@ import {
 // print when no window supplies its own.
 export const MORE_PROMPT = '--More--';
 // C ref: include/wintty.h:85-88, which names four ttyDisplay->toplin states.
-// Three are ported. C assigns TOPLINE_SPECIAL_PROMPT in hooked_tty_getlin() at
-// getline.c:56, in tty_yn_function() at topl.c:392, and on tty_wait_synch()'s
-// interrupted-read arm at wintty.c:3639; the port assigns it nowhere. The only
+// Three are defined here; js/const.js holds TOPLINE_SPECIAL_PROMPT. C assigns
+// it in hooked_tty_getlin() at getline.c:56, in tty_yn_function() at
+// topl.c:392, and on tty_wait_synch()'s interrupted-read arm at wintty.c:3639;
+// the port assigns it at the last two (js/topl.js tty_yn_function() and
+// js/tty_rawprint.js tty_wait_synch()), not in getlin. The only
 // reads of that constant are topl.c:139, 155 and 163, and every one is gated
 // on a nonzero ttyDisplay->cury, so it becomes distinguishable from
 // TOPLINE_NON_EMPTY only once the top line has wrapped onto a second row. No
@@ -109,8 +111,6 @@ function pendingTtyMessageLayout(state) {
 }
 
 // Write the pending message and its source-owned More marker without waiting.
-// C's tty_wait_synch() map-window arm refreshes the map and leaves this marker
-// for the next tty_yn_function() read; it does not call getret().
 function writePendingTtyMessagePrompt(state, layout, promptAttr = ATR_NONE) {
     const { display, lines, promptRow, promptColumn } = layout;
     for (let row = 0; row < lines.length; ++row)
@@ -143,10 +143,8 @@ function writeMorePromptAtCursor(display, promptAttr) {
     display.setCursor(column, row);
 }
 
-// C ref: wintty.c tty_display_nhwindow(WIN_MAP, FALSE) leaves an existing
-// message's --More-- marker visible after repainting the map. This is the
-// nonblocking half of displayPendingTtyMessageWindow(), used by
-// tty_wait_synch()'s map-window branch.
+// The nonblocking half of displayPendingTtyMessageWindow(): it draws a
+// pending message's --More-- marker without waiting for the key.
 export function showPendingTtyMessage(state = game) {
     if (!state._pending_message || !state.nhDisplay) return false;
     writePendingTtyMessagePrompt(state, pendingTtyMessageLayout(state));

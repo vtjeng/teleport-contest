@@ -1295,8 +1295,8 @@ async function really_done(how, state) {
     }
 
     // C ref: end.c:1189. Flush the final death message before asking
-    // can_make_bones(); the live map-window arm leaves its --More-- marker
-    // for the disclosure reader.
+    // can_make_bones(). The live map-window arm draws no --More-- marker;
+    // display_nhwindow(WIN_MESSAGE, FALSE) at end.c:1246 does.
     if (haveWindows)
         await tty_wait_synch(state);
 
