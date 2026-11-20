@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "end.c really_done() grave-arise feedback before the bones prompt: a barrow wight kills a debug-mode human Tourist on level 1, so done_in_by() sets u.ugrave_arise to PM_WRAITH. 'Your body rises from the dead as a wraith...' and its display_nhwindow(WIN_MESSAGE, FALSE) --More-- come before paranoid_query()'s 'Save bones?', which is answered y so savebones() runs after the wait. The seed, clock, character, and input were chosen for this path.",
+  "segments": [
+    {
+      "seed": 4492067,
+      "datetime": "20410128213000",
+      "nethackrc": "OPTIONS=name:Nightfall,role:Tourist,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics\n",
+      "moves": "\u0007barrow wight\nms ms ms ms ms  ynnnn y  "
+    }
+  ]
+}

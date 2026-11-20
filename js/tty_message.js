@@ -143,14 +143,6 @@ function writeMorePromptAtCursor(display, promptAttr) {
     display.setCursor(column, row);
 }
 
-// The nonblocking half of displayPendingTtyMessageWindow(): it draws a
-// pending message's --More-- marker without waiting for the key.
-export function showPendingTtyMessage(state = game) {
-    if (!state._pending_message || !state.nhDisplay) return false;
-    writePendingTtyMessagePrompt(state, pendingTtyMessageLayout(state));
-    return true;
-}
-
 // C ref: decl.c quitchars[] (" \r\n\033"), the set more() and dmore() pass to
 // xwaitforspace().  The Escape it ends with is matched by the arm above the
 // membership test, exactly as in C.

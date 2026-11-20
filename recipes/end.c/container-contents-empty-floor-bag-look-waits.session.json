@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "end.c container_contents() with reportempty: a debug-mode gnome Healer wishes for an empty sack, takes off her gloves, drops everything (Escape skips the drop messages), and #loots the bag with the default full menu style. ':' reaches pickup.c use_container()'s look-inside call, whose 'The bag is empty.' is followed by display_nhwindow(WIN_MESSAGE, FALSE) and its --More--. With nothing carried, the repeated prompt picks 'b' without a menu, so the next two messages share the cleared top line; without the wait they would join the first message instead. The seed, clock, character, and input were chosen for this path.",
+  "segments": [
+    {
+      "seed": 7305118,
+      "datetime": "20390603101500",
+      "nethackrc": "OPTIONS=name:Sackful,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!autopickup\n",
+      "moves": "\u0017empty sack\nTDaA\n\u001b#loot\n: i"
+    }
+  ]
+}

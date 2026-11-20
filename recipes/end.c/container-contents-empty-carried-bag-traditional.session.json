@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap variation on container-contents-empty-floor-bag-look-waits: a debug-mode human Samurai with menustyle:traditional wishes for an empty sack, keeps the rest of her inventory, and applies the bag. ':' reaches end.c container_contents() with reportempty, and 'The bag is empty.' waits at display_nhwindow(WIN_MESSAGE, FALSE) before tty_yn_function() asks 'Your bag is empty.  Do what with it?'; q answers it. The common path: the port matched it before and after the change, because the following yn_function() also runs more(). The seed, clock, character, and input were chosen for this path.",
+  "segments": [
+    {
+      "seed": 6620391,
+      "datetime": "20360714121500",
+      "nethackrc": "OPTIONS=name:Pouchy,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,menustyle:traditional\n",
+      "moves": "\u0017empty sack\nag: qi"
+    }
+  ]
+}

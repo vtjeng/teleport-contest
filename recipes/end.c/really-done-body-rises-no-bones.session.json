@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "end.c really_done() grave-arise feedback without bones: an ettin mummy kills a debug-mode dwarvish Archeologist on level 1 with the bones option off, so done_in_by() sets u.ugrave_arise to the dwarf mummy, bones_ok is false, and 'Your body rises from the dead as a dwarf mummy...' is followed by display_nhwindow(WIN_MESSAGE, FALSE), whose --More-- the next space dismisses before the tombstone. The seed, clock, character, and input were chosen for this path.",
+  "segments": [
+    {
+      "seed": 8817403,
+      "datetime": "20380922184500",
+      "nethackrc": "OPTIONS=name:Graveling,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!acoustics,!bones\n",
+      "moves": "\u0007ettin mummy\nms ms ms  ynnnn   "
+    }
+  ]
+}

@@ -196,7 +196,6 @@ import { force_launch_placement, launch_in_progress } from './trap_effects.js';
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
-    showPendingTtyMessage,
     ttyPline,
 } from './tty_message.js';
 import { tty_raw_print, tty_wait_synch } from './tty_rawprint.js';
@@ -1427,11 +1426,11 @@ async function really_done(how, state) {
         }
     }
 
-    // C ref: end.c:1351-1361.  A polymorph death can leave a valid monster
-    // number in ugrave_arise even when bones are disabled; this feedback is
+    // C ref: end.c:1351-1361.  A death that sets ugrave_arise leaves a valid
+    // monster number there even when bones are disabled; this feedback is
     // shown before the bones prompt so it cannot reveal whether a corpse was
-    // saved.  display_nhwindow(WIN_MESSAGE, FALSE) is the nonblocking
-    // pending-message handoff used above.
+    // saved.  display_nhwindow(WIN_MESSAGE, FALSE) waits at the message's
+    // --More-- here, before savebones() runs, as the call at end.c:1247 does.
     if (ismnum(state.u.ugrave_arise) && !disclosureStopprint(state)) {
         // monst_globals_init() stores permonst records directly in mons;
         // live monsters carry their template in .data, but ugrave_arise is a
@@ -1445,7 +1444,7 @@ async function really_done(how, state) {
                 `Your ${feedback} as ${an(pmname(species, Ugender(state)))}...`,
                 state,
             );
-            showPendingTtyMessage(state);
+            await displayPendingTtyMessageWindow(state);
         }
     }
 
@@ -1927,9 +1926,9 @@ export async function container_contents(
                     `${upstart(thesimpleoname(box, state))} is empty.`,
                     state,
                 );
-                // C: display_nhwindow(WIN_MESSAGE, FALSE). The pline call
-                // above displays the message; the explicit display_nhwindow
-                // in C ensures it is flushed, which ttyPline already does.
+                // C: display_nhwindow(WIN_MESSAGE, FALSE) waits at the
+                // message's --More--.
+                await displayPendingTtyMessageWindow(state);
             }
         }
         if (!all_containers) break;
