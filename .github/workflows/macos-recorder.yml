@@ -2,12 +2,8 @@ name: macOS recorder
 on:
   workflow_dispatch:
 
-# The judge's reference recordings were made on macOS; local recordings are
-# made on Linux. This workflow builds the C recorder on macOS, records the
-# host-parity sample (experiments/host-parity/recipes/) and uploads the
-# recordings, so scripts/compare-host-recordings.mjs can list every screen
-# that differs between the two hosts. docs/testing.md, "Local recordings and
-# the judge's host", gives the whole procedure.
+# Throwaway branch integration-checkpoint/case-open-rec2 only: records two
+# probes of APFS's Unicode name folding.
 
 jobs:
   record:
@@ -16,8 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          # nethack-c/build-recorder.sh builds from the NetHack source in
-          # the nethack-c/upstream submodule.
           submodules: true
       - uses: actions/setup-node@v6
         with:
@@ -36,32 +30,12 @@ jobs:
             uname -a
             clang --version | head -n 1
             node --version
+            diskutil info / | grep -i -E 'file system|case' || true
           } | tee macos-recordings/host.txt
 
-      - name: Record the sample
-        run: experiments/host-parity/record-sample.sh macos-recordings
-
-      # The key-binding probes (experiments/host-parity/README.md, "Key-binding
-      # probes") test which paths of cmd.c handler_rebind_keys_add() fail on
-      # macOS. They go into their own directory so the 500-recipe comparison
-      # is unchanged.
-      - name: Record the key-binding probes
-        run: experiments/host-parity/record-sample.sh macos-recordings/probes 5 experiments/host-parity/probes/*.session.json
-
-      # The committed recordings of the options-menu rebind recipes
-      # (recipes/cmd.c/*bind*-live) come from this step, because cmd.c
-      # handler_rebind_keys_add() fails on macOS where a Linux recorder
-      # binds the key (docs/testing.md, "The key-binding difference").
-      # Copy each one to recordings/cmd.c/ under the same name.
-      # scripts/bind-keys-live.test.mjs fails if one is recorded on Linux.
-      # The two parameter-path recipes after the glob bind on both hosts;
-      # they are recorded here only to compare with their Linux recordings.
-      - name: Record the options-menu rebind recipes
-        run: >-
-          experiments/host-parity/record-sample.sh macos-recordings/cmd.c 5
-          recipes/cmd.c/*bind*-live.session.json
-          recipes/cmd.c/toggle-bound-param-menu.session.json
-          recipes/cmd.c/bind-toggle-empty-param-reports-and-lists-null.session.json
+      - name: Record the Unicode fold probes
+        if: always()
+        run: experiments/host-parity/record-sample.sh macos-recordings/probes2 2 experiments/host-parity/case-open/probes2/*.session.json
 
       - name: Upload recordings
         if: always()

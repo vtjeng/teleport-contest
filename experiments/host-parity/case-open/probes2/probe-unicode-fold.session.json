@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Probe (not committed): APFS full case folding of names typed at #wizloaddes. LATIN SMALL LIGATURE FI + 're' (full folding gives fire), 'a' + LIGATURE ST + 'ral' (astral), 'f' + DOTLESS I + 're' (no folding to i), and the lone byte 0x80 + 'Knox' (not UTF-8).",
+  "segments": [
+    {
+      "seed": 6100377,
+      "datetime": "20430521080000",
+      "nethackrc": "OPTIONS=name:Probe,role:Caveman,race:dwarf,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none,suppress_alert:3.4.3\n",
+      "moves": " #wizloaddes\nï¬re\n          #wizloaddes\naï¬ral\n          #wizloaddes\nfÄ±re\n          #wizloaddes\nKnox\n          :"
+    }
+  ]
+}
