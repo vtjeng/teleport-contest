@@ -409,7 +409,7 @@ export async function emitQueuedNotices(state = game) {
 // no gp.prevmsg or iflags.last_msg update.
 //
 // Answers whether the message reached the window port, through putmesg() or
-// vplineRawArm()'s raw_print(): false when vpline() returned before either
+// vplineRawPrint()'s raw_print(): false when vpline() returned before either
 // (an empty format, or MSGTYPE hide or norep).
 async function ttyPlineCore(
     message, state, pflags, mixedFirstCell = null, viaVpline = true,
@@ -430,156 +430,151 @@ async function ttyPlineCore(
     const fromYouBuf = printedFromYouBuf(message, state);
     if (fromYouBuf) (state.gy ??= {}).you_buf = message;
     let normalizedMessage = normalizeVplineMessage(message);
-    // C ref: pline.c vpline() (pline.c:246-290), the part after the
-    // raw_print() arm: the MSGTYPE lookup, the deferred vision
-    // recalculation, the map flush, putmesg() and gp.prevmsg. tty_putmixed()
-    // does not enter vpline(), so it never takes that arm.
-    const putmesg = async () => {
-        let next = ttyByteText(normalizedMessage);
-        const noRepeat = Boolean(pflags & PLINE_NOREPEAT);
-        const urgentMessage = Boolean(pflags & URGENT_MESSAGE);
-        let msgtype = MSGTYP_NORMAL;
-        if (viaVpline && !(pflags & OVERRIDE_MSGTYPE)) {
-            msgtype = msgtype_type(normalizedMessage, noRepeat, state);
-            if (!(pflags & URGENT_MESSAGE)
-                && (msgtype === MSGTYP_NOSHOW
-                    || (msgtype === MSGTYP_NOREP
-                        && normalizedMessage === state._ttyPreviousMessage))) {
-                return false;
-            }
+    let next = ttyByteText(normalizedMessage);
+    if (viaVpline && vplineRawPrint(normalizedMessage, state)) return true;
+    const noRepeat = Boolean(pflags & PLINE_NOREPEAT);
+    const urgentMessage = Boolean(pflags & URGENT_MESSAGE);
+    let msgtype = MSGTYP_NORMAL;
+    if (viaVpline && !(pflags & OVERRIDE_MSGTYPE)) {
+        msgtype = msgtype_type(normalizedMessage, noRepeat, state);
+        if (!(pflags & URGENT_MESSAGE)
+            && (msgtype === MSGTYP_NOSHOW
+                || (msgtype === MSGTYP_NOREP
+                    && normalizedMessage === state._ttyPreviousMessage))) {
+            return false;
         }
-        // C ref: pline.c vpline() (266-271). The notices the recalculation
-        // raises precede this message, so they are drained before the top-line
-        // state below is read.
-        if (viaVpline && await vplineVisionRecalc(pflags, state)) {
-            // A notice_mon() line among them was You("%s %s.", ...), which
-            // rewrote gy.you_buf under a line that still points at it; C then
-            // prints that format unexpanded.
-            if (fromYouBuf && state.gy.you_buf !== message) {
-                normalizedMessage = normalizeVplineMessage(state.gy.you_buf);
-                next = ttyByteText(normalizedMessage);
-            }
+    }
+    // C ref: pline.c vpline() (266-271). C brackets the call with
+    // in_pline = 0 so a message raised inside it counts as top level; this
+    // port keeps no in_pline counter to save and restore. The notices it
+    // raises precede this message, so they are drained before the top-line
+    // state below is read.
+    if (viaVpline && await vplineVisionRecalc(pflags, state)) {
+        // A notice_mon() line among them was You("%s %s.", ...), which
+        // rewrote gy.you_buf under a line that still points at it; C then
+        // prints that format unexpanded.
+        if (fromYouBuf && state.gy.you_buf !== message) {
+            normalizedMessage = normalizeVplineMessage(state.gy.you_buf);
+            next = ttyByteText(normalizedMessage);
         }
-        // A shown message replaces any show_topl() layout; the SUPPRESS_HISTORY
-        // arm below records a fresh one.
-        delete state._pendingMessageLayout;
-        const deathMessage = next.startsWith('You die');
-        const columns = state.nhDisplay?.cols ?? 80;
-        let stoppedAtEntry = Boolean(state._ttyMessageStopped);
-        // C ref: topl.c update_topl():262-279. Both the share-the-line arm and the
-        // more() below it are gated on `ttyDisplay->toplin == TOPLINE_NEED_MORE`
-        // (or WIN_STOP), not on the line merely being occupied. Every message the
-        // port writes leaves NEED_MORE behind, so this reads as before for them;
-        // tty_yn_function()'s clean_up is the one writer that leaves
-        // TOPLINE_NON_EMPTY, and a message after an answered prompt replaces the
-        // line rather than sharing it or stopping for --More--.
-        const occupied = state._pending_message ?? '';
-        let current = state.nhDisplay?.toplin === TOPLINE_NON_EMPTY
-            ? '' : occupied;
-        const priorTopline = state._ttyToplines ?? current;
-        // update_topl() assigns `notdied` inside the last operand of its same-line
-        // condition.  A long prior/death combination short-circuits before that
-        // comparison, preserving WIN_STOP as an upstream quirk.
-        const deathComparisonReached = deathMessage
-            && (Boolean(current) || stoppedAtEntry)
-            && fitsOnTtyTopline(priorTopline, next, columns);
-        // C ref: pline.c vpline(). Once the hero is on the map, every message
-        // flushes pending map and bottom-line changes before update_topl() can
-        // wrap into a blocking More prompt.
-        if (viaVpline && state === game && state.u?.ux)
-            await flush_screen((pflags & NO_CURS_ON_U) ? 0 : 1);
-        // C wintty.c handles ATR_URGENT after vpline() has flushed the map but
-        // before tty_putstr() invokes update_topl(): its clear_nhwindow(WIN_MESSAGE)
-        // removes the stale physical line and clears WIN_STOP. Do the same at
-        // this stage, then let the urgent line take the ordinary replacement path.
-        const messageWin = state.wintty?.wins?.[state.wintty.messageWindow];
-        if (urgentMessage && stoppedAtEntry) {
-            clearTtyMessageWindow(state);
-            state._ttyMessageStopped = false;
-            stoppedAtEntry = false;
-            current = '';
-        }
-        // wintty.c:2277-2300 sets the one-shot WIN_NOSTOP for every urgent
-        // message, after clearing persistent WIN_STOP and before update_topl().
-        if (urgentMessage && messageWin) messageWin.flags |= WIN_NOSTOP;
-        if (pflags & SUPPRESS_HISTORY) {
-            // C win/tty/wintty.c: tty_putstr(WIN_MESSAGE, ATR_NOHISTORY, ...)
-            // remembers the old gt.toplines, then show_topl() paints this message
-            // without making it the new history line. In particular, Ctrl-P
-            // recalls the message before this one, not this transient feedback.
-            if (state._ttyToplines) remember_topl(state);
-            if (!stoppedAtEntry) {
-                const display = state.nhDisplay;
-                if (display) {
-                    if (show_topl(next, state)) {
-                        display.topMessage = next;
-                        state._pending_message = next;
-                        // show_topl() writes through addtopl(), which wraps at
-                        // column CO-1 rather than at a word, and nothing waits
-                        // for --More--. display.js redraws the top line from
-                        // _pending_message; this layout, valid while the text
-                        // is unchanged, gives it the physical rows.
-                        state._pendingMessageLayout = {
-                            text: next,
-                            rows: addtoplRows(next, display.cols),
-                        };
-                    }
+    }
+    // A shown message replaces any show_topl() layout; the SUPPRESS_HISTORY
+    // arm below records a fresh one.
+    delete state._pendingMessageLayout;
+    const deathMessage = next.startsWith('You die');
+    const columns = state.nhDisplay?.cols ?? 80;
+    let stoppedAtEntry = Boolean(state._ttyMessageStopped);
+    // C ref: topl.c update_topl():262-279. Both the share-the-line arm and the
+    // more() below it are gated on `ttyDisplay->toplin == TOPLINE_NEED_MORE`
+    // (or WIN_STOP), not on the line merely being occupied. Every message the
+    // port writes leaves NEED_MORE behind, so this reads as before for them;
+    // tty_yn_function()'s clean_up is the one writer that leaves
+    // TOPLINE_NON_EMPTY, and a message after an answered prompt replaces the
+    // line rather than sharing it or stopping for --More--.
+    const occupied = state._pending_message ?? '';
+    let current = state.nhDisplay?.toplin === TOPLINE_NON_EMPTY
+        ? '' : occupied;
+    const priorTopline = state._ttyToplines ?? current;
+    // update_topl() assigns `notdied` inside the last operand of its same-line
+    // condition.  A long prior/death combination short-circuits before that
+    // comparison, preserving WIN_STOP as an upstream quirk.
+    const deathComparisonReached = deathMessage
+        && (Boolean(current) || stoppedAtEntry)
+        && fitsOnTtyTopline(priorTopline, next, columns);
+    // C ref: pline.c vpline(). Once the hero is on the map, every message
+    // flushes pending map and bottom-line changes before update_topl() can
+    // wrap into a blocking More prompt.
+    if (viaVpline && state === game && state.u?.ux)
+        await flush_screen((pflags & NO_CURS_ON_U) ? 0 : 1);
+    // C wintty.c handles ATR_URGENT after vpline() has flushed the map but
+    // before tty_putstr() invokes update_topl(): its clear_nhwindow(WIN_MESSAGE)
+    // removes the stale physical line and clears WIN_STOP. Do the same at
+    // this stage, then let the urgent line take the ordinary replacement path.
+    const messageWin = state.wintty?.wins?.[state.wintty.messageWindow];
+    if (urgentMessage && stoppedAtEntry) {
+        clearTtyMessageWindow(state);
+        state._ttyMessageStopped = false;
+        stoppedAtEntry = false;
+        current = '';
+    }
+    // wintty.c:2277-2300 sets the one-shot WIN_NOSTOP for every urgent
+    // message, after clearing persistent WIN_STOP and before update_topl().
+    if (urgentMessage && messageWin) messageWin.flags |= WIN_NOSTOP;
+    if (pflags & SUPPRESS_HISTORY) {
+        // C win/tty/wintty.c: tty_putstr(WIN_MESSAGE, ATR_NOHISTORY, ...)
+        // remembers the old gt.toplines, then show_topl() paints this message
+        // without making it the new history line. In particular, Ctrl-P
+        // recalls the message before this one, not this transient feedback.
+        if (state._ttyToplines) remember_topl(state);
+        if (!stoppedAtEntry) {
+            const display = state.nhDisplay;
+            if (display) {
+                if (show_topl(next, state)) {
+                    display.topMessage = next;
+                    state._pending_message = next;
+                    // show_topl() writes through addtopl(), which wraps at
+                    // column CO-1 rather than at a word, and nothing waits
+                    // for --More--. display.js redraws the top line from
+                    // _pending_message; this layout, valid while the text
+                    // is unchanged, gives it the physical rows.
+                    state._pendingMessageLayout = {
+                        text: next,
+                        rows: addtoplRows(next, display.cols),
+                    };
                 }
             }
-            // remember_topl() emptied gt.toplines, and show_topl() does not
-            // write it.
-            setToplinesDirectly('', state);
-            if (viaVpline) state._ttyPreviousMessage = normalizedMessage;
+        }
+        // remember_topl() emptied gt.toplines, and show_topl() does not
+        // write it.
+        setToplinesDirectly('', state);
+        if (viaVpline) state._ttyPreviousMessage = normalizedMessage;
+        if (viaVpline) {
+            state.iflags ??= {};
+            state.iflags.last_msg = PLNMSG_UNKNOWN;
+        }
+        if (urgentMessage && messageWin)
+            messageWin.flags &= ~WIN_NOSTOP;
+        // vpline():283-284 waits for a MSGTYPE=stop line whichever way
+        // putmesg() showed it; show_topl()'s addtopl() left NEED_MORE.
+        if (msgtype === MSGTYP_STOP)
+            await displayPendingTtyMessageWindow(state);
+        return true;
+    }
+    if (pflags & (PLINE_VERBALIZE | PLINE_SPEECH))
+        sound_speak(normalizedMessage, state);
+    // pline.c has prepared the message and wintty.c has handled urgent output.
+    // topl.c:update_topl() now owns the complete history, same-line, wait,
+    // redraw, and replacement transition. These callbacks are its terminal
+    // primitives, not alternate branch implementations.
+    await update_topl(next, state, {
+        urgentMessage,
+        mixedFirstCell,
+        stoppedAtEntry,
+        deathMessage,
+        deathComparisonReached,
+        columns,
+        normalizedMessage,
+        viaVpline,
+        resetLastMessage: () => {
             if (viaVpline) {
                 state.iflags ??= {};
                 state.iflags.last_msg = PLNMSG_UNKNOWN;
             }
-            if (urgentMessage && messageWin)
-                messageWin.flags &= ~WIN_NOSTOP;
-            // vpline():283-284 waits for a MSGTYPE=stop line whichever way
-            // putmesg() showed it; show_topl()'s addtopl() left NEED_MORE.
-            if (msgtype === MSGTYP_STOP)
-                await displayPendingTtyMessageWindow(state);
-            return true;
-        }
-        if (pflags & (PLINE_VERBALIZE | PLINE_SPEECH))
-            sound_speak(normalizedMessage, state);
-        // pline.c has prepared the message and wintty.c has handled urgent output.
-        // topl.c:update_topl() now owns the complete history, same-line, wait,
-        // redraw, and replacement transition. These callbacks are its terminal
-        // primitives, not alternate branch implementations.
-        await update_topl(next, state, {
-            urgentMessage,
-            mixedFirstCell,
-            stoppedAtEntry,
-            deathMessage,
-            deathComparisonReached,
-            columns,
-            normalizedMessage,
-            viaVpline,
-            resetLastMessage: () => {
-                if (viaVpline) {
-                    state.iflags ??= {};
-                    state.iflags.last_msg = PLNMSG_UNKNOWN;
-                }
-            },
-            callbacks: {
-                dismissPendingTtyMessage,
-            },
-        });
-        // wintty.c clears the one-shot after the source-selected write path.
-        if (urgentMessage && messageWin)
-            messageWin.flags &= ~WIN_NOSTOP;
-        // pline.c vpline() (283-284) waits for a MSGTYPE=stop line after
-        // putmesg() returns, so an urgent line's WIN_NOSTOP is already clear and
-        // Escape at this --More-- sets WIN_STOP. A line update_topl() suppressed
-        // under WIN_STOP reaches tty_display_nhwindow()'s WIN_CANCELLED return.
-        if (msgtype === MSGTYP_STOP)
-            await displayPendingTtyMessageWindow(state);
-        return true;
-    };
-    if (!viaVpline) return putmesg();
-    return vplineRawArm(normalizedMessage, state, putmesg);
+        },
+        callbacks: {
+            dismissPendingTtyMessage,
+        },
+    });
+    // wintty.c clears the one-shot after the source-selected write path.
+    if (urgentMessage && messageWin)
+        messageWin.flags &= ~WIN_NOSTOP;
+    // pline.c vpline() (283-284) waits for a MSGTYPE=stop line after
+    // putmesg() returns, so an urgent line's WIN_NOSTOP is already clear and
+    // Escape at this --More-- sets WIN_STOP. A line update_topl() suppressed
+    // under WIN_STOP reaches tty_display_nhwindow()'s WIN_CANCELLED return.
+    if (msgtype === MSGTYP_STOP)
+        await displayPendingTtyMessageWindow(state);
+    return true;
 }
 
 // C ref: pline.c vpline() (266-272). A recalculation another routine
@@ -597,63 +592,48 @@ async function ttyPlineCore(
 // a recalculation ran.
 export async function vplineVisionRecalc(pflags, state = game) {
     if (state !== game || !state.vision_full_recalc) return false;
-    // vpline() saves in_pline and clears it around vision_recalc(0), so the
-    // messages raised inside -- the port prints the queued notices just
-    // after -- count as top level rather than taking vplineRawArm()'s nested
-    // raw_print() arm.
-    const tmpInPline = state.in_pline ?? 0;
-    state.in_pline = 0;
-    try {
-        // newsym() inside it prints display.c wall_angle()'s impossible() as
-        // a message nested in this one, as C's does once in_pline is cleared.
-        await vision_recalc(0, {
-            state, onImpossible: impossible_printer(state),
+    // newsym() inside it prints display.c wall_angle()'s impossible() as a
+    // message nested in this one, as C's does once in_pline is cleared.
+    await vision_recalc(0, { state, onImpossible: impossible_printer(state) });
+    if (!state._emittingGlyphUpdateNotices) {
+        await emitGlyphUpdateNotices(state, {
+            pline: (line, noticeState) => ttyPlineCore(line, noticeState, pflags),
         });
-        if (!state._emittingGlyphUpdateNotices) {
-            await emitGlyphUpdateNotices(state, {
-                pline: (line, noticeState) =>
-                    ttyPlineCore(line, noticeState, pflags),
-            });
-        }
-    } finally {
-        state.in_pline = tmpInPline;
     }
     return true;
 }
 
-// C ref: pline.c vpline() (pline.c:236-244, 285-290) and its function-static
-// in_pline (pline.c:155). After formatting and truncating the line, vpline()
-// sends it to raw_print() instead of the message window when the call is
-// nested in another vpline() or when iflags.window_inited is false. In the
-// tty build that flag is false before allmain.c
-// init_sound_disp_gamewindows() first displays WIN_MESSAGE (wintty.c:1883),
-// after end.c really_done() destroys WIN_MESSAGE (end.c:1388,
-// wintty.c:2021-2022) or tty_exit_nhwindows() runs (wintty.c:844), and once
-// panic() has closed the windows (end.c:410).
+// C ref: pline.c vpline() (pline.c:236-244). After formatting and truncating
+// the line, vpline() sends it to raw_print() instead of the message window
+// when iflags.window_inited is false. In the tty build that flag is false
+// before allmain.c init_sound_disp_gamewindows() first displays WIN_MESSAGE
+// (wintty.c:1883), after end.c really_done() destroys WIN_MESSAGE
+// (end.c:1388, wintty.c:2021-2022) or tty_exit_nhwindows() runs
+// (wintty.c:844), and once panic() has closed the windows (end.c:410). Like C,
+// it reads the flag by truth value: iflags starts with it FALSE.
 // The raw line skips the MSGTYPE lookup, the vision recalculation, the map
 // flush, putmesg() and gp.prevmsg, and resets iflags.last_msg. raw_print() is
 // the window port's tty_raw_print(), whose output recorder patch 006 mirrors.
+// Answers whether it printed the line, in which case vpline() is done.
 //
-// `putmesg` runs the rest of vpline() while in_pline is raised; its answer is
-// returned. state.in_pline is C's counter, zero between top-level messages.
+// The same arm also catches a vpline() nested in another through C's
+// function-static in_pline (pline.c:155). This port does not keep that
+// counter: its message path is asynchronous, and calls C makes one after the
+// other can overlap here -- a level program that #wizloadlua runs drops the
+// Promise each des.monster() returns, so two monsters' appearance messages
+// are in ttyPlineCore() at once -- which a shared counter would misread as
+// nesting and raw_print() the second (scripts/vpline-raw-print.test.mjs).
+//
 // Every vpline() entry -- ttyPlineCore() and the prompts in js/getline.js and
-// js/topl.js -- passes through here; scripts/vpline-raw-print.test.mjs checks
+// js/topl.js -- calls this first; scripts/vpline-raw-print.test.mjs checks
 // that they do.
-export async function vplineRawArm(line, state, putmesg) {
-    const nested = state.in_pline ?? 0;
-    state.in_pline = nested + 1;
-    try {
-        if (nested || !state.iflags?.window_inited) {
-            /* [we should probably be using raw_printf("\n%s", line) here] */
-            tty_raw_print(state, line);
-            state.iflags ??= {};
-            state.iflags.last_msg = PLNMSG_UNKNOWN;
-            return true;
-        }
-        return await putmesg();
-    } finally {
-        --state.in_pline;
-    }
+export function vplineRawPrint(line, state = game) {
+    if (state.iflags?.window_inited) return false;
+    /* [we should probably be using raw_printf("\n%s", line) here] */
+    tty_raw_print(state, line);
+    state.iflags ??= {};
+    state.iflags.last_msg = PLNMSG_UNKNOWN;
+    return true;
 }
 
 export async function ttyPline(message, state = game) {

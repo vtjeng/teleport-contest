@@ -243,8 +243,8 @@ export function handle_config_section(buf, state = game) {
 // raw_print() this early because iflags.window_inited is still false
 // (pline.c:239). startupEvents preserves that source order when another rc
 // handler waits before config_error_done(), and js/jsmain.js replays each
-// through ttyPline(), whose vplineRawArm() takes that arm; output remains the
-// complete error report used by parser callers and focused tests.
+// through ttyPline(), whose vplineRawPrint() takes that arm; output remains
+// the complete error report used by parser callers and focused tests.
 export function config_error_init(startupEvents = [], sourcename = '') {
     return {
         source: truncateByteString(sourcename ?? '', BUFSZ - 1),

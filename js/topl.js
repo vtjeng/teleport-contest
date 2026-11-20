@@ -19,7 +19,7 @@ import {
     TOPLINE_NEED_MORE,
     TOPLINE_NON_EMPTY,
     dismissPendingTtyMessage,
-    vplineRawArm,
+    vplineRawPrint,
     vplineVisionRecalc,
 } from './tty_message.js';
 
@@ -741,8 +741,8 @@ export async function tty_yn_function(query, resp, def, state = game) {
         prompt = `${query} `;
     }
     // vpline() raw_print()s the prompt instead when the windows are not
-    // initialized (vplineRawArm()); the rest of the custompline() is below.
-    await vplineRawArm(prompt, state, async () => {
+    // initialized (vplineRawPrint()); the rest of the custompline() follows.
+    if (!vplineRawPrint(prompt, state)) {
         if (state.u?.ux && !state._bonesRestorePrompt) {
             // C custompline() enters vpline(): deferred vision precedes the
             // map flush even for a restricted or unrestricted input prompt.
@@ -766,7 +766,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
         // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
         display.toplin = TOPLINE_NEED_MORE;
         state._ttyPreviousMessage = prompt;
-    });
+    }
 
     // Every key below is the byte readchar() returns, as on the unrestricted
     // arm; `def` arrives as the one-character string its callers spell, and

@@ -6,11 +6,11 @@ import { parse } from 'acorn';
 import { MSGTYP_NOSHOW, PLNMSG_UNKNOWN } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { regex_compile, regex_init } from '../js/posixregex.js';
-import { ttyPline, vplineRawArm } from '../js/tty_message.js';
+import { ttyPline } from '../js/tty_message.js';
 
-// pline.c vpline() sends a line to raw_print() when it is nested in another
-// vpline() or when iflags.window_inited is false. js/tty_message.js
-// vplineRawArm() is that branch; every vpline() entry must pass through it.
+// pline.c vpline() sends a line to raw_print() when iflags.window_inited is
+// false. js/tty_message.js vplineRawPrint() is that branch; every vpline()
+// entry must call it.
 const VPLINE_ENTRIES = [
     ['js/tty_message.js', 'ttyPlineCore'],
     ['js/getline.js', 'hooked_tty_getlin'],
@@ -77,17 +77,11 @@ function messageState(iflags) {
 }
 
 test('the C sources still take the raw_print() arm as ported', () => {
-    // pline.c:236-243: in_pline is raised before window_inited is read, and
-    // the arm resets last_msg and skips to pline_done, which lowers it.
+    // pline.c:236-243: the arm resets last_msg and skips to pline_done. Its
+    // in_pline half is not ported (js/tty_message.js vplineRawPrint()).
     assert.match(
         upstream('src/pline.c'),
         /if \(in_pline\+\+ \|\| !iflags\.window_inited\) \{\s*\/\*[^*]*\*\/\s*raw_print\(line\);\s*iflags\.last_msg = PLNMSG_UNKNOWN;\s*goto pline_done;\s*\}/u,
-    );
-    // pline.c:266-271: the deferred vision recalculation runs with in_pline
-    // cleared (js/tty_message.js vplineVisionRecalc()).
-    assert.match(
-        upstream('src/pline.c'),
-        /int tmp_in_pline = in_pline;\s*in_pline = 0;\s*vision_recalc\(0\);\s*in_pline = tmp_in_pline;/u,
     );
     // wintty.c tty_destroy_nhwindow() clears the flag for the message
     // window, which end.c really_done() destroys after its last
@@ -103,11 +97,11 @@ test('the C sources still take the raw_print() arm as ported', () => {
 });
 
 for (const [file, name] of VPLINE_ENTRIES) {
-    test(`${name}() takes vpline()'s raw_print() arm through vplineRawArm()`,
+    test(`${name}() takes vpline()'s raw_print() arm through vplineRawPrint()`,
         () => {
             const fn = functions(file).get(name);
             assert.ok(fn, `${file} has no function ${name}`);
-            assert.ok(calledNames(fn).includes('vplineRawArm'));
+            assert.ok(calledNames(fn).includes('vplineRawPrint'));
         });
 }
 
@@ -132,7 +126,6 @@ test('with window_inited false a pline() is raw_print()ed', async () => {
     assert.equal(state._ttyPreviousMessage, 'an earlier message');
     assert.equal(state.iflags.last_msg, PLNMSG_UNKNOWN);
     assert.equal(display.inputQueueLength, 1);
-    assert.equal(state.in_pline, 0);
 });
 
 test('with window_inited never set a pline() is raw_print()ed', async () => {
@@ -143,20 +136,23 @@ test('with window_inited never set a pline() is raw_print()ed', async () => {
     assert.equal(state._pending_message, undefined);
 });
 
-test('a pline() nested in another vpline() is raw_print()ed', async () => {
-    // The windows are up, so the outer call's raised in_pline alone selects
-    // the raw arm.
+test('overlapping plines both reach the message window', async () => {
+    // A level program that #wizloadlua runs drops the Promise each
+    // des.monster() returns, so two appearance messages that C prints one
+    // after the other are in ttyPlineCore() at once. Neither is nested, so
+    // neither may take the raw_print() arm, and the second waits at the
+    // first's --More--.
     const state = messageState({ window_inited: true });
-    let outerSawRaw = null;
-    await vplineRawArm('outer', state, async () => {
-        assert.equal(state.in_pline, 1);
-        await ttyPline('inner', state);
-        outerSawRaw = screenText(state.nhDisplay)[0].trimEnd();
-        return true;
-    });
-    assert.equal(outerSawRaw, 'inner');
-    assert.equal(state._pending_message, undefined);
-    assert.equal(state.in_pline, 0);
+    const display = state.nhDisplay;
+    const first = ttyPline('A yellow mold suddenly appears next to you!',
+        state);
+    const second = ttyPline('A wolf suddenly appears close by!', state);
+    // The space dismisses the first message's --More--.
+    display.pushKey(' '.charCodeAt(0));
+    assert.deepEqual(await Promise.all([first, second]), [true, true]);
+    assert.equal(display.nomuxRaw.active, false);
+    assert.equal(state._pending_message, 'A wolf suddenly appears close by!');
+    assert.equal(display.inputQueueLength, 0);
 });
 
 test('with window_inited true a pline() reaches the message window', async () => {
@@ -169,5 +165,4 @@ test('with window_inited true a pline() reaches the message window', async () =>
     assert.equal(state._pending_message, 'Hello.');
     assert.equal(state._ttyPreviousMessage, 'Hello.');
     assert.equal(state.nhDisplay.nomuxRaw.active, false);
-    assert.equal(state.in_pline, 0);
 });

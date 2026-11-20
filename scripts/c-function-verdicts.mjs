@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 274,
+    otherName: 275,
     unreachable: 174,
     noVisibleEffect: 213,
     unportedVisible: 2,
@@ -677,6 +677,7 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'pline.c dumplogmsg': noEffect('feeds DUMPLOG saved_plines (dump log/crash report only; '
         + 'DUMPLOG off)'),
     'pline.c dumplogfreemessages': noEffect('memory'),
+    'pline.c putmesg': ported('js/tty_message.js ttyPline', 'merged into message pipeline'),
     'pline.c set_msg_dir': ported('js/zap.js dobuzz', 'message direction for a11y'),
     'pline.c pline_xy': ported('js/pline.js set_msg_xy'),
     'pline.c custompline': ported('js/tty_message.js ttyCustomPline'),

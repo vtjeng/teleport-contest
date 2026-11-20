@@ -1492,7 +1492,7 @@ async function really_done(how, state) {
         // end.c:1388 destroy_nhwindow(WIN_MESSAGE): tty_destroy_nhwindow()
         // clears iflags.window_inited for the message window
         // (wintty.c:2021-2022), so a pline() from here on is raw_print()ed
-        // (js/tty_message.js vplineRawArm()).
+        // (js/tty_message.js vplineRawPrint()).
         state.iflags.window_inited = false;
     }
 

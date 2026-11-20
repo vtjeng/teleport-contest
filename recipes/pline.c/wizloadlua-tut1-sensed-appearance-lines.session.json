@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "pline.c vpline() for makemon.c's appearance lines (makemon.c:1490-1499) when #wizloadlua tut-1 creates monsters outside level creation. A blessed potion of monster detection lets the hero sense every monster, so the lichen's, yellow mold's and wolf's lines all print; C prints each before the next des.monster() runs, so the wolf's line waits at the earlier line's --More--. The port runs those creations' message tails concurrently, which a shared in_pline counter misread as nested vpline() calls and raw_print()ed (js/tty_message.js vplineRawPrint()). Seed, character and clock were chosen independently.",
+  "segments": [
+    {
+      "seed": 4127,
+      "datetime": "20410317142000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\n",
+      "moves": " \u0017blessed potion of monster detection\nqg #wizloadlua\ntut-1\n      "
+    }
+  ]
+}
