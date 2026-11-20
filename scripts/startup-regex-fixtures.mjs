@@ -82,14 +82,26 @@ function boundCase(name, pattern, input, expected, budgetCpuMs,
 }
 
 export const NESTED_BOUND_REGEX_CASES = Object.freeze([
-    // 65,025 positions. macOS compiled it in 9.3 seconds (oracle case
-    // 17688) and matched every oracle text, the empty one included, so it
-    // matches anything. The port needs about 1.1 GB for its transitions.
+    // 65,025 positions. macOS compiled it and matched it against the oracle
+    // texts in 9.3 seconds (oracle case 17688); it matched every text, the
+    // empty one included, so it matches anything. The port needs about
+    // 1.1 GB for its transitions.
     boundCase(
         'nested-bound-65025-positions',
         '(a{0,255}){0,255}',
         'b',
         true,
+        10_000,
+        1536 * 1024,
+    ),
+    // 520,200 positions, under js/tre_compile.js MAX_POSITIONS, but past
+    // MAX_WORK: the port refuses it as out of memory after building the
+    // positions. Its macOS answer was not measured.
+    boundCase(
+        'nested-bound-work-limit',
+        '((a{0,8}){0,255}){0,255}',
+        'a',
+        { error: 'out of memory' },
         10_000,
         1536 * 1024,
     ),

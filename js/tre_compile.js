@@ -24,14 +24,19 @@
 // approximate-matching parameters and the back-reference fields.
 //
 // tre_expand_ast() copies an iterated expression once per repetition, so
-// nested bounds multiply: "((a{255}){255}){255}" is 16,581,375 positions.
-// What stops such a pattern on macOS is memory: on the GitHub macOS runner
-// of run 44628090866 (experiments/host-parity/regex-oracle/) regcomp()
-// returned REG_ESPACE for it after 10.6 seconds, and compiled
-// "(a{0,255}){0,255}", 65,025 positions, in 9.3 seconds. The port refuses
-// an expansion past MAX_POSITIONS with REG_ESPACE rather than build it; a
-// Mac with more memory might compile patterns between the two sizes that
-// the port refuses.
+// nested bounds multiply, and every nullable copy links each position before
+// it to each position after it. What stops such a pattern on macOS is
+// memory: on the GitHub macOS runner of run 44628090866
+// (experiments/host-parity/regex-oracle/) regcomp() returned REG_ESPACE for
+// "((a{255}){255}){255}" (16,581,375 positions) after 10.6 seconds, and
+// compiling "(a{0,255}){0,255}" (65,025 positions) and matching it against
+// the oracle's 76 texts took 9.3 seconds. The port stops with REG_ESPACE
+// where C's allocations would be past a budget instead: more than
+// MAX_POSITIONS positions after expansion, or more than MAX_WORK
+// position-set entries and transitions built from them. "(a{0,255}){0,255}"
+// needs 41,810,820 of MAX_WORK and about 1.1 GB. A Mac with more memory
+// than the runner may compile patterns between these limits and its own,
+// such as "((a{0,8}){0,255}){0,255}", which the port refuses.
 import {
     tre_ast_new_catenation,
     tre_ast_new_iter,
@@ -52,8 +57,10 @@ import {
     UNION,
 } from './tre_internal.js';
 
-// The port's limit on positions after tre_expand_ast(); see above.
+// The port's limits on positions after tre_expand_ast(), and on the
+// position-set entries and transitions built after it; see above.
 export const MAX_POSITIONS = 1 << 20;
+export const MAX_WORK = 1 << 26;
 
 // A literal that is a character (or bracket), not EMPTY or ASSERTION
 // (IS_SPECIAL() is code_min < 0).
@@ -171,7 +178,11 @@ function tre_set_one(position, code_min, code_max, bracket_match_list) {
 
 // tre_set_union(): set1's entries with `assertions` added, then set2's
 // unchanged ("XXX - why not | assertions here as well?" in C).
-function tre_set_union(set1, set2, assertions) {
+function tre_set_union(mem, set1, set2, assertions) {
+    // C's tre_mem_calloc() of the new array returns NULL when memory runs
+    // out, and every caller then returns REG_ESPACE.
+    mem.left -= set1.length + set2.length;
+    if (mem.left < 0) return null;
     const out = [];
     for (const p of set1) {
         out.push(assertions ? { ...p, assertions: p.assertions | assertions } : p);
@@ -212,8 +223,8 @@ function tre_match_empty(node) {
 
 // tre_compute_npfl(): nullable, firstpos and lastpos for every node, and a
 // position for every character literal, numbered left to right as C's
-// stack walk does. Returns the number of positions.
-function tre_compute_npfl(node, nextpos) {
+// stack walk does. Returns the number of positions, or -1 for REG_ESPACE.
+function tre_compute_npfl(mem, node, nextpos) {
     switch (node.type) {
     case LITERAL: {
         const lit = node.obj;
@@ -234,23 +245,27 @@ function tre_compute_npfl(node, nextpos) {
     }
     case UNION: {
         const uni = node.obj;
-        nextpos = tre_compute_npfl(uni.left, nextpos);
-        nextpos = tre_compute_npfl(uni.right, nextpos);
+        nextpos = tre_compute_npfl(mem, uni.left, nextpos);
+        if (nextpos >= 0) nextpos = tre_compute_npfl(mem, uni.right, nextpos);
+        if (nextpos < 0) return -1;
         node.nullable = uni.left.nullable || uni.right.nullable ? 1 : 0;
-        node.firstpos = tre_set_union(uni.left.firstpos, uni.right.firstpos, 0);
-        node.lastpos = tre_set_union(uni.left.lastpos, uni.right.lastpos, 0);
-        return nextpos;
+        node.firstpos = tre_set_union(mem, uni.left.firstpos, uni.right.firstpos, 0);
+        node.lastpos = tre_set_union(mem, uni.left.lastpos, uni.right.lastpos, 0);
+        return node.firstpos && node.lastpos ? nextpos : -1;
     }
     case ITERATION: {
         const iter = node.obj;
-        nextpos = tre_compute_npfl(iter.arg, nextpos);
+        nextpos = tre_compute_npfl(mem, iter.arg, nextpos);
+        if (nextpos < 0) return -1;
         // lastpos of a nullable argument also carries the assertions of its
         // empty path (C's comment cites \(a*\)*b\(\1\)).
         if (iter.min === 0 || iter.arg.nullable) {
             node.nullable = 1;
             if (iter.arg.nullable) {
                 const assertions = tre_match_empty(iter.arg);
-                node.lastpos = tre_set_union(iter.arg.lastpos, iter.arg.lastpos, assertions);
+                node.lastpos = tre_set_union(mem, iter.arg.lastpos, iter.arg.lastpos,
+                    assertions);
+                if (!node.lastpos) return -1;
             } else {
                 node.lastpos = iter.arg.lastpos;
             }
@@ -263,18 +278,21 @@ function tre_compute_npfl(node, nextpos) {
     }
     case CATENATION: {
         const cat = node.obj;
-        nextpos = tre_compute_npfl(cat.left, nextpos);
-        nextpos = tre_compute_npfl(cat.right, nextpos);
+        nextpos = tre_compute_npfl(mem, cat.left, nextpos);
+        if (nextpos >= 0) nextpos = tre_compute_npfl(mem, cat.right, nextpos);
+        if (nextpos < 0) return -1;
         node.nullable = cat.left.nullable && cat.right.nullable ? 1 : 0;
         // Compute firstpos.
         node.firstpos = cat.left.nullable
-            ? tre_set_union(cat.right.firstpos, cat.left.firstpos, tre_match_empty(cat.left))
+            ? tre_set_union(mem, cat.right.firstpos, cat.left.firstpos,
+                tre_match_empty(cat.left))
             : cat.left.firstpos;
         // Compute lastpos.
         node.lastpos = cat.right.nullable
-            ? tre_set_union(cat.left.lastpos, cat.right.lastpos, tre_match_empty(cat.right))
+            ? tre_set_union(mem, cat.left.lastpos, cat.right.lastpos,
+                tre_match_empty(cat.right))
             : cat.right.lastpos;
-        return nextpos;
+        return node.firstpos && node.lastpos ? nextpos : -1;
     }
     default:
         // C's switch has no other case.
@@ -285,8 +303,11 @@ function tre_compute_npfl(node, nextpos) {
 // tre_make_trans(): a transition from each position in p1 to each in p2,
 // with p1's character range and bracket list and both entries'
 // assertions. Consecutive entries of p2 at one position add one
-// transition.
-function tre_make_trans(p1set, p2set, transitions) {
+// transition. Returns REG_OK, or REG_ESPACE where C's xmalloc() of a
+// bracket list or tag array would fail.
+function tre_make_trans(mem, p1set, p2set, transitions) {
+    mem.left -= p1set.length * p2set.length;
+    if (mem.left < 0) return REG_ESPACE;
     for (const p1 of p1set) {
         let prev_p2_pos = -1;
         for (const p2 of p2set) {
@@ -302,32 +323,42 @@ function tre_make_trans(p1set, p2set, transitions) {
             });
         }
     }
+    return REG_OK;
 }
 
 // tre_ast_to_tnfa(): the transitions of every catenation and loop.
-function tre_ast_to_tnfa(node, transitions) {
+function tre_ast_to_tnfa(mem, node, transitions) {
+    let errcode = REG_OK;
     switch (node.type) {
     case LITERAL:
         break;
     case UNION:
-        tre_ast_to_tnfa(node.obj.left, transitions);
-        tre_ast_to_tnfa(node.obj.right, transitions);
+        errcode = tre_ast_to_tnfa(mem, node.obj.left, transitions);
+        if (errcode !== REG_OK) return errcode;
+        errcode = tre_ast_to_tnfa(mem, node.obj.right, transitions);
         break;
     case CATENATION:
-        tre_make_trans(node.obj.left.lastpos, node.obj.right.firstpos, transitions);
-        tre_ast_to_tnfa(node.obj.left, transitions);
-        tre_ast_to_tnfa(node.obj.right, transitions);
+        errcode = tre_make_trans(mem, node.obj.left.lastpos, node.obj.right.firstpos,
+            transitions);
+        if (errcode !== REG_OK) return errcode;
+        errcode = tre_ast_to_tnfa(mem, node.obj.left, transitions);
+        if (errcode !== REG_OK) return errcode;
+        errcode = tre_ast_to_tnfa(mem, node.obj.right, transitions);
         break;
     case ITERATION:
         // After tre_expand_ast() the maximum is 1 or unbounded.
-        if (node.obj.max === -1)
-            tre_make_trans(node.obj.arg.lastpos, node.obj.arg.firstpos, transitions);
-        tre_ast_to_tnfa(node.obj.arg, transitions);
+        if (node.obj.max === -1) {
+            errcode = tre_make_trans(mem, node.obj.arg.lastpos, node.obj.arg.firstpos,
+                transitions);
+            if (errcode !== REG_OK) return errcode;
+        }
+        errcode = tre_ast_to_tnfa(mem, node.obj.arg, transitions);
         break;
     default:
         // C's switch has no other case.
         break;
     }
+    return errcode;
 }
 
 /**
@@ -363,10 +394,13 @@ export function tre_compile(s, n, cflags) {
     // Add a dummy node for the final state.
     const user_tree = tree;
     tree = tre_ast_new_catenation(user_tree, tre_ast_new_literal(0, 0));
-    const numpos = tre_compute_npfl(tree, 0);
+    const mem = { left: MAX_WORK };
+    const numpos = tre_compute_npfl(mem, tree, 0);
+    if (numpos < 0) return { err: REG_ESPACE, tnfa: null };
 
     const transitions = Array.from({ length: numpos }, () => []);
-    tre_ast_to_tnfa(tree, transitions);
+    const built = tre_ast_to_tnfa(mem, tree, transitions);
+    if (built !== REG_OK) return { err: built, tnfa: null };
 
     // Set first_char only if there is only one character that can be the
     // first character of a match: a single transition, on one character,

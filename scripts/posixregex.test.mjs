@@ -26,7 +26,7 @@ import {
 import { regcomp } from '../js/regcomp.js';
 import { regerror } from '../js/regerror.js';
 import { regexec } from '../js/regexec.js';
-import { MAX_POSITIONS } from '../js/tre_compile.js';
+import { MAX_POSITIONS, MAX_WORK } from '../js/tre_compile.js';
 
 const ORACLE = new URL('../experiments/host-parity/regex-oracle/', import.meta.url);
 const [HEADER, ...CASES] = readFileSync(new URL('cases.jsonl', ORACLE), 'utf8')
@@ -47,8 +47,9 @@ function portAnswer(pattern) {
 
 // Isolated cases that take the port more than a second each, because
 // tre_expand_ast() builds 65,025 positions; macOS took 9.3 and 7.5
-// seconds. scripts/startup-regex-resource.test.mjs runs them under a
-// budget instead.
+// seconds to compile each and match it against the texts.
+// scripts/startup-regex-resource.test.mjs runs the first under a budget
+// instead.
 const SLOW = new Set(['(a{0,255}){0,255}', '([ab]{0,255}){0,255}']);
 
 test('the oracle table covers every case once', () => {
@@ -138,7 +139,10 @@ test('player-facing constructs answer as macOS does', () => {
 test('nested bounds past the port\'s position limit report out of memory', () => {
     // macOS returned REG_ESPACE for this pattern of 255^3 positions in run
     // 44628090866; it is case 17692 of the oracle table.
+    // The port's budgets (js/tre_compile.js): (a{0,255}){0,255}, which
+    // macOS compiled, needs 41,810,820 units of MAX_WORK.
     assert.equal(MAX_POSITIONS, 1 << 20);
+    assert.equal(MAX_WORK, 1 << 26);
     const regex = regex_init();
     assert.equal(regex_compile('((a{255}){255}){255}', regex), false);
     assert.equal(regex_error_desc(regex), 'out of memory');

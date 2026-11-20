@@ -19,6 +19,7 @@ const REQUIRED_RESOURCE_NAMES = Object.freeze([
     'wide-frontier-match',
     'nullable-loop-chain-miss',
     'nested-bound-65025-positions',
+    'nested-bound-work-limit',
     'nested-bound-position-limit',
     'nested-nullable-fixed-point',
 ]);
@@ -28,7 +29,7 @@ test('adversarial regex inputs return the expected matches without hanging', () 
         encoding: 'utf8',
         // The children's hang watchdogs (ten seconds, or twice a case's CPU
         // budget), plus launcher time.
-        timeout: 5 * 10_000 + 2 * 10_000 + 5_000,
+        timeout: 5 * 10_000 + 2 * 2 * 10_000 + 5_000,
         maxBuffer: 1024 * 1024,
     });
     if (result.error || result.status !== 0) {
