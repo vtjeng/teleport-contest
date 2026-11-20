@@ -54,7 +54,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 export const VERDICT_TOTALS = Object.freeze({
     otherName: 275,
     unreachable: 174,
-    noVisibleEffect: 215,
+    noVisibleEffect: 213,
     unportedVisible: 2,
 });
 
@@ -327,7 +327,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'files.c set_bonestemp_name': noEffect(FILE_IO),
     'files.c compress_bonesfile': noEffect(COMPRESS),
     'files.c save_savefile_name': noEffect(FILE_IO),
-    'files.c set_error_savefile': noEffect(FILE_IO),
     'files.c create_savefile': ported('js/save.js dosave0',
         'playgroundWriteFile(set_savefile_name()) stands for creat(); the failure arm needs a host '
         + 'error'),
@@ -337,7 +336,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'files.c delete_savefile': ported('js/restore.js dorestore',
         'removing the save after a restore'),
     'files.c get_freeing_nhfile': noEffect(FILE_IO),
-    'files.c check_panic_save': noEffect(FILE_IO),
     'files.c free_saved_games': noEffect(MEMORY),
     'files.c redirect': noEffect(COMPRESS),
     'files.c docompress_file': noEffect(COMPRESS),

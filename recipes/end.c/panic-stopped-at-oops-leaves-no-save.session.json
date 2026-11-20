@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "C ref: end.c panic(): wait_synch() waits for a key after \"Oops...\" before set_error_savefile() and dosave0() run, so a segment that stops at that wait leaves no panic save file. Segment 0: a debug-mode gnomish Healer runs #panic and stops at \"Oops...\". Segment 1 starts a new game without the panic-save question. Seeds, clocks, character and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 52230017,
+      "datetime": "20480808220000",
+      "nethackrc": "OPTIONS=name:Hildegard,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": " hk#panic\nyes\n"
+    },
+    {
+      "seed": 52230019,
+      "datetime": "20480809220000",
+      "nethackrc": "OPTIONS=name:Hildegard,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!autopickup,pettype:none\n",
+      "moves": " jls"
+    }
+  ]
+}

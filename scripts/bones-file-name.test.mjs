@@ -57,11 +57,15 @@ test('set_bonesfile_name() matches files.c on special, numbered and quest levels
 
 // The storage names js/ may use directly. Every other name is a bones file
 // and must come from set_bonesfile_name(), inside js/files_bones.js, or a
-// save file, held in a variable set from set_savefile_name() or listed from
-// the save/ directory in the same file.
+// save file: a set_savefile_name() or set_error_savefile() call, a variable
+// or parameter default set from one, or a name listed from the save/
+// directory in the same file.
 const FIXED_NAMES = new Set(["'record'", "''", "'save/'"]);
+const SAVE_NAME_CALL = /^set_(?:savefile_name|error_savefile)\(/u;
 const SAVE_NAME_BINDINGS = [
-    /\bconst (\w+) = set_savefile_name\(/gu,
+    // `const name = ...` and a parameter's `name = ...` default, such as
+    // js/save.js dosave0()'s gs.SAVEF.
+    /\b(\w+) = set_(?:savefile_name|error_savefile)\(/gu,
     /\bfor \(const (\w+) of vfsListFiles\('save\/'\)\)/gu,
     // files.c plname_from_file() opens each name get_saved_games(), beside
     // it in js/files.js, listed from save/.
@@ -88,7 +92,8 @@ export function storageNameViolations(file, source) {
     code.forEach((line, index) => {
         for (const match of line.matchAll(STORAGE_CALL)) {
             const argument = match[1].trim();
-            if (FIXED_NAMES.has(argument) || saveNames.has(argument)) continue;
+            if (FIXED_NAMES.has(argument) || saveNames.has(argument)
+                || SAVE_NAME_CALL.test(argument)) continue;
             if (file === 'files_bones.js' && BONES_NAME.test(argument)) continue;
             violations.push(`js/${file}:${index + 1}: ${match[0].trim()}`);
         }
@@ -96,7 +101,7 @@ export function storageNameViolations(file, source) {
     return violations;
 }
 
-test('every storage call names its file through a fixed name, set_bonesfile_name() or set_savefile_name()', () => {
+test('every storage call names its file through a fixed name, set_bonesfile_name(), set_savefile_name() or set_error_savefile()', () => {
     const violations = [];
     for (const file of readdirSync(JS_DIR).filter((name) => name.endsWith('.js'))) {
         if (file === 'storage.js') continue;
@@ -125,4 +130,13 @@ test('the check refuses a bones name built outside set_bonesfile_name()', () => 
         'const savefile = set_savefile_name(state);\nvfsWriteFile(savefile, data);'), []);
     assert.deepEqual(storageNameViolations('restore.js',
         "for (const path of vfsListFiles('save/')) vfsReadFile(path);"), []);
+    // The panic save file's name, directly and through dosave0()'s
+    // parameter, and a ".e" name built by hand.
+    assert.deepEqual(storageNameViolations('files.js',
+        'return playgroundReadFile(set_error_savefile(state)) != null;'), []);
+    assert.deepEqual(storageNameViolations('save.js',
+        'function dosave0(state, savefile = set_savefile_name(state)) {\nplaygroundWriteFile(savefile, data);'), []);
+    assert.deepEqual(storageNameViolations('end.js',
+        'playgroundWriteFile(`${set_savefile_name(state)}.e`, data);'),
+    ['js/end.js:1: playgroundWriteFile(`${set_savefile_name(state']);
 });

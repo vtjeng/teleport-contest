@@ -23,7 +23,7 @@ import { requireCompiler } from './recorder-headers.mjs';
 // literal + 24 no JS function, after trap.c grease_protect() 372 was
 // paired on 15 November 2026.
 const UNPAIRED_STATUSES = ['no JS text', 'too little text', 'format not a literal', 'no JS function'];
-const UNPAIRED_CEILING = 285;
+const UNPAIRED_CEILING = 283;
 
 test('every paired JS message makes its C site\'s location choice', async () => {
     requireCompiler('the scan needs the C preprocessor');
