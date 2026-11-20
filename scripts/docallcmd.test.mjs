@@ -8,7 +8,7 @@ import test from 'node:test';
 import { ECMD_OK } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
-import { renderTtyStartupBanner } from '../js/tty_startup.js';
+import { tty_init_nhwindows } from '../js/wintty.js';
 import { docallcmd } from '../js/do_name.js';
 
 // Same setup as scripts/windows.test.mjs: a display with the banner on it and
@@ -17,7 +17,7 @@ function menuState(keys = '') {
     resetGame();
     game.nhDisplay = new GameDisplay(null);
     for (const ch of keys) game.nhDisplay.pushKey(ch.charCodeAt(0));
-    renderTtyStartupBanner(game);
+    tty_init_nhwindows(null, null, game);
     return game;
 }
 

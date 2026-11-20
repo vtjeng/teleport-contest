@@ -63,6 +63,7 @@ import {
 import { pmatchi } from './strutil.js';
 import { impossible } from './pline.js';
 import { nomux_g_putch_byte } from './termcap.js';
+import { baseWindow } from './wintty.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
 // calls tty_getlin("Search for:") and skips an empty or Escaped answer.
@@ -923,7 +924,8 @@ export async function dismissTtyMenu(state = game, rendered) {
     if (rendered.base.fullScreen) {
         if (state.program_state?.in_role_selection) {
             display.clearScreen();
-            state._ttyBaseCursorRow = 0;
+            const base = baseWindow(state);
+            base.curx = base.cury = 0;
         } else {
             await erase_menu_or_text(
                 state, display, rendered.snapshot, rendered.baseCursor,
@@ -940,7 +942,9 @@ export async function dismissTtyMenu(state = game, rendered) {
         );
         // docorner(offx, maxrow + 1, 0) leaves BASE_WINDOW on maxrow.  A
         // subsequent rename's empty tty_putstr() advances from this row.
-        state._ttyBaseCursorRow = rendered.base.maxrow;
+        const base = baseWindow(state);
+        base.curx = rendered.base.repairColumn;
+        base.cury = rendered.base.maxrow;
     } else {
         await restoreCorner(
             state,

@@ -39,6 +39,7 @@ import {
     TOPLINE_NEED_MORE,
     dismissPendingTtyMessage,
     ttyPline,
+    vplineRawArm,
     vplineVisionRecalc,
 } from './tty_message.js';
 import {
@@ -151,18 +152,23 @@ async function hooked_tty_getlin(query, hook, state) {
     const text = () => bytesText(buf);
     let cancelled = false;
     try {
-        // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s ", query).  vpline()
-        // spends a deferred vision recalculation and flushes the map first;
-        // remember_topl() moves the old line into history before show_topl()
-        // repaints.
-        await vplineVisionRecalc(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, state);
-        if (state.u?.ux) await flush_screen(1);
-        remember_topl(state);
-        show_topl(`${query} `, state);
-        state._pending_message = '';
-        // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
-        display.toplin = TOPLINE_NEED_MORE;
-        state._ttyPreviousMessage = `${query} `;
+        // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s ", query).
+        // vpline() raw_print()s it when the windows are not initialized
+        // (vplineRawArm()). Otherwise it spends a deferred vision
+        // recalculation and flushes the map first; remember_topl() moves the
+        // old line into history before show_topl() repaints.
+        await vplineRawArm(`${query} `, state, async () => {
+            await vplineVisionRecalc(
+                OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, state,
+            );
+            if (state.u?.ux) await flush_screen(1);
+            remember_topl(state);
+            show_topl(`${query} `, state);
+            state._pending_message = '';
+            // addtopl() leaves ttyDisplay->toplin at TOPLINE_NEED_MORE.
+            display.toplin = TOPLINE_NEED_MORE;
+            state._ttyPreviousMessage = `${query} `;
+        });
 
         for (;;) {
             // Strcat(strcat(strcpy(gt.toplines, query), " "), obufp) refreshes the

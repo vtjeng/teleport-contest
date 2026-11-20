@@ -1088,7 +1088,7 @@ export async function panic(str, state = game) {
         await NH_abort(state); /* avoid loops - this should never happen*/
 
     state.gb.bot_disabled = true;
-    if (state.iflags?.window_inited !== false) {
+    if (state.iflags?.window_inited) {
         tty_raw_print(state, '\r\nOops...');
         await tty_wait_synch(state); /* make sure all pending output gets flushed */
         // soundprocs.sound_exit_nhsound is null: the build has no sound
@@ -1247,7 +1247,7 @@ export function artifact_score(list, counting, state, textLines = null) {
 // remain outside this port.
 async function really_done(how, state) {
     const programState = state.program_state;
-    const haveWindows = state.iflags?.window_inited !== false;
+    const haveWindows = Boolean(state.iflags?.window_inited);
     programState.gameover = 1;
     programState.something_worth_saving = 0;
     // HANGUPHANDLING sets done_stopprint in C and carries on through the
@@ -1487,8 +1487,14 @@ async function really_done(how, state) {
 
     // C: display_nhwindow(WIN_MESSAGE, TRUE) -- consume the pending message
     // boundary after the synchronous wait, before the tombstone window.
-    if (haveWindows)
+    if (haveWindows) {
         await displayPendingTtyMessageWindow(state);
+        // end.c:1388 destroy_nhwindow(WIN_MESSAGE): tty_destroy_nhwindow()
+        // clears iflags.window_inited for the message window
+        // (wintty.c:2021-2022), so a pline() from here on is raw_print()ed
+        // (js/tty_message.js vplineRawArm()).
+        state.iflags.window_inited = false;
+    }
 
     // C: if (how < GENOCIDED && flags.tombstone && endwin != WIN_ERR)
     //        outrip(endwin, how, endtime);

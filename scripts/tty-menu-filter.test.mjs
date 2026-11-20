@@ -28,7 +28,8 @@ function menuState(keys = '', filter = null) {
     };
     // options.c initoptions_init() (7279) sets menuinvertmode to 1. Tests that
     // need another configured mode replace this field below.
-    game.iflags = { menuinvertmode: 1 };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    game.iflags = { window_inited: true, menuinvertmode: 1 };
     if (filter) game.roleFilter = structuredClone(filter);
     for (const character of keys)
         game.nhDisplay.pushKey(character.charCodeAt(0));

@@ -36,7 +36,7 @@ import {
     ttyMenuTextLayout,
     ttyTextWindowData,
 } from '../js/tty_menu.js';
-import { renderTtyStartupBanner } from '../js/tty_startup.js';
+import { tty_init_nhwindows } from '../js/wintty.js';
 import { tty_raw_print } from '../js/tty_rawprint.js';
 import {
     init_vision_globals,
@@ -55,7 +55,9 @@ function menuState(keys = '') {
     monst_globals_init(game);
     game.youmonst = { data: game.mons[PM_HUMAN] };
     for (const ch of keys) game.nhDisplay.pushKey(ch.charCodeAt(0));
-    renderTtyStartupBanner(game);
+    tty_init_nhwindows(null, null, game);
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    game.iflags.window_inited = true;
     return game;
 }
 
@@ -1095,7 +1097,8 @@ test('state-parameterized menus read only their supplied display and hook', asyn
     const globalState = menuState('y');
     const foreign = {
         nhDisplay: new GameDisplay(null),
-        iflags: {},
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true },
         program_state: {},
     };
     foreign.nhDisplay.pushKey('n'.charCodeAt(0));
@@ -1574,7 +1577,8 @@ test('getlin handles Ctrl-P history navigation and releases inread', async () =>
 
 test('menuTitleStyle converts canonical heading attributes only for drawing', () => {
     // wintype.h inverse7 differs from captured inverse1; dim2 is invisible.
-    const state = { iflags: { menu_headings: { attr: 7, color: 8 } } };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = { iflags: { window_inited: true, menu_headings: { attr: 7, color: 8 } } };
     assert.deepEqual(menuTitleStyle(state), { titleAttr: 1, titleColor: 8 });
     state.iflags.menu_headings.attr = 2;
     assert.equal(menuTitleStyle(state).titleAttr, 0);

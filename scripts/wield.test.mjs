@@ -54,7 +54,8 @@ function makeState() {
             invlet_constant: true,
             pushweapon: false,
         },
-        iflags: { cbreak: true },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true, cbreak: true },
         disp: {},
         multi: 0,
         context: { ident: 1 },

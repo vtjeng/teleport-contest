@@ -119,7 +119,8 @@ test('bless adjusts carried artifact light after the BUC mutation', async () => 
     // path uses pline() when the caller supplies no message callback.
     const state = makeState();
     state.nhDisplay = new GameDisplay(null);
-    state.iflags = { cbreak: true };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, cbreak: true };
     state._pending_message = '';
     state._ttyToplines = '';
     const armor = object(state, GOLD_DRAGON_SCALE_MAIL, {

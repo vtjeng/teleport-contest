@@ -242,7 +242,13 @@ test('reset_occupations clears all three interrupted occupations', () => {
 // the empty verb C's silent callers pass reaches each `return FALSE` with
 // nothing printed. That is what lets one state cover all five arms.
 function letGoState(overrides = {}) {
-    return { u: {}, flags: { verbose: true }, ...overrides };
+    return {
+        u: {},
+        flags: { verbose: true },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true },
+        ...overrides,
+    };
 }
 
 test('canletgo refuses each object it cannot be let go of', async () => {

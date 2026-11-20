@@ -560,6 +560,14 @@ function defaultResult() {
             // options.c initializes instance_flags to zero, which is STONE.
             // Its boolean handler restores this value on every toggle.
             prev_decor: STONE,
+            // flag.h:303 iflags.window_inited starts FALSE in every process,
+            // so in every segment. wintty.c:1883 tty_display_nhwindow()
+            // raises it when allmain.c init_sound_disp_gamewindows() first
+            // shows WIN_MESSAGE (js/tty_message.js
+            // displayPendingTtyMessageWindow()); wintty.c:844, :2022 and
+            // end.c:410 clear it. Readers test it as C does, by truth value;
+            // scripts/window-inited.test.mjs keeps every write at those sites.
+            window_inited: false,
             // options.c initoptions_init() sets these after zeroing iflags.
             wc_align_message: ALIGN_TOP,
             wc_align_status: ALIGN_BOTTOM,
@@ -3301,7 +3309,7 @@ function illegalMenuCommandKey(result, key) {
 // raw_print() (pline.c:239).
 function add_menu_cmd_alias(result, fromKey, command) {
     if (result.iflags.mapped_menu_cmds.length >= MAX_MENU_MAPPED_CMDS) {
-        result.startupEvents.push({ text: 'out of menu map space.' });
+        result.startupEvents.push({ text: 'out of menu map space.', pline: true });
     } else {
         result.iflags.mapped_menu_cmds += String.fromCharCode(fromKey);
         result.iflags.mapped_menu_op += command;
@@ -5150,7 +5158,7 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
         {
             const text = "There is no underlying support for"
                 + " 'idlecheckpoint' compiled in.";
-            result.startupEvents.push({ text });
+            result.startupEvents.push({ text, pline: true });
         }
         result.iflags.idlecheckpoint = false;
         result.give_opt_msg = false;

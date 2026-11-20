@@ -228,7 +228,8 @@ function initializedState() {
         // MOD_ENCUMBER, which is what an rc file that never names the option
         // leaves behind; invent.c:1261-1264 reads it on every hold.
         flags: { invlet_constant: true, pickup_burden: MOD_ENCUMBER },
-        iflags: {},
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true },
         program_state: { in_moveloop: 1 },
         moves: 0,
         u: {
@@ -2288,7 +2289,8 @@ test('free_pickinv_cache destroys and invalidates a cached window', () => {
 });
 
 test('doperminv follows capability, option, and empty-pack gates', async () => {
-    const unsupported = { flags: {}, iflags: {} };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const unsupported = { flags: {}, iflags: { window_inited: true } };
     await doperminv(unsupported);
     assert.equal(
         unsupported._ttyToplines,
@@ -2296,7 +2298,8 @@ test('doperminv follows capability, option, and empty-pack gates', async () => {
     );
 
     const disabled = {
-        flags: {}, iflags: {}, wincap: WC_PERM_INVENT,
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        flags: {}, iflags: { window_inited: true }, wincap: WC_PERM_INVENT,
     };
     await doperminv(disabled);
     assert.equal(
@@ -2305,7 +2308,8 @@ test('doperminv follows capability, option, and empty-pack gates', async () => {
     );
 
     const empty = {
-        flags: {}, iflags: { perm_invent: true }, wincap: WC_PERM_INVENT,
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        flags: {}, iflags: { window_inited: true, perm_invent: true }, wincap: WC_PERM_INVENT,
     };
     await doperminv(empty);
     assert.equal(empty._ttyToplines, 'Persistent inventory display is empty.');
@@ -2313,7 +2317,8 @@ test('doperminv follows capability, option, and empty-pack gates', async () => {
     // The last branch hands the window port a nonzero argument and prints
     // nothing itself.
     const capable = {
-        flags: {}, iflags: { perm_invent: true }, wincap: WC_PERM_INVENT,
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        flags: {}, iflags: { window_inited: true, perm_invent: true }, wincap: WC_PERM_INVENT,
         invent: { nobj: null },
     };
     assert.equal(await doperminv(capable), 0);

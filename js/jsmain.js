@@ -70,7 +70,11 @@ import {
 import {
     initialize_symbols_from_options,
 } from './symbols.js';
-import { clearTtyMessageWindow, ttyPline } from './tty_message.js';
+import {
+    clearTtyMessageWindow,
+    displayPendingTtyMessageWindow,
+    ttyPline,
+} from './tty_message.js';
 import {
     tty_create_nhwindow,
     tty_init_nhwindows,
@@ -466,8 +470,13 @@ export class NethackGame {
         // set, which no configuration output can follow; the restore branch
         // below and restore.c dorecover() read it.
         g.ge = { early_raw_messages: 0 };
+        // Each event names the C call that printed it. A pline() reaches
+        // vpline()'s raw_print() arm (pline.c:239) because
+        // iflags.window_inited is still FALSE; a raw_print() or raw_printf()
+        // prints directly.
         for (const event of opts.startupEvents) {
-            tty_raw_print(g, event.text);
+            if (event.pline) await ttyPline(event.text, g);
+            else tty_raw_print(g, event.text);
             // raw_printf() and its vraw_printf() each add one (pline.c:557,
             // :580); the readers test only for zero.
             if (event.raw_printf) g.ge.early_raw_messages += 2;
@@ -584,6 +593,10 @@ export class NethackGame {
         // the restore-or-new-game branch, so a restored game has the status
         // banks too. gb.blinit and the banks are not in the save file.
         status_initialize(g, false);
+        // allmain.c:756 display_nhwindow(WIN_MESSAGE, FALSE), the first
+        // display of the new message window: wintty.c:1883 raises
+        // iflags.window_inited, so pline() stops raw_print()ing from here.
+        await displayPendingTtyMessageWindow(g);
 
         // ── Branch: restore saved game or start new one ──
         // C ref: unixmain.c nethack_main() checks for a save file between

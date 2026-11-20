@@ -35,7 +35,8 @@ function rowText(state) {
 function messageState(message, toplin) {
     const state = {
         nhDisplay: new GameDisplay(null),
-        iflags: { cbreak: true },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true, cbreak: true },
         _pending_message: message,
         _ttyToplines: message,
     };

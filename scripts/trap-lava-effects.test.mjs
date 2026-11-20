@@ -66,7 +66,8 @@ function stateWithLava() {
     };
     state.context = { ident: 1 };
     state.flags = { verbose: true };
-    state.iflags = {};
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true };
     state.program_state = { gameover: false };
     state.gw = {};
     state.urole = { mnum: PM_HUMAN };

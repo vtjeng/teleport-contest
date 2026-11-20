@@ -89,7 +89,8 @@ function corridor(last = 6) {
     for (let x = 1; x <= last; x++) state.level.at(x, 4).typ = ROOM;
     state.u = { ux: 1, uy: 4, umonnum: 0, uz: { dnum: 0, dlevel: 1 } };
     state.flags = {};
-    state.iflags = {};
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true };
     monst_globals_init(state);
     objects_globals_init(state);
     // xname() enters the named type in the discoveries list, which needs the

@@ -12,6 +12,7 @@ import {
     ttyPlayerNameAndSuffix,
 } from '../js/tty_startup.js';
 import { RECORDER_BUILD_DATE } from '../js/mdlib.js';
+import { tty_init_nhwindows } from '../js/wintty.js';
 import { copyright_banner_line, getversionstring } from '../js/version.js';
 
 function startupState(keys = '') {
@@ -67,7 +68,7 @@ test('the banner reads the recorder build\'s sources', () => {
 
 test('tty startup banner prints copyright_banner_line(1) to (4) from row 4', () => {
     const state = startupState();
-    renderTtyStartupBanner(state);
+    tty_init_nhwindows(null, null, state);
 
     assert.equal(plainScreen(state), [
         '', '', '', '', ...RECORDER_BANNER,
@@ -105,7 +106,7 @@ test('tty_askname echoes one source-filtered character per input boundary', asyn
         screens.push(plainScreen(state));
         cursors.push([state.nhDisplay.cursorCol, state.nhDisplay.cursorRow]);
     };
-    renderTtyStartupBanner(state);
+    tty_init_nhwindows(null, null, state);
 
     await ttyAskname(state);
 
@@ -128,7 +129,7 @@ test('tty_askname retries empty and escaped attempts on the source rows', async 
     const state = startupState('\nBad\u001bGood\n');
     const screens = [];
     state._preNhgetchHook = () => screens.push(plainScreen(state));
-    renderTtyStartupBanner(state);
+    tty_init_nhwindows(null, null, state);
 
     await ttyAskname(state);
 
@@ -147,7 +148,7 @@ test('generic sysconf usernames prompt while ordinary names remain intact', asyn
     const state = startupState('Alice\n');
     state.plname = 'games-Healer';
     state.gp = { plnamelen: 0 };
-    renderTtyStartupBanner(state);
+    tty_init_nhwindows(null, null, state);
     await ensureTtyPlayerName(state);
 
     assert.equal(state.plname, 'Alice');
@@ -164,7 +165,7 @@ test('suffix-only and NUL-cancelled names return to tty_askname', async () => {
         initalign: -1,
     };
     state.gp = { plnamelen: 0 };
-    renderTtyStartupBanner(state);
+    tty_init_nhwindows(null, null, state);
 
     await ttyPlayerNameAndSuffix(state);
 
@@ -176,7 +177,7 @@ test('suffix-only and NUL-cancelled names return to tty_askname', async () => {
 
 test('tty_askname truncates storage and echo at PL_NSIZ minus one', async () => {
     const state = startupState(`${'A'.repeat(40)}\n`);
-    renderTtyStartupBanner(state);
+    tty_init_nhwindows(null, null, state);
 
     await ttyAskname(state);
 

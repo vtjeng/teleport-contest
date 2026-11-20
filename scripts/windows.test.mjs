@@ -11,7 +11,7 @@ import test from 'node:test';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { parseNethackrc } from '../js/options.js';
-import { renderTtyStartupBanner } from '../js/tty_startup.js';
+import { tty_init_nhwindows } from '../js/wintty.js';
 import { add_menu, getlin, select_menu } from '../js/windows.js';
 
 // The same startup scripts/tty-menu.test.mjs uses: a display with the banner
@@ -20,7 +20,9 @@ function windowState(keys = '') {
     resetGame();
     game.nhDisplay = new GameDisplay(null);
     for (const ch of keys) game.nhDisplay.pushKey(ch.charCodeAt(0));
-    renderTtyStartupBanner(game);
+    tty_init_nhwindows(null, null, game);
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    game.iflags.window_inited = true;
     return game;
 }
 

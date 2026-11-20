@@ -47,26 +47,21 @@ function startupState(argcp, argv, state) {
     return state;
 }
 
-// C ref: win/tty/termcap.c term_startup(). The terminal port already owns
-// the dimensions through GameDisplay, so the pointer outputs become this
-// source-shaped pair rather than a second copy of the dimensions.
+// C ref: win/tty/termcap.c term_startup(). The GameDisplay already owns the
+// terminal dimensions, which C returns through the wid and hgt pointers and
+// tty_init_nhwindows() copies into ttyDisplay->cols and rows, so nothing is
+// returned.
 export function term_startup(state = game) {
-    const display = state.nhDisplay;
-    const wid = display?.cols ?? 80;
-    const hgt = display?.rows ?? 24;
+    const { cols: wid, rows: hgt } = state.nhDisplay;
     // termcap.c tty_startup() (CLIPPING).
     if (wid < COLNO || hgt < ROWNO + 3) setclipped(state);
-    return { wid, hgt };
 }
 
-// C ref: win/tty/wintty.c tty_create_nhwindow() (850-895). The browser
-// descriptor stores the fields needed by startup, cursor movement, and later
-// resize code; message windows retain the earlier history-size normalization.
+// C ref: win/tty/wintty.c tty_create_nhwindow() (850-957). Each arm sets
+// offx, offy, rows, cols, maxrow and maxcol as its C arm does.
 export function tty_create_nhwindow(type, state = game) {
     const wt = winttyState(state);
-    const display = ttyDisplay(state, wt);
-    const rows = wt.rows ?? display?.rows ?? 24;
-    const cols = wt.cols ?? display?.cols ?? 80;
+    const { rows, cols } = state.nhDisplay;
     wt.wins ??= [];
     let id = wt.wins.findIndex((window) => window == null);
     if (id < 0) id = wt.wins.length;
@@ -83,7 +78,7 @@ export function tty_create_nhwindow(type, state = game) {
         offx: 0,
         offy: 0,
         rows: 0,
-        cols,
+        cols: 0,
         maxrow: 0,
         maxcol: 0,
         data: null,
@@ -91,6 +86,7 @@ export function tty_create_nhwindow(type, state = game) {
     };
     if (type === NHW_BASE) {
         window.rows = rows;
+        window.cols = cols;
         window.maxrow = 0;
     } else if (type === NHW_MESSAGE) {
         const history = state.iflags?.msg_history ?? 20;
@@ -103,7 +99,10 @@ export function tty_create_nhwindow(type, state = game) {
         // wintty.c allocates rows slots, then uses maxrow as the next history
         // slot (zero for an empty ring).
         window.maxrow = 0;
-        window.maxcol = 0;
+        // "1 line long, very wide": C sets maxcol and cols to 0. Its only
+        // reader of this window's cols is tty_curs()'s DEBUG bounds check,
+        // which complains about every window type except NHW_MESSAGE.
+        window.cols = window.maxcol = 0;
         window.data = Array(window.rows).fill(null);
         window.datlen = Array(window.rows).fill(0);
         wt.messageWindow = id;
@@ -115,6 +114,7 @@ export function tty_create_nhwindow(type, state = game) {
         window.cols = COLNO;
     } else if (type === NHW_MENU || type === NHW_TEXT) {
         window.rows = 0;
+        window.cols = cols;
         window.offx = 0;
         window.offy = 0;
     } else if (type === NHW_STATUS) {
@@ -142,33 +142,42 @@ export function print_vt_soundcode_idx(_idx, _v, _state = game) {
     // The compiled C macro has no output and no state effect.
 }
 
-// wintty.c keeps these values in file-static/global storage.  The JavaScript
-// runner creates a fresh game object for each segment, so state.wintty is the
-// single owner of the port's tty dimensions, window table, clipping state and
-// resize-only message flag.
+// state.wintty holds the tty port's window state: wintty.c's window table
+// wins[], its BASE_WINDOW id and its CLIPPING variables clipping, clipx, clipy,
+// clipxmax and clipymax, and decl.c's WIN_MAP and WIN_MESSAGE ids
+// (messageWindow).  The JavaScript runner creates a fresh game object
+// for each segment, as a new C process starts with fresh globals.
+//
+// C's struct DisplayDesc *ttyDisplay (wintty.h) is state.nhDisplay, the
+// GameDisplay: rows and cols are its terminal size, curx and cury its
+// cursorCol and cursorRow, and toplin, inmore, inread, intr, dismiss_more
+// and rawprint (nomuxRaw.rawprint) are fields on it.  termcap.c's LI and CO
+// are the same terminal size.  scripts/wintty.test.mjs rejects any other field on
+// state.wintty.
 function winttyState(state) {
     state.wintty ??= {};
     return state.wintty;
 }
 
-function ttyDisplay(state, wt) {
-    return wt.ttyDisplay ?? state.ttyDisplay ?? state.nhDisplay ?? null;
+// wins[BASE_WINDOW].  Its cury is the row tty_putstr(BASE_WINDOW) writes
+// next; the port keeps no other copy of it.  C moves that row with every
+// tty_curs(BASE_WINDOW, ...).  The port updates it only where a later
+// base-window write reads it: tty_init_nhwindows()'s banner, tty_askname(),
+// tty_putstr(BASE_WINDOW), erase_tty_screen() through tty_clear_nhwindow()
+// of the map or base window, and docorner()'s role-selection menu repair.
+// The other tty_curs(BASE_WINDOW) callers, such as topl.c addtopl() and
+// topl_putsym() and docorner() during play, are not modeled because no
+// base-window write follows them.
+export function baseWindow(state = game) {
+    const wt = state.wintty;
+    const cw = wt?.wins?.[wt.BASE_WINDOW];
+    if (!cw) throw new Error('BASE_WINDOW does not exist');
+    return cw;
 }
 
 function windowAt(wt, id) {
     if (id === WIN_ERR) return null;
     return wt.wins?.[id] ?? null;
-}
-
-function displayCursor(state, wt, display) {
-    if (Number.isFinite(display?.curx) && Number.isFinite(display?.cury)) {
-        return [display.curx, display.cury];
-    }
-    if (Number.isFinite(display?.cursorCol)
-        && Number.isFinite(display?.cursorRow)) {
-        return [display.cursorCol, display.cursorRow];
-    }
-    return [wt.curx ?? 0, wt.cury ?? 0];
 }
 
 // C ref: win/tty/wintty.c tty_curs() (2058-2161).  The browser terminal has
@@ -187,9 +196,11 @@ export function tty_curs(window, x, y, state = game, _env = {}) {
         throw new Error('tty_curs() received an invalid window');
     }
 
-    const display = ttyDisplay(state, wt);
-    const [oldx, oldy] = displayCursor(state, wt, display);
-    wt.lastwin = window;
+    // ttyDisplay->curx and cury are the display's cursor.  C also sets
+    // ttyDisplay->lastwin, which nothing reads.
+    const display = state.nhDisplay;
+    const oldx = display.cursorCol;
+    const oldy = display.cursorRow;
 
     // C coordinates are 1-based columns within a window and 0-based rows.
     // `curx` is deliberately stored one column behind the caller's x.
@@ -209,14 +220,7 @@ export function tty_curs(window, x, y, state = game, _env = {}) {
     // terminal backend.  The JS grid applies glyph graphics and color per
     // cell, so there is no buffered stream to close at this boundary.
 
-    if (typeof display?.setCursor === 'function') {
-        display.setCursor(targetX, targetY);
-    } else if (display) {
-        display.curx = targetX;
-        display.cury = targetY;
-    }
-    wt.curx = targetX;
-    wt.cury = targetY;
+    display.setCursor(targetX, targetY);
 }
 
 // C ref: wintty.c tty_suspend_nhwindows() (784-790).  term_curs_set(1) only
@@ -247,7 +251,8 @@ export function tty_suspend_nhwindows(str, state = game) {
 // C ref: wintty.c tty_exit_nhwindows() (810-845).  After the farewell, C
 // frees every tty window and the pickinv cache and shuts the terminal down;
 // only raw output follows, so the observable result is the cleared or
-// farewell screen and window_inited, which tty_init_nhwindows() set.
+// farewell screen and window_inited, which tty_display_nhwindow() set when it
+// first showed WIN_MESSAGE (wintty.c:1883).
 export function tty_exit_nhwindows(str, state = game) {
     tty_suspend_nhwindows(str, state);
     if (state.nhDisplay) state.nhDisplay.ttyDisplayFreed = true;
@@ -271,9 +276,7 @@ export async function bail(mesg, state = game) {
 // repaints every map row of the clip window from the cells' displayed glyphs.
 export function newclipping(x, y, state = game) {
     const wt = winttyState(state);
-    const display = ttyDisplay(state, wt);
-    const cols = wt.CO ?? display?.cols ?? 0;
-    const rows = wt.LI ?? display?.rows ?? 0;
+    const { rows, cols } = state.nhDisplay;
     if (cols < COLNO || rows < 1 + ROWNO + statusRows(state)) {
         setclipped(state); /* sets clipping=TRUE */
         if (x) tty_cliparound(x, y, state);
@@ -290,12 +293,12 @@ export function newclipping(x, y, state = game) {
 // display.js mapViewport() reads them to place the map's rows.
 export function setclipped(state = game) {
     const wt = winttyState(state);
-    const display = ttyDisplay(state, wt);
+    const display = state.nhDisplay;
     wt.clipping = true;
     wt.clipx = 0;
     wt.clipy = 0;
-    wt.clipxmax = wt.CO ?? display?.cols ?? 0;
-    wt.clipymax = (wt.LI ?? display?.rows ?? 0) - 1 - statusRows(state);
+    wt.clipxmax = display.cols;
+    wt.clipymax = display.rows - 1 - statusRows(state);
 }
 
 // C ref: win/tty/wintty.c tty_cliparound() (3817-3843), without its closing
@@ -304,12 +307,12 @@ export function setclipped(state = game) {
 // next flush, which repaints every map row of the moved clip window.
 export function tty_cliparound(x, y, state = game) {
     const wt = winttyState(state);
-    const display = ttyDisplay(state, wt);
+    const display = state.nhDisplay;
     const oldx = wt.clipx;
     const oldy = wt.clipy;
     if (!wt.clipping) return false;
-    const co = wt.CO ?? display?.cols ?? 0;
-    const height = (wt.LI ?? display?.rows ?? 0) - 1 - statusRows(state);
+    const co = display.cols;
+    const height = display.rows - 1 - statusRows(state);
     if (x < wt.clipx + 5) {
         wt.clipx = Math.max(0, x - 20);
         wt.clipxmax = wt.clipx + co;
@@ -360,7 +363,9 @@ export function tty_clear_map_window(state = game) {
     if (!display?.grid) return;
     display.clearScreen();
     erase_status_rows(state);
-    if (state._ttyBaseCursorRow !== undefined) state._ttyBaseCursorRow = 0;
+    // erase_tty_screen()'s tty_curs(BASE_WINDOW, 1, 0).
+    const base = baseWindow(state);
+    base.curx = base.cury = 0;
 }
 
 // C ref: wintty.c tty_clear_nhwindow() NHW_BASE arm (1079-1090) and its
@@ -372,7 +377,8 @@ export function tty_clear_base_window(state = game) {
     if (!display?.grid) return;
     display.clearScreen();
     display.setCursor(0, 0);
-    state._ttyBaseCursorRow = 0;
+    const base = baseWindow(state);
+    base.curx = base.cury = 0;
 }
 
 // C ref: wintty.c tty_putstr() NHW_BASE arm with attribute 0, for a line
@@ -382,10 +388,12 @@ export function tty_clear_base_window(state = game) {
 export function tty_putstr_base(str, state = game) {
     const display = state.nhDisplay;
     if (!display?.grid) return;
-    const row = state._ttyBaseCursorRow ?? display.cursorRow;
+    const base = baseWindow(state);
+    const row = base.cury;
     display.putstr(0, row, str, NO_COLOR);
     display.setCursor(str.length, row);
-    state._ttyBaseCursorRow = row + 1;
+    base.curx = 0;
+    ++base.cury;
 }
 
 // C ref: wintty.c tty_clear_nhwindow() NHW_STATUS arm (1059-1073): cl_end()
@@ -449,8 +457,8 @@ export function tty_init_nhwindows(argcp = null, argv = null, state = game) {
     state = startupState(argcp, argv, state);
     state.iflags ??= {};
     const wt = winttyState(state);
-    const display = ttyDisplay(state, wt);
-    const { wid, hgt } = term_startup(state);
+    const display = state.nhDisplay;
+    term_startup(state);
 
     state.iflags.wc2_statuslines = statusRows(state);
     state.iflags.cbreak = true;
@@ -463,35 +471,31 @@ export function tty_init_nhwindows(argcp = null, argv = null, state = game) {
         value: false,
         writable: true,
     });
-    wt.ttyDisplay = display;
-    // toplin, inmore, inread, intr and dismiss_more each live only on the
-    // display, where topl.js, getline.js, tty_message.js and tty_rawprint.js
-    // read them; scripts/wintty.test.mjs rejects a copy on state.wintty.
+    // The ttyDisplay descriptor is the GameDisplay (see winttyState()).
+    // Its rows and cols are already the terminal size.  C zeroes curx and
+    // cury, but tty_clear_nhwindow(BASE_WINDOW) homes the cursor before the
+    // banner, which renderTtyStartupBanner() draws.  No JavaScript code reads
+    // topl_utf8, mixed, color, attrs or lastwin, so the port does not keep
+    // them: C reads topl_utf8 and mixed in topl.c redotoplin() while
+    // tty_putmixed() has set them, and color during glyph output, which the
+    // per-cell grid replaces; it never reads attrs or lastwin.  The mixed arm
+    // of redotoplin(), g_putch() of a leading high byte, is
+    // tty_message.js ttyPutmixed()'s first cell, which update_topl() keeps
+    // in state._ttyMixedFirstCell.
     display.toplin = TOPLINE_EMPTY;
-    wt.topl_utf8 = 0;
-    wt.rows = hgt;
-    wt.cols = wid;
-    wt.curx = 0;
-    wt.cury = 0;
     display.inmore = display.inread = display.intr = 0;
     display.dismiss_more = 0;
-    wt.color = NO_COLOR;
-    wt.attrs = 0;
-    wt.mixed = 0;
-    wt.lastwin = WIN_ERR;
 
     const baseWindow = tty_create_nhwindow(NHW_BASE, state);
     wt.BASE_WINDOW = baseWindow;
     wt.wins[baseWindow].active = true;
-    // CLIPPING is enabled in the recorder build, so the source selects
-    // set_in_game (4) for the statuslines capability.
-    wt.statuslines_mod_status = 4;
 
     // The browser terminal adapter supplies the void platform calls here:
-    // display construction owns terminal dimensions and mode, the startup
-    // renderer owns the base-window writes, and statuslines_mod_status is the
-    // source's set_wc2_option_mod_status(set_in_game) result. They therefore
-    // are not unported gaps in a normal browser startup.
+    // display construction owns terminal dimensions and mode, and the startup
+    // renderer owns the base-window writes.  The closing
+    // set_wc2_option_mod_status(WC2_STATUSLINES, set_in_game) gives
+    // statuslines the mode include/optlist.h already gives it.  They
+    // therefore are not unported gaps in a normal browser startup.
     renderTtyStartupBanner(state);
 }
 
@@ -499,10 +503,9 @@ export function tty_init_nhwindows(argcp = null, argv = null, state = game) {
 // preference update is a void no-op in this TTY build; statuslines still
 // rebuilds the status window and clipping geometry before that call.
 export function tty_preference_update(pref, state = game) {
-    // The JS startup path does not store window_inited, so only an explicit
-    // false means windows are not yet initialized.
+    // wintty.c:598-599: only once iflags.window_inited is set.
     const newstatuslines = pref === 'statuslines'
-        && state.iflags?.window_inited !== false;
+        && Boolean(state.iflags?.window_inited);
     if (newstatuslines) {
         new_status_window(state);
         newclipping(state.u?.ux ?? 0, state.u?.uy ?? 0, state);

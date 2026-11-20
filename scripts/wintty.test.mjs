@@ -21,6 +21,7 @@ import { parseCFunctions } from './c-functions.mjs';
 import { expectTerminated } from './expect-terminated.mjs';
 import {
     bail,
+    baseWindow,
     new_status_window,
     newclipping,
     print_vt_code,
@@ -28,9 +29,11 @@ import {
     tty_create_nhwindow,
     tty_curs,
     tty_askname,
+    tty_clear_base_window,
     tty_cliparound,
     tty_init_nhwindows,
     tty_preference_update,
+    tty_putstr_base,
 } from '../js/wintty.js';
 import { initUnported } from '../js/unported.js';
 import { InMemoryStorage, setStorageForTesting } from '../js/storage.js';
@@ -57,14 +60,45 @@ test('tty_create_nhwindow clamps the live message history size', () => {
         [MAX_MSG_HISTORY + 1, MAX_MSG_HISTORY],
         [0xFFFFFFFF, MAX_MSG_HISTORY],
     ]) {
-        const state = { iflags: { msg_history: configured } };
+        const state = {
+            iflags: { msg_history: configured },
+            nhDisplay: new GameDisplay(null),
+        };
         tty_create_nhwindow(NHW_MESSAGE, state);
         assert.equal(state.iflags.msg_history, normalized, `${configured}`);
     }
 });
 
+// C ref: win/tty/wintty.c tty_create_nhwindow() NHW_MESSAGE arm (885-895)
+// and the allocation after the switch (939-955).
+test('tty_create_nhwindow gives the message window C geometry', () => {
+    // A 24x80 GameDisplay: the message window must not copy its 80 columns.
+    const state = {
+        iflags: { msg_history: 37 },
+        nhDisplay: new GameDisplay(null),
+    };
+    const id = tty_create_nhwindow(NHW_MESSAGE, state);
+    const window = state.wintty.wins[id];
+    assert.deepEqual(
+        [window.offx, window.offy, window.rows, window.cols,
+            window.maxrow, window.maxcol],
+        // wintty.c:887 zeroes offx and offy; :893 sets rows to the
+        // normalized msg_history (37 is inside 20..MAX_MSG_HISTORY, so it is
+        // kept); :894 sets maxcol and cols to 0; :953-954 reset maxrow to 0
+        // after allocating 37 history slots.
+        [0, 0, 37, 0, 0, 0],
+    );
+    // wintty.c:944-952: one null line and a zero length per history slot.
+    assert.deepEqual(window.data, Array(37).fill(null));
+    assert.deepEqual(window.datlen, Array(37).fill(0));
+    assert.equal(state.wintty.messageWindow, id);
+    // The source lines the comments above cite.
+    assert.match(C_SOURCE, /newwin->maxrow = newwin->rows = iflags\.msg_history;\n\s*newwin->maxcol = newwin->cols = 0;/u);
+    assert.match(C_SOURCE, /if \(newwin->type == NHW_MESSAGE\)\n\s*newwin->maxrow = 0;/u);
+});
+
 test('tty_create_nhwindow keeps the unbuffered map geometry', () => {
-    const state = { wintty: { rows: 24, cols: 80 } };
+    const state = { nhDisplay: new GameDisplay(null) };
     const mapId = tty_create_nhwindow(NHW_MAP, state);
     assert.deepEqual(state.wintty.wins[mapId], {
         type: NHW_MAP,
@@ -84,7 +118,10 @@ test('tty_create_nhwindow keeps the unbuffered map geometry', () => {
 });
 
 test('tty_create_nhwindow stops before unported window types', () => {
-    const state = { iflags: { msg_history: 37 } };
+    const state = {
+        iflags: { msg_history: 37 },
+        nhDisplay: new GameDisplay(null),
+    };
     assert.throws(
         () => tty_create_nhwindow(NHW_STATUS, state),
         /only ports the NHW_MESSAGE and NHW_MAP startup branches/u,
@@ -110,8 +147,6 @@ test('tty_curs follows map offsets, clipping, bookkeeping, and early return', ()
             clipping: true,
             clipx: 3,
             clipy: 2,
-            curx: 10,
-            cury: 9,
             wins: [{
                 type: NHW_MAP,
                 offx: 4,
@@ -125,9 +160,9 @@ test('tty_curs follows map offsets, clipping, bookkeeping, and early return', ()
     tty_curs(0, 12, 8, state);
     assert.deepEqual(movements, [[12, 11]]);
     assert.deepEqual(
-        [state.wintty.lastwin, state.wintty.wins[0].curx,
-            state.wintty.wins[0].cury, state.wintty.curx, state.wintty.cury],
-        [0, 11, 8, 12, 11],
+        [state.wintty.wins[0].curx, state.wintty.wins[0].cury,
+            display.cursorCol, display.cursorRow],
+        [11, 8, 12, 11],
     );
 
     // The C early return still updates the selected window's logical cursor,
@@ -224,9 +259,15 @@ test('tty_init_nhwindows creates the base descriptor and preserves banner placem
     assert.equal(state.iflags.wc2_statuslines, 2);
     assert.equal(state.iflags.cbreak, true);
     assert.equal(state.iflags.echo, false);
+    // C's ttyDisplay fields live on the display; state.wintty holds only
+    // the window table and window ids.
+    assert.deepEqual(Object.keys(state.wintty).sort(), ['BASE_WINDOW', 'wins']);
+    assert.equal(state.wintty.BASE_WINDOW, 0);
+    // tty_create_nhwindow(NHW_BASE) copies ttyDisplay->rows and cols, the
+    // 24x80 GameDisplay's size.
     assert.deepEqual(
-        [state.wintty.rows, state.wintty.cols, state.wintty.BASE_WINDOW],
-        [24, 80, 0],
+        [state.wintty.wins[0].rows, state.wintty.wins[0].cols],
+        [24, 80],
     );
     assert.equal(state.wintty.wins[0].type, NHW_BASE);
     assert.equal(state.wintty.wins[0].active, true);
@@ -245,7 +286,40 @@ test('tty_init_nhwindows creates the base descriptor and preserves banner placem
         [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
         [0, 11],
     );
+    // wintty.c:583 tty_curs(BASE_WINDOW, 1, 11): curx is x - 1.
+    assert.deepEqual(
+        [baseWindow(state).curx, baseWindow(state).cury],
+        [0, 11],
+    );
     assert.deepEqual([...state.unported], []);
+});
+
+// C ref: wintty.c tty_putstr() NHW_BASE arm (2348-2363) and
+// erase_tty_screen()'s tty_curs(BASE_WINDOW, 1, 0) (2053), the base-window
+// writes restore.c restore_menu() makes.
+test('BASE_WINDOW row lives in wins[BASE_WINDOW].cury', () => {
+    const state = resetGame();
+    state.nhDisplay = new GameDisplay(null);
+    initUnported();
+    tty_init_nhwindows(null, null, state);
+
+    tty_clear_base_window(state);
+    assert.deepEqual([baseWindow(state).curx, baseWindow(state).cury], [0, 0]);
+    // Two short lines: each goes on cury from column 0, leaves the terminal
+    // cursor after its text and advances cury by one.
+    tty_putstr_base('ab', state);
+    tty_putstr_base('cde', state);
+    assert.deepEqual(
+        state.nhDisplay.grid.slice(0, 2)
+            .map((row) => row.map((cell) => cell.ch).join('').trimEnd()),
+        ['ab', 'cde'],
+    );
+    assert.deepEqual([baseWindow(state).curx, baseWindow(state).cury], [0, 2]);
+    assert.deepEqual(
+        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        [3, 1],
+    );
+    assert.match(C_SOURCE, /case NHW_BASE:\n\s*tty_curs\(window, cw->curx \+ 1, cw->cury\);/u);
 });
 
 test('tty_askname keeps the source input filter behind the C entry point', async () => {
@@ -302,12 +376,9 @@ test('tty_preference_update preserves the common no-op and statuslines branch', 
     assert.deepEqual([...state.unported], []);
 
     state.iflags.window_inited = true;
+    // A 24x80 terminal, 1 + ROWNO + 2 rows, needs no clipping with two
+    // status lines.
     state.nhDisplay = new GameDisplay(null);
-    state.wintty = {
-        LI: 24,
-        CO: 80,
-        WIN_STATUS: WIN_ERR,
-    };
     // botl.c status_initialize(FALSE) ran at startup; new_status_window()'s
     // REASSESS_ONLY call panics without it.
     status_initialize(state, false);
@@ -361,9 +432,12 @@ test('newclipping and tty_cliparound follow wintty.c clipping arithmetic', () =>
     // newclipping() takes its unclipped arm and resets a stale clip origin
     // (9, 7 are arbitrary nonzero values).
     state.iflags = { wc2_statuslines: 2 };
+    state.nhDisplay = new GameDisplay(null);
+    assert.deepEqual(
+        [state.nhDisplay.rows, state.nhDisplay.cols],
+        [1 + ROWNO + 2, COLNO],
+    );
     state.wintty = {
-        LI: 1 + ROWNO + 2,
-        CO: COLNO,
         clipping: true,
         clipx: 9,
         clipy: 7,
@@ -438,23 +512,79 @@ test('new_status_window clears the JavaScript status rows', () => {
     assert.deepEqual([...state.unported], []);
 });
 
-// C keeps ttyDisplay->toplin, inmore, inread, intr and dismiss_more in one
-// struct. The port reads them from the GameDisplay (state.nhDisplay), so a
-// second copy on state.wintty would be a value nothing reads. Reject any
-// such property access in js/.
-test('the top-line and more() descriptor fields have no copy on state.wintty', () => {
-    const jsDir = new URL('../js/', import.meta.url);
-    const fields = 'toplin|inmore|inread|intr|dismiss_more';
-    const copy = new RegExp(
-        `\\b(?:wt|wintty)\\??\\.(?:${fields})\\b`, 'u',
-    );
+// state.wintty holds the tty port's window state: wintty.c's window table,
+// BASE_WINDOW and clipping variables, and decl.c's WIN_MAP and WIN_MESSAGE. C's struct DisplayDesc *ttyDisplay (wintty.h) is the
+// GameDisplay (state.nhDisplay): its rows, cols, curx and cury are the
+// display's rows, cols, cursorCol and cursorRow, and toplin, inmore, inread,
+// intr and dismiss_more are fields on it. A ttyDisplay field copied onto
+// state.wintty would be a second place for one C value, so every property
+// read or written through state.wintty, or through a `wt` alias of it, in
+// js/ and scripts/ must be one of these C values. Add a field here only for
+// a C window-port value that is not in DisplayDesc.
+const WINTTY_FIELDS = new Map([
+    ['wins', 'wins[MAXWIN]'],
+    ['BASE_WINDOW', 'BASE_WINDOW'],
+    ['WIN_MAP', 'WIN_MAP (decl.c)'],
+    ['messageWindow', 'WIN_MESSAGE (decl.c)'],
+    ['clipping', 'clipping (CLIPPING)'],
+    ['clipx', 'clipx (CLIPPING)'],
+    ['clipy', 'clipy (CLIPPING)'],
+    ['clipxmax', 'clipxmax (CLIPPING)'],
+    ['clipymax', 'clipymax (CLIPPING)'],
+]);
+
+test('state.wintty holds only window state, not ttyDisplay fields', () => {
+    // A property reached through any object's wintty member, or through a
+    // wt variable, with or without optional chaining. Requiring an
+    // identifier and a dot before wintty keeps file names such as wintty.c
+    // in comments and strings out of the match.
+    const access = /(?:\b\w+\.wintty|\bwt)\??\.([A-Za-z_]\w*)/gu;
     const offenders = [];
-    for (const name of readdirSync(jsDir)) {
-        if (!name.endsWith('.js')) continue;
-        const lines = readFileSync(new URL(name, jsDir), 'utf8').split('\n');
-        lines.forEach((line, index) => {
-            if (copy.test(line)) offenders.push(`js/${name}:${index + 1}`);
-        });
+    let accesses = 0;
+    for (const dir of ['js', 'scripts']) {
+        for (const name of readdirSync(dir)) {
+            if (!/\.m?js$/u.test(name)) continue;
+            const lines = readFileSync(`${dir}/${name}`, 'utf8').split('\n');
+            lines.forEach((line, index) => {
+                for (const [, field] of line.matchAll(access)) {
+                    accesses += 1;
+                    if (!WINTTY_FIELDS.has(field))
+                        offenders.push(`${dir}/${name}:${index + 1} ${field}`);
+                }
+            });
+        }
     }
     assert.deepEqual(offenders, []);
+    // The scan finds 124 accesses on 2026-11-20, mostly the window table's
+    // readers. A floor of 50 leaves room for refactoring but fails if the
+    // pattern stops matching, so the check cannot pass by finding nothing.
+    assert.ok(accesses > 50, `only ${accesses} state.wintty accesses found`);
+
+    // ttyDisplay->curx and cury are the display's cursorCol and cursorRow;
+    // a curx or cury property on the display would be a second cursor.
+    const displayCursor = /\b(?:display|nhDisplay)\??\.(?:curx|cury)\b/u;
+    // The message window's flags are wins[messageWindow].flags; a
+    // message-window field on the display, such as the starter skeleton's
+    // unread messageWinFlags, would be a second copy.
+    const messageWindowCopy = /\b(?:display|nhDisplay|this)\??\.messageWin\w*/u;
+    // BASE_WINDOW's row is wins[BASE_WINDOW].cury (baseWindow()); a _ttyBase*
+    // or _tty*Cursor* property, such as the former `_ttyBaseCursorRow` on
+    // the game state, would be a second copy.
+    const ttyCursorCopy = /\._tty(?:Base|\w*Cursor)/u;
+    const cursorCopies = [];
+    const messageWindowCopies = [];
+    for (const dir of ['js', 'scripts']) {
+        for (const name of readdirSync(dir)) {
+            if (!/\.m?js$/u.test(name)) continue;
+            readFileSync(`${dir}/${name}`, 'utf8').split('\n').forEach((line, index) => {
+                const where = `${dir}/${name}:${index + 1}`;
+                if (dir === 'js' && displayCursor.test(line)) cursorCopies.push(where);
+                if (ttyCursorCopy.test(line)) cursorCopies.push(where);
+                if (dir === 'js' && messageWindowCopy.test(line))
+                    messageWindowCopies.push(where);
+            });
+        }
+    }
+    assert.deepEqual(cursorCopies, []);
+    assert.deepEqual(messageWindowCopies, []);
 });

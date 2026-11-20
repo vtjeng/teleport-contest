@@ -2941,7 +2941,7 @@ export function init_dungeons(
     }
 
     // dungeon.c:1247-1248, after dungeon.lua is loaded.
-    if (state.iflags?.window_inited !== false) tty_clear_map_window(state);
+    if (state.iflags?.window_inited) tty_clear_map_window(state);
 
     init_private_lua(random, state);
 

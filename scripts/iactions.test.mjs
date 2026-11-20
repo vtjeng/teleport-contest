@@ -104,7 +104,8 @@ function catalogState() {
     init_objects(state, () => 0);
     state.u = { uprops: [], ux: 1, uy: 1, uswallow: false, twoweap: false };
     state.flags = { sortpack: true, invlet_constant: true, inv_order: '' };
-    state.iflags = {};
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true };
     state.invent = null;
     state.youmonst = { data: state.mons[PM_HUMAN] };
     state.level = { at(x, y) { return { typ: 0 }; } };

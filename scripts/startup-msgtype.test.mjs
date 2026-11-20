@@ -61,7 +61,8 @@ function messageState(config = '', keys = '') {
     const parsed = parseNethackrc(config);
     resetGame();
     game.nhDisplay = new GameDisplay(null);
-    game.iflags = { cbreak: true };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    game.iflags = { window_inited: true, cbreak: true };
     game.program_state = {};
     game.u = { ux: 0, uy: 0 };
     game.gp = { plinemsg_types: parsed.gp.plinemsg_types };

@@ -60,6 +60,8 @@ const ROLE_WIZARD = 12;
 // path, so every refusal test below starts from it and breaks one condition.
 function makeState(pmidx = PM_SAMURAI, roleIndex = ROLE_SAMURAI) {
     const state = {
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        iflags: { window_inited: true },
         invent: null,
         uwep: null,
         uswapwep: null,
@@ -483,7 +485,8 @@ test('dotwoweapon redraws the status line when weaponstatus is on', async () => 
 // with OPTIONS=perm_invent set inside the move loop dotwoweapon() runs on
 // past both of its update_inventory() calls.
 function permInventHero(state) {
-    state.iflags = { perm_invent: true };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    state.iflags = { window_inited: true, perm_invent: true };
     state.program_state = { in_moveloop: true };
     return state;
 }
