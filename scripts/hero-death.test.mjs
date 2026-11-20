@@ -193,6 +193,15 @@ async function completeFinalization(how) {
     assert.equal(finalCaptures, 1, 'nh_terminate() took one final capture');
 }
 
+// The killers below set u.ugrave_arise, so really_done() prints "Your body
+// rises from the dead as ..." and end.c:1360 display_nhwindow(WIN_MESSAGE,
+// FALSE) waits at its --More--; this space dismisses it. The fixture clears
+// window_inited, which in C sends pline.c vpline() to raw_print(); the port's
+// pline does not model that arm, so the message is left pending here.
+function answerRiseFeedback() {
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+}
+
 function prepareFinalization() {
     game.iflags.window_inited = false;
     // C's no-window cleanup sets done_stopprint only after disclosure.  Keep
@@ -1293,6 +1302,7 @@ test('done_in_by sets ugrave_arise for a wraith', async () => {
     await dyingGame();
     const wraith = killerMonster(PM_WRAITH);
     game.nhDisplay.pushKey(' '.charCodeAt(0));
+    answerRiseFeedback();
     prepareFinalization();
     await expectTerminated(() => done_in_by(wraith, DIED, game));
     assert.equal(game.killer.name, 'wraith');
@@ -1305,6 +1315,7 @@ test('done_in_by sets ugrave_arise for a ghoul', async () => {
     await dyingGame();
     const ghoul = killerMonster(PM_GHOUL);
     game.nhDisplay.pushKey(' '.charCodeAt(0));
+    answerRiseFeedback();
     prepareFinalization();
     await expectTerminated(() => done_in_by(ghoul, DIED, game));
     assert.equal(game.killer.name, 'ghoul');
@@ -1319,6 +1330,7 @@ test('done_in_by shortens helplessness caused by the killing ghoul', async () =>
     game.multi_reason = 'paralyzed by a ghoul';
     game.multireasonbuf = `${ghoul.m_id}:paralyzed by a ghoul`;
     game.nhDisplay.pushKey(' '.charCodeAt(0));
+    answerRiseFeedback();
     prepareFinalization();
     await expectTerminated(() => done_in_by(ghoul, DIED, game));
     assert.equal(game.multi_reason, 'paralyzed');
@@ -1332,6 +1344,7 @@ test('done_in_by preserves helplessness caused by another monster', async () => 
     game.multi_reason = 'paralyzed by a ghoul';
     game.multireasonbuf = `${ghoul.m_id + 1}:paralyzed by a ghoul`;
     game.nhDisplay.pushKey(' '.charCodeAt(0));
+    answerRiseFeedback();
     prepareFinalization();
     await expectTerminated(() => done_in_by(ghoul, DIED, game));
     assert.equal(game.multi_reason, 'paralyzed by a ghoul');
