@@ -1223,13 +1223,15 @@ function keylist_func_has_key(entry, skipKeysUsed, model) {
 // number of rows without changing keysUsed; display mode appends the same rows
 // and reserves each keyed byte for the later command categories.
 function keylist_putcmds(lines, docount, inclFlags, exclFlags, keysUsed,
-    model) {
+    model, state) {
     const keysAlreadyUsed = Uint8Array.from(keysUsed);
     let count = 0;
 
     for (let key = 0; key < 256; ++key) {
         if (keysUsed[key]) continue;
-        if (key === 0x20 && !model.restOnSpace) continue;
+        // cmd.c:2819 tests flags.rest_on_space, not the binding: after a
+        // restore the saved flag can be off while <space> is still bound.
+        if (key === 0x20 && !state.flags?.rest_on_space) continue;
         const entry = boundExtcmd(bindingAt(model.bindings, key));
         if (!entry) continue;
         if ((inclFlags && !(entry.flags & inclFlags))
@@ -1361,30 +1363,30 @@ export function keyBindingLines(state = game) {
 
     const ignoreCommands = WIZMODECMD | INTERNALCMD | MOVEMENTCMD;
     if (keylist_putcmds(
-        lines, true, GENERALCMD, ignoreCommands, keysUsed, model,
+        lines, true, GENERALCMD, ignoreCommands, keysUsed, model, state,
     )) {
         lines.push({ text: '' });
         lines.push({ text: 'General commands:' });
         keylist_putcmds(
-            lines, false, GENERALCMD, ignoreCommands, keysUsed, model,
+            lines, false, GENERALCMD, ignoreCommands, keysUsed, model, state,
         );
     }
     if (keylist_putcmds(
-        lines, true, 0, GENERALCMD | ignoreCommands, keysUsed, model,
+        lines, true, 0, GENERALCMD | ignoreCommands, keysUsed, model, state,
     )) {
         lines.push({ text: '' });
         lines.push({ text: 'Game commands:' });
         keylist_putcmds(
-            lines, false, 0, GENERALCMD | ignoreCommands, keysUsed, model,
+            lines, false, 0, GENERALCMD | ignoreCommands, keysUsed, model, state,
         );
     }
     if (state.wizard && keylist_putcmds(
-        lines, true, WIZMODECMD, INTERNALCMD, keysUsed, model,
+        lines, true, WIZMODECMD, INTERNALCMD, keysUsed, model, state,
     )) {
         lines.push({ text: '' });
         lines.push({ text: 'Debug mode commands:' });
         keylist_putcmds(
-            lines, false, WIZMODECMD, INTERNALCMD, keysUsed, model,
+            lines, false, WIZMODECMD, INTERNALCMD, keysUsed, model, state,
         );
     }
     return lines;

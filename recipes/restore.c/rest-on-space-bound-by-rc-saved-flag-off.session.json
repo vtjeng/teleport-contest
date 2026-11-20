@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "C ref: options.c initoptions_finish():7364 update_rest_on_space() binds <space> from the flags.rest_on_space the configuration file set; restore.c restgamestate():571 then reads the saved struct flag over it and nothing rebinds, because gc.Cmd's bindings are not saved. Segment 0 saves a Samurai with rest_on_space off, where <space> is \"Unknown command ' '.\". Segment 1 restores her under an rc that turns it on: <space> runs #wait although the restored flag is off, 'm' then <space> rests a turn, and '&' describes <space> as the rest_on_space wait. Seeds, clock, character and keys chosen independently.",
+  "comment": "C ref: options.c initoptions_finish():7364 update_rest_on_space() binds <space> from the flags.rest_on_space the configuration file set; restore.c restgamestate():571 then reads the saved struct flag over it and nothing rebinds, because gc.Cmd's bindings are not saved. Segment 0 saves a Samurai with rest_on_space off, where <space> is \"Unknown command ' '.\". Segment 1 restores her under an rc that turns it on: <space> runs #wait although the restored flag is off, 'm' then <space> rests a turn, and '&' describes <space> as the rest_on_space wait. The full key list (?j) leaves <space> out all the same, because cmd.c keylist_putcmds():2819 tests the flag. Seeds, clock, character and keys chosen independently.",
   "segments": [
     {
       "seed": 5120377,
@@ -12,7 +12,7 @@
       "seed": 5120391,
       "datetime": "20290313201000",
       "nethackrc": "OPTIONS=name:Hisako,role:Samurai,race:human,gender:female,align:lawful,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=time,rest_on_space\n",
-      "moves": " m &  s"
+      "moves": " m &  s?j    \u001b"
     }
   ]
 }
