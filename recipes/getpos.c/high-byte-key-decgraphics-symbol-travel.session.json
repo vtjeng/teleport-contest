@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 471208,
+      "datetime": "20230914061500",
+      "nethackrc": "OPTIONS=name:Ottilie,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\nOPTIONS=symset:DECgraphics\n",
+      "moves": " _çþüyáø\u001b"
+    }
+  ],
+  "comment": "'_' (travel) calls getpos() under symset:DECgraphics. The keys 0xE7, 0xFE, 0xFC and 0xE1 equal the DECgraphics bytes for S_tree, S_ice, S_bars and S_engrcorr, yet C holds each key as a negative int (readchar_poskey() returns a signed char) and compares it with the non-negative gs.showsyms[] values, so none starts a feature search: each is an unknown direction, and the forced prompt continues. 'y' moves the cursor before 0xE1 and 0xF8 (S_vbeam), and Escape cancels."
+}

@@ -412,3 +412,51 @@ test('non-forced unrecognized input reports Done and exits with the default resu
     assert.deepEqual(cc, { x: -1, y: 0 });
     assert.match(game._ttyToplines, /Unknown direction: 'Q' \(aborted\).*Done\./u);
 });
+
+test('a key above 0x7F never matches a map symbol with the same byte', async () => {
+    // cmd.c narrows the key to char, signed in the reference build, and
+    // getpos() widens it to int; the symbols it compares are unsigned.
+    const CMD_C = readFileSync(
+        new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8',
+    );
+    const SYM_H = readFileSync(
+        new URL('../nethack-c/upstream/include/sym.h', import.meta.url), 'utf8',
+    );
+    assert.match(CMD_C, /\nchar\nreadchar_poskey\(coordxy \*x, coordxy \*y, int \*mod\)/u);
+    assert.match(CMD_C, /program_state\.input_state = otherInp;\s*return \(char\) sym;/u);
+    assert.match(GETPOS_C, /c == defsyms\[sidx\]\.sym\s*\|\| c == \(int\) gs\.showsyms\[sidx\]/u);
+    assert.match(SYM_H, /uchar sym;/u);
+
+    await enterStableGame();
+    const cloudIndex = SYM_OFF_P + S_cloud;
+    const oldSymbol = game.gs.showsyms[cloudIndex];
+    try {
+        // 0xFC is DECgraphics' S_bars byte; S_cloud stands in for any cmap
+        // entry outside the wall, room, corridor and door families that
+        // getpos() skips. Without force, an unknown direction ends the
+        // prompt with the default result.
+        game.gs.showsyms[cloudIndex] = 0xFC;
+        queueKeys(0xFC);
+        const cc = { x: game.u.ux, y: game.u.uy };
+        assert.equal(await getpos(cc, false, 'desired location', game), 0);
+        assert.deepEqual(cc, { x: -1, y: 0 });
+        assert.match(game._ttyToplines, /Unknown direction: 'M-\|' \(aborted\).*Done\./u);
+
+        // 0x7C is the same byte without the high bit, and does start the
+        // feature search. It also equals the default S_grave and beam
+        // symbols; none of those is on this map, so the search reports
+        // that and the prompt stays open until Escape.
+        game.gs.showsyms[cloudIndex] = 0x7C;
+        queueKeys(0x7C, 0x1B);
+        const messages = [];
+        game._preNhgetchHook = async () => messages.push(game._ttyToplines);
+        assert.equal(
+            await getpos({ x: game.u.ux, y: game.u.uy }, false, 'desired location', game),
+            -1,
+        );
+        assert.equal(messages[1], "Can't find dungeon feature '|'.");
+    } finally {
+        delete game._preNhgetchHook;
+        game.gs.showsyms[cloudIndex] = oldSymbol;
+    }
+});
