@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Blocked: role.c validrace() (778-784) and randrace() (787-810), reached from genl_player_setup()'s race step (2373-2401, fallback loop 2395-2401) with flags.initrole == ROLE_NONE. The filter excludes all five races, so the role menu holds only Random. '/' (\"Pick race first\") clears the race and jumps to the race step with no role; ok_race() accepts no race, so the fallback loop calls validrace(-1, i), which reads roles[-1].allow. In the Linux recorder (nm: rip_txt at 0x4add70, roles at 0x4addf0, struct Role 0x138 bytes, allow at +0xe2) that is bytes 2-3 of the relocated pointer rip_txt[5], which change with the load address of the position-independent executable on every run. C then shows a race menu holding only Random when two or more of the five race bits happen to be set (26 of 32 patterns, an estimate that takes the bits as uniform), and taking Random there makes randrace(-1) draw rn2(n * 100) for that same n. Six recordings of this recipe on 2026-11-20 gave six different outcomes. The port treats roles[-1] as allowing nothing, which is one of those outcomes: it sets race 0 without a menu. No recording is committed, because none is repeatable.",
+  "segments": [
+    {
+      "seed": 83317240,
+      "datetime": "20350617081522",
+      "nethackrc": "OPTIONS=name:Eadgyth\nOPTIONS=!tutorial,!autopickup,!legacy\n",
+      "moves": "n~HEDGO\n/\n\n\n\nyhjkl"
+    }
+  ]
+}

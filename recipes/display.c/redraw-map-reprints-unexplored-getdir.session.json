@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 31870466,
+      "datetime": "20330502113859",
+      "nethackrc": "OPTIONS=name:Renske,role:Rogue,race:orc,gender:female,align:chaotic\nOPTIONS=!tutorial,!autopickup\nSYMBOLS=S_unexplored:\\x7e\n",
+      "moves": " i\u001bll#loot\n\u0012\u001bjj"
+    }
+  ],
+  "comment": "S_unexplored is a tilde. The story window and the inventory menu leave blanked unexplored cells; Ctrl-R at the loot direction prompt reaches cmd.c getdir()'s docrt_flags(docrtRefresh), whose redraw_map() calls print_glyph() for every gg.gbuf cell and so prints the tilde again on every unexplored cell show_glyph() has written."
+}

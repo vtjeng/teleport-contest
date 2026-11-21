@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "role.c genl_player_setup() with no name, role, race, gender or alignment in the rc: the gender and alignment menus' extra entries. Role menu '\"' opens gender; '[' opens alignment; '?' returns to role; '\"' then '/' opens race; '\"' returns to gender; '~' cancelled with Escape makes reset_role_filtering() return FALSE and stays on gender. Male, Priest and elf (alignment forced chaotic) reach the confirmation, where 'n' starts over. Role menu '[' then '~' committed with nothing picked also returns FALSE and stays on alignment; neutral, Healer, gnome and female reach the confirmation again.",
+  "segments": [
+    {
+      "seed": 20864391,
+      "datetime": "20320207051918",
+      "nethackrc": "OPTIONS=!tutorial,!autopickup,!legacy,showexp\n",
+      "moves": "Aldous\rn\"[?\"/\"~\u001bmpen[~\nnhgfyhjkl"
+    }
+  ]
+}

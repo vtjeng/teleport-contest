@@ -43,3 +43,23 @@ test('refresh-only redraw repairs the terminal from cached glyphs without RNG',a
     assert.deepEqual(game.displayCtx,before.display);
     assert.deepEqual(game.level.at(x,y).remembered_glyph,before.memory);
 });
+
+// display.c redraw_map() (1799-1806) calls print_glyph() for every gg.gbuf
+// cell whatever its gnew bit. docorner()'s cl_end() blanks the terminal cell
+// of a glyph row_refresh() then skips (GLYPH_UNEXPLORED drawn with a
+// non-blank S_unexplored); the refresh prints the buffered glyph there again.
+test('refresh-only redraw reprints a buffered cell the terminal shows blank',async () => {
+    const control = JSON.parse(gunzipSync(readFileSync(new URL('redraw-control.json.gz',root))));
+    await runSegment(normalizeSession(control).segments[0]);
+    // The hero's square: its gbuf entry is certain to hold a glyph. The map
+    // window starts on terminal row 1 and map column 1 is terminal column 0.
+    const x=game.u.ux, y=game.u.uy, display=game.nhDisplay, loc=game.level.at(x,y);
+    const expected=structuredClone(display.grid[y+1][x-1]);
+    assert.notEqual(expected.ch,' ','the hero glyph is visible before the blanking');
+    // What docorner() leaves on a cell row_refresh() skips: a blank terminal
+    // cell under an unchanged, already flushed gbuf entry.
+    loc.disp_ch=null; loc.tty_ch=null; loc.gnew=0;
+    await docrt({refreshOnly:true});
+    assert.deepEqual(display.grid[y+1][x-1],expected);
+    assert.equal(loc.gnew,0,'flush_screen() clears the bit the reprint raised');
+});

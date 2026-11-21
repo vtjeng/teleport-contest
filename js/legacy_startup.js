@@ -3,7 +3,11 @@
 // deliver_by_window(); win/tty/wintty.c process_text_window() and dmore().
 
 import { game } from './gstate.js';
-import { menuOverlay, writeTextWindowLine } from './tty_menu.js';
+import {
+    menuOverlay,
+    restoreCorner,
+    writeTextWindowLine,
+} from './tty_menu.js';
 import { convertLine, initializeQuestPagerLua } from './questpgr.js';
 import { QUEST_TEXT_DATA } from './quest_text_data.js';
 import { tty_putmsghistory } from './topl.js';
@@ -181,13 +185,29 @@ export function renderTtyLegacyIntroduction(state = game) {
     return { layout, snapshot };
 }
 
-export function dismissTtyLegacyIntroduction(state = game, rendered) {
+export async function dismissTtyLegacyIntroduction(state = game, rendered) {
     if (!rendered || !state.nhDisplay) return;
-    // tty_dismiss_nhwindow() repairs a corner with docorner().  A full-screen
-    // text window instead calls docrt()/flush_screen().  The story does not
-    // change game state, so restoring this exact pre-page frame reproduces
-    // both paths and preserves the immediate post-dismissal screen.
-    restoreDisplay(state.nhDisplay, rendered.snapshot);
+    const { layout, snapshot } = rendered;
+    // wintty.c erase_menu_or_text() (966-984): a column-zero window calls
+    // docrt() and flush_screen(1).  The story does not change game state, so
+    // restoring this exact pre-page frame reproduces that redraw.  A fixture
+    // with no map has nothing for docorner() to redraw either.
+    if (layout.offx === 0 || !state.level || !state.u?.ux) {
+        restoreDisplay(state.nhDisplay, snapshot);
+        return;
+    }
+    // A corner window calls docorner(offx, maxrow + 1, 0) instead: cl_end()
+    // from column offx - 1 on rows 0..maxrow, then display.c row_refresh(),
+    // which leaves every GLYPH_UNEXPLORED cell blank even when S_unexplored
+    // is not a space.  The covered frame therefore does not come back.
+    const repairColumn = layout.offx - 1;
+    await restoreCorner(
+        state,
+        state.nhDisplay,
+        repairColumn,
+        snapshot.grid.slice(0, layout.promptRow + 1)
+            .map((row) => row.slice(repairColumn)),
+    );
 }
 
 export async function ttyLegacyIntroduction(state = game, random = rn2) {
@@ -208,7 +228,7 @@ export async function ttyLegacyIntroduction(state = game, random = rn2) {
     // dmore(cw, quitchars): Space, CR, LF or Escape dismisses the window,
     // and Escape stores 1 in ttyDisplay->dismiss_more.
     await xwaitforspace(state);
-    dismissTtyLegacyIntroduction(state, rendered);
+    await dismissTtyLegacyIntroduction(state, rendered);
     // C ref: questpgr.c com_pager_core() 597-609.  After the window, the
     // converted synopsis goes into message history for ^P recall without
     // being delivered as a message.

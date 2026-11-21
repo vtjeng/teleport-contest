@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "role.c genl_player_setup() with nothing preset: the race menu's extra entries. Role menu '/' opens the race menu; from there '\"' opens gender, '?' (from gender) returns to role, '/' then '[' opens alignment, '/' (from alignment) returns to race, and '~' runs reset_role_filtering() with gnome and orc picked, which returns TRUE and restarts at the role menu. Archeologist, dwarf (alignment forced lawful) and female then reach the confirmation.",
+  "segments": [
+    {
+      "seed": 55190237,
+      "datetime": "20280916134455",
+      "nethackrc": "OPTIONS=name:Gudrun\nOPTIONS=!tutorial,!autopickup,!legacy\n",
+      "moves": "n/\"?/[/~GO\nadfy hjkl"
+    }
+  ]
+}

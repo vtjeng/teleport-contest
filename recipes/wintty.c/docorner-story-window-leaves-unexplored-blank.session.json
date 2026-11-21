@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 48211973,
+      "datetime": "20270314061233",
+      "nethackrc": "OPTIONS=name:Halvard,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!tutorial,!autopickup\nSYMBOLS=S_unexplored::\n",
+      "moves": " lli\u001bkk5s"
+    }
+  ],
+  "comment": "S_unexplored is a colon. The opening story is a corner text window; tty_dismiss_nhwindow() repairs it with docorner(offx, maxrow + 1, 0), whose row_refresh() skips GLYPH_UNEXPLORED cells, so the rows the story covered keep cl_end()'s blanks from column offx - 1 while rows below it keep their colons. A corner inventory menu then blanks a second rectangle."
+}
