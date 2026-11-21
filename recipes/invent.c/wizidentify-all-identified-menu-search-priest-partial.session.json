@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of wizidentify-all-identified-menu-search: a Priest with menustyle:partial and !menu_overlay opens the item-less #wizidentify PICK_ANY menu, escapes the wintty.c process_menu_window() MENU_SEARCH prompt, and commits the empty menu with Return.",
+  "segments": [
+    {
+      "seed": 31870246,
+      "datetime": "20250302071544",
+      "nethackrc": "OPTIONS=name:Vesper,role:Priest,race:elf,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,menustyle:partial,!menu_overlay\n",
+      "moves": "  \t:\u001b:a\n>\ni\u001b"
+    }
+  ]
+}

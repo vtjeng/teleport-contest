@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "invent.c display_pickinv() passes PICK_ANY to select_menu() for #wizidentify even when count_unidentified() is 0 and the menu holds only two add_menu_str() lines, so wintty.c process_menu_window()'s MENU_SEARCH arm opens tty_getlin(\"Search for:\") instead of ringing the PICK_NONE bell. Covers an answered search with no selectable entry, an escaped one, an empty one, the bulk keys, and a count stopped by Escape before Escape cancels the menu.",
+  "segments": [
+    {
+      "seed": 60931774,
+      "datetime": "20240817153012",
+      "nethackrc": "OPTIONS=name:Idun,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  \t:sword\n:\u001b:\n.,-@12\u001b\u001bi\u001b"
+    }
+  ]
+}

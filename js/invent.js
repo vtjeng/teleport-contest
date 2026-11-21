@@ -1981,7 +1981,7 @@ export async function display_pickinv(
     // it compares, setting dknown on an item last identified while
     // hallucinating, so that item no longer counts as unidentified.
     const unidCount = wizid ? count_unidentified(inventoryHead(state), state) : 0;
-    const menuHow = wizid ? (unidCount ? PICK_ANY : PICK_NONE)
+    const menuHow = wizid ? PICK_ANY
         : want_reply ? PICK_ONE : PICK_NONE;
     const items = [];
     let gotsomething = false;
