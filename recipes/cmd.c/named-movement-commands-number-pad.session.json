@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 27904,
+      "datetime": "20290322054418",
+      "nethackrc": "OPTIONS=name:Bertrand,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=number_pad:1,autopickup,pickup_types:$\nOPTIONS=symset:DECgraphics\n",
+      "moves": " \u001b#moveeast\n#movesoutheast\n#runwest\n#rushnorth\n#movenorthwest\nm#rusheast\nn2#movesouth\n\u001b#fight\n#movewest\n\u001b#runsouthwest\n\u0001#movenorth\n#repeat\n",
+      "comment": "The number_pad variation of movement commands named at the # prompt, with a Knight beside a pony, an n count and #fight before the name."
+    }
+  ]
+}

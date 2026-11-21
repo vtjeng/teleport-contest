@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 83561,
+      "datetime": "20271009201733",
+      "nethackrc": "OPTIONS=name:Hesper,role:Ranger,race:elf,gender:female,align:chaotic\nOPTIONS=!autopickup\n",
+      "moves": " \u001b#movewest\n#moveeast\n#movenorth\n#movesouthwest\n#runeast\n#rushwest\n#runsouth\n#rushnortheast\nm#movewest\nm#runnorth\n3#moveeast\n\u001bF#movewest\n\u001b#movesouth\n\u0001\u0001#rushsoutheast\n\u0001",
+      "comment": "Names walk, run and rush commands at the # prompt, alone, after the m prefix, after a count, after F (refused, because the # row lacks CMD_gGF_PREFIX) and before ^A. doextcmd() only runs do_move_*(), do_run_*() or do_rush_*(); cmd.c rhack() 3750-3800 then takes the MOVEMENTCMD row from ge.ext_tlist and calls domove() itself."
+    }
+  ]
+}

@@ -10,7 +10,8 @@ import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { extcmdlist, PREFIXCMD } from '../js/extcmdlist_data.js';
+import { MOVEMENT_INTENTS } from '../js/cmd.js';
+import { extcmdlist, MOVEMENTCMD, PREFIXCMD } from '../js/extcmdlist_data.js';
 
 const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const C_SOURCE_DIR = join(PROJECT_ROOT, 'nethack-c', 'upstream', 'src');
@@ -82,6 +83,21 @@ test('rhack() reads the command after a prefix in its own loop and never re-ente
             .map((row) => row.ef_txt).sort(),
         ['fight', 'reqmenu', 'run', 'rush'],
     );
+});
+
+test('rhack() moves the hero for a movement command named through #', () => {
+    // cmd.c:3750 replaces `tlist` with the row doextcmd() ran, so the
+    // MOVEMENTCMD tests at 3773-3800 apply to `#movewest` as they do to the
+    // key: doextcmd() only records the direction, and rhack() calls
+    // domove(). Two calls: the keyed arm and the named one.
+    assert.equal(count(rhackBody, /\bexecuteMovement\(/gu), 2);
+    assert.match(
+        rhackBody,
+        /Object\.hasOwn\(MOVEMENT_INTENTS, selectedEntry\.ef_txt\)\) \{\s*await executeMovement\(selectedEntry\.ef_txt, key,\s*firstTime, state\);\s*return;/u,
+    );
+    // Every MOVEMENTCMD row is one executeMovement() can run.
+    for (const row of extcmdlist.filter((entry) => entry.flags & MOVEMENTCMD))
+        assert.ok(Object.hasOwn(MOVEMENT_INTENTS, row.ef_txt), row.ef_txt);
 });
 
 test('the result tail is declared once and tests the three results in C order', () => {

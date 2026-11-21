@@ -5479,6 +5479,22 @@ export async function rhack(key, state = game) {
                     cmdq_add_ec(CQ_REPEAT, selectedEntry, state);
                     cmdq_shift(CQ_REPEAT, state);
                 }
+                if (selectedEntry
+                    && Object.hasOwn(MOVEMENT_INTENTS, selectedEntry.ef_txt)) {
+                    // C ref: rhack():3773-3800 with `tlist` the named
+                    // MOVEMENTCMD row. doextcmd() has only run the row's
+                    // do_move_*(), do_run_*() or do_rush_*() function, which
+                    // records the direction through set_move_cmd(); the
+                    // grid-bug test and the domove() call are rhack()'s, in
+                    // the same arms a movement key reaches. set_move_cmd()
+                    // runs again inside executeMovement() and changes
+                    // nothing: gd.domove_attempting is already set, so it
+                    // leaves context.run alone and rewrites the same u.dx,
+                    // u.dy and context.nopick.
+                    await executeMovement(selectedEntry.ef_txt, key,
+                        firstTime, state);
+                    return;
+                }
                 if (!(selectedEntry?.flags & PREFIXCMD)) {
                     rhackResultTail(res, state);
                     return;
