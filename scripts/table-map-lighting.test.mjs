@@ -1,3 +1,4 @@
+import { zero_context_info } from '../js/context.js';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
@@ -24,7 +25,7 @@ async function withDescriptor(body) {
     game.fixedDatetime='20400314015926';game.recorderIsDst=false;game.moves=0;game.plname='WallFlagControl';
     game.flags={initrole:str2role('Tourist'),initrace:str2race('human'),initgend:str2gend('female'),
         initalign:str2align('neutral'),female:true,bones:false};
-    game.iflags={};game.u={uroleplay:{}};game.context={move:0};await newgame_pre_mklev(game);
+    game.iflags={};game.u={uroleplay:{}};game.context=zero_context_info();await newgame_pre_mklev(game);
     let complete=false;
     try {await mklev({specialLevelLoader:async des=>{await body(des);throw new Observed();}});}
     catch(error){if(!(error instanceof Observed))throw error;complete=true;}

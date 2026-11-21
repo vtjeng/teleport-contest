@@ -1,3 +1,4 @@
+import { zero_context_info } from '../js/context.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
@@ -32,7 +33,7 @@ for (const hellish of [true, false]) {
             female: true, bones: false };
         game.iflags = {};
         game.u = { uroleplay: {} };
-        game.context = { move: 0 };
+        game.context = zero_context_info();
         await newgame_pre_mklev(game);
         const dnum = hellish ? game.dungeons.findIndex(d => d.flags.hellish) : 0;
         assert.ok(dnum >= 0);
@@ -76,7 +77,7 @@ async function withResetDescriptor(body) {
             female: true, bones: false };
         game.iflags = {};
         game.u = { uroleplay: {} };
-        game.context = { move: 0 };
+        game.context = zero_context_info();
         await newgame_pre_mklev(game);
     await assert.rejects(mklev({specialLevelLoader:async des => {
         await body(des);

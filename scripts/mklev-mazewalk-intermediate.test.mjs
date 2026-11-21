@@ -1,3 +1,4 @@
+import { zero_context_info } from '../js/context.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
@@ -31,7 +32,7 @@ async function withDescriptor(body) {
             female: true, bones: false };
         game.iflags = {};
         game.u = { uroleplay: {} };
-        game.context = { move: 0 };
+        game.context = zero_context_info();
         await newgame_pre_mklev(game);
     await assert.rejects(mklev({specialLevelLoader:async des => {
         await body(des);

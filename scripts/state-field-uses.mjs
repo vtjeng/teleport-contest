@@ -57,7 +57,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import * as acorn from 'acorn';
+import { parse } from 'acorn';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const PROJECT_ROOT = resolve(dirname(SCRIPT_PATH), '..');
@@ -126,7 +126,7 @@ const isNullLiteral = (node) => (node.type === 'Literal' && node.value === null)
 
 // Every use of a `holder` field in one file's source.
 export function scanSource(file, source, holder = 'context') {
-    const ast = acorn.parse(source, {
+    const ast = parse(source, {
         ecmaVersion: 'latest', sourceType: 'module', locations: true,
     });
     const all = [];

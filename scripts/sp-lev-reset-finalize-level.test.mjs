@@ -5,6 +5,7 @@
 // Pin the Lua and NULL-caller effects against the C function each test names;
 // independent command recordings establish the new caller's runtime wiring.
 
+import { zero_context_info } from '../js/context.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -70,7 +71,7 @@ async function runLoader(seed, body) {
     };
     game.iflags = {};
     game.u = { uroleplay: {} };
-    game.context = { move: 0 };
+    game.context = zero_context_info();
     await newgame_pre_mklev(game);
     let result = null;
     await assert.rejects(

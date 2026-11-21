@@ -1,3 +1,4 @@
+import { zero_context_info } from '../js/context.js';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import test from 'node:test';
@@ -28,7 +29,7 @@ async function withDescriptor(body) {
     game.moves = 0; game.plname = 'SelectionFrameControl';
     game.flags = {initrole:str2role('Tourist'), initrace:str2race('human'),
         initgend:str2gend('female'), initalign:str2align('neutral'), female:true, bones:false};
-    game.iflags = {}; game.u = {uroleplay:{}}; game.context = {move:0};
+    game.iflags = {}; game.u = {uroleplay:{}}; game.context = zero_context_info();
     await newgame_pre_mklev(game);
     let completed = false;
     try {

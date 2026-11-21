@@ -1,3 +1,4 @@
+import { zero_context_info } from '../js/context.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -206,7 +207,10 @@ function searchState() {
     return {
         moves: 2,
         multi: 4,
+        // allmain.c newgame() sets warnlevel to 1 on the zeroed svc.context.
         context: {
+            ...zero_context_info(),
+            warnlevel: 1,
             run: 1,
             travel: 1,
             travel1: 1,

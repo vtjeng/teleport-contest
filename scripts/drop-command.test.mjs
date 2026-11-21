@@ -583,13 +583,13 @@ function pileAt(state, x, y) {
 
 // C ref: do.c dodrop() (39-40). ECMD_FAIL is 0x04, so `if (result)` is true
 // for the cancelled drop and reset_occupations() runs even though no turn
-// elapsed. Each of the three contexts below is created by the function that
-// clears it, and nothing else in this segment creates any of them, so their
-// mere presence is what proves the call happened.
+// elapsed. xlock and gt.trapinfo are created by the functions that clear
+// them, and nothing else in this segment creates either, so their mere
+// presence is what proves the call happened. context.takeoff, which
+// reset_remarm() clears, exists from startup with C's zero values.
 test('a cancelled drop resets the occupations and spends no turn', async () => {
     const rested = await playDrop('.');
     assert.equal(rested.boundary, null);
-    assert.equal(rested.state.context.takeoff, undefined);
     assert.equal(rested.state.xlock, undefined);
     assert.equal(rested.state.gt?.trapinfo, undefined);
     const restedMoves = rested.state.moves;

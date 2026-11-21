@@ -349,7 +349,7 @@ test('newgame wires random, fixed-role, and suppressed starting pets', async () 
         pettype: 'none',
     });
     assert.equal(game.context.startingpet_typ, NON_PM);
-    assert.equal(game.context.startingpet_mid, undefined);
+    assert.equal(game.context.startingpet_mid, 0);
     assert.equal(suppressed, null);
     assert.equal(game.u.uconduct.pets, 0);
 });
@@ -454,8 +454,10 @@ test('explore notice preserves the welcome boundary before preamble RNG', async 
             + 'You are a neutral male human Healer.',
     );
     assert.equal(pendingRows[1].trimEnd(), '--More--');
-    assert.equal(game.context.rndencode, undefined);
-    assert.equal(game.context.seer_turn, undefined);
+    // moveloop_preamble() has not run: it sets rndencode to rnd(9000) and
+    // seer_turn to rnd(30), both at least 1, over their zero values.
+    assert.equal(game.context.rndencode, 0);
+    assert.equal(game.context.seer_turn, 0);
     assert.equal(game.program_state.in_moveloop, undefined);
 
     const continued = await runSegment({ ...input, moves: ' ' });
