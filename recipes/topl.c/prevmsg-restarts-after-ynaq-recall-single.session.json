@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for win/tty/topl.c tty_yn_function() lines 444-447 and 451-459 through a [ynaq] prompt with menustyle:traditional and msg_window:single: a Knight looks here, starts a multi-drop of the weapon class and presses ^P twice at the first \"Drop ...? [ynaq] (y)\" prompt. The first q only redraws the prompt (the doprev arm, with cw->maxcol = cw->maxrow) and the second ends the chain. Three ^P at the command level then start from the answered prompt.",
+ "segments": [
+  {
+   "seed": 1184620,
+   "datetime": "20190611194500",
+   "nethackrc": "OPTIONS=name:Bedivere,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial,menustyle:traditional\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=msg_window:single\n",
+   "moves": ":D)\n\u0010\u0010qq\u0010\u0010\u0010  "
+  }
+ ]
+}
