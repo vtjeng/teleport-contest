@@ -13,7 +13,7 @@ import {
     SUPPRESS_HISTORY,
     WIN_LOCKHISTORY,
 } from '../js/const.js';
-import { ROWNO } from '../js/const.js';
+import { COLNO, ROWNO } from '../js/const.js';
 import { GLYPH_CMAP_STONE_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
@@ -53,6 +53,9 @@ const wrappedStartupRecording = normalizeSession(JSON.parse(readFileSync(
 )));
 const TOPL_C = readFileSync(
     new URL('../nethack-c/upstream/win/tty/topl.c', import.meta.url), 'utf8',
+);
+const WINTTY_C = readFileSync(
+    new URL('../nethack-c/upstream/win/tty/wintty.c', import.meta.url), 'utf8',
 );
 const DISPLAY_C = readFileSync(
     new URL('../nethack-c/upstream/src/display.c', import.meta.url), 'utf8',
@@ -469,6 +472,51 @@ test('docorner skips an unexplored buffer glyph even when map memory is known',
             /if \(force \|\| glyph != GLYPH_UNEXPLORED\s*\|\| bkglyphinfo\.framecolor != NO_COLOR\)/u);
         assert.match(DISPLAY_JS,
             /const glyph = loc\.disp_glyph\?\.glyph \?\? GLYPH_UNEXPLORED_OFF/u);
+    });
+
+test('docorner leaves the cursor past the last map glyph it prints',
+    async () => {
+        // Any recording with a hero on a drawn map serves; this one is the
+        // fixture the docorner test above already replays.
+        const [segment] = wrappedStartupRecording.segments;
+        await runSegment(segment);
+        const state = game;
+        const display = state.nhDisplay;
+        const mapY = state.u.uy;
+        // The map window starts on terminal row 1 (WIN_MAP offy), so the
+        // hero's map row is terminal row uy + 1, and docorner()'s exclusive
+        // ymax of uy + 2 makes it the last row repaired. That row holds at
+        // least the hero's own glyph.
+        const screenRow = mapY + 1;
+        const ymax = screenRow + 1;
+        // display.c row_refresh() prints every cell whose buffered glyph is
+        // not GLYPH_UNEXPLORED; lastX is the rightmost one on the hero's row.
+        let lastX = 0;
+        for (let x = 1; x < COLNO; ++x) {
+            const glyph = state.level.at(x, mapY)?.disp_glyph?.glyph
+                ?? GLYPH_UNEXPLORED_OFF;
+            if (glyph !== GLYPH_UNEXPLORED_OFF) lastX = x;
+        }
+        assert.ok(lastX >= state.u.ux);
+
+        // xmin 1 is the leftmost base-window column, so row_refresh() covers
+        // the whole row. Map column x is terminal column x - 1, and
+        // tty_print_glyph() leaves the cursor one column past it: column x.
+        docorner(1, ymax, 0, state);
+        assert.deepEqual([display.cursorCol, display.cursorRow],
+            [lastX, screenRow]);
+
+        // An xmin right of every glyph on the row (lastX + 2 is the first
+        // such xmin that also clears the cursor's own column) prints nothing
+        // there, so the cursor stays where tty_curs(BASE_WINDOW, xmin, y) put
+        // it: terminal column xmin - 1.
+        assert.ok(lastX + 2 < COLNO);
+        docorner(lastX + 2, ymax, 0, state);
+        assert.deepEqual([display.cursorCol, display.cursorRow],
+            [lastX + 1, screenRow]);
+
+        assert.match(WINTTY_C,
+            /wins\[window\]->curx\+\+; \/\* one character over \*\/\s*ttyDisplay->curx\+\+;/u);
     });
 
 test('docorner clears physical rows without requiring status inventory state',
