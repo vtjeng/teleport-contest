@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "A typed data-base lookup ('/' '?' dwarf) puts its corner NHW_TEXT window's --More-- on row 21, the first of three status rows. Unlike a menu's, this window's dismissal runs with bot() enabled, so erase_menu_or_text()'s docorner(offx, maxrow + 1, 0) clears row 21 from offx - 1, reprints the map at row ROWNO-1 there, and then calls bot() with disp.botlx set. bot() writes status line 1 over that row without erasing the corridor at column 76, past the end of the status text.",
+  "segments": [
+    {
+      "seed": 6111,
+      "datetime": "20410315101500",
+      "nethackrc": "OPTIONS=name:Tam,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,statuslines:3\n",
+      "moves": "\u0006/?dwarf\n \u001b"
+    }
+  ]
+}

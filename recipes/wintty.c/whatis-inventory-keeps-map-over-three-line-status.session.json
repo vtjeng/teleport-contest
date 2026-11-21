@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pager.c do_look()'s '/' 'i' path picks from the whole inventory. windows.c select_menu() raises gb.bot_disabled while tty_select_menu() dismisses the corner menu, so wintty.c erase_menu_or_text()'s docorner(offx, maxrow + 1, 0) clears rows 0..maxrow from offx - 1, row_refresh() reprints the map, and its closing bot() returns at once. With three status lines, map row ROWNO-1 lies on terminal row 21, the first status row. ^F maps corridors there, and this pack's (end) footer is on row 20, so docorner() clears and reprints row 21 only. The corridors stay beside the data-base text window; its own dismissal, with bot() enabled, writes status line 1 over them. Variations: whatis-inventory-keeps-map-over-three-line-status-bottom-row, whatis-inventory-clears-status-suffix-two-lines.",
+  "segments": [
+    {
+      "seed": 6305,
+      "datetime": "20410315101500",
+      "nethackrc": "OPTIONS=name:Tam,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,statuslines:3\n",
+      "moves": "\u0006/ia \u001b"
+    }
+  ]
+}

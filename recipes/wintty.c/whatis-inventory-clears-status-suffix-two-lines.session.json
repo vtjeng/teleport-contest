@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of whatis-inventory-keeps-map-over-three-line-status with statuslines:2: the inventory menu's (end) footer is on row 22, the first of two status rows, so docorner() clears both status suffixes from offx - 1, and the map ends on row 21 above them. bot() stays disabled through select_menu(), so both suffixes remain blank beside the data-base text window until its dismissal redraws the status.",
+  "segments": [
+    {
+      "seed": 6131,
+      "datetime": "20410315101500",
+      "nethackrc": "OPTIONS=name:Tam,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,statuslines:2\n",
+      "moves": "\u0006/ia \u001b"
+    }
+  ]
+}
