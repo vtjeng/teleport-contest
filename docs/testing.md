@@ -43,6 +43,15 @@ A push to any `integration-checkpoint/**` branch starts it, except
 `integration-checkpoint/admission/**`, which the Admission workflow handles.
 It can also be started by hand (`workflow_dispatch`).
 
+The same push starts the **macOS recordings** workflow
+(`.github/workflows/macos-recordings.yml`). It runs
+`experiments/host-parity/check-changed-recordings.sh origin/main <out-dir>`
+on a macOS runner: every recipe the candidate adds or changes is recorded
+there, and the run fails when a recording differs from the committed one or
+a recipe fails to record. A candidate that changes no recipe passes without
+building the recorder. See "Local recordings and the judge's host" for what
+to do when the two hosts differ.
+
 ```sh
 git push -- https://github.com/vtjeng/teleport-contest.git HEAD:refs/heads/integration-checkpoint/<name>
 node scripts/fetch-hosted-checkpoint.mjs <run-id>

@@ -16,9 +16,15 @@ dispatch, and continuous-loop instructions below until Vincent changes it:
 - Keep the source-tracing, test, validation, and correctness gates. A passing
   hosted Checkpoint run on the exact candidate commit is the full validation
   gate; `node scripts/checkpoint-report.mjs <commit>` summarizes it.
+- The judge recorded its sessions on macOS. A candidate also needs a passing
+  `macOS recordings` run on the exact commit: that workflow records every
+  recipe the candidate adds or changes on a macOS runner and fails when a
+  recording differs from the committed one. When a macOS recording differs
+  from the Linux one, the port follows macOS and the macOS recording is the
+  one to commit.
 - Push `integration-checkpoint/*` branches for hosted validation without
   asking. Publish a candidate to `main`, without force, once hosted
-  Checkpoint passes on that exact commit.
+  Checkpoint and `macOS recordings` pass on that exact commit.
 - Push `recorder/*` branches without asking. They are throwaway branches for
   the macOS recorder workflow and start no Checkpoint run.
 - Never cherry-pick, copy, or depend on code from commits

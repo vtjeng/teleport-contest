@@ -10,8 +10,9 @@
 # The macOS recordings workflow runs this on a macOS runner for every
 # candidate, so a recording that only a Linux recorder produces cannot become
 # regression evidence. A recipe counts when it or its recording differs from
-# <base-ref> and both files exist. Exits 1 when a recipe fails to record or a
-# recording differs, and 0 when nothing changed.
+# <base-ref> and both files exist. Exits 1 when a recipe fails to record, a
+# recording differs, or a changed recording has no recipe at the same path,
+# and 0 when nothing changed.
 set -euo pipefail
 
 BASE="${1:?usage: check-changed-recordings.sh <base-ref> <out-dir> [--list-only]}"
@@ -21,14 +22,26 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$HERE/../.."
 
 mkdir -p "$OUT"
-git diff --name-only --diff-filter=AM "$BASE"...HEAD -- recipes recordings \
+# --no-renames lists a moved file as an addition, so a renamed recipe or
+# recording is checked like a new one.
+git diff --name-only --no-renames --diff-filter=AM "$BASE"...HEAD -- recipes recordings \
     | sed -E 's#^(recipes|recordings)/##' | sort -u > "$OUT/changed.txt"
 : > "$OUT/recipes.txt"
+: > "$OUT/orphans.txt"
 while IFS= read -r rel; do
     if [ -f "recipes/$rel" ] && [ -f "recordings/$rel" ]; then
         echo "recipes/$rel" >> "$OUT/recipes.txt"
+    elif [ -f "recordings/$rel" ]; then
+        # A recording with no recipe at the same path cannot be re-recorded,
+        # so it would escape the comparison. A recipe with no recording is a
+        # blocked recipe and has nothing to compare.
+        echo "recording without a recipe: $rel" | tee -a "$OUT/orphans.txt"
     fi
 done < "$OUT/changed.txt"
+if [ -s "$OUT/orphans.txt" ]; then
+    echo "$(wc -l < "$OUT/orphans.txt" | tr -d ' ') changed recordings have no recipe at the same path" >&2
+    exit 1
+fi
 count=$(wc -l < "$OUT/recipes.txt" | tr -d ' ')
 echo "$count recipes with a recording changed since $BASE"
 if [ "$MODE" = "--list-only" ] || [ "$count" -eq 0 ]; then
