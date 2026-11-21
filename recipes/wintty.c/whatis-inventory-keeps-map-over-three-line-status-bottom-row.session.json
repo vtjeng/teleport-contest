@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of whatis-inventory-keeps-map-over-three-line-status: a longer pack puts the inventory menu's (end) footer on row 22, so docorner() clears the suffixes of rows 21 to 23 and reprints the corridor at map row ROWNO-1, column 76, past the end of status line 1. bot() repaints status line 1 after the data-base window without clearing to the end of the row, so that corridor stays beside the status text.",
+  "segments": [
+    {
+      "seed": 6111,
+      "datetime": "20410315101500",
+      "nethackrc": "OPTIONS=name:Tam,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,statuslines:3\n",
+      "moves": "\u0006/ia \u001b"
+    }
+  ]
+}
