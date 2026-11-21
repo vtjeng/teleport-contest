@@ -5,18 +5,12 @@ on:
 # Branch integration-checkpoint/macos-rerecord-rec only (throwaway): re-record
 # every committed recipe that has a Linux recording, on macOS, with the
 # recorder built from this repository's patch set, to compare the two hosts
-# byte for byte. Eight jobs run one at a time (max-parallel 1: a quarter of
-# the account's five concurrent macOS jobs, rounded down).
+# byte for byte. This commit runs one job that re-records the differing games.
 
 jobs:
   record:
     runs-on: macos-latest
     timeout-minutes: 90
-    strategy:
-      fail-fast: false
-      max-parallel: 1
-      matrix:
-        chunk: [0, 1, 2, 3, 4, 5, 6, 7]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -40,21 +34,16 @@ jobs:
             node --version
           } | tee macos-recordings/host.txt
 
-      # record-sample.sh exits 1 when a recipe fails to record; the failures
-      # are listed in each directory's failed.txt, so the step continues.
-      - name: Record the chunk
-        run: |
-          node experiments/host-parity/corpus-list.mjs macos-recordings ${{ matrix.chunk }} 8
-          for list in macos-recordings/lists/*.txt; do
-            dir="$(basename "$list" .txt)"
-            experiments/host-parity/record-sample.sh "macos-recordings/$dir" 4 $(cat "$list") || true
-          done
-          cat macos-recordings/*/failed.txt | wc -l
+      # Second macOS recording of each game that differed from its Linux
+      # recording (experiments/host-parity/confirm.txt), to confirm the
+      # difference before calling it a host difference.
+      - name: Record the games to confirm
+        run: experiments/host-parity/record-sample.sh macos-recordings/confirm 2 $(cat experiments/host-parity/confirm.txt) || true
 
       - name: Upload recordings
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: macos-recordings-${{ matrix.chunk }}
+          name: macos-recordings-confirm
           path: macos-recordings/
           if-no-files-found: error
