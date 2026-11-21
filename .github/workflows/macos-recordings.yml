@@ -35,7 +35,7 @@ jobs:
         id: list
         run: |
           git fetch --no-tags origin main
-          experiments/host-parity/check-changed-recordings.sh "${{ inputs.base || 'origin/main' }}" macos-recordings --list-only
+          experiments/host-parity/check-changed-recordings.sh "82425385f" macos-recordings --list-only
           echo "count=$(wc -l < macos-recordings/recipes.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
 
       - name: Build the recorder
@@ -46,7 +46,7 @@ jobs:
         if: steps.list.outputs.count != '0'
         run: |
           { sw_vers; uname -a; clang --version | head -n 1; node --version; } | tee macos-recordings/host.txt
-          experiments/host-parity/check-changed-recordings.sh "${{ inputs.base || 'origin/main' }}" macos-recordings
+          experiments/host-parity/check-changed-recordings.sh "82425385f" macos-recordings
 
       - name: Upload the recordings
         if: always()
