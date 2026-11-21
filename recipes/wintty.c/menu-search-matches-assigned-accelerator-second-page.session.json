@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of menu-search-matches-assigned-accelerator: a Tourist with DECgraphics turns to the second page of the simple options menu first, so wintty.c process_menu_window() MENU_SEARCH matches an automatically assigned accelerator on an entry that the first page does not show; the miss \"zz - \" leaves the menu open.",
+  "segments": [
+    {
+      "seed": 7730412,
+      "datetime": "20220619083207",
+      "nethackrc": "OPTIONS=name:Odile,role:Tourist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=symset:DECgraphics\n",
+      "moves": " O>:zz - \n:c - p\n\u001bO\u001bi\u001b"
+    }
+  ]
+}

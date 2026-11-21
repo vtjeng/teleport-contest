@@ -1462,7 +1462,9 @@ async function selectOneTtyMenu(state, spec) {
             pendingCount = null;
             if (searchText && searchText[0] !== '\x1B') {
                 const pattern = `*${searchText}*`;
-                const match = pickOneSearchEntries(state, spec)
+                // The working copy carries the accelerators tty_end_menu()
+                // assigned, which are part of the curr->str the search reads.
+                const match = pickOneSearchEntries(state, workingSpec)
                     .find((entry) => pmatchi(pattern, entry.text));
                 if (match) {
                     await dismissTtyMenu(state, rendered);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wintty.c process_menu_window() MENU_SEARCH matches pmatchi(\"*text*\", curr->str), and tty_end_menu() has already written each automatically assigned accelerator into curr->str. In the simple options menu (options.c doset_simple(), PICK_ONE, selector 0 on every option row) the search \"a - \" therefore picks row a, fruit, and opens its getlin; a second search \"j - c\" picks cmdassist.",
+  "segments": [
+    {
+      "seed": 48213907,
+      "datetime": "20231104214530",
+      "nethackrc": "OPTIONS=name:Peregrin,role:Healer,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " O:a - \nkiwi\n:j - c\n\u001bi\u001b"
+    }
+  ]
+}
