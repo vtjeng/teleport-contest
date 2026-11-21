@@ -1794,3 +1794,24 @@ does the speed estimate for any machine family other than C3D.
 | 2026-11-21 08:09 PST | gate-9da2968d-b16 | c3d-highcpu-60 | us-west1-c | 0.055 | 0.028 | exit 0 | not sampled | replay batch 16 at 9da2968d, 40 workers, 106 of 106 games |
 | 2026-11-21 08:09 PST | gate-9da2968d-b23 | c3d-highcpu-60 | us-central1-a | 0.057 | 0.029 | exit 0 | not sampled | replay batch 23 at 9da2968d, 40 workers, 600 of 600 games |
 | 2026-11-21 08:08 PST | gate-9da2968d-b15 | c3d-highcpu-60 | us-east1-c | 0.091 | 0.047 | exit 0 | load 46.4 of 60 mean, peak 10.2 GB | replay batch 15 at 9da2968d, 40 workers, 618 of 618 games |
+| 2026-11-21 09:34 PST | gate-17052df9-b9 | c3d-highcpu-60 | us-east1-c | 0.309 | 0.159 | exit 0 | load 68.4 of 60 mean, peak 13.7 GB | replay batch 9 at 17052df9, 40 workers, 3000 of 3000 games |
+| 2026-11-21 09:33 PST | gate-17052df9-b6 | c3d-highcpu-60 | us-central1-a | 0.383 | 0.197 | exit 0 | load 68.4 of 60 mean, peak 14.7 GB | replay batch 6 at 17052df9, 40 workers, 3000 of 3000 games |
+| 2026-11-21 09:33 PST | gate-17052df9-b5 | c3d-highcpu-60 | us-central1-a | 0.419 | 0.215 | exit 0 | load 68.0 of 60 mean, peak 13.8 GB | replay batch 5 at 17052df9, 40 workers, 3000 of 3000 games |
+| 2026-11-21 09:34 PST | gate-17052df9-b10 | c3d-highcpu-60 | us-west1-c | 0.417 | 0.214 | exit 0 | load 65.0 of 60 mean, peak 15.5 GB | replay batch 10 at 17052df9, 40 workers, 3000 of 3000 games |
+| 2026-11-21 09:59 PST | gate-17052df9-b4 | c3d-highcpu-60 | us-central1-a | 0.160 | 0.082 | exit 0 | load 74.3 of 60 mean, peak 8.6 GB | replay batch 4 at 17052df9, 40 workers, 5000 of 5000 games |
+| 2026-11-21 10:02 PST | gate-17052df9-b11 | c3d-highcpu-60 | us-west1-c | 0.125 | 0.064 | exit 0 | load 67.7 of 60 mean, peak 10.0 GB | replay batch 11 at 17052df9, 40 workers, 1500 of 1500 games |
+| 2026-11-21 09:56 PST | gate-17052df9-b7 | c3d-highcpu-60 | us-central1-a | 0.266 | 0.137 | exit 0 | load 68.2 of 60 mean, peak 11.9 GB | replay batch 7 at 17052df9, 40 workers, 3000 of 3000 games |
+| 2026-11-21 10:09 PST | gate-17052df9-b13 | c3d-highcpu-60 | us-central1-a | 0.124 | 0.064 | exit 0 | load 70.9 of 60 mean, peak 10.3 GB | replay batch 13 at 17052df9, 40 workers, 1500 of 1500 games |
+| 2026-11-21 10:10 PST | gate-17052df9-pilots | c3d-highcpu-60 | us-west1-a | 0.124 | 0.064 | exit 0 | load 66.9 of 60 mean, peak 10.5 GB | replay batch pilots at 17052df9, 40 workers, 1353 of 1353 games |
+| 2026-11-21 09:54 PST | gate-17052df9-b8 | c3d-highcpu-60 | us-east1-b | 0.412 | 0.212 | exit 0 | load 65.2 of 60 mean, peak 12.6 GB | replay batch 8 at 17052df9, 40 workers, 3000 of 3000 games |
+| 2026-11-21 10:13 PST | gate-17052df9-b12 | c3d-highcpu-60 | us-central1-a | 0.125 | 0.064 | exit 0 | load 67.9 of 60 mean, peak 10.1 GB | replay batch 12 at 17052df9, 40 workers, 1500 of 1500 games |
+| 2026-11-21 10:19 PST | gate-17052df9-b1 | c3d-highcpu-60 | us-east1-c | 0.090 | 0.046 | exit 0 | load 50.9 of 60 mean, peak 7.8 GB | replay batch 1 at 17052df9, 40 workers, 5000 of 5000 games |
+| 2026-11-21 10:17 PST | gate-17052df9-b14 | c3d-highcpu-60 | us-central1-a | 0.124 | 0.064 | exit 0 | load 66.6 of 60 mean, peak 11.1 GB | replay batch 14 at 17052df9, 40 workers, 1500 of 1500 games |
+| 2026-11-21 10:20 PST | gate-17052df9-b2 | c3d-highcpu-60 | us-west1-c | 0.089 | 0.046 | exit 0 | load 52.9 of 60 mean, peak 7.9 GB | replay batch 2 at 17052df9, 40 workers, 5000 of 5000 games |
+| 2026-11-21 10:21 PST | gate-17052df9-b3 | c3d-highcpu-60 | us-central1-a | 0.091 | 0.047 | exit 0 | load 51.1 of 60 mean, peak 7.7 GB | replay batch 3 at 17052df9, 40 workers, 5000 of 5000 games |
+| 2026-11-21 10:24 PST | gate-17052df9-b20 | c3d-highcpu-60 | us-central1-a | 0.089 | 0.046 | exit 0 | load 50.1 of 60 mean, peak 10.4 GB | replay batch 20 at 17052df9, 40 workers, 605 of 605 games |
+| 2026-11-21 10:27 PST | gate-17052df9-b16 | c3d-highcpu-60 | us-central1-a | 0.055 | 0.028 | exit 0 | not sampled | replay batch 16 at 17052df9, 40 workers, 106 of 106 games |
+| 2026-11-21 10:25 PST | gate-17052df9-b15 | c3d-highcpu-60 | us-east1-c | 0.089 | 0.046 | exit 0 | load 46.9 of 60 mean, peak 10.6 GB | replay batch 15 at 17052df9, 40 workers, 618 of 618 games |
+| 2026-11-21 10:26 PST | gate-17052df9-b17 | c3d-highcpu-60 | us-west1-c | 0.110 | 0.057 | exit 0 | load 46.1 of 60 mean, peak 9.9 GB | replay batch 17 at 17052df9, 40 workers, 605 of 605 games |
+| 2026-11-21 10:30 PST | gate-17052df9-b18 | c3d-highcpu-60 | us-central1-a | 0.057 | 0.029 | exit 0 | load 49.9 of 60 mean, peak 10.0 GB | replay batch 18 at 17052df9, 40 workers, 605 of 605 games |
+| 2026-11-21 10:33 PST | gate-17052df9-b23 | c3d-highcpu-60 | us-central1-a | 0.053 | 0.027 | exit 0 | not sampled | replay batch 23 at 17052df9, 40 workers, 600 of 600 games |
