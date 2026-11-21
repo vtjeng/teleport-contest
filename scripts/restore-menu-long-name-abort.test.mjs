@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { runSegment } from '../js/jsmain.js';
+import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
 // restore.c restore_menu() copies the picked "name-role-race-gend-algn" text
 // into the 32-byte svp.plname[] with Strcpy(). macOS's checked strcpy()
