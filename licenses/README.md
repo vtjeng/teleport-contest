@@ -13,4 +13,12 @@ of Apple Libc (tag `Libc-1752.120.2`, regex/ directory):
   1994 Henry Spencer and the Regents of the University of California,
   distributed under the licence in `FreeBSD-regex-LICENSE.txt`.
 
+The port of macOS's `qsort()` is a JavaScript translation of Apple Libc
+(tag `Libc-1752.120.2`, stdlib/FreeBSD/ directory):
+
+- `js/qsort.js` and `js/heapsort.js` translate FreeBSD's `qsort.c` and
+  `heapsort.c`, Copyright (c) 1991, 1992, 1993 The Regents of the
+  University of California, distributed under the licence in
+  `FreeBSD-qsort-LICENSE.txt`.
+
 The rest of the repository is not covered by these licences.

@@ -1,0 +1,8 @@
+commit: 1712b268c9f8687be40f7f54ed8ad9a1d479e4d4
+run: https://github.com/vtjeng/teleport-contest/actions/runs/44850791668
+ProductName:		macOS
+ProductVersion:		26.7.2
+BuildVersion:		25G332
+Darwin sjc20-cw711-d91ee866-e470-46ce-be7e-198f79a0d3e4-66D95CD50F5B.local 25.6.0 Darwin Kernel Version 25.6.0: Mon Oct 12 00:39:04 PDT 2026; root:xnu-12377.161.15.701.48~2/RELEASE_ARM64_VMAPPLE arm64
+Apple clang version 21.0.0 (clang-2100.1.1.101)
+v22.23.5
