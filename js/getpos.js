@@ -881,7 +881,7 @@ export async function getpos_menu(ccp, gloc, state = game) {
 //
 // `key` is the byte getpos() read. C holds it in `int c` after
 // readchar_poskey() returned it as a `char` (cmd.c:5288-5296, narrowed by
-// readchar_core()'s `return (char) sym`, cmd.c:5270), and char is signed in
+// readchar_core()'s `return (char) sym`, cmd.c:5271), and char is signed in
 // the reference build, so a byte above 0x7F is negative there. defsyms[].sym
 // is a uchar (sym.h:53) and gs.showsyms[] holds nhsym values 0-255
 // (decl.h:861), both promoted to a non-negative int: such a key matches no

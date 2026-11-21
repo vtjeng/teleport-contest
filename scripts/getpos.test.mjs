@@ -442,8 +442,9 @@ test('a key above 0x7F never matches a map symbol with the same byte', async () 
         assert.deepEqual(cc, { x: -1, y: 0 });
         assert.match(game._ttyToplines, /Unknown direction: 'M-\|' \(aborted\).*Done\./u);
 
-        // 0x7C is the same symbol without the high bit, and does start the
-        // feature search: no cloud is on this map, so the search reports
+        // 0x7C is the same byte without the high bit, and does start the
+        // feature search. It also equals the default S_grave and beam
+        // symbols; none of those is on this map, so the search reports
         // that and the prompt stays open until Escape.
         game.gs.showsyms[cloudIndex] = 0x7C;
         queueKeys(0x7C, 0x1B);
