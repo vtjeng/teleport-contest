@@ -104,6 +104,17 @@ export function remember_topl(state = game) {
     }
 }
 
+// C ref: `cw->maxcol = cw->maxrow;`, the statement that follows
+// tty_clear_nhwindow(WIN_MESSAGE) wherever a prompt redraws itself after a
+// Ctrl-P recall (topl.c:441, 456; getline.c:92, 127, 135). The next recall
+// then starts again from gt.toplines instead of continuing from the entry the
+// prompt's recall stopped at. tty_clear_nhwindow() itself leaves the index
+// alone. scripts/prevmsg-recall-index.test.mjs counts these sites.
+export function recallFromNewest(state = game) {
+    const cw = messageWindow(state);
+    if (cw) cw.maxcol = cw.maxrow;
+}
+
 // C ref: topl.c addtopl() is the nonblocking top-line write used by the TTY
 // message and prompt owners.  The grid is already source-positioned by those
 // callers, so this only writes the newly supplied bytes and clears the tail.
@@ -794,6 +805,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
                     await tty_doprev_message(state);
                     display.inread = savedInread;
                     await clearMessageWindow(state);
+                    recallFromNewest(state);
                     // topl.c:442 redraws the prompt with addtopl(), which
                     // leaves gt.toplines empty.
                     show_topl(prompt, state);
@@ -808,6 +820,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 continue;
             } else if (doprev) {
                 await clearMessageWindow(state);
+                recallFromNewest(state);
                 show_topl(prompt, state);
                 setToplinesDirectly('', state);
                 display.toplin = TOPLINE_NEED_MORE;

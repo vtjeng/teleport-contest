@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for win/tty/topl.c tty_yn_function() lines 435-442 with msg_window:combination: a Ranger opens the #pray confirmation and presses ^P twice inside it. Each one runs tty_doprev_message() with inread cleared, then tty_clear_nhwindow(WIN_MESSAGE), cw->maxcol = cw->maxrow and addtopl(prompt). After n, three ^P at the command level show the answered prompt, the newest stored message and then the history window, as they do when no recall preceded them.",
+ "segments": [
+  {
+   "seed": 88213,
+   "datetime": "20040402181500",
+   "nethackrc": "OPTIONS=name:Thessaly,role:Ranger,race:elf,gender:female,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=msg_window:combination\n",
+   "moves": ":s#pray\n\u0010\u0010n\u0010\u0010\u0010   "
+  }
+ ]
+}

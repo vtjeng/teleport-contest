@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for win/tty/topl.c tty_yn_function() lines 444-447 and 451-459 through a [ynq] prompt: a Valkyrie drops her food ration, starts to eat and presses ^P twice at \"There is a food ration here; eat it? [ynq] (n)\". The first q only redraws the prompt (the doprev arm, with cw->maxcol = cw->maxrow), the second answers it and the object prompt that follows is cancelled. Three ^P at the command level then start from the newest line.",
+ "segments": [
+  {
+   "seed": 3390155,
+   "datetime": "20070126140000",
+   "nethackrc": "OPTIONS=name:Ragnhild,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!autopickup,!tutorial\nOPTIONS=suppress_alert:3.4.3\n",
+   "moves": "  dde\u0010\u0010qq\u0010\u0010\u0010  "
+  }
+ ]
+}

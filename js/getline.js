@@ -49,6 +49,7 @@ import {
     setToplinesDirectly,
     show_topl,
     topl_putsym,
+    recallFromNewest,
     tty_doprev_message,
 } from './topl.js';
 
@@ -99,8 +100,7 @@ function clearMessageWindow(state) {
 // TOPLINE_NEED_MORE.
 function redrawPrompt(query, text, state) {
     clearMessageWindow(state);
-    const cw = state.wintty?.wins?.[state.wintty.messageWindow];
-    if (cw) cw.maxcol = cw.maxrow;
+    recallFromNewest(state);
     addtopl(query, state);
     addtopl(' ', state);
     addtopl(text, state);
