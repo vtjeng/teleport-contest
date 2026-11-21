@@ -1,3 +1,4 @@
+import { zero_context_info } from '../js/context.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -273,7 +274,7 @@ async function generateNewGameLevel(seed) {
     };
     game.iflags = {};
     game.u = { uroleplay: {} };
-    game.context = { move: 0 };
+    game.context = zero_context_info();
     await newgame_pre_mklev(game);
     await mklev();
     return game;

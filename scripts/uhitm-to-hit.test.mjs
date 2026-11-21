@@ -1090,10 +1090,12 @@ test('force_attack restores the caller\'s forcefight state on every exit',
     async () => {
         await hero();
         const hostile = target();
-        delete game.context.forcefight;
+        // uhitm.c:436-442 saves svc.context.forcefight, sets it for a hostile
+        // and puts the saved value back: FALSE, C's zero, stays FALSE.
+        game.context.forcefight = false;
         const env = meleeEnv({ checkCapacity: async () => true });
         assert.equal(await force_attack(hostile, false, game, env), true);
-        assert.equal(Object.hasOwn(game.context, 'forcefight'), false);
+        assert.equal(game.context.forcefight, false);
 
         game.context.forcefight = 1;
         assert.equal(await force_attack(hostile, false, game, env), true);

@@ -5,6 +5,7 @@
 // recording reaches it and its branches are pinned here. Every expected
 // value is read from the C function the test names.
 
+import { zero_context_info } from '../js/context.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -64,7 +65,7 @@ async function runLoader(seed, body) {
     };
     game.iflags = {};
     game.u = { uroleplay: {} };
-    game.context = { move: 0 };
+    game.context = zero_context_info();
     await newgame_pre_mklev(game);
     let result = null;
     await assert.rejects(

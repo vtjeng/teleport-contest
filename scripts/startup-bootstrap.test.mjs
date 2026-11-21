@@ -1,3 +1,4 @@
+import { zero_context_info } from '../js/context.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -29,7 +30,7 @@ async function initialize(seed, role, race, gender, alignment) {
         bones: true,
     };
     game.u = { uroleplay: {} };
-    game.context = { move: 0 };
+    game.context = zero_context_info();
     monst_globals_init(game);
     await newgame_pre_mklev(game);
     return { state: game, log: [...getRngLog()] };
