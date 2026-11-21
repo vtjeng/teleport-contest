@@ -88,6 +88,7 @@ import { handle_tip, is_valid_travelpt } from './hack.js';
 import { visctrl } from './hacklib.js';
 import { an } from './objnam.js';
 import { do_screen_description } from './pager.js';
+import { NH_abort } from './end.js';
 import { cansee } from './vision.js';
 import { impossible_printer } from './pline.js';
 import { finish_steps } from './source_steps.js';
@@ -554,6 +555,7 @@ export async function auto_describe(cx, cy, state = game) {
     const description = do_screen_description(
         { x: cx, y: cy }, true, 0, state,
     );
+    if (description.aborted) await NH_abort(state);
     if (description.found) {
         const invalidTarget = state.iflags?.autodescribe
             && state.getpos_getvalid
@@ -846,7 +848,8 @@ export async function getpos_menu(ccp, gloc, state = game) {
     for (let index = 1; index < locations.length; ++index) {
         const point = locations[index];
         const description = do_screen_description(point, true, 0, state);
-        if (!description?.found) continue;
+        if (description.aborted) await NH_abort(state);
+        if (!description.found) continue;
         const coordinate = coord_desc(point.x, point.y, state);
         items.push({
             label: `${description.firstmatch ?? 'unknown'}${coordinate

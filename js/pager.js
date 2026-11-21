@@ -158,6 +158,7 @@ import {
 } from './display.js';
 import { DATA_BASE_ENTRIES } from './data_base_data.js';
 import { engr_at } from './engrave.js';
+import { NH_abort } from './end.js';
 import { fruit_from_name, makeplural, makesingular } from './fruit.js';
 import {
     LOOK_ONCE, LOOK_QUICK, LOOK_VERBOSE, coord_desc, getpos,
@@ -924,21 +925,29 @@ export function trap_description(ttyp, x, y, state = game) {
     return trapname(ttyp, false, state);
 }
 
-// C ref: pager.c add_quoted_engraving(). JavaScript returns the extended
-// string because strings are immutable; an ineligible engraving returns the
-// original string, matching C's untouched buffer.
+// C ref: pager.c add_quoted_engraving() (1630-1668). JavaScript returns the
+// extended string because strings are immutable; an ineligible engraving
+// returns the original string, matching C's untouched buffer. C formats the
+// text with Snprintf() into its own BUFSZ-byte temp_buf, so at most
+// BUFSZ - 1 characters, then appends it with
+// strncat(buf, temp_buf, BUFSZ - strlen(buf) - 1), so buf ends with at most
+// BUFSZ - 1 characters.
 export function add_quoted_engraving(x, y, buffer, force, state = game) {
     const engraving = engr_at(x, y, state);
     const floorEngraving = buffer === ' (engraving';
     const headstone = buffer === ' (grave';
     if (!engraving || (!floorEngraving && !headstone && !force)) return buffer;
+    let tempBuf;
     if (engraving.eread) {
         const label = headstone ? 'headstone reading' : 'remembered text';
         const text = engraving.engr_txt?.[1] ?? '';
-        return `${buffer} with ${label}: "${text}"`;
+        tempBuf = ` with ${label}: "${text}"`;
+    } else {
+        const unread = headstone ? 'whose headstone' : 'that';
+        tempBuf = ` ${unread} you haven't read`;
     }
-    const unread = headstone ? 'whose headstone' : 'that';
-    return `${buffer} ${unread} you haven't read`;
+    tempBuf = tempBuf.slice(0, BUFSZ - 1);
+    return buffer + tempBuf.slice(0, Math.max(0, BUFSZ - buffer.length - 1));
 }
 
 function encodedGlyphCharacter(glyph, state) {
@@ -1769,12 +1778,29 @@ export function do_screen_description(cc, looked, sym, state = game) {
         // detail, then appends only when that retained value is nonempty.
         if (detail !== '') firstmatch = detail;
         if (firstmatch) {
-            let suffix = ` (${firstmatch}`;
-            suffix = add_quoted_engraving(
-                cc.x, cc.y, suffix, false, state,
-            ) + ')';
+            // pager.c 1611-1613 builds this in the BUFSZ-byte temp_buf:
+            // Sprintf(" (%s", *firstmatch), add_quoted_engraving(), then
+            // Strcat(temp_buf, ")"). add_quoted_engraving() can leave
+            // BUFSZ - 1 characters there, for a remembered text of 219 or
+            // more characters (221 on a headstone), and then the ")" and its
+            // NUL do not fit. The judge's recordings come from macOS, whose
+            // checked sprintf() and strcat() (__sprintf_chk, __strcat_chk)
+            // call abort() when the destination is too small, so the process
+            // ends there with nothing printed; a Linux build overflows and
+            // carries on. Every caller passes `aborted` to end.js NH_abort();
+            // scripts/pager-engraving-look-abort.test.mjs pins the boundary
+            // and checks the callers.
+            let tempBuf = ` (${firstmatch}`;
+            if (tempBuf.length > BUFSZ - 1)
+                return { found, out, firstmatch, aborted: true };
+            tempBuf = add_quoted_engraving(
+                cc.x, cc.y, tempBuf, false, state,
+            );
+            if (tempBuf.length + 1 > BUFSZ - 1)
+                return { found, out, firstmatch, aborted: true };
+            tempBuf += ')';
             const room = BUFSZ - 1 - out.length;
-            if (room > 0) out += suffix.slice(0, room);
+            if (room > 0) out += tempBuf.slice(0, room);
             found = 1;
         }
         if (info.monbuf) {
@@ -2067,6 +2093,7 @@ export async function do_look(mode, clickCc = null, state = game) {
             const description = do_screen_description(
                 { x: 0, y: 0 }, false, sym, state,
             );
+            if (description.aborted) await NH_abort(state);
             if (description.found) {
                 // The typed symbol is a plain byte, not an encglyph()
                 // sequence, so decode_mixed() drops a typed backslash.
@@ -2137,6 +2164,7 @@ export async function do_look(mode, clickCc = null, state = game) {
             }
 
             const description = do_screen_description(cc, true, 0, state);
+            if (description.aborted) await NH_abort(state);
             const location = state.level?.at(cc.x, cc.y);
             const lookedGlyph = glyph_at(cc.x, cc.y, state);
             // pager.c do_look() 1920-1923 shows every explanation with
