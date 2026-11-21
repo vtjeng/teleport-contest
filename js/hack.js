@@ -2,6 +2,7 @@
 // C refs: hack.c pooleffects() and spoteffects(), plus the selected return
 // helpers named at their definitions below.
 
+import { zero_dig_info } from './context.js';
 import { rm_doormask } from './game.js';
 import {
     A_CON,
@@ -1770,15 +1771,9 @@ export async function rock_disappear_msg(otmp, state = game) {
     }
 }
 
+// hack.c still_chewing() 654 and 747: memset(&svc.context.digging, 0, ...).
 function reset_digging(state) {
-    state.context.digging = {
-        down: false,
-        chew: false,
-        warned: false,
-        pos: { x: 0, y: 0 },
-        level: { dnum: 0, dlevel: 0 },
-        effort: 0,
-    };
+    state.context.digging = zero_dig_info();
     return state.context.digging;
 }
 

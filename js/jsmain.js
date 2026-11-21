@@ -101,6 +101,7 @@ import {
     vision_reset,
 } from './vision.js';
 import { initUnported } from './unported.js';
+import { zero_context_info } from './context.js';
 import { process_options, recorderArguments } from './unixmain.js';
 
 // Every Unsupported*Error is a fail-closed refusal of an unported code path.
@@ -485,24 +486,20 @@ export class NethackGame {
         // The rc parser owns roleplay options until u_init_misc() preserves
         // them across its source memset boundary.
         g.u = { uroleplay: { ...(opts.uroleplay ?? {}) } };
-        // context.h declares door_opened beside move; test_move() clears it on
-        // entry and domove_core() reads it, so it exists from the start rather
-        // than appearing the first time the hero tries to walk. stethoscope_seq
-        // (context.h:158) joins them: C zeroes the whole svc.context struct at
-        // startup, and use_stethoscope() compares it against gh.hero_seq before
-        // it ever writes it, so the value it is compared against on the first
-        // listen of a game is 0 rather than absent. gh.hero_seq is never 0
-        // during play -- allmain.c:260 sets it to moves << 3 with moves >= 1 --
-        // so that first listen is always the free one. run (context.h:146)
-        // is here for the same reason: hack.c lookaround() returns at
-        // `svc.context.run == 0`, and allmain.c moveloop_core() calls it
-        // before every repeat of a counted command. Until the first movement
-        // command or cmd.c reset_cmd_vars() wrote it, an absent run failed
-        // that test, lookaround() examined the squares around the hero as it
-        // does for a run, and one that stops a run cancelled the count.
-        // scripts/svc-context-state.test.mjs fails when js/ compares a
-        // context field with 0 or false that this literal does not create.
-        g.context = { move: 0, run: 0, door_opened: false, stethoscope_seq: 0 };
+        // C zeroes the whole svc.context struct (decl.c) before newgame() or
+        // dorecover() writes any of it, so every field reads as 0, FALSE or
+        // NULL until a command sets it. js/context.js, generated from
+        // include/context.h, builds that object with every field present:
+        // a field created only when first written read as `undefined`,
+        // which is not `=== 0` (hack.c lookaround()'s `svc.context.run == 0`
+        // cancelled the count of a counted first command) and turns into NaN
+        // under `++` (spell.c's chain lightning raises forcefight around
+        // wakeup()). A restored game replaces this object with the saved one
+        // in restore.js restgamestate(), which the same factory created.
+        // scripts/svc-context-state.test.mjs fails when js/ names a context
+        // field the header does not declare or replaces a struct with a
+        // partial object.
+        g.context = zero_context_info();
         g.program_state = {};
         g.moves = 0;
         g._commandDispatchCount = 0;

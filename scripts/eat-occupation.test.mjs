@@ -46,8 +46,8 @@ import {
     eatfood,
     lesshungry,
     newuhs,
-    zero_victual,
 } from '../js/eat.js';
+import { zero_victual_info } from '../js/context.js';
 import {
     moveloop_core,
     stop_occupation,
@@ -143,7 +143,7 @@ test('a five-turn meal spends six turns in all', async () => {
     // the two and is covered separately below.
     assert.equal(game.go.occupation, null);
     // done_eating() returns every field of the victual to zero.
-    assert.deepEqual(game.context.victual, zero_victual());
+    assert.deepEqual(game.context.victual, zero_victual_info());
     // The fourth bite crossed 1500, so lesshungry() printed its nearly-full
     // warning and left gn.nomovemsg behind; done_eating() prints that instead
     // of "You finish eating the food ration." The warning left the top line
@@ -281,7 +281,7 @@ test('a finished meal uses one state for its food name and article',
         state.context = {
             ...structuredClone(game.context),
             victual: {
-                ...zero_victual(),
+                ...zero_victual_info(),
                 eating: 1,
                 o_id: mold.o_id,
                 piece: mold,
@@ -324,7 +324,7 @@ test('a second meal in the same segment runs to its end', async () => {
     // Two bites of 200/2 nutrition each, less gethungry()'s point on each of
     // the four turns between T:2 and T:6.
     assert.equal(game.u.uhunger, beforeHunger + 2 * 100 - 4);
-    assert.deepEqual(game.context.victual, zero_victual());
+    assert.deepEqual(game.context.victual, zero_victual_info());
 
     // Both meals, stopping before the closing wait so the second meal's own
     // messages are still on the top line. C's recording shows T:9 there.
@@ -339,7 +339,7 @@ test('a second meal in the same segment runs to its end', async () => {
         game._ttyToplines,
         'This pancake is delicious!  You finish eating the pancake.',
     );
-    assert.deepEqual(game.context.victual, zero_victual());
+    assert.deepEqual(game.context.victual, zero_victual_info());
     assert.equal(game.go.occupation, null);
     // Neither meal reaches 1500 nutrition, so lesshungry() never wrote
     // gn.nomovemsg and done_eating() took its "You finish eating" arm both
@@ -561,7 +561,7 @@ test('a meal that ends beside a monster plays its last turn through',
         // Stand in for the finishing turn: a callback that answers 0, and a
         // victual done_eating() has zeroed.
         game.go.occupation = () => 0;
-        game.context.victual = zero_victual();
+        game.context.victual = zero_victual_info();
         game.context.move = 0;
         await moveloop_core();
         assert.equal(game.go.occupation, null);
@@ -697,7 +697,7 @@ test('an interruption on the meal\'s last turn finishes it instead',
         assert.equal(game.go.occupation, null);
         // done_eating() zeroed the victual, so the food is gone rather than
         // partly eaten, and reset_eat() found nothing left to flag.
-        assert.deepEqual(game.context.victual, zero_victual());
+        assert.deepEqual(game.context.victual, zero_victual_info());
         assert.equal(slotFor(FOOD_RATION), null);
     });
 
@@ -742,7 +742,7 @@ test('an interrupted last bite refreshes the status line as C\'s bot() does',
         });
         assert.equal(game.u.uhs, SATIATED);
         assert.equal(game.go.occupation, null);
-        assert.deepEqual(game.context.victual, zero_victual());
+        assert.deepEqual(game.context.victual, zero_victual_info());
     });
 
 test('cant_finish_meal clears the matching corpse meal before stopping it',
@@ -764,7 +764,7 @@ test('cant_finish_meal clears the matching corpse meal before stopping it',
         assert.deepEqual(said, []);
 
         await cant_finish_meal(mealCorpse, game, env);
-        assert.deepEqual(game.context.victual, zero_victual());
+        assert.deepEqual(game.context.victual, zero_victual_info());
         assert.equal(mealCorpse.oeaten, 1,
             'revive must leave the corpse available until its own deletion');
         assert.equal(game.go.occupation, null);

@@ -61,7 +61,7 @@ export function dungeon_at(dnum, state = game) {
 // dunlev_reached(&u.uz) = ... in goto_level()); its setter writes the bytes
 // of total_photographed it overlays.
 function dungeon_before_table(state) {
-    const context = state.context ?? {};
+    const context = state.context;
     const SVC_START = 612;
     const view = new DataView(new ArrayBuffer(92));
     const novel = context.novel ?? {};
@@ -116,10 +116,8 @@ function dungeon_before_table(state) {
         },
         set dunlev_ureached(value) {
             view.setInt16(80, value, true);
-            context.lifelist ??= { total_seen_upclose: 0, total_photographed: 0 };
             context.lifelist.total_photographed
                 = Number(view.getBigInt64(688 - SVC_START, true));
-            state.context = context;
         },
         ledger_start: view.getInt32(84, true),
         depth_start: view.getInt32(88, true),

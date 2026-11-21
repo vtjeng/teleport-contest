@@ -133,6 +133,7 @@ import {
     setuhpmax,
     } from './attrib.js';
 import { ART_ORB_OF_DETECTION, retouch_equipment } from './artifacts.js';
+import { zero_victual_info } from './context.js';
 import {
     paranoid_query,
     set_occupation,
@@ -990,7 +991,7 @@ async function consume_tin(mesg, state = game, env = {}) {
 
         // C clears the previous victual before corpse effects can install a
         // new activity or remove the tin from its context.
-        state.context.victual = zero_victual();
+        state.context.victual = zero_victual_info();
         await message(
             `You consume ${TIN_VARIETIES[variety].name} ${monster.pmnames[NEUTRAL]}.`,
             state,
@@ -1427,29 +1428,13 @@ async function rottenfood(obj, state) {
 //     food_disappears() does the same when the object is deleted from under
 //     an unfinished meal.
 //
-// Nothing else writes it. C zeroes the whole of svc.context at startup; this
-// port builds state.context field by field, as js/obj.js clear_splitobjs()
-// already does for context.objsplit, so state.context.victual appears when
-// doeat() first needs it. Until then there is no meal, and food_disappears()
-// -- the one reader that can run before any meal -- reads the absent field as
-// the zeroed struct it stands for rather than creating one.
-export function zero_victual() {
-    return {
-        piece: null,
-        o_id: 0,
-        usedtime: 0,
-        reqtime: 0,
-        nmod: 0,
-        canchoke: 0,
-        fullwarn: 0,
-        eating: 0,
-        doreset: 0,
-    };
-}
-
+// Nothing else writes it. C zeroes the whole of svc.context at startup, and
+// js/jsmain.js creates state.context.victual from js/context.js
+// zero_victual_info(), the same zeroed struct that eat.c's `zero_victual`
+// copies in to end a meal.
 function victual(state) {
     state.context ??= {};
-    state.context.victual ??= zero_victual();
+    state.context.victual ??= zero_victual_info();
     return state.context.victual;
 }
 
@@ -1594,7 +1579,7 @@ export async function do_reset_eat(state = game, env = {}) {
 // caller and keeps the obj_stop_timers() half, where the timer hook resolves.
 export function food_disappears(obj, state = game) {
     if (obj === state.context?.victual?.piece)
-        state.context.victual = zero_victual();
+        state.context.victual = zero_victual_info();
 }
 
 // C ref: eat.c recalc_wt() (291-306).
@@ -1675,7 +1660,7 @@ export async function cant_finish_meal(corpse, state = game, env = {}) {
     if (state.go?.occupation !== eatfood
         || state.context?.victual?.piece !== corpse) return;
 
-    state.context.victual = zero_victual();
+    state.context.victual = zero_victual_info();
     if (!corpse.oeaten) corpse.oeaten = 1;
 
     const { donull } = await import('./cmd.js');
@@ -2215,7 +2200,7 @@ export async function cprefx(pm, state = game, env = {}) {
         if (piece && piece.otyp === CORPSE) {
             const { revive_corpse } = await import('./do.js');
             if (await revive_corpse(piece, state, env))
-                state.context.victual = zero_victual();
+                state.context.victual = zero_victual_info();
         }
         return;
     }
@@ -3461,7 +3446,7 @@ async function done_eating(message, state, env) {
     if (carried(piece)) await useup(piece, env);
     else await useupf(piece, 1, env);
 
-    state.context.victual = zero_victual();
+    state.context.victual = zero_victual_info();
 }
 
 // C ref: eat.c start_eating() (2020-2074). Takes the first bite and either ends
@@ -3989,7 +3974,7 @@ async function eatspecial(state, env) {
     await lesshungry(meal.nmod, state, env);
     if (state.program_state?.gameover) return;
     if (state.go) state.go.occupation = null;
-    state.context.victual = zero_victual();
+    state.context.victual = zero_victual_info();
 
     if (otmp.oclass === COIN_CLASS) {
         if (carried(otmp))
@@ -4350,7 +4335,7 @@ export async function doeat(state = game, env = {}) {
 
         if (tmp === 2) {
             /* used up */
-            state.context.victual = zero_victual();
+            state.context.victual = zero_victual_info();
             return ECMD_TIME;
         } else if (tmp) {
             dont_start = true;

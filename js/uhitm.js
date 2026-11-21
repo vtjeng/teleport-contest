@@ -2326,19 +2326,14 @@ export async function do_attack(monster, state = game, env = {}) {
 // protection for hostiles and, when requested, pets, then return do_attack()'s
 // boolean result to callers such as apply.c:use_whip().
 export async function force_attack(monster, pets_too, state = game, env = {}) {
-    const previous = state.context?.forcefight;
-    const owned = Object.hasOwn(state.context ?? {}, 'forcefight');
-    if (pets_too || !monster.mtame) {
-        state.context ??= {};
+    const save_Forcefight = state.context.forcefight;
+    /* always set forcefight On for hostiles and peacefuls, maybe for pets */
+    if (pets_too || !monster.mtame)
         state.context.forcefight = true;
-    }
     try {
         return await do_attack(monster, state, env);
     } finally {
-        if (state.context) {
-            if (owned) state.context.forcefight = previous;
-            else delete state.context.forcefight;
-        }
+        state.context.forcefight = save_Forcefight;
     }
 }
 

@@ -131,6 +131,7 @@ import {
     u_at,
     vision_clears,
 } from './const.js';
+import { zero_dig_info } from './context.js';
 import { isok } from './cmd_isok.js';
 import { stop_occupation } from './allmain.js';
 import { ballfall, placebc, unplacebc } from './ball.js';
@@ -2576,16 +2577,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
     if ((otyp === BOULDER || otyp === STATUE)
         && digging?.pos?.x === singleobj.ox
         && digging.pos.y === singleobj.oy) {
-        state.context.digging = {
-            effort: 0,
-            level: { dnum: 0, dlevel: 0 },
-            pos: { x: 0, y: 0 },
-            lastdigtime: 0,
-            down: false,
-            chew: false,
-            warned: false,
-            quiet: false,
-        };
+        state.context.digging = zero_dig_info();
     }
 
     let dist = distmin(x1, y1, x2, y2);

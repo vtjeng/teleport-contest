@@ -13,6 +13,15 @@ import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { CONTEXT_STRUCTS, zero_context_info } from '../js/context.js';
+import { parseSnapshot, serializeSnapshot } from '../js/snapshot.js';
+import {
+    jsFiles,
+    resolvePath,
+    scanFiles,
+    scanSource,
+} from './state-field-uses.mjs';
+
 const JS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'js');
 
 // Remove comments and string and template contents so that prose such as
@@ -86,71 +95,161 @@ test('no code under js/ keeps svc.context apart from state.context', () => {
     assert.deepEqual(svcSites(files), []);
 });
 
-// C zeroes the whole svc.context struct before a game starts, so a test such
-// as hack.c lookaround()'s `svc.context.run == 0` holds from the first turn.
-// This port creates state.context in js/jsmain.js with only the fields listed
-// there, and an absent field is not `=== 0`: until a command wrote
-// context.run, lookaround() treated every counted command as a run and
-// cancelled its count beside a square that stops one. A field compared with 0
-// or false must therefore be one the startup literal creates.
+// C zeroes the whole svc.context struct before a game starts, so a field no
+// code has written reads as 0, FALSE or NULL: hack.c lookaround()'s
+// `svc.context.run == 0` holds from the first turn, and spell.c's
+// `svc.context.forcefight++` around wakeup() makes it 1. The port once
+// created state.context with four fields and let the rest appear when first
+// written. An absent field read as `undefined`, which is not `=== 0`, not
+// `< 1` and NaN after `++`, so lookaround() cancelled the count of a counted
+// first command, and forcefight would have read as NaN, which is false.
+//
+// js/jsmain.js now creates the object from js/context.js
+// zero_context_info(), generated from include/context.h, so every field
+// exists with C's zero value. The tests below keep it that way: nothing may
+// replace the object or one of its structs with a partial one, test whether
+// a field exists, give a scalar field a non-zero default for when it is
+// absent, or use a field context.h does not declare.
 
-// The fields `g.context = { ... }` creates in js/jsmain.js.
-export function startupContextFields(jsmainSource) {
-    const literal = /\bg\.context = \{([^}]*)\};/u.exec(codeOnly(jsmainSource));
-    assert.ok(literal, 'js/jsmain.js creates g.context with an object literal');
-    return literal[1].split(',').map((entry) => entry.split(':')[0].trim())
-        .filter(Boolean);
+// Fields the port keeps on state.context that context.h does not declare,
+// with the number of uses the scan finds. pendingCommand (js/cmd.js
+// rhack()) holds a parsed command so that a keystroke refused partway can
+// be retried; it is created on demand and deleted when the command ends, and
+// jsmain.js deletes it after a restore. Lower a count when uses go away.
+const PORT_ONLY_FIELDS = { pendingCommand: 7 };
+
+function contextUses() {
+    return scanFiles(jsFiles(JS_DIR), 'context').map((use) => ({
+        ...use, ...resolvePath(use.path, CONTEXT_STRUCTS, 'context_info'),
+    }));
 }
 
-// `x.context.field === 0`, `!== false`, `== 0` and the optional-chained
-// forms. A comparison with any other value reads the same for 0 and absent.
-const ZERO_COMPARISON
-    = /\.context\??\.(\w+)\s*[!=]==?\s*(?:0|false)\b(?!\s*[.\w])/gu;
-
-export function zeroComparedContextFields(files) {
-    const sites = [];
-    for (const [name, source] of files) {
-        codeOnly(source).split('\n').forEach((line, index) => {
-            for (const match of line.matchAll(ZERO_COMPARISON))
-                sites.push({ site: `${name}:${index + 1}`, field: match[1] });
-        });
-    }
-    return sites;
+// Every [name, value] path of a zeroed struct, nested structs included.
+function leafPaths(value, prefix = '') {
+    return Object.entries(value).flatMap(([key, item]) => (
+        item && typeof item === 'object' && !Array.isArray(item)
+            ? leafPaths(item, `${prefix}${key}.`)
+            : [`${prefix}${key}`]));
 }
 
-test('the zero-comparison pattern catches each strict and loose form', () => {
-    // Lines 1-4 compare a field with 0 or false; line 5 compares with 1,
-    // line 6 with 0.5 and line 7 sits in a comment, and none of those counts.
+test('the scan follows aliases and classes each read form', () => {
+    // Each line exercises one form the scan must see and class.
     const sample = [
-        'if (state.context.run === 0) return;',
-        'if (state.context?.mv !== false) go();',
-        'if (g.context.travel == 0) stop();',
-        'const idle = state.context.nopick != false;',
-        'if (state.context.run === 1) rush();',
-        'if (state.context.scale === 0.5) halve();',
-        '// state.context.run === 0',
+        /* 1 */ 'function f(state) {',
+        /* 2 */ '    const context = state.context;',
+        /* 3 */ '    if (context.run === 0) return;',
+        /* 4 */ '    const { digging } = state.context;',
+        /* 5 */ '    if (digging.effort > 100) stop();',
+        /* 6 */ '    state.context.forcefight++;',
+        /* 7 */ '    const n = state.context.ident - 1;',
+        /* 8 */ '    if (!state.context?.travel) go();',
+        /* 9 */ '    const w = g.context.warnlevel ?? 1;',
+        /* 10 */ '    delete state.context.mv;',
+        /* 11 */ '    state.context.digging = { effort: 0 };',
+        /* 12 */ '    return meal(state).usedtime + 1;',
+        /* 13 */ '}',
+        /* 14 */ 'function meal(state) { return state.context.victual; }',
     ].join('\n');
+    const uses = scanSource('sample.js', sample)
+        .filter(({ cls }) => !cls.startsWith('flow-'))
+        .map(({ site, path, cls }) => `${site} ${path} ${cls}`);
+    assert.deepEqual(uses, [
+        'sample.js:3 run different-zero-compare',
+        'sample.js:5 digging.effort different-relational',
+        'sample.js:6 forcefight different-update',
+        'sample.js:7 ident different-arithmetic',
+        'sample.js:8 travel safe-truth',
+        'sample.js:9 warnlevel different-default',
+        'sample.js:10 mv different-presence',
+        'sample.js:11 digging write-object',
+        'sample.js:12 victual.usedtime different-arithmetic',
+    ]);
+});
+
+test('js/jsmain.js creates state.context from zero_context_info()', () => {
+    const uses = contextUses();
+    // hack.c lookaround()'s run test is the read this rule began with; a
+    // scan that stopped finding it would pass while checking nothing.
+    assert.ok(uses.some(({ site, path, cls }) => site.startsWith('hack.js:')
+        && path === 'run' && cls === 'different-zero-compare'));
+    const replacements = uses.filter(({ cls, detail }) => cls === 'write-holder'
+        && detail.startsWith('= '));
     assert.deepEqual(
-        zeroComparedContextFields([['sample.js', sample]])
-            .map(({ site, field }) => `${site} ${field}`),
-        ['sample.js:1 run', 'sample.js:2 mv', 'sample.js:3 travel',
-            'sample.js:4 nopick'],
+        replacements.map(({ site, detail }) => `${site.split(':')[0]} ${detail}`),
+        // restore.js restgamestate() installs the saved struct, which the
+        // same factory created before it was saved.
+        ['jsmain.js = zero_context_info()', 'restore.js = snapshot.context'],
     );
 });
 
-test('a context field compared with 0 or false exists from startup', () => {
-    const created = startupContextFields(
-        readFileSync(join(JS_DIR, 'jsmain.js'), 'utf8'));
-    // hack.c lookaround() is the site this rule was written for; a scan that
-    // stopped finding it would pass while checking nothing.
-    assert.ok(created.includes('run'), 'startup creates context.run');
-    const files = readdirSync(JS_DIR, { recursive: true })
-        .filter((name) => name.endsWith('.js'))
-        .map((name) => [name, readFileSync(join(JS_DIR, name), 'utf8')]);
-    const sites = zeroComparedContextFields(files);
-    assert.ok(sites.some(({ site, field }) =>
-        site.startsWith('hack.js:') && field === 'run'),
-    'the scan finds lookaround()\'s context.run === 0');
-    assert.deepEqual(
-        sites.filter(({ field }) => !created.includes(field)), []);
+test('the zeroed context has every field context.h declares', () => {
+    const zeroed = zero_context_info();
+    assert.equal(Object.keys(zeroed).length, CONTEXT_STRUCTS.context_info.length);
+    // C types the zero value of each struct member: run is unsigned, travel
+    // a boolean, victual.piece a pointer, digging.level an embedded d_level,
+    // and novel.pasg an xint8[30].
+    assert.equal(zeroed.run, 0);
+    assert.equal(zeroed.travel, false);
+    assert.equal(zeroed.victual.piece, null);
+    assert.deepEqual(zeroed.digging.level, { dnum: 0, dlevel: 0 });
+    assert.deepEqual(zeroed.novel.pasg, Array(30).fill(0));
+    // Each call builds new structs, so two games never share one.
+    assert.notEqual(zero_context_info().digging, zeroed.digging);
+});
+
+test('a saved context restores with every field', () => {
+    // save.js writes state.context through serializeSnapshot() and
+    // restore.js reads it back through parseSnapshot(); JSON drops a field
+    // holding undefined, so a restored game must not lose any zero field.
+    const restored = parseSnapshot(serializeSnapshot(zero_context_info()));
+    assert.deepEqual(leafPaths(restored), leafPaths(zero_context_info()));
+    assert.deepEqual(restored, zero_context_info());
+});
+
+test('every context field js/ names is declared in context.h', () => {
+    const counts = {};
+    for (const { field, ctype } of contextUses())
+        if (ctype === null) counts[field] = (counts[field] ?? 0) + 1;
+    assert.deepEqual(counts, PORT_ONLY_FIELDS);
+});
+
+test('no struct of state.context is replaced by a partial object', () => {
+    // C clears a struct with memset() or copies a whole one in; the port
+    // assigns the struct's zero_<struct>() or an object literal holding all
+    // of its fields. A literal that copies another struct with a spread,
+    // such as `{ ...u.uz }` for a d_level, holds them all too.
+    const partial = [];
+    for (const use of contextUses()) {
+        if (use.cls !== 'write-object' || !use.ctype?.startsWith('struct ')) continue;
+        const struct = use.ctype.slice('struct '.length);
+        const keys = use.detail.split(',');
+        if (keys.includes('...')) continue;
+        const fields = CONTEXT_STRUCTS[struct].map(([name]) => name);
+        if (keys.sort().join() !== fields.sort().join()) partial.push(`${use.site} ${use.path}`);
+    }
+    assert.deepEqual(partial, []);
+});
+
+test('no code tests whether a context.h field exists', () => {
+    // delete, typeof, `in` and Object.hasOwn() tell an absent field from a
+    // zero one, which C cannot do.
+    const sites = contextUses()
+        .filter(({ cls, ctype }) => cls === 'different-presence' && ctype !== null)
+        .map(({ site, path, detail }) => `${site} ${path} ${detail}`);
+    assert.deepEqual(sites, []);
+});
+
+test('no scalar context field has a non-zero default for when it is absent', () => {
+    // `state.context.warnlevel ?? 1` once stood in for newgame()'s
+    // `svc.context.warnlevel = 1`. A default on an integer or boolean only
+    // runs for a field that is absent, which C does not have; a default of
+    // 0 or false is the zero value and does no harm. A default on a struct,
+    // array or pointer, such as `?? {}`, is not checked here.
+    const scalar = (ctype) => ctype && !ctype.startsWith('struct ')
+        && !ctype.includes('*') && !ctype.includes('[');
+    const sites = contextUses()
+        .filter(({ cls, ctype, beyond }) => !beyond && scalar(ctype)
+            && (cls === 'different-default' || cls === 'assign-default'))
+        .map(({ site, path, detail }) => `${site} ${path} ?? ${detail}`);
+    assert.deepEqual(sites, []);
 });

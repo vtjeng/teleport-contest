@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { compareSessionOutputs, formatReport } from './diff-fresh.mjs';
-import { eatfood, zero_victual } from '../js/eat.js';
+import { zero_victual_info } from '../js/context.js';
+import { eatfood } from '../js/eat.js';
 import { OBJ_CONTAINED, OBJ_INVENT, OBJ_MINVENT, OBJ_BURIED, PIT, ROOM, ROT_CORPSE, REVIVE_MON,
     TIMER_OBJECT } from '../js/const.js';
 import { revive_corpse, revive_mon } from '../js/do.js';
@@ -43,7 +44,7 @@ test('revive stops an active meal before checking its locked corpse container',
         const body = await lockedCorpse();
         game.go.occupation = eatfood;
         game.go.occtxt = 'eating the troll corpse';
-        game.context.victual = { ...zero_victual(), piece: body };
+        game.context.victual = { ...zero_victual_info(), piece: body };
         const lines = [];
 
         assert.equal(await revive(body, false, {
@@ -51,7 +52,7 @@ test('revive stops an active meal before checking its locked corpse container',
             message: line => lines.push(line),
             statusRefresh: async () => {},
         }), null, 'the locked container still prevents revival');
-        assert.deepEqual(game.context.victual, zero_victual());
+        assert.deepEqual(game.context.victual, zero_victual_info());
         assert.equal(body.oeaten, 1);
         assert.equal(game.go.occupation, null);
         assert.deepEqual(lines, ['You stop eating the troll corpse.']);
@@ -170,7 +171,7 @@ for (const [name, expectedLine] of [
         if (name === 'b123-troll-wielded-timeout')
             assert.equal(game.uwep, null);
         if (name === 'b123-rider-eating-protected') {
-            assert.deepEqual(game.context.victual, zero_victual());
+            assert.deepEqual(game.context.victual, zero_victual_info());
             assert.equal(game.u.umortality, 1);
             assert.equal(Boolean(game.program_state.gameover), false);
             assert.equal(Boolean(game.go.occupation), false);

@@ -389,7 +389,7 @@ function isThenable(value) {
 
 function achievementTracking(state) {
     const tracking = state.context?.achieveo;
-    if (!tracking || typeof tracking !== 'object') {
+    if (!tracking) {
         throw new Error(
             'special-level achievement objects require initialized achieveo',
         );

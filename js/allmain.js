@@ -178,23 +178,16 @@ import {
 export async function newgame_pre_mklev(g = game) {
     g.disp ??= {};
     g.disp.botlx = true;
-    g.context ??= {};
+    // allmain.c newgame() 773-777. js/jsmain.js created g.context from
+    // zero_context_info(), so the rest of the struct, including the
+    // achievement_tracking prize ids that Mines' End and Sokoban End record,
+    // is already zero. tribute.tributesz (sizeof (struct tribute_info)) only
+    // lets a later save-file format skip the struct; no C or JavaScript code
+    // reads it, so the port leaves it at zero.
     g.context.ident = 2;
     g.context.warnlevel = 1;
     g.context.next_attrib_check = 600;
-    g.context.tribute = { enabled: true };
-    // C ref: context.h achievement_tracking.  Prize creation on Mines' End
-    // and Sokoban End records object identity here before floor stacking;
-    // actual achievements are awarded later when the hero picks the prize up.
-    g.context.achieveo = {
-        mines_prize_oid: 0,
-        soko_prize_oid: 0,
-        castle_prize_old: 0,
-        mines_prize_otyp: 0,
-        soko_prize_otyp: 0,
-        castle_prize_otyp: 0,
-        minetn_reached: false,
-    };
+    g.context.tribute.enabled = true;
     reset_mvitals(g);
     init_objects(g);
     g.flags.pantheon = -1;

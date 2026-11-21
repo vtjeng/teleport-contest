@@ -7,6 +7,7 @@
 // dig.c bury_an_obj() is ported in js/bury.js, which predates this file and
 // keeps its own name because it also holds zap.c obj_resists().
 
+import { zero_dig_info } from './context.js';
 import { rm_doormask } from './game.js';
 import {
     AM_MASK,
@@ -557,16 +558,7 @@ export async function digcheck_fail_message(
 }
 
 function resetDigging(digging) {
-    Object.assign(digging, {
-        down: false,
-        chew: false,
-        warned: false,
-        quiet: false,
-        pos: { x: 0, y: 0 },
-        level: { dnum: 0, dlevel: 0 },
-        effort: 0,
-        lastdigtime: 0,
-    });
+    Object.assign(digging, zero_dig_info());
 }
 
 // C ref: dig.c dig() (300-570). Both axes share the same occupation state;

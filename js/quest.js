@@ -138,7 +138,7 @@ export function leaddead(state = game) {
 // region.create_gas_cloud is async in this port; restore the C state after its
 // source effects and message have completed, including on a thrown error.
 export async function nemesis_stinks(mx, my, state = game, ops = {}) {
-    const context = state.context ?? (state.context = {});
+    const context = state.context;
     const saveMonMoving = context.mon_moving;
     context.mon_moving = true;
     try {

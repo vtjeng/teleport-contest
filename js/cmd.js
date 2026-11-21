@@ -11,6 +11,7 @@ import {
     updateRestOnSpaceModel,
     visibleCommandKey,
 } from './command_bindings.js';
+import { zero_dig_info } from './context.js';
 import { isok } from './cmd_isok.js';
 import { runPetRangedAttack } from './unported_monster_actions.js';
 import {
@@ -2694,7 +2695,7 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
         }
         maybe_reset_pick(null, state);
         if (on_level(state.context.digging?.level, state.u.uz))
-            state.context.digging = {};
+            state.context.digging = zero_dig_info();
         state.iflags ??= {};
         state.iflags.travelcc = { x: 0, y: 0 };
         state.context.polearm ??= {};

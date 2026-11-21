@@ -70,8 +70,8 @@ import {
     newuhs,
     nonrotting_food,
     obj_nutrition,
-    zero_victual,
 } from '../js/eat.js';
+import { zero_victual_info } from '../js/context.js';
 import { inv_cnt, rounddiv } from '../js/hack.js';
 import { useup } from '../js/invent.js';
 import {
@@ -273,7 +273,7 @@ test('consume_oeaten subtracts, shifts, and stops short of zero', () => {
     // does: nmod is -50 and oeaten is 50, with usedtime still 0.
     const apple = food(current, APPLE, { oeaten: 50 });
     current.context.victual = {
-        ...zero_victual(), piece: apple, reqtime: 1, usedtime: 0,
+        ...zero_victual_info(), piece: apple, reqtime: 1, usedtime: 0,
     };
     consume_oeaten(apple, -50, current);
     assert.equal(apple.oeaten, 1);
@@ -307,7 +307,7 @@ test('adj_victual_nutrition adjusts lembas and cram by race', () => {
         const current = state();
         current.urace = { mnum: race };
         current.context.victual = {
-            ...zero_victual(), piece: food(current, otyp), nmod: -nmod,
+            ...zero_victual_info(), piece: food(current, otyp), nmod: -nmod,
         };
         assert.equal(adj_victual_nutrition(current), expected,
             `otyp ${otyp} race ${race}`);
@@ -328,7 +328,7 @@ test('adj_victual_nutrition adjusts lembas and cram by race', () => {
         current.u.umonnum = form;
         current.youmonst = { data: current.mons[form] };
         current.context.victual = {
-            ...zero_victual(), piece: food(current, otyp), nmod: -nmod,
+            ...zero_victual_info(), piece: food(current, otyp), nmod: -nmod,
         };
         assert.equal(adj_victual_nutrition(current), expected,
             `otyp ${otyp} race ${race} form ${form}`);
@@ -338,7 +338,7 @@ test('adj_victual_nutrition adjusts lembas and cram by race', () => {
     // nmod reaches this function in play.
     const current = state();
     current.context.victual = {
-        ...zero_victual(), piece: food(current, APPLE), nmod: 0,
+        ...zero_victual_info(), piece: food(current, APPLE), nmod: 0,
     };
     game.unported = new Set();
     assert.equal(adj_victual_nutrition(current), 1);
@@ -560,7 +560,7 @@ test('food_disappears clears the whole meal only for the piece being eaten',
         const apple = food(current, APPLE);
         const other = food(current, APPLE);
         current.context.victual = {
-            ...zero_victual(),
+            ...zero_victual_info(),
             piece: apple,
             o_id: 7,
             reqtime: 1,
@@ -571,7 +571,7 @@ test('food_disappears clears the whole meal only for the piece being eaten',
         food_disappears(other, current);
         assert.equal(current.context.victual.piece, apple);
         food_disappears(apple, current);
-        assert.deepEqual(current.context.victual, zero_victual());
+        assert.deepEqual(current.context.victual, zero_victual_info());
 
         // Before the first meal there is no victual struct at all, and reading
         // one must not create it.
@@ -625,7 +625,7 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         const warned = state();
         warned.u.uhunger = 1499;
         warned.context.victual = {
-            ...zero_victual(), eating: 1, fullwarn: 1,
+            ...zero_victual_info(), eating: 1, fullwarn: 1,
         };
         const warnedSaid = [];
         await lesshungry(1, warned, newuhsEnv(warnedSaid));
@@ -635,7 +635,7 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         const unwarned = state();
         unwarned.u.uhunger = 1499;
         unwarned.context.victual = {
-            ...zero_victual(), eating: 1, fullwarn: 0,
+            ...zero_victual_info(), eating: 1, fullwarn: 0,
         };
         const unwarnedSaid = [];
         await lesshungry(1, unwarned, newuhsEnv(unwarnedSaid));
@@ -650,7 +650,7 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         const lastBite = state();
         lastBite.u.uhunger = 1499;
         lastBite.context.victual = {
-            ...zero_victual(),
+            ...zero_victual_info(),
             eating: 1, fullwarn: 0, canchoke: 1, reqtime: 5, usedtime: 4,
         };
         await lesshungry(1, lastBite, newuhsEnv());
@@ -672,7 +672,7 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         choking.u.uhunger = 1999;
         choking.force_save_hs = true;
         choking.context.victual = {
-            ...zero_victual(), eating: 1, canchoke: 1,
+            ...zero_victual_info(), eating: 1, canchoke: 1,
         };
         await lesshungry(1, choking, newuhsEnv());
         assert.equal(choking.context.victual.doreset, 1);
@@ -680,14 +680,14 @@ test('lesshungry adds nutrition and stops at the two overfull thresholds',
         const spared = state();
         spared.u.uhunger = 1999;
         spared.force_save_hs = true;
-        spared.context.victual = { ...zero_victual(), canchoke: 0 };
+        spared.context.victual = { ...zero_victual_info(), canchoke: 0 };
         await lesshungry(1, spared, newuhsEnv());
         assert.equal(spared.u.uhunger, 2000);
         // Outside a meal, C calls choke() even without canchoke; no meal reset
         // is scheduled on that source branch.
         const drinking = state();
         drinking.u.uhunger = 1999;
-        drinking.context.victual = { ...zero_victual(), canchoke: 0 };
+        drinking.context.victual = { ...zero_victual_info(), canchoke: 0 };
         await lesshungry(1, drinking, newuhsEnv());
         assert.equal(drinking.u.uhunger, 2000);
         assert.equal(drinking.context.victual.doreset, 0);
@@ -704,7 +704,7 @@ test('choke handles the satiated Hunger branch before resetting a meal',
         current.force_save_hs = true;
         const piece = food(current, FOOD_RATION);
         current.context.victual = {
-            ...zero_victual(), piece, eating: 1, canchoke: 1,
+            ...zero_victual_info(), piece, eating: 1, canchoke: 1,
         };
         // The completed vomit body reads the hero's terrain. An ordinary
         // room excludes altar wrath and acid melting from this hunger case.
@@ -801,7 +801,7 @@ test('a one-turn meal ends the same turn it starts', async () => {
     // amount.
     assert.equal(game.u.uhunger, beforeHunger + 48);
     // done_eating() returns every field of the meal to zero.
-    assert.deepEqual(game.context.victual, zero_victual());
+    assert.deepEqual(game.context.victual, zero_victual_info());
     // newuhs()'s saved status is put back before the meal is judged.
     assert.equal(game.saved_hs, false);
     assert.equal(game.save_hs, NOT_HUNGRY);

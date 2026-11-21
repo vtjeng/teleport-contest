@@ -1574,7 +1574,7 @@ function monsterWarnsHero(monster, state) {
     if (!monster || monster.mpeaceful || !Warning(state.u))
         return false;
     const warningLevel = Math.trunc((monster.m_lev ?? 0) / 4);
-    const threshold = Math.trunc(state.context?.warnlevel ?? 1);
+    const threshold = state.context.warnlevel;
     return dist2(
         monster.mx,
         monster.my,
