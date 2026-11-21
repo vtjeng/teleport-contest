@@ -17,7 +17,7 @@ import {
     SYM_BOULDER,
 } from './const.js';
 import { game } from './gstate.js';
-import { nomux_g_putch_byte } from './termcap.js';
+import { g_putch_graphics, nomux_g_putch_byte } from './termcap.js';
 import { isDefaultSymsetName } from './files.js';
 import {
     apply_customizations,
@@ -839,8 +839,7 @@ export function symbol_at(
     const high = (byte & 0x80) !== 0;
     const low = byte & 0x7F;
     const eightBit = Boolean(state.iflags?.wc_eight_bit_input);
-    const dec = high && handling !== H_IBM && handling !== H_UTF8
-        && !(eightBit && (handling !== H_DEC || low < 0x60));
+    const dec = g_putch_graphics(byte, handling, eightBit);
     // tty_print_glyph() prints the byte through g_putch(). A byte whose
     // capture nomux_putch() ignores -- a control byte, or a high byte whose
     // low seven bits are one, as AmigaFont's door bytes \x91-\x94 are --

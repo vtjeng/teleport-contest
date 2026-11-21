@@ -112,9 +112,8 @@ export function addtopl(text, state = game) {
     if (!display) return;
     const start = display.cursorCol ?? 0;
     let column = start;
-    // putsyms(s) prints the string's bytes. A NUL here is ttyByteText()'s
-    // marker for a byte the capture ignores (js/tty_message.js), which
-    // advances the cursor like any other uncaptured byte.
+    // putsyms(s) prints the string's bytes. One the capture ignores still
+    // advances the cursor.
     for (const byte of textBytes(text)) {
         if (column >= display.cols - 1) {
             // topl_putsym() advances the terminal cursor as it prints. Our

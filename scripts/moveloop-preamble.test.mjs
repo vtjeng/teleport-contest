@@ -361,9 +361,11 @@ test('high-bit top-line bytes stay nonbreaking until recorder projection', async
     );
     assert.equal(boundaries[0].rows[1], `${'B'.repeat(5)}--More--`);
     assert.deepEqual(boundaries[0].cursor, [13, 1]);
+    // The stored top line keeps the message's own two bytes; only the
+    // capture of the screen drops them (topl.c update_topl() copies bp).
     assert.equal(
         state._ttyToplines,
-        `${'a'.repeat(70)}\0\0${'B'.repeat(12)}`,
+        `${'a'.repeat(70)}${utf8Text('é')}${'B'.repeat(12)}`,
     );
     assert.equal(state._pending_message, '');
 });
@@ -407,7 +409,8 @@ test('short high-bit messages never write internal markers to the screen', async
         [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
         [0, 0],
     );
-    assert.equal(state._pending_message, 'A\0\0B');
+    // The pending message keeps the two bytes of é, not a marker.
+    assert.equal(state._pending_message, utf8Text('AéB'));
 });
 
 test('recorder-ignored top-line bytes preserve prior physical cells', async () => {

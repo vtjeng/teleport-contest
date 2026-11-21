@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "C ref: options.c initoptions_finish():7364 update_rest_on_space() and restore.c restgamestate():571, the reverse of rest-on-space-bound-by-rc-saved-flag-off. Segment 0 saves a Priest with rest_on_space on, where <space> rests. Segment 1 restores him under an rc that turns it off: the restored flags.rest_on_space is on, but <space> stays unbound and answers \"Unknown command ' '.\", and '&' has nothing to say about it. Seeds, clock, character and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 77301954,
+      "datetime": "20330826113000",
+      "nethackrc": "OPTIONS=name:Odalric,role:Priest,race:human,gender:male,align:neutral,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=time,rest_on_space\n",
+      "moves": "  3sSy"
+    },
+    {
+      "seed": 77301960,
+      "datetime": "20330827050500",
+      "nethackrc": "OPTIONS=name:Odalric,role:Priest,race:human,gender:male,align:neutral,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=time,!rest_on_space\n",
+      "moves": "  &  s"
+    }
+  ]
+}

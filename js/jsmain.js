@@ -92,8 +92,6 @@ import { udeadinside, ugenocided } from './polyself.js';
 import {
     cls,
     docrt,
-    bot,
-    flush_screen,
     newsym,
     status_initialize,
     reglyph_darkroom,
@@ -680,10 +678,14 @@ export class NethackGame {
             // vision_full_recalc = 1 requests; a separate vision_recalc(0)
             // here would draw each hallucinated monster an extra time on
             // the display RNG before docrt() redraws it.
+            // docrt() only sets disp.botlx. dorecover() calls neither
+            // flush_screen() nor bot() here, so the first status pass of a
+            // restored game is the one welcome()'s pline() reaches through
+            // flush_screen(). The count matters: every bot() toggles
+            // gn.now_or_before_idx (botl.c:973-974), and a status highlight
+            // compares a new percentage with the other bank's.
             await cls();
             await docrt();
-            await flush_screen(1);
-            await bot();
             clearTtyMessageWindow(g);
 
             // C ref: dorecover():948 welcome(FALSE). allmain.c:863-867

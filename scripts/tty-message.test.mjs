@@ -85,8 +85,11 @@ test('same-line append paints new bytes at the source cursor and preserves skipp
 
         await ttyPline(utf8Text('éX'), state);
 
-        assert.equal(state._pending_message, `base  \0\0X`);
-        assert.equal(state._ttyToplines, `base  \0\0X`);
+        // gt.toplines holds the two UTF-8 bytes of U+00E9 (0xC3 0xA9)
+        // themselves: process_text_window() later sends a history line's
+        // first byte through g_putch(), which needs the byte, not a stand-in.
+        assert.equal(state._pending_message, 'base  \xC3\xA9X');
+        assert.equal(state._ttyToplines, 'base  \xC3\xA9X');
         assert.equal(state.nhDisplay.grid[0][0].ch, '─');
         assert.equal(state.nhDisplay.grid[0][6].ch, 'L');
         assert.equal(state.nhDisplay.grid[0][6].color, 7);

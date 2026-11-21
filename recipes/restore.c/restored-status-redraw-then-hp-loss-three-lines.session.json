@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "C ref: restore.c dorecover():944-948 and botl.c bot_via_windowport():973-974, as restored-status-first-bot-is-welcome-pline, with a three-line status, an orcish Barbarian and a ^R redraw (one more bot() pass, so the other percentage bank) before the kick that costs hit points. Seeds, clock, character and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 66150238,
+      "datetime": "20400930221500",
+      "nethackrc": "OPTIONS=name:Grishnak,role:Barbarian,race:orc,gender:male,align:chaotic,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=time,showexp,color,statuslines:3,statushilites:4\nOPTIONS=hilite_status:hitpoints/down/yellow&bold/up/cyan\n",
+      "moves": "LJSy"
+    },
+    {
+      "seed": 66150244,
+      "datetime": "20401001101500",
+      "nethackrc": "OPTIONS=name:Grishnak,role:Barbarian,race:orc,gender:male,align:chaotic,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=time,showexp,color,statuslines:3,statushilites:4\nOPTIONS=hilite_status:hitpoints/down/yellow&bold/up/cyan\n",
+      "moves": " \u0012\u0004j:i\u001b2s"
+    }
+  ]
+}

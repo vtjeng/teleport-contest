@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "C ref: options.c:5425 update_rest_on_space() on an in-game toggle, initoptions_finish():7364 and restore.c restgamestate():571. Both segments use one rc that never mentions rest_on_space. Segment 0 turns the option on from #optionsfull, rests with <space>, and saves. Segment 1 restores: flags.rest_on_space is on in the save, but the new process bound <space> from the rc's default before the restore, so <space> is \"Unknown command ' '.\" until the option is toggled again. Seeds, clock, character and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 41288706,
+      "datetime": "20310407183000",
+      "nethackrc": "OPTIONS=name:Ludmila,role:Caveman,race:human,gender:female,align:neutral,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=time\n",
+      "moves": "\n#optionsfull\n>>>b\n  Sy"
+    },
+    {
+      "seed": 41288719,
+      "datetime": "20310408064500",
+      "nethackrc": "OPTIONS=name:Ludmila,role:Caveman,race:human,gender:female,align:neutral,!legacy,!tutorial,!autopickup,pettype:none\nOPTIONS=time\n",
+      "moves": "  s s"
+    }
+  ]
+}
