@@ -19,6 +19,8 @@ dispatch, and continuous-loop instructions below until Vincent changes it:
 - Push `integration-checkpoint/*` branches for hosted validation without
   asking. Publish a candidate to `main`, without force, once hosted
   Checkpoint passes on that exact commit.
+- Push `recorder/*` branches without asking. They are throwaway branches for
+  the macOS recorder workflow and start no Checkpoint run.
 - Never cherry-pick, copy, or depend on code from commits
   `736b8cd0424817ab9838e29b7ffb7e04228a354b..15ed31f2d2a765d68c8377f8360f4475d9476ac7`.
   Behavior those commits touched may be reimplemented from the C source.
@@ -137,6 +139,9 @@ A new branch or commit alone does not require renewed approval. This scope
 applies to `https://github.com/vtjeng/teleport-contest.git` only.
 Keep unaccepted candidates on
 `integration-checkpoint/*` branches; publish only accepted work to `main`.
+On 2026-11-20, Vincent authorized `recorder/*` branches as well: throwaway
+branches for the macOS recorder workflow, such as a changed workflow or
+extra recipes. They are never candidates and are not published to `main`.
 Do not force-push or delete refs. Existing validation and publication checks
 still apply.
 

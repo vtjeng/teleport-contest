@@ -502,6 +502,16 @@ runner with `nethack-c/build-recorder.sh`, records the 500 recipes in
 how those recipes were chosen. The workflow runs only when started by hand,
 from a branch that GitHub has seen, such as `main`.
 
+To record from a throwaway branch (e.g., for a changed workflow, or extra
+recipes), push it as `recorder/<name>`. This enables us to avoid the
+automatically created Checkpoint workflow on branches named
+`integration-checkpoint/<name>`.
+
+```sh
+git push -- https://github.com/vtjeng/teleport-contest.git HEAD:refs/heads/recorder/<name>
+gh workflow run macos-recorder.yml --ref recorder/<name>
+```
+
 1. Start the workflow and find its run:
 
    ```sh
