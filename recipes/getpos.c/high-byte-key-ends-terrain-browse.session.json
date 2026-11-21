@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 902344,
+      "datetime": "20140718093000",
+      "nethackrc": "OPTIONS=name:Maren,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=symset:DECgraphics\n",
+      "moves": " #terrain\na\n þ #terrain\naç s"
+    }
+  ],
+  "comment": "'#terrain' with 'known terrain only' calls detect.c browse_map(), which calls getpos() without force. The first prompt shows the getpos tip, dismissed by Enter and Space. 0xFE and 0xE7 equal the DECgraphics bytes for S_ice and S_tree; C compares the key as a negative int, so neither starts a feature search: each is an unknown direction that aborts the prompt with \"Done.\" and a --More--, which Space dismisses."
+}
