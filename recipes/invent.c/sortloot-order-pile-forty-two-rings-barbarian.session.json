@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c sortloot() and sortloot_cmp(): loot_classify() runs lazily inside the comparator and, when the hero can see, marks each object encountered (o_init.c observe_object()), so the order of discoveries within a class follows the order in which the C library's qsort() first compares the objects (nethack-c/patches/002-deterministic-qsort.patch). macOS and glibc call the comparator in different orders, so record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder; see docs/testing.md, \"The qsort() call order\". A blindfolded Barbarian wishes forty-two times for a ring, dropping them all on one square, takes the blindfold off, opens the pick-up menu (pickup.c query_objlist(), forty-two objects, where Apple's qsort() takes its pivot from nine samples) and pages through his discoveries.",
+  "segments": [
+    {
+      "seed": 566203,
+      "datetime": "20440517081500",
+      "nethackrc": "OPTIONS=name:Hrothgar,role:Barbarian,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "\u0017blindfold\nPe\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\nDAe\n\u001b\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\n\u0017ring\nDAe\n\u001bR,\u001b\\   "
+    }
+  ]
+}

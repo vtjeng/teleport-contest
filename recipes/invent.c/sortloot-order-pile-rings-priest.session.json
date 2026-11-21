@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c sortloot() and sortloot_cmp(): loot_classify() runs lazily inside the comparator and, when the hero can see, marks each object encountered (o_init.c observe_object()), so the order of discoveries within a class follows the order in which the C library's qsort() first compares the objects (nethack-c/patches/002-deterministic-qsort.patch). macOS and glibc call the comparator in different orders, so record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder; see docs/testing.md, \"The qsort() call order\". A blindfolded Priest wishes for five rings, drops them and then a clove of garlic on one square, takes the blindfold off, opens the pick-up menu (pickup.c query_objlist(), six objects) and reads his discoveries.",
+  "segments": [
+    {
+      "seed": 62030,
+      "datetime": "20300608120000",
+      "nethackrc": "OPTIONS=name:Anselm,role:Priest,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "\u0017blindfold\nPi\u0017ring of conflict\n\u0017ring of free action\n\u0017ring of slow digestion\n\u0017ring of warning\n\u0017ring of stealth\ndjdkdldmdndeR,\u001b\\ "
+    }
+  ]
+}

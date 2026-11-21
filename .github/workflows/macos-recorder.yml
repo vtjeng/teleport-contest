@@ -89,6 +89,25 @@ jobs:
           experiments/host-parity/record-sample.sh macos-recordings/regex 4
           $(cat experiments/host-parity/regex-oracle/recipes.txt)
 
+      # The patched NetHack sorts through hacklib.c nh_deterministic_qsort(),
+      # which calls the C library's qsort(). The sorted result is the same
+      # on every host, but the order of the comparator calls is the
+      # library's, and invent.c sortloot_cmp() marks objects encountered as
+      # it compares them, so the discoveries list follows that order
+      # (docs/testing.md, "The qsort() call order"). js/qsort.js ports
+      # macOS's qsort(). The oracle logs this host's comparator calls for
+      # every case in experiments/host-parity/qsort-oracle/; recipes.txt
+      # there lists the committed recipes whose discoveries depend on the
+      # call order, and their committed recordings come from this step.
+      - name: Ask the qsort oracle
+        if: always()
+        run: experiments/host-parity/qsort-oracle/run-oracle.sh macos-recordings/qsort-oracle
+      - name: Record the sort-order recipes
+        if: always()
+        run: >-
+          experiments/host-parity/record-sample.sh macos-recordings/sortloot 2
+          $(cat experiments/host-parity/qsort-oracle/recipes.txt)
+
       - name: Upload recordings
         if: always()
         uses: actions/upload-artifact@v7

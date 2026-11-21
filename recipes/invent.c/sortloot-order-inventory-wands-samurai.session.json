@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c learn_unseen_invent(): wands are created with dknown clear (mkobj.c clear_dknown()), so when the blindfold comes off they are observed in inventory order, before any sort runs. This game is the same on every host; it is a control for the other sortloot-order-* recipes. A blindfolded Samurai wishes for three wands, takes the blindfold off, lists her inventory (invent.c display_pickinv(), nine objects) and pages through her discoveries.",
+  "segments": [
+    {
+      "seed": 4417,
+      "datetime": "20291103221000",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\n",
+      "moves": "\u0017blindfold\nPf\u0017wand of digging\n\u0017wand of opening\n\u0017wand of locking\nRi\u001b\\    "
+    }
+  ]
+}
