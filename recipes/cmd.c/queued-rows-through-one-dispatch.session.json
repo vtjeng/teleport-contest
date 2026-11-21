@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 583124,
+      "datetime": "20320518073000",
+      "nethackrc": "OPTIONS=name:Lucinda,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "#herecmdmenu\ne#herecmdmenu\nd#herecmdmenu\nfiaizizx izQniz-icT #therecmdmenu\nj\u001b:i\u001b"
+    }
+  ],
+  "comment": "Commands that arrive from the command queue. #herecmdmenu queues dosearch(), donull() and dolook() (cmd.c act_on_act()); the inventory item menu queues doorganize(), doswapweapon(), dowieldquiver(), remarm_swapwep() and ia_dotakeoff() with the item's letter (iactions.c itemactions_pushkeys()); #therecmdmenu queues a move. cmd.c rhack() pops each node at 3642-3649 and jumps to do_cmdq_extcmd, where it calls the queued row's ef_funct like any other. The port picked the function for eight queued rows by name in arms of their own; every queued row now takes the one call a key takes. The seed, date and character were chosen for this recipe."
+}

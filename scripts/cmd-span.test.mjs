@@ -103,7 +103,8 @@ test('panic retains its source wizard row and typed/direct no-time dispatch', as
     assert.ok(DISPATCHED_COMMANDS.includes('panic'));
     const js = readFileSync('js/cmd.js', 'utf8');
     assert.match(js, /wiz_panic: \(key, state\) => wiz_panic\(state\),/u);
-    assert.match(js, /if \(command === 'panic'\)\s*\{[\s\S]*?await wiz_panic\(state\);\s*rhackResultTail\(ECMD_OK, state\);\s*return;/u);
+    // rhack() calls the row's function for the key and the queue alike.
+    assert.match(js, /callExtcmdFunction\(row, key, state\),\s*\);[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state, row\.ef_funct\);/u);
 });
 
 function moveState() {
@@ -427,7 +428,7 @@ test('wizard smell dispatch preserves the source row and no-time results', async
     assert.ok(DISPATCHED_COMMANDS.includes('wizsmell'));
     assert.match(jsSource, /wiz_smell: \(key, state\) => runSmellCommand\(key, state\),/u);
     assert.match(jsSource,
-        /if \(command === 'wizsmell'\)[\s\S]*?runSmellCommand\(key, state\);\s*rhackResultTail\(res, state\)/u);
+        /callExtcmdFunction\(row, key, state\),\s*\);[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state, row\.ef_funct\);/u);
     const wizardSource = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
     const start = wizardSource.indexOf('wiz_smell(void)');
     const smell = wizardSource.slice(start, wizardSource.indexOf('wiz_intrinsic(void)', start));
@@ -446,6 +447,7 @@ test('wizard kill dispatch admits the menu prefix and no-time configured key', a
     assert.ok(DISPATCHED_COMMANDS.includes('wizkill'));
     assert.match(js, /wiz_kill: \(key, state\) => runKillCommand\(key, state\),/u);
     // The selected command callback preserves C's ge.ext_tlist handoff to rhack.
-    assert.match(js, /command === '#' && \(!prefixSeen \|\| wasMPrefix\)\) \{[\s\S]*?doextcmd\(key, state, \(entry\) =>[\s\S]*?selectedEntry = entry;[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state\)/u);
-    assert.match(js, /if \(command === 'wizkill'\)[\s\S]*?runKillCommand\(key, state\)[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state\)/u);
+    assert.match(js, /tlist\?\.ef_funct === 'doextcmd'\s*&& \(!prefixSeen \|\| wasMPrefix\)\) \{[\s\S]*?doextcmd\(key, state, \(entry\) =>[\s\S]*?selectedEntry = entry;[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state\)/u);
+    // A configured key reaches the same table entry, and the same guard.
+    assert.match(js, /callExtcmdFunction\(row, key, state\),\s*\);[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state, row\.ef_funct\);/u);
 });

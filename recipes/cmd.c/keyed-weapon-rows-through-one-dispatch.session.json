@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 583121,
+      "datetime": "20320518064500",
+      "nethackrc": "OPTIONS=name:Ingrid,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "wb \u0001f\u001b\u001btal#throw\n\u001bA\u001b#takeoffall\n\u001bx#swap\n \u0001w-#wield\nb :i\u001b"
+    }
+  ],
+  "comment": "wield, fire, throw, takeoffall and swap by key and then by name, with ^A after `w` and after `#swap`. cmd.c reaches dowield(), dofire(), dothrow(), doddoremarm() and doswapweapon() through the same extcmdlist[] row either way: rhack() 3727 and 3752 for the key, doextcmd() 510 for the name. The port's keyed arms for fire, throw, wield and takeoffall were separate from the table the names used; both forms now make one call. The seed, date and character were chosen for this recipe."
+}

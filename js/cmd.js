@@ -3047,12 +3047,11 @@ async function failClosedCommand(key, state, run) {
 // Seven of the extcmdlist[] handlers this file owns follow, each reachable
 // both from the key bound to it and from the extended-command prompt:
 // ddoinv(), dovspell(), dodiscovered(), doattributes(), dolook(), dosearch()
-// and doeat(). Two more have no wrapper: donull(), which doextcmd() and
-// rhack() call directly because it formats nothing that can fail closed, and
-// steed.c doride(), which only the prompt reaches. The first five wrappers
-// return whether the command took time, which its two callers turn into
-// rhack()'s ECMD_TIME; dosearch() and doeat() return the ECMD_* result itself,
-// as doride() does.
+// and doeat(). Two more have no wrapper: donull(), which formats nothing
+// that can fail closed, and steed.c doride(). The first five wrappers return
+// whether the command took time, which their EXTCMD_FUNCTIONS entries turn
+// into ECMD_TIME; dosearch() and doeat() return the ECMD_* result itself, as
+// doride() does.
 //
 // Each wrapper routes its handler through failClosedCommand(), and what that
 // preserves differs by caller. Reached from the single key bound to the
@@ -3433,8 +3432,8 @@ async function runLevelChangeCommand(key, state) {
 }
 
 // C ref: wizcmds.c wiz_wish(). Both of its arms end `return ECMD_OK`, so the
-// result never varies. doextcmd() hands it back anyway, the way it does for
-// every other ECMD_* handler; rhack()'s arm drops it, and says why.
+// result never varies. doextcmd() and rhack() hand it back anyway, the way
+// they do for every other ECMD_* handler.
 async function runWishCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_wish(state));
 }
@@ -4985,7 +4984,7 @@ const EXTCMD_FUNCTIONS = new Map(Object.entries({
     do_fight: (key, state) => do_fight(state),
     dobugreport: (key, state) => dobugreport(state),
     do_reqmenu: (key, state) => do_reqmenu(state),
-    doclose: (key, state) => doclose(state),
+    doclose: (key, state) => runCloseCommand(key, state),
     dofire: (key, state) => dofire(state),
     dothrow: (key, state) => dothrow(state),
     dowield: (key, state) => dowield(state),
@@ -5236,6 +5235,11 @@ const EXTCMD_FUNCTIONS = new Map(Object.entries({
     // C ref: cmd.c doextlist(), bound to M-? and reachable from a BIND
     // option; it returns ECMD_OK. doextcmd() runs it itself for `#?`.
     doextlist: (key, state) => doextlist(state),
+    // C ref: cmd.c:2060-2061, the INTERNALCMD | MOUSECMD rows "clicklook" and
+    // "mouseaction". Only a queued row reaches them: they have no key and
+    // extcmds_match() hides them from the `#` prompt.
+    doclicklook: (key, state) => doclicklook(state),
+    domouseaction: (key, state) => domouseaction(state),
     // C ref: cmd.c:2064-2065, the INTERNALCMD rows "alttakeoff" and
     // "altunwield". extcmds_match() hides INTERNALCMD rows from the `#`
     // prompt, so only iactions.c's itemactions_pushkeys() reaches them, by
@@ -5257,9 +5261,9 @@ export const DISPATCHED_COMMANDS = Object.freeze(
 );
 
 // C ref: the `(*func)()` call in rhack() and doextcmd(), for one extcmdlist[]
-// row. EXTCMD_FUNCTIONS holds every row but '#' and the two MOUSECMD rows,
-// which rhack() runs itself; scripts/command-dispatch-tables.test.mjs pins
-// that.
+// row. EXTCMD_FUNCTIONS holds every row but '#', whose doextcmd() rhack()
+// runs itself; scripts/command-dispatch-tables.test.mjs pins that, and that
+// this is the only reader of the table.
 async function callExtcmdFunction(entry, key, state) {
     return await EXTCMD_FUNCTIONS.get(entry.ef_funct)(key, state);
 }
@@ -5311,8 +5315,9 @@ async function doextcmd(key, state, onSelectedEntry = null) {
 // appears.
 const TIMED_OCCUPATION_FUNCTIONS = Object.freeze({ dosearch, donull });
 
-// C ref: cmd.c rhack(). Every bound row is dispatched here, through the arm
-// that names it or through EXTCMD_FUNCTIONS. On a fresh read parse() always
+// C ref: cmd.c rhack(). Every row is dispatched here through
+// EXTCMD_FUNCTIONS, whether a key, the command queue or the '#' prompt named
+// it. On a fresh read parse() always
 // runs to completion first, so a refusal raised by the command comes only
 // after get_count() has consumed and echoed its digits and parse()'s closing
 // clear_nhwindow(WIN_MESSAGE) has cleared the row: it happens at the command
@@ -5352,10 +5357,8 @@ export async function rhack(key, state = game) {
         // newLogicalCommand.
         const queued = cmdq_pop(state);
         let cmdqCommand = null;
-        let queuedExtcmdEntry = null;
         if (queued) {
             if (queued.typ === CMDQ_EXTCMD && queued.ec_entry) {
-                queuedExtcmdEntry = queued.ec_entry;
                 cmdqCommand = queued.ec_entry.ef_txt
                     ?? queued.ec_entry.ef_funct;
             } else {
@@ -5424,14 +5427,12 @@ export async function rhack(key, state = game) {
         let prefixSeen = null;
         let wasMPrefix = false;
         for (;;) {
-            if (command === 'reqmenu' || command === 'fight'
-                || command === 'rush' || command === 'run') {
+            // `tlist`, the row of the command in hand: C tests the row's
+            // flags and function, never its name.
+            const tlist = EXTCMD_BY_NAME.get(command);
+            if (tlist && (tlist.flags & PREFIXCMD)) {
                 recordRepeatCommand(command, Boolean(prefixSeen), state);
-                let res;
-                if (command === 'reqmenu') res = await do_reqmenu(state);
-                else if (command === 'fight') res = await do_fight(state);
-                else if (command === 'rush') res = await do_rush(state);
-                else res = await do_run(state);
+                const res = await callExtcmdFunction(tlist, key, state);
                 // 3764-3767. A prefix pressed twice cancels the whole
                 // command.
                 if (res & ECMD_CANCEL) {
@@ -5442,8 +5443,9 @@ export async function rhack(key, state = game) {
                 // 3771-3772. was_m_prefix latches on do_reqmenu() and is
                 // never cleared, so `Fm` and `mF` both leave the
                 // CMD_M_PREFIX rule in force for the command that follows.
-                if (command === 'reqmenu') wasMPrefix = true;
-            } else if (command === '#' && (!prefixSeen || wasMPrefix)) {
+                if (tlist.ef_funct === 'do_reqmenu') wasMPrefix = true;
+            } else if (tlist?.ef_funct === 'doextcmd'
+                && (!prefixSeen || wasMPrefix)) {
                 // The '#' row carries CMD_M_PREFIX and not CMD_gGF_PREFIX
                 // (cmd.c:1670-1671), so 3693-3695 lets it through after no
                 // prefix or after one that latched was_m_prefix; any other
@@ -5479,8 +5481,7 @@ export async function rhack(key, state = game) {
                     cmdq_add_ec(CQ_REPEAT, selectedEntry, state);
                     cmdq_shift(CQ_REPEAT, state);
                 }
-                if (selectedEntry
-                    && Object.hasOwn(MOVEMENT_INTENTS, selectedEntry.ef_txt)) {
+                if (selectedEntry && (selectedEntry.flags & MOVEMENTCMD)) {
                     // C ref: rhack():3773-3800 with `tlist` the named
                     // MOVEMENTCMD row. doextcmd() has only run the row's
                     // do_move_*(), do_run_*() or do_rush_*() function, which
@@ -5519,16 +5520,13 @@ export async function rhack(key, state = game) {
             if (queuedAfterPrefix) {
                 if (queuedAfterPrefix.typ === CMDQ_EXTCMD
                     && queuedAfterPrefix.ec_entry) {
-                    queuedExtcmdEntry = queuedAfterPrefix.ec_entry;
                     commandAfterPrefix = queuedAfterPrefix.ec_entry.ef_txt
                         ?? queuedAfterPrefix.ec_entry.ef_funct;
                 } else {
-                    queuedExtcmdEntry = null;
                     key = queuedAfterPrefix.typ === CMDQ_KEY
                         ? queuedAfterPrefix.key : 0;
                 }
             } else {
-                queuedExtcmdEntry = null;
                 key = await parseCommand(state);
                 if (firstTime) {
                     state.context.pendingCommand =
@@ -5602,770 +5600,44 @@ export async function rhack(key, state = game) {
         // sanity_check() in case it produces output that would interfere
         // with them: the CMD_INSANE rows, ^P (prevmsg) and ^R (redraw).
         if (row && (row.flags & CMD_INSANE)) skip_next_sanity_check(state);
-        // C ref: iactions.c itemactions_pushkeys() queues do_reqmenu, dotip,
-        // and the chosen inventory letter. cmd.c's queued-extcmd path invokes
-        // the queued function pointer directly; the item-action route must
-        // therefore dispatch dotip() here instead of treating its ef_txt
-        // ("tip") as a key-bound command name.
-        if (queuedExtcmdEntry?.ef_funct === 'dotip') {
-            const res = await failClosedCommand(
-                key, state, () => dotip(state),
-            );
-            rhackResultTail(res, state);
-            return;
-        }
-        // C ref: cmd.c act_on_act() queues dosit's function pointer for
-        // MCMD_SIT, and rhack() dispatches that pointer before reading another
-        // key. The queued row's ef_txt is "sit"; this arm dispatches it by its
-        // source function ahead of the command-name arms below.
-        if (queuedExtcmdEntry?.ef_funct === 'dosit') {
-            const res = await dosit(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        // C ref: cmd.c act_on_act() queues dosacrifice() for MCMD_OFFER, then
-        // rhack() dispatches the queued function pointer and applies the same
-        // ECMD reset/time tail as a directly selected extended command.
-        if (queuedExtcmdEntry?.ef_funct === 'dosacrifice') {
-            const res = await dosacrifice(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        // C ref: cmd.c do_repeat() requeues the selected #pray row; rhack()
-        // invokes its function pointer just as doextcmd() does.
-        if (queuedExtcmdEntry?.ef_funct === 'dopray') {
-            const res = await dopray(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        // C ref: pickup.c:2144 queues lock.c:doforce() as a function
-        // pointer. rhack() dispatches that row directly before reading a key.
-        if (queuedExtcmdEntry?.ef_funct === 'doforce') {
-            const res = await doforce(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        // C ref: iactions.c itemactions_pushkeys() queues the doorganize
-        // function pointer for IA_ADJUST_OBJ. Its ef_txt is "adjust", which
-        // remains the command spelling used by can_do_extcmd(), but rhack()
-        // invokes the queued ef_funct directly after that check.
-        if (queuedExtcmdEntry?.ef_funct === 'doorganize') {
-            const res = await failClosedCommand(
-                key, state, () => doorganize(state),
-            );
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'prevmsg') {
-            const res = await doprev_message(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        // C ref: iactions.c itemactions_pushkeys() queues adjust_split's
-        // function pointer for IA_ADJUST_STACK, and cmd.c rhack() invokes that
-        // pointer before getobj() consumes the following inventory letter.
-        if (queuedExtcmdEntry?.ef_funct === 'adjust_split') {
-            const res = await failClosedCommand(
-                key, state, () => adjust_split(state),
-            );
-            rhackResultTail(res, state);
-            return;
-        }
-        // C end.c fuzzer_savelife() queues this function after repeated
-        // debug deaths; rhack invokes the queued row without another prompt.
-        if (queuedExtcmdEntry?.ef_funct === 'wiz_makemap') {
-            const res = await wiz_makemap(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'call' || command === 'name') {
-            // C ref: cmd.c's 'C' row (1687-1688) and M('n') row
-            // (1773-1774) both call do_name.c docallcmd(). The command
-            // returns ECMD_OK at do_name.c:600; rhack():3810-3818 therefore
-            // resets command variables without advancing a turn.
-            const res = await docallcmd(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        // Queued rows carry their display name in `command`; C dispatches
-        // the row's function pointer, so use ef_funct for this internal arm.
-        const queuedClickHandler = queuedExtcmdEntry?.ef_funct;
-        if (command === 'doclicklook' || command === 'domouseaction'
-            || queuedClickHandler === 'doclicklook'
-            || queuedClickHandler === 'domouseaction') {
-            const result = (queuedClickHandler ?? command) === 'doclicklook'
-                ? await doclicklook(state) : await domouseaction(state);
-            rhackResultTail(result, state);
-            return;
-        }
-        if (command === 'versionshort') {
-            // C ref: rhack() dispatches cmd.c's V row to version.c:doversion().
-            const res = await doversion(state, {
-                pline: ttyPline,
-                displayTextWindow: displayTtyTextWindow,
-                random: rn2,
-            });
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'wait') {
-            // C ref: rhack():3810-3825, the result tail for donull()'s
-            // ECMD_OK or ECMD_TIME.
-            rhackResultTail(await donull(state), state);
-            return;
-        }
-        if (command === 'repeat') {
-            // C ref: do_repeat() returns its nested rhack() result to the
-            // ordinary ECMD result arm; the retained CQ_REPEAT copy is
-            // restored inside do_repeat() before this branch runs.
-            const res = await do_repeat(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'search') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#' arm above applies. dosearch() answers
-            // ECMD_TIME for a search that ran and ECMD_OK when
-            // cmd_safety_prevention() stopped it, so the cancel test in
-            // rhackResultTail() is unreachable from this handler today.
-            const res = await runSearchCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'redraw') {
-            // display.c doredraw() returns ECMD_OK; redraw takes no time.
-            await doredraw();
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'terrain') {
-            // C ref: cmd.c rhack()'s result handling at 3810-3818. doterrain()
-            // is a no-time command; terrain browsing restores the live map
-            // before the ordinary no-time result tail resets command state.
-            const res = await runTerrainCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'travel') {
-            // C ref: cmd.c dotravel() and dotravel_target(). The target
-            // selection and cached destination state are ported here; the
-            // call into hack.c findtravelpath() is the next boundary.
-            const res = await dotravel(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'eat') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#' and `search` arms apply. doeat() answers
-            // ECMD_OK for every refusal this slice covers, so only the middle
-            // test fires today.
-            const res = await runEatCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'engrave') {
-            const res = await runEngraveCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'help') {
-            await runHelpCommand(key, state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'whatdoes') {
-            await dowhatdoes(state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'whatis') {
-            await runWhatisCommand(key, state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'showtrap') {
-            // C rhack3810-3825: cancellation resets normally; a successful
-            // description is ECMD_OK and never spends a turn.
-            rhackResultTail(await doidtrap(state), state);
-            return;
-        }
-        if (command === 'glance') {
-            await runGlanceCommand(key, state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'apply') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search` and `eat` arms apply. doapply()
-            // reaches all three: ECMD_CANCEL for a cancelled object or
-            // direction prompt, ECMD_OK for the free first listen of a move
-            // and for the three use_stethoscope() guards, and ECMD_TIME for a
-            // second listen in the same move.
-            const res = await runApplyCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'rub') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818. The
-            // ordinary unwielded-lamp arm answers ECMD_TIME after queueing
-            // this same command and the lamp letter, so this direct handler
-            // must preserve CQ_CANNED while marking the elapsed turn.
-            const res = await runRubCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'close') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search`, `eat` and `apply` arms apply.
-            // doclose() reaches all three: ECMD_CANCEL for a cancelled
-            // direction prompt, ECMD_OK for the nohands/pit refusals, and
-            // ECMD_TIME for every path past the direction prompt (including
-            // the self-square refusal and the close roll). The MOVEMENTCMD
-            // and domove_attempting tests at 3773-3800 cannot divert it,
-            // because cmd.c:1545's "close" row carries no flags at all.
-            const res = await runCloseCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'open') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search`, `eat`, `apply` and `close` arms
-            // apply. doopen() reaches ECMD_OK for the nohands refusal, a
-            // cancelled direction prompt, and the pit refusal, and ECMD_TIME
-            // for every path past the mimic/Confusion/Stunned checks. The
-            // u_at delegation to doloot() answers doloot()'s own result. The
-            // MOVEMENTCMD and domove_attempting tests at 3773-3800 cannot
-            // divert it, because cmd.c:1785's "open" row carries no flags.
-            const res = await runOpenCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'zap') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search`, `eat` and `apply` arms apply.
-            // dozap() reaches all three: ECMD_OK for nohands() and
-            // check_capacity(), ECMD_CANCEL for an escaped object prompt, and
-            // ECMD_TIME for every arm past it. The MOVEMENTCMD and
-            // domove_attempting tests at 3773-3800 cannot divert it, because
-            // cmd.c:2004's "zap" row carries no flags at all -- which is also
-            // why an 'm' or 'F' prefix is refused ahead of this arm.
-            const res = await runZapCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'cast') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search`, `eat` and `zap` arms apply.
-            // docast() reaches ECMD_FAIL whenever getspell() answers false:
-            // an empty spellbook, rejectcasting(), an invalid queued key, or
-            // a cancelled spell menu. A cast attempt answers ECMD_TIME.
-            // cmd.c:1689's
-            // "cast" row carries only IFBURIED -- no prefix flags at all --
-            // so an 'm' or 'F' prefix is refused ahead of this arm.
-            const res = await runCastCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'quaff') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search`, `eat` and `zap` arms apply.
-            // dodrink() reaches all three: ECMD_OK for the strangled refusal,
-            // ECMD_CANCEL for an escaped object prompt, and ECMD_TIME for the
-            // quaff that happens. cmd.c:1809's "quaff" row carries
-            // CMD_M_PREFIX, so an 'm' prefix sets iflags.menu_requested and
-            // skips the fountain/sink/underwater prompts.
-            const res = await runQuaffCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'read') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818. The read
-            // row at cmd.c:1816 carries no flags, so prefix and movement arms
-            // cannot divert it. doread() answers ECMD_OK for an overloaded
-            // hero and ECMD_CANCEL when getobj() is escaped; a selected object
-            // remains fail-closed before it changes state.
-            const res = await runReadCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'down') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search` and `eat` arms apply. The
-            // MOVEMENTCMD and domove_attempting tests above them at 3773-3800
-            // cannot divert this command: extcmdlist[]'s "down" row carries
-            // CMD_M_PREFIX alone, and set_move_cmd(DIR_DOWN, 0) leaves
-            // domove_attempting at 0 because zdir[DIR_DOWN] is nonzero.
-            //
-            // dodown() answers ECMD_OK for the refusal this slice covers and
-            // ECMD_TIME for u_rooted().
-            const res = await runDownCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'up') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search`, `eat` and `down` arms apply. The
-            // MOVEMENTCMD and domove_attempting tests above them at 3773-3800
-            // cannot divert this command: extcmdlist[]'s "up" row carries
-            // CMD_M_PREFIX alone, and set_move_cmd(DIR_UP, 0) leaves
-            // domove_attempting at 0 because zdir[DIR_UP] is nonzero.
-            //
-            // doup() answers ECMD_OK for "can't go up here" and the pet
-            // holdback, ECMD_TIME for u_rooted/u_stuck_cannot_go/overloaded
-            // and for the successful ascent.
-            const res = await runUpCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'droptype') {
-            // C ref: cmd.c rhack() result handling (3810-3818). D and
-            // #droptype share doddrop's no-time/time result.
-            const res = await failClosedCommand(key, state, () => doddrop(state));
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'drop') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search`, `eat`, `apply`, `down` and
-            // `takeoff` arms apply. dodrop() answers ECMD_FAIL when the
-            // getobj() prompt is escaped or the object cannot be let go, and
-            // ECMD_TIME for the object that lands; the ECMD_CANCEL half of the
-            // first test cannot fire, because drop() has no ECMD_CANCEL arm.
-            // The MOVEMENTCMD and domove_attempting tests at 3773-3800 cannot
-            // divert it either, because cmd.c:1708's "drop" row carries no
-            // flags at all.
-            const res = await runDropCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'pickup') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search`, `eat`, `apply`, `down`, `drop`
-            // and `takeoff` arms apply. dopickup() answers ECMD_OK when
-            // pickup_checks() refuses the square, which spends no turn, and
-            // ECMD_TIME when pickup() answers 1 because it selected at least
-            // one object, which is n_tried > 0 in js/pickup.js pickup(). The
-            // ECMD_TIME test in rhackResultTail() is what spends that turn.
-            // The MOVEMENTCMD and domove_attempting tests at
-            // 3773-3800 cannot divert this command either, because
-            // cmd.c:1799's "pickup" row carries CMD_M_PREFIX and no movement
-            // flag; that same flag is what lets `m,` through the prefix test
-            // at 3693-3695 with iflags.menu_requested still set.
-            const res = await runPickupCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'pay') {
-            // cmd.c rhack:3810-3818 applies dopay's ECMD result equally to
-            // its p binding, #pay and the source's m-prefix inversion.
-            const res = await failClosedCommand(key, state, () => dopay(state));
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'takeoffall') {
-            const res = await failClosedCommand(key, state, () => doddoremarm(state));
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'takeoff') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the '#', `search`, `eat`, `apply` and `down` arms
-            // apply. dotakeoff() reaches all three: ECMD_CANCEL when the
-            // getobj() prompt is escaped, ECMD_OK for a bare pack, for an
-            // item that is not worn and for a cursed one, and ECMD_TIME for
-            // the piece that comes off. The MOVEMENTCMD and
-            // domove_attempting tests at 3773-3800 cannot divert it, because
-            // cmd.c:1886's "takeoff" row carries no flags at all.
-            const res = await runTakeOffCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'remove') {
-            // cmd.c:1821 binds 'R' to doremring(), whose getobj prompt can be
-            // cancelled, whose guards return ECMD_OK, and whose successful
-            // removal returns ECMD_TIME. The row carries no flags, so its
-            // result reaches rhack()'s ordinary result handling directly.
-            const res = await runRemoveCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'wear') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the `takeoff` arm above applies. dowear() reaches
-            // all three: ECMD_CANCEL when the getobj() prompt is escaped,
-            // ECMD_OK for a form that cannot wear armor, for a hero already
-            // wearing everything and for every canwearobj() refusal, and
-            // ECMD_TIME for the piece that goes on. The MOVEMENTCMD and
-            // domove_attempting tests at 3773-3800 cannot divert it, because
-            // cmd.c:1932's "wear" row carries no flags at all.
-            const res = await runWearCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'puton') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the `wear` arm above applies. doputon() reaches
-            // all three: ECMD_CANCEL when the getobj() prompt is escaped,
-            // ECMD_OK for a hero already wearing all accessories and for
-            // each accessory_or_armor_on() refusal, and ECMD_TIME for a
-            // ring that goes on. cmd.c:1821's "puton" row carries no flags.
-            const res = await runPutonCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'fire') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the arms above apply. dofire() reaches all three:
-            // ECMD_CANCEL when throw_obj() is given no direction, ECMD_OK for
-            // an empty quiver and for the swap-and-retry arm that queues its
-            // own continuation, and ECMD_TIME for the shot itself. The
-            // ECMD_OK arm is why the reset below must be told not to clear
-            // the queue -- it is the one that leaves [doswapweapon, dofire]
-            // standing for the next two rhack() calls. That arm returns
-            // ECMD_TIME instead when doquiver_core() unwielded the stack it
-            // readied, and the queued commands then wait for the turn.
-            //
-            // extcmdlist[]'s "fire" row carries no flags at all, so neither
-            // the prefix test at 3693-3695 nor the MOVEMENTCMD and
-            // domove_attempting tests at 3773-3800 can divert it.
-            const res = await failClosedCommand(
-                key, state, () => dofire(state),
-            );
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'throw') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the `fire` arm above applies. dothrow() reaches all
-            // three: ECMD_CANCEL when the object prompt is escaped, ECMD_OK
-            // for each of ok_to_throw()'s three refusals and for the throws
-            // throw_obj() answers with a message, and ECMD_TIME for the throw
-            // itself. Nothing here queues a continuation, so the ECMD_OK arm
-            // has no queue to preserve -- but it is spelled the same way as
-            // `fire`'s, because both read rhack()'s one test.
-            //
-            // extcmdlist[]'s "throw" row (cmd.c:1901) carries no flags at
-            // all, so neither the prefix test at 3693-3695 nor the
-            // MOVEMENTCMD and domove_attempting tests at 3773-3800 can divert
-            // it.
-            const res = await failClosedCommand(
-                key, state, () => dothrow(state),
-            );
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'wield') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3825. dowield()
-            // answers ECMD_CANCEL when the object prompt is escaped,
-            // ECMD_FAIL for "already wielding" or "cannot wield", and
-            // ECMD_TIME for the wield that happens. cmd.c:1921's "wield"
-            // row carries no flags at all, so neither the prefix test at
-            // 3693-3695 nor the MOVEMENTCMD and domove_attempting tests at
-            // 3773-3800 can divert it.
-            const res = await failClosedCommand(
-                key, state, () => dowield(state),
-            );
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'quiver') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3825.
-            // doquiver_core() answers ECMD_CANCEL for a cancelled prompt and
-            // ECMD_OK when the queued '-' clears the quiver. Quiver changes
-            // consume no time unless a later ordinary-item branch unwields a
-            // weapon, so this slice reaches only the cost-free result.
-            const res = await failClosedCommand(
-                key, state, () => dowieldquiver(state),
-            );
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'swap') {
-            // C ref: rhack()'s result handling, the same three tests. Both of
-            // doswapweapon()'s guards answer ECMD_FAIL, and ready_weapon()
-            // supplies the rest: ECMD_TIME for the swap that happens and
-            // ECMD_OK only when both slots were already empty. cmd.c:1917's
-            // "swap" row carries no flags either.
-            const res = await failClosedCommand(
-                key, state, () => doswapweapon(state),
-            );
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'kick') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3825. dokick()
-            // answers ECMD_CANCEL for a direction prompt that named nothing
-            // and ECMD_TIME for the kick that lands; its ECMD_FAIL belongs to
-            // the source-ordered no-kick guard chain. cmd.c:1748's "kick" row
-            // carries no flags at all, so neither the prefix test at
-            // 3693-3695 nor the MOVEMENTCMD and domove_attempting tests at
-            // 3773-3800 can divert it.
-            //
-            // This is the one arm that names its function to the tail: the
-            // key bound to kick makes rhack()'s `func` dokick() itself, and
-            // 3821 keeps gk.kickedloc for exactly that case.
-            const res = await runKickCommand(key, state);
-            rhackResultTail(res, state, 'dokick');
-            return;
-        }
-        if (command === 'options') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818.
-            // Both doset_simple() and doset() end `return ECMD_OK`
-            // (options.c:8734, :8974), so only reset_cmd_vars() runs. The
-            // MOVEMENTCMD and domove_attempting tests at 3773-3800 cannot
-            // divert it: extcmdlist[]'s "options" row carries IFBURIED,
-            // GENERALCMD and CMD_M_PREFIX and no movement flag.
-            await runOptionsCommand(key, state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'autopickup') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818.
-            // dotogglepickup() ends `return ECMD_OK` (options.c:9273), so
-            // only reset_cmd_vars() runs. The MOVEMENTCMD and
-            // domove_attempting tests at 3773-3800 cannot divert it:
-            // extcmdlist[]'s "autopickup" row (cmd.c:1681) carries IFBURIED
-            // and GENERALCMD and no movement flag.
-            await dotogglepickup(state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'turn') {
-            // C cmd.c rhack() dispatches a directly bound extcmd row through
-            // its handler, with the same ECMD result accounting as #turn.
-            const res = await doturn(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'wizwish') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818.
-            // Both arms of wiz_wish() end `return ECMD_OK` (wizcmds.c:44), so
-            // neither the cancel test nor the ECMD_TIME test can fire and
-            // reset_cmd_vars() is the whole of the handling. The MOVEMENTCMD
-            // and domove_attempting tests at 3773-3800 cannot divert it
-            // either: extcmdlist[]'s "wizwish" row carries IFBURIED,
-            // CMD_M_PREFIX and WIZMODECMD and none of the movement flags.
-            await runWishCommand(key, state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'wizidentify') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818. Both
-            // wiz_identify() arms end with ECMD_OK, and display_inventory()
-            // is a display-only menu, so no turn is spent.
-            await runIdentifyCommand(key, state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'wizlevelport') {
-            // C ref: rhack()'s result handling, the same shape as the `wizwish`
-            // arm above: wizcmds.c:405 ends both arms of
-            // wiz_level_tele() with `return ECMD_OK`, so reset_cmd_vars() is
-            // all of it. The prefix test at 3693-3695 cannot divert the
-            // command either -- cmd.c:1970's "wizlevelport" row carries
-            // CMD_M_PREFIX, so an 'm' prefix reaches level_tele() rather than
-            // "The wizlevelport command does not accept 'm' prefix." -- and
-            // the row holds no movement flag.
-            await runLevelTeleCommand(key, state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'wizgenesis') {
-            // C ref: rhack()'s result handling, the same shape as the `wizwish`
-            // arm above: wizcmds.c:213 ends both arms of
-            // wiz_genesis() with `return ECMD_OK`, so reset_cmd_vars() is all
-            // of it and creating a monster spends no turn. cmd.c:1961's
-            // "wizgenesis" row carries IFBURIED and WIZMODECMD and no movement
-            // flag, so the MOVEMENTCMD and domove_attempting tests at
-            // 3774-3802 cannot divert it; it carries no CMD_M_PREFIX either,
-            // so the prefix test at 3693-3695 refuses `m^G` and `F^G` above.
-            await runGenesisCommand(key, state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'wizmap') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818.
-            // wiz_map() ends with ECMD_OK after mapping, so no turn is spent
-            // and reset_cmd_vars() is the whole of this arm.
-            await runMapCommand(key, state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'wizkill') {
-            // C cmd.c rhack() consumes the same no-time result for a bound key.
-            const res = await runKillCommand(key, state);
-            if (state.program_state?.gameover) return;
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'wizsmell') {
-            // C rhack():3810-3825 consumes the handler's ECMD result for a
-            // configured key, exactly as the typed doextcmd row does.
-            const res = await runSmellCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'panic') {
-            // C rhack():3810-3818 clears any count for ECMD_OK without a turn.
-            await wiz_panic(state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'wizshownhuuid') {
-            // C rhack():3810-3818 clears a count for this ECMD_OK result.
-            await wiz_show_nhuuid(state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'wizintrinsic') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818.
-            // wiz_intrinsic() ends with ECMD_OK and never consumes a turn;
-            // the command row carries IFBURIED and WIZMODECMD only.
-            await runIntrinsicCommand(key, state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'wizcast') {
-            // cmd.c's wizcast row has a NUL default key but bind_key() can
-            // install it from OPTIONS BINDINGS; C then calls dowizcast()
-            // directly from rhack() and consumes its ECMD result here.
-            const res = await runWizCastCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'teleport') {
-            // C ref: cmd.c maps both C('t') and #teleport to dotelecmd().
-            const res = await dotelecmd(state);
-            if (state.program_state?.gameover) return;
-            rhackResultTail(res, state);
-            return;
-        }
-        if (command === 'save') {
-            // C ref: save.c dosave():43-70. dosave() always returns ECMD_OK;
-            // on the success path C never returns at all (it calls
-            // nh_terminate), so only reset_cmd_vars() runs here, after a
-            // declined save. cmd.c:1846's "save"
-            // row carries IFBURIED | GENERALCMD | NOFUZZERCMD, no movement
-            // flag, so the MOVEMENTCMD and domove_attempting tests at
-            // 3773-3800 cannot divert it.
-            await dosave(state);
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'shell' || command === 'suspend') {
-            const res = command === 'shell'
-                ? await dosh_core(state) : await dosuspend_core(state);
-            rhackResultTail(res, state);
-            return;
-        }
-        // ddoinv() (invent.c:3006-3009, through dispinv_with_action() and
-        // iactions.c itemactions()), dovspell() (spell.c:2021-2053),
-        // dodiscovered() (o_init.c:764-873) and doattributes()
-        // (insight.c:2009-2019) answer ECMD_OK from every exit, so rhack()
-        // runs reset_cmd_vars(gm.multi < 0) for them and CQ_REPEAT keeps the
-        // command: ^A after any of the four windows opens it again. The
-        // inventory's ECMD_OK exit can also leave a canned item action
-        // behind, which the same reset preserves.
-        //
-        // dolook() is the only one of the five whose own exits can answer
-        // ECMD_TIME (invent.c:4160, :4248 and :4314, each for a blind hero).
-        // For that result C runs no reset_cmd_vars() at all, so multi,
-        // context.run, context.mv and domove_attempting survive it: a
-        // context.run left at 8 by a finished travel still suppresses
-        // allmain.c's time_botl on the turn it spends.
-        if (command === 'inventory') {
-            rhackResultTail(await runInventoryCommand(key, state), state);
-            return;
-        }
-        if (command === 'showspells') {
-            rhackResultTail(await runShowspellsCommand(key, state), state);
-            return;
-        }
-        if (command === 'known') {
-            rhackResultTail(await runKnownCommand(key, state), state);
-            return;
-        }
-        if (command === 'attributes') {
-            rhackResultTail(await runAttributesCommand(key, state), state);
-            return;
-        }
-        if (command === 'overview') {
-            const result = await dooverview(state);
-            rhackResultTail(result, state);
-            return;
-        }
-        if (command === 'look') {
-            // C ref: rhack()'s result handling (cmd.c 3811-3825). dolook()
-            // returns ECMD_OK for a sighted hero, which reaches
-            // reset_cmd_vars(gm.multi < 0); a blind hero's ECMD_TIME skips
-            // the reset and puts context.move back to TRUE.
-            rhackResultTail(await runLookCommand(key, state), state);
-            return;
-        }
-        if (command === 'showgold') {
-            await failClosedCommand(key, state, () => doprgold(state));
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'seeweapon') {
-            await failClosedCommand(key, state, () => doprwep(state, inventoryMenuHooks(state)));
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'seearmor') {
-            await failClosedCommand(key, state, () => doprarm(state, inventoryMenuHooks(state)));
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'seerings') {
-            await failClosedCommand(key, state, () => doprring(state, inventoryMenuHooks(state)));
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'seeamulet') {
-            await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        // C ref: cmd.c rhack() invokes the registered inventory handler,
-        // then resets ECMD_OK without spending time (3810-3825). These
-        // direct keys use the same canonical display as their #commands.
-        if (command === 'seetools') {
-            await failClosedCommand(key, state, () => doprtool(state, inventoryMenuHooks(state)));
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'seeall') {
-            await failClosedCommand(key, state, () => doprinuse(state, inventoryMenuHooks(state)));
-            rhackResultTail(ECMD_OK, state);
-            return;
-        }
-        if (command === 'dip') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
-            // three tests the quaff arm applies. dodip() reaches all three:
-            // ECMD_OK for the inaccessible-equipment refusal, ECMD_CANCEL
-            // for an escaped object prompt, and ECMD_TIME for the dip that
-            // happens. cmd.c:1710's "dip" row carries CMD_M_PREFIX, so an
-            // 'm' prefix sets iflags.menu_requested and skips the terrain
-            // prompts.
-            const res = await runDipCommand(key, state);
-            rhackResultTail(res, state);
-            return;
-        }
-        if (Object.hasOwn(MOVEMENT_INTENTS, command)) {
-            await executeMovement(command, key, firstTime, state);
-            return;
-        }
         if (row) {
             // C ref: rhack():3727 `func = tlist->ef_funct` and :3752
-            // `res = (*func)()`, for every row no arm above names: the key
-            // bound to a row and the row's typed `#name` run the same ported
-            // function, through the table doextcmd() also calls. The result
-            // tail is rhack():3808-3825. A cancelled or failed command resets;
-            // ECMD_OK alone resets unless a negative count holds; ECMD_TIME
-            // takes the turn and, for every function but dokick(), clears the
-            // kicked location so pets stop avoiding it.
-            const res = await callExtcmdFunction(row, key, state);
+            // `res = (*func)()`. Every row is called here, through the one
+            // table doextcmd() also calls, whether it came from the key bound
+            // to it or from the command queue: a key and the row's typed
+            // `#name` run the same ported function, as the one C pointer
+            // does. scripts/command-dispatch-tables.test.mjs fails when
+            // rhack() names a command to call a function of its own for it.
+            //
+            // failClosedCommand() turns a refusal from a branch that is not
+            // ported into the boundary that keeps the segment's matching
+            // prefix, for every row alike; the '#' arm above does the same
+            // around doextcmd().
+            const res = await failClosedCommand(
+                key, state, () => callExtcmdFunction(row, key, state),
+            );
+            // A command can reach C's nonreturning finalizer. The JavaScript
+            // finalizer returns for screen capture only; do not apply
+            // cmd.c's result handling after that terminal boundary.
+            if (state.program_state?.gameover) return;
+            if (row.flags & MOVEMENTCMD) {
+                // C ref: rhack():3773-3800. The row's do_move_*(), do_run_*()
+                // or do_rush_*() function has only recorded the direction
+                // through set_move_cmd(); the grid-bug test and the domove()
+                // call are rhack()'s. set_move_cmd() runs again inside
+                // executeMovement() and changes nothing: gd.domove_attempting
+                // is already set, so it leaves context.run alone and rewrites
+                // the same u.dx, u.dy and context.nopick.
+                await executeMovement(row.ef_txt, key, firstTime, state);
+                return;
+            }
+            // The result tail is rhack():3808-3825. A cancelled or failed
+            // command resets; ECMD_OK alone resets unless a negative count
+            // holds; ECMD_TIME takes the turn and, for every function but
+            // dokick(), clears the kicked location so pets stop avoiding it.
+            // `func` is the row's own function here, so the key bound to
+            // kick and a queued dokick() keep gk.kickedloc where `#kick`,
+            // whose `func` stays doextcmd(), does not.
             rhackResultTail(res, state, row.ef_funct);
             return;
         }

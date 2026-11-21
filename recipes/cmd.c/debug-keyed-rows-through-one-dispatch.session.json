@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 583123,
+      "datetime": "20320518071500",
+      "nethackrc": "OPTIONS=name:Bertrand,role:Knight,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "\u0017dagger\n\u0001\u001b\t\u001b\u0007newt\n\u0006\u0005\u00162\n#wizwish\n\u001b#wizgenesis\n\u001b#wizmap\n#wizlevelport\n\u001b\u0014\u001b\u001b\u001b#wizkill\n\u001b\u001b#panic\nn\n#wizshownhuuid\n:s"
+    }
+  ],
+  "comment": "The debug-mode keys ^W, ^I, ^G, ^F, ^E, ^V and ^T, with ^A after the wish, then #wizwish, #wizgenesis, #wizmap, #wizlevelport, #wizkill, #panic (declined) and #wizshownhuuid. Each key and each name reaches its function through one extcmdlist[] row (cmd.c rhack() 3727 and 3752; doextcmd() 510). The port had a keyed arm for nine of these rows beside the table the names used. The seed, date and character were chosen for this recipe."
+}

@@ -188,7 +188,7 @@ test('dotelecmd and dotele preserve the whole C dispatch and result order', () =
     assert.match(JS_CMD_SOURCE,
         /dotelecmd: \(key, state\) => dotelecmd\(state\)/u);
     assert.match(JS_CMD_SOURCE,
-        /if \(command === 'teleport'\)[\s\S]*await dotelecmd\(state\)/u);
+        /callExtcmdFunction\(row, key, state\),\s*\);[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state, row\.ef_funct\);/u);
 });
 
 test('level_tele_trap preserves the whole C effect order in both callers', () => {

@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { rhack } from '../js/cmd.js';
 import { flush_screen } from '../js/display.js';
+import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
@@ -48,9 +49,12 @@ test('direct in-use dispatch retains source registration and ECMD_OK handling', 
     assert.match(c, /\(res & \(ECMD_OK \| ECMD_TIME\)\) == ECMD_OK\) \{\s*reset_cmd_vars\(gm.multi < 0\);/u);
     const js = readFileSync('js/cmd.js', 'utf8');
     for (const [command, helper] of [['seetools', 'doprtool'], ['seeall', 'doprinuse']]) {
-        const arm = js.slice(js.indexOf(`if (command === '${command}')`));
-        assert.ok(arm.startsWith(`if (command === '${command}')`));
-        assert.ok(arm.indexOf(`() => ${helper}(state, inventoryMenuHooks(state))`) < arm.indexOf('rhackResultTail'));
-        assert.match(arm, /rhackResultTail\(ECMD_OK, state\);\s*return;/u);
+        // The key and `#${command}` share one table entry, which answers
+        // ECMD_OK; rhack() hands that result to its tail.
+        assert.ok(extcmdlist.some((row) => row.ef_txt === command && row.ef_funct === helper));
+        const entry = js.slice(js.indexOf(`\n    ${helper}: async (key, state) => {`));
+        assert.ok(entry.startsWith(`\n    ${helper}: async (key, state) => {`));
+        assert.ok(entry.indexOf(`() => ${helper}(state, inventoryMenuHooks(state))`) < entry.indexOf('return ECMD_OK;'));
+        assert.ok(entry.indexOf('return ECMD_OK;') < entry.indexOf('\n    },'));
     }
 });

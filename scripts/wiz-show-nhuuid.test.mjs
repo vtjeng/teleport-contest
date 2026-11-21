@@ -27,7 +27,8 @@ test('UUID command matches its whole source body and wizard-only row', () => {
     assert.ok(DISPATCHED_COMMANDS.includes('wizshownhuuid'));
     const js = readFileSync(new URL('../js/cmd.js', import.meta.url), 'utf8');
     assert.match(js, /wiz_show_nhuuid: \(key, state\) => wiz_show_nhuuid\(state\),/u);
-    assert.match(js, /if \(command === 'wizshownhuuid'\)\s*\{[\s\S]*?await wiz_show_nhuuid\(state\);\s*rhackResultTail\(ECMD_OK, state\);\s*return;/u);
+    // rhack() calls that entry for a key bound to the row, too.
+    assert.match(js, /callExtcmdFunction\(row, key, state\),\s*\);[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state, row\.ef_funct\);/u);
 });
 
 test('UUID display reads the stored value and reset owns a fresh empty field', async () => {

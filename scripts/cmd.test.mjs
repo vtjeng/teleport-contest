@@ -2494,7 +2494,9 @@ test('counted comma pickup reaches the handler that consumes its count', () => {
     // rhack() dispatches comma with the count intact. The next test verifies
     // that `#` passes its count to the selected handler.
     assert.match(CMD_JS,
-        /if \(command === 'pickup'\)[\s\S]*?runPickupCommand\(key, state\)/u);
+        /dopickup: \(key, state\) => runPickupCommand\(key, state\),/u);
+    assert.match(CMD_JS,
+        /callExtcmdFunction\(row, key, state\),\s*\);[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state, row\.ef_funct\);/u);
 
     const jsPickupStart = HACK_JS.indexOf('export async function dopickup(');
     const jsPickupEnd = HACK_JS.indexOf('\n}\n', jsPickupStart);
@@ -3075,7 +3077,9 @@ test('MCMD_OFFER dispatches queued dosacrifice with its ECMD result',
         assert.match(CMD_JS,
             /case MCMD\.OFFER:\s*queueHandler\('dosacrifice', state\);\s*cmdq_add_userinput\(CQ_CANNED, state\);/u);
         assert.match(CMD_JS,
-            /queuedExtcmdEntry\?\.ef_funct === 'dosacrifice'[\s\S]*?await dosacrifice\(state\)[\s\S]*?rhackResultTail\(res, state\)/u);
+            /dosacrifice: \(key, state\) => dosacrifice\(state\),/u);
+        assert.match(CMD_JS,
+            /callExtcmdFunction\(row, key, state\),\s*\);[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state, row\.ef_funct\);/u);
 
         // Seed 4210044 and the fixed clock provide a stable initialized game;
         // the test replaces only the current terrain/alignment and inventory.
@@ -3260,7 +3264,9 @@ test('itemactions dispatches queued adjust by its C function identity',
         assert.match(CMD_C,
             /func = \(\(struct ext_func_tab \*\) tlist\)->ef_funct;[\s\S]*?res = \(\*func\)\(\);/u);
         assert.match(CMD_JS,
-            /queuedExtcmdEntry\?\.ef_funct === 'doorganize'[\s\S]*?doorganize\(state\)/u);
+            /doorganize: \(key, state\) => failClosedCommand\(key, state, \(\) => doorganize\(state\)\),/u);
+        assert.match(CMD_JS,
+            /callExtcmdFunction\(row, key, state\),\s*\);[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state, row\.ef_funct\);/u);
     });
 
 test('itemactions split dispatches the queued adjust_split function pointer',
@@ -3332,7 +3338,9 @@ test('itemactions split dispatches the queued adjust_split function pointer',
             'rhack retains the queued #altadjust function row',
         );
         assert.match(CMD_JS,
-            /queuedExtcmdEntry\?\.ef_funct === 'adjust_split'[\s\S]*?adjust_split\(state\)/u);
+            /adjust_split: \(key, state\) => failClosedCommand\(key, state, \(\) => adjust_split\(state\)\),/u);
+        assert.match(CMD_JS,
+            /callExtcmdFunction\(row, key, state\),\s*\);[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state, row\.ef_funct\);/u);
     });
 
 test('itemactions split reads an explicit amount from stacks larger than two',

@@ -89,11 +89,16 @@ test('rhack() moves the hero for a movement command named through #', () => {
     // cmd.c:3750 replaces `tlist` with the row doextcmd() ran, so the
     // MOVEMENTCMD tests at 3773-3800 apply to `#movewest` as they do to the
     // key: doextcmd() only records the direction, and rhack() calls
-    // domove(). Two calls: the keyed arm and the named one.
+    // domove(). Two calls: the named arm and the one every other row
+    // takes, each behind the row's MOVEMENTCMD flag.
     assert.equal(count(rhackBody, /\bexecuteMovement\(/gu), 2);
     assert.match(
         rhackBody,
-        /Object\.hasOwn\(MOVEMENT_INTENTS, selectedEntry\.ef_txt\)\) \{\s*await executeMovement\(selectedEntry\.ef_txt, key,\s*firstTime, state\);\s*return;/u,
+        /selectedEntry && \(selectedEntry\.flags & MOVEMENTCMD\)\) \{\s*await executeMovement\(selectedEntry\.ef_txt, key,\s*firstTime, state\);\s*return;/u,
+    );
+    assert.match(
+        rhackBody,
+        /if \(row\.flags & MOVEMENTCMD\) \{\s*await executeMovement\(row\.ef_txt, key, firstTime, state\);\s*return;/u,
     );
     // Every MOVEMENTCMD row is one executeMovement() can run.
     for (const row of extcmdlist.filter((entry) => entry.flags & MOVEMENTCMD))
@@ -115,13 +120,16 @@ test('the result tail is declared once and tests the three results in C order', 
     assert.match(tail, /func !== 'dokick'/u);
 });
 
-// Arms that discard their handler's JavaScript result and pass ECMD_OK,
-// because the handler's port returns nothing or a value of another kind.
-function constantOkCommands() {
-    const commands = [];
-    const arm = /if \(command === '([^']+)'\) \{\n(?:(?!\n {8}\}\n)[\s\S])*?rhackResultTail\(ECMD_OK, state\);/gu;
-    for (const match of rhackBody.matchAll(arm)) commands.push(match[1]);
-    return commands;
+// EXTCMD_FUNCTIONS entries that discard their handler's JavaScript result
+// and answer ECMD_OK, because the handler's port returns nothing or a value
+// of another kind. rhack() passes every row's result to the tail unchanged.
+function constantOkFunctions() {
+    const table = withoutComments(cmdSource.slice(
+        cmdSource.indexOf('const EXTCMD_FUNCTIONS = new Map('),
+        cmdSource.indexOf('export const DISPATCHED_COMMANDS'),
+    ));
+    const entry = /\n {4}(\w+): async \(key, state\) => \{\n(?:(?!\n {4}\},\n)[\s\S])*?\n {8}return ECMD_OK;\n {4}\},/gu;
+    return { table, names: [...table.matchAll(entry)].map((match) => match[1]) };
 }
 
 // Every `return` expression of one C function in nethack-c/upstream/src.
@@ -155,27 +163,28 @@ function returnsOnlyOk(name, seen = new Set()) {
     });
 }
 
-test('an arm passes a constant ECMD_OK only for a C function that returns nothing else', () => {
-    const commands = constantOkCommands();
-    // 23 arms: redraw, help, whatdoes, whatis, glance, options, autopickup,
-    // eight debug-mode commands, save, and the seven equipment displays.
-    // Their C functions return ECMD_OK from every exit, which the loop below
-    // reads from the C source. The count fails in both directions: lower it
-    // when an arm starts passing its handler's result, and give a reason
-    // here before raising it.
-    assert.equal(commands.length, 23, commands.join(' '));
+test('a table entry answers a constant ECMD_OK only for a C function that returns nothing else', () => {
+    const { table, names } = constantOkFunctions();
+    // Eight entries: dotogglepickup and the seven equipment displays
+    // (doprgold, doprwep, doprarm, doprinuse, doprring, doprtool,
+    // dopramulet). Their C functions return ECMD_OK from every exit, which
+    // the loop below reads from the C source. The count fails in both
+    // directions: lower it when an entry starts returning its handler's
+    // result, and give a reason here before raising it.
+    assert.equal(names.length, 8, names.join(' '));
     assert.equal(
-        commands.length,
-        count(rhackBody, /rhackResultTail\(ECMD_OK, state\);/gu),
-        'every constant-ECMD_OK call sits in a `command === name` arm',
+        names.length,
+        count(table, /return ECMD_OK;/gu),
+        'every constant ECMD_OK sits at the end of a block-bodied entry',
     );
-    for (const command of commands) {
-        const row = extcmdlist.find((entry) => entry.ef_txt === command);
-        assert.ok(row, `${command} is an extcmdlist[] row`);
+    // rhack() itself hands the tail nothing but a function's result.
+    assert.equal(count(rhackBody, /rhackResultTail\(ECMD_OK, state\);/gu), 0);
+    for (const name of names) {
         assert.ok(
-            returnsOnlyOk(row.ef_funct),
-            `${row.ef_funct}() (${command}) returns only ECMD_OK in C`,
+            extcmdlist.some((entry) => entry.ef_funct === name),
+            `${name} is an extcmdlist[] function`,
         );
+        assert.ok(returnsOnlyOk(name), `${name}() returns only ECMD_OK in C`);
     }
 });
 

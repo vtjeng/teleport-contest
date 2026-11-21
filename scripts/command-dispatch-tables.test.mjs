@@ -5,9 +5,11 @@
 // carry occupation text for a counted command (cmd.c rhack():3726-3729), and
 // the names the key-binding model stores (cmd.c bind_key() refuses any other).
 // A fourth test holds the function table rhack() and doextcmd() call through
-// to every extcmdlist[] row. Each test below fails when a table gains a name
-// the dispatcher lacks, and the last fails when one of the removed refusals
-// returns.
+// to every extcmdlist[] row, and a fifth holds rhack() to that table: it fails
+// when rhack() names a command to call a function of its own for it, which
+// is how a key and the row's typed `#name` once came to run different code.
+// Each test below fails when a table gains a name the dispatcher lacks, and
+// the last fails when one of the removed refusals returns.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -107,21 +109,81 @@ test('every name the binding model stores is an extcmdlist row', () => {
     assert.deepEqual(missing, []);
 });
 
-test('every extcmdlist row but three has a function to call', () => {
+test('every extcmdlist row but one has a function to call', () => {
     // callExtcmdFunction() calls through EXTCMD_FUNCTIONS with no refusal.
-    // Three rows never reach it: rhack() runs doextcmd() for '#' itself, and
-    // its MOUSECMD arm runs doclicklook() and domouseaction(), which only a
-    // queued command reaches (INTERNALCMD rows have no key and are hidden
-    // from the '#' prompt). Any other row without a function would fail here.
+    // One row never reaches it: rhack() runs doextcmd() for '#' itself,
+    // because the prompt names the row that the rest of rhack() then works
+    // on. Any other row without a function would fail here.
     const dispatched = new Set(DISPATCHED_COMMANDS);
     assert.deepEqual(
         extcmdlist.filter((row) => !dispatched.has(row.ef_txt))
             .map((row) => row.ef_funct),
-        ['doextcmd', 'doclicklook', 'domouseaction'],
+        ['doextcmd'],
     );
-    assert.match(CMD_SOURCE, /command === '#' && \(!prefixSeen \|\| wasMPrefix\)\) \{/u);
     assert.match(CMD_SOURCE,
-        /queuedClickHandler === 'doclicklook'\s*\|\| queuedClickHandler === 'domouseaction'\)/u);
+        /tlist\?\.ef_funct === 'doextcmd'\s*&& \(!prefixSeen \|\| wasMPrefix\)\) \{/u);
+});
+
+// The text of one top-level function of js/cmd.js, comments already removed.
+function functionText(declaration) {
+    const start = CMD_SOURCE.indexOf(declaration);
+    assert.notEqual(start, -1, `${declaration} is declared in js/cmd.js`);
+    const end = CMD_SOURCE.indexOf('\n}\n', start);
+    assert.notEqual(end, -1, `${declaration} has a closing brace`);
+    return CMD_SOURCE.slice(start, end);
+}
+
+const matches = (text, pattern) => [...text.matchAll(pattern)].map((m) => m[1]);
+
+test('a key and a typed name call the same function for every row', () => {
+    // cmd.c rhack() calls `(*func)()` with func = tlist->ef_funct (3727,
+    // 3752) and doextcmd() calls the same pointer of the row the player
+    // named (510): one extcmdlist[] row, one function, whichever way the
+    // command arrives. The port keeps that pointer in EXTCMD_FUNCTIONS, and
+    // callExtcmdFunction() is the only reader.
+    assert.equal(matches(CMD_SOURCE, /(EXTCMD_FUNCTIONS\.get)\(/gu).length, 1);
+    assert.match(functionText('async function callExtcmdFunction('),
+        /EXTCMD_FUNCTIONS\.get\(entry\.ef_funct\)\(key, state\)/u);
+
+    const rhack = functionText('export async function rhack(');
+    const doextcmd = functionText('async function doextcmd(');
+    // rhack() calls through the table twice: for a PREFIXCMD row in the
+    // prefix loop and for every other row below it. doextcmd() calls once.
+    assert.equal(matches(rhack, /(callExtcmdFunction)\(/gu).length, 2);
+    assert.equal(matches(doextcmd, /(callExtcmdFunction)\(/gu).length, 1);
+
+    // rhack() never compares the command's name with a literal. At
+    // 8c2a781e3 it did so in 73 `if (command === '...')` arms, each calling
+    // a function chosen there instead of the row's; none may return. The
+    // count fails in both directions, so it cannot be raised quietly.
+    assert.deepEqual(matches(rhack, /\bcommand\s*[!=]==\s*'([^']*)'/gu), []);
+    assert.deepEqual(matches(rhack, /\bef_txt\s*[!=]==\s*'([^']*)'/gu), []);
+    assert.doesNotMatch(rhack, /\bswitch\s*\(/u);
+    // Nor does it pick a function for a queued row by the row's function
+    // name (eight such arms at 8c2a781e3).
+    assert.doesNotMatch(rhack, /queuedExtcmdEntry\?*\.ef_funct/u);
+    // The two function tests C's rhack() itself makes: `func == do_reqmenu`
+    // (3771) and `func == doextcmd` (3729, 3738). Its third and fourth,
+    // `func != do_repeat` and `func != dokick`, are in recordRepeatCommand()
+    // and rhackResultTail().
+    assert.deepEqual(
+        matches(rhack, /\bef_funct\s*[!=]==\s*'([^']*)'/gu),
+        ['do_reqmenu', 'doextcmd'],
+    );
+    // doextcmd()'s own two: the loop that reopens the prompt after
+    // doextlist() (517) and '#' naming itself.
+    assert.deepEqual(
+        matches(doextcmd, /\bef_funct\s*[!=]==\s*'([^']*)'/gu),
+        ['doextlist', 'doextcmd'],
+    );
+    // No ported handler is called by name from rhack(): every `await f(`
+    // there is one of the functions that are rhack()'s own in C.
+    const called = new Set(matches(rhack, /\bawait (\w+)\(/gu));
+    assert.deepEqual([...called].sort(), [
+        'callExtcmdFunction', 'end_of_input', 'executeMovement',
+        'failClosedCommand', 'parseCommand', 'prefixRefusedCommand',
+        'rhackCanDoExtcmd', 'ttyCustomPline',
+    ]);
 });
 
 test('the dispatcher no longer refuses a name it cannot place', () => {
