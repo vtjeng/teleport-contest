@@ -1,0 +1,57 @@
+name: macOS recordings
+on:
+  push:
+    branches: ['integration-checkpoint/**', '!integration-checkpoint/admission/**']
+  workflow_dispatch:
+    inputs:
+      base:
+        description: Compare with this ref instead of origin/main
+        type: string
+        default: origin/main
+
+# The judge's reference recordings were made on macOS. This workflow records,
+# on a macOS runner, every recipe a candidate adds or changes, and fails when a
+# recording differs from the committed one, so evidence that only a Linux
+# recorder produces cannot reach main. docs/testing.md, "Local recordings and
+# the judge's host", describes it; publication requires this run to succeed on
+# the candidate commit.
+
+jobs:
+  changed-recordings:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The comparison needs the history back to main, and
+          # nethack-c/build-recorder.sh builds from the submodule.
+          fetch-depth: 0
+          submodules: true
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: List the changed recipes
+        id: list
+        run: |
+          git fetch --no-tags origin main
+          experiments/host-parity/check-changed-recordings.sh "${{ inputs.base || 'origin/main' }}" macos-recordings --list-only
+          echo "count=$(wc -l < macos-recordings/recipes.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+
+      - name: Build the recorder
+        if: steps.list.outputs.count != '0'
+        run: bash nethack-c/build-recorder.sh
+
+      - name: Record the changed recipes and compare
+        if: steps.list.outputs.count != '0'
+        run: |
+          { sw_vers; uname -a; clang --version | head -n 1; node --version; } | tee macos-recordings/host.txt
+          experiments/host-parity/check-changed-recordings.sh "${{ inputs.base || 'origin/main' }}" macos-recordings
+
+      - name: Upload the recordings
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-recordings
+          path: macos-recordings/
+          if-no-files-found: error
