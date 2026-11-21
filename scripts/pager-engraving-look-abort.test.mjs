@@ -9,6 +9,8 @@ import { cmap_to_glyph } from '../js/display.js';
 import { lastseentyp_grid } from '../js/dungeon.js';
 import { S_grave } from '../js/symbols.js';
 import { GRAVE } from '../js/const.js';
+import { collectLookaroundMessages, queueGlyphUpdateNotice, emitGlyphUpdateNotices } from '../js/startup_a11y.js';
+import { expectTerminated } from './expect-terminated.mjs';
 
 // pager.c do_screen_description() 1611-1613 builds the farlook suffix in the
 // 256-byte temp_buf: Sprintf(" (%s", firstmatch), add_quoted_engraving(),
@@ -82,6 +84,7 @@ for (const lookKey of [';', '_']) {
 
 // The engraving from a finished 218-character game, with its remembered text
 // replaced, looked at directly. The hero ends the game south of it.
+// engr_txt[1] is C's engr_txt[remembered_text], the text the hero read.
 async function engravingAfterGame() {
     await play(218, ';');
     const engraving = game.head_engr;
@@ -125,8 +128,34 @@ test('a headstone aborts from 221 characters', async () => {
     assert.equal(do_screen_description({ x, y }, true, 0, game).aborted, true);
 });
 
+test('dolookaround() stops collecting at the aborting square', async () => {
+    // cmd.c dolookaround() describes every interesting square it can see;
+    // the hero stands next to the engraving, so it is one of them.
+    const engraving = await engravingAfterGame();
+    engraving.engr_txt[1] = piece(219);
+    const messages = collectLookaroundMessages(game, { includeRoom: false });
+    assert.equal(messages.aborted, true);
+});
+
+test('a show_glyph() notice for the engraving ends the segment when it drains', async () => {
+    // display.c show_glyph() describes a square whose glyph replaces an
+    // unexplored one when the glyph_updates option is on. previous null is
+    // the unexplored nul_gbuf glyph and previousGnew 0 its clear gnew bit.
+    const engraving = await engravingAfterGame();
+    const { engr_x: x, engr_y: y } = engraving;
+    engraving.engr_txt[1] = piece(219);
+    game.a11y.glyph_updates = true;
+    game._glyphUpdateNotices = [];
+    assert.equal(queueGlyphUpdateNotice(
+        x, y, null, game.level.at(x, y).disp_glyph, 0, game,
+    ), true);
+    assert.equal(game._glyphUpdateNotices.at(-1).abort, true);
+    await expectTerminated(() => emitGlyphUpdateNotices(game));
+});
+
 test('add_quoted_engraving() keeps buf within BUFSZ - 1 characters', () => {
-    // A state holding only the engraving list that engr_at() reads.
+    // A state holding only the engraving list that engr_at() reads; any
+    // square serves, so (5, 5).
     const state = {
         head_engr: {
             engr_x: 5, engr_y: 5, eread: true,
@@ -142,7 +171,8 @@ test('add_quoted_engraving() keeps buf within BUFSZ - 1 characters', () => {
 
 // Every caller must end the segment when do_screen_description() reports the
 // abort; one that forgot would print the description instead. Each call site
-// in js/ must test `.aborted` within the next few lines.
+// in js/ must test `.aborted` within the next few lines: six lines cover the
+// longest call (three lines) and the test after it.
 test('every do_screen_description() call honours its abort', () => {
     const dir = new URL('../js/', import.meta.url);
     const files = fs.readdirSync(dir).filter((name) => name.endsWith('.js'));
