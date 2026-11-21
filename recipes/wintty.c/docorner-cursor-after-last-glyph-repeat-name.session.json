@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71909,
+      "datetime": "20270614093000",
+      "nethackrc": "OPTIONS=name:Petra,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\nOPTIONS=symset:DECgraphics\n",
+      "moves": "#name\n\u001b\u0001ya\u001b\u0001nz"
+    }
+  ],
+  "comment": "wintty.c docorner() ends on row_refresh()'s last tty_print_glyph(), which leaves the cursor one column past the last map cell it printed on the window's bottom row. #name's menu is dismissed with Escape; ^A repeats #name with gi.in_doagain set, and the menu's group accelerator 'y' picks 'a particular object in inventory'. invent.c getobj() then reads its answer with readchar() and writes no prompt, so the cursor stays where the corner menu's docorner() left it until the inventory letter is typed."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 30614,
+      "datetime": "20241102181500",
+      "nethackrc": "OPTIONS=name:Ivo,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " s#name\n\u001b\u0001nZ"
+    }
+  ],
+  "comment": "Variation of docorner-cursor-after-last-glyph-repeat-name with the default symbol set and another role: ^A repeats #name, and the group accelerator 'n' picks 'the type of an object in inventory', so getobj(\"call\") waits unprompted with the cursor where wintty.c docorner() left it. A letter that is not in the inventory then gets \"You don't have that object.\""
+}

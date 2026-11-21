@@ -7419,6 +7419,14 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
                 continue;
             }
 
+            // row_refresh() prints this cell. tty_print_glyph() (wintty.c
+            // 3882, 3976-3977) moves the cursor to the cell with tty_curs()
+            // and ends with ttyDisplay->curx++, whichever of g_putch() and
+            // g_pututf8() wrote it. docorner() does not move the cursor
+            // again, so its caller finds it one column past the last glyph
+            // row_refresh() printed, or where tty_curs() put it on a row
+            // that printed none.
+            display.setCursor(x, screenRow);
             const presentation = map_glyphinfo(glyph, state, { x, y: mapY });
             const ch = browserGlyphs && presentation.displayCh
                 ? presentation.displayCh
