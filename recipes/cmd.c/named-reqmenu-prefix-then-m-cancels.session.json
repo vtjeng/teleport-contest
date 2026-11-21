@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77420,
+      "datetime": "20290611030958",
+      "nethackrc": "OPTIONS=name:Ignatius,role:Priest,race:human,gender:male,align:lawful\n",
+      "moves": " \u001b#reqmenu\nmhm#reqmenu\ni\u001b#reqmenu\n#reqmenu\n\u001b#reqmenu\ni#reqmenu\n,#reqmenu\n\u001bl",
+      "comment": "After #reqmenu, the m key reaches do_reqmenu() with iflags.menu_requested still set and cancels with \"Double m prefix, canceled.\" After m, #reqmenu draws doextcmd()'s \"prefix has no effect\" line and the inventory command is then refused under was_m_prefix. #reqmenu alone leaves was_m_prefix clear because func is still doextcmd() at cmd.c:3771, so # , i and , are refused as after a movement prefix."
+    }
+  ]
+}

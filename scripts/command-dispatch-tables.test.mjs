@@ -119,7 +119,7 @@ test('every extcmdlist row but three has a function to call', () => {
             .map((row) => row.ef_funct),
         ['doextcmd', 'doclicklook', 'domouseaction'],
     );
-    assert.match(CMD_SOURCE, /if \(command === '#'\) \{/u);
+    assert.match(CMD_SOURCE, /command === '#' && \(!prefixSeen \|\| wasMPrefix\)\) \{/u);
     assert.match(CMD_SOURCE,
         /queuedClickHandler === 'doclicklook'\s*\|\| queuedClickHandler === 'domouseaction'\)/u);
 });

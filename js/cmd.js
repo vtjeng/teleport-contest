@@ -5323,7 +5323,7 @@ const TIMED_OCCUPATION_FUNCTIONS = Object.freeze({ dosearch, donull });
 // has one shape only, captureParsedCommand()'s, which carries the parsed count
 // so that no keystroke is ever replayed. rhack() has no command-result return;
 // context.move reports whether the command took time.
-export async function rhack(key, state = game, selectedPrefixEntry = null) {
+export async function rhack(key, state = game) {
     state.iflags ??= {};
     state.context ??= {};
     // C resets both prefix effects at every rhack() entry, including repeats.
@@ -5331,7 +5331,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
     state.context.nopick = 0;
 
     const firstTime = key === 0;
-    let newLogicalCommand = !firstTime && !selectedPrefixEntry;
+    let newLogicalCommand = !firstTime;
     let retryableBoundary = false;
     try {
         // C ref: rhack():3637-3640. SAFERHANGUP is defined, so got_prefix_input
@@ -5413,26 +5413,89 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         // follow a prefix, and this is a loop for the same reason C uses a
         // goto. The four PREFIXCMD rows are do_reqmenu, do_fight, do_rush,
         // and do_run.
-        let prefixSeen = selectedPrefixEntry?.ef_txt ?? null;
+        //
+        // A prefix reaches that arm two ways: from its key or a queued row,
+        // where `func` is the prefix's own function, and by name through
+        // '#', where `func` stays doextcmd() and only `tlist` is replaced by
+        // ge.ext_tlist at 3750. Both take the same goto, so both stay in this
+        // one loop: the label sits below rhack()'s opening reset of
+        // iflags.menu_requested and context.nopick, `firsttime` keeps its
+        // value, and the queue is popped before another key is read.
+        let prefixSeen = null;
         let wasMPrefix = false;
-        while (command === 'reqmenu' || command === 'fight'
-            || command === 'rush' || command === 'run') {
-            recordRepeatCommand(command, Boolean(prefixSeen), state);
-            let res;
-            if (command === 'reqmenu') res = await do_reqmenu(state);
-            else if (command === 'fight') res = await do_fight(state);
-            else if (command === 'rush') res = await do_rush(state);
-            else res = await do_run(state);
-            // 3764-3767. A prefix pressed twice cancels the whole command.
-            if (res & ECMD_CANCEL) {
-                resetCommandVars(state);
-                return;
+        for (;;) {
+            if (command === 'reqmenu' || command === 'fight'
+                || command === 'rush' || command === 'run') {
+                recordRepeatCommand(command, Boolean(prefixSeen), state);
+                let res;
+                if (command === 'reqmenu') res = await do_reqmenu(state);
+                else if (command === 'fight') res = await do_fight(state);
+                else if (command === 'rush') res = await do_rush(state);
+                else res = await do_run(state);
+                // 3764-3767. A prefix pressed twice cancels the whole
+                // command.
+                if (res & ECMD_CANCEL) {
+                    resetCommandVars(state);
+                    return;
+                }
+                prefixSeen = command;
+                // 3771-3772. was_m_prefix latches on do_reqmenu() and is
+                // never cleared, so `Fm` and `mF` both leave the
+                // CMD_M_PREFIX rule in force for the command that follows.
+                if (command === 'reqmenu') wasMPrefix = true;
+            } else if (command === '#' && (!prefixSeen || wasMPrefix)) {
+                // The '#' row carries CMD_M_PREFIX and not CMD_gGF_PREFIX
+                // (cmd.c:1670-1671), so 3693-3695 lets it through after no
+                // prefix or after one that latched was_m_prefix; any other
+                // prefix leaves it to the refusal below this loop.
+                //
+                // C ref: rhack()'s result handling, applied to what
+                // doextcmd() returns from the command the player named.
+                // ECMD_TIME skips reset_cmd_vars() and puts context.move back
+                // to TRUE; ECMD_OK, ECMD_CANCEL and ECMD_FAIL all reset.
+                // C clears CQ_REPEAT before doextcmd dispatch (3738-3740),
+                // including #repeat.
+                cmdq_clear(CQ_REPEAT, state);
+                let selectedEntry = null;
+                const res = await failClosedCommand(
+                    key, state,
+                    () => doextcmd(key, state, (entry) => {
+                        selectedEntry = entry;
+                    }),
+                );
+                // A named command can reach C's nonreturning finalizer. The
+                // JavaScript finalizer returns for screen capture only; do
+                // not apply cmd.c's result handling after that terminal
+                // boundary.
+                if (state.program_state?.gameover) return;
+                if (selectedEntry) {
+                    // C ref: rhack():3753-3760. doextcmd() names the row it
+                    // ran through ge.ext_tlist, and rhack() adds that row to
+                    // CQ_REPEAT after the handler returns, then shifts it to
+                    // the front. The object letters, direction and answers
+                    // the handler read are already in the queue, so ^A
+                    // replays the named command with the same answers. This
+                    // runs for every named row and before the PREFIXCMD test.
+                    cmdq_add_ec(CQ_REPEAT, selectedEntry, state);
+                    cmdq_shift(CQ_REPEAT, state);
+                }
+                if (!(selectedEntry?.flags & PREFIXCMD)) {
+                    rhackResultTail(res, state);
+                    return;
+                }
+                if (res & ECMD_CANCEL) {
+                    resetCommandVars(state);
+                    return;
+                }
+                // 3769-3773 with `tlist` now the named prefix row.
+                // `func == do_reqmenu` is false here because func is still
+                // doextcmd(), so #reqmenu does not latch was_m_prefix: the
+                // command after it is held to CMD_gGF_PREFIX, as after F, G
+                // or g, although iflags.menu_requested is set.
+                prefixSeen = selectedEntry.ef_txt;
+            } else {
+                break;
             }
-            prefixSeen = command;
-            // 3771-3772. was_m_prefix latches on do_reqmenu() and is never
-            // cleared, so `Fm` and `mF` both leave the CMD_M_PREFIX rule in
-            // force for the command that follows.
-            if (command === 'reqmenu') wasMPrefix = true;
             // got_prefix_input, rhack():3637-3640.
             if (state.program_state?.done_hup) await end_of_input(state);
             const queuedAfterPrefix = cmdq_pop(state);
@@ -5633,50 +5696,6 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // C ref: rhack():3810-3825, the result tail for donull()'s
             // ECMD_OK or ECMD_TIME.
             rhackResultTail(await donull(state), state);
-            return;
-        }
-        if (command === '#') {
-            // C ref: rhack()'s result handling, applied to what doextcmd()
-            // returns from the command the player named. ECMD_TIME skips
-            // reset_cmd_vars() and puts context.move back to TRUE; ECMD_OK,
-            // ECMD_CANCEL and ECMD_FAIL all reset.
-            // C clears CQ_REPEAT before doextcmd dispatch, including #repeat.
-            cmdq_clear(CQ_REPEAT, state);
-            let selectedEntry = null;
-            const res = await failClosedCommand(
-                key, state,
-                () => doextcmd(key, state, (entry) => {
-                    selectedEntry = entry;
-                }),
-            );
-            // A named command can reach C's nonreturning finalizer. The
-            // JavaScript finalizer returns for screen capture only; do not
-            // apply cmd.c's result handling after that terminal boundary.
-            if (state.program_state?.gameover) return;
-            if (selectedEntry) {
-                // C ref: rhack():3753-3760. doextcmd() names the row it ran
-                // through ge.ext_tlist, and rhack() adds that row to
-                // CQ_REPEAT after the handler returns, then shifts it to the
-                // front. The object letters, direction and answers the
-                // handler read are already in the queue, so ^A replays the
-                // named command with the same answers. This runs for every
-                // named row and before the PREFIXCMD test.
-                cmdq_add_ec(CQ_REPEAT, selectedEntry, state);
-                cmdq_shift(CQ_REPEAT, state);
-            }
-            if (selectedEntry?.flags & PREFIXCMD) {
-                if (res & ECMD_CANCEL) {
-                    resetCommandVars(state);
-                    return;
-                }
-                // cmd.c:doextcmd() leaves the selected PREFIXCMD row in
-                // ge.ext_tlist; rhack() then reads and dispatches the command
-                // it prefixes in the same invocation.
-                const prefixedKey = await parseCommand(state);
-                await rhack(prefixedKey, state, selectedEntry);
-                return;
-            }
-            rhackResultTail(res, state);
             return;
         }
         if (command === 'repeat') {

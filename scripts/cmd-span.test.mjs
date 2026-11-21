@@ -446,6 +446,6 @@ test('wizard kill dispatch admits the menu prefix and no-time configured key', a
     assert.ok(DISPATCHED_COMMANDS.includes('wizkill'));
     assert.match(js, /wiz_kill: \(key, state\) => runKillCommand\(key, state\),/u);
     // The selected command callback preserves C's ge.ext_tlist handoff to rhack.
-    assert.match(js, /if \(command === '#'\)[\s\S]*?doextcmd\(key, state, \(entry\) =>[\s\S]*?selectedEntry = entry;[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state\)/u);
+    assert.match(js, /command === '#' && \(!prefixSeen \|\| wasMPrefix\)\) \{[\s\S]*?doextcmd\(key, state, \(entry\) =>[\s\S]*?selectedEntry = entry;[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state\)/u);
     assert.match(js, /if \(command === 'wizkill'\)[\s\S]*?runKillCommand\(key, state\)[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state\)/u);
 });

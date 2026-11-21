@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 48266,
+      "datetime": "20301127182236",
+      "nethackrc": "OPTIONS=name:Solveig,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!autopickup,runmode:walk\n",
+      "moves": " \u001b#run\nl#rush\nh#run\nj#rush\nk#fight\nh#fight\nj#run\n#run\n\u001b#rush\n#run\n\u001b#fight\n#fight\n\u001b#run\nG\u001b#fight\nFh#run\ns#rush\n3l#fight\n\u001bh",
+      "comment": "Names the run, rush and fight prefixes with # before a direction, before the same prefix by name and by key, before a non-movement command, before a count and before Escape. rhack() keeps firsttime through got_prefix_input, so the rush arm at 3791-3795 still sets gm.multi."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 15093,
+      "datetime": "20261205135511",
+      "nethackrc": "OPTIONS=name:Leocadia,role:Rogue,race:orc,gender:female,align:chaotic\nOPTIONS=number_pad:1,!autopickup\n",
+      "moves": " \u001b#reqmenu\n6\u0001\u0001#fight\n4\u0001#run\n2\u0001#rush\n8\u0001#reqmenu\n\u0001\u001bm#repeat\n\u001b#repeat\n4",
+      "comment": "Repeats a named prefix and its direction with ^A. rhack() adds the named prefix row to CQ_REPEAT after doextcmd() returns and shifts it to the front (3753-3760); the direction joins it because prefix_seen keeps the queue."
+    }
+  ]
+}

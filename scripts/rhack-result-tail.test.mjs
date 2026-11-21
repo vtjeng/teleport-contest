@@ -10,7 +10,7 @@ import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { extcmdlist } from '../js/extcmdlist_data.js';
+import { extcmdlist, PREFIXCMD } from '../js/extcmdlist_data.js';
 
 const PROJECT_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const C_SOURCE_DIR = join(PROJECT_ROOT, 'nethack-c', 'upstream', 'src');
@@ -59,6 +59,29 @@ test('rhack() leaves context.move and the kicked square to the result tail', () 
     assert.equal(count(rhackBody, /context\.move\s*=\s*(1|true)/gu), 0);
     assert.equal(count(rhackBody, /clear_kickedloc\(/gu), 0);
     assert.equal(count(rhackBody, /ECMD_CANCEL \| ECMD_FAIL/gu), 0);
+});
+
+test('rhack() reads the command after a prefix in its own loop and never re-enters itself', () => {
+    // cmd.c:3762-3773 ends a prefix command with `goto got_prefix_input`,
+    // whether the prefix came from its key or by name through doextcmd().
+    // The label sits below the reset of iflags.menu_requested and
+    // context.nopick at 3634-3635 and keeps `firsttime`, `prefix_seen` and
+    // `was_m_prefix`. A nested rhack() call in place of the goto re-runs the
+    // entry reset, so `#reqmenu` followed by a direction lost the request
+    // before set_move_cmd() read it. One match is the declaration itself.
+    assert.equal(count(rhackBody, /\brhack\(/gu), 1);
+    // One read at got_prefix_input for the first command and one in the
+    // prefix loop; a third would be a prefix path reading its own key.
+    assert.equal(count(rhackBody, /\bparseCommand\(/gu), 2);
+    // The entry reset runs once, above the loop.
+    assert.equal(count(rhackBody, /iflags\.menu_requested = false;/gu), 1);
+    assert.equal(count(rhackBody, /context\.nopick = 0;/gu), 1);
+    // C has four PREFIXCMD rows; both ways of reaching one share the loop.
+    assert.deepEqual(
+        extcmdlist.filter((row) => row.flags & PREFIXCMD)
+            .map((row) => row.ef_txt).sort(),
+        ['fight', 'reqmenu', 'run', 'rush'],
+    );
 });
 
 test('the result tail is declared once and tests the three results in C order', () => {

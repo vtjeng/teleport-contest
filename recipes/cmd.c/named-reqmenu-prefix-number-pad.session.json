@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 30517,
+      "datetime": "20270803224105",
+      "nethackrc": "OPTIONS=name:Dagfinn,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=number_pad:1,autopickup\nOPTIONS=symset:DECgraphics\n",
+      "moves": " \u001b#reqmenu\n1#reqmenu\n2#reqmenu\n3#reqmenu\n4#reqmenu\n6#reqmenu\n7#reqmenu\n8#reqmenu\n9#reqmenu\n4#reqmenu\n6",
+      "comment": "The number_pad variation of the named request-menu prefix: #reqmenu before each keypad direction with autopickup on."
+    }
+  ]
+}

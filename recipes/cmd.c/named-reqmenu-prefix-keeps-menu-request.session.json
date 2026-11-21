@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61877,
+      "datetime": "20280219071344",
+      "nethackrc": "OPTIONS=name:Ottoline,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!autopickup\n",
+      "moves": " \u001b#reqmenu\nh#reqmenu\nj#reqmenu\nk#reqmenu\nl#reqmenu\ny#reqmenu\nu#reqmenu\nb#reqmenu\nn#reqmenu\nh#reqmenu\nj#reqmenu\nk#reqmenu\nl#reqmenu\ny#reqmenu\nu#reqmenu\nb#reqmenu\nn",
+      "comment": "Names the request-menu prefix with #reqmenu before each of the eight directions, twice, beside the starting pet. cmd.c rhack() 3762-3773 reads the direction at got_prefix_input, below the reset of iflags.menu_requested at 3635, so set_move_cmd() sets context.nopick and the hero begs the pet's pardon instead of swapping places with it."
+    }
+  ]
+}
