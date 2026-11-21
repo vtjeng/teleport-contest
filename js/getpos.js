@@ -878,7 +878,16 @@ export async function getpos_menu(ccp, gloc, state = game) {
 // showsym bytes, excluding walls, rooms, corridors, and doors. The table also
 // gives '^' the complete trap family and an engraving symbol both engraving
 // families.
+//
+// `key` is the byte getpos() read. C holds it in `int c` after
+// readchar_poskey() returned it as a `char` (cmd.c:5288-5296, narrowed by
+// readchar_core()'s `return (char) sym`, cmd.c:5270), and char is signed in
+// the reference build, so a byte above 0x7F is negative there. defsyms[].sym
+// is a uchar (sym.h:53) and gs.showsyms[] holds nhsym values 0-255
+// (decl.h:861), both promoted to a non-negative int: such a key matches no
+// symbol, even one whose DECgraphics or IBMgraphics byte it equals.
 function featureSymbolMatches(key, state) {
+    const c = key >= 0x80 ? key - 0x100 : key;
     const matching = Array(MAXPCHARS).fill(0);
     let count = 0;
     let sidx;
@@ -895,9 +904,9 @@ function featureSymbolMatches(key, state) {
         const trapMatch = key === '^'.charCodeAt(0)
             && sidx >= S_arrow_trap
             && sidx < S_arrow_trap + MAXTCHARS;
-        const engravingMatch = key === cmap_symbol_byte(S_engroom, state)
+        const engravingMatch = c === cmap_symbol_byte(S_engroom, state)
             && (sidx === S_engroom || sidx === S_engrcorr);
-        if (key === compiled || key === active || trapMatch || engravingMatch)
+        if (c === compiled || c === active || trapMatch || engravingMatch)
             matching[sidx] = ++count;
     }
     return { matching, count, sidx };

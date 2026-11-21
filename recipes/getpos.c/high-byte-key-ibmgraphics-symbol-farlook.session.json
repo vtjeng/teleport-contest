@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5630911,
+      "datetime": "20190302224500",
+      "nethackrc": "OPTIONS=name:Bertil,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,number_pad:1\nOPTIONS=symset:IBMgraphics\n",
+      "moves": ";ô÷ñú7ð\u001b"
+    }
+  ],
+  "comment": "';' (farlook) calls getpos() under symset:IBMgraphics with number_pad on. The keys 0xF4, 0xF7, 0xF1, 0xFA and 0xF0 equal the IBMgraphics bytes for S_fountain, S_pool, S_tree, S_ice and S_bars; C compares the key as a negative int with the non-negative gs.showsyms[] values, so each is an unknown direction, and the forced prompt continues. '7' moves the cursor before 0xF0, and Escape cancels."
+}
