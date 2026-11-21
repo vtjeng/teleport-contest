@@ -294,6 +294,14 @@ function advanceWithoutMenus(state, context, random) {
                     ),
                 );
                 if (!candidates.length) {
+                    // role.c:2395-2401. After "Pick race first" the role is
+                    // ROLE_NONE here, and C's validrace(-1, i) reads
+                    // roles[-1].allow: in the recorder, two bytes of a
+                    // relocated pointer that change with the load address
+                    // on every run. validrace() answers false for it, one
+                    // of C's outcomes; no fixed answer matches the others
+                    // (recipes/role.c/race-first-no-role-every-race-
+                    // filtered-blocked.session.json).
                     candidates = manualCandidates(
                         races.length,
                         (racenum) => validrace(flags.initrole, racenum),
