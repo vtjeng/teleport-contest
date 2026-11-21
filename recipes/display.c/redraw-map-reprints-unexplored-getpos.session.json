@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77402918,
+      "datetime": "20381119223004",
+      "nethackrc": "OPTIONS=name:Ignatius,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!tutorial,!autopickup,symset:IBMGraphics_2,time\nSYMBOLS=S_unexplored:\\x60,S_stone:\\x25\n",
+      "moves": " i\u001b;  \u0012ll. kk"
+    }
+  ],
+  "comment": "Variation of redraw-map-reprints-unexplored-getdir through getpos.c getpos_refresh(): Ctrl-R while picking a location for farlook, after the first-use tip, with IBMGraphics_2, a backtick for S_unexplored and a percent sign for S_stone."
+}

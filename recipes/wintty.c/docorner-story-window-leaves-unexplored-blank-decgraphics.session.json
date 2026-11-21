@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90655127,
+      "datetime": "20240829194107",
+      "nethackrc": "OPTIONS=name:Ottoline,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!tutorial,!autopickup,symset:DECgraphics,showexp\nSYMBOLS=S_unexplored:+\n",
+      "moves": " jj\\\u001bhh3s"
+    }
+  ],
+  "comment": "Variation of docorner-story-window-leaves-unexplored-blank: DECgraphics, a plus sign for S_unexplored, a dwarvish Archeologist and the discoveries window as the second corner window."
+}

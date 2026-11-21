@@ -224,7 +224,7 @@ function clearRowFrom(display, firstColumn, row) {
 // cell: the repair blanks it. Without a level there is no map to redraw, so
 // the covered startup text is restored instead. `snapshot` holds the rows
 // 0..maxrow the window covered, so its length is docorner()'s ymax.
-async function restoreCorner(state, display, repairColumn, snapshot) {
+export async function restoreCorner(state, display, repairColumn, snapshot) {
     if (state.level && state.u?.ux) {
         docorner(repairColumn + 1, snapshot.length, 0, state);
     } else {

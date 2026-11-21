@@ -4570,9 +4570,26 @@ export async function doredraw() {
 // C ref: display.c redraw_map() (1778-1810).  docrtRefresh resends the
 // transient glyph buffer without reconstructing the remembered map or
 // consuming display RNG to regenerate monster glyphs.
+//
+// The loop at 1799-1806 calls print_glyph() for every map cell, whatever its
+// gnew bit, with the glyphinfo gg.gbuf holds.  A cell show_glyph() has not
+// written since cls() holds nul_gbuf, whose ttychar is a space, so it is
+// printed blank even when S_unexplored is not; a cell docorner() blanked
+// gets its buffered glyph back.  Raising gnew makes the flush below print
+// each cell from disp_glyph; flush_screen() clears every gnew bit, which is
+// the state C's own flush_screen() call at 1807 leaves.
 export async function redraw_map(cursorOnHero = false) {
     if (!game.u?.ux || suppress_map_output()
         || !on_level(game.u.uz0, game.u.uz)) return;
+    if (game.level?.at) {
+        for (let y = 0; y < ROWNO; ++y) {
+            for (let x = 1; x < COLNO; ++x) {
+                const loc = game.level.at(x, y);
+                if (!loc.disp_glyph) clearTtyCell(loc, true);
+                loc.gnew = 1;
+            }
+        }
+    }
     await flush_screen(cursorOnHero ? 1 : 0);
 }
 
