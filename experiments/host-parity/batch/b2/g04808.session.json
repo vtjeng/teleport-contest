@@ -1,0 +1,1 @@
+{"version":5,"segments":[{"seed":277730635,"datetime":"20200228145714","nethackrc":"OPTIONS=name:Binder,role:Caveman,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,showexp,time,color,lit_corridor,suppress_alert:3.4.3,symset:DECgraphics\nSYMBOLS=S_pool:~,S_fountain:{\nBIND=v:inventory\n","moves":"   ?i  #loot\n#force\n#untrap\n#polyself\nh"}]}
