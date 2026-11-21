@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wintty.c process_menu_window() puts GOLD_SYM in gacc[] for a PICK_ANY menu whose other entries have class-symbol group accelerators, and its default arm tests gacc[] before the selector loop. In the multi-drop item menu (do.c menu_drop() -> pickup.c query_objlist()) \"$\" selects the gold, \"3$\" then inverts the group, which deselects it instead of setting the count 3, and \"4$\" selects it again with count 4; Return drops 4 gold pieces.",
+  "segments": [
+    {
+      "seed": 66120953,
+      "datetime": "20250913112754",
+      "nethackrc": "OPTIONS=name:Anselm,role:Healer,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " Da\n$3$4$\n:i\u001b"
+    }
+  ]
+}

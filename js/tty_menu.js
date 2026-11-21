@@ -1634,12 +1634,34 @@ function invertItems(state, items, pendingCount = null, groupToggle = false) {
     return changed;
 }
 
+// C ref: wintty.c process_menu_window()'s gacc[] for PICK_ANY (1349-1379).
+// A group accelerator counts once some entry's differs from its selector;
+// then every accelerator that differs from its entry's selector, or is the
+// gold symbol, is accepted.  invert_all() later toggles every entry that
+// carries the accelerator, whatever its selector.
+export function pickAnyGroupAccelerators(items) {
+    const gacc = new Set();
+    if (!items.some((item) => (
+        item.groupSelector && item.groupSelector !== item.selector
+    ))) return gacc;
+    for (const item of items) {
+        if (item.groupSelector
+            && (item.groupSelector !== item.selector
+                || item.groupSelector === GOLD_SYM))
+            gacc.add(item.groupSelector);
+    }
+    return gacc;
+}
+
 async function selectAnyTtyMenu(state, spec) {
     const workingSpec = {
         ...spec,
         items: (spec.items ?? []).map(copyMenuItem),
     };
     const allItems = selectableItems(workingSpec);
+    const gacc = pickAnyGroupAccelerators(allItems);
+    const groupItems = (ch) => (gacc.has(ch)
+        ? allItems.filter((item) => item.groupSelector === ch) : []);
     let pageIndex = 0;
     let rendered = renderTtyMenu(state, workingSpec, pageIndex);
     let pendingCount = null;
@@ -1654,8 +1676,14 @@ async function selectAnyTtyMenu(state, spec) {
             (item) => item.selector === incoming,
         );
         if (explicit) {
-            const changed = toggleItem(explicit, pendingCount)
-                ? new Set([explicit]) : new Set();
+            // The default arm tests gacc[] before it looks for the selector
+            // (1741-1749), so a selector that is also a group accelerator,
+            // as gold's '$' is, inverts its group: a count cannot change a
+            // selected entry's count there, it only deselects.
+            const changed = gacc.has(incoming)
+                ? invertItems(state, groupItems(incoming), pendingCount, true)
+                : toggleItem(explicit, pendingCount)
+                    ? new Set([explicit]) : new Set();
             pendingCount = null;
             refreshVisibleSelections(state, rendered, changed);
             continue;
@@ -1663,19 +1691,10 @@ async function selectAnyTtyMenu(state, spec) {
 
         const mapping = menuCommandMapping(state, incoming);
         const ch = mapping.command;
-        const incomingGrouped = allItems.some((item) => (
-            item.groupSelector === incoming
-            && (item.groupSelector !== item.selector
-                || item.groupSelector === GOLD_SYM)
-        ));
-        const acceptedIncoming = mapping.mapped || incomingGrouped
+        const acceptedIncoming = mapping.mapped || gacc.has(incoming)
             || isDefaultMenuResponse(incoming)
             || isDismissMoreKey(state, code);
-        const grouped = allItems.filter((item) => (
-            item.groupSelector === ch
-            && (item.groupSelector !== item.selector
-                || item.groupSelector === GOLD_SYM)
-        ));
+        const grouped = groupItems(ch);
 
         if (ch >= '0' && ch <= '9') {
             // process_menu_window() gives a digit group accelerator its

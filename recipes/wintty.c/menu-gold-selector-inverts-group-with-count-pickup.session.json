@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of menu-gold-selector-inverts-group-with-count: a Tourist drops her gold and an expensive camera, then opens the pick-up menu (pickup.c pickup() -> query_objlist(), PICK_ANY). \"$\" then \"6$\" leaves the gold deselected through wintty.c invert_all(), while the camera's inventory letter, which is no group accelerator, keeps toggle_menu_curr()'s count on a second press.",
+  "segments": [
+    {
+      "seed": 15507288,
+      "datetime": "20240127235119",
+      "nethackrc": "OPTIONS=name:Marisol,role:Tourist,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=symset:DECgraphics\n",
+      "moves": " d$df,$6$f2f\n:i\u001b"
+    }
+  ]
+}

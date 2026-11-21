@@ -27,6 +27,7 @@ import {
 import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
+    pickAnyGroupAccelerators,
     dismissTtyMenu,
     renderTtyMenu,
     selectTtyMenu,
@@ -1611,4 +1612,48 @@ test('PICK_ONE selected results recount bulk deselection and retain counted defa
     // the bulk command cleared before Enter.
     for (const keys of ['-\n', '\\\n'])
         assert.equal(await selectTtyMenu(menuState(keys), confirmation), -1);
+});
+
+test('PICK_ANY group accelerators follow process_menu_window gacc[]', async () => {
+    // wintty.c process_menu_window() (1349-1379): an accelerator enters gacc[]
+    // only once some entry's differs from its selector; then each one that
+    // differs from its entry's selector, or is GOLD_SYM, is accepted.
+    assert.match(WINTTY_C, /if \(curr->gselector && curr->gselector != curr->selector\) \{\s*\+\+n;/u);
+    assert.match(WINTTY_C, /\(curr->gselector != curr->selector[\s\S]*?\|\| curr->gselector == GOLD_SYM\)/u);
+    // The default arm tests gacc[] before the selector loop.
+    assert.match(WINTTY_C, /\} else if \(strchr\(gacc, morc\)\) \{\s*group_accel:/u);
+    // '$' for gold and ')' for a weapon are the def_oc_syms that pickup.c
+    // query_objlist() passes; 'a' is an inventory letter.
+    const gold = { selector: '$', groupSelector: '$', value: 1 };
+    const dagger = { selector: 'a', groupSelector: ')', value: 2 };
+    // Gold alone: no accelerator differs from its selector, so n == 0.
+    assert.deepEqual([...pickAnyGroupAccelerators([gold])], []);
+    // With the dagger, n > 0 and both '$' (the gold exception) and ')' count.
+    assert.deepEqual([...pickAnyGroupAccelerators([gold, dagger])], ['$', ')']);
+    // An accelerator equal to its own selector is skipped unless it is gold:
+    // 'b' here stands for any such non-gold pair.
+    assert.deepEqual([...pickAnyGroupAccelerators([
+        dagger, { selector: 'b', groupSelector: 'b', value: 3 },
+    ])], [')']);
+    // No accelerators at all.
+    assert.deepEqual([...pickAnyGroupAccelerators([{ selector: 'a', value: 4 }])], []);
+
+    const items = () => [
+        { selector: '$', groupSelector: '$', value: 1, label: '30 gold pieces' },
+        { selector: 'a', groupSelector: ')', value: 2, label: 'dagger' },
+    ];
+    for (const [keys, expected] of [
+        // invert_all_on_page(): an unselected entry takes a pending count.
+        ['5$\n', [{ value: 1, count: 5 }]],
+        // '$' is in gacc[], so the second '$' inverts the group: the count 5
+        // cannot be applied to the selected entry, which is deselected.
+        ['$5$\n', []],
+        // 'a' is not in gacc[], so toggle_menu_curr() sets the count 5 on
+        // the already selected entry.
+        ['a5a\n', [{ value: 2, count: 5 }]],
+    ]) {
+        assert.deepEqual(await selectTtyMenu(menuState(keys), {
+            how: PICK_ANY, title: 'Pick up what?', items: items(),
+        }), expected, JSON.stringify(keys));
+    }
 });
