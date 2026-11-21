@@ -320,7 +320,6 @@ export async function more(state = game) {
     try {
         await dismissPendingTtyMessage(state, {
             alwaysPrompt: true,
-            dismissMore: display.dismiss_more ?? 0,
             // more() brackets the marker with standoutbeg()/standoutend()
             // when flags.standout is set. Those write the terminal's SO/SE
             // strings through xputs(), which recorder patch 006 does not copy
@@ -401,9 +400,6 @@ export async function update_topl(message, state = game, context = {}) {
     const moreSuppressed = Boolean(state.iflags?.debug_fuzzer);
     if (current && !stoppedAtEntry && !moreSuppressed) {
         await callbacks.dismissPendingTtyMessage?.(state, {
-            // more() lets xwaitforspace() accept ttyDisplay->dismiss_more,
-            // which tty_message_menu() sets to its item letter.
-            dismissMore: state.nhDisplay?.dismiss_more ?? 0,
             preventEscapeStop: urgentMessage,
         });
     }
@@ -417,9 +413,6 @@ export async function update_topl(message, state = game, context = {}) {
     redrawTtyTopline(state, next, mixedFirstCell);
     if (wrapTtyTopline(next, columns).length > 1 && !moreSuppressed) {
         await callbacks.dismissPendingTtyMessage?.(state, {
-            // more() lets xwaitforspace() accept ttyDisplay->dismiss_more,
-            // which tty_message_menu() sets to its item letter.
-            dismissMore: state.nhDisplay?.dismiss_more ?? 0,
             preventEscapeStop: urgentMessage,
         });
     }

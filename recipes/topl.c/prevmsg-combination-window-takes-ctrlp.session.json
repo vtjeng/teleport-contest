@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for win/tty/topl.c tty_doprev_message() combination arm (42-78) and win/tty/getline.c xwaitforspace() (229-255) with msg_window:combination: a Tourist annotates the level with a line long enough that the answered getlin prompt wraps, looks here, and presses ^P. The second ^P recalls the wrapped line, whose redotoplin() raises --More--; ttyDisplay->dismiss_more is C('p'), so the third ^P dismisses it with morc == C('p') and the loop opens the history window in the same call. dismiss_more is still C('p'), so the fourth ^P dismisses that window too and the loop shows gt.toplines again.",
+ "segments": [
+  {
+   "seed": 451906,
+   "datetime": "20091130221000",
+   "nethackrc": "OPTIONS=name:Baedeker,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nOPTIONS=msg_window:combination\n",
+   "moves": "#annotate\na quiet antechamber where two corridors cross beside the fountain\n:\u0010\u0010\u0010\u0010\u0010\u0010\u001b  "
+  }
+ ]
+}

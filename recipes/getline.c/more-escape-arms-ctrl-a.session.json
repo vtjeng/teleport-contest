@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for win/tty/getline.c xwaitforspace() lines 244-248: Escape at a --More-- stores 1 in ttyDisplay->dismiss_more. A Caveman engraves with his fingers and escapes the \"You write in the dust with your fingertip.--More--\" and the text prompt after it. At the same --More-- on a second attempt ^P is refused and ^A (1) dismisses it, because nothing has cleared dismiss_more since; the text prompt is then answered.",
+ "segments": [
+  {
+   "seed": 7702931,
+   "datetime": "20110519070000",
+   "nethackrc": "OPTIONS=name:Urk,role:Caveman,race:human,gender:male,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+   "moves": "E-\u001b\u001bE-\u0010\u0001Urk\n  "
+  }
+ ]
+}

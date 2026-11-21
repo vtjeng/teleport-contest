@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for win/tty/getline.c xwaitforspace() lines 244-252 through wintty.c dmore() with msg_window:reversed: a Barbarian escapes the engraving --More--, which stores 1 in ttyDisplay->dismiss_more, cancels the text prompt and opens the discoveries window. Its first page refuses ^P and turns on ^A (1); Escape closes the second page. A ^P then shows the reversed history window, whose tty_doprev_message() arm clears dismiss_more (topl.c:100) once space dismisses it, so the reopened discoveries window refuses ^A and turns its page on space.",
+ "segments": [
+  {
+   "seed": 15083,
+   "datetime": "20130910120000",
+   "nethackrc": "OPTIONS=name:Brunhoff,role:Barbarian,race:orc,gender:male,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial,pushweapon,showexp,time,color,lit_corridor\nOPTIONS=suppress_alert:3.3.1\nOPTIONS=msg_window:reversed\n",
+   "moves": "E-\u001b\u001b\\\u0010\u0001\u001b\u0010 \\\u0001 \u001b  "
+  }
+ ]
+}

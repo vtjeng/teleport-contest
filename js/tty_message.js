@@ -134,15 +134,23 @@ function writeMorePromptAtCursor(display, promptAttr) {
 // membership test, exactly as in C.
 const QUITCHARS = ' \r\n\u001B';
 
-// C ref: win/tty/getline.c xwaitforspace().  Returns morc, the key that ended
-// the wait.  ttyDisplay->dismiss_more starts at 0, which matches no key a
-// session can send, so only `s` and the unconditional CR and LF dismiss the
-// prompt.
-export async function xwaitforspace(
-    state = game,
-    s = QUITCHARS,
-    dismissMore = 0,
-) {
+// C ref: win/tty/getline.c xwaitforspace().  Returns the key that ended the
+// wait and leaves C's file-global morc in display.morc: 0 after Return or
+// Enter, Escape after Escape, otherwise the accepted key.
+//
+// The extra key it accepts is ttyDisplay->dismiss_more, read here as C reads
+// it (getline.c:232) and never passed in: tty_doprev_message() sets it to
+// Ctrl-P and tty_message_menu() to an inventory letter, and every --More--,
+// text window and menu page reached meanwhile honours it. Escape also
+// stores 1 in it (getline.c:246), which stays until one of those two
+// functions next clears it. scripts/xwaitforspace-dismiss-more.test.mjs
+// keeps callers from supplying the key themselves.
+export async function xwaitforspace(state = game, s = QUITCHARS) {
+    const display = state.nhDisplay;
+    // `x = ttyDisplay ? (int) ttyDisplay->dismiss_more : '\n'`; a display-less
+    // caller's '\n' adds nothing to the Return test below.
+    const x = display?.dismiss_more ?? 0;
+    if (display) display.morc = 0;
     for (;;) {
         const code = await nhgetch(state);
         if (code === 10 || code === 13) return code;
@@ -153,11 +161,19 @@ export async function xwaitforspace(
         if (!state.iflags?.cbreak) continue;
         // Escape has its own arm above the membership test, so it dismisses
         // the prompt whatever `s` holds.  tty_nhgetch() already substituted it
-        // for NUL.  All other keys ring the bell and leave this boundary
-        // unchanged.
-        if (code === 27 || s.includes(String.fromCharCode(code))
-            || (dismissMore !== 0 && code === dismissMore))
+        // for NUL.
+        if (code === 27) {
+            if (display) {
+                display.dismiss_more = 1;
+                display.morc = 27;
+            }
             return code;
+        }
+        // All other keys ring the bell and leave this boundary unchanged.
+        if (s.includes(String.fromCharCode(code)) || (x !== 0 && code === x)) {
+            if (display) display.morc = code;
+            return code;
+        }
     }
 }
 
@@ -191,7 +207,6 @@ export function clearTtyMessageWindow(state = game) {
 export async function dismissPendingTtyMessage(
     state = game,
     {
-        dismissMore = 0,
         preventEscapeStop = false,
         returnResponse = false,
         alwaysPrompt = false,
@@ -225,8 +240,7 @@ export async function dismissPendingTtyMessage(
 
     // wintty.c tty_nhgetch() clears WIN_STOP before every key. more() restores
     // it only when this prompt's final response is Escape without WIN_NOSTOP.
-    const response = await xwaitforspace(state, QUITCHARS, dismissMore);
-    display.morc = response;
+    const response = await xwaitforspace(state, QUITCHARS);
 
     if (multiline) {
         // more() calls docorner(1, cw->cury + 1, 0) after the key boundary.
