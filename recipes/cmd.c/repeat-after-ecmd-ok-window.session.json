@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: cmd.c rhack() (3731-3735, 3803-3825) and do_repeat() (1637-1660). rhack() puts every command but #repeat and '#' into CQ_REPEAT before it runs, and its result tail keeps the queue for a plain ECMD_OK: reset_cmd_vars(gm.multi < 0). dodiscovered() (o_init.c:764-873), doattributes() (insight.c:2009-2019), dovspell() (spell.c:2021-2053) and ddoinv() (invent.c:3006-3009) return ECMD_OK from every exit, so ^A after each window opens it again. Escape at the command prompt runs reset_cmd_vars(TRUE) (3660-3669) and empties the queue, so the last ^A reports that there is no command to repeat. A Healer, who starts with discoveries and spells, on a seed, clock and key sequence chosen independently.",
+  "segments": [
+    {
+      "seed": 52619,
+      "datetime": "20240911203000",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "\\\u001b\u0001\u001b\u0018\u001b\u0001\u001b+\u001b\u0001\u001bi\u001b\u0001\u001b\u0001\u001b\u001b\u0001"
+    }
+  ]
+}

@@ -50,7 +50,7 @@ test('direct in-use dispatch retains source registration and ECMD_OK handling', 
     for (const [command, helper] of [['seetools', 'doprtool'], ['seeall', 'doprinuse']]) {
         const arm = js.slice(js.indexOf(`if (command === '${command}')`));
         assert.ok(arm.startsWith(`if (command === '${command}')`));
-        assert.ok(arm.indexOf(`() => ${helper}(state, inventoryMenuHooks(state))`) < arm.indexOf('resetCommandVars'));
-        assert.match(arm, /resetCommandVars\(state, state.multi < 0\);\s*return;/u);
+        assert.ok(arm.indexOf(`() => ${helper}(state, inventoryMenuHooks(state))`) < arm.indexOf('rhackResultTail'));
+        assert.match(arm, /rhackResultTail\(ECMD_OK, state\);\s*return;/u);
     }
 });

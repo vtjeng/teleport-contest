@@ -3075,7 +3075,7 @@ test('MCMD_OFFER dispatches queued dosacrifice with its ECMD result',
         assert.match(CMD_JS,
             /case MCMD\.OFFER:\s*queueHandler\('dosacrifice', state\);\s*cmdq_add_userinput\(CQ_CANNED, state\);/u);
         assert.match(CMD_JS,
-            /queuedExtcmdEntry\?\.ef_funct === 'dosacrifice'[\s\S]*?await dosacrifice\(state\)[\s\S]*?if \(res & ECMD_TIME\) commandTookTime\(state\)/u);
+            /queuedExtcmdEntry\?\.ef_funct === 'dosacrifice'[\s\S]*?await dosacrifice\(state\)[\s\S]*?rhackResultTail\(res, state\)/u);
 
         // Seed 4210044 and the fixed clock provide a stable initialized game;
         // the test replaces only the current terrain/alignment and inventory.

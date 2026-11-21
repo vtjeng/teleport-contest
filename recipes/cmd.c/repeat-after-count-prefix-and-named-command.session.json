@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "C ref: cmd.c rhack() (3731-3735, 3748-3760, 3803-3825), parse() (5126-5140) and do_repeat() (1637-1660). A count and an 'm' prefix before a window command: a counted discoveries command keeps dodiscovered in CQ_REPEAT and parse() reuses gl.last_command_count for ^A; with the 'm' prefix both do_reqmenu and dodiscovered are queued (3731-3735 skips the clear once a prefix was seen), so ^A asks for the ordering again. A named command: doextcmd() reports its row through ge.ext_tlist and rhack() adds it to CQ_REPEAT after it runs and shifts it in front of the answers the handler read, so ^A after #close and a direction closes in the same direction without asking, and ^A after #known opens the discoveries again. A Wizard, who has spells and discoveries from the start, on the default legacy and tutorial prompts; seed, clock and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 77213,
+      "datetime": "20230408091500",
+      "nethackrc": "OPTIONS=name:Ignatius,role:Wizard,race:gnome,gender:male,align:neutral\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "  n3\\\u001b\u0001\u001bm\\a\u001b\u0001\u001b\u001b#known\r\u001b\u0001\u001b#close\rj\u0001\u00014s\u0001i\u001b\u0001\u001b"
+    }
+  ]
+}

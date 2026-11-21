@@ -2977,23 +2977,48 @@ export function failClosedCommandRefusals() {
     ];
 }
 
-// C ref: rhack():3818-3825, the tail every ECMD_* handler shares. A command
-// that spent a turn puts context.move back to TRUE and, unless it was
-// dokick(), forgets the square the hero last kicked so that a pet stops
-// avoiding it.
+// C ref: rhack():3803-3825, the result tail every command handler shares.
+// `res` is the handler's ECMD_* result and `func` the ef_funct name rhack()
+// dispatched, which only the dokick() test at 3821 reads.
 //
-// `#kick` clears it too, and that is not an oversight to repair: rhack()
-// captured `func` from the '#' row before calling doextcmd(), and the
+// A cancelled or failed command runs reset_cmd_vars(TRUE), which empties
+// CQ_CANNED and CQ_REPEAT, so ^A then has no command to repeat. Plain ECMD_OK
+// runs reset_cmd_vars(gm.multi < 0), which keeps both queues unless a
+// negative count holds: a command that only showed a window or a menu stays
+// in CQ_REPEAT. ECMD_TIME runs no reset at all, puts context.move back to
+// TRUE and, unless the function was dokick(), forgets the square the hero
+// last kicked so that a pet stops avoiding it.
+//
+// `#kick` clears that square too, and that is not an oversight to repair:
+// rhack() captured `func` from the '#' row before calling doextcmd(), and the
 // reassignment at 3750 replaces `tlist` alone, so the test at 3821 compares
 // doextcmd() with dokick() and passes. Only the key bound to kick keeps the
-// square. The kick arm in rhack() below is therefore the one command-result
-// arm that does not come through here; the five arms whose handler answers a
-// boolean rather than an ECMD code share this tail like the rest. The
-// movement arms set context.move themselves because C returns at 3785-3800,
-// before this tail runs at all.
-function commandTookTime(state) {
-    state.context.move = 1;
-    clear_kickedloc(state);
+// square. The movement arms set context.move themselves because C returns at
+// 3785-3800, before this tail runs at all.
+//
+// Every arm of rhack() ends here; scripts/rhack-result-tail.test.mjs fails
+// when one spells the tail out again. Number() admits the handlers that
+// still answer a boolean for "took time": false is ECMD_OK and true is
+// ECMD_TIME.
+function rhackResultTail(res, state, func = null) {
+    res = Number(res ?? ECMD_OK);
+    if ((res & (ECMD_CANCEL | ECMD_FAIL)) !== 0) {
+        /* command was canceled by user, maybe they declined to
+           pick an object to act on, or command failed to finish */
+        reset_cmd_vars(true, state);
+    } else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK) {
+        reset_cmd_vars(state.multi < 0, state);
+    }
+    /* reset_cmd_vars() sets context.move to False so we might
+       need to change it [back] to True */
+    if ((res & ECMD_TIME) !== 0) {
+        state.context.move = 1;
+        if (func !== 'dokick') {
+            /* hero did something else than kicking a location;
+               reset the location, so pets don't avoid it */
+            clear_kickedloc(state);
+        }
+    }
 }
 
 // A command whose port is complete except for branches that are not, such as
@@ -5247,11 +5272,6 @@ async function doextcmd(key, state, onSelectedEntry = null) {
 
         const entry = extcmdlist[idx];
         if (!await can_do_extcmd(entry, state)) return ECMD_OK;
-        if (!state.in_doagain && entry.ef_funct !== 'do_repeat'
-            && entry.ef_funct !== 'doextcmd') {
-            cmdq_clear(CQ_REPEAT, state);
-            cmdq_add_ec(CQ_REPEAT, entry, state);
-        }
         if (state.iflags.menu_requested && !accept_menu_prefix(entry)) {
             const prefix = keyForCommand(commandBindings(state), 'reqmenu');
             await ttyPline(
@@ -5511,10 +5531,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             const res = await failClosedCommand(
                 key, state, () => dotip(state),
             );
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         // C ref: cmd.c act_on_act() queues dosit's function pointer for
@@ -5523,10 +5540,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         // source function ahead of the command-name arms below.
         if (queuedExtcmdEntry?.ef_funct === 'dosit') {
             const res = await dosit(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         // C ref: cmd.c act_on_act() queues dosacrifice() for MCMD_OFFER, then
@@ -5534,30 +5548,21 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         // ECMD reset/time tail as a directly selected extended command.
         if (queuedExtcmdEntry?.ef_funct === 'dosacrifice') {
             const res = await dosacrifice(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         // C ref: cmd.c do_repeat() requeues the selected #pray row; rhack()
         // invokes its function pointer just as doextcmd() does.
         if (queuedExtcmdEntry?.ef_funct === 'dopray') {
             const res = await dopray(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         // C ref: pickup.c:2144 queues lock.c:doforce() as a function
         // pointer. rhack() dispatches that row directly before reading a key.
         if (queuedExtcmdEntry?.ef_funct === 'doforce') {
             const res = await doforce(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         // C ref: iactions.c itemactions_pushkeys() queues the doorganize
@@ -5568,18 +5573,12 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             const res = await failClosedCommand(
                 key, state, () => doorganize(state),
             );
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'prevmsg') {
             const res = await doprev_message(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         // C ref: iactions.c itemactions_pushkeys() queues adjust_split's
@@ -5589,20 +5588,14 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             const res = await failClosedCommand(
                 key, state, () => adjust_split(state),
             );
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         // C end.c fuzzer_savelife() queues this function after repeated
         // debug deaths; rhack invokes the queued row without another prompt.
         if (queuedExtcmdEntry?.ef_funct === 'wiz_makemap') {
             const res = await wiz_makemap(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'call' || command === 'name') {
@@ -5611,10 +5604,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // returns ECMD_OK at do_name.c:600; rhack():3810-3818 therefore
             // resets command variables without advancing a turn.
             const res = await docallcmd(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         // Queued rows carry their display name in `command`; C dispatches
@@ -5625,10 +5615,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             || queuedClickHandler === 'domouseaction') {
             const result = (queuedClickHandler ?? command) === 'doclicklook'
                 ? await doclicklook(state) : await domouseaction(state);
-            if (result & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((result & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (result & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(result, state);
             return;
         }
         if (command === 'versionshort') {
@@ -5638,17 +5625,13 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 displayTextWindow: displayTtyTextWindow,
                 random: rn2,
             });
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'wait') {
             // C ref: rhack():3810-3825, the result tail for donull()'s
             // ECMD_OK or ECMD_TIME.
-            if (!await donull(state)) resetCommandVars(state, state.multi < 0);
-            else commandTookTime(state);
+            rhackResultTail(await donull(state), state);
             return;
         }
         if (command === '#') {
@@ -5669,12 +5652,16 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // JavaScript finalizer returns for screen capture only; do not
             // apply cmd.c's result handling after that terminal boundary.
             if (state.program_state?.gameover) return;
-            if (selectedEntry && [
-                'do_fight', 'doclose', 'dofire', 'dothrow', 'dowield',
-            ].includes(selectedEntry.ef_funct)) {
-                // cmd.c:rhack() copies ge.ext_tlist into CQ_REPEAT after the
-                // selected handler returns, before checking PREFIXCMD.
-                recordRepeatCommand(selectedEntry.ef_txt, false, state);
+            if (selectedEntry) {
+                // C ref: rhack():3753-3760. doextcmd() names the row it ran
+                // through ge.ext_tlist, and rhack() adds that row to
+                // CQ_REPEAT after the handler returns, then shifts it to the
+                // front. The object letters, direction and answers the
+                // handler read are already in the queue, so ^A replays the
+                // named command with the same answers. This runs for every
+                // named row and before the PREFIXCMD test.
+                cmdq_add_ec(CQ_REPEAT, selectedEntry, state);
+                cmdq_shift(CQ_REPEAT, state);
             }
             if (selectedEntry?.flags & PREFIXCMD) {
                 if (res & ECMD_CANCEL) {
@@ -5688,10 +5675,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
                 await rhack(prefixedKey, state, selectedEntry);
                 return;
             }
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'repeat') {
@@ -5699,32 +5683,23 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // ordinary ECMD result arm; the retained CQ_REPEAT copy is
             // restored inside do_repeat() before this branch runs.
             const res = await do_repeat(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'search') {
             // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
             // three tests the '#' arm above applies. dosearch() answers
             // ECMD_TIME for a search that ran and ECMD_OK when
-            // cmd_safety_prevention() stopped it, so the cancel arm is
-            // unreachable from this handler today and no test pins it. It is
-            // written out anyway because cmd.c:3805-3809 documents
-            // (ECMD_TIME|ECMD_CANCEL) as a real result, and dropping the test
-            // would make this arm disagree with C for it.
+            // cmd_safety_prevention() stopped it, so the cancel test in
+            // rhackResultTail() is unreachable from this handler today.
             const res = await runSearchCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'redraw') {
             // display.c doredraw() returns ECMD_OK; redraw takes no time.
             await doredraw();
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'terrain') {
@@ -5732,10 +5707,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // is a no-time command; terrain browsing restores the live map
             // before the ordinary no-time result tail resets command state.
             const res = await runTerrainCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'travel') {
@@ -5743,60 +5715,47 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // selection and cached destination state are ported here; the
             // call into hack.c findtravelpath() is the next boundary.
             const res = await dotravel(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'eat') {
             // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
             // three tests the '#' and `search` arms apply. doeat() answers
             // ECMD_OK for every refusal this slice covers, so only the middle
-            // test fires today; the cancel test is written out for the same
-            // reason it is there, because cmd.c:3805-3809 documents
-            // (ECMD_TIME|ECMD_CANCEL) as a real result.
+            // test fires today.
             const res = await runEatCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'engrave') {
             const res = await runEngraveCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'help') {
             await runHelpCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'whatdoes') {
             await dowhatdoes(state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'whatis') {
             await runWhatisCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'showtrap') {
             // C rhack3810-3825: cancellation resets normally; a successful
             // description is ECMD_OK and never spends a turn.
-            const result = await doidtrap(state);
-            if (result & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else resetCommandVars(state, state.multi < 0);
+            rhackResultTail(await doidtrap(state), state);
             return;
         }
         if (command === 'glance') {
             await runGlanceCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'apply') {
@@ -5807,10 +5766,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // and for the three use_stethoscope() guards, and ECMD_TIME for a
             // second listen in the same move.
             const res = await runApplyCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'rub') {
@@ -5819,10 +5775,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // this same command and the lamp letter, so this direct handler
             // must preserve CQ_CANNED while marking the elapsed turn.
             const res = await runRubCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'close') {
@@ -5835,10 +5788,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // and domove_attempting tests at 3773-3800 cannot divert it,
             // because cmd.c:1545's "close" row carries no flags at all.
             const res = await runCloseCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'open') {
@@ -5851,10 +5801,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // MOVEMENTCMD and domove_attempting tests at 3773-3800 cannot
             // divert it, because cmd.c:1785's "open" row carries no flags.
             const res = await runOpenCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'zap') {
@@ -5867,10 +5814,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // cmd.c:2004's "zap" row carries no flags at all -- which is also
             // why an 'm' or 'F' prefix is refused ahead of this arm.
             const res = await runZapCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'cast') {
@@ -5883,10 +5827,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // "cast" row carries only IFBURIED -- no prefix flags at all --
             // so an 'm' or 'F' prefix is refused ahead of this arm.
             const res = await runCastCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'quaff') {
@@ -5898,10 +5839,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // CMD_M_PREFIX, so an 'm' prefix sets iflags.menu_requested and
             // skips the fountain/sink/underwater prompts.
             const res = await runQuaffCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'read') {
@@ -5911,10 +5849,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // hero and ECMD_CANCEL when getobj() is escaped; a selected object
             // remains fail-closed before it changes state.
             const res = await runReadCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'down') {
@@ -5926,14 +5861,9 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // domove_attempting at 0 because zdir[DIR_DOWN] is nonzero.
             //
             // dodown() answers ECMD_OK for the refusal this slice covers and
-            // ECMD_TIME for u_rooted(); the cancel test is written out for the
-            // same reason it is in the arms above, because cmd.c:3805-3809
-            // documents (ECMD_TIME|ECMD_CANCEL) as a real result.
+            // ECMD_TIME for u_rooted().
             const res = await runDownCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'up') {
@@ -5948,20 +5878,14 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // holdback, ECMD_TIME for u_rooted/u_stuck_cannot_go/overloaded
             // and for the successful ascent.
             const res = await runUpCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'droptype') {
             // C ref: cmd.c rhack() result handling (3810-3818). D and
             // #droptype share doddrop's no-time/time result.
             const res = await failClosedCommand(key, state, () => doddrop(state));
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'drop') {
@@ -5975,10 +5899,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // divert it either, because cmd.c:1708's "drop" row carries no
             // flags at all.
             const res = await runDropCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'pickup') {
@@ -5988,37 +5909,26 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // pickup_checks() refuses the square, which spends no turn, and
             // ECMD_TIME when pickup() answers 1 because it selected at least
             // one object, which is n_tried > 0 in js/pickup.js pickup(). The
-            // ECMD_TIME test below is what spends that turn; the cancel test is
-            // written out for the same reason it is in the arms above,
-            // because cmd.c:3805-3809 documents (ECMD_TIME|ECMD_CANCEL) as a
-            // real result. The MOVEMENTCMD and domove_attempting tests at
+            // ECMD_TIME test in rhackResultTail() is what spends that turn.
+            // The MOVEMENTCMD and domove_attempting tests at
             // 3773-3800 cannot divert this command either, because
             // cmd.c:1799's "pickup" row carries CMD_M_PREFIX and no movement
             // flag; that same flag is what lets `m,` through the prefix test
             // at 3693-3695 with iflags.menu_requested still set.
             const res = await runPickupCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'pay') {
             // cmd.c rhack:3810-3818 applies dopay's ECMD result equally to
             // its p binding, #pay and the source's m-prefix inversion.
             const res = await failClosedCommand(key, state, () => dopay(state));
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'takeoffall') {
             const res = await failClosedCommand(key, state, () => doddoremarm(state));
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'takeoff') {
@@ -6031,10 +5941,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // domove_attempting tests at 3773-3800 cannot divert it, because
             // cmd.c:1886's "takeoff" row carries no flags at all.
             const res = await runTakeOffCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'remove') {
@@ -6043,10 +5950,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // removal returns ECMD_TIME. The row carries no flags, so its
             // result reaches rhack()'s ordinary result handling directly.
             const res = await runRemoveCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'wear') {
@@ -6059,10 +5963,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // domove_attempting tests at 3773-3800 cannot divert it, because
             // cmd.c:1932's "wear" row carries no flags at all.
             const res = await runWearCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'puton') {
@@ -6073,10 +5974,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // each accessory_or_armor_on() refusal, and ECMD_TIME for a
             // ring that goes on. cmd.c:1821's "puton" row carries no flags.
             const res = await runPutonCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'fire') {
@@ -6097,10 +5995,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             const res = await failClosedCommand(
                 key, state, () => dofire(state),
             );
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'throw') {
@@ -6120,10 +6015,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             const res = await failClosedCommand(
                 key, state, () => dothrow(state),
             );
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'wield') {
@@ -6137,10 +6029,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             const res = await failClosedCommand(
                 key, state, () => dowield(state),
             );
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'quiver') {
@@ -6152,10 +6041,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             const res = await failClosedCommand(
                 key, state, () => dowieldquiver(state),
             );
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'swap') {
@@ -6167,10 +6053,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             const res = await failClosedCommand(
                 key, state, () => doswapweapon(state),
             );
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'kick') {
@@ -6182,26 +6065,22 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // 3693-3695 nor the MOVEMENTCMD and domove_attempting tests at
             // 3773-3800 can divert it.
             //
-            // This is the one arm that does not call commandTookTime(): the
+            // This is the one arm that names its function to the tail: the
             // key bound to kick makes rhack()'s `func` dokick() itself, and
             // 3821 keeps gk.kickedloc for exactly that case.
             const res = await runKickCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) state.context.move = 1;
+            rhackResultTail(res, state, 'dokick');
             return;
         }
         if (command === 'options') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, which the
-            // '#', `search`, `eat` and `down` arms above spell out in full.
+            // C ref: rhack()'s result handling at cmd.c:3810-3818.
             // Both doset_simple() and doset() end `return ECMD_OK`
             // (options.c:8734, :8974), so only reset_cmd_vars() runs. The
             // MOVEMENTCMD and domove_attempting tests at 3773-3800 cannot
             // divert it: extcmdlist[]'s "options" row carries IFBURIED,
             // GENERALCMD and CMD_M_PREFIX and no movement flag.
             await runOptionsCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'autopickup') {
@@ -6212,22 +6091,18 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // extcmdlist[]'s "autopickup" row (cmd.c:1681) carries IFBURIED
             // and GENERALCMD and no movement flag.
             await dotogglepickup(state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'turn') {
             // C cmd.c rhack() dispatches a directly bound extcmd row through
             // its handler, with the same ECMD result accounting as #turn.
             const res = await doturn(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'wizwish') {
-            // C ref: rhack()'s result handling at cmd.c:3810-3818, which the
-            // '#', `search`, `eat` and `down` arms above spell out in full.
+            // C ref: rhack()'s result handling at cmd.c:3810-3818.
             // Both arms of wiz_wish() end `return ECMD_OK` (wizcmds.c:44), so
             // neither the cancel test nor the ECMD_TIME test can fire and
             // reset_cmd_vars() is the whole of the handling. The MOVEMENTCMD
@@ -6235,7 +6110,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // either: extcmdlist[]'s "wizwish" row carries IFBURIED,
             // CMD_M_PREFIX and WIZMODECMD and none of the movement flags.
             await runWishCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'wizidentify') {
@@ -6243,12 +6118,12 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // wiz_identify() arms end with ECMD_OK, and display_inventory()
             // is a display-only menu, so no turn is spent.
             await runIdentifyCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'wizlevelport') {
-            // C ref: rhack()'s result handling, the same shape the `wizwish`
-            // arm above spells out: wizcmds.c:405 ends both arms of
+            // C ref: rhack()'s result handling, the same shape as the `wizwish`
+            // arm above: wizcmds.c:405 ends both arms of
             // wiz_level_tele() with `return ECMD_OK`, so reset_cmd_vars() is
             // all of it. The prefix test at 3693-3695 cannot divert the
             // command either -- cmd.c:1970's "wizlevelport" row carries
@@ -6256,12 +6131,12 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // "The wizlevelport command does not accept 'm' prefix." -- and
             // the row holds no movement flag.
             await runLevelTeleCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'wizgenesis') {
-            // C ref: rhack()'s result handling, the same shape the `wizwish`
-            // arm above spells out: wizcmds.c:213 ends both arms of
+            // C ref: rhack()'s result handling, the same shape as the `wizwish`
+            // arm above: wizcmds.c:213 ends both arms of
             // wiz_genesis() with `return ECMD_OK`, so reset_cmd_vars() is all
             // of it and creating a monster spends no turn. cmd.c:1961's
             // "wizgenesis" row carries IFBURIED and WIZMODECMD and no movement
@@ -6269,7 +6144,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // 3774-3802 cannot divert it; it carries no CMD_M_PREFIX either,
             // so the prefix test at 3693-3695 refuses `m^G` and `F^G` above.
             await runGenesisCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'wizmap') {
@@ -6277,39 +6152,33 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // wiz_map() ends with ECMD_OK after mapping, so no turn is spent
             // and reset_cmd_vars() is the whole of this arm.
             await runMapCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'wizkill') {
             // C cmd.c rhack() consumes the same no-time result for a bound key.
             const res = await runKillCommand(key, state);
             if (state.program_state?.gameover) return;
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'wizsmell') {
             // C rhack():3810-3825 consumes the handler's ECMD result for a
             // configured key, exactly as the typed doextcmd row does.
             const res = await runSmellCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'panic') {
             // C rhack():3810-3818 clears any count for ECMD_OK without a turn.
             await wiz_panic(state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'wizshownhuuid') {
             // C rhack():3810-3818 clears a count for this ECMD_OK result.
             await wiz_show_nhuuid(state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'wizintrinsic') {
@@ -6317,7 +6186,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // wiz_intrinsic() ends with ECMD_OK and never consumes a turn;
             // the command row carries IFBURIED and WIZMODECMD only.
             await runIntrinsicCommand(key, state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'wizcast') {
@@ -6325,20 +6194,14 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // install it from OPTIONS BINDINGS; C then calls dowizcast()
             // directly from rhack() and consumes its ECMD result here.
             const res = await runWizCastCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'teleport') {
             // C ref: cmd.c maps both C('t') and #teleport to dotelecmd().
             const res = await dotelecmd(state);
             if (state.program_state?.gameover) return;
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (command === 'save') {
@@ -6350,102 +6213,82 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // flag, so the MOVEMENTCMD and domove_attempting tests at
             // 3773-3800 cannot divert it.
             await dosave(state);
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'shell' || command === 'suspend') {
             const res = command === 'shell'
                 ? await dosh_core(state) : await dosuspend_core(state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
-        // These five wrappers answer a boolean rather than an ECMD code. The
-        // inventory wrapper's ECMD_OK-equivalent exit can leave a canned item
-        // action behind, so it preserves that queue. The other wrappers still
-        // fold C's two result arms into one unconditional reset. The fold
-        // covers the reset argument alone; the ECMD_TIME
-        // tail at 3818-3825 is shared with every other arm through
-        // commandTookTime(), so a wrapper that spends a turn forgets the
-        // kicked square exactly as the ECMD arms do.
+        // ddoinv() (invent.c:3006-3009, through dispinv_with_action() and
+        // iactions.c itemactions()), dovspell() (spell.c:2021-2053),
+        // dodiscovered() (o_init.c:764-873) and doattributes()
+        // (insight.c:2009-2019) answer ECMD_OK from every exit, so rhack()
+        // runs reset_cmd_vars(gm.multi < 0) for them and CQ_REPEAT keeps the
+        // command: ^A after any of the four windows opens it again. The
+        // inventory's ECMD_OK exit can also leave a canned item action
+        // behind, which the same reset preserves.
         //
-        // For an elapsed command C runs no reset_cmd_vars() at all, so multi,
-        // context.run, context.mv and domove_attempting survive it. dolook()
-        // is the only one of the five whose own exits can answer ECMD_TIME
-        // (invent.c:4160, :4248 and :4314, each for a blind hero), and its arm
-        // below keeps that distinction: a context.run left at 8 by a finished
-        // travel still suppresses allmain.c's time_botl on the turn it spends.
+        // dolook() is the only one of the five whose own exits can answer
+        // ECMD_TIME (invent.c:4160, :4248 and :4314, each for a blind hero).
+        // For that result C runs no reset_cmd_vars() at all, so multi,
+        // context.run, context.mv and domove_attempting survive it: a
+        // context.run left at 8 by a finished travel still suppresses
+        // allmain.c's time_botl on the turn it spends.
         if (command === 'inventory') {
-            const elapsed = await runInventoryCommand(key, state);
-            if (elapsed) {
-                resetCommandVars(state);
-                commandTookTime(state);
-            } else {
-                resetCommandVars(state, state.multi < 0);
-            }
+            rhackResultTail(await runInventoryCommand(key, state), state);
             return;
         }
         if (command === 'showspells') {
-            const result = await runShowspellsCommand(key, state);
-            resetCommandVars(state);
-            if (result & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(await runShowspellsCommand(key, state), state);
             return;
         }
         if (command === 'known') {
-            const elapsed = await runKnownCommand(key, state);
-            resetCommandVars(state);
-            if (elapsed) commandTookTime(state);
+            rhackResultTail(await runKnownCommand(key, state), state);
             return;
         }
         if (command === 'attributes') {
-            const elapsed = await runAttributesCommand(key, state);
-            resetCommandVars(state);
-            if (elapsed) commandTookTime(state);
+            rhackResultTail(await runAttributesCommand(key, state), state);
             return;
         }
         if (command === 'overview') {
             const result = await dooverview(state);
-            if (result & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((result & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (result & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(result, state);
             return;
         }
         if (command === 'look') {
-            const elapsed = await runLookCommand(key, state);
             // C ref: rhack()'s result handling (cmd.c 3811-3825). dolook()
             // returns ECMD_OK for a sighted hero, which reaches
             // reset_cmd_vars(gm.multi < 0); a blind hero's ECMD_TIME skips
             // the reset and puts context.move back to TRUE.
-            if (elapsed) commandTookTime(state);
-            else resetCommandVars(state, state.multi < 0);
+            rhackResultTail(await runLookCommand(key, state), state);
             return;
         }
         if (command === 'showgold') {
             await failClosedCommand(key, state, () => doprgold(state));
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'seeweapon') {
             await failClosedCommand(key, state, () => doprwep(state, inventoryMenuHooks(state)));
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'seearmor') {
             await failClosedCommand(key, state, () => doprarm(state, inventoryMenuHooks(state)));
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'seerings') {
             await failClosedCommand(key, state, () => doprring(state, inventoryMenuHooks(state)));
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'seeamulet') {
             await failClosedCommand(key, state, () => dopramulet(state, inventoryMenuHooks(state)));
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         // C ref: cmd.c rhack() invokes the registered inventory handler,
@@ -6453,12 +6296,12 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
         // direct keys use the same canonical display as their #commands.
         if (command === 'seetools') {
             await failClosedCommand(key, state, () => doprtool(state, inventoryMenuHooks(state)));
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'seeall') {
             await failClosedCommand(key, state, () => doprinuse(state, inventoryMenuHooks(state)));
-            resetCommandVars(state, state.multi < 0);
+            rhackResultTail(ECMD_OK, state);
             return;
         }
         if (command === 'dip') {
@@ -6470,10 +6313,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // 'm' prefix sets iflags.menu_requested and skips the terrain
             // prompts.
             const res = await runDipCommand(key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) commandTookTime(state);
+            rhackResultTail(res, state);
             return;
         }
         if (Object.hasOwn(MOVEMENT_INTENTS, command)) {
@@ -6490,13 +6330,7 @@ export async function rhack(key, state = game, selectedPrefixEntry = null) {
             // takes the turn and, for every function but dokick(), clears the
             // kicked location so pets stop avoiding it.
             const res = await callExtcmdFunction(row, key, state);
-            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
-            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state, state.multi < 0);
-            if (res & ECMD_TIME) {
-                state.context.move = 1;
-                if (row.ef_funct !== 'dokick') clear_kickedloc(state);
-            }
+            rhackResultTail(res, state, row.ef_funct);
             return;
         }
         // C ref: cmd.c rhack()'s bad-command path. SUPPRESS_HISTORY keeps

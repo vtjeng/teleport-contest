@@ -103,7 +103,7 @@ test('panic retains its source wizard row and typed/direct no-time dispatch', as
     assert.ok(DISPATCHED_COMMANDS.includes('panic'));
     const js = readFileSync('js/cmd.js', 'utf8');
     assert.match(js, /wiz_panic: \(key, state\) => wiz_panic\(state\),/u);
-    assert.match(js, /if \(command === 'panic'\)\s*\{[\s\S]*?await wiz_panic\(state\);\s*resetCommandVars\(state, state\.multi < 0\);\s*return;/u);
+    assert.match(js, /if \(command === 'panic'\)\s*\{[\s\S]*?await wiz_panic\(state\);\s*rhackResultTail\(ECMD_OK, state\);\s*return;/u);
 });
 
 function moveState() {
@@ -427,7 +427,7 @@ test('wizard smell dispatch preserves the source row and no-time results', async
     assert.ok(DISPATCHED_COMMANDS.includes('wizsmell'));
     assert.match(jsSource, /wiz_smell: \(key, state\) => runSmellCommand\(key, state\),/u);
     assert.match(jsSource,
-        /if \(command === 'wizsmell'\)[\s\S]*?ECMD_CANCEL \| ECMD_FAIL[\s\S]*?resetCommandVars\(state, state.multi < 0\)/u);
+        /if \(command === 'wizsmell'\)[\s\S]*?runSmellCommand\(key, state\);\s*rhackResultTail\(res, state\)/u);
     const wizardSource = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8');
     const start = wizardSource.indexOf('wiz_smell(void)');
     const smell = wizardSource.slice(start, wizardSource.indexOf('wiz_intrinsic(void)', start));
@@ -446,6 +446,6 @@ test('wizard kill dispatch admits the menu prefix and no-time configured key', a
     assert.ok(DISPATCHED_COMMANDS.includes('wizkill'));
     assert.match(js, /wiz_kill: \(key, state\) => runKillCommand\(key, state\),/u);
     // The selected command callback preserves C's ge.ext_tlist handoff to rhack.
-    assert.match(js, /if \(command === '#'\)[\s\S]*?doextcmd\(key, state, \(entry\) =>[\s\S]*?selectedEntry = entry;[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?resetCommandVars\(state, state.multi < 0\)/u);
-    assert.match(js, /if \(command === 'wizkill'\)[\s\S]*?runKillCommand\(key, state\)[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?resetCommandVars\(state, state.multi < 0\)/u);
+    assert.match(js, /if \(command === '#'\)[\s\S]*?doextcmd\(key, state, \(entry\) =>[\s\S]*?selectedEntry = entry;[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state\)/u);
+    assert.match(js, /if \(command === 'wizkill'\)[\s\S]*?runKillCommand\(key, state\)[\s\S]*?program_state\?\.gameover\) return;[\s\S]*?rhackResultTail\(res, state\)/u);
 });
