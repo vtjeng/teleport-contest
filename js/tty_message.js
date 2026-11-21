@@ -108,9 +108,9 @@ function writePendingTtyMessagePrompt(state, layout, promptAttr = ATR_NONE) {
         display.setCursor(0, promptRow);
         display.clearToEol();
     }
-    // redotoplin()'s g_putch() of a mixed line's first byte.
-    if (state._ttyMixedFirstCell)
-        display.putCaptured(0, 0, state._ttyMixedFirstCell);
+    // C's more() prints only the marker. Repainting the rows above leaves
+    // each cell as C shows it: a mixed line's high first byte is one that
+    // putch() skips, so its cell keeps redotoplin()'s g_putch() glyph.
     display.putstr(promptColumn, promptRow, MORE_PROMPT, NO_COLOR, promptAttr);
     display.setCursor(promptColumn + MORE_PROMPT.length, promptRow);
 }
@@ -196,7 +196,6 @@ export function clearTtyMessageWindow(state = game) {
     if (cw) cw.curx = cw.cury = 0;
     state._pending_message = '';
     delete state._pendingMessageLayout;
-    delete state._ttyMixedFirstCell;
     display.toplin = TOPLINE_EMPTY;
     display.topMessage = state._ttyToplines ?? '';
 }
@@ -253,7 +252,6 @@ export async function dismissPendingTtyMessage(
         display.setCursor(0, 0);
     }
     state._pending_message = '';
-    delete state._ttyMixedFirstCell;
     // more() leaves gt.toplines intact for message history. Escape also
     // sets WIN_STOP after tty_nhgetch() returns; subsequent plines update
     // that logical buffer without drawing until the next key wait.

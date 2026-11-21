@@ -218,10 +218,8 @@ export function appendRecorderTtyLine(display, startColumn, row, value) {
     display.clearToEol();
 }
 
-function rememberPendingMessage(state, message, mixedFirstCell = null) {
+function rememberPendingMessage(state, message) {
     state._pending_message = message;
-    if (mixedFirstCell) state._ttyMixedFirstCell = mixedFirstCell;
-    else delete state._ttyMixedFirstCell;
     setToplinesViaUpdateTopl(message, state);
     if (state.nhDisplay) {
         state.nhDisplay.topMessage = message;
@@ -229,6 +227,13 @@ function rememberPendingMessage(state, message, mixedFirstCell = null) {
     }
 }
 
+// `mixedFirstCell` is the cell recorder patch 006 captures for redotoplin()'s
+// g_putch() of a tty_putmixed() line's first byte (topl.c:127-133): only
+// while ttyDisplay->mixed is set and only for a high byte, so only on this
+// first paint. The terminal grid is the only place that cell lives
+// afterwards. A later putsyms() of the same byte is ignored by the capture
+// (GameDisplay.putch()), so a repaint keeps whatever the cell then shows,
+// and any other write over column 0 replaces the glyph, as on the terminal.
 function redrawTtyTopline(state, message, mixedFirstCell = null) {
     const display = state.nhDisplay;
     if (!display) return;
@@ -242,7 +247,8 @@ function redrawTtyTopline(state, message, mixedFirstCell = null) {
         writeRecorderTtyLine(display, row, lines[row]);
     }
     // redotoplin()'s g_putch() of a mixed line's first byte.
-    if (mixedFirstCell) display.putCaptured(0, 0, mixedFirstCell);
+    if (mixedFirstCell && (String(message).charCodeAt(0) & 0x80))
+        display.putCaptured(0, 0, mixedFirstCell);
     display.setCursor(lines.at(-1)?.length ?? 0, lines.length - 1);
 }
 
@@ -377,11 +383,7 @@ export async function update_topl(message, state = game, context = {}) {
     if (current
         && !deathMessage
         && fitsOnTtyTopline(current, next, columns)) {
-        rememberPendingMessage(
-            state,
-            `${current}  ${next}`,
-            state._ttyMixedFirstCell ?? null,
-        );
+        rememberPendingMessage(state, `${current}  ${next}`);
         if (!stoppedAtEntry && state.nhDisplay) {
             appendRecorderTtyLine(
                 state.nhDisplay,
@@ -405,7 +407,7 @@ export async function update_topl(message, state = game, context = {}) {
     }
     if (deathComparisonReached) state._ttyMessageStopped = false;
     if (state._ttyToplines) remember_topl(state);
-    rememberPendingMessage(state, next, mixedFirstCell);
+    rememberPendingMessage(state, next);
     rememberPreviousMessage(state, context, message);
     // C update_topl() ends every unsuppressed replacement with redotoplin(),
     // including after the more() above. Remembering it until the next map

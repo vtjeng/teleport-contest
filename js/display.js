@@ -7345,7 +7345,6 @@ function clipProjectedMessage(column, ymax, state) {
     const clipped = rows.map((text, row) =>
         (row < ymax ? text.slice(0, column) : text));
     if (clipped.every((text, row) => text === rows[row])) return;
-    if (column === 0) delete state._ttyMixedFirstCell;
     // A row emptied before the last row keeps its place in the layout, so
     // the rows after it stay on their physical lines.
     while (clipped.length > 1 && clipped.at(-1) === '') clipped.pop();
@@ -7784,11 +7783,10 @@ function _buildScreenOutput(cursorOnHero = true) {
         // Recorder patch 006 ignores a control or signed high-bit TTY byte
         // after the source cursor has advanced past it (GameDisplay.putch()),
         // so restore the physical cell which clearScreen() temporarily
-        // erased instead of projecting the byte. A mixed line's first cell
-        // is redotoplin()'s g_putch() glyph, which the capture keeps.
-        const mixedFirstCell = game._ttyMixedFirstCell;
-        const skipsCell = (c) => !(c === 0 && mixedFirstCell)
-            && nomux_putch_byte(msg.charCodeAt(c)) === null;
+        // erased instead of projecting the byte. That includes a mixed
+        // line's high first byte, whose cell holds the glyph that
+        // redotoplin()'s g_putch() printed (topl.js redrawTtyTopline()).
+        const skipsCell = (c) => nomux_putch_byte(msg.charCodeAt(c)) === null;
         let skippedMessageCells = null;
         for (let c = 0; c < rowZeroLength; ++c) {
             if (skipsCell(c)) {
@@ -7801,8 +7799,6 @@ function _buildScreenOutput(cursorOnHero = true) {
         for (let c = 0; !bufferedOnly && c < rowZeroLength; c++) {
             if (skipsCell(c))
                 display.restoreCell(c, 0, skippedMessageCells[c]);
-            else if (c === 0 && mixedFirstCell)
-                display.putCaptured(c, 0, mixedFirstCell);
             else
                 display.putch(c, 0, msg[c]);
         }

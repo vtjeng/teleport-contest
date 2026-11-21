@@ -480,8 +480,8 @@ export function tty_init_nhwindows(argcp = null, argv = null, state = game) {
     // tty_putmixed() has set them, and color during glyph output, which the
     // per-cell grid replaces; it never reads attrs or lastwin.  The mixed arm
     // of redotoplin(), g_putch() of a leading high byte, is
-    // tty_message.js ttyPutmixed()'s first cell, which update_topl() keeps
-    // in state._ttyMixedFirstCell.
+    // tty_message.js ttyPutmixed()'s first cell, which update_topl() passes
+    // to topl.js redrawTtyTopline() for that one paint.
     display.toplin = TOPLINE_EMPTY;
     display.inmore = display.inread = display.intr = 0;
     display.dismiss_more = 0;

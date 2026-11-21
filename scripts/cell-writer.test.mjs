@@ -43,15 +43,14 @@ const BANNED = new Set([
 //
 // putCaptured(): the hook whose capture the caller has already applied.
 const CAPTURED = Object.freeze({
-    // The rebuilt screen: redotoplin()'s g_putch() of a mixed line's first
-    // byte, which pager.js lookedGlyphText() rendered, and each map cell
-    // tty_print_glyph() last printed.
-    'display.js:_buildScreenOutput': 2,
+    // The rebuilt screen: each map cell tty_print_glyph() last printed.
+    'display.js:_buildScreenOutput': 1,
     // docorner()'s map repair through tty_print_glyph()'s g_putch();
     // symbols.js symbol_at() applied nomux_g_putch_byte().
     'display.js:docorner': 1,
-    // The mixed first byte again, for the pending line and its --More--.
-    'tty_message.js:writePendingTtyMessagePrompt': 1,
+    // redotoplin()'s g_putch() of a mixed line's high first byte, which
+    // pager.js lookedGlyphText() rendered. Only that first paint prints it;
+    // later repaints restore the grid cell like any byte the capture skips.
     'topl.js:redrawTtyTopline': 1,
     // process_text_window()'s g_putch() of a line's first byte, stored one
     // column right (nomux_g_putch_byte()).

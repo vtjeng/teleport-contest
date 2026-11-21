@@ -77,7 +77,6 @@ test('same-line append paints new bytes at the source cursor and preserves skipp
         // clears the remaining row. Recorder patch 006 ignores high-bit bytes
         // but still advances the cursor, so those shadow cells stay intact.
         const state = messageState('base', TOPLINE_NEED_MORE);
-        state._ttyMixedFirstCell = '─';
         state.nhDisplay.setCell(0, 0, '─', NO_COLOR, 0);
         state.nhDisplay.setCell(6, 0, 'L', 7, 4);
         state.nhDisplay.setCell(7, 0, 'M', 6, 2);

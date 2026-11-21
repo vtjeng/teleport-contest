@@ -361,11 +361,12 @@ test('a same-line append preserves a pending DEC mixed first cell', async () => 
             .join('').trimEnd(),
     });
 
-    // An encglyph() prefix that the caller renders as DEC's 'q' byte and
-    // its line-drawing cell; glyph 0 stands for any glyph, as the
-    // renderGlyph callback ignores its value.
+    // An encglyph() prefix that the caller renders as DECgraphics'
+    // S_hwall byte, 0xF1 ('q' with the high bit), and its line-drawing
+    // cell; glyph 0 stands for any glyph, as the renderGlyph callback
+    // ignores its value.
     await ttyPutmixed(`${encglyph(0, state)}        a wall`, state,
-        () => ({ text: 'q', cell: '─' }));
+        () => ({ text: '\xF1', cell: '─' }));
     await ttyPline('Pick a monster, object or location.', state);
     await dismissPendingTtyMessage(state);
 
@@ -373,7 +374,20 @@ test('a same-line append preserves a pending DEC mixed first cell', async () => 
         firstCell: { ch: '─', color: NO_COLOR, attr: 0 },
         row: '─        a wall  Pick a monster, object or location.--More--',
     }]);
-    assert.equal(state._ttyMixedFirstCell, undefined);
+});
+
+test('a mixed line whose first byte is not high prints it as text', async () => {
+    // topl.c redotoplin():128 sends a tty_putmixed() line's first byte
+    // through g_putch() only when `*str & 0x80`; any other byte reaches the
+    // screen through putsyms() like the rest of the line. The callback
+    // offers a line-drawing cell with a plain 'q' byte, a pairing C never
+    // draws; glyph 0 stands for any glyph, as the callback ignores it.
+    const state = messageState();
+    await ttyPutmixed(`${encglyph(0, state)}        a wall`, state,
+        () => ({ text: 'q', cell: '─' }));
+
+    assert.equal(state.nhDisplay.grid[0].map((cell) => cell.ch)
+        .join('').trimEnd(), 'q        a wall');
 });
 
 // The Escape answers the --More-- that update_topl() raises for "halt", so
