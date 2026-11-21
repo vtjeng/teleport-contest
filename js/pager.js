@@ -267,7 +267,6 @@ import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
     menuTitleStyle,
-    ttyMenuLayout,
     ttyPutmixedLine,
 } from './tty_menu.js';
 import {
@@ -2020,7 +2019,6 @@ export async function do_look(mode, clickCc = null, state = game) {
         }));
     if (choice === null && !clicklook) return ECMD_OK;
     if (choice === 'i') {
-        let inventoryRepairLayout = null;
         const invlet = await display_inventory(null, true, state, {
             // invent.c display_pickinv() uses the same PICK_ONE menu and
             // heading style as the ordinary inventory command.
@@ -2036,29 +2034,9 @@ export async function do_look(mode, clickCc = null, state = game) {
                     how: PICK_ONE,
                     cancelValue: null,
                 };
-                inventoryRepairLayout = ttyMenuLayout(state, spec);
                 return select_menu(state, spec);
             },
         });
-        // wintty.c tty_dismiss_nhwindow() repairs the inventory menu with
-        // docorner(offx, maxrow + 1, 0). Clear exactly the suffixes where that
-        // vertical rectangle intersects the configured status window; a
-        // shorter overlay never reaches status, while a three-line status can
-        // intersect two rows. Full-screen menus own their complete redraw.
-        if (inventoryRepairLayout && !inventoryRepairLayout.fullScreen) {
-            const statusLines = state.iflags?.wc2_statuslines === 3 ? 3 : 2;
-            const firstStatusRow = state.nhDisplay.rows - statusLines;
-            const lastRepairRow = Math.min(
-                state.nhDisplay.rows - 1,
-                inventoryRepairLayout.maxrow,
-            );
-            for (let row = firstStatusRow; row <= lastRepairRow; ++row) {
-                for (let column = inventoryRepairLayout.repairColumn;
-                    column < state.nhDisplay.cols; ++column) {
-                    state.nhDisplay.clearCell(column, row);
-                }
-            }
-        }
         if (!invlet || invlet === '\x1b') return ECMD_OK;
         for (let invobj = state.invent; invobj; invobj = invobj.nobj) {
             if (invobj.invlet !== invlet) continue;
