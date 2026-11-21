@@ -18,6 +18,7 @@ import { executionTree, REUSE_VERSION } from './checkpoint-reuse.mjs';
 const GENERATED_CHECKS = [
     'check:colors',
     'check:config-statements',
+    'check:context',
     'check:data-base',
     'check:dat-files',
     'check:extcmds',
