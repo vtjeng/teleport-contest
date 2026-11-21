@@ -14,6 +14,8 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { CONTEXT_STRUCTS, zero_context_info } from '../js/context.js';
+import { game } from '../js/gstate.js';
+import { runSegmentStrict } from '../js/jsmain.js';
 import { parseSnapshot, serializeSnapshot } from '../js/snapshot.js';
 import {
     jsFiles,
@@ -204,6 +206,42 @@ test('a saved context restores with every field', () => {
     const restored = parseSnapshot(serializeSnapshot(zero_context_info()));
     assert.deepEqual(leafPaths(restored), leafPaths(zero_context_info()));
     assert.deepEqual(restored, zero_context_info());
+});
+
+test('a game restored in a later segment keeps every context field', async () => {
+    // A field that a game sets to undefined or NaN would leave the save
+    // through JSON as absent or null. This recipe saves in its first segment
+    // and restores in its second; afterwards every field context.h declares
+    // must hold a value, as it does at startup. pendingCommand is port-only.
+    const recipe = JSON.parse(readFileSync(join(JS_DIR, '..', 'recipes',
+        'restore.c', 'monster-carried-item-drop-after-restore.session.json'), 'utf8'));
+    const store = new Map();
+    const storage = {
+        getItem: (key) => store.get(key) ?? null,
+        setItem: (key, value) => store.set(key, String(value)),
+        removeItem: (key) => store.delete(key),
+        get length() { return store.size; },
+        key: (index) => [...store.keys()][index] ?? null,
+        clear: () => store.clear(),
+    };
+    assert.equal(recipe.segments.length, 2);
+    for (const segment of recipe.segments)
+        await runSegmentStrict({ ...segment, storage });
+    const context = { ...game.context };
+    delete context.pendingCommand;
+    // Each [path, value] of a struct's own fields, descending into embedded
+    // structs but not through pointers such as victual.piece.
+    const fields = (value, struct, prefix = '') => Object.entries(value).flatMap(
+        ([key, item]) => {
+            const nested = CONTEXT_STRUCTS[struct].find(([name]) => name === key)?.[2];
+            return nested ? fields(item, nested, `${prefix}${key}.`)
+                : [[`${prefix}${key}`, item]];
+        });
+    const restored = fields(context, 'context_info');
+    assert.deepEqual(restored.map(([path]) => path).sort(),
+        leafPaths(zero_context_info()).sort());
+    assert.deepEqual(restored.filter(([, item]) => item === undefined
+        || Number.isNaN(item)), []);
 });
 
 test('every context field js/ names is declared in context.h', () => {
