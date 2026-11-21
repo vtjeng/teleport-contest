@@ -117,9 +117,10 @@ the game, its RNG calls and the rest of its screens are the same. The port
 prints the judge's macOS text. The recorder now prints that text too: on
 Linux, `nethack-c/build-recorder.sh` applies a macOS-output profile (see
 "Linux output profile"), and on every host the recorder prints the judge's
-`HOME` (patch 008). Two measured differences remain: a key binding that
-depends on uninitialized memory, and the C library's regular expressions.
-The port follows macOS in both, so the regression recordings of those
+`HOME` (patch 008). Three measured differences remain: a key binding that
+depends on uninitialized memory, the C library's regular expressions, and
+the order in which the C library's `qsort()` calls its comparator. The
+port follows macOS in all three, so the regression recordings of those
 paths are made on macOS.
 
 ### Known differences
@@ -136,6 +137,7 @@ The last column says what a recorder built from this repository prints.
 | The build options in `#version` | `strong PRNG seed from /dev/random` | `strong PRNG seed from /dev/urandom` | `DEV_RANDOM` in `include/unixconf.h:424-430`, printed by `src/mdlib.c:511-513`. The extra letter can move a line break in the paragraph that follows. | macOS text on both hosts (Linux profile) |
 | Binding a key from the options menu to `nothing` or to a command without a parameter | `Key binding failed?!` | The key is bound | `handler_rebind_keys_add()` in `src/cmd.c` appends the command name to an uninitialized buffer, so the result depends on stack contents; see below | Differs: Linux binds the key. The port fails as macOS does, and the recordings of this path are made on macOS. |
 | A `MENUCOLOR`, `MSGTYPE` or `AUTOPICKUP_EXCEPTION` pattern, from the config file or typed in the options menu | Apple Libc's regex (TRE): BSD error texts, `\w` and `\1` literal, `[[:<:]]` accepted | glibc's regex | `sys/share/posixregex.c` calls the host's `regcomp()`, `regexec()` and `regerror()`; see below | Differs. The port follows macOS, and the recordings of these paths are made on macOS. |
+| The order of the discoveries list (`\`) within a class, after a sorted object list first shows objects the hero had not yet seen | The order in which Apple Libc's `qsort()` first compares the objects | The order in which glibc's merge sort first compares them | `sortloot_cmp()` in `src/invent.c` marks an object encountered the first time the sort compares it; see below | Differs. The port follows macOS, and the recordings of these paths are made on macOS. |
 | The options help text (`Set options as OPTIONS=<options> in ...`) and other messages that name the config file | The judge's `HOME`, given in `docs/recording-environment.md` | The `HOME` the game runs with | `src/options.c:9471` prints `get_configfile()`, which is `$HOME/.nethackrc`. The path's length decides how many lines the help text takes, and so which lines fall on each page of the pager. | The judge's path on every host (patch 008) |
 
 Save files are compressed with `/usr/bin/compress`, as on macOS
@@ -339,6 +341,63 @@ The port refuses with the same error a pattern whose expansion passes
 (`js/tre_compile.js`, `MAX_POSITIONS` and `MAX_WORK`). A Mac with more
 memory than the runner might compile some patterns the port refuses, such
 as `((a{0,8}){0,255}){0,255}`.
+
+### The qsort() call order
+
+Patch 002 (`nethack-c/patches/002-deterministic-qsort.patch`) replaces
+every `qsort()` in NetHack with `nh_deterministic_qsort()`, which sorts an
+array of element indexes with the C library's `qsort()` and breaks ties by
+index. The sorted result is therefore the same on every host. The order in
+which the library calls the comparator is not: glibc's `qsort()` is a merge
+sort, and Apple Libc's is an insertion sort up to seven elements and a
+quicksort above that, with a heapsort fallback.
+
+One comparator has a side effect that shows the order. `sortloot_cmp()` in
+`src/invent.c` classifies an object the first time it is compared, and
+`loot_classify()` calls `observe_object()` when the hero is not blind,
+which appends a type not yet encountered to the discoveries of its class.
+The discoveries list (`\`) then shows the types in the order the sort
+first compared them. Every sorted object list reaches this: the inventory
+(`display_pickinv()`), and the pick-up, container and multiple-drop menus
+(`query_objlist()` in `src/pickup.c`). It needs two or more types of one
+class that the hero has not encountered, first observed by one sort: the
+objects under the top of a pile the hero steps onto, or the contents of a
+container. Objects acquired while blind qualify only in part. When
+blindness ends, `learn_unseen_invent()` observes the inventory in its own
+order, before any sort, except objects created with `dknown` set
+(`clear_dknown()` in `src/mkobj.c`): armor other than the elven-to-orcish
+shields and the shield of reflection, and amulets. Only those reach the
+inventory sort unobserved. The other 13 comparators passed to `qsort()`
+have no side effect.
+
+The port follows macOS. `js/qsort.js` and `js/heapsort.js` translate Apple
+Libc tag `Libc-1752.120.2`, and `js/hacklib.js`
+`nh_deterministic_qsort()` sorts with them. To check the translation
+against macOS itself, `experiments/host-parity/qsort-oracle/` builds a
+program that sorts the wrapper's index struct with the host's `qsort()`
+and prints every comparator call, for 1,184 key arrays of 1 to 333
+elements. `macos-recorder.yml` runs it. In run
+[44850791668](https://github.com/vtjeng/teleport-contest/actions/runs/44850791668)
+the runner's log equalled, byte for byte, the log of Apple's `qsort.c` and
+`heapsort.c` compiled on Linux, and `scripts/hacklib-qsort.test.mjs` fails
+if the port's calls differ from that log
+(`experiments/host-parity/qsort-oracle/results/`). The runner was macOS
+26.7.2; the judge's macOS version is not known. Apple's `qsort.c` is the
+same file from tag `Libc-1272.250.1` to `Libc-1752.120.2`.
+
+`experiments/host-parity/qsort-oracle/recipes.txt` lists 17 recipes,
+`recipes/invent.c/sortloot-blind-wishes-classify-order` and
+`recipes/invent.c/sortloot-order-*`. In the same run, 15 of them recorded
+differently on the two hosts, each in the order of one class on a
+discoveries page, and two controls recorded alike. Their committed
+recordings are the macOS ones. Record them again on macOS, not with a
+Linux recorder; each recipe's comment says so, and
+`scripts/sortloot-order-recordings.test.mjs` fails when one of the
+recordings lists a pair of discoveries in the Linux order. A new recipe
+in which a sort is the first to observe two types of one class needs a
+macOS recording too: add it to `recipes.txt`, run the workflow and copy
+the recording from the artifact's `sortloot/` directory. A Linux
+recording of such a game fails to replay at the discoveries page.
 
 ### Private installs
 

@@ -1,0 +1,17 @@
+recipes/invent.c/sortloot-blind-wishes-classify-order.session.json
+recipes/invent.c/sortloot-order-chest-contents-knight.session.json
+recipes/invent.c/sortloot-order-drop-menu-armor-amulets-valkyrie.session.json
+recipes/invent.c/sortloot-order-inventory-amulets-barbarian.session.json
+recipes/invent.c/sortloot-order-inventory-armor-amulets-tourist.session.json
+recipes/invent.c/sortloot-order-inventory-armor-caveman.session.json
+recipes/invent.c/sortloot-order-inventory-armor-valkyrie.session.json
+recipes/invent.c/sortloot-order-inventory-mixed-monk.session.json
+recipes/invent.c/sortloot-order-inventory-thirty-amulets-wizard.session.json
+recipes/invent.c/sortloot-order-inventory-wands-samurai.session.json
+recipes/invent.c/sortloot-order-look-here-potions-samurai.session.json
+recipes/invent.c/sortloot-order-pile-forty-two-rings-barbarian.session.json
+recipes/invent.c/sortloot-order-pile-potions-healer.session.json
+recipes/invent.c/sortloot-order-pile-rings-priest.session.json
+recipes/invent.c/sortloot-order-pile-three-scrolls-samurai.session.json
+recipes/invent.c/sortloot-order-pile-wands-wizard.session.json
+recipes/invent.c/sortloot-order-sack-scrolls-rogue.session.json

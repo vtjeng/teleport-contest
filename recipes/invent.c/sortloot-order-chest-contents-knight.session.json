@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c sortloot() and sortloot_cmp(): loot_classify() runs lazily inside the comparator and, when the hero can see, marks each object encountered (o_init.c observe_object()), so the order of discoveries within a class follows the order in which the C library's qsort() first compares the objects (nethack-c/patches/002-deterministic-qsort.patch). macOS and glibc call the comparator in different orders, so record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder; see docs/testing.md, \"The qsort() call order\". A Knight who can see wishes for a chest, drops it, opens it and lists everything in its take-out menu (pickup.c query_objlist() over the chest's random contents), then pages through her discoveries.",
+  "segments": [
+    {
+      "seed": 90860,
+      "datetime": "20350721200000",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Knight,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\n",
+      "moves": " \u0017chest\ndi#loot\noa\n\u001b\\   "
+    }
+  ]
+}

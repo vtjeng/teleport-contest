@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c sortloot() and sortloot_cmp(): loot_classify() runs lazily inside the comparator and, when the hero can see, marks each object encountered (o_init.c observe_object()), so the order of discoveries within a class follows the order in which the C library's qsort() first compares the objects (nethack-c/patches/002-deterministic-qsort.patch). macOS and glibc call the comparator in different orders, so record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder; see docs/testing.md, \"The qsort() call order\". A Rogue puts on her blindfold, wishes for five scrolls, stashes them in her sack, takes the blindfold off, opens the sack's take-out menu (pickup.c query_objlist() over the contents, five objects) and pages through her discoveries.",
+  "segments": [
+    {
+      "seed": 250906,
+      "datetime": "20330917031500",
+      "nethackrc": "OPTIONS=name:Vesna,role:Rogue,race:orc,gender:female,align:chaotic,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "Pg\u0017scroll of light\n\u0017scroll of fire\n\u0017scroll of earth\n\u0017scroll of charging\n\u0017scroll of genocide\nafiAe\n\u001bRafo\u001b\\  "
+    }
+  ]
+}

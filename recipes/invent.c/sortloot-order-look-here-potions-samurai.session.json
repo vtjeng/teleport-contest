@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c look_here() names the objects on a square in pile order without sorting them. This game is the same on every host; it is a control for the other sortloot-order-* recipes. A blindfolded Samurai wishes for five potions, drops them on one square, takes the blindfold off, looks at the pile with \":\" and pages through her discoveries.",
+  "segments": [
+    {
+      "seed": 4418,
+      "datetime": "20450103221000",
+      "nethackrc": "OPTIONS=name:Tomoe,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\n",
+      "moves": " \u0017blindfold\nPf\u0017potion of acid\n\u0017potion of polymorph\n\u0017potion of restore ability\n\u0017potion of gain level\n\u0017potion of full healing\ndgdhdidjdkR:\u001b\\    "
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "invent.c sortloot() and sortloot_cmp(): loot_classify() runs lazily inside the comparator and, when the hero can see, marks each object encountered (o_init.c observe_object()), so the order of discoveries within a class follows the order in which the C library's qsort() first compares the objects (nethack-c/patches/002-deterministic-qsort.patch). macOS and glibc call the comparator in different orders, so record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder; see docs/testing.md, \"The qsort() call order\". Armor and amulets are created with dknown set (mkobj.c clear_dknown()), so invent.c learn_unseen_invent() skips them when the blindfold comes off and the inventory sort is the first to observe them. A blindfolded Tourist wishes for five pieces of armor and three amulets, takes the blindfold off, lists his inventory (invent.c display_pickinv(), more than twenty objects) and pages through his discoveries.",
+  "segments": [
+    {
+      "seed": 1300477,
+      "datetime": "20340212133000",
+      "nethackrc": "OPTIONS=name:Bartek,role:Tourist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+      "moves": "\u0017blindfold\nPm\u0017helm of opposite alignment\n\u0017cloak of protection\n\u0017gauntlets of dexterity\n\u0017elven boots\n\u0017kicking boots\n\u0017amulet of reflection\n\u0017amulet of restful sleep\n\u0017amulet of change\nRi\u001b\\ "
+    }
+  ]
+}
