@@ -3870,6 +3870,8 @@ async function handler_number_pad(state, helpers) {
         items: choices.map((text, index) => ({
             value: index,
             selector: String.fromCharCode(97 + index),
+            // options.c:5912 passes '0' + i as the group accelerator.
+            groupSelector: String.fromCharCode(48 + index),
             text,
         })),
         how: PICK_ONE,
@@ -4280,6 +4282,8 @@ async function handler_versinfo(state, helpers) {
         ].map(([value, selector, text]) => ({
             value,
             selector,
+            // options.c:6586-6594 pass n + '0' as the group accelerator.
+            groupSelector: String.fromCharCode(48 + value),
             text,
             selected: Boolean(old & value),
         })),

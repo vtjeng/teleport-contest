@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "options.c handler_versinfo() gives the three rows of its PICK_ANY menu the group accelerators '1', '2' and '4' (6586-6594). wintty.c process_menu_window() sends such a digit to group_accel while no count is pending, so \"2\" and \"4\" toggle \"game name\" and the branch row; \"3\" is no accelerator and starts a count that Escape stops.",
+  "segments": [
+    {
+      "seed": 20466713,
+      "datetime": "20211201060955",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Monk,race:human,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " mO:versinfo\n\n243\u001b1\n\u001b\u001bi\u001b"
+    }
+  ]
+}
