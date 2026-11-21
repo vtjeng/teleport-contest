@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 850075,
+      "datetime": "20330402112233",
+      "nethackrc": "OPTIONS=name:CountProbe,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": " 4i\u001b:"
+    }
+  ],
+  "comment": "The leading space dismisses startup, and the count of 4 leaves gm.multi at 3 when cmd.c rhack() dispatches the inventory command. ddoinv() answers ECMD_OK, so rhack()'s result tail calls reset_cmd_vars(), which zeroes gm.multi: allmain.c moveloop_core() finds no count left and the inventory is shown once. Escape closes the menu and the look command that follows runs at once, where a repeated inventory would have opened a second menu. This recipe was once kept as blocked on the belief that C repeats the inventory; the recording shows that C does not."
+}

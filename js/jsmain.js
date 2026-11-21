@@ -493,8 +493,16 @@ export class NethackGame {
         // it ever writes it, so the value it is compared against on the first
         // listen of a game is 0 rather than absent. gh.hero_seq is never 0
         // during play -- allmain.c:260 sets it to moves << 3 with moves >= 1 --
-        // so that first listen is always the free one.
-        g.context = { move: 0, door_opened: false, stethoscope_seq: 0 };
+        // so that first listen is always the free one. run (context.h:146)
+        // is here for the same reason: hack.c lookaround() returns at
+        // `svc.context.run == 0`, and allmain.c moveloop_core() calls it
+        // before every repeat of a counted command. Until the first movement
+        // command or cmd.c reset_cmd_vars() wrote it, an absent run failed
+        // that test, lookaround() examined the squares around the hero as it
+        // does for a run, and one that stops a run cancelled the count.
+        // scripts/svc-context-state.test.mjs fails when js/ compares a
+        // context field with 0 or false that this literal does not create.
+        g.context = { move: 0, run: 0, door_opened: false, stethoscope_seq: 0 };
         g.program_state = {};
         g.moves = 0;
         g._commandDispatchCount = 0;

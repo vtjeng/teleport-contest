@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 354010,
+      "datetime": "20310203044717",
+      "nethackrc": "OPTIONS=name:Zephyra,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\nOPTIONS=number_pad:1\n",
+      "moves": "n5#sit\n sit\n \u001b4:"
+    }
+  ],
+  "comment": "With number_pad on, cmd.c parse() reads a count only after the n prefix. n5#sit leaves gm.multi at 4; dosit() answers ECMD_TIME, so allmain.c moveloop_core() calls rhack(gc.cmd_key) again with the # key, and doextcmd() reads the extended command name again for each repeat. The recipe answers one repeat and leaves the next prompt holding the keys typed after it. No earlier command has run cmd.c reset_cmd_vars(), so svc.context.run still holds the zero C starts it with: hack.c lookaround(), which allmain.c moveloop_core() calls before each repeat, returns at `svc.context.run == 0` without examining the squares next to the hero. A square there would stop a run. The seed, date and character were chosen for this recipe."
+}
