@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "restore.c restgamestate():704-705 gh.hero_seq = svm.moves << 3, for a hero saved after her second action of one move. A debug-mode Samurai, intrinsically fast, wishes for a stethoscope (item f) and searches seven times; the seventh search leaves the turn counter at 7, so allmain.c moveloop_core():396 has counted two hero actions in that move and hero_seq is moves * 8 + 2. He listens to himself (apply.c use_stethoscope():340-341, free) and saves. The second segment dismisses the welcome --More--, declines to keep the save file, and applies the stethoscope twice: the first use is free again because the restored hero_seq is moves * 8, and the second takes a move. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 31880246,
+      "datetime": "20510306183000",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "\u0017stethoscope\nsssssssaf.Sy"
+    },
+    {
+      "seed": 31880247,
+      "datetime": "20510306200000",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": " naf.af.sss"
+    }
+  ]
+}

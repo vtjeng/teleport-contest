@@ -530,7 +530,6 @@ function serializeGameState(state) {
         nhuuid: state.svn.nhuuid,
         msghistory: save_msghistory(state),
         moves: state.moves,
-        hero_seq: state.hero_seq,
         flags: state.flags,
         u: state.u,
         context: state.context,
@@ -582,12 +581,12 @@ function serializeGameState(state) {
         // any dangling ball and chain.
         migrating_objs: state.gm?.migrating_objs ?? null,
         migrating_mons: state.gm?.migrating_mons ?? null,
-        // Equipment state: setworn() sets these game-level pointers; the
-        // restore path scans owornmask to rebuild them, but unweapon has no
-        // per-object representation. head_engr is the engraving chain on
-        // this level. lastinvnr is left out: decl.h marks gl.lastinvnr
+        // Equipment state: setworn() sets the game-level pointers and the
+        // restore path scans owornmask to rebuild them. gu.unweapon is left
+        // out: restore.c restgamestate():694-700 sets it again from the
+        // restored weapon. head_engr is the engraving chain on this level.
+        // lastinvnr is left out: decl.h marks gl.lastinvnr
         // "never saved&restored", so a restored game resumes from decl.c's 51.
-        unweapon: state.unweapon,
         head_engr: state.head_engr,
         // Artifact tracking: artidisco records which artifacts the hero has
         // identified; artiexist records which exist in the game.
@@ -634,8 +633,6 @@ function serializeGameState(state) {
         // C ref: save.c savegamestate():316 Sfo_q_score(&svq.quest_status).
         quest_status: state.svq.quest_status,
         // Hero identity and timing
-        multi: state.multi,
-        multi_reason: state.multi_reason,
         // C ref: save.c savegamestate():288 writes ubirthday as the
         // local yyyymmddhhmmss string, not as a time_t.
         ubirthday: yyyymmddhhmmss(state, state.ubirthday),
@@ -649,9 +646,6 @@ function serializeGameState(state) {
             flags: entry.flags,
             text: entry.text,
         })) ?? [],
-        // Calendar state needed for restore's moveloop_preamble
-        fixedDatetime: state.fixedDatetime,
-        recorderIsDst: state.recorderIsDst,
     };
     // save.c savegamestate():321 saves Oracle count/offsets after artifacts.
     save_oracles(snapshot, state);

@@ -11,6 +11,7 @@ import { test } from 'node:test';
 import { commandForKey } from '../js/command_bindings.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { savefileKey } from './test-fixtures/savefile-key.mjs';
 
 function memoryStorage() {
     const store = new Map();
@@ -83,4 +84,49 @@ test('a restored game reaches its first command after two status passes', async 
     const replay = await saveThenRestore('', '');
     assert.match(topLine(replay), /welcome back to NetHack!$/);
     assert.equal(game.gb.now_or_before_idx, 0);
+});
+
+test('a restore rebuilds what restgamestate() recomputes instead of reading it', async () => {
+    // gh.hero_seq, gm.multi, gm.multi_reason and gu.unweapon are not in
+    // savegamestate()'s stream (save.c:265-333). restgamestate():704-705
+    // restarts hero_seq at svm.moves << 3 and 694-700 sets unweapon again;
+    // multi and multi_reason keep the new process's decl.c 0 and null.
+    const storage = memoryStorage();
+    await runSegment({
+        seed: SEED,
+        datetime: SAVE_CLOCK,
+        nethackrc: CHARACTER,
+        // 'ms' takes the first move, so moveloop_core():396 leaves hero_seq
+        // one past moves << 3; the 'm' prefix makes the search go ahead
+        // beside the monster this seed puts next to the hero. The count 6
+        // makes 'S' run with gm.multi at 5, one use of the count spent; 'y'
+        // saves.
+        moves: 'ms6Sy',
+        storage,
+    });
+    // Turn 2 after the one search: 2 << 3 is 16, plus the one hero action.
+    assert.equal(game.moves, 2);
+    assert.equal(game.hero_seq, 17);
+    // 6 - 1: the state at the save differs from what a restore must produce.
+    assert.equal(game.multi, 5);
+    const saved = JSON.parse(storage.getItem(savefileKey(game)));
+    // The snapshot must not carry a second copy of a value the restore
+    // recomputes, nor the replay calendar that jsmain.js sets per segment.
+    for (const key of ['hero_seq', 'multi', 'multi_reason', 'unweapon',
+        'fixedDatetime', 'recorderIsDst']) {
+        assert.equal(key in saved, false, `${key} is not saved`);
+    }
+
+    await runSegment({
+        seed: SEED + 1,
+        datetime: RESTORE_CLOCK,
+        nethackrc: CHARACTER,
+        moves: '',
+        storage,
+    });
+    assert.equal(game.moves, 2);
+    // 2 << 3, without the action counted before the save.
+    assert.equal(game.hero_seq, 16);
+    assert.equal(game.multi, 0);
+    assert.equal(game.multi_reason, null);
 });
