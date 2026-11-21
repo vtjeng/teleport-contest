@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "restore.c restgamestate():704-705 gh.hero_seq = svm.moves << 3: hero_seq is not saved. A gnomish Healer searches twice, so allmain.c moveloop_core():396 has left hero_seq at moves * 8 + 1, listens to herself with her stethoscope (apply.c use_stethoscope():340-341, free, and svc.context.stethoscope_seq takes that value and is saved), and saves. The second segment restores with hero_seq back at moves * 8, so the next stethoscope use is free again and only the one after it takes a move; the time option shows the turn counter. Seeds, datetimes, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 5120877,
+      "datetime": "20440618143000",
+      "nethackrc": "OPTIONS=name:Rill,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "ssac.Sy"
+    },
+    {
+      "seed": 5120878,
+      "datetime": "20440618160000",
+      "nethackrc": "OPTIONS=name:Rill,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,time\n",
+      "moves": "ac.ac.ss"
+    }
+  ]
+}

@@ -323,7 +323,12 @@ export async function dorestore(state = game) {
     // C restore.c:restgamestate reads svn.nhuuid before svm.moves.
     state.svn.nhuuid = snapshot.nhuuid;
     state.moves = snapshot.moves;
-    state.hero_seq = snapshot.hero_seq ?? (snapshot.moves * 8);
+    // C ref: restore.c restgamestate():704-705. gh.hero_seq is not in the
+    // save file; it restarts at svm.moves << 3, whatever number of hero
+    // actions allmain.c moveloop_core():396 had counted in the saved move.
+    // svc.context.stethoscope_seq is saved, so a stethoscope used before the
+    // save is free again after it (apply.c use_stethoscope():340).
+    state.hero_seq = state.moves << 3;
     // C ref: restore.c restgamestate() 567-595. The saved flags replace the
     // ones the options built (newgameflags), and the play mode is then taken
     // from both: wizard and discover are flags.debug and flags.explore. A
@@ -527,8 +532,11 @@ export async function dorestore(state = game) {
     state.svq.quest_status = snapshot.quest_status;
 
     // Hero identity and timing
-    state.multi = snapshot.multi ?? 0;
-    state.multi_reason = snapshot.multi_reason ?? null;
+    // gm.multi and gm.multi_reason are not in the save file: savegamestate()
+    // (save.c:265-333) writes neither, so the restoring process keeps
+    // decl.c's 0 and null even when a count ran at the save ("6S").
+    state.multi = 0;
+    state.multi_reason = null;
     // C ref: restore.c restgamestate():615-617. The saved local time string
     // goes back through mktime() with the restoring process's tm_isdst, so a
     // winter birthday recorded under daylight time moves an hour each save.
