@@ -4,13 +4,13 @@
 
 import { game } from './gstate.js';
 import { menuOverlay, writeTextWindowLine } from './tty_menu.js';
-import { nhgetch } from './input.js';
 import { convertLine, initializeQuestPagerLua } from './questpgr.js';
 import { QUEST_TEXT_DATA } from './quest_text_data.js';
 import { tty_putmsghistory } from './topl.js';
 import {
     clearTtyMessageWindow,
     dismissPendingTtyMessage,
+    xwaitforspace,
 } from './tty_message.js';
 import { TOPLINE_EMPTY, TOPLINE_NEED_MORE } from './const.js';
 import { rn2 } from './rng.js';
@@ -205,13 +205,9 @@ export async function ttyLegacyIntroduction(state = game, random = rn2) {
         clearTtyMessageWindow(state);
     }
     const rendered = renderTtyLegacyIntroduction(state);
-    for (;;) {
-        const code = await nhgetch(state);
-        // tty_nhgetch() maps NUL to Escape. xwaitforspace(quitchars) accepts
-        // Space, CR, LF, or Escape and rings the bell for every other key.
-        if (code === 0 || code === 27 || code === 32
-            || code === 10 || code === 13) break;
-    }
+    // dmore(cw, quitchars): Space, CR, LF or Escape dismisses the window,
+    // and Escape stores 1 in ttyDisplay->dismiss_more.
+    await xwaitforspace(state);
     dismissTtyLegacyIntroduction(state, rendered);
     // C ref: questpgr.c com_pager_core() 597-609.  After the window, the
     // converted synopsis goes into message history for ^P recall without

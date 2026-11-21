@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for win/tty/wintty.c dmore() (1154-1172) on the legacy text window reaching win/tty/getline.c xwaitforspace() (244-248): a Wizard escapes the legacy page, which stores 1 in ttyDisplay->dismiss_more, and answers the tutorial menu with n. At the engraving --More-- ^P is refused and ^A (1) dismisses it; the text prompt is then answered.",
+ "segments": [
+  {
+   "seed": 930077,
+   "datetime": "20170304083000",
+   "nethackrc": "OPTIONS=name:Zosimos,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!autopickup\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+   "moves": "\u001b nE-\u0010\u0001Z\n  "
+  }
+ ]
+}

@@ -25,7 +25,9 @@ function legacyState({
     initRng(0x1e6ac7);
     game.nhDisplay = new GameDisplay(null);
     game.flags = { legacy: true, female };
-    game.iflags = { menu_overlay: menuOverlay };
+    // cbreak: tty_init_nhwindows() raises it before the legacy page, and
+    // without it xwaitforspace() takes only Return.
+    game.iflags = { menu_overlay: menuOverlay, cbreak: true };
     game.urole = { ...roles[str2role(role)] };
     game.u = {
         ulevel: 1,

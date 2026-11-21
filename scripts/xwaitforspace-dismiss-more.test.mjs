@@ -39,6 +39,42 @@ test('xwaitforspace() is defined once, in js/tty_message.js', () => {
     assert.deepEqual(owners, ['tty_message.js']);
 });
 
+test('only the listed functions read a key with nhgetch() themselves', () => {
+    // A --More--, text-window page or menu that reads its own keys misses
+    // xwaitforspace()'s dismiss_more read and its Escape store, as the legacy
+    // page and the role-selection --More-- once did. Each count below is the
+    // lines in that file that mention `nhgetch(` outside whole-line
+    // comments. The callers are cmd.js nh_poskey() and pgetchar(),
+    // getline.js hooked_tty_getlin() (C's pgetchar() again),
+    // tty_menu.js menuKey(), tty_message.js xwaitforspace(), and
+    // tty_startup.js tty_askname(), which C also reads with tty_nhgetch().
+    // input.js holds the definition and an error string. A new caller
+    // belongs behind xwaitforspace() unless C reads that key directly.
+    const counts = {};
+    for (const [name, source] of sources) {
+        const calls = source.split('\n')
+            .filter((line) => !/^\s*(\/\/|\*|\/\*)/u.test(line))
+            .filter((line) => /\bnhgetch\(/u.test(line)).length;
+        if (calls) counts[name] = calls;
+    }
+    assert.deepEqual(counts, {
+        'cmd.js': 2,
+        'getline.js': 1,
+        'input.js': 2,
+        'tty_menu.js': 1,
+        'tty_message.js': 1,
+        'tty_startup.js': 1,
+    });
+});
+
+test('a selection menu stores Escape in dismiss_more through menuKey()', () => {
+    // wintty.c process_menu_window() reads every key with xwaitforspace();
+    // the port's two menu loops read through menuKey() instead.
+    const menu = sources.find(([name]) => name === 'tty_menu.js')[1];
+    assert.equal((menu.match(/await menuKey\(state\)/gu) ?? []).length, 2);
+    assert.match(menu, /async function menuKey\(state\) \{[\s\S]*?display\.dismiss_more = 1;[\s\S]*?\n\}/u);
+});
+
 // A display that supplies `keys` in order, with iflags.cbreak raised as
 // setftty() leaves it once the windows are up.
 function waiting(keys, dismissMore) {

@@ -1144,6 +1144,31 @@ function menuCommandMapping(state, ch) {
     };
 }
 
+// C ref: win/tty/getline.c xwaitforspace() as wintty.c process_menu_window()
+// reaches it (1547, 1551) for every key of a selection menu. The two key
+// loops below test the response set themselves, so this reads the key and
+// applies the part of xwaitforspace() that does not depend on that set:
+// Escape stores 1 in ttyDisplay->dismiss_more and leaves morc at Escape
+// (getline.c:244-248). tty_nhgetch() has already mapped NUL to Escape.
+async function menuKey(state) {
+    const code = await nhgetch(state);
+    const display = state.nhDisplay;
+    if (display && (code === 0 || code === 27)) {
+        display.dismiss_more = 1;
+        display.morc = 27;
+    }
+    return code;
+}
+
+// xwaitforspace() also returns the ttyDisplay->dismiss_more key
+// (getline.c:250) where it would otherwise ring the bell and keep waiting.
+// process_menu_window() then finds it in no arm, but having returned, it
+// resets the pending count on the next pass.
+function isDismissMoreKey(state, code) {
+    const x = state.nhDisplay?.dismiss_more ?? 0;
+    return x !== 0 && code === x;
+}
+
 function isDefaultMenuResponse(ch) {
     return ch === '\0' || ch === '\x1b' || ch === '\n' || ch === '\r'
         || ch === ' ' || (ch >= '0' && ch <= '9')
@@ -1377,7 +1402,7 @@ async function selectOneTtyMenu(state, spec) {
         return spec.returnCount ? { value, count: count ?? -1 } : value;
     };
     for (;;) {
-        const code = await nhgetch(state);
+        const code = await menuKey(state);
         const incoming = keyCharacter(code);
         // process_menu_window() protects current-page selectors and unique
         // PICK_ONE group accelerators before applying a menu-key alias.
@@ -1504,7 +1529,8 @@ async function selectOneTtyMenu(state, spec) {
         // returning to process_menu_window() and resetting its count.  A
         // recognized default or mapped command still consumes the count
         // even when that command is a no-op for PICK_ONE or this page.
-        if (mapping.mapped || isDefaultMenuResponse(incoming))
+        if (mapping.mapped || isDefaultMenuResponse(incoming)
+            || isDismissMoreKey(state, code))
             pendingCount = null;
     }
 }
@@ -1617,7 +1643,7 @@ async function selectAnyTtyMenu(state, spec) {
     let pendingCount = null;
 
     for (;;) {
-        const code = await nhgetch(state);
+        const code = await menuKey(state);
         const incoming = keyCharacter(code);
         const currentItems = visibleItems(rendered);
         // Current-page selectors are the only PICK_ANY choices protected
@@ -1641,7 +1667,8 @@ async function selectAnyTtyMenu(state, spec) {
                 || item.groupSelector === GOLD_SYM)
         ));
         const acceptedIncoming = mapping.mapped || incomingGrouped
-            || isDefaultMenuResponse(incoming);
+            || isDefaultMenuResponse(incoming)
+            || isDismissMoreKey(state, code);
         const grouped = allItems.filter((item) => (
             item.groupSelector === ch
             && (item.groupSelector !== item.selector

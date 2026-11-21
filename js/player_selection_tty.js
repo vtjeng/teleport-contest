@@ -4,8 +4,7 @@
 
 import { game } from './gstate.js';
 import { truncateByteString, ucase, lcase } from './hacklib.js';
-import { nhgetch } from './input.js';
-import { TOPLINE_NON_EMPTY } from './tty_message.js';
+import { TOPLINE_NON_EMPTY, xwaitforspace } from './tty_message.js';
 import {
     answer_initial_player_selection,
     answer_player_selection_confirmation,
@@ -440,19 +439,14 @@ async function waitForSelectionMore(state, message) {
     display.putstr(0, 0, message, NO_COLOR);
     display.putstr(message.length, 0, more, NO_COLOR);
     display.setCursor(message.length + more.length, 0);
-    for (;;) {
-        const code = await nhgetch(state);
-        // tty_nhgetch() maps NUL to Escape before xwaitforspace().
-        if (code === 0 || code === 10 || code === 13
-            || code === 27 || code === 32) {
-            // C's pline() leaves TOPLINE_NEED_MORE; the menu that follows
-            // runs more() and then tty_clear_nhwindow(WIN_MESSAGE). This
-            // loop has already taken the More key, so mark the line
-            // non-empty and let the menu clear it.
-            display.toplin = TOPLINE_NON_EMPTY;
-            return;
-        }
-    }
+    // more()'s xwaitforspace("\033 "): Space, CR, LF or Escape dismisses
+    // it, and Escape stores 1 in ttyDisplay->dismiss_more.
+    await xwaitforspace(state);
+    // C's pline() leaves TOPLINE_NEED_MORE; the menu that follows runs
+    // more() and then tty_clear_nhwindow(WIN_MESSAGE). This wait has
+    // already taken the More key, so mark the line non-empty and let the
+    // menu clear it.
+    display.toplin = TOPLINE_NON_EMPTY;
 }
 
 async function flushSelectionMessages(state, context, firstUnshown) {

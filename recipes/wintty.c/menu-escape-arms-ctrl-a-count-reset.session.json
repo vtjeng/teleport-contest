@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "_comment": "Independent public-input witness for win/tty/wintty.c process_menu_window() (1547-1563, 1735-1741) reaching win/tty/getline.c xwaitforspace() (244-252): a Healer escapes the inventory menu, which stores 1 in ttyDisplay->dismiss_more, then opens the multi-drop menus, picks all types, and in the item menu types the count 2 followed by ^A (1). xwaitforspace() returns the ^A because it equals dismiss_more; no menu arm takes it, and the next pass resets the count, so selecting d drops the whole stack. In the second attempt a ^P at the command level has cleared dismiss_more (topl.c:116), ^A stays inside xwaitforspace(), the count survives and f drops two of three.",
+ "segments": [
+  {
+   "seed": 2260481,
+   "datetime": "20150723161500",
+   "nethackrc": "OPTIONS=name:Avicenna,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=suppress_alert:3.4.3\nOPTIONS=symset:DECgraphics\n",
+   "moves": " i\u001bDa\n2\u0001d\n\u0010Da\n2\u0001f\n  "
+  }
+ ]
+}
