@@ -17,7 +17,7 @@ import { installLevel, newsym } from './display.js';
 import { cansee, does_block, unblock_point } from './vision.js';
 import { mon_catchup_elapsed_time } from './dog.js';
 import { restore_timers } from './timeout.js';
-import { restore_killers } from './end.js';
+import { NH_abort, restore_killers } from './end.js';
 import {
     COLNO,
     COULD_SEE,
@@ -47,6 +47,7 @@ import {
     STONE,
     ROGUESET,
     MENU_ITEMFLAGS_SKIPMENUCOLORS,
+    PL_NSIZ,
     PL_NSIZ_PLUS,
     WIN_ERR,
 } from './const.js';
@@ -178,9 +179,24 @@ export async function restore_menu(bannerwin = WIN_ERR, state = game) {
         });
         if (choice !== null && choice !== undefined) {
             ch = choice;
-            if (ch > 0)
-                state.plname = saved[ch - 1].split('\0')[0];
-            else if (ch < 0)
+            if (ch > 0) {
+                const chosen = saved[ch - 1].split('\0')[0];
+                // restore.c:1596 is Strcpy(svp.plname, saved[ch - 1]): the
+                // "name-role-race-gend-algn" text, up to PL_NSIZ_PLUS - 1
+                // characters, goes into the PL_NSIZ-byte plname[]. The
+                // judge's recordings come from macOS, whose strcpy() checks
+                // the destination's size (__strcpy_chk) and calls abort()
+                // when the text and its NUL do not fit, so the process ends
+                // with no further input boundary. That is a name of 16 or
+                // more characters, since the suffix adds 16. Measured on
+                // macOS 26.7: names of 12 and 15 characters restore, and 16,
+                // 17, 24 and 31 end in SIGABRT, which no recording can hold;
+                // scripts/restore-menu-long-name-abort.test.mjs pins it. A
+                // Linux build overflows into the fields after plname[] and
+                // carries on.
+                if (chosen.length >= PL_NSIZ) await NH_abort(state);
+                state.plname = chosen;
+            } else if (ch < 0)
                 ++ch; // -1 -> 0 (new game), -2 -> -1 (quit)
         } else {
             ch = -1; // quit menu without making a selection => quit

@@ -1139,7 +1139,7 @@ export async function panic(str, state = game) {
 // sysopt.crashreporturl, submit_web_report() returns FALSE and the libc
 // backtrace goes to stderr; then abort() ends the process. Unlike
 // nh_terminate(), no screen is captured on the way out.
-async function NH_abort(state = game) {
+export async function NH_abort(state = game) {
     if (isTerminated()) {
         recordTerminationViolation('NH_abort',
             'NH_abort() called after the segment terminated');
