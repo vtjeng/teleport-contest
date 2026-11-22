@@ -446,10 +446,20 @@ export function new_status_window(state = game) {
     // (wintty.c:1868).
     if (state.nhDisplay?.nomuxRaw) state.nhDisplay.nomuxRaw.rawprint = 0;
     clear_status_window(state);
-    // tty_status_init() zeroes tty_status[][] and finalx[][], so the next
-    // render_status() pass redraws every field (display.js
-    // _renderStatusLastRow()).
-    state._statusLastRowTty = null;
+    // tty_status_init() zeroes tty_status[][], so the next render_status()
+    // pass redraws every field (display.js _renderStatusLastRow()), and
+    // tty_clear_nhwindow(WIN_STATUS) blanks cw->data.  Neither touches the
+    // file-static finalx[][] (wintty.c:4304; the reset at 1070 is commented
+    // out), so a rebuilt window still compares its last row's end column
+    // with the old one at wintty.c:5251-5256: the row's tail, where the
+    // indented conditions stand, is erased only if the row got shorter.
+    if (state._statusLastRowTty) {
+        state._statusLastRowTty = {
+            cells: { text: '', owners: [] },
+            before: new Map(),
+            finalx: state._statusLastRowTty.finalx,
+        };
+    }
     status_initialize(state, true);
 }
 

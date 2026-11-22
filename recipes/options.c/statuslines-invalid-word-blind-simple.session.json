@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Non-numeric statuslines value from O with Blind and terrainstatus on the third row",
+  "segments": [
+    {
+      "seed": 561093827,
+      "datetime": "20260128065911",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Rogue,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,pettype:none,!autopickup\nOPTIONS=terrainstatus,statuslines:3\n",
+      "moves": "\u0017blindfold\nPgO:statuslines\nmany\n\n\u001bs:\n\ns"
+    }
+  ]
+}

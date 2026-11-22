@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "statuslines 3 to 2 to 3 from #optionsfull with Fly and terrainstatus",
+  "segments": [
+    {
+      "seed": 287364519,
+      "datetime": "20220819220416",
+      "nethackrc": "OPTIONS=name:Garrick,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,pettype:none,!autopickup\nOPTIONS=terrainstatus,statuslines:3\n",
+      "moves": "\u0017amulet of flying\nPi#optionsfull\n:statuslines\n\n2\n\u001bs#optionsfull\n:statuslines\n\n3\n\u001bs:s"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Same statuslines value from O with Fly and terrainstatus on the third row",
+  "segments": [
+    {
+      "seed": 918273645,
+      "datetime": "20250902081530",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,pettype:none,!autopickup\nOPTIONS=terrainstatus,statuslines:3\n",
+      "moves": "\u0017amulet of flying\nPfO:statuslines\n3\n\u001bs:s"
+    }
+  ]
+}

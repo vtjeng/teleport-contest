@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Out-of-range statuslines value from #optionsfull with Lev and terrainstatus on the third row",
+  "segments": [
+    {
+      "seed": 402915873,
+      "datetime": "20230611193045",
+      "nethackrc": "OPTIONS=name:Odile,role:Priest,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,pettype:none,!autopickup\nOPTIONS=terrainstatus,statuslines:3\n",
+      "moves": "\u0017blessed ring of levitation\nPir\n#optionsfull\n:statuslines\n\n5\n\u001bs:s"
+    }
+  ]
+}

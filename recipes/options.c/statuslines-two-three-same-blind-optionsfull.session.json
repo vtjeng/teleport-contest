@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "statuslines 2 to 3 and then 3 again from #optionsfull with Blind and terrainstatus",
+  "segments": [
+    {
+      "seed": 159372846,
+      "datetime": "20211224170052",
+      "nethackrc": "OPTIONS=name:Corvin,role:Archeologist,race:dwarf,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,pettype:none,!autopickup\nOPTIONS=terrainstatus,statuslines:2\n",
+      "moves": "\u0017blindfold\nPi#optionsfull\n:statuslines\n\n3\n\u001bs#optionsfull\n:statuslines\n\n3\n\u001bs:\n\ns"
+    }
+  ]
+}
