@@ -3220,8 +3220,10 @@ async function special_stock(obj, shkp, quietly, state = game, env = {}) {
             set_voice(shkp, 0, 80, 0, state);
             await verbalize("I won't stock that.  Take it out of here!", state, env);
         } else {
-            const possessive = noitPronoun(shkp, 'his', state, env.random ?? coreRandom);
-            await message(`${Shknam(shkp, state, env)} shakes ${possessive} ${
+            // 3135-3137: pline()'s arguments draw in the order written,
+            // Shknam() before noit_mhis().
+            await message(`${Shknam(shkp, state, env)} shakes ${
+                noitPronoun(shkp, 'his', state, env.random ?? coreRandom)} ${
                 mbodypart(shkp, HEAD)} in refusal.`, state);
         }
     }

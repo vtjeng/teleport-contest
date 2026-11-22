@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "shk.c special_stock() (3135-3137) and shopper_financial_report() (1024-1026) while hallucinating and deaf. The refusal line draws Shknam() before noit_mhis(), whose pronoun_gender() takes rn2(4) under hallucination; the credit line draws currency() before shkname(). A hallucinating, deaf Priest (#wizintrinsic) wishes for gold and the Candelabrum of Invocation, teleports into the Bazaar Town candle shop (#wizloaddes minetn-7), drops 250 gold for credit, reads the report with `$`, drops the Candelabrum, which the keeper refuses with a shake of the head, and reads the report again.",
+  "segments": [{
+    "seed": 66402913,
+    "datetime": "20250301101500",
+    "nethackrc": "OPTIONS=name:Earless,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+    "moves": "\u001b#wizloaddes\nminetn-7\n #wizintrinsic\n200h200j\n  \u0017300 gold pieces\n\u0017Candelabrum of Invocation\n\u0014  HHhhhhhjjj.   d250$  $  dk  $  "
+  }]
+}
