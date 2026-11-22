@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { parseNethackrc } from '../js/options.js';
 
 import { utf8Text } from '../js/hacklib.js';
 
@@ -40,7 +41,10 @@ function preambleState(datetime, keys = '') {
     game.nhDisplay = new GameDisplay(null);
     game.flags = {};
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    // initoptions() has run on C's zeroed iflags; tty_create_nhwindow(NHW_MESSAGE)
+    // reads msg_history from it.
     game.iflags = {
+        ...parseNethackrc('').iflags,
         window_inited: true,
         menu_overlay: true,
         menu_headings: { attr: 1, color: 8 },

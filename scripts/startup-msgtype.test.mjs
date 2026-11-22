@@ -65,7 +65,9 @@ function messageState(config = '', keys = '') {
     resetGame();
     game.nhDisplay = new GameDisplay(null);
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    game.iflags = { window_inited: true, cbreak: true };
+    // initoptions() has run on C's zeroed iflags; tty_create_nhwindow(NHW_MESSAGE)
+    // reads msg_history from it.
+    game.iflags = { ...parseNethackrc('').iflags, window_inited: true, cbreak: true };
     tty_create_nhwindow(NHW_MESSAGE, game);
     game.program_state = {};
     game.u = { ux: 0, uy: 0 };
