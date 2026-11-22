@@ -118,6 +118,19 @@ export function recallFromNewest(state = game) {
 export function addtopl(text, state = game) {
     const display = state.nhDisplay;
     if (!display) return;
+    // topl.c:198, tty_curs(BASE_WINDOW, cw->curx + 1, cw->cury): tty_curs()
+    // stores the position in the window it is given (wintty.c:2113-2114),
+    // so BASE_WINDOW's cursor follows the message window's. A later
+    // tty_putstr(BASE_WINDOW) starts from that row: after the pick-for-you
+    // prompt, role_init()'s "Who are you?" lands on row 1. The port's
+    // topl_putsym() does not keep the message window's column, and every
+    // BASE_WINDOW writer the port has resets the column before using it.
+    const messageCw = messageWindow(state);
+    const baseCw = state.wintty?.wins?.[state.wintty.BASE_WINDOW];
+    if (messageCw && baseCw) {
+        baseCw.curx = messageCw.curx ?? 0;
+        baseCw.cury = messageCw.cury ?? 0;
+    }
     const start = display.cursorCol ?? 0;
     let column = start;
     // putsyms(s) prints the string's bytes. One the capture ignores still

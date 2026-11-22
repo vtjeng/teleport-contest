@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "topl.c addtopl() (198) and wintty.c tty_askname() (670-682): the rc name \"games\" is generic, so it is asked at start-up and again by role_init()'s plnamesuffix() (role.c:1988). Answer `a` to the pick-for-you prompt in between: show_topl()'s addtopl() calls tty_curs(BASE_WINDOW, 1, 0), which moves the base window to row 0, so the second \"Who are you?\" is written on row 1 under the answered prompt, not below the banner.",
+  "segments": [
+    {
+      "seed": 61220,
+      "datetime": "20270514183000",
+      "nethackrc": "OPTIONS=name:games,race:human,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "games\raOrla\r\u0010\u0010\u001b"
+    }
+  ]
+}

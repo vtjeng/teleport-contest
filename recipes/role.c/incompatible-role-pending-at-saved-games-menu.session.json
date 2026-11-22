@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "_comment": "role.c genl_player_setup() (2299-2304), restore.c restore_menu() and wintty.c erase_tty_screen() (2047-2052): the first segment leaves a saved game. In the second, the name typed at start-up is generic, answer `a` leaves \"Incompatible role!\" pending, and role_init()'s plnamesuffix() shows the saved-games menu again; tty_clear_nhwindow(BASE_WINDOW) erases the screen and retires the line. Ctrl-P recalls it after the new name is typed.",
+  "segments": [
+    {
+      "seed": 61222,
+      "datetime": "20270516183000",
+      "nethackrc": "OPTIONS=name:Tova,role:Ranger,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "s\u001bSy"
+    },
+    {
+      "seed": 61223,
+      "datetime": "20270517183000",
+      "nethackrc": "OPTIONS=race:orc,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "ngame\ranRolf\r\u0010\u0010\u0010\u0010\u001b"
+    }
+  ]
+}

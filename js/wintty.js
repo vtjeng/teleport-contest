@@ -169,10 +169,11 @@ function winttyState(state) {
 // tty_curs(BASE_WINDOW, ...).  The port updates it only where a later
 // base-window write reads it: tty_init_nhwindows()'s banner, tty_askname(),
 // tty_putstr(BASE_WINDOW), erase_tty_screen() through tty_clear_nhwindow()
-// of the map or base window, and docorner()'s role-selection menu repair.
-// The other tty_curs(BASE_WINDOW) callers, such as topl.c addtopl() and
-// topl_putsym() and docorner() during play, are not modeled because no
-// base-window write follows them.
+// of the map or base window, docorner()'s role-selection menu repair, and
+// topl.c addtopl() (the pick-for-you prompt precedes role_init()'s
+// tty_askname()).  The other tty_curs(BASE_WINDOW) callers, such as topl.c
+// more() and topl_putsym() and docorner() during play, are not modeled
+// because no base-window write follows them.
 export function baseWindow(state = game) {
     const wt = state.wintty;
     const cw = wt?.wins?.[wt.BASE_WINDOW];

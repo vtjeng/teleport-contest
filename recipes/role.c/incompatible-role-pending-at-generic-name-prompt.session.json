@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "role.c genl_player_setup() (2299-2304) and role_init()'s plnamesuffix() (1988): after answer `a`, \"Incompatible role!\" is still on the top line at TOPLINE_NEED_MORE when tty_askname() writes \"Who are you?\" on base-window row 1; no --More-- is shown, and init_dungeons()'s screen erase retires the line. Ctrl-P then recalls it.",
+  "segments": [
+    {
+      "seed": 61221,
+      "datetime": "20270515183000",
+      "nethackrc": "OPTIONS=name:player,race:gnome,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "nethack\raPell\r\u0010\u0010\u0010\u0010\u001b"
+    }
+  ]
+}
