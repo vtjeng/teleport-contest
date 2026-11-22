@@ -2684,9 +2684,12 @@ export async function price_quote(firstObj, state = game, env = {}) {
         } else {
             const name = `${contentsOnly ? 'the contents of ' : ''}${donameFresh(firstObj, state)}`;
             set_voice(shopkeeper, 0, 80, 0, state);
+            // verbalize()'s arguments draw in the order written: currency()
+            // before shk_embellish().
+            const unit = currency(cost, state);
             const embellishment = contentsOnly ? '.'
                 : shk_embellish(firstObj, cost, state, env);
-            await verbalize(`${upstart(name)}, price ${cost} ${currency(cost, state)}`
+            await verbalize(`${upstart(name)}, price ${cost} ${unit}`
                 + `${firstObj.quan > 1 ? ' each' : ''}${embellishment}`, state, env);
         }
     }

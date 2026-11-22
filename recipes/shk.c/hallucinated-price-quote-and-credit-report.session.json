@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "shk.c price_quote() (5459-5461) and shopper_financial_report() (1024-1026) while hallucinating, where one message takes two random draws. clang evaluates the arguments in the order written: currency() before shk_embellish() in the quote, and currency() before shkname() in the credit line. A hallucinating Tourist (#wizintrinsic) teleports onto a lamp in the Bazaar Town candle shop (#wizloaddes minetn-7), asks its price with #chat three times so that an embellished quote appears, drops 100 gold for credit, and reads the report with `$`.",
+  "segments": [{
+    "seed": 31880527,
+    "datetime": "20250301101500",
+    "nethackrc": "OPTIONS=name:Trippy,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,pettype:none,time",
+    "moves": "\u001b#wizloaddes\nminetn-7\n #wizintrinsic\n200h\n \u0014  LLlllJj.  #chat\n#chat\n#chat\nd100$ $  "
+  }]
+}

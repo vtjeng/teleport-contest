@@ -6124,10 +6124,13 @@ async function shopper_financial_report(state) {
             const eshk = mtmp.mextra?.eshk;
             if (!eshk) continue;
             if (eshk.credit) {
+                // You()'s arguments draw in the order written: currency()
+                // before shkname().
+                const unit = currency(eshk.credit, state);
                 const name = s_suffix(shkname(mtmp, state));
                 const shop = SHTYPES[eshk.shoptype - SHOPBASE]?.name ?? 'shop';
                 await ttyPline(
-                    `You have ${eshk.credit} ${currency(eshk.credit, state)} `
+                    `You have ${eshk.credit} ${unit} `
                     + `credit at ${name} ${shop}.`,
                     state,
                 );
