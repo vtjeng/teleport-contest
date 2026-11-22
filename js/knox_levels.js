@@ -1,4 +1,5 @@
 // C ref: dat/knox.lua, the complete Fort Ludios special-level program.
+import { l_selection_iterate } from './nhlsel.js';
 import { selection_area } from './themerooms.js';
 import { KNOX_LEVEL_MAP } from './knox_level_data.js';
 
@@ -11,6 +12,15 @@ function randomInclusive(random, low, high) {
 function percent(random, threshold) {
     return randomInclusive(random, 0, 99) < threshold;
 }
+
+// knox.lua's global treasure_spot(), as a Lua traceback names its frame. It
+// calls des.gold() from line 58 and des.trap() from line 61 or 63, which one
+// table cannot name, so only des.gold()'s line is recorded; neither call can
+// raise a Lua error with these arguments.
+const TREASURE_SPOT_FRAME = Object.freeze({
+    desc: "function 'treasure_spot'",
+    lines: Object.freeze({ gold: 58 }),
+});
 
 export async function knox(des) {
     const random = des.random;
@@ -38,19 +48,25 @@ export async function knox(des) {
         await des.terrain(47, 10, '|');
     }
 
-    function treasureSpot(x, y) {
-        des.gold({ x, y, amount: 600 + randomInclusive(random, 0, 300) });
+    async function treasureSpot(x, y) {
+        await des.gold({
+            x, y, amount: 600 + randomInclusive(random, 0, 300),
+        });
         if (randomInclusive(random, 0, 2) === 0) {
             if (randomInclusive(random, 0, 2) === 0)
-                des.trap('spiked pit', x, y);
+                await des.trap('spiked pit', x, y);
             else
-                des.trap('land mine', x, y);
+                await des.trap('land mine', x, y);
         }
     }
 
     await des.region({ region: [21, 8, 35, 11],
         lit: 1, type: 'ordinary' });
-    selection_area(21, 8, 35, 11).iterate(treasureSpot);
+    // knox.lua:69-70, treasury:iterate(treasure_spot): nhlsel.c
+    // l_selection_iterate() runs each call to completion before the next.
+    // The selection is map-relative, so its points need no conversion.
+    await l_selection_iterate(selection_area(21, 8, 35, 11), treasureSpot,
+        null, { line: 70, callee: TREASURE_SPOT_FRAME }, des.luaEnv);
 
     if (percent(random, 50)) {
         await des.terrain(36, 9, '|');

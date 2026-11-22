@@ -78,7 +78,7 @@ function descriptorValue(value) {
     ));
 }
 
-function recordTutorialDescriptor({
+async function recordTutorialDescriptor({
     role = PM_HEALER,
     energy = 10,
     eckeys = {},
@@ -121,12 +121,12 @@ function recordTutorialDescriptor({
         engraving(specification) { record('engraving', specification); },
         door(specification) { record('door', specification); },
         trap(specification) { record('trap', specification); },
-        object(specification) {
+        async object(specification) {
             const { contents, ...fields } = specification;
             record('object', { ...fields, contents: Boolean(contents) });
             if (contents) {
                 record('contents.begin');
-                contents();
+                await contents();
                 record('contents.end');
             }
         },
@@ -138,7 +138,7 @@ function recordTutorialDescriptor({
             return values;
         },
     };
-    loadTutorialLevel(des, {
+    await loadTutorialLevel(des, {
         urole: { mnum: role },
         u: { uenmax: energy },
         // selection_match() scans the map; an empty one matches ' ' alone.
@@ -148,12 +148,12 @@ function recordTutorialDescriptor({
     return log;
 }
 
-function recordTutorialSecondLevel(state = tutorialState()) {
+async function recordTutorialSecondLevel(state = tutorialState()) {
     const log = [];
     const record = (name, ...args) => {
         log.push([name, ...args.map(descriptorValue)]);
     };
-    loadTutorialSecondLevel({
+    await loadTutorialSecondLevel({
         level_init: (...args) => record('level_init', ...args),
         level_flags: (...args) => record('level_flags', ...args),
         map: (...args) => record('map', ...args),
@@ -427,8 +427,8 @@ test('tutorial map preserves the source 75 by 18 descriptor', () => {
     assert.ok(TUTORIAL_MAP.every((row) => row.length === 75));
 });
 
-test('tut-2 descriptor follows its Lua statements and active up binding', () => {
-    const log = recordTutorialSecondLevel();
+test('tut-2 descriptor follows its Lua statements and active up binding', async () => {
+    const log = await recordTutorialSecondLevel();
     // These rows are the dat/tut-2.lua:7-14 map, centred by des.map().
     const sourceMap = [
         '--------------',
@@ -470,7 +470,7 @@ test('tut-2 descriptor follows its Lua statements and active up binding', () => 
         ['non_diggable'],
     ]);
 
-    const rebound = recordTutorialSecondLevel(tutorialState('', {
+    const rebound = await recordTutorialSecondLevel(tutorialState('', {
         // OPTIONS bind changes the extcmdlist key returned by nh.eckey('up').
         commandOperations: [{
             type: 'bind', key: 'U'.charCodeAt(0), command: 'up',
@@ -482,8 +482,8 @@ test('tut-2 descriptor follows its Lua statements and active up binding', () => 
     );
 });
 
-test('tutorial descriptor retains the complete source call sequence', () => {
-    const log = recordTutorialDescriptor();
+test('tutorial descriptor retains the complete source call sequence', async () => {
+    const log = await recordTutorialDescriptor();
     assert.deepEqual(log.slice(0, 9), [
         ['level_init', { style: 'solidfill', fg: ' ' }],
         ['level_flags', 'mazelevel', 'noflip', 'nomongen', 'nodeathdrops',
@@ -535,8 +535,8 @@ test('tutorial descriptor retains the complete source call sequence', () => {
     );
 });
 
-test('tutorial descriptor covers role, energy, percentage, and contents branches', () => {
-    const base = recordTutorialDescriptor();
+test('tutorial descriptor covers role, energy, percentage, and contents branches', async () => {
+    const base = await recordTutorialDescriptor();
     const doors = base.filter(([name]) => name === 'door')
         .map(([, specification]) => specification);
     assert.deepEqual(doors.slice(2, 4), [
@@ -552,10 +552,10 @@ test('tutorial descriptor covers role, energy, percentage, and contents branches
         doors.find(({ coord }) => coord[0] === 20 && coord[1] === 3),
         { coord: [20, 3], state: 'open' },
     );
-    const closedDoor = recordTutorialDescriptor({
+    const closedDoor = (await recordTutorialDescriptor({
         // dat/tut-1.lua makes the seventh percentage draw open only below 50.
         percent: [49, 50, 0, 99, 49, 50, 50],
-    }).find(([name, specification]) => (
+    })).find(([name, specification]) => (
         name === 'door'
             && specification.coord[0] === 20
             && specification.coord[1] === 3
@@ -585,7 +585,7 @@ test('tutorial descriptor covers role, energy, percentage, and contents branches
         }],
     ]);
 
-    const knight = recordTutorialDescriptor({
+    const knight = await recordTutorialDescriptor({
         role: PM_KNIGHT,
         energy: 4,
         eckeys: { kick: '^D', down: '^J' },
@@ -611,7 +611,7 @@ test('tutorial descriptor covers role, energy, percentage, and contents branches
         [[6, 8], [64, 4]],
     );
 
-    const monk = recordTutorialDescriptor({ role: PM_MONK });
+    const monk = await recordTutorialDescriptor({ role: PM_MONK });
     const armor = monk.find(([, specification]) => (
         specification?.coord?.[0] === 19
             && specification?.coord?.[1] === 14
@@ -685,7 +685,7 @@ test('numpad mode restoration preserves duplicate meta-digit backups', () => {
 // character it writes without reaching its default arm. Reading the whole
 // level under both outcomes of each percent(50) and every role and energy
 // branch covers all of the loader's arms.
-test('the tutorial supplies only special-level values the port accepts', () => {
+test('the tutorial supplies only special-level values the port accepts', async () => {
     const styles = new Set();
     const levelFlags = new Set();
     const doorStates = new Set();
@@ -696,7 +696,7 @@ test('the tutorial supplies only special-level values the port accepts', () => {
             // The loader rolls percent(50) seven times; 0 takes every "true"
             // arm and 99 every "false" one.
             for (const roll of [0, 99]) {
-                const log = recordTutorialDescriptor({
+                const log = await recordTutorialDescriptor({
                     role, energy, percent: new Array(7).fill(roll),
                 });
                 for (const [name, ...args] of log) {
