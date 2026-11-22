@@ -101,6 +101,8 @@ import {
     MHID_ARTICLE,
     MHID_ALTMON,
     MHID_REGION,
+    H_UTF8,
+    PRIMARYSET,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -959,8 +961,18 @@ function lookedGlyphText(glyph, location, state) {
         return { text: String.fromCharCode(info.ttychar), cell };
     if ((info.ttychar & 0x80) && info.ch != null)
         return { text: String.fromCharCode(info.ttychar), cell: info.ch };
-    // Otherwise the message holds the display character's UTF-8 bytes.
-    return { text: utf8Text(cell), cell: null };
+    // Otherwise the cell is what the line's own writer captures. The
+    // message holds what tty_putmixed() decoded: under a UTF-8 symset
+    // utf8map.c mixed_to_utf8() writes the glyph's utf8str bytes, and in
+    // every other case the one gs.showsyms[] byte. That includes an IBM
+    // byte such as \x8f, whose low seven bits are a control byte that the
+    // capture ignores; its code-page character is never in the message.
+    const handling = state.gs?.symset?.[
+        state.gc?.currentgraphics ?? PRIMARYSET
+    ]?.handling;
+    if (handling === H_UTF8 && info.displayCh)
+        return { text: utf8Text(info.displayCh), cell: null };
+    return { text: String.fromCharCode(info.ttychar), cell: null };
 }
 
 // C ref: pager.c look_traps(). The scan is y-major, then x-minor.

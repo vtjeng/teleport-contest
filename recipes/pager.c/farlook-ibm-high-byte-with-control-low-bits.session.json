@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5512093,
+      "datetime": "20310217093000",
+      "nethackrc": "OPTIONS=name:Tove,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,color,pettype:dog,!tips,autodescribe,symset:IBMgraphics,msg_window:full\nSYMBOLS=S_dog:\\x85,S_tool:\\x8f,S_human:\\x9b\n",
+      "moves": "  dcl;h.\u0010\u001b;m.\u0010\u001b;..\u0010\u001b:s"
+    }
+  ],
+  "comment": "pager.c do_look() shows a farlook with putmixed(); wintty.c tty_putmixed() decodes the looked-at glyph with windows.c decode_mixed() to its one gs.showsyms[] byte unless the symset's handling is UTF8. Under IBMgraphics with SYMBOLS bytes \\x85 for the dog and \\x9b for the hero, whose low seven bits are control bytes, wintty.c g_putch() and recorder patch 006 capture nothing for the symbol, and the message is one byte long: the description starts in column 9, on the first display and in the ^P message history."
+}
