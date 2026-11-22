@@ -18,7 +18,7 @@ import {
     yn_function,
     ynq,
 } from '../js/cmd.js';
-import { CQ_CANNED } from '../js/const.js';
+import { CQ_CANNED, commandInp } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { resetGame } from '../js/gstate.js';
 import { tty_yn_function } from '../js/topl.js';
@@ -95,7 +95,7 @@ function promptState(keys) {
     state.nhDisplay = new GameDisplay(null);
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
     state.iflags = { window_inited: true };
-    state.program_state = { input_state: 'command' };
+    state.program_state.input_state = commandInp;
     state.u = {}; // No hero position, so the prompt skips the map flush.
     for (const key of keys) state.nhDisplay.pushKey(key.charCodeAt(0));
     return state;

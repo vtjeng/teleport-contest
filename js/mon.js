@@ -2365,19 +2365,14 @@ async function liquidOvercrowding(monster, env) {
 export async function minliquid(monster, env = {}) {
     const state = env.state ?? game;
     state.iflags ??= {};
-    const hadSadFeeling = Object.hasOwn(state.iflags, 'sad_feeling');
+    // mon.c:952-955.
     state.iflags.sad_feeling = Boolean(
         monster.mtame && !liquidCanSeeMonster(monster, env),
     );
     try {
         return await minliquid_core(monster, { ...env, state });
     } finally {
-        // Keep the JS state shape stable when the field was only needed by
-        // this call. C's iflags member is always present in its struct, but
-        // this port creates optional fields only when their callers need
-        // them; nested death helpers still see the false clear above.
-        if (hadSadFeeling) state.iflags.sad_feeling = false;
-        else delete state.iflags.sad_feeling;
+        state.iflags.sad_feeling = false;
     }
 }
 
@@ -3453,9 +3448,9 @@ export async function wiz_force_cham_form(monster, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const input = rawEnv.getlin ?? getlin;
     const message = rawEnv.message ?? ttyPline;
-    const mode = state.iflags?.getpos_coords === GPCOORDS_NONE
-        || state.iflags?.getpos_coords == null
-        ? GPCOORDS_MAP : state.iflags.getpos_coords;
+    // mon.c:5087-5088.
+    const mode = state.iflags.getpos_coords !== GPCOORDS_NONE
+        ? state.iflags.getpos_coords : GPCOORDS_MAP;
     let prompt = `Change ${noit_mon_nam(monster, state, rawEnv)}`;
     const suffix = ` @ ${coordinateDescriptionForPrompt(
         monster.mx,

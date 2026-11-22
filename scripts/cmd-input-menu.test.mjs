@@ -12,7 +12,9 @@ import {
     readchar_poskey,
     yn_function,
 } from '../js/cmd.js';
-import { ECMD_CANCEL, ECMD_OK } from '../js/const.js';
+import {
+    ECMD_CANCEL, ECMD_OK, commandInp, otherInp,
+} from '../js/const.js';
 import { getnow } from '../js/calendar.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -22,7 +24,7 @@ function inputState(keys = [], iflags = {}) {
     const state = resetGame();
     state.nhDisplay = new GameDisplay(null);
     state.iflags = { ...iflags };
-    state.program_state = { input_state: 'command' };
+    state.program_state.input_state = commandInp;
     state.u = { ux: 10, uy: 10 };
     for (const key of keys) state.nhDisplay.pushKey(key);
     return state;
@@ -52,9 +54,9 @@ test('readchar_core gives the queue and Alt-meta branches source order', async (
     assert.equal(await readchar(state), 'q'.charCodeAt(0));
     // cmd.c:5249-5259 combines ESC plus x into Meta-x when input_state is not
     // other; 0x80 is the C eighth-bit mask used by that branch.
-    state.program_state.input_state = 'command';
+    state.program_state.input_state = commandInp;
     assert.equal(await readchar(state), 0xF8);
-    assert.equal(state.program_state.input_state, 'other');
+    assert.equal(state.program_state.input_state, otherInp);
 });
 
 test('readchar_poskey copies the source window-port outputs before reset', async () => {
@@ -73,7 +75,7 @@ test('readchar_poskey copies the source window-port outputs before reset', async
         // they are independent of the development recordings.
         x: 23, y: 6, mod: 2,
     });
-    assert.equal(state.program_state.input_state, 'other');
+    assert.equal(state.program_state.input_state, otherInp);
 });
 
 test('yn_function_menu covers each response family and C defaults', async () => {

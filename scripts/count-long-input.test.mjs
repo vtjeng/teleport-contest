@@ -5,6 +5,7 @@ import { runJsSession, compareSessionOutputs, formatReport } from './diff-fresh.
 import { get_count } from '../js/cmd.js';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 import { GameDisplay } from '../js/game_display.js';
+import { commandInp } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 
 for (const [name, file] of [
@@ -37,7 +38,7 @@ test('get_count preserves exact 64-bit input and source overflow reset', async (
         game.nhDisplay = new GameDisplay(null);
         game.iflags = {};
         game.flags = {};
-        game.program_state = { input_state: 'command' };
+        game.program_state.input_state = commandInp;
         for (const key of input) game.nhDisplay.pushKey(key.charCodeAt(0));
         const result = await get_count(null, 0, 0, null, 0, game);
         assert.equal(result.count, expected);

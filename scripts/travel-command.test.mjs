@@ -76,5 +76,6 @@ test('menu-prefixed #travel restores its filter after Escape',
     assert.equal(game.iflags.getloc_filter, 0);
     assert.equal(game.iflags.getloc_travelmode, false);
     assert.equal(game.iflags.menu_requested, false);
-    assert.equal(game.iflags.travelcc, undefined);
+    // Escape leaves the travel cache at C's zero.
+    assert.deepEqual(game.iflags.travelcc, { x: 0, y: 0 });
 });

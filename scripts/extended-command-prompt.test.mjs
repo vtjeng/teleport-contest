@@ -688,7 +688,7 @@ test('an EOF byte cancels the prompt where Escape would restart it',
     // this case a gate that cancelled on every byte would still pass above.
     await runSegment({ ...base, moves: `.${EXTCMD_KEY}wa\x00` });
     assert.equal(topLine(), EXTCMD_KEY);
-    assert.equal(game.iflags.term_gone, undefined);
+    assert.equal(game.iflags.term_gone, false);
 
     // And the untouched prompt, so the two cancels are read against a row
     // that does hold the typed text.

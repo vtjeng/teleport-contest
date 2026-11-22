@@ -65,6 +65,7 @@ import {
 import { DAGGER, STRANGE_OBJECT, WEAPON_CLASS } from '../js/objects.js';
 import { newObject } from '../js/obj.js';
 import { has_aggravatables } from '../js/wizard.js';
+import { parseNethackrc } from '../js/options.js';
 
 // -- helpers -----------------------------------------------------------
 
@@ -123,6 +124,9 @@ function makeState(overrides = {}) {
         moves: 100,
         youmonst: { data: { mlet: 0 } },
         context: {},
+        // The options' startup values; pline_mon() formats the monster's
+        // position by getpos_coords.
+        iflags: parseNethackrc('').iflags,
         viz_array,
         ...overrides,
         level,

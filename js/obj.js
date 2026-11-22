@@ -2339,7 +2339,7 @@ export async function maybe_adjust_light(obj, old_range, env = {}) {
             const loc = get_obj_location(obj, 0, state);
             if (loc) {
                 let buf = '';
-                if ((state.iflags?.last_msg ?? -1) === PLNMSG_OBJ_GLOWS)
+                if (state.iflags?.last_msg === PLNMSG_OBJ_GLOWS)
                     buf = obj.quan === 1 ? 'It' : 'They';
                 else if (carried(obj) || cansee(loc.x, loc.y, state))
                     buf = Yname2(obj, state);

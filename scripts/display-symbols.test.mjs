@@ -109,6 +109,7 @@ import {
     WARNING,
     WATER,
     WEB,
+    MAX_TYPE,
 } from '../js/const.js';
 import * as symbolExports from '../js/symbols.js';
 import {
@@ -531,6 +532,10 @@ function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
     state.urace = { mnum: 0 };
     state.urole = { mnum: PM_TENGU };
     state.flags = {};
+    // resetGame() starts iflags at C's zero; options.c initoptions() with an
+    // empty configuration file then sets the options' compiled-in values,
+    // color among them, as js/jsmain.js installs them.
+    state.iflags = parseNethackrc('').iflags;
     monst_globals_init(state);
     // newsym() can feel the hero's own square during redraws, which reads the
     // initialized hero form just as C's u.youmonst does.
@@ -693,7 +698,14 @@ function statusRenderingState() {
         armorstatus: true,
         terrainstatus: true,
     };
-    state.iflags = { wc2_statuslines: 2 };
+    // The options' startup values, with a level arrival's MAX_TYPE
+    // terrain_typ (dungeon.c:1593) so that the status line classifies the
+    // hero's square.
+    state.iflags = {
+        ...parseNethackrc('').iflags,
+        wc2_statuslines: 2,
+        terrain_typ: MAX_TYPE,
+    };
     state.urole = {
         name: { m: 'Barbarian' },
         rank: { m: 'Plunderer' },
@@ -1866,6 +1878,9 @@ test('each object glyph macro picks the base display.h gives it', () => {
 
 test('newsym remembers an object underneath a visible monster and hero', () => {
     const state = resetGame();
+    // resetGame() starts iflags at C's zero; these are the options'
+    // startup values, as js/jsmain.js installs them.
+    state.iflags = parseNethackrc('').iflags;
     const x = 7;
     const y = 4;
     state.level = new GameMap();
@@ -5417,6 +5432,9 @@ test('nearby zero-class object mimics stay outside the generic-glyph range', () 
 
 test('newsym maps a visible furniture mimic into display and memory', () => {
     const state = resetGame();
+    // resetGame() starts iflags at C's zero; these are the options'
+    // startup values, as js/jsmain.js installs them.
+    state.iflags = parseNethackrc('').iflags;
     const x = 7;
     const y = 4;
     state.level = new GameMap();
@@ -6087,6 +6105,9 @@ test('newsym preserves the swallowed display except for the hero', () => {
 
 test('newsym reveals visible engravings beneath higher-priority layers', () => {
     const state = resetGame();
+    // resetGame() starts iflags at C's zero; these are the options'
+    // startup values, as js/jsmain.js installs them.
+    state.iflags = parseNethackrc('').iflags;
     const x = 7;
     const y = 4;
     state.level = new GameMap();
@@ -6349,6 +6370,9 @@ test('flush_screen leaves map output untouched in suppressed phases', async () =
 
 test('newsym layers seen traps below objects and above engravings', () => {
     const state = resetGame();
+    // resetGame() starts iflags at C's zero; these are the options'
+    // startup values, as js/jsmain.js installs them.
+    state.iflags = parseNethackrc('').iflags;
     const x = 7;
     const y = 4;
     state.level = new GameMap();
@@ -6462,6 +6486,9 @@ test('newsym applies the C underwater guard before redrawing memory', () => {
 
 test('newsym snapshots permanent lighting only at the visible boundary', () => {
     const state = resetGame();
+    // resetGame() starts iflags at C's zero; these are the options'
+    // startup values, as js/jsmain.js installs them.
+    state.iflags = parseNethackrc('').iflags;
     const x = 7;
     const y = 4;
     state.level = new GameMap();
@@ -6498,6 +6525,9 @@ test('newsym snapshots permanent lighting only at the visible boundary', () => {
 
 test('unobserved floor objects use the source generic class glyph', () => {
     const state = resetGame();
+    // resetGame() starts iflags at C's zero; these are the options'
+    // startup values, as js/jsmain.js installs them.
+    state.iflags = parseNethackrc('').iflags;
     objects_globals_init(state);
     initialize_symbols_from_options({ flags: {} }, state);
     const potion = {
@@ -7533,7 +7563,13 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
         armorstatus: true,
         terrainstatus: true,
     };
-    state.iflags = { wc2_statuslines: 3 };
+    state.iflags = {
+        ...parseNethackrc('').iflags,
+        wc2_statuslines: 3,
+        // A level arrival's MAX_TYPE (dungeon.c:1593) classifies the
+        // hero's square for the terrain status.
+        terrain_typ: MAX_TYPE,
+    };
     state.urole = {
         name: { m: 'Valkyrie' },
         rank: { m: 'Stripling' },
@@ -8205,7 +8241,7 @@ test('tutorial overflow shrinking preserves complete status grids and attributes
             'OPTIONS=cond_barehanded,cond_ice\n'
             + 'OPTIONS=hilite_status:dungeon-level/always/red&bold',
         );
-        state.iflags = { ...parsed.iflags, wc2_statuslines: lines };
+        state.iflags = { ...parsed.iflags, terrain_typ: MAX_TYPE, wc2_statuslines: lines };
         await bot();
         for (let index = 0; index < expected[lines].length; ++index) {
             const screenRow = 24 - lines + index;
@@ -8410,7 +8446,7 @@ test('initial three-line status keeps the tty overlap until the forced refresh',
         + 'OPTIONS=hilite_status:condition/blind/red&bold '
         + 'version/always/bright-blue',
     );
-    state.iflags = { ...parsed.iflags, wc2_statuslines: 3 };
+    state.iflags = { ...parsed.iflags, terrain_typ: MAX_TYPE, wc2_statuslines: 3 };
     state.program_state = { in_moveloop: 0 };
     state.disp = {};
 
@@ -8510,6 +8546,9 @@ test('disabled status updates retain blank reserved tty rows', async () => {
 
 test('status uses source attribute order and exceptional strength text', async () => {
     const state = resetGame();
+    // resetGame() starts iflags at C's zero; these are the options'
+    // startup values, as js/jsmain.js installs them.
+    state.iflags = parseNethackrc('').iflags;
     state.nhDisplay = new GameDisplay(null);
     state.dungeons = dungeonsOfDoom();
     state.flags = { female: false, showexp: true, time: true };
@@ -8867,6 +8906,7 @@ test('status field ownership styles every dispatch branch in both layouts', asyn
             );
             state.iflags = {
                 ...parsed.iflags,
+                terrain_typ: MAX_TYPE,
                 wc2_statuslines: lines,
             };
             status_initialize(state);
@@ -8895,7 +8935,7 @@ test('status field ownership styles every dispatch branch in both layouts', asyn
         const parsed = parseNethackrc(
             'OPTIONS=hilite_status:title/always/red&bold',
         );
-        state.iflags = { ...parsed.iflags, wc2_statuslines: lines };
+        state.iflags = { ...parsed.iflags, terrain_typ: MAX_TYPE, wc2_statuslines: lines };
         status_initialize(state);
         await bot();
         const titleRow = lines === 2 ? 22 : 21;

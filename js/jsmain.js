@@ -398,6 +398,10 @@ export class NethackGame {
         const opts = parseNethackrc(this._nethackrc);
         g.plname = opts.name ?? '';
         g.flags = { ...opts.flags };
+        // options.c initoptions() writes the process's zeroed iflags;
+        // js/options.js parseNethackrc() builds that result from the same
+        // zero_instance_flags() js/gstate.js created at process start, which
+        // nothing has written yet.
         g.iflags = { ...opts.iflags };
         // cfgfiles.c cnf_line_MENUCOLOR() has finished prepending the
         // per-game coloratt.c list before any menu can be built.
@@ -419,15 +423,12 @@ export class NethackGame {
             ...opts.gw,
             warnsyms: [...opts.gw.warnsyms],
         };
-        // C ref: sys/share/unixtty.c setftty() (251-259).  iflags is a static
-        // struct and no option writes cbreak, so it is false until
-        // tty_init_nhwindows() raises it -- which js/tty_startup.js
-        // renderTtyStartupBanner() does below, ahead of its own display guard
-        // so that every caller passes the same boundary.  Between here and
-        // there, js/tty_message.js xwaitforspace() reads only Return and
-        // Enter, which is what the configuration errors reported just after
-        // this wait on.
-        g.iflags.cbreak = false;
+        // C ref: sys/share/unixtty.c setftty() (251-259).  No option writes
+        // iflags.cbreak, so it keeps its zero, FALSE, until
+        // tty_init_nhwindows() raises it.  Between here and there,
+        // js/tty_message.js xwaitforspace() reads only Return and Enter,
+        // which is what the configuration errors reported just after this
+        // wait on.
         g.a11y = { ...opts.a11y };
         if (opts.go) g.go = { ...opts.go };
         g.give_opt_msg = opts.give_opt_msg;
@@ -500,7 +501,6 @@ export class NethackGame {
         // field the header does not declare or replaces a struct with a
         // partial object.
         g.context = zero_context_info();
-        g.program_state = {};
         g.moves = 0;
         g._commandDispatchCount = 0;
         if (this._themeroomSelectionCollector) {

@@ -53,6 +53,7 @@ import {
     I_SPECIAL,
     INFRAVISION,
     WARN_OF_MON,
+    otherInp,
 } from '../js/const.js';
 import { getnow } from '../js/calendar.js';
 import { dxdy_to_dist_descr } from '../js/getpos.js';
@@ -2025,7 +2026,7 @@ test('list_vanquished uses the canonical default query owner', async () => {
         },
     });
     assert.ok(lines.some((line) => /wolf/u.test(line.text)));
-    assert.equal(state.program_state.input_state, 'other');
+    assert.equal(state.program_state.input_state, otherInp);
 });
 
 test('dovanquished consumes the menu-requested flag', async () => {

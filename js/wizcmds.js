@@ -1452,8 +1452,8 @@ export async function wiz_custom(state = game, env = {}) {
         '    glyph  glyph identifier                             sym   clr customcolor unicode utf8', state,
     )];
     const primary = state.gs?.symset?.[PRIMARYSET] ?? {};
-    // The current tty backend reports the recorder's 256-color capability.
-    let title = `#wizcustom: colorcount=${state.iflags?.colorcount ?? 256} ${primary.name || 'default'}`;
+    // js/wintty.js term_startup() stores the recorder's 256-color capability.
+    let title = `#wizcustom: colorcount=${state.iflags.colorcount} ${primary.name || 'default'}`;
     if (state.gc?.currentgraphics === PRIMARYSET && primary.name) title += ', active';
     if (primary.handling) title += `, handler=${known_handling[primary.handling]}`;
     wizcustom_glyphids(items, wizcustom_callback, state);

@@ -107,6 +107,10 @@ import {
     W_SADDLE,
     has_mgivenname,
     FUZZER_IMPOSSIBLE_CONTINUE,
+    commandInp,
+    getdirInp,
+    getposInp,
+    otherInp,
 } from './const.js';
 import {
     doapply,
@@ -674,7 +678,7 @@ async function readchar_core(x, y, mod, state = game) {
             await hangup(0, state);
             sym = ESC;
         } else if (sym === ESC && state.iflags.altmeta
-            && state.program_state.input_state !== 'other') {
+            && state.program_state.input_state !== otherInp) {
             const followingQueue = queuedReadcharValue(state);
             const following = followingQueue === null
                 ? await pgetchar(state) : followingQueue;
@@ -692,7 +696,7 @@ async function readchar_core(x, y, mod, state = game) {
         }
     }
 
-    state.program_state.input_state = 'other';
+    state.program_state.input_state = otherInp;
     return Number(sym) & 0xFF;
 }
 
@@ -708,7 +712,7 @@ export async function readchar(state = game) {
 // callers in this port use the same mutable `{value}` shape as C pointers.
 export async function readchar_poskey(x, y, mod, state = game) {
     state.program_state ??= {};
-    state.program_state.input_state = 'getpos';
+    state.program_state.input_state = getposInp;
     return readchar_core(x, y, mod, state);
 }
 
@@ -894,7 +898,7 @@ export async function yn_function(
         res = altres;
     }
     // "in case we're called via getdir() which sets input_state".
-    state.program_state.input_state = 'other';
+    state.program_state.input_state = otherInp;
     return res;
 }
 
@@ -1659,7 +1663,7 @@ export async function getdir(s, state = game) {
     while (true) {
         let fromPrompt = false;
         if (needsPrompt) {
-            state.program_state.input_state = 'getdir';
+            state.program_state.input_state = getdirInp;
             if (state.in_doagain || state.readchar_queue)
                 dirsym = await readchar(state);
             else
@@ -1871,13 +1875,13 @@ async function beginCommandParse(state) {
     state.context.move = 1;
     await flush_screen(1);
     state.iflags.in_parse = true;
-    state.program_state.input_state = 'command';
+    state.program_state.input_state = commandInp;
 }
 
 function abortCommandParse(state) {
     state.context.move = 0;
     state.iflags.in_parse = false;
-    state.program_state.input_state = 'other';
+    state.program_state.input_state = otherInp;
 }
 
 function finishCommandParse(parsed, state) {
@@ -1893,7 +1897,7 @@ function finishCommandParse(parsed, state) {
     state.cmdKey = parsed.key;
     clearTtyMessageWindow(state);
     state.iflags.in_parse = false;
-    state.program_state.input_state = 'other';
+    state.program_state.input_state = otherInp;
     return state.cmdKey;
 }
 
@@ -1914,7 +1918,7 @@ export async function parse(state = game) {
         let key;
         if (!state.iflags.num_pad || (key = await readchar(state))
             === commandBindings(state).specialKeys.count) {
-            state.program_state.input_state = 'command';
+            state.program_state.input_state = commandInp;
             const countOut = { value: 0 };
             key = await get_count(
                 null, 0, LARGEST_INT, countOut, 0, state,
@@ -2159,7 +2163,7 @@ function randomDirectionKey(dir, mode, state) {
 export function randomkey(state = game) {
     state._randomkeyIndex ??= 0;
     const previous = state._randomkeyLast ?? 0;
-    const commandInput = state.program_state?.input_state === 'command';
+    const commandInput = state.program_state?.input_state === commandInp;
     // C('a') and C('p') are control-A (1) and control-P (16), not the
     // printable letters used by their ordinary command bindings.
     if ((previous === 1 || previous === 16) && commandInput && rn2(5))
@@ -2786,7 +2790,7 @@ export async function do_fight(state = game) {
 // ordinary getpos prompt or the menu-requested interesting-location picker.
 async function dotravel(state = game) {
     state.iflags ??= {};
-    const cached = state.iflags.travelcc ?? { x: 0, y: 0 };
+    const cached = state.iflags.travelcc;
     const cc = { x: cached.x, y: cached.y };
     if (cc.x === 0 && cc.y === 0) {
         cc.x = state.u.ux;

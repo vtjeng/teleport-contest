@@ -409,7 +409,7 @@ export async function deferred_decor(setup, state = game) {
 function describeDecorPlan(x, y, state = game) {
     const location = state.level?.at(x, y);
     const ltyp = surface_typ(location);
-    const previous = state.iflags?.prev_decor ?? STONE;
+    const previous = state.iflags?.prev_decor;
     const fumbling = Number(HFumbling(state.u));
     if ((fumbling & TIMEOUT) === 1
         && !state.iflags?.defer_decor

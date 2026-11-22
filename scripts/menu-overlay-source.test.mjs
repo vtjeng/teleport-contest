@@ -18,8 +18,10 @@ import { menuOverlay } from '../js/tty_menu.js';
 
 const JS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'js');
 
-// The option table and the help text name the option without reading it.
-const NAMES_ONLY = new Set(['optlist_data.js', 'help_data.js']);
+// The option table and the help text name the option without reading it,
+// and js/flag.js, generated from flag.h, names the member in its zeroed
+// struct and its member table.
+const NAMES_ONLY = new Set(['optlist_data.js', 'help_data.js', 'flag.js']);
 
 // Lines of `source` that read iflags.menu_overlay or pass a window an
 // `overlay` flag, as file:line. In tty_menu.js, the body of menuOverlay()
@@ -53,8 +55,9 @@ test('only menuOverlay() reads menu_overlay, and no window takes an overlay flag
 
 test('NAMES_ONLY holds the pinned number of files and sites', () => {
     // 2 files holding 2 sites on 9f7e42e6 (8 November 2026): the option
-    // table's menu_overlay row and the help text's line for it.
-    const PINS = { files: 2, sites: 2 };
+    // table's menu_overlay row and the help text's line for it. js/flag.js
+    // added a file and its two sites on 21 November 2026.
+    const PINS = { files: 3, sites: 4 };
     assertExceptionCount(NAMES_ONLY.size, PINS.files, {
         what: 'NAMES_ONLY files',
         pin: 'PINS.files in scripts/menu-overlay-source.test.mjs',

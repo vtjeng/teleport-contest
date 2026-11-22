@@ -119,7 +119,7 @@ test('raw diagnostic Unicode includes S_* rows without CP437 presentation rows',
     wizard.wizcustom_callback(rows, wall, 'G_vwall_main', state);
     // Enhanced1 S_vwall is U+2502, raw default byte124/base gray7, no color override.
     assert.match(rows[0].label, /'\\124' 07 00000000000 U\+2502 <226> <148> <130>$/u);
-    state.iflags.use_color = false;
+    state.iflags.wc_color = false; // flag.h defines use_color as wc_color.
     const noColor = [];
     wizard.wizcustom_callback(noColor, wall, 'G_vwall_main', state);
     assert.match(noColor[0].label, /'\\124' 08 /u); // C use_color clamp => NO_COLOR=8.

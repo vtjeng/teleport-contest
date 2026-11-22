@@ -91,6 +91,7 @@ import {
     BLCORNER,
     BRCORNER,
     VWALL,
+    otherInp,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
@@ -259,7 +260,9 @@ test('test_move describes remembered walls without time or PRNG work',
 
         state.a11y = { accessiblemsg: true };
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        state.iflags = { window_inited: true };
+        // The other members hold the options' startup values; the message's
+        // position follows getpos_coords.
+        state.iflags = { ...parseNethackrc('').iflags, window_inited: true };
         state.u = { ux, uy, uprops: [] };
         destination.typ = VWALL;
         messages.length = 0;
@@ -2287,7 +2290,7 @@ test('logical command reads compose altmeta across counts and number-pad input',
         state.iflags.altmeta = true;
         assert.equal(await parseCommand(state), 0x1B);
         assert.equal(state.commandCount, 0);
-        assert.equal(state.program_state.input_state, 'other');
+        assert.equal(state.program_state.input_state, otherInp);
         assert.equal(state.nhDisplay.inputQueueLength, 0);
     }
 

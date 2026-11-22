@@ -18,7 +18,6 @@ import { executionTree, REUSE_VERSION } from './checkpoint-reuse.mjs';
 const GENERATED_CHECKS = [
     'check:colors',
     'check:config-statements',
-    'check:context',
     'check:data-base',
     'check:dat-files',
     'check:extcmds',
@@ -32,6 +31,7 @@ const GENERATED_CHECKS = [
     'check:sound-effects',
     'check:symbols',
     'check:themerooms',
+    'check:zero-structs',
 ];
 
 // The default test suite emits more than Node's 1 MiB spawnSync capture
