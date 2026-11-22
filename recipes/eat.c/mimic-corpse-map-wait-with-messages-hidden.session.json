@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "eat.c cpostfx() 1213-1224: after a mimic corpse the hero mimics gold and display_nhwindow(WIN_MAP, TRUE) waits at --More-- whenever the top line holds text. MSGTYPE hides the Samurai's taste line, the finish line and the temptation line, so the top line still holds the acknowledged 'What do you want to eat?' prompt and the wait shows --More-- after it.",
+  "segments": [
+    {
+      "seed": 7719036,
+      "datetime": "20290903111700",
+      "nethackrc": "OPTIONS=name:Goldbug,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\nMSGTYPE=hide \"is fatty\"\nMSGTYPE=hide \"finish eating\"\nMSGTYPE=hide \"resist the temptation\"\n",
+      "moves": " #wizwish\nsmall mimic corpse\nef    "
+    }
+  ]
+}
