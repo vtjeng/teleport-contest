@@ -3133,12 +3133,14 @@ export async function gazemu(monster, attack, rawEnv = {}) {
     if (react >= 0) {
         if (hallucination() && draw('rn2', 3))
             react = draw('rn2', reactions.length);
+        // C mhitu.c:1892-1895 calls Monnam() before the rn2() draws.
+        const subject = Monnam(monster, state, env);
         const adjective = !draw('rn2', 3)
             ? ''
             : already ? 'quite '
                 : (!draw('rn2', 2) ? 'a bit ' : 'somewhat ');
         await message(
-            messageAt(`${Monnam(monster, state, env)} looks ${adjective}`
+            messageAt(`${subject} looks ${adjective}`
                 + `${reactions[react]}.`, monster.mx, monster.my, state), state,
             env,
         );

@@ -1703,10 +1703,12 @@ export async function thrwmu(monster, rawEnv = {}) {
             const name = xnameFresh(selected, state);
             // mhitu.js imports this file, so load mswings_verb() at the call.
             const { mswings_verb } = await import('./mhitu.js');
+            // C mthrowu.c:1222-1225 calls Monnam() before mswings_verb().
+            const subject = Monnam(monster, state);
             const verb = mswings_verb(selected, rang <= 2, env);
             await pline_mon(
                 monster,
-                `${Monnam(monster, state)} ${verb} `
+                `${subject} ${verb} `
                 + `${obj_is_pname(selected, state) ? the(name, state) : an(name)}.`,
                 state,
                 env,

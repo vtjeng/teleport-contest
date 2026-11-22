@@ -536,15 +536,19 @@ async function p_glow1(obj, state = game) {
 async function p_glow2(obj, color, state = game) {
     const blind = Blind(state.u);
     const verb = blind ? 'vibrate' : 'glow';
+    // C read.c:675-676 calls Yobjnam2() before hcolor().
+    const name = Yobjnam2(obj, verb, state);
     const suffix = blind ? '' : ` ${hcolor(color, state)}`;
-    await ttyPline(`${Yobjnam2(obj, verb, state)}${suffix} for a moment.`, state);
+    await ttyPline(`${name}${suffix} for a moment.`, state);
 }
 
 async function p_glow3(obj, color, state = game) {
     const blind = Blind(state.u);
     const verb = blind ? 'vibrate' : 'glow';
+    // C read.c:682-684 calls Yobjnam2() before hcolor().
+    const name = Yobjnam2(obj, verb, state);
     const suffix = blind ? '' : ` ${hcolor(color, state)}`;
-    await ttyPline(`${Yobjnam2(obj, verb, state)} feebly${suffix} for a moment.`, state);
+    await ttyPline(`${name} feebly${suffix} for a moment.`, state);
 }
 
 // C ref: read.c charge_ok() (689-724). Filter for getobj() when choosing an
@@ -1506,11 +1510,13 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
         } else {
             otmp.rknown = true;
             const surface = scursed ? 'mottled' : 'shimmering';
+            // C read.c:1145-1149 calls Yobjnam2() before hcolor().
+            const name = Yobjnam2(otmp, 'are', state);
             const color = hcolor(scursed ? 'black' : 'golden', state);
             const objectLayer = scursed
                 ? 'glow' : is_shield(otmp, state) ? 'layer' : 'shield';
             await ttyPline(
-                `${Yobjnam2(otmp, 'are', state)} covered by a ${surface} `
+                `${name} covered by a ${surface} `
                 + `${color} ${objectLayer}!`,
                 state,
             );
@@ -1553,13 +1559,15 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
     let s = scursed ? -otmp.spe : otmp.spe;
     if (s > (specialArmor ? 5 : 3) && random.rn2(s)) {
         otmp.in_use = true;
+        // C read.c:1181-1186 calls Yname2() before hcolor().
+        const name = Yname2(otmp, state);
         const verb = otense(otmp, blind ? 'vibrate' : 'glow', state);
         const separator = !blind && !sameColor ? ' ' : '';
         const color = blind || sameColor
             ? '' : hcolor(scursed ? 'black' : 'silver', state);
         const evaporate = otense(otmp, 'evaporate', state);
         await ttyPline(
-            `${Yname2(otmp, state)} violently ${verb}${separator}${color} `
+            `${name} violently ${verb}${separator}${color} `
             + `for a while, then ${evaporate}.`,
             state,
         );
@@ -1607,13 +1615,15 @@ export async function seffect_enchant_armor(scroll, state = game, env = {}) {
         return false;
     }
 
+    // C read.c:1253-1259 calls Yname2() before hcolor().
+    const glowName = Yname2(otmp, state);
     const glowVerb = otense(otmp, blind ? 'vibrate' : 'glow', state);
     const separator = !blind && !sameColor ? ' ' : '';
     const color = blind || sameColor
         ? '' : hcolor(scursed ? 'black' : 'silver', state);
     const duration = s * s > 1 ? 'while' : 'moment';
     await ttyPline(
-        `${Yname2(otmp, state)} ${s === 0 ? 'violently ' : ''}`
+        `${glowName} ${s === 0 ? 'violently ' : ''}`
         + `${glowVerb}${separator}${color} for a ${duration}.`,
         state,
     );
