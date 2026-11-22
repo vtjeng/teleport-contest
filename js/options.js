@@ -5850,14 +5850,19 @@ function appendSymbolSelection(
 }
 
 // `switchSymbols` is false when parsesymbols() failed after applying some
-// assignments: the caller then skips switch_symbols(TRUE).
-function appendSymbolOverrides(result, set, assignments, switchSymbols = true) {
+// assignments: the caller then skips switch_symbols(TRUE). `checkGoldSymbol`
+// is true for parseoptions()'s S_ arm (options.c:663-666), the one caller
+// that follows switch_symbols(TRUE) with botl.c check_gold_symbol();
+// cnf_line_SYMBOLS() and cnf_line_ROGUESYMBOLS() do not.
+function appendSymbolOverrides(
+    result, set, assignments, switchSymbols = true, checkGoldSymbol = false,
+) {
     // This ordered stream is authoritative.  flags/rogueSymbols below are
     // compatibility snapshots for older callers and only represent S_*
     // symbol slots. Standalone G_* records are retained here because C saves
     // them back to config, although parsesymbols() does not apply them.
     result.symbolOperations.push({
-        kind: 'override', set, assignments, switchSymbols,
+        kind: 'override', set, assignments, switchSymbols, checkGoldSymbol,
     });
     const target = set === 'rogue' ? result.rogueSymbols : result.flags;
     for (const { kind, name, rawValue } of assignments) {
@@ -6225,7 +6230,9 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     } else if (isSymbolAssignment) {
         // parsesymbols() does not receive parseoptions()'s negation flag.
         parsesymbolsGlyphrepNags(result, 'primary', symbolParse.assignments);
-        appendSymbolOverrides(result, 'primary', symbolParse.assignments);
+        appendSymbolOverrides(
+            result, 'primary', symbolParse.assignments, true, true,
+        );
     } else if (name === 'number_pad') {
         optfn_number_pad(
             result, allopt.indexOf(matchedRow), DO_SET, negated,
