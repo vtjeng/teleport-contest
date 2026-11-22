@@ -7101,11 +7101,17 @@ export function status_eval_next_unhilite(state = game) {
     }
 }
 
+// C ref: botl.c get_hilite() (2364-2589). It returns no rule only when the
+// field has none; an empty text value still matches 'always', 'changed' and
+// the other rules. The title's text is empty once strlen(svp.plname) + 5
+// reaches the length of "<Name> the <rank>", because bot_via_windowport()
+// cuts a long name to BOTL_NSIZ characters while get_hilite() skips the full
+// plname length.
 function _selectStatusHilite(field, data, change = 0, state = game) {
     const rules = (state.iflags?.status_hilites ?? []).filter(
         (rule) => rule.field === field,
     );
-    if (!rules.length || (data.text === '' && data.value == null)) return null;
+    if (!rules.length) return null;
     let selected = null;
     let exact = false;
     let persistent = false;
