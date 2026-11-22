@@ -1293,9 +1293,11 @@ export async function invault(state, env = {}) {
                 }
             }
             if (!Blind(state.u)) {
-                const possessive = noit_mhis(guard, { state });
+                // C vault.c:569-574 calls noit_mhis() once for each
+                // pronoun, after noit_Monnam(); each call draws rn2(4) while
+                // the hero hallucinates.
                 await message(
-                    `${noit_Monnam(guard, state)} holds out ${possessive} palm and beckons with ${possessive} other hand.`,
+                    `${noit_Monnam(guard, state)} holds out ${noit_mhis(guard, { state })} palm and beckons with ${noit_mhis(guard, { state })} other hand.`,
                 );
             }
         } else {

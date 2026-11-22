@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43050614,
+      "datetime": "20541021193000",
+      "nethackrc": "OPTIONS=name:VaultDeafPurse,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n\nOPTIONS=permadeaf\n",
+      "moves": " #wizlevelport\n8\n#wizwish\nwand of teleportation\nzn.  llllllllllllllllllllllllllllllllllllllll. ........zn.  j. ,#wizintrinsic\nh\n ..................... VaultDeafPurse\n \u001b\u001b"
+    }
+  ],
+  "comment": "vault.c invault() (569-574) under hallucination: guard-deaf-carried-gold with #wizintrinsic hallucination added once the permanently deaf Wizard has picked up the vault's gold. The guard's gesture line calls noit_Monnam() and then noit_mhis() twice; each noit_mhis() draws rn2(4) from the core RNG while the hero hallucinates, so the two pronouns can differ."
+}
