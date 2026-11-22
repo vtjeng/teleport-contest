@@ -18,7 +18,7 @@ import {
 import { assertExceptionCount } from './exception-count.mjs';
 
 // Pinned count of unresolved datetime sites; see the repository test.
-const UNRESOLVED_SITES = 98;
+const UNRESOLVED_SITES = 99;
 
 const CHECK_PATH = fileURLToPath(
     new URL('./check-fixed-datetime.mjs', import.meta.url));
@@ -193,7 +193,9 @@ test('every datetime in this repository reaches the fixed clock', async () => {
     assert.ok(checked > 600, `only ${checked} datetimes were read`);
     // The sites whose value is an expression, such as a recorded segment's
     // datetime, are the check's blind spot, so their count is pinned both
-    // ways: 98 on 9f7e42e6 (8 November 2026).
+    // ways: 98 on 9f7e42e6 (8 November 2026). 99 since
+    // scripts/flags-state.test.mjs computes the moon phase from its recipe's
+    // second segment datetime, which the recipe scan already reads.
     assertExceptionCount(unresolved, UNRESOLVED_SITES, {
         what: 'datetime sites set from an expression the check cannot read',
         pin: 'UNRESOLVED_SITES in scripts/check-fixed-datetime.test.mjs',
