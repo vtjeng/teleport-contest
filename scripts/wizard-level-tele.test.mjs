@@ -27,7 +27,9 @@ import {
     LEVITATION,
     UTOTYPE_DEFERRED,
     UTOTYPE_NONE,
+    NHW_MESSAGE,
 } from '../js/const.js';
+import { tty_create_nhwindow } from '../js/wintty.js';
 import {
     deferred_goto,
     maybe_lvltport_feedback,
@@ -98,6 +100,10 @@ function levelTeleState(keys, { confused = false, wizard = true, seed = 1 } = {
         throw new Error('the level-teleport prompt asked for a withheld key');
     };
     for (const ch of keys) state.nhDisplay.pushKey(ch.charCodeAt(0));
+    // allmain.c init_sound_disp_gamewindows() has created WIN_MESSAGE, so
+    // getlin reaches it; msg_history is options.c's default of 20.
+    state.iflags.msg_history = 20;
+    tty_create_nhwindow(NHW_MESSAGE, state);
     initRng(seed);
     enableRngLog();
     const reads = [];

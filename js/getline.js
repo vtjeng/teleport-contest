@@ -184,9 +184,13 @@ async function hooked_tty_getlin(query, hook, state) {
     //    at Escape, with or without text, and kept going through typed text
     //    and backspaces.
     //  - Ctrl-P's tty_doprev_message() reads cw->maxcol and cw->data, which
-    //    lie past the end of the DisplayDesc allocation. That is neither
-    //    measured nor modelled: the port's tty_doprev_message() returns at
-    //    once without a message window.
+    //    lie past the end of the DisplayDesc allocation. One macOS
+    //    measurement (run 44990016952, msg_window at its default) ended in
+    //    SIGABRT at the Ctrl-P key itself, after "Signal received.". That
+    //    outcome depends on heap memory no rule here describes, so it is not
+    //    modelled: the port's tty_doprev_message() returns at once without a
+    //    message window, and the port aborts at the next key instead, one
+    //    screen later than macOS.
     // getline.c:53-55: more() runs unless WIN_STOP is set, and WIN_STOP is
     // then cleared whether or not it ran.
     const cw = messageWindow(state);

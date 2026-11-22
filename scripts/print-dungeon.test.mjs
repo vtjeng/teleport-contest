@@ -18,7 +18,9 @@ import {
     TT_BURIEDBALL,
     UTOTYPE_DEFERRED,
     UTOTYPE_NONE,
+    NHW_MESSAGE,
 } from '../js/const.js';
+import { tty_create_nhwindow } from '../js/wintty.js';
 import {
     BR_NO_END1,
     BR_NO_END2,
@@ -128,6 +130,10 @@ function printDungeonState({ heroLevel, selectIndex, nonMenu = false } = {}) {
     state.nhDisplay.onEmptyQueue = () => {
         throw new Error('unexpected key read');
     };
+    // allmain.c init_sound_disp_gamewindows() has created WIN_MESSAGE, so
+    // getlin reaches it; msg_history is options.c's default of 20.
+    state.iflags.msg_history = 20;
+    tty_create_nhwindow(NHW_MESSAGE, state);
 
     // Push keys to select the desired menu item. The menu opens and the hero
     // picks item at position `selectIndex` (0-based). The first selectable
