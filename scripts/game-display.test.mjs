@@ -5,7 +5,7 @@ import { decodeScreen } from '../frozen/screen-decode.mjs';
 import { Terminal as FrozenTerminal } from '../frozen/terminal.js';
 import { GameDisplay } from '../js/game_display.js';
 import {
-    ATR_BOLD, ATR_INVERSE, ATR_UNDERLINE, CLR_GRAY, CLR_RED, Terminal,
+    ATR_BOLD, ATR_INVERSE, ATR_UNDERLINE, CLR_GRAY, CLR_GREEN, CLR_RED, Terminal,
 } from '../js/terminal.js';
 
 // NetHack's NO_COLOR, which serialize() writes as the default foreground.
@@ -71,11 +71,16 @@ test('serialize matches the frozen method when no edge space is visible',
          // Every other encoding path: colors, bold, a mid-row inverse run, a
          // bold space before the first glyph (bold paints nothing on a
          // space), a blank row between glyph rows, and both leading-blank
-         // branches (seven cells, then three).
+         // branches (seven cells, then three). The plain coloured run is
+         // green, and the cell after it is written in NO_COLOR instead of
+         // left at Terminal's initial CLR_GRAY, because the frozen method
+         // writes CLR_GRAY as SGR 37, which the recorder never does; a
+         // later test covers gray.
          const disp = display();
          const frozen = new FrozenTerminal(null, { rows: 24, cols: 80 });
          for (const target of [disp, frozen]) {
-             put(target, 7, 0, 'You see here', CLR_GRAY, 0);
+             put(target, 7, 0, 'You see here', CLR_GREEN, 0);
+             put(target, 19, 0, ' ', NO_COLOR, 0);
              put(target, 20, 0, ' a red gem', CLR_RED, ATR_BOLD);
              put(target, 2, 2, ' ', NO_COLOR, ATR_BOLD);
              put(target, 3, 2, 'a - ', NO_COLOR, 0);
@@ -100,6 +105,30 @@ test('serialize writes CLR_BLACK as the default foreground, as the recorder does
          put(plain, 1, 1, 'Booleans', NO_COLOR, ATR_BOLD);
          assert.equal(black.serialize(), plain.serialize());
          assert.equal(decodeScreen(black.serialize())[1][1].color, NO_COLOR);
+     });
+
+test('serialize writes CLR_GRAY as the default foreground, as the recorder does',
+     () => {
+         // Recorder patch 006's nomux_capture_screen() starts each row at
+         // foreground 7 and writes a change to 7 as SGR 39, so no C screen
+         // holds SGR 37. Each attribute a menu heading, MENUCOLOR row or
+         // status hilite can carry is tried with gray after a red word, the
+         // case where the serializer must change the colour back: the row
+         // must serialize exactly as it does in NO_COLOR, without a 37
+         // parameter, and decode to NO_COLOR.
+         for (const attr of [0, ATR_BOLD, ATR_INVERSE, ATR_UNDERLINE]) {
+             const gray = display();
+             const plain = display();
+             for (const [target, color] of [[gray, CLR_GRAY], [plain, NO_COLOR]]) {
+                 put(target, 1, 1, 'HP:', CLR_RED, 0);
+                 put(target, 4, 1, 'Weapons', color, attr);
+             }
+             const screen = gray.serialize();
+             assert.equal(screen, plain.serialize());
+             assert.doesNotMatch(screen, /\x1b\[(?:\d+;)*37(?:;\d+)*m/u);
+             // Column 4 is the first gray cell.
+             assert.equal(decodeScreen(screen)[1][4].color, NO_COLOR);
+         }
      });
 
 test('after hangup() every GameDisplay write leaves the screen as it was', () => {

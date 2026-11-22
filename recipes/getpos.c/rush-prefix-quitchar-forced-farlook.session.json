@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45211,
+      "datetime": "20190722064500",
+      "nethackrc": "OPTIONS=name:Ines,role:Priestess,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": ";g\u001bl.;G k,;gq\u001b;G\r:"
+    }
+  ],
+  "comment": "';' calls a forced getpos(). Escape or space after the 'g' or 'G' prefix is a quitchar: it prints nothing and keeps targeting. 'q' after the prefix prints the \"(use 'h', 'j', 'k', 'l' or '.')\" diagnostic and a plain Escape cancels. Return after 'G' is a movement key and fast-moves the cursor; ':' then picks."
+}
