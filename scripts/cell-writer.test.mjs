@@ -57,8 +57,6 @@ const CAPTURED = Object.freeze({
     'tty_menu.js:writeStyledText': 1,
     // process_menu_window()'s nomux_putch(glyphinfo.ttychar), an int.
     'tty_menu.js:renderTtyMenu': 1,
-    // A putmixed() glyph in a text window, as textWindowGlyphCell() decided.
-    'tty_menu.js:displayTtyTextWindow': 1,
     // nomux_raw_putch(), which stores an unsigned byte (nomux_raw_write()).
     'tty_rawprint.js:flush': 1,
 });

@@ -97,8 +97,6 @@ import {
     MCORPSENM,
     is_pit,
     u_at,
-    H_UTF8,
-    PRIMARYSET,
     MHID_PREFIX,
     MHID_ARTICLE,
     MHID_ALTMON,
@@ -897,12 +895,7 @@ export async function look_all(nearby, doMons, state = game) {
             const outbuf = `${coordinate}  ${encglyph(glyph, state)}  `;
             /* guard against potential overflow */
             description = description.slice(0, BUFSZ - 1 - outbuf.length);
-            lines.push(ttyPutmixedLine(
-                outbuf + description, state,
-                textWindowGlyphs(
-                    state, [glyph, encodedGlyphCharacter(glyph, state)],
-                ),
-            ));
+            lines.push(ttyPutmixedLine(outbuf + description, state));
         }
     }
 
@@ -950,53 +943,6 @@ export function add_quoted_engraving(x, y, buffer, force, state = game) {
     return buffer + tempBuf.slice(0, Math.max(0, BUFSZ - buffer.length - 1));
 }
 
-function encodedGlyphCharacter(glyph, state) {
-    return visibleGlyphCharacter(map_glyphinfo(glyph, state));
-}
-
-// C ref: windows.c decode_mixed() turns an encglyph() sequence into the byte
-// gs.showsyms[] holds for the glyph, and wintty.c process_text_window() sends
-// every byte after a line's first through putchar(). Recorder patch 006's
-// nomux_putch() ignores a byte with its high bit set, such as a DECgraphics
-// line-drawing or room symbol, so that glyph's cell keeps the blank cl_end()
-// wrote. `ch` is null for such a cell, which displayTtyTextWindow() skips.
-function textWindowGlyphCell(column, glyph, ch, state) {
-    const byte = map_glyphinfo(glyph, state).ttychar;
-    const dropped = column > 0 && Number.isInteger(byte) && (byte & 0x80) !== 0;
-    return { column, ch: dropped ? null : ch };
-}
-
-// The renderGlyph argument of ttyPutmixedLine() for a text-window line's
-// encglyph() glyphs, each given as [glyph, rendered character]. A glyph not
-// listed decodes to its gs.showsyms[] byte.
-function textWindowGlyphs(state, ...glyphs) {
-    return (decoded, column) => {
-        const match = glyphs.find(([glyph]) => glyph === decoded);
-        if (!match) return null;
-        const [glyph, rendered] = match;
-        return {
-            text: decodedGlyphText(glyph, rendered, state),
-            cell: textWindowGlyphCell(column, glyph, rendered, state),
-        };
-    };
-}
-
-// C ref: windows.c decode_mixed(). A text-window line holds the one byte
-// gs.showsyms[] gives an encglyph() glyph. A high-bit byte (an IBMgraphics or
-// DECgraphics symbol) is carried as that raw byte, which
-// js/hacklib.js textBytes() keeps one column wide, rather than as
-// its rendered character, whose UTF-8 form would take two or three columns
-// and shift the rest of the line. A UTF-8 symset writes the rendered form.
-function decodedGlyphText(glyph, rendered, state) {
-    const handling = state.gs?.symset?.[
-        state.gc?.currentgraphics ?? PRIMARYSET
-    ]?.handling;
-    const byte = map_glyphinfo(glyph, state).ttychar;
-    if (handling !== H_UTF8 && Number.isInteger(byte) && (byte & 0x80) !== 0)
-        return String.fromCharCode(byte);
-    return utf8Text(rendered);
-}
-
 // The renderGlyph result ttyPutmixed() takes for do_screen_description()'s
 // encglyph() prefix, the glyph at the looked-at `location`.
 function lookedGlyphText(glyph, location, state) {
@@ -1017,15 +963,6 @@ function lookedGlyphText(glyph, location, state) {
     return { text: utf8Text(cell), cell: null };
 }
 
-function displayedGlyphCharacter(glyph, x, y, state) {
-    const location = state.level?.at(x, y);
-    if (location?.disp_browser_ch) return location.disp_browser_ch;
-    if (location?.disp_decgfx) {
-        return SCORER_DEC_MAP[location.disp_ch] ?? location.disp_ch;
-    }
-    return location?.disp_ch ?? encodedGlyphCharacter(glyph, state);
-}
-
 // C ref: pager.c look_traps(). The scan is y-major, then x-minor.
 export async function look_traps(nearby, state = game) {
     const { loX, loY, hiX, hiY } = look_region_nearby(nearby, state);
@@ -1037,7 +974,6 @@ export async function look_traps(nearby, state = game) {
         for (let x = loX; x <= hiX; ++x) {
             let glyph = glyph_at(x, y, state);
             let description = '';
-            const glyphs = [];
             if (glyph_is_trap(glyph)) {
                 description = trap_description(
                     glyph_to_trap(glyph), x, y, state,
@@ -1048,9 +984,6 @@ export async function look_traps(nearby, state = game) {
                     && ((!Is_waterlevel(state.u?.uz, state)
                         && !Is_airlevel(state.u?.uz, state))
                         || couldsee(x, y, state))) {
-                    glyphs.push([
-                        glyph, displayedGlyphCharacter(glyph, x, y, state),
-                    ]);
                     description = `${trapname(trap.ttyp, false, state)}, obscured by `
                         + encglyph(glyph, state);
                     glyph = trap_to_glyph(trap, state);
@@ -1074,13 +1007,7 @@ export async function look_traps(nearby, state = game) {
             const outbuf = `${coordinate}  ${encglyph(glyph, state)}  `;
             /* guard against potential overflow */
             description = description.slice(0, BUFSZ - 1 - outbuf.length);
-            lines.push(ttyPutmixedLine(
-                outbuf + description, state,
-                textWindowGlyphs(
-                    state, [glyph, encodedGlyphCharacter(glyph, state)],
-                    ...glyphs,
-                ),
-            ));
+            lines.push(ttyPutmixedLine(outbuf + description, state));
         }
     }
     if (lines.length) {
@@ -1128,11 +1055,7 @@ export async function look_engrs(nearby, state = game) {
             let glyph = glyph_at(x, y, state);
             const symbol = glyph_is_cmap(glyph)
                 ? glyph_to_cmap(glyph) : null;
-            const glyphs = [];
             if (!isCmapEngraving(symbol) && symbol !== S_grave) {
-                glyphs.push([
-                    glyph, displayedGlyphCharacter(glyph, x, y, state),
-                ]);
                 description += `, obscured by ${encglyph(glyph, state)}`;
                 description = description.slice(0, BUFSZ - 1);
                 glyph = headstone
@@ -1154,13 +1077,7 @@ export async function look_engrs(nearby, state = game) {
             const outbuf = `${prefix}  ${encglyph(glyph, state)} `;
             /* guard against potential overflow */
             description = description.slice(0, BUFSZ - 1 - outbuf.length);
-            lines.push(ttyPutmixedLine(
-                outbuf + description, state,
-                textWindowGlyphs(
-                    state, [glyph, encodedGlyphCharacter(glyph, state)],
-                    ...glyphs,
-                ),
-            ));
+            lines.push(ttyPutmixedLine(outbuf + description, state));
         }
     }
     if (lines.length) {
