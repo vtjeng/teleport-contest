@@ -59,6 +59,7 @@ import {
     TOPLINE_NEED_MORE,
     clearTtyMessageWindow,
     dismissPendingTtyMessage,
+    messageWindow,
 } from './tty_message.js';
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
@@ -94,7 +95,7 @@ import {
     HI_DOMESTIC, M_AP_NOTHING, M_AP_FURNITURE, M_AP_OBJECT, M_AP_MONSTER,
     M_AP_TYPMASK, MON_STILL_ARRIVING,
     SYM_BOULDER, SYM_INVISIBLE, SYM_NOTHING, SYM_UNEXPLORED,
-    SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE, WARNCOUNT,
+    SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE, WARNCOUNT, WIN_CANCELLED,
     def_warnsyms,
 } from './const.js';
 import {
@@ -8041,9 +8042,9 @@ export async function cls() {
         // and wintty.h gives it the same bit as the message window's
         // WIN_STOP. After an Escape at --More--, the call neither clears
         // rawprint nor waits; the screen erase below still empties the line.
-        const messageStopped = Boolean(game._ttyMessageStopped);
+        const cancelled = Boolean(messageWindow(game)?.flags & WIN_CANCELLED);
         // tty_display_nhwindow(WIN_MESSAGE, FALSE) clears rawprint first.
-        if (display?.nomuxRaw && !messageStopped)
+        if (display?.nomuxRaw && !cancelled)
             display.nomuxRaw.rawprint = 0;
         // C display.c cls() begins with display_nhwindow(WIN_MESSAGE, FALSE).
         // On the TTY this dismisses a pending --More-- before the old level is
@@ -8053,7 +8054,7 @@ export async function cls() {
         // the other display-window callers so the message state is not carried
         // into the rebuilt map.
         const waitingForMore = display?.toplin === TOPLINE_NEED_MORE;
-        if (!messageStopped && waitingForMore
+        if (!cancelled && waitingForMore
             && await dismissPendingTtyMessage(game)) {
             display.toplin = TOPLINE_NEED_MORE;
             clearTtyMessageWindow(game);

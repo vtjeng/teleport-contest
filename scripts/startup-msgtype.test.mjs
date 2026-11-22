@@ -6,6 +6,7 @@ import {
     MSGTYP_NORMAL,
     MSGTYP_NOSHOW,
     MSGTYP_STOP,
+    NHW_MESSAGE,
     NO_CURS_ON_U,
     OVERRIDE_MSGTYPE,
     PLINE_NOREPEAT,
@@ -46,6 +47,8 @@ import {
     loadStartupMsgtypeRecipe,
     STARTUP_MSGTYPE_CASES,
 } from './run-startup-msgtype.mjs';
+import { setWinStop, winStop } from './test-fixtures/win-stop.mjs';
+import { tty_create_nhwindow } from '../js/wintty.js';
 
 const MESSAGE_TYPES = allopt.find(({ name }) => name === 'message types');
 
@@ -63,6 +66,7 @@ function messageState(config = '', keys = '') {
     game.nhDisplay = new GameDisplay(null);
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
     game.iflags = { window_inited: true, cbreak: true };
+    tty_create_nhwindow(NHW_MESSAGE, game);
     game.program_state = {};
     game.u = { ux: 0, uy: 0 };
     game.gp = { plinemsg_types: parsed.gp.plinemsg_types };
@@ -419,12 +423,12 @@ test('STOP after an Escaped More neither waits nor clears suppression', async ()
     ]);
     assert.equal(state.nhDisplay.grid[0].map((cell) => cell.ch)
         .join('').trimEnd(), 'halt');
-    assert.equal(state._ttyMessageStopped, true);
+    assert.equal(winStop(state), true);
     assert.equal(state._ttyPreviousMessage, 'after');
     assert.equal(state._ttyToplines, 'halt  after');
     // tty_nhgetch() clears WIN_STOP before reading the next key.
     assert.equal(await nhgetch(state), ' '.charCodeAt(0));
-    assert.equal(state._ttyMessageStopped, false);
+    assert.equal(winStop(state), false);
 });
 
 test('sequential runSegment calls discard the prior MSGTYPE list', async () => {
@@ -466,7 +470,7 @@ test('urgent STOP waits once while override STOP consumes no input', async () =>
 
     const urgentEscape = messageState('MSGTYPE=stop "urgent"\n', '\x1bX');
     await ttyUrgentPline('urgent', urgentEscape);
-    assert.equal(urgentEscape._ttyMessageStopped, true);
+    assert.equal(winStop(urgentEscape), true);
     assert.equal(await nhgetch(urgentEscape), 'X'.charCodeAt(0));
 
     const override = messageState('MSGTYPE=stop "override"\n', 'X');
@@ -481,12 +485,12 @@ test('urgent STOP waits once while override STOP consumes no input', async () =>
 
 test('a STOP message suppressed at entry consumes no prompt input', async () => {
     const state = messageState('MSGTYPE=stop "halt"\n', 'X');
-    state._ttyMessageStopped = true;
+    setWinStop(state, true);
     let waits = 0;
     state._preNhgetchHook = () => { ++waits; };
     await ttyPline('halt', state);
     assert.equal(waits, 0);
-    assert.equal(state._ttyMessageStopped, true);
+    assert.equal(winStop(state), true);
     assert.equal(state._pending_message, undefined);
     assert.equal(state._ttyPreviousMessage, 'halt');
     assert.equal(state._ttyToplines, 'halt');

@@ -3,7 +3,9 @@ import test from 'node:test';
 
 import { utf8Text } from '../js/hacklib.js';
 
-import { LAST_PROP, NORMAL_SPEED, STAIRS, STONE } from '../js/const.js';
+import {
+    LAST_PROP, NHW_MESSAGE, NORMAL_SPEED, STAIRS, STONE,
+} from '../js/const.js';
 import { flush_screen } from '../js/display.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -26,6 +28,8 @@ import {
     ttyUrgentPline,
 } from '../js/tty_message.js';
 import { CLR_GRAY, NO_COLOR } from '../js/terminal.js';
+import { winStop } from './test-fixtures/win-stop.mjs';
+import { tty_create_nhwindow } from '../js/wintty.js';
 
 function preambleState(datetime, keys = '') {
     resetGame();
@@ -46,6 +50,9 @@ function preambleState(datetime, keys = '') {
         // the configuration errors printed before the window system starts.
         cbreak: true,
     };
+    // allmain.c init_sound_disp_gamewindows() created WIN_MESSAGE, whose
+    // flags hold the WIN_STOP bit an Escaped More sets.
+    tty_create_nhwindow(NHW_MESSAGE, game);
     game.program_state = {};
     game.context = { move: 17 };
     game.disp = {};
@@ -323,7 +330,7 @@ test('Escape at More suppresses later plines through the next input boundary', a
         state._pending_message,
         'You are lucky!  Full moon tonight.',
     );
-    assert.equal(state._ttyMessageStopped, false);
+    assert.equal(winStop(state), false);
 });
 
 test('a wrapped message requests More immediately', async () => {
@@ -544,7 +551,7 @@ test('You die clears suppression set while dismissing the prior message', async 
     await ttyPline('A prior message.', state);
     await ttyPline('You die from a test.', state);
 
-    assert.equal(state._ttyMessageStopped, false);
+    assert.equal(winStop(state), false);
     assert.equal(state._pending_message, 'You die from a test.');
     assert.equal(state._ttyToplines, 'You die from a test.');
 });
@@ -563,9 +570,9 @@ test('an urgent message clears Escape suppression before replacing the window',
     const stopped = preambleState('20260129120000', '\x1b');
     await ttyPline('P'.repeat(50), stopped);
     await ttyPline('Q'.repeat(50), stopped);
-    assert.equal(stopped._ttyMessageStopped, true);
+    assert.equal(winStop(stopped), true);
     await ttyUrgentPline('You die...', stopped);
-    assert.equal(stopped._ttyMessageStopped, false);
+    assert.equal(winStop(stopped), false);
     assert.equal(stopped._pending_message, 'You die...');
     await flush_screen(1);
     assert.equal(
@@ -590,7 +597,7 @@ test('an urgent message clears Escape suppression before replacing the window',
     const escaped = preambleState('20260129120000', '\x1b');
     await ttyPline('P'.repeat(68), escaped);
     await ttyUrgentPline('You die...', escaped);
-    assert.equal(escaped._ttyMessageStopped, false);
+    assert.equal(winStop(escaped), false);
     await ttyPline('An ordinary follow-up.', escaped);
     await flush_screen(1);
     assert.equal(
@@ -604,7 +611,7 @@ test('an urgent message clears Escape suppression before replacing the window',
     const ordinary = preambleState('20260129120000', '\x1b');
     await ttyPline('P'.repeat(50), ordinary);
     await ttyPline('Q'.repeat(50), ordinary);
-    assert.equal(ordinary._ttyMessageStopped, true);
+    assert.equal(winStop(ordinary), true);
 
     // urgent_pline() sets URGENT_MESSAGE alone. PLINE_NOREPEAT is Norep()'s
     // flag (pline.c:326-335), so vpline():253 compares nothing against
@@ -621,10 +628,10 @@ test('a long prior line preserves Escape suppression before You die comparison',
     await ttyPline('P'.repeat(50), state);
     await ttyPline('You die from a test.', state);
 
-    assert.equal(state._ttyMessageStopped, true);
+    assert.equal(winStop(state), true);
     assert.equal(state._pending_message, 'You die from a test.');
     await ttyPline('An ordinary follow-up.', state);
-    assert.equal(state._ttyMessageStopped, true);
+    assert.equal(winStop(state), true);
     assert.equal(state._pending_message, 'You die from a test.');
     assert.equal(
         state._ttyToplines,

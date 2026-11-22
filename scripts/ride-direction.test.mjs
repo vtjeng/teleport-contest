@@ -49,6 +49,7 @@ import {
     STRANGE_KEY,
     loadRideDirectionRecipe,
 } from './run-ride-direction.mjs';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -756,7 +757,7 @@ test('a pending --More-- is dismissed before the direction prompt paints',
     const ask = async (stopped) => {
         game._pending_message = 'You hear a door open.';
         display.toplin = TOPLINE_NEED_MORE;
-        game._ttyMessageStopped = stopped;
+        setWinStop(game, stopped);
         return yn_function('In what direction?', null, '\0', false, game);
     };
     try {

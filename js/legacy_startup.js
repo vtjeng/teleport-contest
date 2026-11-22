@@ -14,9 +14,10 @@ import { tty_putmsghistory } from './topl.js';
 import {
     clearTtyMessageWindow,
     dismissPendingTtyMessage,
+    messageWindow,
     xwaitforspace,
 } from './tty_message.js';
-import { TOPLINE_EMPTY, TOPLINE_NEED_MORE } from './const.js';
+import { TOPLINE_EMPTY, TOPLINE_NEED_MORE, WIN_CANCELLED } from './const.js';
 import { rn2 } from './rng.js';
 import { rankOf } from './roles.js';
 import { CLR_GRAY, NO_COLOR } from './terminal.js';
@@ -219,7 +220,7 @@ export async function ttyLegacyIntroduction(state = game, random = rn2) {
     // clearTtyMessageWindow() erase it, as tty_menu.js does for menus.
     const display = state.nhDisplay;
     if (display?.toplin === TOPLINE_NEED_MORE
-        && !state._ttyMessageStopped
+        && !(messageWindow(state)?.flags & WIN_CANCELLED)
         && await dismissPendingTtyMessage(state)) {
         display.toplin = TOPLINE_NEED_MORE;
         clearTtyMessageWindow(state);

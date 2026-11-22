@@ -1,9 +1,13 @@
 // input.js — Keystroke input handling.
 
-import { KEY_ESC } from './const.js';
+import { KEY_ESC, WIN_STOP } from './const.js';
 import { game } from './gstate.js';
 import { isTerminated, neverSettles, recordTerminationViolation } from './rng.js';
-import { TOPLINE_NEED_MORE, TOPLINE_NON_EMPTY } from './tty_message.js';
+import {
+    messageWindow,
+    TOPLINE_NEED_MORE,
+    TOPLINE_NON_EMPTY,
+} from './tty_message.js';
 import { KEY_BINDINGS } from './terminal.js';
 
 // C ref: tty_nhgetch — read one key.
@@ -27,13 +31,14 @@ export async function nhgetch(state = game) {
     const hook = state._preNhgetchHook;
     if (hook) await hook();
 
-    // C ref: win/tty/wintty.c tty_nhgetch().  The recorder marker is
-    // emitted before C's WIN_STOP state is cleared. _ttyMessageStopped is the
-    // single JS owner of that bit, so every actual key wait makes later
-    // messages visible again. Keep this after the capture hook so an
-    // Escape-dismissed More boundary suppresses messages through precisely
-    // the next recorded input boundary.
-    state._ttyMessageStopped = false;
+    // C ref: win/tty/wintty.c tty_nhgetch():4065-4066.  The recorder marker
+    // is emitted before C clears the message window's WIN_STOP, so every
+    // actual key wait makes later messages visible again. Keep this after
+    // the capture hook so an Escape-dismissed More boundary suppresses
+    // messages through precisely the next recorded input boundary. Like C,
+    // skip it when the message window does not exist yet.
+    const messageWin = messageWindow(state);
+    if (messageWin) messageWin.flags &= ~WIN_STOP;
 
     // C's tty_nhgetch() services a pending SIGWINCH here. Neither the
     // recorder's fixed pty nor the 80x24 browser terminal is ever resized,

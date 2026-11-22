@@ -13,6 +13,7 @@ import {
     COLNO,
     OVERRIDE_MSGTYPE,
     SUPPRESS_HISTORY,
+    WIN_STOP,
 } from './const.js';
 import {
     ECM_EXACTMATCH,
@@ -38,6 +39,7 @@ import {
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
     dismissPendingTtyMessage,
+    messageWindow,
     ttyPline,
     vplineRawPrint,
     vplineVisionRecalc,
@@ -85,7 +87,7 @@ let suppress_history = false;
 // always clears with a non-empty top line, so the toplin test is omitted.
 function clearMessageWindow(state) {
     const display = state.nhDisplay;
-    const cw = state.wintty?.wins?.[state.wintty.messageWindow];
+    const cw = messageWindow(state);
     display.clearRow(0);
     display.setCursor(0, 0);
     if (cw?.cury) docorner(1, cw.cury + 1, 0, state);
@@ -130,10 +132,12 @@ async function hooked_tty_getlin(query, hook, state) {
     const display = state.nhDisplay;
     if (!display) throw new Error('getlin requires an initialized display');
 
-    if (display.toplin === TOPLINE_NEED_MORE && !state._ttyMessageStopped)
+    // getline.c:53-55: more() runs unless WIN_STOP is set, and WIN_STOP is
+    // then cleared whether or not it ran.
+    const cw = messageWindow(state);
+    if (display.toplin === TOPLINE_NEED_MORE && !(cw?.flags & WIN_STOP))
         await dismissPendingTtyMessage(state);
-    // getline.c:55 clears cw->flags' WIN_STOP bit, which this line ports.
-    state._ttyMessageStopped = false;
+    if (cw) cw.flags &= ~WIN_STOP;
     // getline.c:56 then assigns ttyDisplay->toplin = TOPLINE_SPECIAL_PROMPT,
     // which this port does not model: js/tty_message.js carries only
     // TOPLINE_EMPTY and TOPLINE_NEED_MORE, and the field keeps whatever the

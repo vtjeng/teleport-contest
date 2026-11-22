@@ -4,6 +4,8 @@ import test from 'node:test';
 import { utf8Text } from '../js/hacklib.js';
 
 import {
+    NHW_MESSAGE,
+    PICK_ONE,
     PLNMSG_CAUGHT_IN_EXPLOSION,
     PLNMSG_UNKNOWN,
     WIN_CANCELLED,
@@ -11,7 +13,7 @@ import {
     WIN_STOP,
 } from '../js/const.js';
 import { msgtype_parse_add } from '../js/options.js';
-import { show_topl } from '../js/topl.js';
+import { show_topl, tty_yn_function } from '../js/topl.js';
 
 import { GameDisplay } from '../js/game_display.js';
 import { nhgetch } from '../js/input.js';
@@ -26,7 +28,10 @@ import {
     ttyNorep,
     ttyPutmixed,
     ttyUrgentPline,
+    tty_message_menu,
 } from '../js/tty_message.js';
+import { setWinStop, winStop } from './test-fixtures/win-stop.mjs';
+import { tty_create_nhwindow } from '../js/wintty.js';
 
 function rowText(state) {
     return state.nhDisplay.grid[0].map((cell) => cell.ch).join('').trimEnd();
@@ -40,6 +45,7 @@ function messageState(message, toplin) {
         _pending_message: message,
         _ttyToplines: message,
     };
+    tty_create_nhwindow(NHW_MESSAGE, state);
     state.nhDisplay.toplin = toplin;
     state.nhDisplay.putstr(0, 0, message);
     state.nhDisplay.setCursor(message.length, 0);
@@ -137,7 +143,7 @@ test('Escape More clears the physical row but keeps WIN_STOP history state',
         );
         assert.equal(state.nhDisplay.toplin, TOPLINE_EMPTY);
         assert.equal(rowText(state), '');
-        assert.equal(state._ttyMessageStopped, true);
+        assert.equal(winStop(state), true);
         assert.equal(
             state._ttyToplines,
             'It is mildly chilly.  Something casts a spell at you!',
@@ -169,12 +175,12 @@ test('display_nhwindow(WIN_MESSAGE) is a no-op while WIN_STOP is set',
         // leaves NEED_MORE behind exercises the same arm.
         const message = 'You read: "Move around with h j k l".';
         const state = messageState(message, TOPLINE_NEED_MORE);
-        state._ttyMessageStopped = true;
+        setWinStop(state, true);
         // No key is queued: a wait at --More-- would fail on the empty queue.
         await displayPendingTtyMessageWindow(state);
         assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
         assert.equal(rowText(state), message);
-        assert.equal(state._ttyMessageStopped, true);
+        assert.equal(winStop(state), true);
     });
 
 test('urgent output clears Escape suppression before updating history',
@@ -183,17 +189,16 @@ test('urgent output clears Escape suppression before updating history',
             'It is mildly chilly.  Something casts a spell at you!',
             TOPLINE_NEED_MORE,
         );
-        state.wintty = { messageWindow: 0, wins: [{ flags: 0 }] };
         state.nhDisplay.pushKey(27);
         await dismissPendingTtyMessage(state);
-        assert.equal(state._ttyMessageStopped, true);
+        assert.equal(winStop(state), true);
         assert.equal(rowText(state), '');
 
         // polyself.c:200-232 calls urgent_pline() from polyman(). Its
         // wintty.c:2277-2283 arm clears WIN_STOP and the physical line before
         // replacing it; an ordinary pline would keep this message hidden.
         await ttyUrgentPline('You return to human form!', state);
-        assert.equal(state._ttyMessageStopped, false);
+        assert.equal(winStop(state), false);
         assert.equal(state.wintty.wins[0].flags & WIN_NOSTOP, 0);
         assert.equal(state._pending_message, 'You return to human form!');
         assert.equal(state.nhDisplay.toplin, TOPLINE_NEED_MORE);
@@ -202,31 +207,65 @@ test('urgent output clears Escape suppression before updating history',
 test('show_topl consumes WIN_NOSTOP while allowing a stopped message', () => {
     const state = messageState('', TOPLINE_NEED_MORE);
     state.wintty = { messageWindow: 0, wins: [{ flags: WIN_NOSTOP }] };
-    state._ttyMessageStopped = true;
+    setWinStop(state, true);
 
     assert.equal(show_topl('urgent status', state), true);
-    assert.equal(state._ttyMessageStopped, false);
+    assert.equal(winStop(state), false);
     assert.equal(state.wintty.wins[0].flags & WIN_NOSTOP, 0);
     assert.match(rowText(state), /urgent status/u);
 });
 
-test('tty_nhgetch clears the sole WIN_STOP representation before reading',
+test('Escape at More sets WIN_STOP in the message window flags, and tty_nhgetch clears it',
     async () => {
-        // wintty.c:tty_nhgetch clears WIN_STOP before consuming the next key.
-        // A short message keeps the More prompt on row zero; `x` is an
+        // topl.c more():232-235 sets WIN_STOP in wins[WIN_MESSAGE]->flags;
+        // wintty.c tty_nhgetch():4065-4066 clears it before the next key. A
+        // short message keeps the More prompt on row zero; `x` is an
         // ordinary follow-up byte that must reach the read boundary.
         const state = messageState('message', TOPLINE_NEED_MORE);
-        state.wintty = { messageWindow: 0, wins: [{ flags: 0 }] };
+        const cw = state.wintty.wins[state.wintty.messageWindow];
         state.nhDisplay.pushKey(27);
         await dismissPendingTtyMessage(state);
-        assert.equal(state._ttyMessageStopped, true);
-        assert.equal(state.wintty.wins[0].flags & WIN_STOP, 0);
+        assert.equal(cw.flags, WIN_STOP);
 
         state.nhDisplay.pushKey('x'.charCodeAt(0));
         assert.equal(await nhgetch(state), 'x'.charCodeAt(0));
-        assert.equal(state._ttyMessageStopped, false);
-        assert.equal(state.wintty.wins[0].flags & WIN_STOP, 0);
+        assert.equal(cw.flags, 0);
     });
+
+test('WIN_NOSTOP keeps Escape at More from setting WIN_STOP', async () => {
+    // topl.c:233 `if (!(cw->flags & WIN_NOSTOP))`: the urgent message being
+    // shown stays exempt, and the bit is left for tty_putstr() to clear.
+    const state = messageState('message', TOPLINE_NEED_MORE);
+    const cw = state.wintty.wins[state.wintty.messageWindow];
+    cw.flags = WIN_NOSTOP;
+    state.nhDisplay.pushKey(27);
+    await dismissPendingTtyMessage(state);
+    assert.equal(cw.flags, WIN_NOSTOP);
+});
+
+test('tty_yn_function clears WIN_STOP and WIN_NOSTOP without a More wait', async () => {
+    // topl.c:389-393: with WIN_STOP set the pending message gets no More,
+    // so `y` answers the prompt; both bits are cleared either way.
+    const state = messageState('message', TOPLINE_NEED_MORE);
+    const cw = state.wintty.wins[state.wintty.messageWindow];
+    cw.flags = WIN_STOP;
+    state.nhDisplay.pushKey('y'.charCodeAt(0));
+    assert.equal(await tty_yn_function('Really?', 'yn', 'n', state), 'y');
+    assert.equal(cw.flags, 0);
+});
+
+test('tty_message_menu clears the WIN_CANCELLED its Escape set', async () => {
+    // wintty.c:2843: Escape at the one-item menu's More cancels the prompt,
+    // not later messages. 'a' is an arbitrary inventory letter.
+    const state = messageState('', TOPLINE_EMPTY);
+    const cw = state.wintty.wins[state.wintty.messageWindow];
+    state.nhDisplay.pushKey(27);
+    assert.equal(
+        await tty_message_menu('a', PICK_ONE, 'a - a blessed +1 dagger.', state),
+        27,
+    );
+    assert.equal(cw.flags & WIN_CANCELLED, 0);
+});
 
 // pline.c:vpline clears iflags.last_msg after putmesg, before MSGTYP_STOP,
 // but its empty-line and MSGTYPE early returns preserve the caller's marker.
@@ -234,7 +273,7 @@ test('vpline clears last_msg after replacement, append and WIN_STOP output', asy
     for (const mode of ['replacement', 'append', 'stopped']) {
         const state = messageState(mode === 'append' ? 'old' : '', TOPLINE_NEED_MORE);
         state.iflags.last_msg = PLNMSG_CAUGHT_IN_EXPLOSION;
-        state._ttyMessageStopped = mode === 'stopped';
+        setWinStop(state, mode === 'stopped');
         await ttyPline('Your cloak smoulders!', state);
         assert.equal(state.iflags.last_msg, PLNMSG_UNKNOWN, mode);
     }

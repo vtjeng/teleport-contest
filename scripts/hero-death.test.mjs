@@ -87,6 +87,7 @@ import {
 } from './run-mounted-death.mjs';
 import { expectTerminated } from './expect-terminated.mjs';
 import { isTerminated } from '../js/rng.js';
+import { setWinStop, winStop } from './test-fixtures/win-stop.mjs';
 
 const END_C = readFileSync(
     new URL('../nethack-c/upstream/src/end.c', import.meta.url), 'utf8',
@@ -767,7 +768,7 @@ test('a stopped top line is replaced by death without a second More wait', async
     const prior = 'You feel weaker!';
     game._pending_message = prior;
     game._ttyToplines = prior;
-    game._ttyMessageStopped = true;
+    setWinStop(game, true);
     game.nhDisplay.topMessage = prior;
     game.nhDisplay.toplin = TOPLINE_NEED_MORE;
     game.nhDisplay.pushKey(' '.charCodeAt(0));
@@ -776,7 +777,7 @@ test('a stopped top line is replaced by death without a second More wait', async
     await ttyPline('You die...', game);
 
     assert.equal(game._pending_message, 'You die...');
-    assert.equal(game._ttyMessageStopped, false);
+    assert.equal(winStop(game), false);
     assert.equal(
         game.nhDisplay.terminal._inputQueue.length,
         queuedBefore,

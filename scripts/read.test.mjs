@@ -46,6 +46,7 @@ import { setworn } from '../js/worn.js';
 import { coreRandom, enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { P_BARE_HANDED_COMBAT, P_CLERIC_SPELL, P_SKILLED } from '../js/const.js';
 import { skillSlot } from '../js/startup_skills.js';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 const SPELL_C = readFileSync(
     new URL('../nethack-c/upstream/src/spell.c', import.meta.url), 'utf8',
@@ -809,7 +810,7 @@ test('read.c wizard class genocide synchronously removes a worm through mongone'
 
         game.wizard = true;
         game._pending_message = '';
-        game._ttyMessageStopped = false;
+        setWinStop(game, false);
         game.nhDisplay.toplin = TOPLINE_EMPTY;
         // read.c do_class_genocide() consumes a class line; '*' selects the
         // wizard-only all-monsters branch and LF ends that line.
@@ -851,7 +852,7 @@ test('read.c wizard genocide drops a protected Bell before discarding inventory'
 
         game.wizard = true;
         game._pending_message = '';
-        game._ttyMessageStopped = false;
+        setWinStop(game, false);
         game.nhDisplay.toplin = TOPLINE_EMPTY;
         game.nhDisplay.terminal._inputQueue.push('*'.charCodeAt(0), 10);
         await do_class_genocide(game);
@@ -901,7 +902,7 @@ test('read.c wizard genocide waits for swallowed mongone before continuing',
         state.gm.mswallower = holder;
         state.wizard = true;
         state._pending_message = '';
-        state._ttyMessageStopped = false;
+        setWinStop(state, false);
         state.nhDisplay.toplin = TOPLINE_EMPTY;
         state.nhDisplay.terminal._inputQueue.push('*'.charCodeAt(0), 10);
 
@@ -1144,7 +1145,7 @@ test('read.c species and class retry hints preserve input and random order',
                 await emptyTamingWorld(18741001);
                 game.iflags.cmdassist = cmdassist;
                 game._pending_message = '';
-                game._ttyMessageStopped = false;
+                setWinStop(game, false);
                 game.nhDisplay.toplin = TOPLINE_EMPTY;
                 // LF submits a nonexistent name, Space dismisses its More,
                 // and Escape cancels the new prompt. No monster is selected.

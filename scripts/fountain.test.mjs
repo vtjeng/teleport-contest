@@ -90,6 +90,7 @@ import { newMonster } from '../js/monst.js';
 import { d, rn1, rn2, rnd, rne } from '../js/rng.js';
 import { TOPLINE_EMPTY } from '../js/tty_message.js';
 import { do_clear_area } from '../js/vision.js';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 async function prepareGushingSquares() {
     await startedGame();
@@ -731,7 +732,7 @@ test('drinksink rejects water and consumes a temporary uncursed potion', async (
     game._pending_message = '';
     game._ttyToplines = '';
     game._ttyPreviousMessage = '';
-    game._ttyMessageStopped = false;
+    setWinStop(game, false);
     // Existing intrinsic speed avoids the separate permanent-speed message;
     // the temporary timeout added by the potion remains independently visible.
     game.u.uprops[FAST].intrinsic = FROMOUTSIDE;

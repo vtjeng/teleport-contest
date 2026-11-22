@@ -8,6 +8,7 @@ import {
     TOPLINE_SPECIAL_PROMPT,
     WIN_LOCKHISTORY,
     WIN_NOSTOP,
+    WIN_STOP,
     quitchars,
 } from './const.js';
 import { game } from './gstate.js';
@@ -19,6 +20,7 @@ import {
     TOPLINE_NEED_MORE,
     TOPLINE_NON_EMPTY,
     dismissPendingTtyMessage,
+    messageWindow,
     vplineRawPrint,
     vplineVisionRecalc,
 } from './tty_message.js';
@@ -27,11 +29,6 @@ const CTRL_P = 0x10;
 const ERASE_CHAR = 0x7F;
 const BACKSPACE = 0x08;
 const ESC = 0x1B;
-
-function messageWindow(state) {
-    const wt = state.wintty;
-    return wt?.wins?.[wt.messageWindow] ?? null;
-}
 
 function topline(state) {
     return String(state._ttyToplines ?? '');
@@ -352,10 +349,9 @@ function rememberPreviousMessage(state, context, message) {
 // branch order, history changes, and wait decisions stay with this source unit.
 export async function update_topl(message, state = game, context = {}) {
     const {
-        urgentMessage = false,
         mixedFirstCell = null,
         resetLastMessage = () => {},
-        stoppedAtEntry = Boolean(state._ttyMessageStopped),
+        stoppedAtEntry = Boolean(messageWindow(state)?.flags & WIN_STOP),
         deathMessage = String(message).startsWith('You die'),
         deathComparisonReached = false,
         columns = state.nhDisplay?.cols ?? 80,
@@ -378,7 +374,6 @@ export async function update_topl(message, state = game, context = {}) {
         resetLastMessage();
         return;
     }
-    if (stoppedAtEntry) state._ttyMessageStopped = false;
 
     if (current
         && !deathMessage
@@ -401,11 +396,17 @@ export async function update_topl(message, state = game, context = {}) {
     // iflags.debug_fuzzer is set (yn_function()'s TEMP impossible() report).
     const moreSuppressed = Boolean(state.iflags?.debug_fuzzer);
     if (current && !stoppedAtEntry && !moreSuppressed) {
-        await callbacks.dismissPendingTtyMessage?.(state, {
-            preventEscapeStop: urgentMessage,
-        });
+        await callbacks.dismissPendingTtyMessage?.(state);
     }
-    if (deathComparisonReached) state._ttyMessageStopped = false;
+    // topl.c:298-299: a "You die" line that reached the same-line test
+    // clears WIN_STOP and is shown. With WIN_STOP set at entry, neither the
+    // same-line append nor more() above ran, so clearing it here, after
+    // them, is the source order. With WIN_STOP clear at entry, this clears
+    // the bit an Escape at that more() may just have set, as C does.
+    if (deathComparisonReached) {
+        const cw = messageWindow(state);
+        if (cw) cw.flags &= ~WIN_STOP;
+    }
     if (state._ttyToplines) remember_topl(state);
     rememberPendingMessage(state, next);
     rememberPreviousMessage(state, context, message);
@@ -414,9 +415,7 @@ export async function update_topl(message, state = game, context = {}) {
     // flush would leave the old physical line visible to missile animation.
     redrawTtyTopline(state, next, mixedFirstCell);
     if (wrapTtyTopline(next, columns).length > 1 && !moreSuppressed) {
-        await callbacks.dismissPendingTtyMessage?.(state, {
-            preventEscapeStop: urgentMessage,
-        });
+        await callbacks.dismissPendingTtyMessage?.(state);
     }
     resetLastMessage();
 }
@@ -706,13 +705,14 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // the equivalent on the game state so askchain() can consume a counted
     // response after yn_function() returns '#'.
     state.yn_number = 0;
-    if (display.toplin === TOPLINE_NEED_MORE && !state._ttyMessageStopped)
+    // topl.c:390-393: more() runs unless WIN_STOP is set without
+    // WIN_NOSTOP; both bits are then cleared whether or not it ran.
+    const cw = messageWindow(state);
+    if (display.toplin === TOPLINE_NEED_MORE
+        && (cw?.flags & (WIN_STOP | WIN_NOSTOP)) !== WIN_STOP)
         await dismissPendingTtyMessage(state);
-    // topl.c:391 clears WIN_STOP and WIN_NOSTOP whether or not more() ran.
-    state._ttyMessageStopped = false;
-    const win = messageWindow(state);
-    if (win) win.flags &= ~WIN_NOSTOP;
-    // topl.c:392-393 marks a special prompt and raises inread.
+    if (cw) cw.flags &= ~(WIN_STOP | WIN_NOSTOP);
+    // topl.c:394-395 marks a special prompt and raises inread.
     display.toplin = TOPLINE_SPECIAL_PROMPT;
     display.inread = (display.inread ?? 0) + 1;
 
@@ -942,11 +942,10 @@ export function show_topl(text, state = game) {
     const display = state.nhDisplay;
     if (!display) return;
     const win = messageWindow(state);
-    // _ttyMessageStopped is the single JS owner of C's WIN_STOP bit. Keep
-    // WIN_NOSTOP in the message window descriptor, where C stores that bit.
-    if (state._ttyMessageStopped && !(win?.flags & WIN_NOSTOP)) return false;
-    state._ttyMessageStopped = false;
-    if (win) win.flags &= ~WIN_NOSTOP;
+    // topl.c:150-153: show if either WIN_STOP is clear or this message is
+    // WIN_NOSTOP, then clear both bits.
+    if ((win?.flags & (WIN_STOP | WIN_NOSTOP)) === WIN_STOP) return false;
+    if (win) win.flags &= ~(WIN_STOP | WIN_NOSTOP);
     const oldToplin = display.toplin;
     if (display.cursorRow && oldToplin === TOPLINE_NON_EMPTY) {
         display.clearRow(0);

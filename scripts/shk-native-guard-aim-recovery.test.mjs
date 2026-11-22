@@ -13,6 +13,7 @@ import { rloc_to } from '../js/teleport.js';
 import { peffects } from '../js/potion.js';
 import { shk_move } from '../js/shk.js';
 import { vision_reset, vision_recalc } from '../js/vision.js';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 async function setup(carryPick) {
     await runSegment({ seed: 829103, datetime: '20320405060710',
@@ -50,7 +51,7 @@ for (const invisible of [true, false]) {
         const keeper = await setup(false);
         // Discard the completed startup message before the potion announcement.
         game._pending_message = ''; game._ttyToplines = '';
-        game._ttyPreviousMessage = ''; game._ttyMessageStopped = false;
+        game._ttyPreviousMessage = ''; setWinStop(game, false);
         if (invisible) await peffects(mksobj(POT_INVISIBILITY, false, false, {state: game}), game);
         assert.equal(Boolean(game.u.uprops[INVIS].intrinsic), invisible);
         assert.ok(keeper.mpeaceful);

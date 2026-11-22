@@ -115,6 +115,7 @@ import {
     loadQuaffBoozeRecipes, loadQuaffHealingRecipes,
     verifyBoozeSegment, verifyHealingSegment,
 } from './run-quaff-confusion.mjs';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 test('make_blinded silently extends an existing timed blindness', async () => {
     const state = {
@@ -1229,7 +1230,7 @@ function clearTopline() {
     game._pending_message = '';
     game._ttyToplines = '';
     game._ttyPreviousMessage = '';
-    game._ttyMessageStopped = false;
+    setWinStop(game, false);
 }
 
 function vaporPotion(otyp) {
