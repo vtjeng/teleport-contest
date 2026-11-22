@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 660133,
+      "datetime": "20250720050607",
+      "nethackrc": "OPTIONS=name:Ylva,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,color\nOPTIONS=roguesymset:RogueEpyx\nOPTIONS=roguesymset:whatever\n",
+      "moves": "\r\u001616\n\u0006shk:s"
+    }
+  ],
+  "comment": "display.c reset_glyphmap() on the Rogue level when roguesymset:RogueEpyx is followed by an unknown name: clear_symsetentry() resets the handling to H_UNK and nocolor to 0 but keeps RogueEpyx's bytes in gr.rogue_syms, so the level is drawn with those bytes and without colour."
+}

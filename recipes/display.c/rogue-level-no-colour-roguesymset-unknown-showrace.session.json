@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 660132,
+      "datetime": "20231111222324",
+      "nethackrc": "OPTIONS=name:Thiel,role:Ranger,race:elf,gender:female,align:chaotic\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,color,showrace\nOPTIONS=roguesymset:nosuchset\n",
+      "moves": "\r\u001617\n\u0006sjl:s"
+    }
+  ],
+  "comment": "display.c reset_glyphmap() on the Rogue level after an unknown roguesymset name: options.c optfn_roguesymset() reports the failure and calls clear_symsetentry(ROGUESET, TRUE). The pet has no colour; with showrace, map_glyphinfo() (2628-2633) still gives the elven hero HI_DOMESTIC."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 660137,
+      "datetime": "20250720050607",
+      "nethackrc": "OPTIONS=name:Ugo,role:Caveman,race:gnome,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,color,roguesymset:Default symbols\n",
+      "moves": "\u001617\n\u0006shk:s"
+    }
+  ],
+  "comment": "display.c reset_glyphmap() on the Rogue level after roguesymset:Default symbols, which files.c read_sym_file() accepts by fuzzymatch() and clears like default, without a config error."
+}

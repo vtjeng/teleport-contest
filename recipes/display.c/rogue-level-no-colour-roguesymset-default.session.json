@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 660131,
+      "datetime": "20240229131415",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,color\nOPTIONS=roguesymset:default\n",
+      "moves": "\u001616\n\u0006sjkhl:\u00161\ns"
+    }
+  ],
+  "comment": "display.c reset_glyphmap() (3078-3082) stores NO_COLOR for every glyph on the Rogue level unless has_rogue_color (an IBM-handling Rogue set whose nocolor is 0). roguesymset:default makes files.c read_sym_file() call clear_symsetentry(ROGUESET, TRUE), which zeroes the nocolor that init_rogue_symbols() set; the handling stays H_UNK, so the hero and the little dog are drawn without colour on Dlvl 16 and in colour again on Dlvl 1."
+}
