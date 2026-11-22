@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c render_status() (4991-5262) with statuslines:3, weaponstatus, terrainstatus, showvers and Blind after the full-screen legacy text and a full-screen inventory menu (!menu_overlay). BL_VERS is right justified after the indented BL_CONDITION, and its padding (5200-5206) writes spaces over the condition.",
+  "segments": [
+    {
+      "seed": 7742093,
+      "datetime": "20240822183000",
+      "nethackrc": "OPTIONS=name:Bram,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=weaponstatus,terrainstatus,showvers,statuslines:3,blind,!menu_overlay\n",
+      "moves": " \ni\u001bsi\u001bs"
+    }
+  ]
+}

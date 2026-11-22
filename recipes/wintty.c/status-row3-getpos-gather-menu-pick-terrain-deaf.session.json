@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c render_status() (4991-5262) for the cursor render_status() leaves behind. With whatis_menu and !menu_overlay, getpos()'s \"z\" and \"a\" open full-screen menus of valid locations and of interesting things; picking from one or leaving it runs docrt(), which redraws the status with BL_RESET, and getpos waits for its next key with the cursor after the last field drawn on the third row, BL_TERRAIN, not after the indented BL_CONDITION.",
+  "segments": [
+    {
+      "seed": 4406188,
+      "datetime": "20251130120000",
+      "nethackrc": "OPTIONS=name:Sunniva,role:Ranger,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=whatis_menu,!autodescribe,terrainstatus,statuslines:3,deaf,!menu_overlay\n",
+      "moves": "l;za.;aa.s;z\u001b\u001bs"
+    }
+  ]
+}

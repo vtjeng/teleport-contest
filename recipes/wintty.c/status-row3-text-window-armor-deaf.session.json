@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c erase_menu_or_text() (966-984) for a full-screen NHW_TEXT window with statuslines:3, armorstatus (a Samurai's splint mail), terrainstatus and Deaf: the help menu's long description of the game is paged text, and leaving it from its second page runs docrt() and a BL_RESET pass.",
+  "segments": [
+    {
+      "seed": 8049273,
+      "datetime": "20260419190000",
+      "nethackrc": "OPTIONS=name:Kaede,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=armorstatus,terrainstatus,statuslines:3,deaf\n",
+      "moves": "\nl?b \u001bh?\u001bs"
+    }
+  ]
+}

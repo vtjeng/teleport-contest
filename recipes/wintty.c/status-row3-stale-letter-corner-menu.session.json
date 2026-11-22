@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c docorner() (3650-3712) against render_status() (4991-5262) with statuslines:3, terrainstatus and Deaf. Dropping wished gold narrows BL_GOLD by one column, so BL_HUNGER's column and the conditions move left and the old last letter stays (\"Deaff\"). The inventory, padded with wished objects to reach the last status row as a corner window, is repaired by docorner(), whose cl_end() erases the terminal row without touching cw->data; the BL_RESET pass that follows leaves \"Deaf\".",
+  "segments": [
+    {
+      "seed": 9917345,
+      "datetime": "20230918210000",
+      "nethackrc": "OPTIONS=name:Pilar,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=terrainstatus,statuslines:3,deaf\n",
+      "moves": "\u0017apple\n\u0017orange\n\u0017potion of water\n\u0017scroll of light\n\u0017wand of light\n\u0017amulet versus poison\n\u0017spellbook of light\n\u0017flint\n\u001710 gold pieces\nd$i\u001bsi\u001b"
+    }
+  ]
+}

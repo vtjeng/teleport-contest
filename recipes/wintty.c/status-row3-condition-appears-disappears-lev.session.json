@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c render_status() (4991-5262) and its rest-of-row erase (5251-5256) with statuslines:3, weaponstatus, armorstatus and terrainstatus while conditions come and go: a wished ring of levitation adds Lev when put on and drops it when removed, and a blindfold does the same for Blind, with corner and full-screen menus between.",
+  "segments": [
+    {
+      "seed": 3358816,
+      "datetime": "20261212101000",
+      "nethackrc": "OPTIONS=name:Griet,role:Knight,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=weaponstatus,armorstatus,terrainstatus,statuslines:3\n",
+      "moves": "\u0017uncursed ring of levitation\n\u0017uncursed blindfold\nPiri\u001bsPji\u001bO\u001bRisi\u001bRi\u001bs"
+    }
+  ]
+}
