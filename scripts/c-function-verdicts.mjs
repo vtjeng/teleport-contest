@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 275,
+    otherName: 271,
     unreachable: 174,
     noVisibleEffect: 213,
     unportedVisible: 2,
@@ -327,12 +327,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'files.c set_bonestemp_name': noEffect(FILE_IO),
     'files.c compress_bonesfile': noEffect(COMPRESS),
     'files.c save_savefile_name': noEffect(FILE_IO),
-    'files.c create_savefile': ported('js/files.js create_savefile',
-        'playgroundWriteFile() of gs.SAVEF stands for creat(); the failure arm needs a host error'),
-    'files.c open_savefile': ported('js/files.js open_savefile',
-        'a non-null result is its success test, which decides the "old save file" prompt in '
-        + 'js/save.js and the restore in js/jsmain.js'),
-    'files.c delete_savefile': ported('js/files.js delete_savefile'),
     'files.c get_freeing_nhfile': noEffect(FILE_IO),
     'files.c free_saved_games': noEffect(MEMORY),
     'files.c redirect': noEffect(COMPRESS),
@@ -384,7 +378,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'hacklib.c c_eos': ported('js/hacklib.js eos', C_STRING),
     'hacklib.c strkitten': ported('js/hacklib.js eos', C_STRING),
     'hacklib.c strNsubst': ported('js/uhitm.js hmon_hitmon_msg_silver', C_STRING),
-    'hacklib.c findword': ported('js/hacklib.js findword'),
     'hacklib.c nh_snprintf': ported('js/uhitm.js hmon_hitmon_msg_silver', C_STRING),
     'hacklib.c unicodeval_to_utf8str': ported('js/hacklib.js encodeUtf8Text',
         'UTF-8 encoding of a symbol customisation'),
