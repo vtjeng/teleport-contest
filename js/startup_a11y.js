@@ -205,6 +205,7 @@ import { Blind, Hallucination } from './youprop.js';
 import { lcase, lowc, strncmpi } from './hacklib.js';
 import { ttyPline } from './tty_message.js';
 import { impossible } from './pline.js';
+import { NH_abort } from './end.js';
 
 // mhidden_description() is owned by pager.c.  Keep this compatibility export
 // for status-line and startup callers while pager.js remains the sole JS
@@ -610,18 +611,23 @@ export function queueGlyphUpdateNotice(
     const description = describeGlyphUpdate(current, x, y, state);
     if (!description) return false;
     const glyphFrame = takeNoticeGlyphFrame(state);
+    // An aborted description ends the process inside C's show_glyph(); the
+    // port ends it when the queue drains to this notice, after the notices
+    // before it have printed.
     const notice = {
         x,
         y,
         previous,
         current,
-        message: messageAt(
-            `${description}.`,
-            x,
-            y,
-            state,
-            true,
-        ),
+        ...(description.aborted ? { abort: true } : {
+            message: messageAt(
+                `${description.firstmatch}.`,
+                x,
+                y,
+                state,
+                true,
+            ),
+        }),
         glyphFrame,
     };
     (state._glyphUpdateNotices ??= []).push(notice);
@@ -709,6 +715,7 @@ export async function emitGlyphUpdateNotices(state, env = {}) {
             const notice = pending[index];
             if (index)
                 applyGlyphFrameChanges(state, notice.glyphFrame.changes, dirty);
+            if (notice.abort) await NH_abort(state);
             if (notice.youBuf) (state.gy ??= {}).you_buf = notice.youBuf;
             if (notice.impossible) await impossible(notice.message, state);
             else await pline(notice.message, state);
@@ -1437,7 +1444,7 @@ function describeGlyphUpdate(glyph, x, y, state) {
     const description = do_screen_description(
         { x, y }, true, 0, state,
     );
-    return description.found ? description.firstmatch : null;
+    return description.aborted || description.found ? description : null;
 }
 
 function visibleSubjectAt(x, y, state) {
@@ -1456,7 +1463,7 @@ function visibleSubjectAt(x, y, state) {
     // then use the pager's complete generic collection and lookat refinement
     // so this caller cannot drift from the ordinary what-is path.
     const description = do_screen_description({ x, y }, true, 0, state);
-    return description.found ? description.firstmatch : null;
+    return description.aborted || description.found ? description : null;
 }
 
 export function collectLookaroundMessages(state, { includeRoom = true } = {}) {
@@ -1492,12 +1499,23 @@ export function collectLookaroundMessages(state, { includeRoom = true } = {}) {
                     const corridorDescription = do_screen_description(
                         { x, y }, true, 0, state,
                     );
-                    description = corridorDescription.found
-                        ? corridorDescription.firstmatch : null;
+                    if (corridorDescription.aborted
+                        || corridorDescription.found)
+                        description = corridorDescription;
                 }
             }
-            if (description)
-                messages.push(messageAt(`${description}.`, x, y, state, true));
+            // C prints each square's line before describing the next, so
+            // an abort there follows the lines already collected; the
+            // caller prints them, then calls NH_abort().
+            if (description?.aborted) {
+                messages.aborted = true;
+                return messages;
+            }
+            if (description) {
+                messages.push(messageAt(
+                    `${description.firstmatch}.`, x, y, state, true,
+                ));
+            }
         }
     }
     return messages;

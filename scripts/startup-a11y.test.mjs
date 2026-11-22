@@ -634,7 +634,7 @@ test('lookaround treats an adjacent object mimic as seen up close', () => {
     );
 
     assert.equal(
-        _startupA11yInternals.visibleSubjectAt(x, y, state),
+        _startupA11yInternals.visibleSubjectAt(x, y, state)?.firstmatch,
         'a chest',
     );
 });
@@ -649,7 +649,7 @@ test('lookaround uses the canonical pager for displayed terrain', () => {
     location.disp_glyph = { glyph: cmap_to_glyph(S_sink, state) };
 
     assert.equal(
-        _startupA11yInternals.visibleSubjectAt(x, y, state),
+        _startupA11yInternals.visibleSubjectAt(x, y, state)?.firstmatch,
         'sink',
     );
 });

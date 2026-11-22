@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pager.c do_screen_description() 1597-1616 and add_quoted_engraving() 1630-1668: a wizard-mode Samurai engraves a 218-character text in the dust in three parts (tty getlin() takes at most 80 characters), steps south, looks at it with ; and then travels onto it with _. In each getpos() prompt the cursor move onto the engraving runs auto_describe(), and ; then prints the full description. temp_buf holds 11 + 25 + 218 = 254 characters before Strcat(temp_buf, \")\"), so the ')' fits; at 219 characters macOS's checked strcat() aborts there, which no recording can hold (scripts/pager-engraving-look-abort.test.mjs pins that side).",
+  "segments": [
+    {
+      "seed": 6160,
+      "datetime": "20261122093000",
+      "nethackrc": "OPTIONS=name:Scribe,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,!autopickup,!tutorial,!legacy,suppress_alert:3.4.3,!tips,pettype:none\n",
+      "moves": "kE-\nthe quick brown fox jumps over the lazy dog the quick brown fox jumps over the l\n\u001b\u001bE-y\nthe quick brown fox jumps over the lazy dog the quick brown fox jumps over the l\n\u001b\u001bE-y\nthe quick brown fox jumps over the lazy dog the quick brow\n\u001b\u001bj;k.\u001b\u001b_k.\u001b\u001b"
+    }
+  ]
+}

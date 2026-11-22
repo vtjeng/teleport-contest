@@ -336,7 +336,7 @@ import {
 } from './hack.js';
 import { nhgetch } from './input.js';
 import { doride } from './steed.js';
-import { done2, nh_terminate } from './end.js';
+import { NH_abort, done2, nh_terminate } from './end.js';
 import { doread } from './read.js';
 import {
     dobreathe, dogaze, dohide, domindblast,
@@ -2648,8 +2648,11 @@ export async function dolookaround(state = game) {
         }
         // The room/area description above is emitted by this cmd.c function;
         // the shared helper supplies only the visible-cell pline_xy loop.
-        for (const message of collectLookaroundMessages(state, { includeRoom: false }))
+        const messages = collectLookaroundMessages(state, { includeRoom: false });
+        for (const message of messages)
             await ttyPline(message, state);
+        // pager.c do_screen_description() ended the process at a square.
+        if (messages.aborted) await NH_abort(state);
     } finally {
         state.iflags.getloc_filter = oldFilter;
         if (oldAccessible === undefined) delete state.a11y.accessiblemsg;
