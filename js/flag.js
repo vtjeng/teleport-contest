@@ -2,10 +2,11 @@
 // Source: NetHack 5.0 include/flag.h, coord.h and color.h at
 // 16ff59115315917b93185d026aeefea06db9b0f4.
 //
-// C zero-initializes iflags. Each zero_<struct>() returns a new object
-// holding every member of that struct at C's zero value; js/gstate.js
-// creates state.iflags from zero_instance_flags() at process start,
-// and js/options.js starts the options it parses from it.
+// C zero-initializes iflags and flags. Each zero_<struct>() returns a
+// new object holding every member of that struct at C's zero value;
+// js/gstate.js creates state.iflags from zero_instance_flags() and
+// state.flags from zero_flag() at process start, and js/options.js
+// starts the options it parses from both.
 
 export function zero_coord() {
     return {
@@ -193,6 +194,96 @@ export function zero_instance_flags() {
     };
 }
 
+export function zero_flag() {
+    return {
+        acoustics: false, // boolean
+        armorstatus: false, // boolean
+        autodig: false, // boolean
+        autoquiver: false, // boolean
+        autoopen: false, // boolean
+        beginner: false, // boolean
+        biff: false, // boolean
+        bones: false, // boolean
+        confirm: false, // boolean
+        dark_room: false, // boolean
+        debug: false, // boolean
+        end_own: false, // boolean
+        explore: false, // boolean
+        female: false, // boolean
+        friday13: false, // boolean
+        goldX: false, // boolean
+        help: false, // boolean
+        tips: false, // boolean
+        tutorial: false, // boolean
+        ignintr: false, // boolean
+        implicit_uncursed: false, // boolean
+        ins_chkpt: false, // boolean
+        invlet_constant: false, // boolean
+        legacy: false, // boolean
+        lit_corridor: false, // boolean
+        mention_decor: false, // boolean
+        mention_walls: false, // boolean
+        nap: false, // boolean
+        nopick_dropped: false, // boolean
+        null: false, // boolean
+        pickup: false, // boolean
+        pickup_stolen: false, // boolean
+        pickup_thrown: false, // boolean
+        pushweapon: false, // boolean
+        quick_farsight: false, // boolean
+        rest_on_space: false, // boolean
+        safe_dog: false, // boolean
+        safe_wait: false, // boolean
+        showexp: false, // boolean
+        showscore: false, // boolean
+        showvers: false, // boolean
+        silent: false, // boolean
+        sortpack: false, // boolean
+        sparkle: false, // boolean
+        standout: false, // boolean
+        terrainstatus: false, // boolean
+        time: false, // boolean
+        tombstone: false, // boolean
+        verbose: false, // boolean
+        weaponstatus: false, // boolean
+        end_top: 0, // int
+        end_around: 0, // int
+        autounlock: 0, // unsigned
+        moonphase: 0, // unsigned
+        suppress_alert: 0, // unsigned long
+        paranoia_bits: 0, // unsigned
+        versinfo: 0, // unsigned
+        pickup_burden: 0, // int
+        pile_limit: 0, // int
+        discosort: '', // char
+        sortloot: '', // char
+        vanq_sortmode: 0, // uchar
+        inv_order: [], // char[18]
+        pickup_types: [], // char[18]
+        end_disclose: Array(6).fill(''), // char[7]
+        menu_style: 0, // char
+        made_fruit: false, // boolean
+        initrole: 0, // int
+        initrace: 0, // int
+        initgend: 0, // int
+        initalign: 0, // int
+        randomall: 0, // int
+        pantheon: 0, // int
+        lootabc: false, // boolean
+        showrace: false, // boolean
+        travelcmd: false, // boolean
+        runmode: 0, // int
+        reserved1: 0, // int
+        reserved2: 0, // int
+        reserved3: 0, // int
+        reserved4: 0, // int
+        reserved5: 0, // int
+        reserved6: 0, // int
+        reserved7: 0, // int
+        reserved8: 0, // int
+    };
+}
+
 // Each struct's fields in declaration order: [name, C type] and, for
 // an embedded struct, the name of its struct.
 export const INSTANCE_FLAGS_STRUCTS = {
@@ -366,5 +457,95 @@ export const INSTANCE_FLAGS_STRUCTS = {
         ["wiz_error_flag", "boolean"],
         ["explore_error_flag", "boolean"],
         ["obsolete", "boolean"],
+    ],
+};
+
+export const FLAG_STRUCTS = {
+    flag: [
+        ["acoustics", "boolean"],
+        ["armorstatus", "boolean"],
+        ["autodig", "boolean"],
+        ["autoquiver", "boolean"],
+        ["autoopen", "boolean"],
+        ["beginner", "boolean"],
+        ["biff", "boolean"],
+        ["bones", "boolean"],
+        ["confirm", "boolean"],
+        ["dark_room", "boolean"],
+        ["debug", "boolean"],
+        ["end_own", "boolean"],
+        ["explore", "boolean"],
+        ["female", "boolean"],
+        ["friday13", "boolean"],
+        ["goldX", "boolean"],
+        ["help", "boolean"],
+        ["tips", "boolean"],
+        ["tutorial", "boolean"],
+        ["ignintr", "boolean"],
+        ["implicit_uncursed", "boolean"],
+        ["ins_chkpt", "boolean"],
+        ["invlet_constant", "boolean"],
+        ["legacy", "boolean"],
+        ["lit_corridor", "boolean"],
+        ["mention_decor", "boolean"],
+        ["mention_walls", "boolean"],
+        ["nap", "boolean"],
+        ["nopick_dropped", "boolean"],
+        ["null", "boolean"],
+        ["pickup", "boolean"],
+        ["pickup_stolen", "boolean"],
+        ["pickup_thrown", "boolean"],
+        ["pushweapon", "boolean"],
+        ["quick_farsight", "boolean"],
+        ["rest_on_space", "boolean"],
+        ["safe_dog", "boolean"],
+        ["safe_wait", "boolean"],
+        ["showexp", "boolean"],
+        ["showscore", "boolean"],
+        ["showvers", "boolean"],
+        ["silent", "boolean"],
+        ["sortpack", "boolean"],
+        ["sparkle", "boolean"],
+        ["standout", "boolean"],
+        ["terrainstatus", "boolean"],
+        ["time", "boolean"],
+        ["tombstone", "boolean"],
+        ["verbose", "boolean"],
+        ["weaponstatus", "boolean"],
+        ["end_top", "int"],
+        ["end_around", "int"],
+        ["autounlock", "unsigned"],
+        ["moonphase", "unsigned"],
+        ["suppress_alert", "unsigned long"],
+        ["paranoia_bits", "unsigned"],
+        ["versinfo", "unsigned"],
+        ["pickup_burden", "int"],
+        ["pile_limit", "int"],
+        ["discosort", "char"],
+        ["sortloot", "char"],
+        ["vanq_sortmode", "uchar"],
+        ["inv_order", "char[18]"],
+        ["pickup_types", "char[18]"],
+        ["end_disclose", "char[7]"],
+        ["menu_style", "char"],
+        ["made_fruit", "boolean"],
+        ["initrole", "int"],
+        ["initrace", "int"],
+        ["initgend", "int"],
+        ["initalign", "int"],
+        ["randomall", "int"],
+        ["pantheon", "int"],
+        ["lootabc", "boolean"],
+        ["showrace", "boolean"],
+        ["travelcmd", "boolean"],
+        ["runmode", "int"],
+        ["reserved1", "int"],
+        ["reserved2", "int"],
+        ["reserved3", "int"],
+        ["reserved4", "int"],
+        ["reserved5", "int"],
+        ["reserved6", "int"],
+        ["reserved7", "int"],
+        ["reserved8", "int"],
     ],
 };
