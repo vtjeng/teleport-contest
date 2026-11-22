@@ -2181,3 +2181,27 @@ test('vconfig_error_add() cuts every config error to BUFSZ - 1 bytes', () => {
         ` * Line 1: Error in SYMBOLS definition '${value.slice(0, 226)}.`,
     ]);
 });
+
+test('a SYMBOLS or ROGUESYMBOLS line with an empty value is an error', () => {
+    // symbols.c parsesymbols() scans from opts + 1; cfgfiles.c
+    // parse_config_line() hands it a strncpy()-filled buffer, so the byte
+    // after an empty value's terminator is a NUL and the scan ends.
+    const SYMBOLS_C = readFileSync('nethack-c/upstream/src/symbols.c', 'utf8');
+    assert.match(SYMBOLS_C, /for \(ch = opts \+ 1; \*ch; \+\+ch\) \{/u);
+    const CFGFILES_C = readFileSync('nethack-c/upstream/src/cfgfiles.c', 'utf8');
+    assert.match(CFGFILES_C, /char \*bufp, buf\[4 \* BUFSZ\];[\s\S]*?\(void\) strncpy\(buf, origbuf, sizeof buf - 1\);/u);
+    // The bare statement, and one whose only value is the space that
+    // parse_config_line() skips after the '='; each for both statements.
+    for (const [line, shown, name] of [
+        ['SYMBOLS=', 'SYMBOLS=', 'SYMBOLS'],
+        ['SYMBOLS= ', 'SYMBOLS=', 'SYMBOLS'],
+        ['ROGUESYMBOLS=', 'ROGUESYMBOLS=', 'ROGUESYMBOLS'],
+        ['ROGUESYMBOLS:', 'ROGUESYMBOLS:', 'ROGUESYMBOLS'],
+    ]) {
+        const parsed = parseNethackrc(`${line}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${shown}`,
+            ` * Line 1: Error in ${name} definition ''.`,
+        ], line);
+    }
+});

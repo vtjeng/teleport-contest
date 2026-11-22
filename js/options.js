@@ -5879,7 +5879,14 @@ function appendSymbolOverrides(result, set, assignments, switchSymbols = true) {
 // munged in place.
 function parseSymbolAssignments(value) {
     const buffer = Array.from(String(value));
-    buffer.push('\0');
+    // parsesymbols() starts its scan at opts + 1 without looking at opts[0],
+    // so for an empty value it reads the byte after the terminator. That
+    // byte is a NUL: cfgfiles.c parse_config_line() copies the line into
+    // buf[4 * BUFSZ] with strncpy(), which fills the rest of the buffer with
+    // NULs. The scan then stops at once, no delimiter is found, and the
+    // statement is an error naming ''. No other read passes the terminator:
+    // a comma suffix starts at a byte the scan has seen is not a NUL.
+    buffer.push('\0', '\0');
 
     const cString = (start) => {
         let end = start;

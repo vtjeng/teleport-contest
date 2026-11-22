@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3306029,
+      "datetime": "20330912174455",
+      "nethackrc": "OPTIONS=name:Ansgar,role:Knight,race:human,gender:male,align:lawful\nROGUESYMBOLS=\nSYMBOLS= \nOPTIONS=!legacy,!tutorial,!autopickup,showexp\nSYMBOLS==\nROGUESYMBOLS=,\n",
+      "moves": "\rs:kh"
+    }
+  ],
+  "comment": "symbols.c parsesymbols() with an empty value in the middle of the file: ROGUESYMBOLS= (cnf_line_ROGUESYMBOLS()), SYMBOLS= followed by a space that parse_config_line() skips, SYMBOLS== whose name is empty, and a lone comma, which is the last byte and so no separator. Each is reported and the game starts."
+}
