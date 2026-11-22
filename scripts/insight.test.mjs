@@ -56,6 +56,7 @@ import {
     otherInp,
 } from '../js/const.js';
 import { getnow } from '../js/calendar.js';
+import { parseNethackrc } from '../js/options.js';
 import { dxdy_to_dist_descr } from '../js/getpos.js';
 import {
     align_str,
@@ -203,7 +204,9 @@ import {
 // The generated monster catalog on a state of its own, so the size sweep
 // below reads every species without touching the running game.
 function monsterCatalog() {
-    const state = {};
+    // The flags an rc file that names no option leaves, which list_genocided()
+    // and the vanquished list read (flags.vanq_sortmode).
+    const state = { flags: parseNethackrc('').flags };
     monst_globals_init(state);
     return state;
 }

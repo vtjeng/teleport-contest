@@ -906,7 +906,7 @@ export async function wiz_panic(state = game) {
 // random answers, end.c fuzzer_savelife()) are not all ported, so the port
 // records the gap here instead of entering that mode.
 export async function wiz_fuzzer(state = game) {
-    if (Number(state.flags.suppress_alert ?? 0)
+    if (Number(state.flags.suppress_alert)
         < Number(get_feature_notice_ver('3.7.0'))) {
         await ttyPline(
             'The fuzz tester will make NetHack execute random keypresses.',

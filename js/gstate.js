@@ -1,7 +1,7 @@
 // gstate.js — Global game state reference.
 // All game modules import `game` from here.
 
-import { zero_instance_flags } from './flag.js';
+import { zero_flag, zero_instance_flags } from './flag.js';
 import { zero_sinfo } from './program_state.js';
 
 // C decl.c:417 initializes gi.item_action_in_progress to FALSE for a new game.
@@ -55,6 +55,16 @@ function initialGameState() {
         // whether a member exists, defaults a missing one to something other
         // than zero, or names a member flag.h does not declare.
         iflags: zero_instance_flags(),
+        // C zero-initializes flags (flag.h struct flag, decl.c) once per
+        // process; options.c initoptions_init() and the boolean options'
+        // compiled-in values then set most of it, and js/jsmain.js installs
+        // that result, built in js/options.js defaultResult() from the same
+        // zero struct. Unlike iflags, flags is saved: restore.c
+        // restgamestate() reads the whole struct from the save file.
+        // scripts/flags-state.test.mjs fails when js/ tests whether a member
+        // exists, defaults a missing one to something other than zero, or
+        // names a member flag.h does not declare.
+        flags: zero_flag(),
     };
 }
 

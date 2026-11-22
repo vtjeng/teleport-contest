@@ -132,7 +132,7 @@ import { fuzzymatch, push_front, truncateByteString } from './hacklib.js';
 import { hu_stat } from './eat.js';
 import { observe_object } from './o_init.js';
 import { can_reach_floor, engr_at, engr_can_be_felt } from './engrave.js';
-import { status_version, VI_NUMBER } from './version.js';
+import { status_version } from './version.js';
 import { is_weptool } from './obj.js';
 import { cmap_to_type } from './mkroom.js';
 import { newuexp } from './exper.js';
@@ -6548,7 +6548,7 @@ function _statusFieldData(field, valueSnapshot = null) {
         // text; see the BL_TERRAIN note in _collectStatusHilites().
         return {
             text: status_version(game.flags),
-            compareValue: game.flags?.versinfo ?? VI_NUMBER,
+            compareValue: game.flags.versinfo,
         };
     case 'weapon': return { text: weapon_status(game) };
     case 'armor': return { text: armor_status(game) };

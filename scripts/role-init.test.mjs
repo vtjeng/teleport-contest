@@ -5,6 +5,7 @@ import test from 'node:test';
 import { P_CLERIC_SPELL } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
+import { parseNethackrc } from '../js/options.js';
 import { monst_globals_init, PM_MAIL_DAEMON } from '../js/monsters.js';
 import { objects_globals_init, SPE_LIGHT } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -55,16 +56,29 @@ function scriptedRandom(choices) {
     return random;
 }
 
+// The flags a new game reaches role_init() with: the startup options, the
+// four choices as the role, race, gender and alignment options store them
+// (an index; options.c optfn_gender() also sets flags.female), and
+// allmain.c:785 newgame()'s pantheon of -1. A name is read with str2role()
+// and its siblings, as those options read it.
+function newGameFlags(role, race, gender, alignment) {
+    const index = (value, parse) => (Number.isInteger(value) ? value : parse(value));
+    const flags = {
+        ...parseNethackrc('').flags,
+        initrole: index(role, str2role),
+        initrace: index(race, str2race),
+        initgend: index(gender, str2gend),
+        initalign: index(alignment, str2align),
+        pantheon: -1,
+    };
+    if (typeof gender === 'string') flags.female = flags.initgend === 1;
+    return flags;
+}
+
 function explicitState(role, race, gender, alignment, name = 'Player') {
     const state = {
         plname: name,
-        flags: {
-            initrole: role,
-            initrace: race,
-            initgend: gender,
-            initalign: alignment,
-            pantheon: -1,
-        },
+        flags: newGameFlags(role, race, gender, alignment),
     };
     objects_globals_init(state);
     monst_globals_init(state);
@@ -387,13 +401,9 @@ test('fresh C recorder cases match the role_init PRNG prefix', () => {
         enableRngLog();
         init_objects(game);
         game.plname = 'FreshRole';
-        game.flags = {
-            initrole: config.role,
-            initrace: config.race,
-            initgend: config.gender,
-            initalign: config.align,
-            pantheon: -1,
-        };
+        game.flags = newGameFlags(
+            config.role, config.race, config.gender, config.align,
+        );
         role_init(game);
 
         // init_objects owns calls 1..199 in each recorder trace. Compare the

@@ -4,6 +4,7 @@
 //
 //   js/context.js        svc.context    struct context_info  (context.h)
 //   js/flag.js           iflags         struct instance_flags (flag.h)
+//                        flags          struct flag           (flag.h)
 //   js/program_state.js  program_state  struct sinfo          (hack.h)
 //
 // Each output holds one function per struct that returns a new object with
@@ -23,7 +24,10 @@
 // other scalar array, an array of zeroed structs for an array of structs,
 // and a nested object for an embedded struct (coord.h's coord, dungeon.h's
 // d_level, color.h's color_attr). BYTE_ARRAYS names the char arrays the port
-// holds as arrays of byte values instead of strings, and CHAR_TEXT the scalar
+// holds as arrays of byte values instead of strings, BYTE_LISTS the
+// NUL-terminated char arrays it holds as lists of byte values without the
+// terminator, CHAR_ARRAYS the NUL-terminated char arrays it holds as arrays
+// of one-character strings without the terminator, and CHAR_TEXT the scalar
 // chars the port holds as one-character strings.
 //
 // Preprocessor conditionals inside a struct are resolved against MACROS, the
@@ -77,17 +81,35 @@ export const MACROS = {
     WIN32: false,
 };
 
-// Sizes of the char arrays, from context.h's CONTEXTVERBSZ and global.h's
-// BUFSZ. Enumerators such as flag.h's WC_COUNT are read from the headers.
-const ARRAY_SIZES = { CONTEXTVERBSZ: 30, BUFSZ: 256 };
+// Sizes of the char arrays, from context.h's CONTEXTVERBSZ, global.h's BUFSZ,
+// flag.h:109's NUM_DISCLOSURE_OPTIONS and objclass.h:136-142's MAXOCLASSES,
+// which follows RANDOM_CLASS and defsym.h:466-484's 17 OBJCLASS entries.
+// Enumerators such as flag.h's WC_COUNT are read from the headers.
+const ARRAY_SIZES = {
+    CONTEXTVERBSZ: 30, BUFSZ: 256, NUM_DISCLOSURE_OPTIONS: 6, MAXOCLASSES: 18,
+};
 
 // js/music.js holds the hero's jingle as the byte values of its five notes
 // and terminator, which it compares and renders one at a time.
 const BYTE_ARRAYS = new Set(['context_info.jingle']);
 
+// js/options.js holds flags.inv_order and flags.pickup_types as the object
+// class numbers before C's terminating NUL, so their zero, an empty C string,
+// is an empty list.
+const BYTE_LISTS = new Set(['flag.inv_order', 'flag.pickup_types']);
+
+// js/options.js and js/end.js hold flags.end_disclose as one option letter
+// per disclosure category, without C's terminating NUL, so its zero is that
+// many empty strings.
+const CHAR_ARRAYS = new Set(['flag.end_disclose']);
+
 // js/tty_message.js and js/options.js hold the msg_window style as the
-// option letter ('s', 'f', 'c', 'r'), so its zero is the empty string.
-const CHAR_TEXT = new Set(['instance_flags.prevmsg_window']);
+// option letter ('s', 'f', 'c', 'r'), and js/options.js, js/invent.js and
+// js/o_init.js hold flags.sortloot and flags.discosort as the option letter,
+// so their zero is the empty string.
+const CHAR_TEXT = new Set([
+    'instance_flags.prevmsg_window', 'flag.sortloot', 'flag.discosort',
+]);
 
 const INTEGER_TYPES = new Set([
     'int', 'unsigned', 'unsigned int', 'long', 'unsigned long', 'short',
@@ -102,8 +124,7 @@ export const TARGETS = [
     {
         output: 'js/context.js',
         headers: ['context.h', 'coord.h', 'dungeon.h'],
-        root: 'context_info',
-        table: 'CONTEXT_STRUCTS',
+        roots: [{ root: 'context_info', table: 'CONTEXT_STRUCTS' }],
         source: 'include/context.h, coord.h and dungeon.h',
         about: [
             'C zero-initializes svc.context. Each zero_<struct>() returns a new',
@@ -114,21 +135,23 @@ export const TARGETS = [
     {
         output: 'js/flag.js',
         headers: ['flag.h', 'coord.h', 'color.h'],
-        root: 'instance_flags',
-        table: 'INSTANCE_FLAGS_STRUCTS',
+        roots: [
+            { root: 'instance_flags', table: 'INSTANCE_FLAGS_STRUCTS' },
+            { root: 'flag', table: 'FLAG_STRUCTS' },
+        ],
         source: 'include/flag.h, coord.h and color.h',
         about: [
-            'C zero-initializes iflags. Each zero_<struct>() returns a new object',
-            'holding every member of that struct at C\'s zero value; js/gstate.js',
-            'creates state.iflags from zero_instance_flags() at process start,',
-            'and js/options.js starts the options it parses from it.',
+            'C zero-initializes iflags and flags. Each zero_<struct>() returns a',
+            'new object holding every member of that struct at C\'s zero value;',
+            'js/gstate.js creates state.iflags from zero_instance_flags() and',
+            'state.flags from zero_flag() at process start, and js/options.js',
+            'starts the options it parses from both.',
         ],
     },
     {
         output: 'js/program_state.js',
         headers: ['hack.h'],
-        root: 'sinfo',
-        table: 'SINFO_STRUCTS',
+        roots: [{ root: 'sinfo', table: 'SINFO_STRUCTS' }],
         source: 'include/hack.h',
         about: [
             'C zero-initializes program_state (struct sinfo). zero_sinfo()',
@@ -340,6 +363,8 @@ function zeroValue(structName, field, structs) {
     if (field.length !== null) {
         if (nested)
             return `Array.from({ length: ${field.length} }, () => zero_${nested}())`;
+        if (BYTE_LISTS.has(qualified)) return '[]';
+        if (CHAR_ARRAYS.has(qualified)) return `Array(${field.length - 1}).fill('')`;
         if (field.ctype === 'char' && !BYTE_ARRAYS.has(qualified)) return "''";
         return `Array(${field.length}).fill(0)`;
     }
@@ -386,22 +411,32 @@ function cType(field) {
     return `${field.ctype}${pointer}${array}`;
 }
 
+// One zero_<struct>() for every struct the target's roots reach, each once,
+// and one table per root of the structs that root reaches.
 export function renderTarget(target, sources) {
-    const { structs, ordered } = collectStructs(sources, target.root);
-    const functions = ordered.map((name) => {
-        const rows = structs.get(name).map((field) => (
-            `        ${field.name}: ${zeroValue(name, field, structs)}, // ${cType(field)}`
-        ));
-        return `export function zero_${name}() {\n    return {\n${rows.join('\n')}\n    };\n}\n`;
-    });
-    const table = ordered.map((name) => {
-        const rows = structs.get(name).map((field) => {
-            const nested = embeddedStruct(field, structs);
-            return `        [${JSON.stringify(field.name)}, ${JSON.stringify(cType(field))}`
-                + `${nested ? `, ${JSON.stringify(nested)}` : ''}],`;
+    const emitted = new Set();
+    const functions = [];
+    const tables = [];
+    for (const { root, table } of target.roots) {
+        const { structs, ordered } = collectStructs(sources, root);
+        for (const name of ordered) {
+            if (emitted.has(name)) continue;
+            emitted.add(name);
+            const rows = structs.get(name).map((field) => (
+                `        ${field.name}: ${zeroValue(name, field, structs)}, // ${cType(field)}`
+            ));
+            functions.push(`export function zero_${name}() {\n    return {\n${rows.join('\n')}\n    };\n}\n`);
+        }
+        const entries = ordered.map((name) => {
+            const rows = structs.get(name).map((field) => {
+                const nested = embeddedStruct(field, structs);
+                return `        [${JSON.stringify(field.name)}, ${JSON.stringify(cType(field))}`
+                    + `${nested ? `, ${JSON.stringify(nested)}` : ''}],`;
+            });
+            return `    ${name}: [\n${rows.join('\n')}\n    ],`;
         });
-        return `    ${name}: [\n${rows.join('\n')}\n    ],`;
-    });
+        tables.push(`export const ${table} = {\n${entries.join('\n')}\n};\n`);
+    }
     return '// Generated by scripts/generate-zero-structs.mjs; do not edit.\n'
         + `// Source: NetHack 5.0 ${target.source} at\n`
         + `// ${PINNED_REVISION}.\n`
@@ -411,7 +446,7 @@ export function renderTarget(target, sources) {
         + functions.join('\n')
         + '\n// Each struct\'s fields in declaration order: [name, C type] and, for\n'
         + '// an embedded struct, the name of its struct.\n'
-        + `export const ${target.table} = {\n${table.join('\n')}\n};\n`;
+        + tables.join('\n');
 }
 
 export function readHeaders(target) {

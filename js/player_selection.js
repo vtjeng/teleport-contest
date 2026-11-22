@@ -26,7 +26,6 @@ import {
     validrole,
 } from './roles.js';
 import {
-    normalizeCharacterFlags,
     ok_align,
     ok_gend,
     ok_race,
@@ -456,7 +455,7 @@ function initialResponse(response) {
  * answer_initial_player_selection(); do not call this initializer twice.
  */
 export function prepare_player_selection(state, random = rn2) {
-    const flags = normalizeCharacterFlags(state);
+    const flags = state.flags;
     const picksomething = [
         flags.initrole, flags.initrace, flags.initgend, flags.initalign,
     ].includes(ROLE_NONE);
@@ -530,7 +529,7 @@ export function continue_player_selection(
     if (context.status !== 'menu')
         throw new Error('player-selection choice needs menu state');
 
-    const flags = normalizeCharacterFlags(state);
+    const flags = state.flags;
     const aspect = context.aspect;
     const currentField = aspectField(aspect);
     const kind = choice?.kind;

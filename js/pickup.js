@@ -687,7 +687,7 @@ export async function query_objlist(
         // pickup.c:1091-1095 add_menu_str(): an ATR_NONE, NO_COLOR text row.
         items.push({ text: state.gt.this_title });
     }
-    const packOrder = [...(state.flags.inv_order ?? [])];
+    const packOrder = [...state.flags.inv_order];
     if (qflags & INCLUDE_VENOM) packOrder.push(VENOM_CLASS);
     const menuOrder = sorted ? packOrder : [null];
     let first = true;
@@ -786,7 +786,7 @@ export async function query_objlist(
 // inv_order; WORN_TYPES counts only armor, accessories and weapon slots.
 export function count_categories(olist, qflags, state = game) {
     let count = 0;
-    for (const objectClass of state.flags?.inv_order ?? []) {
+    for (const objectClass of state.flags.inv_order) {
         for (let obj = olist; obj; obj = FOLLOW(obj, qflags)) {
             if (obj.oclass !== objectClass) continue;
             if ((qflags & WORN_TYPES)
@@ -857,7 +857,7 @@ export async function query_category(
             label: doWorn ? 'All worn and wielded types' : 'All types', skipinvert: true });
         invlet++;
     }
-    const order = [...(state.flags?.inv_order ?? [])];
+    const order = [...state.flags.inv_order];
     if (qflags & INCLUDE_VENOM) order.push(VENOM_CLASS);
     for (const objectClass of order) {
         for (let obj = olist; obj; obj = FOLLOW(obj, qflags)) {
@@ -1110,7 +1110,7 @@ export function autopick_testobj(otmp, calc_costly, state = game) {
         return false;
     if (otmp.how_lost === LOST_EXPLODING) return false;
 
-    const pickupTypes = state.flags?.pickup_types ?? [];
+    const pickupTypes = state.flags.pickup_types;
     let pickit = !pickupTypes.length || pickupTypes.includes(otmp.oclass);
     const ape = check_autopickup_exceptions(otmp, state);
     if (ape) pickit = Boolean(ape.grab);
@@ -2952,7 +2952,7 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
     } else {
         result = 1;
         const prev_encumbr = Math.max(
-            near_capacity(state), state.flags?.pickup_burden ?? MOD_ENCUMBER);
+            near_capacity(state), state.flags.pickup_burden);
         const next_encumbr = calc_capacity(cc.wt_after - cc.wt_before, state);
         if (next_encumbr > prev_encumbr) {
             if (telekinesis) {

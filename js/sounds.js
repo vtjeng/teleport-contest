@@ -469,7 +469,7 @@ export async function dosounds(
 ) {
     const hero = state.u;
     const flags = state.level?.flags ?? {};
-    if (Deaf(state.u) || state.flags?.acoustics === false
+    if (Deaf(state.u) || !state.flags.acoustics
         || hero?.uswallow || hero?.uinwater) {
         return;
     }

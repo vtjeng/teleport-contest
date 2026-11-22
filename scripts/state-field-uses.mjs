@@ -19,7 +19,8 @@
 // whose every return is a holder path (`function victual(state) { ...
 // return state.context.victual; }`). It does not follow a struct passed as
 // an argument into a function in another file; those uses are classed
-// `flow-argument` for a reader to follow.
+// `flow-argument` for a reader to follow. A holder name that other structs
+// share, such as `flags`, counts only on the bases HOLDER_BASES lists.
 //
 // Classes of a use, by the expression that consumes the field's value:
 //   write                    plain assignment
@@ -69,6 +70,16 @@ const FUNCTION_TYPES = new Set([
 // The expressions destructuring may take a holder from: `const { context }
 // = state`.
 const STATE_NAMES = /^(?:state|game|g|env\.state|liveState|normalized\.state)$/u;
+
+// Holders whose name other structs share, with the expressions the holder is
+// read from. js/ names C's struct flag `flags` on the game state, on the
+// options parser's result (`result` in js/options.js, `opts` and `options`
+// where it is passed on) and on a save snapshot, while the level's
+// svl.level.flags, a location's rm.flags, a light source's flags and others
+// are different structs.
+const HOLDER_BASES = {
+    flags: /^(?:state|game|g|env\.state|liveState|normalized\.state|result|opts|options|snapshot)$/u,
+};
 
 const isNode = (value) => value && typeof value.type === 'string';
 
@@ -133,9 +144,11 @@ export function scanSource(file, source, holder = 'context') {
     link(ast, null, null, all);
     const text = (node) => source.slice(node.start, node.end);
 
+    const bases = HOLDER_BASES[holder];
     const roots = new Set(all.filter((node) => node.type === 'MemberExpression'
         && !node.computed && node.property.type === 'Identifier'
-        && node.property.name === holder));
+        && node.property.name === holder
+        && (!bases || bases.test(text(node.object)))));
     const aliases = new Map(); // name -> [{ scope, path, node, destructured }]
     const aliasNodes = new Map();
     const returning = new Map(); // function name -> path

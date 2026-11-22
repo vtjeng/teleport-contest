@@ -618,8 +618,8 @@ function loot_classify(sort_item, obj, state = game) {
     const discovered = Boolean(objects[otyp].oc_name_known);
     if (!Blind(state.u)) observe_object(obj, state);
     const seen = Boolean(obj.dknown);
-    const classorder = state.flags?.sortpack
-        ? (state.flags.inv_order ?? DEF_SRT_ORDER)
+    const classorder = state.flags.sortpack
+        ? state.flags.inv_order
         : DEF_SRT_ORDER;
     let p = -1;
     for (let i = 0; i < classorder.length; ++i) {
@@ -732,10 +732,13 @@ function loot_xname(obj, state = game) {
     if (obj.globby) obj.owt = 20;
     if (saveOname && !obj.oartifact && obj.oextra)
         obj.oextra.oname = null;
+    // C's wizard is flags.debug, which the port also holds as state.wizard,
+    // so both copies go off for cxname_singular() and come back together.
     if (state.wizard) {
         state.program_state ??= {};
         state.program_state.something_worth_saving = 0;
         state.flags.debug = false;
+        state.wizard = false;
     }
 
     let result;
@@ -744,6 +747,7 @@ function loot_xname(obj, state = game) {
     } finally {
         if (saveDebug) {
             state.flags.debug = true;
+            state.wizard = true;
             state.program_state ??= {};
             state.program_state.something_worth_saving = 1;
         }
@@ -2066,7 +2070,7 @@ export async function display_pickinv(
         // private venom_inv class so wizard-created venom remains displayable
         // without becoming a normal inventory-class choice.
         const classes = [
-            ...(state.flags.inv_order ?? []), VENOM_CLASS,
+            ...state.flags.inv_order, VENOM_CLASS,
         ];
         const classPasses = state.flags.sortpack ? classes : [null];
         for (const oclass of classPasses) {
@@ -4424,7 +4428,7 @@ function projectAddinv(obj, projectedEnv) {
             target = current;
         } else {
             assigninvlet(obj, state);
-            const fixedLetters = state.flags?.invlet_constant ?? true;
+            const fixedLetters = state.flags.invlet_constant;
             if (fixedLetters || !previous) {
                 obj.nobj = inventoryHead(state);
                 setInventoryHead(state, obj);
@@ -4439,7 +4443,7 @@ function projectAddinv(obj, projectedEnv) {
 
     if (target !== obj) projectMerge(target, obj);
     target.pickup_prev = true;
-    if (!(state.flags?.invlet_constant ?? true)) {
+    if (!state.flags.invlet_constant) {
         target.invlet = NOINVSYM;
         reassign(state);
     }
@@ -4465,7 +4469,7 @@ export function preflight_addinv_sequence(objects, env = {}, options = {}) {
     const projectedState = {
         ...normalized.state,
         ...projectionNoticeFields(),
-        flags: { ...(normalized.state.flags ?? {}) },
+        flags: { ...normalized.state.flags },
         invent: projectedHead,
         lastinvnr: normalized.state.lastinvnr,
     };
@@ -4535,7 +4539,7 @@ function beginAddinv(obj, env, prepared) {
 
 function insertInventoryObject(obj, previous, state) {
     assigninvlet(obj, state);
-    const fixedLetters = state.flags?.invlet_constant ?? true;
+    const fixedLetters = state.flags.invlet_constant;
     if (fixedLetters || !previous) {
         obj.nobj = inventoryHead(state);
         setInventoryHead(state, obj);
@@ -4764,7 +4768,7 @@ export function reassign(state = game) {
 // C ref: invent.c obj_to_let() (2857-2868).  Answers the object's inventory
 // letter after applying !fixinv's source relettering pass when needed.
 export function obj_to_let(obj, state = game) {
-    if (!(state.flags?.invlet_constant ?? true)) {
+    if (!state.flags.invlet_constant) {
         obj.invlet = NOINVSYM;
         reassign(state);
     }
@@ -4776,7 +4780,7 @@ export function obj_to_let(obj, state = game) {
 //
 // The price column at 2926-2936 is also used for unpaid or expended items.
 export function xprname(obj, txt, invletter, dot, cost, quan, state = game) {
-    const use_invlet = (state.flags?.invlet_constant ?? true) && obj != null
+    const use_invlet = state.flags.invlet_constant && obj != null
         && invletter !== CONTAINED_SYM && invletter !== HANDS_SYM;
     let savequan = 0;
     let letter = invletter;
@@ -5823,7 +5827,7 @@ export async function display_minventory(
         );
         const items = [];
         let first = true;
-        const packOrder = [...(state.flags?.inv_order ?? [])];
+        const packOrder = [...state.flags.inv_order];
         for (const packClass of packOrder) {
             let printedHeading = false;
             for (const entry of sorted) {

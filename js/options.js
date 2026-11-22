@@ -103,6 +103,7 @@ import {
     STONE,
     SYM_BOULDER,
     UNENCUMBERED,
+    VANQ_MLVL_MNDX,
     VIA_DIALOG,
     VIA_PROMPTS,
     WARNCOUNT,
@@ -285,7 +286,7 @@ import { displayTtyTextWindow } from './tty_menu.js';
 import { note_unported } from './unported.js';
 import { choose_disco_sort } from './o_init.js';
 import { game } from './gstate.js';
-import { zero_instance_flags } from './flag.js';
+import { zero_flag, zero_instance_flags } from './flag.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
 const PLAYER_NAME_BYTE_LIMIT = 31; // PL_NSIZ - 1
@@ -500,41 +501,48 @@ function defaultResult() {
         race: ROLE_NONE,
         gender: ROLE_NONE,
         align: ROLE_NONE,
-        // Every boolean option's startup value comes from allopt[].initval
-        // through applyBooleanOptionDefaults() below, so only the fields
-        // initoptions_init() sets separately appear here.
+        // C zero-initializes flags (decl.c), so every member not written
+        // below starts at js/flag.js's zero. options.c allopt_array_init()
+        // first runs each compound option's do_init arm; initoptions_init()
+        // then sets the boolean options' compiled-in values, through
+        // applyBooleanOptionDefaults() below, and these members, in source
+        // order, before the configuration file is read.
         flags: {
+            ...zero_flag(),
+            // optfn_autounlock()'s do_init arm (options.c:1073-1074).
+            autounlock: AUTOUNLOCK_APPLY_KEY,
+            // optfn_sortdiscoveries()'s do_init arm (options.c:3867-3868).
+            discosort: 'o',
+            // optfn_sortvanquished()'s do_init arm (options.c:3966-3967),
+            // insight.c vanqorders[] index 0, "traditional".
+            vanq_sortmode: VANQ_MLVL_MNDX,
+            // initoptions_init() (options.c:7170-7176).
+            end_own: false,
+            end_top: 3,
+            end_around: 2,
+            paranoia_bits: PARANOID_PRAY | PARANOID_SWIM | PARANOID_TRAP,
+            // Recorder release builds have no git-branch metadata, so
+            // have_branch is FALSE and versinfo is VI_NUMBER.
+            versinfo: 1,
+            // PILE_LIMIT_DFLT.
+            pile_limit: 5,
+            runmode: RUN_LEAP,
+            // options.c:7193-7194: the hero's role, race, gender and
+            // alignment have not been chosen yet.
             initrole: ROLE_NONE,
             initrace: ROLE_NONE,
             initgend: ROLE_NONE,
             initalign: ROLE_NONE,
-            debug: false,
-            explore: false,
-            // options.c initoptions_init(): PILE_LIMIT_DFLT.
-            pile_limit: 5,
-            // options.c initoptions_init() sets sortloot to 'l', which sorts
-            // loot but not inventory; display_pickinv() compares against 'f'.
-            sortloot: 'l',
-            // options.c def_inv_order[], the class order the inventory menu
-            // walks. The trailing 0 terminates the list in C, so the array
-            // holds only its class bytes. change_inv_order() below is the one
-            // startup path that rewrites it.
+            // options.c:7204-7205 copies def_inv_order[], the class order
+            // the inventory menu walks. The trailing 0 terminates the list in
+            // C, so the array holds only its class bytes. change_inv_order()
+            // below is the one startup path that rewrites it.
             inv_order: [
                 COIN_CLASS, AMULET_CLASS, WEAPON_CLASS, ARMOR_CLASS,
                 FOOD_CLASS, SCROLL_CLASS, SPBOOK_CLASS, POTION_CLASS,
                 RING_CLASS, WAND_CLASS, TOOL_CLASS, GEM_CLASS, ROCK_CLASS,
                 BALL_CLASS, CHAIN_CLASS,
             ],
-            // options.c initoptions_init() sets flags.runmode = RUN_LEAP.
-            runmode: RUN_LEAP,
-            // Recorder release builds have no git-branch metadata, so
-            // options.c defaults versinfo to VI_NUMBER.
-            versinfo: 1,
-            // The remaining initoptions_init() assignments, in source order.
-            end_own: false,
-            end_top: 3,
-            end_around: 2,
-            paranoia_bits: PARANOID_PRAY | PARANOID_SWIM | PARANOID_TRAP,
             // C's char array of object-class indices, empty for "all". Its
             // bytes are class numbers rather than class symbols, which is why
             // oc_to_str() maps them through def_oc_syms[]. Spelled as an
@@ -542,21 +550,14 @@ function defaultResult() {
             // optfn_pickup_types()'s do_set arm is what rewrites it.
             pickup_types: [],
             pickup_burden: MOD_ENCUMBER,
+            // 'l' sorts loot but not inventory; display_pickinv() compares
+            // against 'f'.
+            sortloot: 'l',
             end_disclose: Array(NUM_DISCLOSURE_OPTIONS).fill(
                 DISCLOSE_PROMPT_DEFAULT_NO,
             ),
+            // options.c:7258.
             menu_style: MENU_FULL,
-            // optfn_autounlock()'s do_init arm, which allopt_array_init()
-            // runs for every option before the configuration file is read.
-            autounlock: AUTOUNLOCK_APPLY_KEY,
-            // o_init.c get_sortdisco() rewrites any unrecognized value to 'o',
-            // which is also what a zeroed flags struct resolves to.
-            discosort: 'o',
-            // insight.c vanqorders[] index 0, "traditional".
-            vanq_sortmode: 0,
-            // A version number packed by feature_alert_opts(); zero means no
-            // alert is suppressed.
-            suppress_alert: 0,
         },
         // C zero-initializes iflags (decl.c), so every member not written
         // below starts at js/flag.js's zero; options.c initoptions_init()

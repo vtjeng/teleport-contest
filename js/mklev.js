@@ -423,7 +423,7 @@ function shuffle_core_values(values, random) {
 async function getbones() {
     const state = game;
     if (state.discover) return false;
-    if (state.flags.bones === false) return false;
+    if (!state.flags.bones) return false;
     // C: rn2(3) -- only once in three times do we find bones
     if (rn2(3) && !state.wizard) return false;
 

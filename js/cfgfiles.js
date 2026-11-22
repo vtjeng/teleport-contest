@@ -78,7 +78,7 @@ export async function do_write_config_file(state = game, env = {}) {
         return ECMD_OK;
     }
 
-    if (Number(state.flags?.suppress_alert ?? 0)
+    if (Number(state.flags.suppress_alert)
         < FEATURE_NOTICE_3_7_0) {
         await message('Warning: saveoptions is highly experimental!', state);
         await wait(state);

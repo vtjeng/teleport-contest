@@ -820,6 +820,7 @@ test('the silent boolean retreats fire whatever the statement carries', () => {
     assert.equal(noStorage.length, 6);
     assert.equal(wizNoFuz.length, 3);
 
+    const startupFlags = parseNethackrc('').flags;
     for (const row of [...noStorage, ...wizNoFuz]) {
         const spellings = [
             `OPTIONS=${row.name}`,
@@ -834,8 +835,11 @@ test('the silent boolean retreats fire whatever the statement carries', () => {
         for (const statement of spellings) {
             const parsed = parseNethackrc(`${statement}\n`);
             assert.deepEqual(parsed.configErrorFrame.output, [], statement);
-            // Nothing reached the dispatch that would have stored a value.
-            assert.equal(parsed.flags[row.name], undefined, statement);
+            // Nothing reached the dispatch that would have stored a value:
+            // flags keeps the startup values an empty file gives, including
+            // the zero of a member such as showscore whose option this build
+            // compiles out.
+            assert.deepEqual(parsed.flags, startupFlags, statement);
             if (row.addr) {
                 // The three set_wiznofuz rows do have storage, and C leaves it
                 // at the compiled-in default.

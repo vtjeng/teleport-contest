@@ -4660,7 +4660,7 @@ export async function do_break_wand(obj, state = game, rawEnv = {}) {
         'the wand',
         state,
     );
-    const paranoid = Boolean((state.flags?.paranoia_bits ?? 0)
+    const paranoid = Boolean(state.flags.paranoia_bits
         & PARANOID_BREAKWAND);
     if (!await paranoid_query(paranoid, confirmation, state))
         return ECMD_OK;

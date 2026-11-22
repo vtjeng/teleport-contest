@@ -1165,7 +1165,7 @@ function bucWord(obj, type, state, ident) {
     }
     if (obj.cursed) return 'cursed';
     if (obj.blessed) return 'blessed';
-    if (state.flags?.implicit_uncursed === false)
+    if (!state.flags.implicit_uncursed)
         return 'uncursed';
     const needsUncursed = !ident.known
         || !type.oc_charged

@@ -76,13 +76,12 @@ export function get_current_feature_ver() {
     return get_feature_notice_ver(NETHACK_VERSION);
 }
 
-// C ref: version.c status_version().  The canonical recorder is a release
-// build without compiled git-branch metadata, so a branch-only request falls
-// back to the numeric version exactly as the source does.
-export function status_version(flags = {}, indent = false) {
-    const requested = Math.trunc(Number(flags.versinfo ?? VI_NUMBER));
-    const vflags = requested >= 1 && requested <= 7
-        ? requested : VI_NUMBER;
+// C ref: version.c status_version(), given flags (struct flag) for its
+// flags.versinfo.  The canonical recorder is a release build without compiled
+// git-branch metadata, so VI_BRANCH shows nothing and a request with neither
+// the name nor the number falls back to the number (version.c:128-132).
+export function status_version(flags, indent = false) {
+    const vflags = flags.versinfo;
     const parts = [];
     if (vflags & VI_NAME) parts.push('nethack');
     if ((vflags & VI_NUMBER) || parts.length === 0) {

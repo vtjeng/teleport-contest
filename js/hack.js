@@ -3467,7 +3467,7 @@ export async function avoid_running_into_trap_or_liquid(
 
 // C ref: hack.c avoid_trap_andor_region() (2515-2581).
 export async function avoid_trap_andor_region(x, y, state = game) {
-    const paranoia = Math.trunc(state.flags?.paranoia_bits ?? 0);
+    const paranoia = Math.trunc(state.flags.paranoia_bits);
     const paranoidTrap = Boolean(paranoia & PARANOID_TRAP);
     const impaired = Boolean(Stunned(state.u))
         || Boolean(Confusion(state.u));

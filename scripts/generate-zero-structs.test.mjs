@@ -4,6 +4,7 @@
 // the members the recorder's configuration decides.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -11,7 +12,8 @@ import {
     collectStructs,
     preprocessBody,
 } from './generate-zero-structs.mjs';
-import { zero_instance_flags } from '../js/flag.js';
+import { FLAG_STRUCTS, zero_flag, zero_instance_flags } from '../js/flag.js';
+import { MAXOCLASSES } from '../js/objects.js';
 import { zero_sinfo } from '../js/program_state.js';
 
 const names = (sources, root, macros) => collectStructs(sources, root, macros)
@@ -99,4 +101,34 @@ test('the recorder configuration decides the conditional members', () => {
         assert.equal(program_state[present], 0, present);
     // struct sinfo has 30 members in this build (hack.h:776-819).
     assert.equal(Object.keys(program_state).length, 30);
+});
+
+test('struct flag holds its char arrays as the port does', () => {
+    // struct flag has no preprocessor conditional, so its 85 members
+    // (flag.h:18-168; `clang -E` of hack.h gives 84 declarations, one of
+    // them `int end_top, end_around`) need no macro from the recorder
+    // configuration.
+    const flags = zero_flag();
+    assert.equal(Object.keys(flags).length, 85);
+    assert.deepEqual(Object.keys(flags), FLAG_STRUCTS.flag.map(([name]) => name));
+    // The class lists are held without C's terminating NUL, so the zero, an
+    // empty C string, is an empty list; their C size is MAXOCLASSES, which
+    // js/objects.js also holds.
+    assert.deepEqual(flags.inv_order, []);
+    assert.deepEqual(flags.pickup_types, []);
+    assert.deepEqual(FLAG_STRUCTS.flag.find(([name]) => name === 'inv_order'),
+        ['inv_order', `char[${MAXOCLASSES}]`]);
+    // end_disclose[NUM_DISCLOSURE_OPTIONS + 1] holds one option letter per
+    // category before its NUL; flag.h:109 defines NUM_DISCLOSURE_OPTIONS.
+    const header = readFileSync(new URL('../nethack-c/upstream/include/flag.h',
+        import.meta.url), 'utf8');
+    assert.match(header, /^#define NUM_DISCLOSURE_OPTIONS 6\b/mu);
+    assert.deepEqual(flags.end_disclose, ['', '', '', '', '', '']);
+    // The scalar chars the port holds as option letters zero to ''; the
+    // menu style, a MENU_* number, to 0.
+    assert.equal(flags.sortloot, '');
+    assert.equal(flags.discosort, '');
+    assert.equal(flags.menu_style, 0);
+    // Each call builds new arrays.
+    assert.notEqual(zero_flag().inv_order, flags.inv_order);
 });
