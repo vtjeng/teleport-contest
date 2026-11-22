@@ -1,6 +1,8 @@
 // gstate.js — Global game state reference.
 // All game modules import `game` from here.
 
+import { zero_sinfo } from './program_state.js';
+
 // C decl.c:417 initializes gi.item_action_in_progress to FALSE for a new game.
 function initialGameState() {
     return {
@@ -36,6 +38,14 @@ function initialGameState() {
         rect_cnt: 0,
         nhrect: null,
         gb: initialGb(),
+        // C zero-initializes program_state (hack.h struct sinfo, decl.c) once
+        // per process and never saves it, so every member reads as 0 until
+        // the code that owns it writes it, and each segment, restored or
+        // not, starts from zero. js/program_state.js is generated from
+        // hack.h; scripts/program-state.test.mjs fails when js/ replaces the
+        // object, tests whether a member exists, defaults a missing one to
+        // something other than 0, or names a member hack.h does not declare.
+        program_state: zero_sinfo(),
     };
 }
 

@@ -238,8 +238,8 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'date.c free_nomakedefs': noEffect(MEMORY),
 
     // decl.c
-    'decl.c program_state_init': ported('js/jsmain.js _startGame',
-        'g.program_state = {} for each game stands for the zero init_program_state'),
+    'decl.c program_state_init': ported('js/gstate.js resetGame',
+        'initialGameState() creates program_state from the generated zero_sinfo()'),
     'decl.c decl_globals_init': ported('js/gstate.js resetGame',
         'initialGameState() and _startGame() build each game\'s globals from decl.c\'s '
         + 'initial values'),

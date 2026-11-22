@@ -168,7 +168,7 @@ test('a live segment that runs out of input takes no final capture and retains s
     const result = await runSegment({ ...recording.segments[0], moves: '.#r' });
     assert.equal(result.getInputExhausted(), true);
     assert.equal(isTerminated(), false);
-    assert.equal(game.program_state?.gameover, undefined);
+    assert.equal(game.program_state.gameover, 0);
     assert.equal(result.getRngSlices().length, 4);
     assert.ok((game.gb?.status_hilite_rule ?? []).length > 0,
         'status_finish() did not run');

@@ -458,7 +458,9 @@ test('explore notice preserves the welcome boundary before preamble RNG', async 
     // seer_turn to rnd(30), both at least 1, over their zero values.
     assert.equal(game.context.rndencode, 0);
     assert.equal(game.context.seer_turn, 0);
-    assert.equal(game.program_state.in_moveloop, undefined);
+    // moveloop() sets in_moveloop (allmain.c), so it holds the zero of
+    // allmain.c early_init()'s program_state_init().
+    assert.equal(game.program_state.in_moveloop, 0);
 
     const continued = await runSegment({ ...input, moves: ' ' });
     assert.equal(continued.getScreens().length, 2);
@@ -528,7 +530,7 @@ test('initial three-line redraw detects an armor-only optional change', async ()
         moves: '',
     });
 
-    assert.equal(game.program_state.in_moveloop, undefined);
+    assert.equal(game.program_state.in_moveloop, 0);
     assert.equal(grids.length, 1);
     assert.equal(rowText(grids[0], 1), 'male human Monk.--More--');
     assert.equal(

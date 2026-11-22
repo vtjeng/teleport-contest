@@ -13,6 +13,7 @@ import {
     WIN_ERR,
 } from '../js/const.js';
 import { resetGame } from '../js/gstate.js';
+import { zero_sinfo } from '../js/program_state.js';
 import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { status_initialize } from '../js/display.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -399,6 +400,7 @@ test('bail ends in nh_terminate', async () => {
     // clearlocks() deletes host lock files only; nothing is recorded.
     assert.deepEqual([...state.unported], []);
     assert.deepEqual(state.program_state, {
+        ...zero_sinfo(),
         in_moveloop: 0,
         exiting: 1,
         gameover: true,

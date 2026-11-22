@@ -1273,7 +1273,7 @@ test('wizard recovery from fatal gas continues the elapsed-turn tail',
         assert.equal(game.killer.name, '', 'recovery clears the killer');
         assert.equal(game.u.ublesscnt, 4,
             'the elapsed tail runs after recovered region damage');
-        assert.equal(game.program_state.gameover ?? false, false);
+        assert.equal(game.program_state.gameover, 0);
     });
 
 test('fatal polymorph gas rehumanizes and completes the live turn',
@@ -1345,7 +1345,7 @@ test('fatal polymorph gas rehumanizes and completes the live turn',
             'live losehp runs actual rehumanize');
         assert.equal(game.u.mtimedone, 0, 'polyman clears the old form timeout');
         assert.ok(game.u.uhp > 0, 'the human form survives');
-        assert.equal(game.program_state.gameover ?? false, false);
+        assert.equal(game.program_state.gameover, 0);
         assert.equal(game.moves, movesBefore + 2, 'both allocations complete');
         assert.equal(region.ttl, 3, 'the live region runs per allocation');
         assert.equal(game.u.ublesscnt, 3,

@@ -1545,6 +1545,11 @@ export const POLY_LOW_CTRL = 0x08;
 export const REST_GSTATE = 1;
 export const REST_LEVELS = 2;
 export const REST_CURRENT_LEVEL = 3;
+// hack.h enum InputState, the values of program_state.input_state.
+export const otherInp = 0;
+export const commandInp = 1;
+export const getposInp = 2;
+export const getdirInp = 3;
 export const VANQ_MLVL_MNDX = 0;
 export const VANQ_MSTR_MNDX = (VANQ_MLVL_MNDX + 1);
 export const VANQ_ALPHA_SEP = (VANQ_MSTR_MNDX + 1);

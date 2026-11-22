@@ -35,7 +35,8 @@ test('#quit is wired through doextcmd and its cancellation spends no turn',
             onBoundary: (error) => { boundary = error; },
         });
         assert.equal(boundary, null);
-        assert.equal(game.program_state.gameover, undefined);
+        // done() never ran, so gameover keeps its zero.
+        assert.equal(game.program_state.gameover, 0);
         assert.equal(game.u.umortality, 0);
     });
 

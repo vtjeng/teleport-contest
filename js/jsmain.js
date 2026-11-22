@@ -500,7 +500,6 @@ export class NethackGame {
         // field the header does not declare or replaces a struct with a
         // partial object.
         g.context = zero_context_info();
-        g.program_state = {};
         g.moves = 0;
         g._commandDispatchCount = 0;
         if (this._themeroomSelectionCollector) {

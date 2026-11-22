@@ -14,7 +14,9 @@ import {
     MCMD,
     there_cmd_menu_self,
 } from '../js/cmd.js';
-import { CMDQ_DIR, CQ_CANNED, ROOM } from '../js/const.js';
+import {
+    CMDQ_DIR, CQ_CANNED, ROOM, commandInp,
+} from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
 import { commands_init } from '../js/cmd.js';
@@ -73,7 +75,7 @@ test('get_count clamps to LARGEST_INT and returns the first non-digit', async ()
     resetGame();
     game.nhDisplay = new GameDisplay(null);
     game.iflags = {};
-    game.program_state = { input_state: 'command' };
+    game.program_state.input_state = commandInp;
     game.flags = {};
     for (const key of '99999x') game.nhDisplay.pushKey(key.charCodeAt(0));
     const result = await get_count(null, 0, 32767, null, 0, game);
