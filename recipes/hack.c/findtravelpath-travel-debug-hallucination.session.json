@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "hack.c findtravelpath() 1430-1445 with wizard mode's travel_debug option and a hallucinating hero. Each radius of the search is drawn with tmp_at(DISP_ALL) and erased with tmp_at(DISP_END), whose newsym() of every square draws from the display random stream for the kitten and the objects in view, so the hallucinated glyphs on the next screen depend on those draws. The dwarvish Valkyrie quaffs a wished potion of hallucination, maps the level with ^F and travels to the down stairs.",
+  "segments": [
+    {
+      "seed": 4402817,
+      "datetime": "20310226193400",
+      "nethackrc": "OPTIONS=name:Tripper,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,!autopickup,travel_debug,!tips\n",
+      "moves": " #wizwish\npotion of hallucination\nqe  \u0006_>.    "
+    }
+  ]
+}

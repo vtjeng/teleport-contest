@@ -1611,13 +1611,9 @@ export function warning_of(monster, state = game) {
     );
 }
 
-function warningGlyphInfo(monster, state) {
-    const warningLevel = Hallucination(state.u)
-        ? rn2_on_display_rng(WARNCOUNT - 1, state) + 1
-        : Math.min(
-            Math.trunc((monster.m_lev ?? 0) / 4),
-            WARNCOUNT - 1,
-        );
+// C ref: display.h warning_to_glyph() (553), as the glyph's presentation:
+// the warning symbol and colour of one warning level.
+export function warning_to_glyph(warningLevel, state = game) {
     const glyph = glyphPresentation(
         symbol_at(SYM_OFF_W + warningLevel, state),
         warningGlyphColor(warningLevel, state),
@@ -1625,6 +1621,17 @@ function warningGlyphInfo(monster, state) {
         numeric_glyph_customization(warningLevel + GLYPH_WARNING_OFF, state),
     );
     withLogicalGlyph(glyph, warningLevel + GLYPH_WARNING_OFF);
+    return glyph;
+}
+
+function warningGlyphInfo(monster, state) {
+    const warningLevel = Hallucination(state.u)
+        ? rn2_on_display_rng(WARNCOUNT - 1, state) + 1
+        : Math.min(
+            Math.trunc((monster.m_lev ?? 0) / 4),
+            WARNCOUNT - 1,
+        );
+    const glyph = warning_to_glyph(warningLevel, state);
     if (!state.a11y?.glyph_updates) return glyph;
     return withAccessibilityMetadata(
         glyph,
