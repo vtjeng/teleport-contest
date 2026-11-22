@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c eval_notify_windowport_field() (1590): with no change and an empty val, it does not ask get_hilite(). An unhungry, unencumbered dwarf Archeologist's hunger and carrying-capacity vals are empty (bot_via_windowport() 1101-1110), so their inverse 'always' rules draw nothing on the first status lines and on the searches after them. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 1201,
+      "datetime": "20310203191144",
+      "nethackrc": "OPTIONS=name:Hadley,role:Archeologist,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,color,time\nOPTIONS=statushilites:3\nOPTIONS=hilite_status:hunger/always/inverse\nOPTIONS=hilite_status:carrying-capacity/always/inverse\n",
+      "moves": "ssss"
+    }
+  ]
+}

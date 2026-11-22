@@ -6471,9 +6471,10 @@ function _statusFieldData(field, valueSnapshot = null) {
         // tests for emptiness; the %-30s padding changes neither result.
         // matchText is get_hilite()'s txtstr (2536-2538), which skips the
         // complete svp.plname byte length even when bot_via_windowport()
-        // cut the name to BOTL_NSIZ characters, so a long name leaves it
-        // empty. The title has one internal cell per source byte, so
-        // multibyte names follow strlen(), not JavaScript code-unit indexing.
+        // cut the name to fit 30 bytes, keeping at least BOTL_NSIZ (995-998),
+        // so a long name leaves it empty or, in C, past the title's end. The
+        // title has one internal cell per source byte, so multibyte names
+        // follow strlen(), not JavaScript code-unit indexing.
         return {
             text: title,
             matchText: title.slice(
@@ -7112,12 +7113,10 @@ export function status_eval_next_unhilite(state = game) {
     }
 }
 
-// C ref: botl.c get_hilite() (2364-2589). It returns no rule only when the
-// field has none; an empty text value still matches 'always', 'changed' and
-// the other rules. The title's text is empty once strlen(svp.plname) + 5
-// reaches the length of "<Name> the <rank>", because bot_via_windowport()
-// cuts a long name to BOTL_NSIZ characters while get_hilite() skips the full
-// plname length.
+// C ref: botl.c get_hilite() (2364-2589). Its caller decides whether to ask
+// (botl.c 1590; see _collectStatusHilites()). Given rules, an empty match
+// text, such as a long name's title txtstr, still matches every rule but a
+// text rule.
 function _selectStatusHilite(field, data, change = 0, state = game) {
     const rules = (state.iflags?.status_hilites ?? []).filter(
         (rule) => rule.field === field,
