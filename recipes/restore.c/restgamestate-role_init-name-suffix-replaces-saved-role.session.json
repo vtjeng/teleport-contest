@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66203,
+      "datetime": "20170903101000",
+      "nethackrc": "OPTIONS=role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "games\rnethacker\r\u001b\u001bSy"
+    },
+    {
+      "seed": 66204,
+      "datetime": "20170904101000",
+      "nethackrc": "OPTIONS=!selectsaved\nOPTIONS=role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "games\rUma-Sam-Fem\r\u001b\u001b\u0018\u001bi\u001b"
+    }
+  ],
+  "comment": "restore.c restgamestate():596 role_init() with a role suffix typed at its prompt. Segment 0 saves a Tourist renamed \"nethacker\" in the file named for \"games\". Segment 1, with !selectsaved, restores it by typing \"games\"; role_init()'s plnamesuffix() finds the saved name generic and asks again, and the suffix of \"Uma-Sam-Fem\" replaces the saved flags.initrole and flags.initgend before role_init() sets gu.urole from flags.initrole (role.c:2000-2010). gu.urole is not in the save file, so the restored hero keeps the Tourist's body and inventory under the Samurai's role; flags.female keeps the saved sex, and dorecover():893 restores the saved name."
+}

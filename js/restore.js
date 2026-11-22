@@ -383,8 +383,11 @@ export async function dorestore(state = game) {
     state.context = snapshot.context;
     state.plname = snapshot.plname;
     state.pl_character = snapshot.pl_character;
-    state.urole = snapshot.urole;
-    state.urace = snapshot.urace;
+    // gu.urole and gu.urace are not in the save file: role_init() above set
+    // them from the saved flags.initrole and flags.initrace (role.c
+    // 2000-2010, 2071-2075), or from the "-role-race" suffix of a name its
+    // plnamesuffix() asked for. The snapshot's copies only feed js/files.js
+    // plname_from_file().
 
     // C ref: dungeon.c restore_dungeon():222 reads svd.dungeon_topology
     // whole; dorecover() does not rerun fixup_level_locations(), whose x-
