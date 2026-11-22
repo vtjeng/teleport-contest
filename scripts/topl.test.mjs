@@ -463,7 +463,10 @@ test('docorner skips an unexplored buffer glyph even when map memory is known',
         };
         docorner(1, 2, 0, state);
         assert.equal(painted.length, 1);
-        assert.equal(painted[0][0], ' ');
+        // row_refresh() passes Glyphinfo_at() (display.c:2183), the glyphinfo
+        // gg.gbuf holds, so the cell gets the character show_glyph() stored
+        // for the unexplored glyph, not a fresh mapping of it.
+        assert.equal(painted[0][0], '#');
         assert.match(TOPL_C,
             /case '\\n':\s*cl_end\(\);\s*ttyDisplay->curx = 0;\s*ttyDisplay->cury\+\+/u);
         assert.match(DISPLAY_C,

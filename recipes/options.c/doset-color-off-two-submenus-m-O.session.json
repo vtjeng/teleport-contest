@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "options.c doset() via m O: 'color' off, then the menustyle and number_pad sub-menus. Each docorner() repaints only the columns its sub-menu covered, so the room's left part keeps its colours until reset_needed_visuals().",
+  "segments": [
+    {
+      "seed": 12007,
+      "datetime": "20250217101112",
+      "nethackrc": "OPTIONS=name:Ilse,role:Healer,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "mO>l>>>>gi\r \u001b \u001bi\u001b"
+    }
+  ]
+}

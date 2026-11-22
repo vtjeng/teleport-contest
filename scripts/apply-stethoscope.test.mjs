@@ -65,6 +65,7 @@ import {
     remembered_glyph_from_presentation,
     show_glyph_cell,
 } from '../js/display.js';
+import { reset_glyphmap } from '../js/display_glyphmap.js';
 import { GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { freehand } from '../js/engrave.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
@@ -2208,6 +2209,9 @@ test('its_dead maps only a blind mismatched corpse glyph', async () => {
     const apple = mksobj_at(APPLE, different.x, different.y, false, false,
         objectGenerationEnv({ state: game }));
     game.iflags.wc_color = false;
+    // display.c reset_glyphmap() is what takes the colours out of the glyph
+    // map; options.c reset_needed_visuals() calls it after a 'color' toggle.
+    reset_glyphmap(game);
     game.a11y ??= {};
     game.a11y.glyph_updates = true;
     const corpseGlyph = obj_to_glyph(hiddenCorpse, game);

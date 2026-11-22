@@ -14,6 +14,7 @@ import { push_front } from './hacklib.js';
 import { cliparound, tty_clear_base_window, tty_putstr_base } from './wintty.js';
 import { rest_regions, rest_saved_level_regions } from './region.js';
 import { installLevel, newsym } from './display.js';
+import { reset_glyphmap } from './display_glyphmap.js';
 import { cansee, does_block, unblock_point } from './vision.js';
 import { mon_catchup_elapsed_time } from './dog.js';
 import { restore_timers } from './timeout.js';
@@ -646,6 +647,8 @@ export async function dorestore(state = game) {
     // arrival.
     if (on_level(state.u.uz, state.rogue_level))
         assign_graphics(ROGUESET, state);
+    // restore.c:907 reset_glyphmap(gm_levelchange).
+    reset_glyphmap(state);
 
     // max_rank_sz computes gm.mrank_sz from the role's rank table.
     _uInitInternals.max_rank_sz(state);

@@ -29,6 +29,7 @@ export const SCORER_DEC_MAP = {
 };
 
 import { game } from './gstate.js';
+import { glyphmap_use_color } from './display_glyphmap.js';
 import { select_menu, getlin, ttyMenuColorAttribute } from './windows.js';
 import { query_color, query_attr, clr2colorname } from './coloratt.js';
 import { STATUS_FIELDS, STATUS_CONDITIONS, STATUS_CONDITION_ALIASES } from './status_field_data.js';
@@ -851,7 +852,7 @@ export function wall_angle(loc) {
 
 function mapColorEnabled(state) {
     const activeSet = state.gc?.currentgraphics ?? 0;
-    return state.iflags?.wc_color !== false
+    return glyphmap_use_color(state)
         && !state.gs?.symset?.[activeSet]?.nocolor;
 }
 
@@ -877,7 +878,7 @@ function recorderMapColor(color, state) {
  * appears here.
  */
 function cmapBlackAndWhiteFlags(cmap, state) {
-    if (state.iflags?.wc_color !== false) return 0;
+    if (glyphmap_use_color(state)) return 0;
     const symbol = cmap_symbol_byte(cmap, state);
     switch (cmap) {
     case S_lava:
@@ -971,7 +972,10 @@ function glyphPresentation(symbol, color, state, customization = null) {
         Object.defineProperty(result, 'ttychar', { value: symbol.ttychar });
     }
     if (displayCh) result.displayCh = displayCh;
-    if (customization?.rgb && state.iflags?.wc_color !== false) {
+    if (customization?.rgb) {
+        // glyphs.c apply_customizations() stores gm.customcolor whatever
+        // iflags.use_color says; tty_print_glyph() reads the option when it
+        // prints the cell (print_glyph_cell()).
         result.rgb = [...customization.rgb];
         result.displayColor = `rgb(${customization.rgb.join(', ')})`;
         // wintty.c tty_print_glyph() (3893-3913) prints an RGB customcolor
@@ -990,6 +994,14 @@ function glyphPresentation(symbol, color, state, customization = null) {
 function withLogicalGlyph(presentation, glyph) {
     if (!Number.isInteger(glyph)) return presentation;
     Object.defineProperty(presentation, 'glyph', { value: glyph });
+    return presentation;
+}
+
+// C's glyph_info carries gm.glyphflags from glyphmap[] into gg.gbuf, and
+// wintty.c tty_print_glyph() reads them there each time it prints the cell.
+// Non-enumerable for the reason the glyph number is.
+function withGlyphflags(presentation, glyphflags) {
+    Object.defineProperty(presentation, 'glyphflags', { value: glyphflags });
     return presentation;
 }
 
@@ -1051,10 +1063,8 @@ export function hero_glyph_info(state = game) {
     // ordinary monster glyph, so reset_glyphmap()'s GLYPH_MON arm gives it
     // MG_MALE or MG_FEMALE like any other monster -- but from Ugender rather
     // than from a mon->female, because the hero is not a struct monst.
-    const attr = print_glyph_attr(
-        monsterGenderFlag(Ugender(state)), state,
-    );
-    if (attr) glyph.attr = attr;
+    // display.c map_glyphinfo() (2645) adds MG_HERO on the hero's square.
+    withGlyphflags(glyph, monsterGenderFlag(Ugender(state)) | MG_HERO);
     return withLogicalGlyph(
         glyph,
         logicalGlyph,
@@ -1135,11 +1145,10 @@ function actualMonsterGlyphInfo(monster, state) {
     // resolved through reset_glyphmap()'s pet arms (3036-3049) and ordinary
     // monster arms (3050-3065). Pet highlighting is a tty presentation
     // attribute; it does not alter the remembered floor glyph.
-    const attr = print_glyph_attr(
+    withGlyphflags(
+        glyph,
         (monster.mtame ? MG_PET : 0) | monsterGenderFlag(monster.female),
-        state,
     );
-    if (attr) glyph.attr = attr;
     withLogicalGlyph(glyph, logicalGlyph);
     return withMonsterAccessibility(
         glyph,
@@ -1329,12 +1338,11 @@ function presentedMonsterGlyphInfo(
         state,
         numeric_glyph_customization(logicalGlyph, state),
     );
-    const attr = print_glyph_attr(
+    withGlyphflags(
+        glyph,
         (detected ? MG_DETECT : monster.mtame && pet ? MG_PET : 0)
         | monsterGenderFlag(monster.female),
-        state,
     );
-    if (attr) glyph.attr = attr;
     withLogicalGlyph(glyph, logicalGlyph);
     return withMonsterAccessibility(
         glyph,
@@ -1372,10 +1380,7 @@ function riddenMonsterGlyphInfo(monster, state) {
         state,
         numeric_glyph_customization(logicalGlyph, state),
     );
-    const attr = print_glyph_attr(
-        MG_RIDDEN | monsterGenderFlag(monster.female), state,
-    );
-    if (attr) glyph.attr = attr;
+    withGlyphflags(glyph, MG_RIDDEN | monsterGenderFlag(monster.female));
     withLogicalGlyph(
         glyph,
         logicalGlyph,
@@ -1419,8 +1424,7 @@ function mimickedMonsterGlyphInfo(monster, state) {
     // display.c:578-581 passes mgendercode, which :524 read from the
     // *mimicking* monster's mon->female. The species on show is the
     // appearance's; the gender half of the range is not.
-    const attr = print_glyph_attr(monsterGenderFlag(monster.female), state);
-    if (attr) glyph.attr = attr;
+    withGlyphflags(glyph, monsterGenderFlag(monster.female));
     withLogicalGlyph(
         glyph,
         logicalGlyph,
@@ -2185,11 +2189,15 @@ function framed_print_attr(attr, x, y, state = game) {
  * same pet with 'hilite_pet' off falls through to the inverse arm and takes
  * ATR_INVERSE from 'wizmgender'.
  *
- * Every caller supplies reset_glyphmap()'s flags for its glyph family.
- * map_glyphinfo() derives them from the stored glyph; the live monster and
- * hero presentation helpers derive them while selecting that glyph.
+ * The flags are reset_glyphmap()'s for the glyph family, which map_glyphinfo()
+ * and the live monster and hero presentation helpers attach to the record
+ * they return (withGlyphflags()). print_glyph_cell() is the only caller: the
+ * options this reads are C's print-time reads, and a record that carried the
+ * attribute from the moment it was mapped would keep the old answer until
+ * something mapped the glyph again. scripts/print-time-flags.test.mjs fails
+ * when another caller appears.
  */
-function print_glyph_attr(glyphflags, state) {
+export function print_glyph_attr(glyphflags, state) {
     if ((glyphflags & MG_PET) && state.iflags?.wc_hilite_pet)
         return ttyMenuColorAttribute(state.iflags.wc2_petattr);
     if (state.iflags?.wc_inverse === false) return ATR_NONE;
@@ -2201,6 +2209,45 @@ function print_glyph_attr(glyphflags, state) {
         return ATR_INVERSE;
     }
     return ATR_NONE;
+}
+
+/**
+ * C ref: win/tty/wintty.c tty_print_glyph() (3855-3977), the part that turns
+ * one gg.gbuf glyphinfo into a terminal cell. `entry` is that glyphinfo: the
+ * record show_glyph_cell() buffered, with the colour and glyphflags
+ * glyphmap[] gave it when it was mapped. Two things are decided now rather
+ * than then, from the options in force as the cell is printed:
+ *
+ * - colour: `if (iflags.use_color)` (3892) wraps every term_start_color()
+ *   and term_start_extracolor(), so with 'color' off the cell is printed in
+ *   the default colour whatever the entry holds;
+ * - attribute: the chain at 3923-3937 (print_glyph_attr()).
+ *
+ * The cell keeps both until it is printed again. Every print of a map cell
+ * comes through here: display.c flush_screen() for a gnew entry and
+ * row_refresh() under wintty.c docorner(). The frame-colour arm of the chain
+ * depends on the square, so those two apply framed_print_attr() themselves.
+ *
+ * A UTF-8 entry (ch === null) goes through g_pututf8(), which recorder patch
+ * 006 does not mirror: the recorder-facing cell keeps what it held.
+ */
+function print_glyph_cell(loc, entry, state) {
+    const useColor = state.iflags?.wc_color !== false;
+    const color = useColor ? entry.color ?? NO_COLOR : NO_COLOR;
+    const attr = print_glyph_attr(entry.glyphflags ?? 0, state);
+    if (entry.ch !== null) {
+        loc.disp_ch = entry.ch;
+        loc.disp_color = color;
+        loc.disp_decgfx = Boolean(entry.dec);
+        loc.disp_attr = attr;
+    }
+    const displayCh = entry.displayCh ?? null;
+    loc.disp_browser_ch = displayCh;
+    if (useColor)
+        loc.disp_browser_color = entry.displayColor ?? (displayCh ? color : null);
+    else loc.disp_browser_color = displayCh ? NO_COLOR : null;
+    loc.disp_browser_attr = displayCh ? attr : null;
+    return { color, attr };
 }
 
 // C ref: display.h mon_to_glyph() (554-556) and its four siblings, each of
@@ -2462,25 +2509,25 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         // display.c:2843-2862. Explosion glyphs use the same cmap symbol
         // sequence for each color family and choose color from explodecolors.
         cmap = S_expl_tl + offset;
-        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_WHITE;
+        color = glyphmap_use_color(state) ? CLR_WHITE : NO_COLOR;
     } else if ((offset = glyph - GLYPH_EXPLODE_FIERY_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_ORANGE;
+        color = glyphmap_use_color(state) ? CLR_ORANGE : NO_COLOR;
     } else if ((offset = glyph - GLYPH_EXPLODE_MAGICAL_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_MAGENTA;
+        color = glyphmap_use_color(state) ? CLR_MAGENTA : NO_COLOR;
     } else if ((offset = glyph - GLYPH_EXPLODE_WET_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_BLUE;
+        color = glyphmap_use_color(state) ? CLR_BLUE : NO_COLOR;
     } else if ((offset = glyph - GLYPH_EXPLODE_MUDDY_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_BROWN;
+        color = glyphmap_use_color(state) ? CLR_BROWN : NO_COLOR;
     } else if ((offset = glyph - GLYPH_EXPLODE_NOXIOUS_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_GREEN;
+        color = glyphmap_use_color(state) ? CLR_GREEN : NO_COLOR;
     } else if ((offset = glyph - GLYPH_EXPLODE_DARK_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_BLACK;
+        color = glyphmap_use_color(state) ? CLR_BLACK : NO_COLOR;
     } else if ((offset = glyph - GLYPH_SWALLOW_OFF) >= 0) {
         // display.c:2864-2872. The low three bits select one of the eight
         // stomach-wall symbols; the remaining bits select the engulfer's
@@ -2507,7 +2554,7 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         glyphflags = cmapBlackAndWhiteFlags(cmap, state);
         // The has_rogue_color arm is the else of C's !iflags.use_color test;
         // flag.h defines use_color as wc_color.
-        if (rogueColor && state.iflags?.wc_color !== false)
+        if (rogueColor && glyphmap_use_color(state))
             color = cmap_to_roguecolor(cmap, state);
         if (cmap === S_fountain) customizationName = 'G_fountain';
     } else if ((offset = glyph - GLYPH_ALTAR_OFF) >= 0) {
@@ -2582,7 +2629,7 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
     // reset_glyphmap() turns colors off for a rogue level without active
     // Rogue IBM colors, and for the ordinary no-color option. map_glyphinfo()
     // applies its hero color adjustment after this stored-map stage.
-    if (state.iflags?.wc_color === false
+    if (!glyphmap_use_color(state)
         || (isRogueLevelForState(state) && !rogueColor)) color = NO_COLOR;
 
     // Symbol-set S_* Unicode belongs to the glyph before accessibility
@@ -2640,7 +2687,7 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
     // source branch; no coordinate-specific hero override is requested.
     if (options?.rawGlyphmap) return {
         ttychar: symbol.ttychar ?? symbol.ch.charCodeAt(0),
-        color: state.iflags?.wc_color === false ? NO_COLOR : color,
+        color: glyphmap_use_color(state) ? color : NO_COLOR,
         unicode: symbolUnicode,
     };
 
@@ -2657,8 +2704,7 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
     if (heroColor !== null && customization?.basicColor == null
         && !presentation.rgb)
         presentation.color = heroColor;
-    const attr = print_glyph_attr(glyphflags, state);
-    if (attr) presentation.attr = attr;
+    withGlyphflags(presentation, glyphflags);
     // The glyph number itself, which is what C stores in levl[x][y].glyph.
     // Non-enumerable, so that every existing copy of a presentation record --
     // the display buffer, map memory, the browser projection -- keeps the
@@ -3002,14 +3048,16 @@ const NUL_GBUF_PRESENTATION = Object.freeze({
 });
 
 // display.c show_glyph() (2031-2044): the glyph number and every glyphinfo
-// field tty_print_glyph() reads. `rgb` is gm.customcolor's RGB form.
+// field tty_print_glyph() reads. `rgb` is gm.customcolor's RGB form. C
+// compares gm.glyphflags, not the attribute they print as: a pet's cell is
+// not marked gnew because 'hilite_pet' changed.
 function glyphPresentationChanged(prior, next) {
     const priorRgb = prior.rgb?.join(',') ?? null;
     const nextRgb = next.rgb?.join(',') ?? null;
     return prior.glyph !== next.glyph
         || prior.ch !== next.ch
         || (prior.color ?? NO_COLOR) !== next.color
-        || (prior.attr ?? 0) !== next.attr
+        || (prior.glyphflags ?? 0) !== (next.glyphflags ?? 0)
         || Boolean(prior.dec) !== next.dec
         || (prior.displayCh ?? null) !== next.displayCh
         || (prior.displayColor ?? null) !== next.displayColor
@@ -3028,7 +3076,6 @@ export function show_glyph_cell(x, y, glyph) {
         ch,
         color = NO_COLOR,
         dec: decgfx = false,
-        attr = 0,
         displayCh = null,
         displayColor = null,
     } = glyph;
@@ -3043,14 +3090,15 @@ export function show_glyph_cell(x, y, glyph) {
         ch,
         color,
         dec: !!decgfx,
-        attr: attr | 0,
         displayCh,
         displayColor: displayColor ?? (displayCh ? color : null),
         a11yKind: glyph.a11yKind ?? null,
         a11yDescription: glyph.a11yDescription ?? null,
     };
     if (glyph.rgb) logicalPresentation.rgb = [...glyph.rgb];
-    for (const field of ['glyph', 'a11yIdentity', 'a11ySubject']) {
+    for (const field of [
+        'glyph', 'glyphflags', 'a11yIdentity', 'a11ySubject',
+    ]) {
         if (glyph[field] !== undefined) {
             Object.defineProperty(logicalPresentation, field, {
                 configurable: true,
@@ -3081,20 +3129,13 @@ export function show_glyph_cell(x, y, glyph) {
     // An unchanged entry is not printed again, so the screen keeps what it
     // shows; docorner() may have blanked it (display.c row_refresh()).
     if (changed) {
-        if (ch !== null) {
-            loc.disp_ch = ch;
-            loc.disp_color = color;
-            loc.disp_decgfx = !!decgfx;
-            loc.disp_attr = attr | 0;
-        } else if (loc.tty_ch !== undefined) {
+        if (ch === null && loc.tty_ch !== undefined) {
             loc.disp_ch = loc.tty_ch;
             loc.disp_color = loc.tty_color;
             loc.disp_decgfx = loc.tty_decgfx;
             loc.disp_attr = loc.tty_attr;
         }
-        loc.disp_browser_ch = displayCh;
-        loc.disp_browser_color = displayColor ?? (displayCh ? color : null);
-        loc.disp_browser_attr = displayCh ? attr | 0 : null;
+        print_glyph_cell(loc, logicalPresentation, game);
         loc.gnew = 1;
     }
     // This order is the sparse-frame contract: install the buffer write, record
@@ -7442,7 +7483,13 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
             // row_refresh() printed, or where tty_curs() put it on a row
             // that printed none.
             display.setCursor(x, screenRow);
-            const presentation = map_glyphinfo(glyph, state, { x, y: mapY });
+            // display.c row_refresh() (2182-2183) passes Glyphinfo_at(), the
+            // glyphinfo gg.gbuf already holds (1641, no UNBUFFERED_GLYPHINFO),
+            // so the cell is printed from the mapping show_glyph() stored
+            // and under the options in force now. Only a frame colour brings
+            // an entry that still holds nul_gbuf here, and nul_gbuf's
+            // ttychar is a blank whatever S_unexplored is.
+            const presentation = loc.disp_glyph ?? NUL_GBUF_PRESENTATION;
             const ch = browserGlyphs && presentation.displayCh
                 ? presentation.displayCh
                 : (presentation.dec
@@ -7451,17 +7498,19 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
             // tty_print_glyph()'s UTF-8 path does not update the recorder
             // shadow cell, which is represented by a null character here.
             if (ch === null || ch === undefined) continue;
-            const attr = framed_print_attr(presentation.attr ?? 0, x, mapY,
-                state);
+            const printed = print_glyph_cell(loc, presentation, state);
+            const attr = framed_print_attr(printed.attr, x, mapY, state);
             if (presentation.ch !== null && presentation.ch !== undefined) {
+                loc.disp_attr = attr;
                 loc.tty_ch = presentation.ch;
-                loc.tty_color = presentation.color ?? NO_COLOR;
+                loc.tty_color = printed.color;
                 loc.tty_decgfx = Boolean(presentation.dec);
                 loc.tty_attr = attr;
             }
+            if (loc.disp_browser_attr !== null) loc.disp_browser_attr = attr;
             const color = browserGlyphs
-                ? presentation.displayColor ?? presentation.color ?? NO_COLOR
-                : presentation.color ?? NO_COLOR;
+                ? loc.disp_browser_color ?? printed.color
+                : printed.color;
             // tty_print_glyph()'s g_putch(), whose capture map_glyphinfo()
             // has already applied (symbols.js symbol_at()).
             display.putCaptured(x - 1, screenRow, ch, color, attr);
@@ -7847,16 +7896,10 @@ function _buildScreenOutput(cursorOnHero = true) {
                     // printed from disp_glyph again, not from what the screen
                     // last showed there.
                     const entry = loc.disp_glyph;
-                    if (entry && entry.ch !== null) {
-                        loc.disp_ch = entry.ch;
-                        loc.disp_color = entry.color;
-                        loc.disp_decgfx = entry.dec;
-                        loc.disp_attr = entry.attr;
-                    }
-                    if (entry?.displayCh)
-                        loc.disp_browser_attr = entry.attr;
-                    // tty_print_glyph() decides the attribute as it prints;
-                    // the printed cell keeps it until it is printed again.
+                    if (entry) print_glyph_cell(loc, entry, game);
+                    // tty_print_glyph() decides the colour and the attribute
+                    // as it prints; the printed cell keeps them until it is
+                    // printed again.
                     loc.disp_attr = framed_print_attr(loc.disp_attr ?? 0,
                         x, y);
                     if (loc.disp_browser_attr !== null

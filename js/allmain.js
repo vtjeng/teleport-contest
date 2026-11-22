@@ -115,6 +115,7 @@ import {
     timebot,
     status_eval_next_unhilite,
 } from './display.js';
+import { reset_glyphmap } from './display_glyphmap.js';
 import {
     displayPendingTtyMessageWindow,
     ttyNorep,
@@ -196,6 +197,8 @@ export async function newgame_pre_mklev(g = game) {
     init_artifacts(g);
     await u_init_misc(g);
     l_nhcore_init(g);
+    // allmain.c:797 reset_glyphmap(gm_newgame).
+    reset_glyphmap(g);
     return g;
 }
 
