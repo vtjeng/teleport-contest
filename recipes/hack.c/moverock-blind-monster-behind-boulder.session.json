@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "hack.c moverock_core() 455-483 with a blind hero: a monster the hero cannot spot stands where the boulder would land. A blindfolded Valkyrie reads a blessed scroll of earth inside two rings of brown molds, so boulders she has not felt surround her and molds stand behind them. Each first push west, north and north-west only feels the boulder (356-361); each second push reaches the Blind feel_location() at 459-460, You_hear() and map_invisible().",
+  "segments": [
+    {
+      "seed": 5310980,
+      "datetime": "20370514162300",
+      "nethackrc": "OPTIONS=name:Feeler,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " k#wizwish\nblessed scroll of earth\n#wizwish\nblindfold\n\u000724 brown mold\nPfre   hh kk yy "
+    }
+  ]
+}

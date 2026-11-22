@@ -2247,7 +2247,9 @@ async function moverock_core(sx, sy, state, env) {
         if (mtmp && !noncorporeal(mtmp.data)
             && (!mtmp.mtrapped || !(ttmp && is_pit(ttmp.ttyp)))) {
             let deliver_part1 = false;
-            // 459-460, the Blind arm, remains a source-backed map-memory gap.
+            // 459-460. moverock_core() returned at 356-361 unless the square
+            // already shows the boulder, so this re-maps what is displayed.
+            if (Blind(state.u)) feel_location(sx, sy, state);
             if (canspotmon(mtmp, state)) {
                 await message(
                     `There's ${a_monnam(mtmp, { state })} on the other side.`,
