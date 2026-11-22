@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c eval_notify_windowport_field() (1590) and status_eval_next_unhilite(). A debug-mode Wizard wishes for 50000 gold pieces, which makes her Burdened, then drops them: the change to an empty carrying-capacity val selects the temporary rule. When hilite_reset_needed() resets the field, its val is empty and chg is 0, so get_hilite() is not asked, the temporary rule stays, and the timer is stamped again every statushilites:2 turns while she searches. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 81201,
+      "datetime": "20320419151208",
+      "nethackrc": "OPTIONS=name:Ivo,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips,color,time\nOPTIONS=statushilites:2\nOPTIONS=hilite_status:carrying-capacity/changed/red&inverse\n",
+      "moves": "\u001750000 gold pieces\n ssssd$ssssssssssss"
+    }
+  ]
+}

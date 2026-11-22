@@ -9298,8 +9298,9 @@ test('title formatting and matching use source byte limits', async () => {
             // the text rule cannot match. The title's val is not empty, so
             // eval_notify_windowport_field() still asks get_hilite()
             // (botl.c 1590), and the 'always' rule applies. Column 20, the
-            // 't' of "the", is the field's first single-byte cell; the cut
-            // multibyte name before it is drawn as blank cells.
+            // 't' of "the", is the field's first single-byte cell. A C
+            // recording of a 13-character é name shows the cut name before
+            // it as 19 unstyled blank cells, then the red " the Digger".
             name: utf8Text('é'.repeat(13)),
             prefix: ' '.repeat(19),
             color: CLR_RED,
