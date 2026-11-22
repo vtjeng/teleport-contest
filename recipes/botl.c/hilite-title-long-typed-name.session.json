@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c eval_notify_windowport_field() (1590) and get_hilite() (2536-2538) with a name typed at the 'Who are you?' prompt. bot_via_windowport() (995-998) cuts the Wizard's 27-byte name to 30 - 5 - strlen(\"Evoker\") = 19 bytes, so get_hilite()'s txtstr, which skips strlen(svp.plname) + 5 bytes, starts past the 30-byte title. The title's val is not empty, so its 'always' rule still applies; power/down marks the spell's cost. Seed, clock, name and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 61027793,
+      "datetime": "20340102074501",
+      "nethackrc": "OPTIONS=role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,color,time,statushilites:2\nOPTIONS=hilite_status:title/always/bright-magenta\nOPTIONS=hilite_status:power/down/red\n",
+      "moves": "Mirabel_of_the_9_Towers_Bay\n Zahsss"
+    }
+  ]
+}

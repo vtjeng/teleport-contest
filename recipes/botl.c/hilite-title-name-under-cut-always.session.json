@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Control for hilite-title-long-name-always: the same Ranger with a 25-byte name, one under 16 + strlen(\"Tenderfoot\"). get_hilite()'s txtstr (botl.c 2536-2538) is the title's last byte, \"t\", so the text rule for Tenderfoot does not match and the 'always' rule colors the title. Seed, clock, name and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 58201378,
+      "datetime": "20330914160522",
+      "nethackrc": "OPTIONS=name:Qwertyuiopasdfghjklzxcvbn,role:Ranger,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,color,statushilites:3\nOPTIONS=hilite_status:title/always/bright-blue/Tenderfoot/green\n",
+      "moves": "ss"
+    }
+  ]
+}

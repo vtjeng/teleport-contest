@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "botl.c eval_notify_windowport_field() (1590) and get_hilite() (2536-2538). The Ranger's 26-byte name is 16 + strlen(\"Tenderfoot\"), so bot_via_windowport() (988-1007) cuts it to BOTL_NSIZ characters and get_hilite()'s txtstr, which skips strlen(svp.plname) + 5 bytes, is empty. The title's val is not empty, so its 'always' rule still colors the title; the alignment rule colors Chaotic as a second field. Seed, clock, name and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 58201377,
+      "datetime": "20330914160522",
+      "nethackrc": "OPTIONS=name:Qwertyuiopasdfghjklzxcvbnm,role:Ranger,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,color,statushilites:3\nOPTIONS=hilite_status:title/always/bright-blue\nOPTIONS=hilite_status:alignment/always/white&dim\n",
+      "moves": "ss"
+    }
+  ]
+}

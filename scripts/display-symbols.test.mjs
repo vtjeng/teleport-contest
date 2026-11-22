@@ -9294,10 +9294,16 @@ test('title formatting and matching use source byte limits', async () => {
         {
             // Thirteen characters occupy twenty-six UTF-8 bytes. Formatting
             // truncates the byte string to nineteen cells, but get_hilite()
-            // still advances by the complete strlen(plname), past Digger.
+            // still advances by the complete strlen(plname), past Digger, so
+            // the text rule cannot match. The title's val is not empty, so
+            // eval_notify_windowport_field() still asks get_hilite()
+            // (botl.c 1590), and the 'always' rule applies. Column 20, the
+            // 't' of "the", is the field's first single-byte cell. A C
+            // recording of a 13-character é name shows the cut name before
+            // it as 19 unstyled blank cells, then the red " the Digger".
             name: utf8Text('é'.repeat(13)),
             prefix: ' '.repeat(19),
-            color: NO_COLOR,
+            color: CLR_RED,
             styleColumn: 20,
         },
     ]) {
@@ -9312,9 +9318,6 @@ test('title formatting and matching use source byte limits', async () => {
             color,
             name,
         );
-        if (styleColumn) {
-            assert.equal(state.nhDisplay.grid[22][0].color, NO_COLOR, name);
-        }
     }
 
     // parse_status_hl2() copies only 79 bytes into hilite.textmatch[], then
@@ -9416,7 +9419,13 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
         'five-or-more-byte HP-bar padding is compressed to cursor movement',
     );
 
+    // A changed svp.plname changes BL_TITLE's val, and a title-only
+    // status_update() gives the bar the title's own style (wintty.c
+    // 4515-4516), not HP's inverse (4536-4543). plname never changes in
+    // play; update_all notifies BL_HP after BL_TITLE as above, so each bar
+    // below keeps HP's highlight.
     state.plname = 'FourPadTitle';
+    state.gu.update_all = true;
     await bot();
     assertCellRange(
         state,
@@ -9428,6 +9437,7 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
     );
 
     state.plname = 'FivePadName';
+    state.gu.update_all = true;
     await bot();
     assertCellRange(
         state,
@@ -9453,6 +9463,7 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
     );
 
     state.plname = 'Foo    Bar';
+    state.gu.update_all = true;
     await bot();
     assertCellRange(
         state,
@@ -9464,6 +9475,7 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
     );
 
     state.plname = 'Foo     Bar';
+    state.gu.update_all = true;
     await bot();
     assertDecodedRange(
         state,
@@ -9491,6 +9503,7 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
     );
 
     state.plname = 'Foo      Bar';
+    state.gu.update_all = true;
     await bot();
     assertDecodedRange(
         state,
@@ -9546,7 +9559,9 @@ test('gray and black status rules normalize at the recorder-facing grid boundary
         { color: NO_COLOR, attr: ATR_BOLD },
     );
 
+    // options.c turns 'hitpointbar' on with status_initialize(REASSESS_ONLY).
     state.iflags.wc2_hitpointbar = true;
+    state.gu.update_all = true;
     await bot();
     assertCellRange(
         state,
