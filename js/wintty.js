@@ -19,6 +19,7 @@ import { nh_terminate } from './end.js';
 import { game } from './gstate.js';
 import {
     displayPendingTtyMessageWindow,
+    eraseTtyMessageWindow,
     TOPLINE_EMPTY,
     TOPLINE_NEED_MORE,
 } from './tty_message.js';
@@ -366,6 +367,9 @@ export function tty_clear_map_window(state = game) {
     const display = state.nhDisplay;
     if (!display?.grid) return;
     display.clearScreen();
+    // erase_tty_screen() clears every active window: the message window
+    // loses a pending --More-- here, and the status window its rows.
+    eraseTtyMessageWindow(state);
     erase_status_rows(state);
     // erase_tty_screen()'s tty_curs(BASE_WINDOW, 1, 0).
     const base = baseWindow(state);
@@ -380,6 +384,8 @@ export function tty_clear_base_window(state = game) {
     const display = state.nhDisplay;
     if (!display?.grid) return;
     display.clearScreen();
+    // erase_tty_screen() clears the message window too, once it exists.
+    eraseTtyMessageWindow(state);
     display.setCursor(0, 0);
     const base = baseWindow(state);
     base.curx = base.cury = 0;

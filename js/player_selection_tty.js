@@ -4,7 +4,7 @@
 
 import { game } from './gstate.js';
 import { truncateByteString, ucase, lcase } from './hacklib.js';
-import { TOPLINE_NON_EMPTY, xwaitforspace } from './tty_message.js';
+import { ttyPline } from './tty_message.js';
 import {
     answer_initial_player_selection,
     answer_player_selection_confirmation,
@@ -39,7 +39,6 @@ import {
     races,
     roles,
 } from './roles.js';
-import { NO_COLOR } from './terminal.js';
 import {
     menuTitleStyle,
     resetRoleFilteringTty,
@@ -432,40 +431,18 @@ export function buildPlayerSelectionMenuSpec(
     throw new Error(`selection status '${context.status}' has no tty menu`);
 }
 
-async function waitForSelectionMore(state, message) {
-    const display = state.nhDisplay;
-    const more = '--More--';
-    display.clearRow(0);
-    display.putstr(0, 0, message, NO_COLOR);
-    display.putstr(message.length, 0, more, NO_COLOR);
-    display.setCursor(message.length + more.length, 0);
-    // more()'s xwaitforspace("\033 "): Space, CR, LF or Escape dismisses
-    // it, and Escape stores 1 in ttyDisplay->dismiss_more.
-    await xwaitforspace(state);
-    // C's pline() leaves TOPLINE_NEED_MORE; the menu that follows runs
-    // more() and then tty_clear_nhwindow(WIN_MESSAGE). This wait has
-    // already taken the More key, so mark the line non-empty and let the
-    // menu clear it.
-    display.toplin = TOPLINE_NON_EMPTY;
-}
-
+// role.c genl_player_setup() reports a pre-selected race, gender or
+// alignment that no role (or other facet) satisfies with
+// pline("Incompatible role!") and its three siblings (role.c:2302, 2383,
+// 2471, 2559), at the moment the random pick fails.  The message window
+// exists by then, so each goes through tty_putstr(WIN_MESSAGE) and
+// update_topl(): the answered "Shall I pick ..." prompt enters the message
+// history, consecutive diagnostics share the top line, and the line is left
+// at TOPLINE_NEED_MORE for whatever follows -- the next menu's
+// tty_display_nhwindow() runs more(), and a later pline() remembers it.
 async function flushSelectionMessages(state, context, firstUnshown) {
-    const pending = context.messages.slice(firstUnshown);
-    if (!pending.length) return firstUnshown;
-
-    // update_topl() joins short consecutive plines with two spaces.  The
-    // incompatible-facet diagnostics all fit on one conventional tty row.
-    // If that changes, split before the same CO-8 threshold used by topl.c.
-    let topline = '';
-    for (const message of pending) {
-        if (topline && message.length + topline.length + 3 >= 80 - 8) {
-            await waitForSelectionMore(state, topline);
-            topline = message;
-        } else {
-            topline += `${topline ? '  ' : ''}${message}`;
-        }
-    }
-    await waitForSelectionMore(state, topline);
+    for (const message of context.messages.slice(firstUnshown))
+        await ttyPline(message, state);
     return context.messages.length;
 }
 
@@ -548,6 +525,9 @@ export async function ttyPlayerSelectionImpl(state = game, random) {
                 // tty_askname() may have bailed out of the program.
                 if (state.program_state?.gameover) return false;
             } else if (context.status === 'complete') {
+                // Every facet was picked without a further menu
+                // (answer 'a', or nothing left to confirm).
+                await flushSelectionMessages(state, context, shownMessages);
                 return true;
             } else if (context.status === 'quit') {
                 return false;

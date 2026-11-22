@@ -213,6 +213,26 @@ export function clearTtyMessageWindow(state = game) {
     display.topMessage = state._ttyToplines ?? '';
 }
 
+// C ref: wintty.c tty_clear_nhwindow(WIN_MESSAGE) as erase_tty_screen()
+// calls it (2047-2052), with erasing_tty_screen set: term_clear_screen() has
+// already blanked the terminal, so the arm (1047-1057) draws nothing and only
+// resets the window's cursor and ttyDisplay->toplin. A top line still at
+// TOPLINE_NEED_MORE is thereby retired without a --More--; gt.toplines keeps
+// its text for the next remember_topl().
+export function eraseTtyMessageWindow(state = game) {
+    const display = state.nhDisplay;
+    // erase_tty_screen() visits only `cw && cw->active` windows. The message
+    // window is active from display_gamewindows()'s display_nhwindow() on;
+    // before that (restore.c restore_menu()) there is none to reset.
+    const cw = messageWindow(state);
+    if (!display || !cw || display.toplin === TOPLINE_EMPTY) return;
+    cw.curx = cw.cury = 0;
+    state._pending_message = '';
+    delete state._pendingMessageLayout;
+    display.toplin = TOPLINE_EMPTY;
+    display.topMessage = state._ttyToplines ?? '';
+}
+
 // C ref: win/tty/topl.c more().  A multi-line top message is repaired through
 // docorner() and homes the cursor.  A one-line message remains on screen after
 // ordinary dismissal; Escape alone clears that physical top line.
