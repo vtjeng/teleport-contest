@@ -287,7 +287,7 @@ function compassDescription(x, y, state, full = true) {
 }
 
 function coordinateDescription(x, y, state) {
-    const configured = state.iflags?.getpos_coords ?? GPCOORDS_NONE;
+    const configured = state.iflags?.getpos_coords;
     // pline.c substitutes full compass coordinates for accessible messages
     // when the ordinary whatis coordinate option is disabled.
     const mode = configured === GPCOORDS_NONE ? GPCOORDS_COMFULL : configured;

@@ -56,6 +56,9 @@ function menuState(keys = '') {
     monst_globals_init(game);
     game.youmonst = { data: game.mons[PM_HUMAN] };
     for (const ch of keys) game.nhDisplay.pushKey(ch.charCodeAt(0));
+    // options.c initoptions() with an empty configuration file, as
+    // js/jsmain.js installs it over resetGame()'s zeroed iflags.
+    game.iflags = parseNethackrc('').iflags;
     tty_init_nhwindows(null, null, game);
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
     game.iflags.window_inited = true;

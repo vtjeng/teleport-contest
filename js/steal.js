@@ -845,7 +845,7 @@ export async function steal(
     await freeinv(otmp, { ...env, state });
 
     // shorten the "stole" message if we just gave a worn-item-removal message
-    if ((state.iflags?.last_msg ?? -1) === PLNMSG_MON_TAKES_OFF_ITEM
+    if (state.iflags?.last_msg === PLNMSG_MON_TAKES_OFF_ITEM
         && mtmp.data.mlet === S_NYMPH)
         ++named;
     await urgentMessage(

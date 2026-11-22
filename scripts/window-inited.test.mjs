@@ -14,6 +14,7 @@ import test from 'node:test';
 import { parse } from 'acorn';
 
 import { NHW_BASE, NHW_MESSAGE } from '../js/const.js';
+import { zero_instance_flags } from '../js/flag.js';
 import { GameDisplay } from '../js/game_display.js';
 import { displayPendingTtyMessageWindow } from '../js/tty_message.js';
 import { tty_create_nhwindow, tty_exit_nhwindows } from '../js/wintty.js';
@@ -25,14 +26,13 @@ function source(path) {
 }
 
 // Every write the port may make, as `file function value`. js/flag.js
-// zero_instance_flags() is C's zeroed iflags, generated from flag.h, and
-// options.js defaultResult() is the iflags each segment starts from (jsmain.js
-// copies it into the game state); the other four are the C sites named above.
+// zero_instance_flags() is C's zeroed iflags, generated from flag.h, which
+// js/gstate.js and options.js defaultResult() start from; the other four are
+// the C sites named above.
 const ALLOWED_WRITES = [
     'js/end.js panic false',
     'js/end.js really_done false',
     'js/flag.js zero_instance_flags false',
-    'js/options.js defaultResult false',
     'js/tty_message.js displayPendingTtyMessageWindow true',
     'js/wintty.js tty_exit_nhwindows false',
 ];
@@ -172,9 +172,11 @@ test('the C sources still set and clear window_inited where the port does', () =
 // between init_sound_disp_gamewindows()'s create_nhwindow(NHW_MESSAGE) and
 // its display_nhwindow(WIN_MESSAGE, FALSE).
 function windowState() {
+    // iflags starts zeroed, window_inited FALSE among it; tty_create_nhwindow()
+    // raises the zero msg_history to 20 as wintty.c:889-890 does.
     const state = {
         nhDisplay: new GameDisplay(null),
-        iflags: { window_inited: false },
+        iflags: zero_instance_flags(),
     };
     tty_create_nhwindow(NHW_BASE, state);
     tty_create_nhwindow(NHW_MESSAGE, state);

@@ -2790,7 +2790,7 @@ export async function do_fight(state = game) {
 // ordinary getpos prompt or the menu-requested interesting-location picker.
 async function dotravel(state = game) {
     state.iflags ??= {};
-    const cached = state.iflags.travelcc ?? { x: 0, y: 0 };
+    const cached = state.iflags.travelcc;
     const cc = { x: cached.x, y: cached.y };
     if (cc.x === 0 && cc.y === 0) {
         cc.x = state.u.ux;

@@ -260,7 +260,9 @@ test('test_move describes remembered walls without time or PRNG work',
 
         state.a11y = { accessiblemsg: true };
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        state.iflags = { window_inited: true };
+        // The other members hold the options' startup values; the message's
+        // position follows getpos_coords.
+        state.iflags = { ...parseNethackrc('').iflags, window_inited: true };
         state.u = { ux, uy, uprops: [] };
         destination.typ = VWALL;
         messages.length = 0;

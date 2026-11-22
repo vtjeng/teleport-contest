@@ -1813,7 +1813,7 @@ export async function show_skills(
         item.heading
             ? {
                 ...item,
-                attr: ttyMenuColorAttribute(state.iflags?.menu_headings?.attr ?? 7),
+                attr: ttyMenuColorAttribute(state.iflags?.menu_headings?.attr),
                 color: state.iflags?.menu_headings?.color,
             }
             : item

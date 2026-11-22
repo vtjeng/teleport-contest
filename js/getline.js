@@ -204,7 +204,7 @@ async function hooked_tty_getlin(query, hook, state) {
                 }
             }
             if (c === CTRL_P) {
-                const mode = state.iflags?.prevmsg_window ?? 's';
+                const mode = state.iflags?.prevmsg_window;
                 if (mode === 's' || (mode === 'c' && !doprev)) {
                     const savedInread = display.inread;
                     display.inread = 0;

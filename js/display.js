@@ -2190,7 +2190,7 @@ function framed_print_attr(attr, x, y, state = game) {
  */
 function print_glyph_attr(glyphflags, state) {
     if ((glyphflags & MG_PET) && state.iflags?.wc_hilite_pet)
-        return ttyMenuColorAttribute(state.iflags.wc2_petattr ?? 7);
+        return ttyMenuColorAttribute(state.iflags.wc2_petattr);
     if (state.iflags?.wc_inverse === false) return ATR_NONE;
     if (((glyphflags & MG_OBJPILE) && state.iflags?.hilite_pile)
         || ((glyphflags & MG_FEMALE) && state.wizard
@@ -2461,25 +2461,25 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         // display.c:2843-2862. Explosion glyphs use the same cmap symbol
         // sequence for each color family and choose color from explodecolors.
         cmap = S_expl_tl + offset;
-        color = state.iflags?.use_color === false ? NO_COLOR : CLR_WHITE;
+        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_WHITE;
     } else if ((offset = glyph - GLYPH_EXPLODE_FIERY_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.use_color === false ? NO_COLOR : CLR_ORANGE;
+        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_ORANGE;
     } else if ((offset = glyph - GLYPH_EXPLODE_MAGICAL_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.use_color === false ? NO_COLOR : CLR_MAGENTA;
+        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_MAGENTA;
     } else if ((offset = glyph - GLYPH_EXPLODE_WET_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.use_color === false ? NO_COLOR : CLR_BLUE;
+        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_BLUE;
     } else if ((offset = glyph - GLYPH_EXPLODE_MUDDY_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.use_color === false ? NO_COLOR : CLR_BROWN;
+        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_BROWN;
     } else if ((offset = glyph - GLYPH_EXPLODE_NOXIOUS_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.use_color === false ? NO_COLOR : CLR_GREEN;
+        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_GREEN;
     } else if ((offset = glyph - GLYPH_EXPLODE_DARK_OFF) >= 0) {
         cmap = S_expl_tl + offset;
-        color = state.iflags?.use_color === false ? NO_COLOR : CLR_BLACK;
+        color = state.iflags?.wc_color === false ? NO_COLOR : CLR_BLACK;
     } else if ((offset = glyph - GLYPH_SWALLOW_OFF) >= 0) {
         // display.c:2864-2872. The low three bits select one of the eight
         // stomach-wall symbols; the remaining bits select the engulfer's
@@ -2504,8 +2504,9 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
         cmap = S_grave + offset;
         color = CMAP_COLORS[cmap];
         glyphflags = cmapBlackAndWhiteFlags(cmap, state);
-        // The has_rogue_color arm is the else of C's !iflags.use_color test.
-        if (rogueColor && state.iflags?.use_color !== false)
+        // The has_rogue_color arm is the else of C's !iflags.use_color test;
+        // flag.h defines use_color as wc_color.
+        if (rogueColor && state.iflags?.wc_color !== false)
             color = cmap_to_roguecolor(cmap, state);
         if (cmap === S_fountain) customizationName = 'G_fountain';
     } else if ((offset = glyph - GLYPH_ALTAR_OFF) >= 0) {
@@ -2638,7 +2639,7 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
     // source branch; no coordinate-specific hero override is requested.
     if (options?.rawGlyphmap) return {
         ttychar: symbol.ttychar ?? symbol.ch.charCodeAt(0),
-        color: state.iflags?.use_color === false ? NO_COLOR : color,
+        color: state.iflags?.wc_color === false ? NO_COLOR : color,
         unicode: symbolUnicode,
     };
 
@@ -5090,11 +5091,9 @@ export function classify_terrain(state = game) {
 // both copies were refreshed, so one cache serves here.
 function _terrainStatus(state = game) {
     state.iflags ??= {};
-    // A new game's level arrival sets MAX_TYPE and js/restore.js sets the
-    // static zero a restored process keeps; a state that reached neither has
-    // no value yet, so classify it as an arrival would.
-    if (state.iflags.terrain_typ === undefined
-        || state.iflags.terrain_typ === MAX_TYPE)
+    // botl.c:1262. A new game's level arrival sets MAX_TYPE; a restored
+    // process keeps the zero it started with (js/restore.js).
+    if (state.iflags.terrain_typ === MAX_TYPE)
         classify_terrain(state);
     const typ = state.iflags.terrain_typ;
     const cache = state.bl_terrain ??= { a_int: STONE, val: '' };

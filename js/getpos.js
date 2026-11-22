@@ -6,11 +6,9 @@ import {
     MAXTCHARS,
     HI_ZAP,
     COLNO,
-    GFILTER_NONE,
     GFILTER_VIEW,
     GFILTER_AREA,
     NUM_GFILTER,
-    GPCOORDS_NONE,
     GPCOORDS_MAP,
     GPCOORDS_COMPASS,
     GPCOORDS_COMFULL,
@@ -334,8 +332,7 @@ function getposSpecialKeyText(name, state) {
 // popup's line wrapping and therefore its terminal geometry.
 function getpos_help_keyxhelp(tmpwin, k1, k2, gloc, state = game) {
     let moveCursorTo = 'move the cursor to ';
-    let filterText = GLOC_FILTERTXT[state.iflags?.getloc_filter
-        ?? GFILTER_NONE] ?? '';
+    let filterText = GLOC_FILTERTXT[state.iflags?.getloc_filter] ?? '';
     if (gloc === GLOC_EXPLORE) {
         moveCursorTo = 'move the cursor next to an ';
         if (state.iflags?.getloc_usemenu)
@@ -816,7 +813,7 @@ export async function gather_locs(gloc, state = game) {
 // caller of this formatter, so keep the coordinate modes beside its owner
 // instead of silently dropping configured map/screen coordinates.
 export function coord_desc(
-    x, y, state, mode = state.iflags?.getpos_coords ?? GPCOORDS_NONE,
+    x, y, state, mode = state.iflags?.getpos_coords,
 ) {
     if (mode === GPCOORDS_COMPASS || mode === GPCOORDS_COMFULL) {
         const full = mode === GPCOORDS_COMFULL;
@@ -858,8 +855,7 @@ export async function getpos_menu(ccp, gloc, state = game) {
         });
     }
 
-    const filter = GLOC_FILTERTXT[state.iflags?.getloc_filter ?? GFILTER_NONE]
-        ?? '';
+    const filter = GLOC_FILTERTXT[state.iflags?.getloc_filter] ?? '';
     const travel = state.iflags?.getloc_travelmode
         ? ' for travel destination' : '';
     const selected = await select_menu(state, {

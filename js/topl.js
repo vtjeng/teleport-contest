@@ -509,7 +509,7 @@ function reversedHistory(state) {
 export async function tty_doprev_message(state = game) {
     const cw = messageWindow(state);
     if (!cw) return 0;
-    const mode = state.iflags?.prevmsg_window ?? 's';
+    const mode = state.iflags?.prevmsg_window;
     const display = state.nhDisplay;
     if (mode !== 's' && !display?.inread) {
         if (mode === 'f') {
@@ -793,7 +793,7 @@ export async function tty_yn_function(query, resp, def, state = game) {
             /* !preserve_case */
             if (!preserveCase && q >= 0x41 && q <= 0x5A) q |= 0x20;
             if (q === CTRL_P) {
-                const mode = state.iflags?.prevmsg_window ?? 's';
+                const mode = state.iflags?.prevmsg_window;
                 if (mode !== 's') {
                     const savedInread = display.inread;
                     display.inread = 0;

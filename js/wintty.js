@@ -53,6 +53,10 @@ function startupState(argcp, argv, state) {
 // returned.
 export function term_startup(state = game) {
     const { cols: wid, rows: hgt } = state.nhDisplay;
+    // termcap.c:318 init_hilite() stores tgetnum("Co") (termcap.c:944); the
+    // recorder's TERM is xterm-256color, whose Co is 256. The escape strings
+    // it builds are the GameDisplay's colours.
+    state.iflags.colorcount = 256;
     // termcap.c tty_startup() (CLIPPING).
     if (wid < COLNO || hgt < ROWNO + 3) setclipped(state);
 }
@@ -89,7 +93,7 @@ export function tty_create_nhwindow(type, state = game) {
         window.cols = cols;
         window.maxrow = 0;
     } else if (type === NHW_MESSAGE) {
-        const history = state.iflags?.msg_history ?? 20;
+        const history = state.iflags?.msg_history;
         state.iflags ??= {};
         state.iflags.msg_history = Math.min(
             MAX_MSG_HISTORY,
