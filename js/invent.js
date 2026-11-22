@@ -732,10 +732,13 @@ function loot_xname(obj, state = game) {
     if (obj.globby) obj.owt = 20;
     if (saveOname && !obj.oartifact && obj.oextra)
         obj.oextra.oname = null;
+    // C's wizard is flags.debug, which the port also holds as state.wizard,
+    // so both copies go off for cxname_singular() and come back together.
     if (state.wizard) {
         state.program_state ??= {};
         state.program_state.something_worth_saving = 0;
         state.flags.debug = false;
+        state.wizard = false;
     }
 
     let result;
@@ -744,6 +747,7 @@ function loot_xname(obj, state = game) {
     } finally {
         if (saveDebug) {
             state.flags.debug = true;
+            state.wizard = true;
             state.program_state ??= {};
             state.program_state.something_worth_saving = 1;
         }
