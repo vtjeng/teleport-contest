@@ -1,0 +1,30 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 28657,
+      "datetime": "20180514221000",
+      "nethackrc": "OPTIONS=name:Vic,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "s\u001b\u001bSy"
+    },
+    {
+      "seed": 28658,
+      "datetime": "20180515221000",
+      "nethackrc": "OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "nTam\ryaWes\ry\u001b\u001bi\u001b"
+    },
+    {
+      "seed": 28659,
+      "datetime": "20180516221000",
+      "nethackrc": "OPTIONS=!selectsaved\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "Tam\rnbhmcaVic\ry\u001b\u001bi\u001b"
+    },
+    {
+      "seed": 28660,
+      "datetime": "20180517221000",
+      "nethackrc": "OPTIONS=!selectsaved\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "Vic\ryy\u001b\u001bi\u001b"
+    }
+  ],
+  "comment": "unixmain.c:221-304, the attempt_restore loop after role.c genl_player_setup()'s \"Not yet; choose another name\". Segment 0 saves Vic. Segment 1 picks a new character at the saved-games menu, lets the game choose the role, and renames the hero to \"Wes\", who has no save: iflags.renameinprogress sends main() back to attempt_restore, restore_saved_game() opens nothing, selection is skipped (plsel_once) and the chosen role starts a new game. Segment 2, with !selectsaved, picks a role by hand and renames the hero to \"Vic\": the second attempt restores Vic's game and the chosen role is discarded. Segment 3 shows that restore deleted the save: \"Vic\" starts a new game."
+}

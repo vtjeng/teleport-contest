@@ -619,140 +619,163 @@ export class NethackGame {
         // could be opened. It opens only the file set_savefile_name() names
         // for the current svp.plname, which set_playmode() has already made
         // "wizard" in debug mode, so another hero's save starts a new game.
-        const haveSaveFile = !!g.plname && restore_saved_game(g) != null;
-        if (haveSaveFile) {
-            chmod_savefile(false, g); /* disallow parallel restores */
-            // C ref: unixmain.c:255-262. A configuration raw_printf() leaves
-            // its text on the screen, so the notice is raw output too rather
-            // than a top-line message. pline() also files it in the message
-            // history, where tty_putmsghistory() keeps it after the restored
-            // messages. mark_synch() is tty_mark_synch(), an fflush() with no
-            // JS counterpart.
-            if (g.ge.early_raw_messages)
-                tty_raw_print(g, 'Restoring save file...');
-            else
-                await ttyPline('Restoring save file...', g);
-        }
-        if (haveSaveFile && await dorestore(g)) {
-            // Restore succeeded. The new segment's datetime and recorder
-            // state override whatever the save carried, so moveloop_preamble
-            // picks up the current segment's calendar.
-            g.fixedDatetime = this._datetime;
-            g.recorderIsDst = this._recorderIsDst;
-
-            // C ref: dorecover():926-927 reglyph_darkroom(), vision_reset().
-            // Vision globals were not saved; rebuild them from the restored
-            // level data.
-            init_vision_globals();
-            reglyph_darkroom(g);
-            vision_reset();
-
-            // C ref: dorecover():930 run_timers(), "expire all timers that
-            // have gone off while away". A timer can be due at the save: a
-            // corpse taken out of an ice box when about ROT_AGE turns old
-            // gets a ROT_CORPSE delay of zero or less, and a fast hero can
-            // save before the next nh_timeout(). program_state.restoring is
-            // still REST_CURRENT_LEVEL here, so newsym() and bot() stay
-            // suppressed while messages still print.
-            g.program_state.restoring = REST_CURRENT_LEVEL;
-            await run_timers(g, {
-                newsym,
-                message: ttyPline,
-                site: "dorecover()'s run_timers()",
-            });
-
-            // C ref: dorecover():931 program_state.restoring = 0 (before
-            // docrt). Set up display for the restored game.
-            g.program_state.restoring = 0;
-
-            // C ref: dorecover():933-940. Before docrt() erases the screen,
-            // a raw configuration message waits for the player to see it.
-            if (g.ge.early_raw_messages
-                && !g.program_state.beyond_savefile_load) {
-                g.ge.early_raw_messages = 0;
-                await tty_wait_synch(g);
+        //
+        // unixmain.c:221 `attempt_restore:`. "We'll return here if new game
+        // player_selection() renames the hero." getlock() (unixmain.c:234-239)
+        // and the lock file it would replace after a rename (296-299) are not
+        // modelled: the recorder clears the lock files before every segment.
+        let plsel_once = false;
+        for (;;) {
+            const haveSaveFile = !!g.plname && restore_saved_game(g) != null;
+            if (haveSaveFile) {
+                chmod_savefile(false, g); /* disallow parallel restores */
+                // C ref: unixmain.c:255-262. A configuration raw_printf() leaves
+                // its text on the screen, so the notice is raw output too rather
+                // than a top-line message. pline() also files it in the message
+                // history, where tty_putmsghistory() keeps it after the restored
+                // messages. mark_synch() is tty_mark_synch(), an fflush() with no
+                // JS counterpart.
+                if (g.ge.early_raw_messages)
+                    tty_raw_print(g, 'Restoring save file...');
+                else
+                    await ttyPline('Restoring save file...', g);
             }
-            g.program_state.beyond_savefile_load = 1;
-            g.program_state.in_moveloop = 1;
+            if (haveSaveFile && await dorestore(g)) {
+                // Restore succeeded. The new segment's datetime and recorder
+                // state override whatever the save carried, so moveloop_preamble
+                // picks up the current segment's calendar.
+                g.fixedDatetime = this._datetime;
+                g.recorderIsDst = this._recorderIsDst;
 
-            // C's command-dispatch state (gc.Cmd.key and related fields) is
-            // NOT part of context_info and is NOT saved or restored. After
-            // restore, gc.Cmd.key is 0 (its initial value), so the first
-            // rhack(0) reads fresh input. The JS port's equivalent,
-            // context.pendingCommand, IS serialized because it lives on the
-            // saved context struct. Clear it so the first command dispatch
-            // after restore reads from the input queue instead of re-executing
-            // the command that was in progress when the game was saved.
-            delete g.context.pendingCommand;
+                // C ref: dorecover():926-927 reglyph_darkroom(), vision_reset().
+                // Vision globals were not saved; rebuild them from the restored
+                // level data.
+                init_vision_globals();
+                reglyph_darkroom(g);
+                vision_reset();
 
-            // C ref: dorecover():944-945 docrt() + clear_nhwindow(WIN_MSG).
-            // docrt() does the vision pass that restore.js's
-            // vision_full_recalc = 1 requests; a separate vision_recalc(0)
-            // here would draw each hallucinated monster an extra time on
-            // the display RNG before docrt() redraws it.
-            // docrt() only sets disp.botlx. dorecover() calls neither
-            // flush_screen() nor bot() here, so the first status pass of a
-            // restored game is the one welcome()'s pline() reaches through
-            // flush_screen(). The count matters: every bot() toggles
-            // gn.now_or_before_idx (botl.c:973-974), and a status highlight
-            // compares a new percentage with the other bank's.
-            await cls();
-            await docrt();
-            clearTtyMessageWindow(g);
+                // C ref: dorecover():930 run_timers(), "expire all timers that
+                // have gone off while away". A timer can be due at the save: a
+                // corpse taken out of an ice box when about ROT_AGE turns old
+                // gets a ROT_CORPSE delay of zero or less, and a fast hero can
+                // save before the next nh_timeout(). program_state.restoring is
+                // still REST_CURRENT_LEVEL here, so newsym() and bot() stay
+                // suppressed while messages still print.
+                g.program_state.restoring = REST_CURRENT_LEVEL;
+                await run_timers(g, {
+                    newsym,
+                    message: ttyPline,
+                    site: "dorecover()'s run_timers()",
+                });
 
-            // C ref: dorecover():948 welcome(FALSE). allmain.c:863-867
-            // skips "welcome back" for a restored hero whose own species
-            // was genocided while polymorphed; that death is pending.
-            const doomedRestore = Upolyd(g.u) && ugenocided(g);
-            if (!doomedRestore) {
-                const hallucinationWelcome = welcomeHallucinationMessage(g);
-                if (hallucinationWelcome)
-                    await ttyPline(hallucinationWelcome, g);
-            }
-            if (doomedRestore)
-                await ttyPline(
-                    `You're back, but you still feel ${udeadinside(g)} inside.`,
-                    g,
-                );
-            else {
-                await ttyPline(welcomeBackMessage(g), g);
-                // C ref: allmain.c welcome(FALSE) 922-927: the Gehennom
-                // smoke message and the level annotation, as goto_level()
-                // gives them on arrival.
-                const { hellish_smoke_mesg } = await import('./do.js');
-                const { print_level_annotation } = await import('./dungeon.js');
-                await hellish_smoke_mesg(g);
-                await print_level_annotation(g);
-            }
+                // C ref: dorecover():931 program_state.restoring = 0 (before
+                // docrt). Set up display for the restored game.
+                g.program_state.restoring = 0;
 
-            // C ref: restore.c:dorecover() calls check_special_room(FALSE)
-            // immediately after welcome(FALSE) on a successful restore.
-            const { check_special_room } = await import('./rooms.js');
-            await check_special_room(false, g);
-
-            // C ref: unixmain.c:265 wd_message() after a successful
-            // dorecover(), before the keep-save question.
-            await wd_message(g);
-
-            // C ref: unixmain.c:266-272. Debug/explore restores ask whether
-            // to retain the save. VFS needs no compression operation.
-            if (g.discover || g.wizard) {
-                if (await yn_function('Do you want to keep the save file?',
-                    'yn', 'n', true, g) === 'n') {
-                    delete_savefile(g);
-                } else {
-                    chmod_savefile(true, g); /* back to readable */
+                // C ref: dorecover():933-940. Before docrt() erases the screen,
+                // a raw configuration message waits for the player to see it.
+                if (g.ge.early_raw_messages
+                    && !g.program_state.beyond_savefile_load) {
+                    g.ge.early_raw_messages = 0;
+                    await tty_wait_synch(g);
                 }
+                g.program_state.beyond_savefile_load = 1;
+                g.program_state.in_moveloop = 1;
+
+                // C's command-dispatch state (gc.Cmd.key and related fields) is
+                // NOT part of context_info and is NOT saved or restored. After
+                // restore, gc.Cmd.key is 0 (its initial value), so the first
+                // rhack(0) reads fresh input. The JS port's equivalent,
+                // context.pendingCommand, IS serialized because it lives on the
+                // saved context struct. Clear it so the first command dispatch
+                // after restore reads from the input queue instead of re-executing
+                // the command that was in progress when the game was saved.
+                delete g.context.pendingCommand;
+
+                // C ref: dorecover():944-945 docrt() + clear_nhwindow(WIN_MSG).
+                // docrt() does the vision pass that restore.js's
+                // vision_full_recalc = 1 requests; a separate vision_recalc(0)
+                // here would draw each hallucinated monster an extra time on
+                // the display RNG before docrt() redraws it.
+                // docrt() only sets disp.botlx. dorecover() calls neither
+                // flush_screen() nor bot() here, so the first status pass of a
+                // restored game is the one welcome()'s pline() reaches through
+                // flush_screen(). The count matters: every bot() toggles
+                // gn.now_or_before_idx (botl.c:973-974), and a status highlight
+                // compares a new percentage with the other bank's.
+                await cls();
+                await docrt();
+                clearTtyMessageWindow(g);
+
+                // C ref: dorecover():948 welcome(FALSE). allmain.c:863-867
+                // skips "welcome back" for a restored hero whose own species
+                // was genocided while polymorphed; that death is pending.
+                const doomedRestore = Upolyd(g.u) && ugenocided(g);
+                if (!doomedRestore) {
+                    const hallucinationWelcome = welcomeHallucinationMessage(g);
+                    if (hallucinationWelcome)
+                        await ttyPline(hallucinationWelcome, g);
+                }
+                if (doomedRestore)
+                    await ttyPline(
+                        `You're back, but you still feel ${udeadinside(g)} inside.`,
+                        g,
+                    );
+                else {
+                    await ttyPline(welcomeBackMessage(g), g);
+                    // C ref: allmain.c welcome(FALSE) 922-927: the Gehennom
+                    // smoke message and the level annotation, as goto_level()
+                    // gives them on arrival.
+                    const { hellish_smoke_mesg } = await import('./do.js');
+                    const { print_level_annotation } = await import('./dungeon.js');
+                    await hellish_smoke_mesg(g);
+                    await print_level_annotation(g);
+                }
+
+                // C ref: restore.c:dorecover() calls check_special_room(FALSE)
+                // immediately after welcome(FALSE) on a successful restore.
+                const { check_special_room } = await import('./rooms.js');
+                await check_special_room(false, g);
+
+                // C ref: unixmain.c:265 wd_message() after a successful
+                // dorecover(), before the keep-save question.
+                await wd_message(g);
+
+                // C ref: unixmain.c:266-272. Debug/explore restores ask whether
+                // to retain the save. VFS needs no compression operation.
+                if (g.discover || g.wizard) {
+                    if (await yn_function('Do you want to keep the save file?',
+                        'yn', 'n', true, g) === 'n') {
+                        delete_savefile(g);
+                    } else {
+                        chmod_savefile(true, g); /* back to readable */
+                    }
+                }
+
+                // C ref: allmain.c moveloop(TRUE):589. The preamble with
+                // resuming=true applies new date-dependent effects (moon phase,
+                // Friday the 13th) but skips gear-equip, pickup, and seer_turn.
+                await runMoveloopPreambleAtStartupBoundary(true, g);
+                return true;
             }
 
-            // C ref: allmain.c moveloop(TRUE):589. The preamble with
-            // resuming=true applies new date-dependent effects (moon phase,
-            // Friday the 13th) but skips gear-equip, pickup, and seer_turn.
-            await runMoveloopPreambleAtStartupBoundary(true, g);
-            return true;
+            // unixmain.c:281-304, under `if (!resuming)`. new game: start by
+            // choosing role, race, etc; player might change the hero's name
+            // while doing that, in which case we try to restore under the new
+            // name and skip selection this time if that didn't succeed.
+            const neednewlock = !g.plname;
+            if (!g.iflags.renameinprogress || g.iflags.defer_plname
+                || neednewlock) {
+                if (!plsel_once)
+                    await tty_player_selection(g);
+                plsel_once = true;
+                if (neednewlock && g.plname)
+                    continue; /* goto attempt_restore */
+                if (g.iflags.renameinprogress)
+                    continue; /* goto attempt_restore */
+            }
+            break;
         }
-
-        await tty_player_selection(g);
 
         // C ref: unixmain.c:306-311. With no save file to restore, a panic
         // save file left by an earlier segment's panic() makes C ask whether

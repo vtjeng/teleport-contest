@@ -777,6 +777,8 @@ test('set_playmode applies recorder authorization before new-game state', () => 
         // The recorder's linux-minimal hints omit SYSCF, so cnf_line_WIZARDS()
         // never runs and fmtd_wizard_list stays unset.
         explorers: '*',
+        // sys/unix/sysconf GENERICUSERS, which role.c plnamesuffix() reads.
+        genericusers: 'play player game games nethack nethacker ec2-user',
     });
 
     // An account outside sysopt.wizards falls through to explore mode.
