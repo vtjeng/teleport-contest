@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "sp_lev.c lspo_monster() outside level creation, one des.* call at a time: #wizintrinsic grants monster detection, then #wizloadlua tut-1 runs dat/tut-1.lua on Dlvl 1 with in_mklev unset (nhlua.c load_lua()). Each des.monster() reaches makemon()'s runtime tail, whose sensemon() appearance message prints; the wolf's does not fit beside the lichen's and the yellow mold's and raises --More--, and C draws the random numbers of the later des.object() calls only after that key, so the tutorial loader must await every des.* call. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 73120419,
+      "datetime": "20520311091522",
+      "nethackrc": "OPTIONS=name:Tutor,role:Priest,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizintrinsic\nt\n #wizloadlua\ntut-1\n ss"
+    }
+  ]
+}

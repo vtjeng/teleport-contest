@@ -104,9 +104,9 @@ function tutorialKeys(des, state) {
         return source;
     }
 
-    function help(x, y) {
+    async function help(x, y) {
         if (controlKey == null) return;
-        des.engraving({
+        await des.engraving({
             coord: [x, y],
             type: 'engrave',
             text: 'Note: Outside the tutorial, Ctrl-key combinations are '
@@ -126,23 +126,27 @@ export const _tutorialLevelInternals = Object.freeze({
 });
 
 // Port of dat/tut-1.lua. The injected `des` object deliberately mirrors the
-// small slice of the Lua special-level API used by this one level.
-export function loadTutorialLevel(des, state) {
+// small slice of the Lua special-level API used by this one level. Every
+// des.* call is awaited: under #wizloadlua, outside level creation,
+// des.monster() returns a Promise for makemon()'s runtime tail, whose
+// appearance message can wait at --More--, and Lua finishes each call
+// before its next statement (scripts/lua-des-await.test.mjs).
+export async function loadTutorialLevel(des, state) {
     const { key: tutKey, help: tutKeyHelp } = tutorialKeys(des, state);
     const percent = (threshold) => des.random.rn2(100) < threshold;
 
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags(
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags(
         'mazelevel',
         'noflip',
         'nomongen',
         'nodeathdrops',
         'noautosearch',
     );
-    des.map(TUTORIAL_MAP);
-    des.region(selection_area(1, 1, 73, 16), 'lit');
-    des.non_diggable();
-    des.teleport_region({ region: [9, 3, 9, 3] });
+    await des.map(TUTORIAL_MAP);
+    await des.region(selection_area(1, 1, 73, 16), 'lit');
+    await des.non_diggable();
+    await des.teleport_region({ region: [9, 3, 9, 3] });
 
     des.parse_config('mention_walls', true);
     des.parse_config('mention_decor', true);
@@ -161,81 +165,81 @@ export function loadTutorialLevel(des, state) {
         tutKey('movenorthwest'),
     ].join(' ');
 
-    des.engraving({
+    await des.engraving({
         coord: [9, 3], type: 'engrave',
         text: `Move around with ${moveKeys}`, degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [5, 2], type: 'engrave',
         text: `Move diagonally with ${diagonalMoveKeys}`, degrade: false,
     });
     if (state.urole?.mnum === PM_KNIGHT) {
-        des.engraving({
+        await des.engraving({
             coord: [12, 1], type: 'engrave',
             text: `Knights can jump with '${tutKey('jump')}'`,
             degrade: false,
         });
     }
 
-    des.engraving({
+    await des.engraving({
         coord: [2, 4], type: 'engrave',
         text: 'Some actions may require multiple tries before succeeding',
         degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [2, 5], type: 'engrave',
         text: 'Open the door by moving into it', degrade: false,
     });
-    des.door({ coord: [2, 6], state: 'closed' });
-    des.engraving({
+    await des.door({ coord: [2, 6], state: 'closed' });
+    await des.engraving({
         coord: [2, 7], type: 'engrave',
         text: `Close the door with '${tutKey('close')}'`, degrade: false,
     });
 
-    des.engraving({
+    await des.engraving({
         coord: [4, 5], type: 'engrave',
         text: 'You can leave the tutorial via the magic portal.',
         degrade: false,
     });
-    des.trap({ type: 'magic portal', coord: [4, 4], seen: true });
+    await des.trap({ type: 'magic portal', coord: [4, 4], seen: true });
 
-    des.engraving({
+    await des.engraving({
         coord: [5, 9], type: 'engrave',
         text: `This door is locked. Kick it with '${tutKey('kick')}'`,
         degrade: false,
     });
-    des.door({ coord: [5, 10], state: 'locked' });
-    tutKeyHelp(6, 8);
-    des.engraving({
+    await des.door({ coord: [5, 10], state: 'locked' });
+    await tutKeyHelp(6, 8);
+    await des.engraving({
         coord: [5, 12], type: 'engrave',
         text: `Look around the map with '${tutKey('glance')}', press ESC when you're done`,
         degrade: false,
     });
 
-    des.engraving({
+    await des.engraving({
         coord: [10, 13], type: 'engrave',
         text: `Use '${tutKey('search')}' to search for secret doors`,
         degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [10, 15], type: 'engrave',
         text: 'Wrong secret', degrade: false,
     });
 
-    des.engraving({
+    await des.engraving({
         coord: [10, 10], type: 'engrave',
         text: 'Behind this door is a dark corridor', degrade: false,
     });
-    des.door({
+    await des.door({
         coord: [10, 9], state: percent(50) ? 'locked' : 'closed',
     });
-    des.region(selection_match('#', state), 'unlit');
-    des.region(selection_match(' ', state), 'unlit');
-    des.door({
+    await des.region(selection_match('#', state), 'unlit');
+    await des.region(selection_match(' ', state), 'unlit');
+    await des.door({
         coord: [15, 10], state: percent(50) ? 'locked' : 'closed',
     });
 
-    des.engraving({
+    await des.engraving({
         coord: [15, 11], type: 'engrave',
         text: 'There are four traps next to you! Search for them.',
         degrade: false,
@@ -243,320 +247,320 @@ export function loadTutorialLevel(des, state) {
     const locations = [[14, 11], [14, 12], [15, 12], [16, 12], [16, 11]];
     des.shuffle(locations);
     for (let index = 0; index < 4; ++index) {
-        des.trap({
+        await des.trap({
             type: percent(50) ? 'sleep gas' : 'board',
             coord: locations[index],
             victim: false,
         });
     }
-    des.engraving({
+    await des.engraving({
         coord: [15, 15], type: 'engrave',
         text: `Some traps can be disabled with '${tutKey('untrap')}'`,
         degrade: false,
     });
-    des.trap({
+    await des.trap({
         coord: [15, 16], type: 'web', spider_on_web: false,
     });
 
-    des.door({ coord: [18, 13], state: 'closed' });
-    des.engraving({
+    await des.door({ coord: [18, 13], state: 'closed' });
+    await des.engraving({
         coord: [19, 13], type: 'engrave',
         text: `Pick up items with '${tutKey('pickup')}'`, degrade: false,
     });
     const armor = state.urole?.mnum === PM_MONK
         ? LEATHER_GLOVES : LEATHER_ARMOR;
-    des.object({
+    await des.object({
         id: armor, spe: 0, buc: 'cursed', coord: [19, 14],
     });
-    des.engraving({
+    await des.engraving({
         coord: [19, 15], type: 'engrave',
         text: `Wear armor with '${tutKey('wear')}'`, degrade: false,
     });
-    des.object({
+    await des.object({
         id: DAGGER, spe: 0, buc: 'not-cursed', coord: [21, 15],
     });
-    des.engraving({
+    await des.engraving({
         coord: [21, 14], type: 'engrave',
         text: `Wield weapons with '${tutKey('wield')}'`, degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [22, 13], type: 'engrave',
         text: 'Hit monsters by walking into them.', degrade: false,
     });
-    des.monster({
+    await des.monster({
         id: PM_LICHEN, coord: [23, 15], waiting: true, countbirth: false,
     });
 
-    des.engraving({
+    await des.engraving({
         coord: [24, 16], type: 'engrave',
         text: 'Now you know the very basics. You can leave the tutorial via the magic portal.',
         degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [26, 16], type: 'engrave',
         text: 'Step into this portal to leave the tutorial', degrade: false,
     });
-    des.trap({ type: 'magic portal', coord: [27, 16], seen: true });
+    await des.trap({ type: 'magic portal', coord: [27, 16], seen: true });
 
-    des.engraving({
+    await des.engraving({
         coord: [25, 13], type: 'engrave',
         text: 'Push boulders by moving into them', degrade: false,
     });
-    des.object({ id: BOULDER, coord: [25, 12] });
-    des.engraving({
+    await des.object({ id: BOULDER, coord: [25, 12] });
+    await des.engraving({
         coord: [27, 9], type: 'engrave',
         text: `Take off armor with '${tutKey('takeoff')}'`, degrade: false,
     });
 
-    des.object({
+    await des.object({
         id: SCR_REMOVE_CURSE, buc: 'blessed', coord: [23, 11],
     });
-    des.engraving({
+    await des.engraving({
         coord: [22, 11], type: 'engrave',
         text: 'Some items have shuffled descriptions, different each game',
         degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [23, 11], type: 'engrave',
         text: `Pick up this scroll, read it with '${tutKey('read')}', and try to remove the armor again`,
         degrade: false,
     });
 
-    des.engraving({
+    await des.engraving({
         coord: [19, 10], type: 'engrave',
         text: 'Another magic portal, a way to leave this tutorial',
         degrade: false,
     });
-    des.trap({ type: 'magic portal', coord: [19, 11], seen: true });
+    await des.trap({ type: 'magic portal', coord: [19, 11], seen: true });
 
-    des.object({
+    await des.object({
         coord: [14, 5], id: ROCK, quantity: des.random.rn1(50, 50),
     });
-    des.object({
+    await des.object({
         coord: [15, 5], id: ROCK, quantity: des.random.rn1(21, 10),
     });
-    des.object({
+    await des.object({
         coord: [14, 4], id: ROCK, quantity: des.random.rn1(21, 10),
     });
-    des.object({
+    await des.object({
         coord: [15, 6], id: ROCK, quantity: des.random.rn1(31, 30),
     });
-    des.object({
+    await des.object({
         coord: [14, 6], id: ROCK, quantity: des.random.rn1(31, 30),
     });
-    des.object({ coord: [14, 6], id: BOULDER });
-    des.door({
+    await des.object({ coord: [14, 6], id: BOULDER });
+    await des.door({
         coord: [20, 3], state: percent(50) ? 'open' : 'closed',
     });
-    des.engraving({
+    await des.engraving({
         coord: [21, 3], type: 'engrave',
         text: 'Avoid being burdened, it slows you down', degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [22, 3], type: 'engrave',
         text: `Drop items with '${tutKey('drop')}'`, degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [22, 4], type: 'engrave',
         text: 'You can drop partial stacks by prefixing the item slot letter with a number',
         degrade: false,
     });
 
-    des.monster({
+    await des.monster({
         id: PM_YELLOW_MOLD, coord: [26, 2], waiting: true,
         countbirth: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [25, 5], type: 'engrave',
         text: `Throw items with '${tutKey('throw')}'`, degrade: false,
     });
-    des.trap({ type: 'magic portal', coord: [21, 1], seen: true });
+    await des.trap({ type: 'magic portal', coord: [21, 1], seen: true });
 
-    des.monster({
+    await des.monster({
         id: PM_WOLF, coord: [29, 2], peaceful: false, waiting: true,
         countbirth: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [37, 4], type: 'engrave',
         text: 'Missiles, such as rocks, work better when fired from appropriate launcher',
         degrade: false,
     });
-    des.object({
+    await des.object({
         coord: [37, 3], id: SLING, buc: 'not-cursed', spe: 9,
     });
-    des.engraving({
+    await des.engraving({
         coord: [37, 3], type: 'engrave',
         text: 'Wield the sling', degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [36, 1], type: 'engrave',
         text: `Use '${tutKey('fire')}' to fire missiles with the wielded launcher`,
         degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [35, 4], type: 'engrave',
         text: `Firing launches items from your quiver; Use '${tutKey('quiver')}' to put items in it`,
         degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [33, 4], type: 'engrave',
         text: `You can wait a turn with '${tutKey('wait')}'`, degrade: false,
     });
 
-    des.door({ coord: [38, 6], state: 'closed' });
-    des.engraving({
+    await des.door({ coord: [38, 6], state: 'closed' });
+    await des.engraving({
         coord: [39, 6], type: 'engrave',
         text: `You loot containers with '${tutKey('loot')}'`, degrade: false,
     });
-    des.object({
+    await des.object({
         coord: [41, 6], id: LARGE_BOX, broken: true, trapped: false,
-        contents() {
-            des.object({ id: WAN_SECRET_DOOR_DETECTION, spe: 30 });
+        async contents() {
+            await des.object({ id: WAN_SECRET_DOOR_DETECTION, spe: 30 });
         },
     });
-    des.engraving({
+    await des.engraving({
         coord: [42, 6], type: 'engrave',
         text: `Containers can also be emptied with '${tutKey('tip')}'`,
         degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [45, 6], type: 'engrave',
         text: `Magic wands are used with '${tutKey('zap')}'`, degrade: false,
     });
 
-    des.door({ coord: [35, 9], state: 'nodoor' });
-    des.engraving({
+    await des.door({ coord: [35, 9], state: 'nodoor' });
+    await des.engraving({
         coord: [34, 9], type: 'engrave',
         text: `You can run by prefixing a movement key with '${tutKey('run')}'`,
         degrade: false,
     });
-    des.door({ coord: [33, 16], state: 'nodoor' });
-    des.engraving({
+    await des.door({ coord: [33, 16], state: 'nodoor' });
+    await des.engraving({
         coord: [35, 15], type: 'engrave',
         text: `Travel across the level with '${tutKey('travel')}'`,
         degrade: false,
     });
-    des.trap({ type: 'magic portal', coord: [27, 14], seen: true });
+    await des.trap({ type: 'magic portal', coord: [27, 14], seen: true });
 
-    des.engraving({
+    await des.engraving({
         coord: [48, 1], type: 'burn',
         text: `Use '${tutKey('eat')}' to eat edible things`, degrade: false,
     });
-    des.object({ coord: [50, 3], id: APPLE, buc: 'not-cursed' });
-    des.object({ coord: [50, 3], id: CANDY_BAR, buc: 'not-cursed' });
-    des.object({
+    await des.object({ coord: [50, 3], id: APPLE, buc: 'not-cursed' });
+    await des.object({ coord: [50, 3], id: CANDY_BAR, buc: 'not-cursed' });
+    await des.object({
         coord: [50, 3], id: CORPSE, montype: PM_LICHEN,
         buc: 'not-cursed',
     });
 
-    des.door({ coord: [46, 11], state: 'closed' });
-    des.engraving({
+    await des.door({ coord: [46, 11], state: 'closed' });
+    await des.engraving({
         coord: [43, 11], type: 'burn',
         text: `Use '${tutKey('twoweapon')}' to use two weapons at once`,
         degrade: false,
     });
-    des.object({ coord: [43, 13], id: KNIFE, buc: 'uncursed' });
-    des.object({ coord: [43, 14], id: DAGGER, buc: 'blessed' });
-    des.engraving({
+    await des.object({ coord: [43, 13], id: KNIFE, buc: 'uncursed' });
+    await des.object({ coord: [43, 14], id: DAGGER, buc: 'blessed' });
+    await des.engraving({
         coord: [43, 16], type: 'burn',
         text: `Swap weapons quickly with '${tutKey('swap')}'`, degrade: false,
     });
-    des.door({ coord: [40, 15], state: 'random' });
+    await des.door({ coord: [40, 15], state: 'random' });
 
-    des.object({
+    await des.object({
         coord: [48, 7], id: RIN_LEVITATION, buc: 'not-cursed',
     });
-    des.engraving({
+    await des.engraving({
         coord: [48, 10], type: 'burn',
         text: `Put on accessories with '${tutKey('puton')}'`, degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [48, 16], type: 'burn',
         text: `Remove accessories with '${tutKey('remove')}'`, degrade: false,
     });
-    des.door({ coord: [50, 16], state: 'closed' });
+    await des.door({ coord: [50, 16], state: 'closed' });
 
-    des.engraving({
+    await des.engraving({
         coord: [58, 9], type: 'burn',
         text: `Use '${tutKey('down')}' to go down the stairs`, degrade: false,
     });
-    des.stair({ dir: 'down', coord: [58, 10] });
-    tutKeyHelp(64, 4);
-    des.engraving({
+    await des.stair({ dir: 'down', coord: [58, 10] });
+    await tutKeyHelp(64, 4);
+    await des.engraving({
         coord: [65, 3], type: 'burn',
         text: 'UNDER CONSTRUCTION', degrade: false,
     });
-    des.trap({ type: 'magic portal', coord: [66, 2], seen: true });
+    await des.trap({ type: 'magic portal', coord: [66, 2], seen: true });
 
-    des.engraving({
+    await des.engraving({
         coord: [69, 12], type: 'burn',
         text: "Can't get through?  You're carrying too much.",
         degrade: false,
     });
-    des.object({ id: BOULDER, coord: [71, 16] });
-    des.object({ id: BOULDER, coord: [72, 16] });
-    des.object({ id: BOULDER, coord: [73, 16] });
-    des.trap({ type: 'trap door', coord: [73, 15] });
+    await des.object({ id: BOULDER, coord: [71, 16] });
+    await des.object({ id: BOULDER, coord: [72, 16] });
+    await des.object({ id: BOULDER, coord: [73, 16] });
+    await des.trap({ type: 'trap door', coord: [73, 15] });
 
-    des.engraving({
+    await des.engraving({
         coord: [60, 2], type: 'engrave',
         text: 'Spellcasting', degrade: false,
     });
     if ((state.u?.uenmax ?? 0) < 5) {
-        des.engraving({
+        await des.engraving({
             coord: [59, 2], type: 'engrave',
             text: "Unfortunately you don't have enough energy to cast spells.",
             degrade: false,
         });
     }
-    des.engraving({
+    await des.engraving({
         coord: [57, 2], type: 'engrave',
         text: `Pick up the spellbook with '${tutKey('pickup')}'`,
         degrade: false,
     });
-    des.object({ coord: [57, 2], id: SPE_LIGHT, buc: 'blessed' });
-    des.engraving({
+    await des.object({ coord: [57, 2], id: SPE_LIGHT, buc: 'blessed' });
+    await des.engraving({
         coord: [55, 2], type: 'engrave',
         text: `Read the spellbook with '${tutKey('read')}'`, degrade: false,
     });
-    des.engraving({
+    await des.engraving({
         coord: [53, 2], type: 'engrave',
         text: `Use '${tutKey('cast')}' to cast a spell`, degrade: false,
     });
-    des.region(selection_area(53, 1, 59, 3), 'unlit');
+    await des.region(selection_area(53, 1, 59, 3), 'unlit');
 
-    des.engraving({
+    await des.engraving({
         coord: [72, 2], type: 'engrave',
         text: `You "quaff" potions with '${tutKey('quaff')}'`, degrade: false,
     });
-    des.object({
+    await des.object({
         coord: [72, 2], id: POT_OBJECT_DETECTION, buc: 'blessed',
     });
 }
 
 // Port of dat/tut-2.lua. Both tutorial levels use the normal special-level
 // registry below, which do.c goto_level() reaches through mklev().
-export function loadTutorialSecondLevel(des, state) {
-    des.level_init({ style: 'solidfill', fg: ' ' });
-    des.level_flags(
+export async function loadTutorialSecondLevel(des, state) {
+    await des.level_init({ style: 'solidfill', fg: ' ' });
+    await des.level_flags(
         'mazelevel',
         'noflip',
         'nomongen',
         'nodeathdrops',
         'noautosearch',
     );
-    des.map(TUTORIAL_SECOND_LEVEL_MAP);
-    des.region(selection_area(1, 1, 73, 16), 'lit');
-    des.stair({ dir: 'up', coord: [2, 2] });
-    des.engraving({
+    await des.map(TUTORIAL_SECOND_LEVEL_MAP);
+    await des.region(selection_area(1, 1, 73, 16), 'lit');
+    await des.stair({ dir: 'up', coord: [2, 2] });
+    await des.engraving({
         coord: [1, 1],
         type: 'burn',
         text: `Use '${tutorialCommandKey('up', createCommandBindingModel(state))}'`
             + ' to go up the stairs',
         degrade: false,
     });
-    des.trap({ type: 'magic portal', coord: [11, 5], seen: true });
-    des.non_diggable();
+    await des.trap({ type: 'magic portal', coord: [11, 5], seen: true });
+    await des.non_diggable();
 }
 
 export const TUTORIAL_LEVEL_LOADERS = Object.freeze({

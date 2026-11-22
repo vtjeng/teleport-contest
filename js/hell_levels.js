@@ -121,8 +121,9 @@ export function rnd_valign(random = rn2) {
     return ['top', 'center', 'bottom'][mathRandom(1, 3, random) - 1];
 }
 
-function prefabMap(des, map, random, options = {}, contents = async () => {}) {
-    return des.map({
+async function prefabMap(des, map, random, options = {},
+    contents = async () => {}) {
+    await des.map({
         ...options,
         map,
         contents,
