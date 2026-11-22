@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "zap.c wish_history_add() (6235-6253) and wish_history_menu() (6288-6306) when an empty line follows a real wish. \"dagger\" fills slot 0; a bare Enter at the prompt is the empty line, which \"dagger\" is not a prefix of, so \"\" fills slot 1. The newest-first menu lists the blank entry as `a` and dagger as `b`. A line of spaces is emptied by mungspaces() and matches the stored \"\"; \"elven dagger\" matches it too and is not added, so the last menu is unchanged and `b` wishes for a dagger.",
+  "segments": [{
+    "seed": 90317265,
+    "datetime": "20231105064208",
+    "nethackrc": "OPTIONS=name:Blankwish,role:Healer,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+    "moves": " \u0017dagger\n\u0017\nm\u0017\u001b\u0017   \n\u0017elven dagger\nm\u0017bi"
+  }]
+}

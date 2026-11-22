@@ -1878,7 +1878,9 @@ async function wishcmdassist(triesleft, state = game) {
 const MAX_WISH_HISTORY = 20;
 
 // C ref: zap.c wish_history_add() (6224-6253). A line is skipped when it
-// begins, ignoring ASCII case, with a line already in the history.
+// begins, ignoring ASCII case, with a line already in the history. C tests
+// each slot as a pointer, so null alone marks a free slot and an empty line
+// is an entry like any other.
 export function wish_history_add(buf, state = game) {
     if (!state.wizard) return;
     state.wish_history ??= new Array(MAX_WISH_HISTORY).fill(null);
@@ -1889,7 +1891,9 @@ export function wish_history_add(buf, state = game) {
     for (i = 0; i < MAX_WISH_HISTORY; i++) {
         const idx = (state.wish_history_idx + i) % MAX_WISH_HISTORY;
 
-        if (!history[idx]) continue;
+        // 6240: a stored "" is a zero-length prefix of every later line, so
+        // nothing is added after it.
+        if (history[idx] === null) continue;
         if (!strncmpi(history[idx], buf, history[idx].length)) break;
     }
 
@@ -1912,7 +1916,7 @@ async function wish_history_menu(state = game) {
 
     for (let i = MAX_WISH_HISTORY - 1; i >= 0; i--) {
         const idx = (state.wish_history_idx + i) % MAX_WISH_HISTORY;
-        if (history[idx]) {
+        if (history[idx] !== null) {
             items.push({ value: i + 1, label: history[idx] });
         }
     }
@@ -1927,7 +1931,7 @@ async function wish_history_menu(state = game) {
     if (picked > 0) {
         const idx = (state.wish_history_idx + picked - 1) % MAX_WISH_HISTORY;
 
-        if (history[idx]) return history[idx];
+        if (history[idx] !== null) return history[idx];
     }
     return '';
 }
@@ -1972,7 +1976,7 @@ export async function makewish(state = game) {
         // 6334: the `m` prefix opens the history menu on the first try once
         // a wish has been recorded; wish_history[0] is the first slot filled.
         const answer = state.iflags?.menu_requested
-            && state.wish_history?.[0] && tries === 0
+            && (state.wish_history?.[0] ?? null) !== null && tries === 0
             ? await wish_history_menu(state)
             : await getlin(promptbuf, state);
 

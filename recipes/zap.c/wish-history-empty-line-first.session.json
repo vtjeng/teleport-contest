@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "comment": "zap.c makewish() (6334), wish_history_add() (6235-6253) and wish_history_menu() (6288-6306) once an empty line is in the history. Escape at \"For what do you wish?\" empties the line (6346-6347), readobjnam(\"\") grants a random object, and wish_history_add(\"\") stores \"\" in slot 0. wish_history[0] is then a non-null pointer, so `m` ^W opens the menu with one blank entry; Escape there leaves buf empty. The zero-length entry is a prefix of every line (strncmpi() with n = 0), so the later \"scalpel\" wish is never added and the last menu still lists only the blank entry, which `a` picks.",
+  "segments": [{
+    "seed": 58204417,
+    "datetime": "20240922181536",
+    "nethackrc": "OPTIONS=name:Blankwish,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+    "moves": " \u0017\u001bm\u0017\u001b\u0017scalpel\nm\u0017ai"
+  }]
+}
