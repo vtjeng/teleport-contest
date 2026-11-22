@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "role.c genl_player_setup() (2556-2561) reached with answer `n`: align:random stays ROLE_RANDOM because every alignment is filtered, so after Space takes the preselected random entry in the role, race and gender menus, pick_align() fails and pline(\"Incompatible alignment!\") runs; --More-- precedes the confirmation menu. Three Ctrl-P recall the history.",
+  "segments": [
+    {
+      "seed": 61216,
+      "datetime": "20270513183000",
+      "nethackrc": "OPTIONS=name:Kip,align:random\nOPTIONS=align:!lawful\nOPTIONS=align:!neutral\nOPTIONS=align:!chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "n    y\u0010\u0010\u0010\u001b"
+    }
+  ]
+}

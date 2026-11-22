@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "role.c genl_player_setup() (2299-2304) with answer `y`: the confirmation menu follows \"Incompatible role!\", so tty_display_nhwindow() runs more() first. Ctrl-P under msg_window:full lists the prompt, the diagnostic and the welcome line.",
+  "segments": [
+    {
+      "seed": 61208,
+      "datetime": "20270510183000",
+      "nethackrc": "OPTIONS=name:Dara,race:orc,align:lawful,msg_window:full\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "y y\u0010\u001b"
+    }
+  ]
+}

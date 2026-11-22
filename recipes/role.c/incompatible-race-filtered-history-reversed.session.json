@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "role.c genl_player_setup() (2380-2385): a Tourist whose only race is filtered out with race:!human; pick_race() fails and pline(\"Incompatible race!\") runs before randrace(). Answer `a`; Ctrl-P under msg_window:reversed.",
+  "segments": [
+    {
+      "seed": 61209,
+      "datetime": "20270511183000",
+      "nethackrc": "OPTIONS=name:Enzo,role:Tourist,race:!human,msg_window:reversed\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "a\u0010\u001b"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "role.c genl_player_setup() (2299-2304): answer `a` with a lawful elf preset, which no role allows, so pick_role() fails and pline(\"Incompatible role!\") runs before randrole(). No menu follows; dungeon.c init_dungeons() erases the screen (1247-1248) and the line gets no --More--. Four Ctrl-P under the default msg_window:single walk back from the welcome line through \"Incompatible role!\" to the answered prompt.",
+  "segments": [
+    {
+      "seed": 61207,
+      "datetime": "20270419183000",
+      "nethackrc": "OPTIONS=name:Brix,race:elf,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "a\u0010\u0010\u0010\u0010\u001b"
+    }
+  ]
+}

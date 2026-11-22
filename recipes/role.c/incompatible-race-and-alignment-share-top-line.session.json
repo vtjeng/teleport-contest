@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "role.c genl_player_setup() (2380-2385, 2556-2561): a Tourist with race:!human and align:!neutral gets both \"Incompatible race!\" and \"Incompatible alignment!\"; update_topl() joins them on one line before the confirmation menu's --More--. Legacy stays on, so the text window follows. Ctrl-P under msg_window:full. The date is a full moon, so the welcome line gets a --More-- before \"You are lucky!  Full moon tonight.\"",
+  "segments": [
+    {
+      "seed": 61211,
+      "datetime": "20270423183000",
+      "nethackrc": "OPTIONS=name:Gus,role:Tourist,race:!human,align:!neutral,msg_window:full\nOPTIONS=!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "y y  \u0010\u001b"
+    }
+  ]
+}
