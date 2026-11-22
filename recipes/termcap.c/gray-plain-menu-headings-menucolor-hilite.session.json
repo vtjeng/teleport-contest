@@ -1,1 +1,12 @@
-{"version": 5, "segments": [{"seed": 18834, "datetime": "20240229080000", "nethackrc": "OPTIONS=name:Yuki,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\nOPTIONS=menu_headings:gray,menucolors,statushilites:10\nMENUCOLOR=\"katana\"=gray\nMENUCOLOR=\"yumi\"=grey&inverse\nOPTIONS=hilite_status:strength/always/gray\nOPTIONS=hilite_status:armor-class/always/grey&underline\n", "moves": "i\u001bO\u001b#vanquished\n\u001bI(\u001bs"}], "comment": "Plain gray, and the 'grey' spelling with an attribute, on menu headings, MENUCOLOR rows and status hilites: no colour is captured for gray."}
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 18834,
+      "datetime": "20240229080000",
+      "nethackrc": "OPTIONS=name:Yuki,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\nOPTIONS=menu_headings:gray,menucolors,statushilites:10\nMENUCOLOR=\"katana\"=gray\nMENUCOLOR=\"yumi\"=grey&inverse\nOPTIONS=hilite_status:strength/always/gray\nOPTIONS=hilite_status:armor-class/always/grey&underline\n",
+      "moves": "i\u001bO\u001b#vanquished\n\u001bI(\u001bs"
+    }
+  ],
+  "comment": "Plain gray, and the 'grey' spelling with an attribute, on menu headings, MENUCOLOR rows and status hilites: no colour is captured for gray."
+}

@@ -1,1 +1,12 @@
-{"version": 5, "segments": [{"seed": 30486, "datetime": "20230905221000", "nethackrc": "OPTIONS=name:Brom,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n", "moves": "#terrain\n\rG\u001b\rs#terrain\n\rg \rs#terrain\n\rgw\rs#terrain\n\rGL.\rs"}], "comment": "#terrain's map browse calls a non-forced getpos(). 'G' then Escape and 'g' then space are quitchars after the prefix and print only 'Done.'; 'w' after 'g' prints the '(aborted)' diagnostic; 'G' then 'L' fast-moves and '.' picks. Return dismisses each --More--."}
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 30486,
+      "datetime": "20230905221000",
+      "nethackrc": "OPTIONS=name:Brom,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\n",
+      "moves": "#terrain\n\rG\u001b\rs#terrain\n\rg \rs#terrain\n\rgw\rs#terrain\n\rGL.\rs"
+    }
+  ],
+  "comment": "#terrain's map browse calls a non-forced getpos(). 'G' then Escape and 'g' then space are quitchars after the prefix and print only 'Done.'; 'w' after 'g' prints the '(aborted)' diagnostic; 'G' then 'L' fast-moves and '.' picks. Return dismisses each --More--."
+}

@@ -1,1 +1,12 @@
-{"version": 5, "segments": [{"seed": 77120, "datetime": "20220611133000", "nethackrc": "OPTIONS=name:Odo,role:Ranger,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\nOPTIONS=menu_headings:gray&bold,menucolors,statushilites:10\nMENUCOLOR=\"bolts\"=gray&bold\nMENUCOLOR=\"cloak\"=gray&underline\nMENUCOLOR=\"dagger\"=gray\nOPTIONS=hilite_status:hitpoints/always/gray&bold\nOPTIONS=hilite_status:gold/always/gray&inverse\n", "moves": "i\u001bO\u001b\\\u001bDa\u001b\u001bs"}], "comment": "Gray with an attribute on menu headings, MENUCOLOR rows and status hilites: termcap.c gives hilites[CLR_GRAY] the empty string and the recorder's capture writes foreground 7 as the default, so only the attribute shows."}
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77120,
+      "datetime": "20220611133000",
+      "nethackrc": "OPTIONS=name:Odo,role:Ranger,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup,pettype:none\nOPTIONS=menu_headings:gray&bold,menucolors,statushilites:10\nMENUCOLOR=\"bolts\"=gray&bold\nMENUCOLOR=\"cloak\"=gray&underline\nMENUCOLOR=\"dagger\"=gray\nOPTIONS=hilite_status:hitpoints/always/gray&bold\nOPTIONS=hilite_status:gold/always/gray&inverse\n",
+      "moves": "i\u001bO\u001b\\\u001bDa\u001b\u001bs"
+    }
+  ],
+  "comment": "Gray with an attribute on menu headings, MENUCOLOR rows and status hilites: termcap.c gives hilites[CLR_GRAY] the empty string and the recorder's capture writes foreground 7 as the default, so only the attribute shows."
+}
