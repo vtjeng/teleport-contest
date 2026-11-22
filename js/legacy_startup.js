@@ -4,6 +4,7 @@
 
 import { game } from './gstate.js';
 import {
+    erase_menu_or_text,
     menuOverlay,
     restoreCorner,
     writeTextWindowLine,
@@ -21,6 +22,7 @@ import { TOPLINE_EMPTY, TOPLINE_NEED_MORE, WIN_CANCELLED } from './const.js';
 import { rn2 } from './rng.js';
 import { rankOf } from './roles.js';
 import { CLR_GRAY, NO_COLOR } from './terminal.js';
+import { term_clear_screen } from './wintty.js';
 
 const MORE_PROMPT = '--More--';
 
@@ -164,7 +166,7 @@ export function renderTtyLegacyIntroduction(state = game) {
     if (layout.fullScreen) display.toplin = TOPLINE_EMPTY;
     else clearTtyMessageWindow(state);
     const snapshot = snapshotDisplay(display);
-    if (layout.fullScreen) display.clearScreen();
+    if (layout.fullScreen) term_clear_screen(state, display);
     for (let row = 0; row < lines.length; ++row) {
         clearFrom(display, layout.offx, row);
         writeTextWindowLine(
@@ -189,12 +191,20 @@ export function renderTtyLegacyIntroduction(state = game) {
 export async function dismissTtyLegacyIntroduction(state = game, rendered) {
     if (!rendered || !state.nhDisplay) return;
     const { layout, snapshot } = rendered;
-    // wintty.c erase_menu_or_text() (966-984): a column-zero window calls
-    // docrt() and flush_screen(1).  The story does not change game state, so
-    // restoring this exact pre-page frame reproduces that redraw.  A fixture
-    // with no map has nothing for docorner() to redraw either.
-    if (layout.offx === 0 || !state.level || !state.u?.ux) {
+    // A fixture with no map has nothing for docrt() or docorner() to redraw.
+    if (!state.level || !state.u?.ux) {
         restoreDisplay(state.nhDisplay, snapshot);
+        return;
+    }
+    // wintty.c erase_menu_or_text() (966-984): a column-zero window calls
+    // docrt() and flush_screen(1).  docrt()'s cls() sets disp.botlx, so the
+    // flush's bot() sends BL_RESET and render_status() redraws every status
+    // field; the pass also delivers whatever changed while the story was up
+    // and clears disp.botl, so the welcome line's flush renders nothing.
+    if (layout.offx === 0) {
+        await erase_menu_or_text(
+            state, state.nhDisplay, snapshot.grid, snapshot.cursor,
+        );
         return;
     }
     // A corner window calls docorner(offx, maxrow + 1, 0) instead: cl_end()

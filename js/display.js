@@ -33,6 +33,13 @@ import { glyphmap_use_color } from './display_glyphmap.js';
 import { select_menu, getlin, ttyMenuColorAttribute } from './windows.js';
 import { query_color, query_attr, clr2colorname } from './coloratt.js';
 import { STATUS_FIELDS, STATUS_CONDITIONS, STATUS_CONDITION_ALIASES } from './status_field_data.js';
+import {
+    erase_status_rows,
+    tty_status_cl_end_screen_row,
+    tty_status_flush,
+    tty_status_paint,
+    tty_status_state,
+} from './wintty.js';
 import * as statusConstants from './const.js';
 import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
@@ -5825,19 +5832,10 @@ function _statusLine3DetailsConfiguration() {
     return { conditionLevel, shortLevel, time, version };
 }
 
-// `initial` starts the row from cells already on it, for wintty.c
-// render_status()'s incremental passes (_tty_status_last_row()).
-function _newStatusRow(initial = null) {
+function _newStatusRow() {
     const chars = new Array(TTY_STATUS_WIDTH).fill(' ');
     const owners = new Array(TTY_STATUS_WIDTH).fill(null);
     let extent = 0;
-    for (let column = 0;
-        column < Math.min(initial?.text.length ?? 0, TTY_STATUS_WIDTH);
-        ++column) {
-        chars[column] = initial.text[column];
-        owners[column] = initial.owners[column] ?? null;
-        extent = column + 1;
-    }
     const write = (start, text, owner = null) => {
         for (let index = 0; index < text.length; ++index) {
             const column = start + index;
@@ -5870,8 +5868,7 @@ function _newStatusRow(initial = null) {
             owners: owners.slice(0, length),
         };
     };
-    const charAt = (column) => chars[column] ?? ' ';
-    return { charAt, clear, finish, write };
+    return { clear, finish, write };
 }
 
 function _fieldOwner(field, value = null) {
@@ -5899,7 +5896,7 @@ function _writeConditions(row, start, entries) {
 
 // One entry of the ordered list a status row is laid out from. `text` is the
 // status_vals[] string the core last handed the window port and `owner` is the
-// highlight owner _statusStyleRows() reads back off the rendered row. C ref:
+// highlight owner _statusRowGroups() takes the field's color and attribute from. C ref:
 // wintty.c check_fields(), which walks fieldorder[] in this order and gives
 // each field the column the running total of the fields before it reaches.
 //
@@ -6003,7 +6000,8 @@ function _writeVersion(row, nominal, field) {
 // the two whose column does not follow from that total. Both moved fields
 // leave the running total alone, so what follows a displaced BL_CONDITION
 // resumes at its nominal column. This is the row a forced pass draws on a
-// blank row; _renderStatusLastRow() models the later incremental passes.
+// blank row; wintty.js render_status() draws the terminal's row, and this
+// one supplies the fields and the conditions shown.
 //
 // Returns the unfinished row.
 function _renderStatusFields(fields, hungerX = null) {
@@ -6019,6 +6017,10 @@ function _renderStatusFields(fields, hungerX = null) {
             }
         } else if (field.kind === 'version') {
             _writeVersion(row, nominal, field);
+        } else if (field.kind === 'title-bar') {
+            let column = nominal;
+            for (const { text, owner } of field.parts)
+                column = row.write(column, text, owner);
         } else {
             row.write(nominal, field.text, field.owner);
         }
@@ -6027,11 +6029,13 @@ function _renderStatusFields(fields, hungerX = null) {
     return { row };
 }
 
+// The fields the first row of wintty.c twolineorder[] and threelineorder[]
+// holds, in their order; `includeAlignment` is the two-row order's BL_ALIGN.
+// BL_SCORE is not ported.
 function _statusLine1Layout(includeAlignment = true) {
     const u = game.u;
     if (!u) return { text: '', owners: [] };
-    const row = _newStatusRow();
-    let column;
+    const fields = [];
     if (game.iflags?.wc2_hitpointbar) {
         const hp = _statusFieldData('hitpoints');
         let barLength = Math.trunc(
@@ -6041,20 +6045,27 @@ function _statusLine1Layout(includeAlignment = true) {
         if (barLength >= STATUS_HP_BAR_WIDTH && hp.percent < 100) {
             barLength = STATUS_HP_BAR_WIDTH - 1;
         }
-        row.write(0, '[');
         const bar = _statusHitpointBarTitle();
-        const highlighted = bar.slice(0, barLength);
-        row.write(1, highlighted, _hpBarOwner());
-        row.write(1 + highlighted.length, bar.slice(highlighted.length));
-        row.write(1 + STATUS_HP_BAR_WIDTH, ']');
-        column = STATUS_HP_BAR_WIDTH + 2;
+        // C ref: wintty.c render_status() (5108-5182) draws BL_TITLE as a
+        // 32-column bracketed bar, whose filled part alone is highlighted.
+        fields.push({
+            kind: 'title-bar',
+            parts: [
+                { text: '[', owner: null },
+                { text: bar.slice(0, barLength), owner: _hpBarOwner() },
+                { text: bar.slice(barLength), owner: null },
+                { text: ']', owner: null },
+            ],
+            text: `[${bar}]`,
+            // status_vals[BL_TITLE] holds the bare title, which wintty.c
+            // check_fields() compares with cw->data from the bar's '['.
+            value: bar,
+        });
     } else {
-        const title = _statusTitle().padEnd(STATUS_HP_BAR_WIDTH);
-        row.write(0, title, _fieldOwner('title'));
-        column = title.length;
+        fields.push(_statusField(
+            _statusTitle().padEnd(STATUS_HP_BAR_WIDTH), _fieldOwner('title'),
+        ));
     }
-
-    column = Math.max(31, column + 1);
     const attrs = [
         acurr(game, A_STR),
         acurr(game, A_INT),
@@ -6063,24 +6074,24 @@ function _statusLine1Layout(includeAlignment = true) {
         acurr(game, A_CON),
         acurr(game, A_CHA),
     ];
-    const fields = [
+    for (const [field, text] of [
         ['strength', `St:${attrs[A_STR] ? get_strength_str(attrs[A_STR]) : '?'}`],
         ['dexterity', `Dx:${attrs[A_DEX] || '?'}`],
         ['constitution', `Co:${attrs[A_CON] || '?'}`],
         ['intelligence', `In:${attrs[A_INT] || '?'}`],
         ['wisdom', `Wi:${attrs[A_WIS] || '?'}`],
         ['charisma', `Ch:${attrs[A_CHA] || '?'}`],
-    ];
-    for (let index = 0; index < fields.length; ++index) {
-        if (index) column = row.write(column, ' ');
-        const [field, text] = fields[index];
-        column = row.write(column, text, _fieldOwner(field));
+    ]) {
+        fields.push(_statusField(' '), _statusField(text, _fieldOwner(field)));
     }
     if (includeAlignment) {
-        column = row.write(column, ' ');
-        row.write(column, _statusAlignment(u), _fieldOwner('alignment'));
+        fields.push(
+            _statusField(' '),
+            _statusField(_statusAlignment(u), _fieldOwner('alignment')),
+        );
     }
-    return row.finish();
+    const { row } = _renderStatusFields(fields);
+    return { ...row.finish(), fields };
 }
 
 // The fields wintty.c twolineorder[]'s second row holds, in its order.
@@ -6110,24 +6121,11 @@ function _statusLine2Fields(capacityValue) {
             _statusField(_statusTimeText(), _fieldOwner('time')),
         );
     }
-    const hunger = _statusFieldData('hunger').text;
-    if (hunger) {
-        fields.push(
-            _statusField(' '),
-            _statusField(hunger, _fieldOwner('hunger')),
-        );
-    }
+    fields.push(..._hungerStatusFields());
     const capacity = _capacityStatus(capacityValue, capacityLevel);
-    if (capacity) {
-        fields.push(
-            _statusField(' '),
-            _statusField(
-                capacity,
-                _fieldOwner('carrying-capacity', capacityValue),
-            ),
-        );
-    }
-    if (capacityPadding) {
+    if (capacity || !capacityPadding) {
+        fields.push(..._capacityStatusFields(capacity, capacityValue));
+    } else {
         fields.push({ kind: 'capacity-padding', text: capacityPadding });
     }
     fields.push(_conditionStatusField(
@@ -6148,32 +6146,38 @@ function _statusLine2Layout(capacity) {
     return { ...row.finish(), fields };
 }
 
+// BL_HUNGER and BL_CAP stay in their row while their text is empty: a
+// zero-length field still has a column in wintty.c check_fields() and an
+// entry in tty_status[BEFORE][], which the third row's conditions line up
+// with.
+function _hungerStatusFields() {
+    const hunger = _statusFieldData('hunger').text;
+    return hunger
+        ? [_statusField(' '), _statusField(hunger, _fieldOwner('hunger'))]
+        : [_statusField('', _fieldOwner('hunger'))];
+}
+
+function _capacityStatusFields(capacity, capacityValue) {
+    const owner = _fieldOwner('carrying-capacity', capacityValue);
+    return capacity
+        ? [_statusField(' '), _statusField(capacity, owner)]
+        : [_statusField('', owner)];
+}
+
+// The fields wintty.c threelineorder[]'s second row holds, in its order.
 function _statusLine3VitalsLayout(capacityValue) {
     const u = game.u;
     if (!u) return { text: '', owners: [] };
-    const row = _newStatusRow();
-    let column = row.write(
-        0,
-        _statusAlignment(u),
-        _fieldOwner('alignment'),
-    );
-    column = row.write(column, ' ');
-    column = _writeStatusFields(row, column, _vitalStatusFields(u));
-    const hunger = _statusFieldData('hunger').text;
-    if (hunger) {
-        column = row.write(column, ' ');
-        column = row.write(column, hunger, _fieldOwner('hunger'));
-    }
-    const capacity = _capacityStatus(capacityValue);
-    if (capacity) {
-        column = row.write(column, ' ');
-        row.write(
-            column,
-            capacity,
-            _fieldOwner('carrying-capacity', capacityValue),
-        );
-    }
-    return row.finish();
+    const fields = [
+        _statusField(_statusAlignment(u), _fieldOwner('alignment')),
+        _statusField(' '),
+        ..._vitalStatusFields(u),
+        ..._hungerStatusFields(),
+        ..._capacityStatusFields(_capacityStatus(capacityValue),
+            capacityValue),
+    ];
+    const { row } = _renderStatusFields(fields);
+    return { ...row.finish(), fields };
 }
 
 // The fields wintty.c threelineorder[]'s third row holds, in its order, with
@@ -6220,158 +6224,132 @@ function _statusLine3DetailsLayout() {
     return { ...row.finish(), fields, hungerX };
 }
 
-// C ref: win/tty/wintty.c check_fields() (4647-4737) and render_status()
-// (4991-5262) for the last row of a three-row status window, the one row
-// whose physical cells can differ from what its fields would draw on a blank
-// row. render_status() lines BL_CONDITION up with the row above (5036-5062)
-// and records that column as the field's x; the next check_fields() finds
-// it away from its nominal column, so every later pass redraws the
-// conditions (update_right) and their indent writes spaces over the
-// BL_WEAPON, BL_ARMOR and BL_TERRAIN cells between. Those fields are drawn
-// again only when their own position moved or their value changed, and the
-// rest-of-line erase after a row that got shorter also takes the indented
-// conditions with it. BL_VERS, right justified, behaves the same way.
-//
-// game._statusLastRowTty holds this row's tty state: `cells`, cw->data[row]
-// as {text, owners}; `before`, tty_status[BEFORE][] for the row's fields;
-// and `finalx`, finalx[row][BEFORE] as a zero-based end column. It is null
-// before the first pass. wintty.js new_status_window() empties `cells` and
-// `before`, as tty_status_init()'s zeroed [BEFORE] makes every field redraw,
-// and keeps `finalx`, which C never resets.
-//
-// `nominal` is the row as statusLayouts() lays it out on a blank row, with
-// its fields; `forced` is BL_RESET's forcefields; `dirty(group)` answers
-// whether botl.c sent the field in this pass; `flush` is false when botl.c
-// sent nothing at all, so no BL_FLUSH reaches render_status(). Answers the
-// physical row with the nominal row's fields and hungerX.
-function _renderStatusLastRow(nominal, { forced, dirty, flush }) {
-    if (!nominal.fields) return nominal;
-    const tty = game._statusLastRowTty;
-    const groups = _statusRowGroups(nominal.fields);
-    const before = tty?.before ?? new Map();
-    const anyDirty = groups.some((group) => dirty(group, before.get(group.key)));
-    if (tty && !forced && !flush && !anyDirty)
-        return { ...tty.cells, fields: nominal.fields, hungerX: nominal.hungerX };
-    const row = _newStatusRow(tty?.cells ?? null);
-    const physical = (column) => (column < TTY_STATUS_WIDTH
-        ? (tty?.cells.text[column] ?? ' ') : ' ');
-    // check_fields(): tty_status[NOW][idx].x and .redraw.
-    let column = 0;
-    let updateRight = false;
-    for (const group of groups) {
-        const previous = before.get(group.key) ?? { x: -1, lth: 0 };
-        const length = group.text.length;
-        group.x = column;
-        group.redraw = false;
-        if (group.x + length !== previous.x + previous.lth)
-            updateRight = true;
-        else if (length !== previous.lth || group.x !== previous.x)
-            group.redraw = true;
-        else
-            updateRight = false;
-        const sent = dirty(group, previous);
-        let matchprev = false;
-        // 4686-4721: the same-contents test, skipped for conditions, needs
-        // an unchanged color and attribute and compares the new value with
-        // cw->data[] from the field's column.
-        if (!updateRight && !forced && !group.redraw
-            && group.kind !== 'condition'
-            && group.style === previous.style) {
-            matchprev = !sent || [...group.text].every(
-                (ch, index) => physical(group.x + index) === ch,
-            );
-        }
-        if (forced || updateRight || (sent && !matchprev))
-            group.redraw = true;
-        column += length;
-    }
-    // render_status(): draw the fields marked for redraw, in field order.
-    const next = new Map();
-    let x = 0;
-    for (const group of groups) {
-        x = group.x;
-        let drawnX = group.x;
-        if (!group.redraw) {
-            x += group.text.length;
-        } else if (group.kind === 'condition') {
-            const { entries, indent } = group.field;
-            if (entries.length && indent) {
-                const start = _conditionIndent(
-                    x, group.text.length, nominal.hungerX,
-                );
-                // 5063-5069: a space only where cw->data[] is not one.
-                for (; x < start; ++x) {
-                    if (row.charAt(x) !== ' ') row.write(x, ' ');
-                }
-                drawnX = x;
-            }
-            x = _writeConditions(row, x, entries);
-        } else if (group.kind === 'version' && group === groups.at(-1)) {
-            // 5185-5210: pad to vstart = cw->cols - lth and draw there.
-            const start = TTY_STATUS_WIDTH - group.text.length;
-            for (; x < start; ++x) {
-                if (row.charAt(x) !== ' ') row.write(x, ' ');
-            }
-            drawnX = x;
-            x = row.write(x, ' ');
-            x = row.write(x, group.field.version, _fieldOwner('version'));
-        } else {
-            for (const { text, owner } of group.parts)
-                x = row.write(x, text, owner);
-        }
-        next.set(group.key, {
-            x: drawnX, lth: group.text.length, text: group.text,
-            style: group.style,
-        });
-    }
-    // 5251-5256: erase the rest of a row that got shorter.
-    const finalx = x;
-    if ((finalx < (tty?.finalx ?? 0) || !tty?.finalx)
-        && finalx + 1 < TTY_STATUS_WIDTH + 1)
-        row.clear(finalx, TTY_STATUS_WIDTH);
-    const cells = row.finish();
-    game._statusLastRowTty = { cells, before: next, finalx };
-    return { ...cells, fields: nominal.fields, hungerX: nominal.hungerX };
-}
-
-// The status_vals[] fields of one row in fieldorder[] order. botl.c formats
-// every field after a row's first with its leading separator (" T:%s"), so an
+// The status_vals[] fields of one row in fieldorder[] order, in the form
+// wintty.js check_fields() and render_status() take. botl.c formats every
+// field after a row's first with its leading separator (" T:%s"), so an
 // unowned separator joins the field that follows it, as in check_fields()'s
-// lengths. `style` is the color and attribute tty_status[NOW][] would carry.
+// lengths. `style` is the color and attribute tty_status[NOW][] would carry;
+// each part carries the color and attribute render_status() writes it in.
 function _statusRowGroups(fields) {
     const groups = [];
     let prefix = [];
+    const part = (text, owner = null) => ({
+        text,
+        owner,
+        style: owner ? _recorderStatusStyle(_statusOwnerStyle(owner)) : null,
+    });
     for (const field of fields) {
         if (!field.kind && !field.owner) {
-            prefix.push({ text: field.text, owner: null });
+            prefix.push(part(field.text));
             continue;
         }
-        const parts = [...prefix, { text: field.text, owner: field.owner }];
+        let key;
+        let kind = 'field';
+        let parts;
+        if (field.kind === 'condition') {
+            key = kind = 'condition';
+            parts = field.entries.flatMap(({ option, text }) => [
+                part(' '), part(text, _conditionOwner(option)),
+            ]);
+        } else if (field.kind === 'version') {
+            key = kind = 'version';
+            parts = [part(' '), part(field.version, _fieldOwner('version'))];
+        } else if (field.kind === 'capacity-padding') {
+            // The blank wintty.c shrink_enc() leaves in status_vals[BL_CAP].
+            key = 'carrying-capacity';
+            parts = [part(field.text)];
+        } else if (field.kind === 'title-bar') {
+            key = 'title';
+            parts = field.parts.map(({ text, owner }) => part(text, owner));
+        } else {
+            key = field.owner.field ?? field.owner.kind;
+            parts = [part(field.text, field.owner)];
+        }
+        parts = [...prefix, ...parts];
         prefix = [];
-        const owners = field.kind === 'condition'
-            ? field.entries.map(({ option }) => _conditionOwner(option))
-            : field.kind === 'version' ? [_fieldOwner('version')]
-                : [field.owner];
+        const text = parts.map((piece) => piece.text).join('');
         groups.push({
-            field,
-            kind: field.kind ?? 'field',
-            key: field.kind === 'condition' || field.kind === 'version'
-                ? field.kind : field.owner.field ?? field.owner.kind,
+            key,
+            kind,
             parts,
-            text: parts.map(({ text }) => text).join(''),
-            style: JSON.stringify(owners.map(
-                (owner) => _recorderStatusStyle(_statusOwnerStyle(owner)),
-            )),
+            text,
+            lth: text.length,
+            value: field.value ?? text,
+            style: JSON.stringify(parts.filter((piece) => piece.owner)
+                .map((piece) => piece.style)),
         });
     }
     return groups;
+}
+
+// C ref: win/tty/wintty.c tty_status_update(). Hands one bot() or
+// stat_update_time() pass to the tty status window: the fields botl.c sent
+// since the last render (game._statusNotified, which _collectStatusHilites()
+// fills) become dirty, and BL_FLUSH, or BL_RESET when `forced`, lays the rows
+// out and draws them (wintty.js tty_status_flush()). `layouts` are the rows
+// statusLayouts() built from the values the window port now holds.
+//
+// A field whose text or style differs from the one last drawn is treated as
+// sent too. C changes a field's status_vals[] only in tty_status_update(), so
+// this adds nothing where the port's botl.c side sends what C sends.
+function _statusFlush(layouts, forced) {
+    const tty = tty_status_state(game);
+    for (const key of game._statusNotified ?? []) tty.dirty.add(key);
+    game._statusNotified = null;
+    const rows = layouts.map((layout) => {
+        const groups = _statusRowGroups(layout.fields ?? []);
+        for (const group of groups) {
+            const before = tty.before.get(group.key);
+            group.dirty = tty.dirty.has(group.key)
+                || Boolean(before && (before.text !== group.text
+                    || before.style !== group.style));
+        }
+        return groups;
+    });
+    // wintty.c make_things_fit(): the last row's requirement, rowsz - 1,
+    // against cw->cols - 1, once every shrink has been tried.
+    const truncation = (rows.at(-1) ?? []).reduce(
+        (width, group) => width + group.lth, 0,
+    ) > TTY_STATUS_WIDTH;
+    tty_status_flush(rows, forced, truncation, game);
+}
+
+// game._renderedStatusLayouts and game._renderedStatusStyles: each status
+// row as the terminal now shows it ({text, owners} and one {color, attr} per
+// column), with the field list the row was last laid out from, which
+// _stat_update_time() lays out again.
+function _recordRenderedStatus(layouts) {
+    const tty = tty_status_state(game);
+    const rendered = [];
+    const styles = [];
+    layouts.forEach((layout, row) => {
+        const cells = tty.screen[row];
+        let length = cells.length;
+        const blank = (cell) => !cell || cell.ch === ' ' || cell.ch === '\0';
+        while (length > 0 && blank(cells[length - 1])) --length;
+        const shown = cells.slice(0, length);
+        rendered.push({
+            // A byte nomux_putch() ignores (the NUL marker) leaves a blank.
+            text: shown.map((cell) => (cell && cell.ch !== '\0'
+                ? cell.ch : ' ')).join(''),
+            owners: shown.map((cell) => (cell && cell.ch !== '\0'
+                ? cell.owner : null)),
+            fields: layout.fields,
+            hungerX: layout.hungerX,
+        });
+        styles.push(shown.map((cell) => ({
+            color: cell?.color ?? NO_COLOR, attr: cell?.attr ?? ATR_NONE,
+        })));
+    });
+    game._renderedStatusLayouts = rendered;
+    game._renderedStatusStyles = styles;
 }
 
 // C ref: win/tty/wintty.c tty_create_nhwindow()'s NHW_STATUS arm (896-914),
 // which clamps iflags.wc2_statuslines into 2..3 and sizes wins[WIN_STATUS] at
 // that many rows, pinned to the bottom of the terminal.  Every reader of the
 // status window's height goes through this: statusLayouts() produces one entry
-// per row and writeStatusRows() writes them at display.rows - count.
+// per row and wintty.js tty_status_paint() writes them at display.rows - count.
 export function status_window_rows() {
     return game.iflags?.wc2_statuslines === 3 ? 3 : 2;
 }
@@ -6741,7 +6719,6 @@ export function status_finish(state = game) {
         state.iflags.status_hilites = [];
     state._renderedStatusLayouts = [];
     state._renderedStatusStyles = null;
-    state._statusLastRowTty = null;
 }
 
 function _setStatusHiliteChange(gb, fld, value) {
@@ -6940,10 +6917,9 @@ function _deliverStatusCapacity(capacity) {
 // C ref: bot_via_windowport() plus evaluate_and_notify_windowport(). Collect
 // every enabled typed field once per bot notification; status painting only
 // consumes these delivered banks. `onlyField` is the timebot fast path.
-// Returns whether this pass marked tty_status[NOW][BL_TITLE] dirty.
+// Adds each field it sends to game._statusNotified, when a caller set one.
 function _collectStatusHilites(layouts, onlyField = null) {
     const gb = game.gb;
-    let titleDirty = false;
     const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
     for (const name of ['status_hilite_rule', 'status_hilite_value',
         'status_hilite_compare_value', 'status_hilite_percent',
@@ -6974,8 +6950,10 @@ function _collectStatusHilites(layouts, onlyField = null) {
         gb.status_hilite_type[0][fld] = conditionField.type;
         gb.status_hilite_type[1][fld] = conditionField.type;
         gb.status_hilite_text[0][fld] = current;
-        if (fieldUpdateAll(conditionField) || previous !== current)
+        if (fieldUpdateAll(conditionField) || previous !== current) {
             _setStatusHiliteChange(gb, fld, true);
+            game._statusNotified?.add('condition');
+        }
     }
     for (const field of STATUS_FIELDS) {
         // evaluate_and_notify_windowport() skips a field by the current
@@ -7091,6 +7069,7 @@ function _collectStatusHilites(layouts, onlyField = null) {
             gb.status_hilite_rule[1][fld] = selected;
         }
         if (notification) {
+            game._statusNotified?.add(field.key);
             // C ref: wintty.c tty_status_update(). tty_status[NOW][BL_TITLE]
             // .color and .attr, which render_status() draws the hitpointbar
             // with, are written by both the BL_TITLE update (the title's own
@@ -7100,11 +7079,10 @@ function _collectStatusHilites(layouts, onlyField = null) {
             // Either update also sets tty_status[NOW][BL_TITLE].dirty.
             if (field.key === 'title') {
                 game._statusTitleBarSource = 'title';
-                titleDirty = true;
             } else if (field.key === 'hitpoints'
                 && game.iflags?.wc2_hitpointbar) {
                 game._statusTitleBarSource = 'hitpoints';
-                titleDirty = true;
+                game._statusNotified?.add('title');
             }
         }
         gb.status_hilite_value[0][fld] = value;
@@ -7114,7 +7092,6 @@ function _collectStatusHilites(layouts, onlyField = null) {
         gb.status_hilite_type[0][fld] = field.type;
         if (notification) _setStatusHiliteChange(gb, fld, true);
     }
-    return titleDirty;
 }
 
 // C ref: botl.c status_eval_next_unhilite(), called once after each hero
@@ -7353,22 +7330,6 @@ function _recorderStatusStyle(style) {
     };
 }
 
-function _statusStyleRows(layouts) {
-    return layouts.map(({ owners }) => {
-        const cache = new Map();
-        return owners.map((owner) => {
-            if (!owner) return _recorderStatusStyle(null);
-            if (!cache.has(owner)) {
-                cache.set(
-                    owner,
-                    _recorderStatusStyle(_statusOwnerStyle(owner)),
-                );
-            }
-            return cache.get(owner);
-        });
-    });
-}
-
 function mapViewport(state = game) {
     // win/tty/wintty.c tty_print_glyph() prints map row y only when
     // clipy <= y < clipymax, on terminal row y - clipy + 1 (tty_curs()).
@@ -7448,6 +7409,10 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
         display.setCursor(Math.max(0, xmin - 1), screenRow);
         display.clearToEol();
         const overStatus = screenRow >= firstStatusRow;
+        // The status window's cw->data keeps the erased characters.
+        if (overStatus)
+            tty_status_cl_end_screen_row(screenRow, Math.max(0, xmin - 1),
+                state);
         // cl_end() erases every overlay cell from the cursor rightwards.
         if (state._screenOverlay) {
             for (const [key, cell] of state._screenOverlay)
@@ -7522,51 +7487,6 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
     }
 }
 
-function writeStatusRows(
-    display,
-    layouts = statusLayouts(),
-    styles = null,
-    { forced = false, titleDirty = false } = {},
-) {
-    if (!display?.grid) return;
-    styles ??= layouts.map(({ owners }) => owners.map(
-        () => ({ color: NO_COLOR, attr: ATR_NONE }),
-    ));
-    const firstRow = display.rows - layouts.length;
-    const previous = game._statusOverlayBasis;
-    for (let index = 0; index < layouts.length; ++index) {
-        const screenRow = firstRow + index;
-        _clearRedrawnStatusOverlay(
-            screenRow,
-            index,
-            previous?.layouts?.[index],
-            previous?.styles?.[index],
-            layouts[index],
-            styles[index],
-            forced || previous?.layouts?.length !== layouts.length,
-            titleDirty,
-            display.cols,
-        );
-        display.clearRow(screenRow);
-        const { text } = layouts[index];
-        for (let column = 0;
-            column < Math.min(text.length, display.cols);
-            ++column) {
-            const style = styles[index]?.[column];
-            // tty_putstatusfield() prints each byte as a char.
-            display.putch(
-                column,
-                screenRow,
-                text[column],
-                style?.color ?? NO_COLOR,
-                style?.attr ?? ATR_NONE,
-            );
-        }
-    }
-    game._statusOverlayBasis = { layouts, styles };
-    _applyScreenOverlay(display);
-}
-
 // Cells of recorder patch 006's shadow screen (termcap.c nomux_buf) that the
 // canonical rebuild in _buildScreenOutput() does not produce, keyed by
 // terminal cell. The rebuild applies them last; the wintty.c write that
@@ -7623,112 +7543,6 @@ function _applyScreenOverlay(display) {
     if (!overlay?.size) return;
     for (const cell of overlay.values())
         display.restoreCell(cell.column, cell.row, cell);
-}
-
-// The field each status column belongs to. botl.c formats every field after
-// the first with its leading separator (" Dx:%s"), so an unowned separator
-// column joins the field that follows it; hitpointbar's bracketed title is
-// one 32-column BL_TITLE field.
-function _statusFieldGroups(layout, rowIndex) {
-    const owners = layout?.owners ?? [];
-    const length = layout?.text?.length ?? 0;
-    const keys = new Array(length).fill(null);
-    let next = 'tail';
-    for (let column = length - 1; column >= 0; --column) {
-        const owner = owners[column];
-        if (owner) next = owner.field ?? owner.kind ?? 'owned';
-        keys[column] = next;
-    }
-    if (rowIndex === 0 && game.iflags?.wc2_hitpointbar) {
-        for (let column = 0; column < Math.min(length, STATUS_HP_BAR_WIDTH + 2);
-            ++column)
-            keys[column] = 'title';
-    }
-    return keys;
-}
-
-// C ref: wintty.c check_fields(). The fields of one status row that
-// render_status() redraws, as _statusFieldGroups() keys; `keys` gives each
-// column of the new row its key.
-function _statusRedrawnFields(
-    rowIndex, oldLayout, oldStyles, newLayout, newStyles, forced,
-    titleDirty = false,
-) {
-    const newText = newLayout?.text ?? '';
-    const oldText = oldLayout?.text ?? '';
-    const keys = _statusFieldGroups(newLayout, rowIndex);
-    const redraw = new Set();
-    // C ref: wintty.c check_fields(). A dirty field whose color and attribute
-    // are unchanged is skipped only when status_vals[] matches cw->data[]
-    // from the field's first column. The hitpointbar title's data begins
-    // with its '[' while status_vals[BL_TITLE] holds the bare title, so the
-    // comparison fails and a dirty title is always redrawn.
-    if (titleDirty && rowIndex === 0 && game.iflags?.wc2_hitpointbar)
-        redraw.add('title');
-    if (!forced) {
-        const sameStyle = (a, b) => (a?.color ?? NO_COLOR)
-            === (b?.color ?? NO_COLOR)
-            && (a?.attr ?? ATR_NONE) === (b?.attr ?? ATR_NONE);
-        const oldKeys = _statusFieldGroups(oldLayout, rowIndex);
-        for (let column = 0; column < newText.length; ++column) {
-            if (newText[column] !== oldText[column]
-                || keys[column] !== oldKeys[column]
-                || !sameStyle(newStyles?.[column], oldStyles?.[column]))
-                redraw.add(keys[column]);
-        }
-        // check_fields() redraws a whole field whose position or length
-        // changed, even where its leading columns still match: "St:18/01"
-        // becoming "St:18" rewrites the "St:18" cells too.
-        const extents = (fieldKeys) => {
-            const result = new Map();
-            fieldKeys.forEach((key, column) => {
-                const extent = result.get(key);
-                if (extent) extent.end = column + 1;
-                else result.set(key, { start: column, end: column + 1 });
-            });
-            return result;
-        };
-        const oldExtents = extents(oldKeys);
-        for (const [key, extent] of extents(keys)) {
-            const before = oldExtents.get(key);
-            if (!before || before.start !== extent.start
-                || before.end !== extent.end)
-                redraw.add(key);
-        }
-    }
-    return { keys, redraw };
-}
-
-function _clearRedrawnStatusOverlay(
-    screenRow, rowIndex, oldLayout, oldStyles, newLayout, newStyles, forced,
-    titleDirty = false, columns = 80,
-) {
-    const overlay = game._screenOverlay;
-    if (!overlay?.size) return;
-    const newText = newLayout?.text ?? '';
-    const oldText = oldLayout?.text ?? '';
-    const { keys, redraw } = _statusRedrawnFields(
-        rowIndex, oldLayout, oldStyles, newLayout, newStyles, forced,
-        titleDirty,
-    );
-    // render_status() ends each row with
-    //   if ((x < finalx[row][BEFORE] || !finalx[row][BEFORE])
-    //       && x + 1 < cw->cols) { tty_curs(WIN_STATUS, x + 1, y); cl_end(); }
-    // where x, finalx[row][NOW], is the row's text length. cl_end() erases
-    // the whole rest of the terminal row, so a map glyph beyond the old
-    // row's end goes too. finalx[row][BEFORE] is 0 only before the row's
-    // first render.
-    const erasesTail = (!oldLayout || newText.length < oldText.length)
-        && newText.length + 1 < columns;
-    for (const [key, cell] of overlay) {
-        if (cell.row !== screenRow) continue;
-        const column = cell.column;
-        if (column < newText.length) {
-            if (forced || redraw.has(keys[column])) overlay.delete(key);
-        } else if (erasesTail) {
-            overlay.delete(key);
-        }
-    }
 }
 
 // tty_ch, tty_color, tty_decgfx and tty_attr hold a map cell of recorder patch
@@ -7824,14 +7638,12 @@ function _buildScreenOutput(cursorOnHero = true) {
     // flush. C prints only dirty gbuf cells; a prompt must keep the physical
     // menu or text window over every clean map cell.
     const bufferedOnly = (display.inread ?? 0) > 0;
-    const statusRows = game._renderedStatusLayouts ?? statusLayouts();
-    const statusStyles = game._renderedStatusStyles;
     // botl.c bot() leaves the physical status window untouched while
     // gb.bot_disabled is raised.  Keep those cells across the canonical
     // rebuild so a prompt preserves an already-painted status, while a
     // full-screen menu that cleared it remains blank.
     const savedStatusCells = game.gb?.bot_disabled === true && display.grid
-        ? display.grid.slice(display.rows - statusRows.length)
+        ? display.grid.slice(display.rows - status_window_rows())
             .map((row) => row.map((cell) => ({ ...cell })))
         : null;
     const viewport = mapViewport();
@@ -7871,7 +7683,7 @@ function _buildScreenOutput(cursorOnHero = true) {
         // Map — write characters to grid (DEC → Unicode for browser display)
         const browserGlyphs = Boolean(display.spans);
         const decMap = browserGlyphs ? DEC_TO_UNICODE : SCORER_DEC_MAP;
-        const firstStatusRow = display.rows - statusRows.length;
+        const firstStatusRow = display.rows - status_window_rows();
         // Cells this flush prints over the status window. tty_print_glyph()
         // writes them physically, so restoring the status cells kept while
         // bot() is disabled must leave them in place.
@@ -7966,13 +7778,10 @@ function _buildScreenOutput(cursorOnHero = true) {
         // early with gb.bot_disabled.  Keep that suppression visible in the
         // rebuilt terminal: repainting the cached status layouts here would
         // put the covered status rows back underneath a getlin prompt.
-        // After a screen clear the physical status rows hold only what a
-        // status render has written since (erase_status_rows()).
-        if (!bufferedOnly && game.gb?.bot_disabled !== true
-            && game._erasedStatusRows)
-            writeErasedStatusRows(display);
-        else if (!bufferedOnly && game.gb?.bot_disabled !== true)
-            writeStatusRows(display, statusRows, statusStyles);
+        // The terminal's status rows hold what wintty.js render_status()
+        // last drew, less what a screen clear or docorner() erased since.
+        if (!bufferedOnly && game.gb?.bot_disabled !== true)
+            tty_status_paint(display, game);
         else if (!bufferedOnly && savedStatusCells) {
             const firstRow = display.rows - savedStatusCells.length;
             for (let row = 0; row < savedStatusCells.length; ++row) {
@@ -7984,8 +7793,7 @@ function _buildScreenOutput(cursorOnHero = true) {
                 }
             }
         }
-        // writeStatusRows() applies the overlay; repeat it for a flush that
-        // leaves the status rows to bot_disabled.
+        // Map glyphs and raw prints over the status rows go on last.
         if (!bufferedOnly) _applyScreenOverlay(display);
         // display.c flush_screen():2261-2263 moves the cursor only for a
         // nonzero cursor_on_u. Restore the TTY cursor after clearScreen() for
@@ -8206,81 +8014,35 @@ export async function bot() {
         _statusConditionEntries(game.u).map(({ option }) => option),
     );
     const layouts = statusLayouts({ deliverCapacity: true });
-    const previousLayouts = game._renderedStatusLayouts;
-    const previousStyles = game._renderedStatusStyles;
     // botl.c evaluate_and_notify_windowport(): gu.update_all sends every
-    // field, and BL_RESET (disp.botlx) makes check_fields() redraw every
-    // field. Every other pass sends only the fields whose value changed.
-    const updateAll = Boolean(game._statusHiliteUpdateAll
-        || game._statusGoldUpdateAll);
+    // field, the BL_GOLD test's update_all sends BL_GOLD and each field after
+    // it in initblstats[] order, and every other pass sends only the fields
+    // whose value changed or whose highlight expired. BL_RESET follows when
+    // disp.botlx is set, and makes wintty.c check_fields() redraw every
+    // field; otherwise BL_FLUSH follows only if a field was sent. newgame()'s
+    // explicit bot() right after flush_screen(1) (allmain.c 816-818)
+    // therefore sends nothing and renders nothing.
+    //
     // After a screen clear, wintty.c tty_clear_nhwindow() sets disp.botlx,
     // so the next bot() normally redraws every field over the blanked
     // cw->data. A bot() that returns early while u.uhp == -1 clears that
     // disp.botlx without drawing (as done() does at end.c:1043-1046), and a
-    // later pass then draws only the fields it sends: check_fields() finds
-    // each one unlike the blank cw->data, so the rest of the row stays
-    // blank. A full pass ends the erased state; _renderStatusLastRow()
-    // models the third row of three either way.
-    // Approximation: a BL_GOLD-triggered update_all sends only BL_GOLD and
-    // the fields after it in initblstats[] order; it is treated here as a
-    // full pass.
-    const redrawsErasedFields = Boolean(game._erasedStatusRows)
-        && !game.disp?.botlx && !updateAll;
-    if (!redrawsErasedFields)
-        game._erasedStatusRows = null;
-    const titleDirty = _collectStatusHilites(layouts);
-    const styles = game.iflags?.status_updates === false
-        ? layouts.map(() => []) : _statusStyleRows(layouts);
-    if (layouts.length === 3) {
-        // botl.c evaluate_and_notify_windowport(): gu.update_all sends every
-        // field (every row-three field follows BL_GOLD, so the gold test's
-        // update_all covers them too); otherwise a field goes to the window
-        // port when its value changed, and BL_FLUSH follows only if something
-        // went or disp.botlx is set. newgame()'s explicit bot() right after
-        // flush_screen(1) (allmain.c 816-818) therefore sends nothing and
-        // renders nothing. The next pass with a changed field, such as the
-        // welcome pline's flush once u_init_skills_discoveries() has called
-        // find_ac() (u_init.c 1413), is the first to redraw the conditions
-        // over the optional fields.
-        const upperRowsChanged = !previousLayouts
-            || [0, 1].some((index) => previousLayouts[index]?.text
-                !== layouts[index].text
-                || JSON.stringify(previousStyles?.[index])
-                    !== JSON.stringify(styles[index]));
-        layouts[2] = _renderStatusLastRow(layouts[2], {
-            forced: Boolean(game.disp?.botlx),
-            dirty: (group, previous) => updateAll || !previous
-                || group.text !== previous.text
-                || group.style !== previous.style,
-            flush: updateAll || upperRowsChanged,
-        });
-        styles[2] = _statusStyleRows([layouts[2]])[0];
-    }
-    game._renderedStatusLayouts = layouts;
-    game._renderedStatusStyles = styles;
-    // botl.c bot_via_windowport() sends BL_RESET when disp.botlx is set, and
-    // wintty.c render_status() then redraws every field, leaving the
-    // terminal cursor after the last field of the last status row. A caller
-    // that flushes with cursor_on_u == 0, such as getpos(), waits for input
-    // there. An ordinary update redraws only changed fields; its cursor is
-    // not modelled here.
-    const forcedRedraw = Boolean(game.disp?.botlx);
+    // later pass then draws only the fields it sends.
+    game._statusNotified = new Set();
+    _collectStatusHilites(layouts);
+    const forced = Boolean(game.disp?.botlx);
     try {
+        // render_status() leaves the terminal cursor on the last status
+        // row. A caller that flushes with cursor_on_u == 0, such as
+        // getpos(), waits for input there.
+        if (forced || game._statusNotified.size)
+            _statusFlush(layouts, forced);
+        _recordRenderedStatus(layouts);
         const display = game?.nhDisplay;
-        if (redrawsErasedFields) {
-            _repaintErasedStatusRows(display, layouts, styles, { titleDirty });
-            writeErasedStatusRows(display);
-        } else {
-            writeStatusRows(display, layouts, styles,
-                { forced: forcedRedraw, titleDirty });
-        }
-        if (forcedRedraw && display?.grid && layouts.length) {
-            display.setCursor(
-                Math.min(layouts.at(-1).text.length, display.cols - 1),
-                display.rows - 1,
-            );
-        }
+        tty_status_paint(display, game);
+        _applyScreenOverlay(display);
     } finally {
+        game._statusNotified = null;
         game._statusHiliteOnlyField = null;
         game._statusHiliteUpdateAll = false;
     }
@@ -8412,141 +8174,18 @@ function _stat_update_time() {
             layouts[timeRow] = { ...row.finish(), fields, hungerX };
         }
     }
-    _collectStatusHilites(layouts, 'time');
-    // Only BL_TIME was sent, and stat_update_time() always sends BL_FLUSH.
-    if (layouts.length === 3) {
-        layouts[2] = _renderStatusLastRow(layouts[2], {
-            forced: false,
-            dirty: (group) => group.key === 'time',
-            flush: true,
-        });
+    // stat_update_time() sends BL_TIME when its value changed and always
+    // sends BL_FLUSH.
+    game._statusNotified = new Set();
+    try {
+        _collectStatusHilites(layouts, 'time');
+        _statusFlush(layouts, false);
+    } finally {
+        game._statusNotified = null;
     }
-    game._renderedStatusLayouts = layouts;
-    const styles = game.iflags?.status_updates === false
-        ? layouts.map(() => []) : _statusStyleRows(layouts);
-    game._renderedStatusStyles = styles;
-    if (game._erasedStatusRows) {
-        _repaintErasedStatusRows(game?.nhDisplay, layouts, styles);
-        writeErasedStatusRows(game?.nhDisplay);
-        return;
-    }
-    writeStatusRows(game?.nhDisplay, layouts, styles);
-}
-
-// C ref: win/tty/wintty.c check_fields() and render_status() after a screen
-// clear, for a pass without BL_RESET: bot() with disp.botlx already spent, or
-// stat_update_time(). cw->data is blank, so check_fields() redraws every field
-// botl.c sent (its value changed), and every field whose position moved against
-// tty_status[BEFORE][] (update_right); cl_end() erases a row's tail when the
-// row got shorter. The other cells stay as erase_status_rows() left them.
-function _repaintErasedStatusRows(
-    display, layouts, styles, { titleDirty = false } = {},
-) {
-    const physical = game._erasedStatusRows;
-    const before = physical.before;
-    const forced = before?.layouts?.length !== layouts.length;
-    const lastRow = layouts.length - 1;
-    const nextLayouts = [];
-    const nextStyles = [];
-    for (let row = 0; row < layouts.length; ++row) {
-        if (layouts.length === 3 && row === lastRow) {
-            // _renderStatusLastRow() already drew this row over the cells
-            // erase_status_rows() blanked.
-            nextLayouts.push(layouts[row]);
-            nextStyles.push(styles[row]);
-            continue;
-        }
-        const args = [
-            row, before?.layouts?.[row], before?.styles?.[row],
-            layouts[row], styles[row], forced,
-        ];
-        if (display?.grid)
-            _clearRedrawnStatusOverlay(
-                display.rows - layouts.length + row, ...args, titleDirty,
-                display.cols,
-            );
-        const { keys, redraw } = _statusRedrawnFields(...args, titleDirty);
-        const { text, owners } = layouts[row];
-        const oldLayout = physical.layouts[row] ?? { text: '', owners: [] };
-        const oldText = oldLayout.text;
-        const width = (before?.layouts?.[row]?.text.length ?? 0) > text.length
-            ? text.length : Math.max(oldText.length, text.length);
-        const chars = [];
-        const cellOwners = [];
-        const cellStyles = [];
-        for (let column = 0; column < width; ++column) {
-            const drawn = column < text.length
-                && (forced || redraw.has(keys[column]));
-            chars.push(drawn ? text[column] : (oldText[column] ?? ' '));
-            cellOwners.push(drawn ? owners[column]
-                : (oldLayout.owners[column] ?? null));
-            cellStyles.push(drawn ? styles[row]?.[column]
-                : physical.styles[row]?.[column]);
-        }
-        nextLayouts.push({ text: chars.join(''), owners: cellOwners });
-        nextStyles.push(cellStyles);
-    }
-    physical.layouts = nextLayouts;
-    physical.styles = nextStyles;
-    // render_status() copies every field into [BEFORE]; cw->data now holds
-    // what it drew.
-    physical.before = { layouts, styles };
-    game._statusOverlayBasis = {
-        layouts: physical.layouts, styles: physical.styles,
-    };
-}
-
-// Writes game._erasedStatusRows, the physical status rows since a screen
-// clear, without redrawing any field: map glyphs printed over a status row
-// stay, as nothing in C wrote that row.
-function writeErasedStatusRows(display) {
-    if (!display?.grid) return;
-    const { layouts, styles } = game._erasedStatusRows;
-    const firstRow = display.rows - layouts.length;
-    for (let index = 0; index < layouts.length; ++index) {
-        const screenRow = firstRow + index;
-        display.clearRow(screenRow);
-        const { text } = layouts[index];
-        for (let column = 0;
-            column < Math.min(text.length, display.cols);
-            ++column) {
-            const style = styles[index]?.[column];
-            display.putch(column, screenRow, text[column],
-                style?.color ?? NO_COLOR, style?.attr ?? ATR_NONE);
-        }
-    }
-    _applyScreenOverlay(display);
-}
-
-// C ref: win/tty/wintty.c tty_clear_nhwindow() NHW_MAP/NHW_BASE arms.
-// term_clear_screen() erases the terminal, and erase_tty_screen() then
-// blanks the status window's cw->data (1059-1073); tty_status[BEFORE][] and
-// status_vals[] keep their values. game._erasedStatusRows is the physical
-// status rows from then until a bot() pass redraws every field (disp.botlx or
-// gu.update_all): blank, apart from any field timebot() or a later bot() has
-// sent. botl.c bot() draws nothing while u.uhp == -1, yet clears the
-// disp.botlx this clear set, so the rows can stay blank for many turns.
-// game._statusOverlayBasis stands for cw->data, which check_fields()
-// compares each sent field with, so after the clear every field bot() sends
-// is redrawn over any map glyph on its cells.
-export function erase_status_rows(state = game) {
-    const rows = status_window_rows();
-    const blank = () => ({
-        layouts: Array.from({ length: rows }, () => ({ text: '', owners: [] })),
-        styles: Array.from({ length: rows }, () => []),
-    });
-    state._erasedStatusRows = {
-        ...blank(),
-        before: state._erasedStatusRows?.before
-            ?? state._statusOverlayBasis ?? null,
-    };
-    state._statusOverlayBasis = blank();
-    if (state._statusLastRowTty) {
-        state._statusLastRowTty = {
-            ...state._statusLastRowTty,
-            cells: { text: '', owners: [] },
-        };
-    }
+    _recordRenderedStatus(layouts);
+    tty_status_paint(game?.nhDisplay, game);
+    _applyScreenOverlay(game?.nhDisplay);
 }
 
 // Bounded display.c reset_glyphmap field access for wizcmds.c diagnostics.

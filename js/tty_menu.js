@@ -66,7 +66,11 @@ import {
 import { pmatchi } from './strutil.js';
 import { impossible } from './pline.js';
 import { g_putch_graphics, nomux_g_putch_byte } from './termcap.js';
-import { baseWindow } from './wintty.js';
+import {
+    baseWindow,
+    term_clear_screen,
+    tty_status_cl_end_screen_row,
+} from './wintty.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
 // calls tty_getlin("Search for:") and skips an empty or Escaped answer.
@@ -245,8 +249,10 @@ export async function restoreCorner(state, display, repairColumn, snapshot) {
     if (snapshot.length < firstStatusRow) return;
     if (!(state.level && state.u?.ux)) {
         for (let row = Math.max(0, firstStatusRow); row < snapshot.length;
-            ++row)
+            ++row) {
             clearRowFrom(display, repairColumn, row);
+            tty_status_cl_end_screen_row(row, repairColumn, state);
+        }
     }
     state.disp ??= {};
     state.disp.botlx = true;
@@ -274,7 +280,9 @@ function restoreRegion(display, firstColumn, snapshot) {
 // docrt_flags() redraws hallucinated glyphs through the display RNG before
 // the core caller resumes. A saved terminal snapshot cannot substitute for
 // that map traversal even when it would restore the same visible frame.
-async function erase_menu_or_text(state, display, snapshot, baseCursor) {
+export async function erase_menu_or_text(
+    state, display, snapshot, baseCursor,
+) {
     if (state !== game) {
         throw new Error(
             'erase_menu_or_text requires the module-level game',
@@ -288,8 +296,10 @@ async function erase_menu_or_text(state, display, snapshot, baseCursor) {
     if (!state.level || !state.u?.ux) {
         restoreRegion(display, 0, snapshot);
         display.setCursor(...baseCursor);
-        for (let row = 0; row < status_window_rows(); ++row)
+        for (let row = 0; row < status_window_rows(); ++row) {
             clearRow(display, display.rows - 1 - row);
+            tty_status_cl_end_screen_row(display.rows - 1 - row, 0, state);
+        }
         state.disp ??= {};
         state.disp.botlx = true;
         // wintty.c erase_menu_or_text() calls docrt() here; docrt_flags()
@@ -559,7 +569,8 @@ export async function displayTtyMenuTextWindow(
         const pageLines = layout.lines.slice(firstLine, firstLine + pageSize);
         const promptRow = pageLines.length;
 
-        if (layout.clearsScreen || pageIndex > 0) display.clearScreen();
+        if (layout.clearsScreen || pageIndex > 0)
+            term_clear_screen(state, display);
         for (let row = 0; row < pageLines.length; ++row) {
             clearRowFrom(display, layout.firstColumn, row);
             const line = pageLines[row];
@@ -857,7 +868,7 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
         maxrow: layout.maxrow,
     };
 
-    if (layout.fullScreen) display.clearScreen();
+    if (layout.fullScreen) term_clear_screen(state, display);
     else clearRegion(display, layout.firstColumn, visibleRows);
 
     // process_menu_window() decides once from the complete linked menu, before
@@ -1051,7 +1062,7 @@ export async function displayTtyTextWindow(state = game, lines) {
     const baseCursor = [display.cursorCol, display.cursorRow];
 
     if (maxrow >= display.rows || !menuOverlay(state)) {
-        display.clearScreen();
+        term_clear_screen(state, display);
     } else {
         // A window short enough to overlay clears only the message window
         // here, the same clear renderTtyMenu() performs for a corner menu.
@@ -1072,12 +1083,13 @@ export async function displayTtyTextWindow(state = game, lines) {
                 cancelled = true;
                 break;
             }
-            display.clearScreen();
+            term_clear_screen(state, display);
             n = 0;
         }
         const line = lines[i];
         const text = String(line.text ?? '');
         clearRow(display, n);
+        tty_status_cl_end_screen_row(n, 0, state);
         const gPutch = textWindowGPutch(state);
         writeStyledText(
             display, 0, n, text, line.color ?? NO_COLOR, line.attr ?? 0,
@@ -1119,8 +1131,10 @@ export async function displayTtyTextWindow(state = game, lines) {
     if (!cancelled) {
         // A text window clears from the row after its last line before
         // homing to the bottom row for the closing prompt.
-        for (let row = n; row < display.rows; row++)
+        for (let row = n; row < display.rows; row++) {
             clearRow(display, row);
+            tty_status_cl_end_screen_row(row, 0, state);
+        }
         response = await dmore(state, display, lastRow);
     }
 

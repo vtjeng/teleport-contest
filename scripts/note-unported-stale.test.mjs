@@ -37,7 +37,9 @@ const EXCEPTIONS = new Map([
     // 256: shk.c same_price(), onbill() and sub_one_frombill(), and botl.c
     // status_hilite2str()'s five, queue their reports through
     // sync_impossible() (2026-11-19).
-    ['pline.c impossible', { count: 256, reason: IMPOSSIBLE }],
+    // 257: wintty.c render_status()'s condition-overflow report, which needs
+    // a third status row that overflows without truncation_expected.
+    ['pline.c impossible', { count: 257, reason: IMPOSSIBLE }],
     // js/shknam.js shkname() must stay synchronous (its value is used inside
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.

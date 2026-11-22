@@ -94,9 +94,11 @@ const EXCEPTIONS = new Map([
         reason: 'the port has only category 1, the one its sole caller (options.c) passes' }],
     ['win/tty/topl.c topl_putsym', { count: 1,
         reason: 'the port writes through state.nhDisplay and keeps no WIN_MESSAGE record to be missing' }],
+    ['win/tty/wintty.c tty_putstatusfield', { count: 1,
+        reason: 'the port keeps the status window in state._ttyStatus and has no WIN_STATUS record to be missing' }],
 ]);
 // The sum of the counts above.
-const EXCEPTION_PIN = 41;
+const EXCEPTION_PIN = 42;
 
 test('each ported C function ports or marks its missing diagnostics', async () => {
     const { deficits } = await scanDeficits({
