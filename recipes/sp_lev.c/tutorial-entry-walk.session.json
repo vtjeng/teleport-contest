@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The tutorial as a public game reaches it: OPTIONS=tutorial skips allmain.c maybe_do_tutorial()'s query and do.c goto_level() makes tut-1 through mklev() -> makemaz() -> sp_lev.c load_special(), whose des.* calls run inside level creation. The hero reads the first engraving and walks three squares. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 28406611,
+      "datetime": "20500207083047",
+      "nethackrc": "OPTIONS=name:Learner,role:Valkyrie,race:dwarf,gender:female,align:lawful,tutorial,!legacy,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "    llj"
+    }
+  ]
+}
