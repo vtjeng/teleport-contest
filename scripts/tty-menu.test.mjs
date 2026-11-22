@@ -29,7 +29,7 @@ import {
 import {
     displayTtyMenuTextWindow,
     displayTtyTextWindow,
-    pickAnyGroupAccelerators,
+    menuGroupAccelerators,
     dismissTtyMenu,
     renderTtyMenu,
     selectTtyMenu,
@@ -1622,6 +1622,38 @@ test('PICK_ONE selected results recount bulk deselection and retain counted defa
         assert.equal(await selectTtyMenu(menuState(keys), confirmation), -1);
 });
 
+test('PICK_ONE group accelerators need exactly one counted entry', () => {
+    // wintty.c process_menu_window() (1373-1375): PICK_ANY accepts every
+    // accelerator, PICK_ONE only one whose gcnt[] is exactly 1, and gcnt[]
+    // (1359-1363) counts only entries whose selector differs from it.
+    assert.match(WINTTY_C, /&& \(cw->how == PICK_ANY\s*\|\| gcnt\[GSELIDX\(curr->gselector\)\] == 1\)/u);
+    assert.match(WINTTY_C, /if \(curr->gselector && curr->gselector != curr->selector\) \{\s*\+\+n;\s*\+\+gcnt\[GSELIDX\(curr->gselector\)\];/u);
+    // '$', ')' and '[' are the def_oc_syms that pickup.c query_objlist()
+    // passes for coins, weapons and armor; the letters are inventory letters.
+    const gold = { selector: '$', groupSelector: '$', value: 1 };
+    const dagger = { selector: 'a', groupSelector: ')', value: 2 };
+    const robe = { selector: 'b', groupSelector: '[', value: 3 };
+    const shield = { selector: 'c', groupSelector: '[', value: 4 };
+    // Gold under USE_INVLET is its own selector, so gcnt['$'] is 0 and '$'
+    // is no accelerator; ')' is counted once; '[' is counted twice.
+    assert.deepEqual(
+        [...menuGroupAccelerators([gold, dagger, robe, shield], PICK_ONE)],
+        [')'],
+    );
+    // The same entries under PICK_ANY, where the count does not matter.
+    assert.deepEqual(
+        [...menuGroupAccelerators([gold, dagger, robe, shield], PICK_ANY)],
+        ['$', ')', '['],
+    );
+    // Gold that is not its own selector ('d' stands for the letter
+    // tty_end_menu() assigns) is counted once and becomes an accelerator.
+    assert.deepEqual([...menuGroupAccelerators([
+        { selector: 'd', groupSelector: '$', value: 5 }, dagger,
+    ], PICK_ONE)], ['$', ')']);
+    // No entry's accelerator differs from its selector: n == 0, gacc empty.
+    assert.deepEqual([...menuGroupAccelerators([gold], PICK_ONE)], []);
+});
+
 test('PICK_ANY group accelerators follow process_menu_window gacc[]', async () => {
     // wintty.c process_menu_window() (1349-1379): an accelerator enters gacc[]
     // only once some entry's differs from its selector; then each one that
@@ -1635,16 +1667,16 @@ test('PICK_ANY group accelerators follow process_menu_window gacc[]', async () =
     const gold = { selector: '$', groupSelector: '$', value: 1 };
     const dagger = { selector: 'a', groupSelector: ')', value: 2 };
     // Gold alone: no accelerator differs from its selector, so n == 0.
-    assert.deepEqual([...pickAnyGroupAccelerators([gold])], []);
+    assert.deepEqual([...menuGroupAccelerators([gold], PICK_ANY)], []);
     // With the dagger, n > 0 and both '$' (the gold exception) and ')' count.
-    assert.deepEqual([...pickAnyGroupAccelerators([gold, dagger])], ['$', ')']);
+    assert.deepEqual([...menuGroupAccelerators([gold, dagger], PICK_ANY)], ['$', ')']);
     // An accelerator equal to its own selector is skipped unless it is gold:
     // 'b' here stands for any such non-gold pair.
-    assert.deepEqual([...pickAnyGroupAccelerators([
+    assert.deepEqual([...menuGroupAccelerators([
         dagger, { selector: 'b', groupSelector: 'b', value: 3 },
-    ])], [')']);
+    ], PICK_ANY)], [')']);
     // No accelerators at all.
-    assert.deepEqual([...pickAnyGroupAccelerators([{ selector: 'a', value: 4 }])], []);
+    assert.deepEqual([...menuGroupAccelerators([{ selector: 'a', value: 4 }], PICK_ANY)], []);
 
     const items = () => [
         { selector: '$', groupSelector: '$', value: 1, label: '30 gold pieces' },

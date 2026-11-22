@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "wintty.c process_menu_window() 1349-1379 and 1742-1749: PICK_ONE accepts a group accelerator only when gcnt[] counts it on exactly one entry, and gcnt[] skips an entry whose selector equals its accelerator. A Priestess in debug mode wishes for gold and seven uncursed items so that the I, U inventory (invent.c dotypeinv(), a PICK_ONE query_objlist() with USE_INVLET) fills two pages. On page 2, '$' is refused because gold is its own selector and so is counted zero times; on page 1 it picks gold as a selector. '[' is refused because two armor entries share it, and '*' picks the one gem although it is on page 2.",
+  "segments": [
+    {
+      "seed": 7730519,
+      "datetime": "20290308194500",
+      "nethackrc": "OPTIONS=name:Odalys,role:Priest,race:elf,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": " \u0017250 gold pieces\n\u0017uncursed scroll of light\n\u0017uncursed ring of adornment\n\u0017uncursed wand of light\n\u0017uncursed tin opener\n\u0017uncursed ruby\n\u0017uncursed amulet of ESP\n\u0017uncursed iron chain\nIU>$\u001b IU$\u001b IU[*\u001b  "
+    }
+  ]
+}
