@@ -24,12 +24,14 @@ function source(path) {
     return readFileSync(new URL(path, ROOT), 'utf8');
 }
 
-// Every write the port may make, as `file function value`. options.js
-// defaultResult() is the zeroed iflags each segment starts from (jsmain.js
+// Every write the port may make, as `file function value`. js/flag.js
+// zero_instance_flags() is C's zeroed iflags, generated from flag.h, and
+// options.js defaultResult() is the iflags each segment starts from (jsmain.js
 // copies it into the game state); the other four are the C sites named above.
 const ALLOWED_WRITES = [
     'js/end.js panic false',
     'js/end.js really_done false',
+    'js/flag.js zero_instance_flags false',
     'js/options.js defaultResult false',
     'js/tty_message.js displayPendingTtyMessageWindow true',
     'js/wintty.js tty_exit_nhwindows false',
