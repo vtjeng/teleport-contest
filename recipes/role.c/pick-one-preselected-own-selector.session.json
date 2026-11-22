@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "role.c's role menu preselects Random ('*') and its confirmation preselects 'Yes; start game' ('y'). In a tty PICK_ONE menu the preselected row's own selector toggles it off and ends the menu, so select_menu() returns 0: the role menu's `choice = (n == 0) ? ROLE_RANDOM : ROLE_NONE` picks a random role and the confirmation's `(n == 0) ? 1 : -1` starts the game. 'n' declines pick4u, '*' answers the role menu and 'y' the confirmation. Race, gender and alignment are fixed so only those two menus appear. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 31977045,
+      "datetime": "20420927061500",
+      "nethackrc": "OPTIONS=name:Odalys,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "n*y"
+    }
+  ]
+}

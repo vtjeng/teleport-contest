@@ -1,0 +1,30 @@
+{
+  "version": 5,
+  "comment": "restore.c restore_menu() preselects 'Never mind (quit)' and quits unless select_menu() returns more than 0. In a tty PICK_ONE menu the preselected row's own selector, and its group accelerator when that matches exactly one row, toggle it off and end the menu with n == 0. A Tourist and a Caveman save; the third and fourth segments' rc names no hero, so tty_askname() shows the selectsaved menu. Segment 3 presses 'q', the quit row's selector; segment 4 presses 'Q', its group accelerator. Both quit. Seeds, clocks, characters and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 64400817,
+      "datetime": "20330504101500",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "Sy"
+    },
+    {
+      "seed": 64400818,
+      "datetime": "20330504103000",
+      "nethackrc": "OPTIONS=name:Garrun,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "Sy"
+    },
+    {
+      "seed": 64400819,
+      "datetime": "20330504104500",
+      "nethackrc": "OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "q"
+    },
+    {
+      "seed": 64400820,
+      "datetime": "20330504110000",
+      "nethackrc": "OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "Q"
+    }
+  ]
+}

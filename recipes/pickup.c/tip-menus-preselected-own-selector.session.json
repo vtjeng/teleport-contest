@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c choose_tip_container_menu() preselects 'tip something being carried' and tipcontainer_gettarget() preselects 'on the floor'. In a tty PICK_ONE menu the preselected row's own selector toggles it off and ends the menu, so select_menu() returns 0: choose_tip_container_menu() returns ECMD_OK and dotip() goes on to getobj(), and tipcontainer_gettarget() returns no target with *cancelled FALSE, a tip onto the floor. A debug Wizard wishes for four sacks (o, p, q, r), drops p and q, and uses #tip: 'i' is the carried row's selector, 'r' answers getobj(), and '-' is the floor row's selector in the target menu that the other carried sack (o) makes appear. Seed, clock, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 80417266,
+      "datetime": "20460819133000",
+      "nethackrc": "OPTIONS=name:Spillway,role:Wizard,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!acoustics,!autopickup\n",
+      "moves": "  #wizwish\nsack\n#wizwish\nsack\n#wizwish\nsack\n#wizwish\nsack\ndpdq#tip\nir-"
+    }
+  ]
+}
