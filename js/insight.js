@@ -2232,7 +2232,7 @@ export function vanqsort_cmp(first, second, state = game) {
     const index2 = vanquishedIndex(second);
     const monster1 = state.mons[index1];
     const monster2 = state.mons[index2];
-    const mode = state.flags?.vanq_sortmode ?? VANQ_MLVL_MNDX;
+    const mode = state.flags.vanq_sortmode;
     let result;
 
     switch (mode) {
@@ -2419,7 +2419,7 @@ export async function list_vanquished(
     if (answer === 'a' && entries.length > 1
         && await set_vanq_order(true, state, { menu }) < 0) return;
 
-    const mode = state.flags?.vanq_sortmode ?? VANQ_MLVL_MNDX;
+    const mode = state.flags.vanq_sortmode;
     const uniqueHeader = mode === VANQ_ALPHA_SEP;
     const classHeader = (mode === VANQ_MCLS_LTOH || mode === VANQ_MCLS_HTOL)
         && entries.length > 1;
@@ -2590,18 +2590,17 @@ export async function list_genocided(
                 && await set_vanq_order(false, state, { menu }) < 0)
 
                 return;
-            const savedSortmode = state.flags?.vanq_sortmode;
-            if (state.flags
-                && (savedSortmode === VANQ_COUNT_H_L
-                    || savedSortmode === VANQ_COUNT_L_H))
+            // C insight.c:3061-3069.
+            const save_sortmode = state.flags.vanq_sortmode;
+            if (state.flags.vanq_sortmode === VANQ_COUNT_H_L
+                || state.flags.vanq_sortmode === VANQ_COUNT_L_H)
                 state.flags.vanq_sortmode = VANQ_ALPHA_MIX;
             indexes = [...gone].sort((left, right) => vanqsort_cmp(
                 left, right, state,
             ));
-            classHeader = state.flags?.vanq_sortmode === VANQ_MCLS_LTOH
-                || state.flags?.vanq_sortmode === VANQ_MCLS_HTOL;
-            if (state.flags && savedSortmode !== undefined)
-                state.flags.vanq_sortmode = savedSortmode;
+            classHeader = state.flags.vanq_sortmode === VANQ_MCLS_LTOH
+                || state.flags.vanq_sortmode === VANQ_MCLS_HTOL;
+            state.flags.vanq_sortmode = save_sortmode;
         }
 
         const lines = [];

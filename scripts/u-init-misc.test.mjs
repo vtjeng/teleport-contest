@@ -20,6 +20,7 @@ import {
 import { init_dungeons } from '../js/dungeon.js';
 import { game, resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
+import { parseNethackrc } from '../js/options.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { role_init } from '../js/role_init.js';
@@ -393,11 +394,16 @@ async function freshBootstrap(seed, role, race, gender, alignment) {
     game.fixedDatetime = '20260720123456';
     game.moves = 0;
     game.plname = 'FreshBootstrap';
+    // The startup options with the four choices as the role, race, gender
+    // and alignment options store them (options.c optfn_gender() also sets
+    // flags.female), then allmain.c:785 newgame()'s pantheon of -1.
     game.flags = {
-        initrole: role,
-        initrace: race,
-        initgend: gender,
-        initalign: alignment,
+        ...parseNethackrc('').flags,
+        initrole: str2role(role),
+        initrace: str2race(race),
+        initgend: str2gend(gender),
+        initalign: str2align(alignment),
+        female: str2gend(gender) === 1,
         pantheon: -1,
     };
     game.u = { uroleplay: {} };

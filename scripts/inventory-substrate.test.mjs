@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import { getRngLog } from '../js/rng.js';
+import { parseNethackrc } from '../js/options.js';
 
 import {
     FIG_TRANSFORM,
@@ -224,10 +225,11 @@ function initializedState() {
         context: { ident: 2 },
         disp: {},
         gb: initialGb(),
-        // options.c initoptions_init() (7207) starts flags.pickup_burden at
-        // MOD_ENCUMBER, which is what an rc file that never names the option
-        // leaves behind; invent.c:1261-1264 reads it on every hold.
-        flags: { invlet_constant: true, pickup_burden: MOD_ENCUMBER },
+        // The options an rc file that names none leaves behind: options.c
+        // initoptions_init() (7207) starts flags.pickup_burden at
+        // MOD_ENCUMBER, which invent.c:1261-1264 reads on every hold, and
+        // optlist.h starts invlet_constant on.
+        flags: parseNethackrc('').flags,
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
         iflags: { window_inited: true },
         program_state: { in_moveloop: 1 },
@@ -687,7 +689,6 @@ test('addinv sequence projection keeps default and flexible insertion distinct',
         const existing = instance(APPLE, fixedState);
         addinv(existing, { state: fixedState });
         existing.invlet = 'q';
-        delete fixedState.flags.invlet_constant;
         const incoming = instance(OIL_LAMP, fixedState);
         const [fixedPlan] = preflight_addinv_sequence(
             [incoming],
@@ -1410,7 +1411,6 @@ test('runtime addinv keeps nonblocking source branches synchronous', async () =>
     const ration = instance(FOOD_RATION, defaultLettersState, { invlet: 'b' });
     const apple = instance(APPLE, defaultLettersState, { invlet: 'a' });
     addinv(ration, { state: defaultLettersState });
-    delete defaultLettersState.flags.invlet_constant;
     assert.equal(
         await addinv_runtime(apple, { state: defaultLettersState }),
         apple,
@@ -2201,10 +2201,8 @@ test('obj_to_let answers the letter assigned to the object', () => {
     const lamp = instance(OIL_LAMP, state);
     addinv(lamp, { state });
     assert.equal(obj_to_let(lamp, state), 'a');
-    // options.c starts flags.invlet_constant at TRUE, so a state that has not
-    // set it reads as set.
+    // optlist.h starts flags.invlet_constant on, so the letter is kept.
     lamp.invlet = 'q';
-    delete state.flags.invlet_constant;
     assert.equal(obj_to_let(lamp, state), 'q');
     // C renumbers every letter first when flags.invlet_constant is off.
     state.flags.invlet_constant = false;
@@ -2343,7 +2341,8 @@ test('dispinv_with_action uses source in-use ordering and restores flags', async
         },
     });
     assert.equal(result, 0);
-    assert.equal(state.flags.sortloot, undefined);
+    // invent.c dispinv_with_action() puts back the startup sortloot, 'l'.
+    assert.equal(state.flags.sortloot, 'l');
     assert.equal(state.iflags.force_invmenu, undefined);
     assert.equal(menuItems[0].text, 'Inventory in use');
     assert.equal(menuItems[1].value, weapon.invlet);
@@ -2405,11 +2404,6 @@ test('xprname formats the inventory line', () => {
     // caller that passes the wrong one still prints the right line.
     lamp.invlet = 'q';
     assert.equal(xprname(lamp, null, 'a', true, 0, 0, state), 'q - a lamp.');
-    // The same default as obj_to_let()'s: an unset flag reads as C's TRUE, so
-    // the override still happens.
-    delete state.flags.invlet_constant;
-    assert.equal(xprname(lamp, null, 'a', true, 0, 0, state), 'q - a lamp.');
-    state.flags.invlet_constant = true;
     // CONTAINED_SYM and HANDS_SYM suppress that override, because C uses them
     // for lines that name no inventory slot.
     assert.equal(xprname(lamp, 'your hands', HANDS_SYM, true, 0, 0, state),
@@ -2566,9 +2560,10 @@ test('hold_another_object waits for the comparison message', async () => {
     assert.equal(incoming.where, OBJ_DELETED);
     assert.equal(carried.quan, 5);
     // prinv() at 1287 prints the quantity that arrived, oquan, while the
-    // merged stack holds five. The enchantment appears because the merge set
+    // merged stack holds five, which flags.verbose (on at startup) adds
+    // (invent.c:2884-2889). The enchantment appears because the merge set
     // the carried stack's `known`, the discovery the message announces.
-    assert.deepEqual(lines, ['a - 2 +0 arrows']);
+    assert.deepEqual(lines, ['a - 2 +0 arrows (5 in total).']);
 });
 
 // invent.c hold_another_object() (1218-1244) stands the artifact on the floor

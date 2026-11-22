@@ -676,7 +676,7 @@ export async function doclassdisco(state = game, {
     const lootsort = state.flags.discosort === 's';
     const traditional = state.flags.menu_style === MENU_TRADITIONAL
         || state.flags.menu_style === MENU_COMBINATION;
-    const classes = [...(state.flags.inv_order ?? [])];
+    const classes = [...state.flags.inv_order];
     if (!classes.includes(VENOM_CLASS)) classes.push(VENOM_CLASS);
 
     const discoveredSymbols = [];

@@ -226,7 +226,7 @@ export async function erode_obj(obj, description, type, flags, env) {
     const lowerPossessive = () => uvictim
         ? 'your' : vismon
             ? monsterPossessive(obj.ocarry, state, false, nameEnv) : 'the';
-    const verbose = state.flags?.verbose !== false;
+    const verbose = state.flags.verbose;
     const print = Boolean(flags & EF_VERBOSE);
 
     // C ref: trap.c:246-250. The canonical grease_protect() helper is also

@@ -353,7 +353,7 @@ export async function dorestore(state = game) {
     // debug request overrides the save; a normal save restored with an
     // explore request defers explore mode to moveloop_preamble(); a debug
     // or explore save is authorized again.
-    const newgameflags = state.flags ?? {};
+    const newgameflags = state.flags;
     state.flags = snapshot.flags;
     state.iflags ??= {};
     state.iflags.deferred_X = Boolean(newgameflags.explore && !state.flags.explore);

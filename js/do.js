@@ -894,7 +894,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
                     + `${the(xnameFresh(otmp, state), state)} into the ${what}.`,
                 state,
             );
-            if (state.flags?.verbose !== false && !Blind(state.u)) {
+            if (state.flags.verbose && !Blind(state.u)) {
                 await message('Now you can cross it!', state);
             }
         }
@@ -942,7 +942,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
                 state,
                 {},
             );
-        } else if (!fillsUp && state.flags?.verbose !== false
+        } else if (!fillsUp && state.flags.verbose
             && (pushing ? !Blind(state.u) : cansee(rx, ry, state))) {
             await message('It sinks without a trace!', state);
         }

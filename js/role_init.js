@@ -86,10 +86,6 @@ function validRaceIndex(racenum) {
     return Number.isInteger(racenum) && racenum >= 0 && racenum < races.length;
 }
 
-function choice(value, parser) {
-    return Number.isInteger(value) ? value : parser(value);
-}
-
 function sourceRandom(random, bound) {
     const result = random(bound);
     if (!Number.isInteger(result) || result < 0 || result >= bound) {
@@ -285,12 +281,11 @@ export function pick_align(rolenum, racenum, gendnum,
  * Apply role.c:rigid_role_checks() to state.flags.
  *
  * Required state shape: `{ flags: { initrole, initrace, initgend,
- * initalign } }`. Choices may be source indices or strings accepted by the
- * corresponding str2* function. `state.roleFilter`, when present, has
- * `{ roles: boolean[], mask: number }`, matching `gr.rfilter`.
+ * initalign } }`, each choice a source index. `state.roleFilter`, when
+ * present, has `{ roles: boolean[], mask: number }`, matching `gr.rfilter`.
  */
 export function rigid_role_checks(state, random = rn2) {
-    const flags = normalizeCharacterFlags(state);
+    const flags = state.flags;
     const filter = stateFilter(state);
     let selected;
 
@@ -333,30 +328,10 @@ export function rigid_role_checks(state, random = rn2) {
     return flags;
 }
 
-export function normalizeCharacterFlags(state) {
-    const flags = state.flags ??= {};
-    const genderWasConfigText = typeof flags.initgend === 'string';
-    flags.initrole = choice(flags.initrole, str2role);
-    flags.initrace = choice(flags.initrace, str2race);
-    flags.initgend = choice(flags.initgend, str2gend);
-    flags.initalign = choice(flags.initalign, str2align);
-    if (genderWasConfigText
-        && flags.initgend >= 0 && flags.initgend < ROLE_GENDERS) {
-        flags.female = flags.initgend === 1;
-    } else if (typeof flags.female !== 'boolean') {
-        // Fresh adapter states which omit the C boolean inherit their
-        // configured gender. Numeric restore state with an existing boolean
-        // keeps the hero's current sex, which can differ from initgend.
-        flags.female = flags.initgend === 1;
-    }
-    if (!Number.isInteger(flags.pantheon)) flags.pantheon = -1;
-    return flags;
-}
-
 // C ref: role.c plnamesuffix(). The async tty askname and generic-user
 // filtering happen in tty_startup.js before this synchronous suffix parser.
 export function plnamesuffix(state) {
-    const flags = normalizeCharacterFlags(state);
+    const flags = state.flags;
     const original = String(state.plname ?? '');
     const plnamelen = state.gp?.plnamelen ?? 0;
     const dash = original.indexOf('-', plnamelen);
@@ -451,9 +426,11 @@ function alignedGod(role, alignment) {
 /**
  * Initialize source role state before init_dungeons().
  *
- * Required state: `{ flags, plname }`; `flags` contains `initrole`,
- * `initrace`, `initgend`, `initalign`, `female`, and `pantheon`. Choices may
- * be source indices or config strings. Optional `pl_character`, `roleFilter`,
+ * Required state: `{ flags, plname }`; `flags` is the struct flag whose
+ * `initrole`, `initrace`, `initgend`, `initalign`, `female` and `pantheon`
+ * role.c reads, each choice a source index. A new game sets `pantheon` to -1
+ * first (allmain.c:785 newgame()); a restored one keeps the saved value
+ * (restore.c:596). Optional `pl_character`, `roleFilter`,
  * `objects`, `mons`, and `svq.quest_status` correspond to the C globals. The
  * `mons` must be the mutable catalog from monst_globals_init(). The
  * `random(bound)` callback must have rn2 semantics. Call rigid_role_checks()

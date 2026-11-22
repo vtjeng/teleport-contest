@@ -2170,7 +2170,7 @@ async function levelTeleMenu(state) {
 export async function level_tele(state = game) {
     const u = state.u;
     const iflags = state.iflags ??= {};
-    const flags = state.flags ?? (state.flags = {});
+    const flags = state.flags;
     const killer = killerForLevelTele(state);
     let newlev;
     let newlevel = { dnum: 0, dlevel: 0 };

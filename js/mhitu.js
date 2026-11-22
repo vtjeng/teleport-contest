@@ -2504,7 +2504,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         const verb = digests(mtmp.data) ? 'regurgitated'
             : enfolds(mtmp.data) ? 'released' : 'expelled';
         await message(`You get ${verb}!`, state, rawEnv);
-        if (state.flags?.verbose !== false && digests(mtmp.data) && slowDigestion)
+        if (state.flags.verbose && digests(mtmp.data) && slowDigestion)
             await message(`Obviously ${mon_nam(mtmp, state, rawEnv)} doesn't like your taste.`, state, rawEnv);
         await expels(mtmp, { ...rawEnv, state, message });
     }
