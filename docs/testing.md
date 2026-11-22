@@ -126,10 +126,11 @@ the game, its RNG calls and the rest of its screens are the same. The port
 prints the judge's macOS text. The recorder now prints that text too: on
 Linux, `nethack-c/build-recorder.sh` applies a macOS-output profile (see
 "Linux output profile"), and on every host the recorder prints the judge's
-`HOME` (patch 008). Three measured differences remain: a key binding that
-depends on uninitialized memory, the C library's regular expressions, and
-the order in which the C library's `qsort()` calls its comparator. The
-port follows macOS in all three, so the regression recordings of those
+`HOME` (patch 008). Four measured differences remain: a key binding that
+depends on uninitialized memory, the C library's regular expressions, the
+order in which the C library's `qsort()` calls its comparator, and three
+paths on which macOS ends the process with `SIGABRT` where Linux does not.
+The port follows macOS in all four, so the regression recordings of those
 paths are made on macOS.
 
 ### Known differences
@@ -147,6 +148,8 @@ The last column says what a recorder built from this repository prints.
 | Binding a key from the options menu to `nothing` or to a command without a parameter | `Key binding failed?!` | The key is bound | `handler_rebind_keys_add()` in `src/cmd.c` appends the command name to an uninitialized buffer, so the result depends on stack contents; see below | Differs: Linux binds the key. The port fails as macOS does, and the recordings of this path are made on macOS. |
 | A `MENUCOLOR`, `MSGTYPE` or `AUTOPICKUP_EXCEPTION` pattern, from the config file or typed in the options menu | Apple Libc's regex (TRE): BSD error texts, `\w` and `\1` literal, `[[:<:]]` accepted | glibc's regex | `sys/share/posixregex.c` calls the host's `regcomp()`, `regexec()` and `regerror()`; see below | Differs. The port follows macOS, and the recordings of these paths are made on macOS. |
 | The order of the discoveries list (`\`) within a class, after a sorted object list first shows objects the hero had not yet seen | The order in which Apple Libc's `qsort()` first compares the objects | The order in which glibc's merge sort first compares them | `sortloot_cmp()` in `src/invent.c` marks an object encountered the first time the sort compares it; see below | Differs. The port follows macOS, and the recordings of these paths are made on macOS. |
+| Picking a saved game whose name has 16 or more characters from the saved-games menu, or moving a position prompt's cursor onto an engraving with 219 or more remembered characters (221 on a headstone) | The process ends in `SIGABRT`: Apple Libc's checked `strcpy()` and `strcat()` (`__strcpy_chk`, `__strcat_chk`) call `abort()` | The copy overflows and the game goes on | `Strcpy(svp.plname, ...)` in `restore_menu()` (`src/restore.c:1599`); `Strcat(temp_buf, ")")` in `do_screen_description()` (`src/pager.c:1613`) | Differs. The port aborts as macOS does, and the recordings of these paths are made on macOS (`scripts/macos-abort-recordings.test.mjs`). |
+| `:` (menu search) at the saved-games menu | The prompt opens, typed text appears where the menu left the cursor, and Return or Escape ends in `SIGABRT` | The process dies at `:` | `hooked_tty_getlin()` (`win/tty/getline.c:50`) reads `wins[WIN_MESSAGE]` before `WIN_MESSAGE` exists, which is undefined behaviour; the macOS build has `ttyDisplay` in that slot, a Linux build a null pointer | Differs. The port follows macOS, and the recording is made on macOS (`scripts/macos-abort-recordings.test.mjs`). |
 | The options help text (`Set options as OPTIONS=<options> in ...`) and other messages that name the config file | The judge's `HOME`, given in `docs/recording-environment.md` | The `HOME` the game runs with | `src/options.c:9471` prints `get_configfile()`, which is `$HOME/.nethackrc`. The path's length decides how many lines the help text takes, and so which lines fall on each page of the pager. | The judge's path on every host (patch 008) |
 
 Save files are compressed with `/usr/bin/compress`, as on macOS

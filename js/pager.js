@@ -1789,7 +1789,9 @@ export function do_screen_description(cc, looked, sym, state = game) {
             // ends there with nothing printed; a Linux build overflows and
             // carries on. Every caller passes `aborted` to end.js NH_abort();
             // scripts/pager-engraving-look-abort.test.mjs pins the boundary
-            // and checks the callers.
+            // and checks the callers, and the macOS recording
+            // recordings/pager.c/do_screen_description-engraving-text-226-aborts
+            // ends a segment at getpos.js auto_describe().
             let tempBuf = ` (${firstmatch}`;
             if (tempBuf.length > BUFSZ - 1)
                 return { found, out, firstmatch, aborted: true };
