@@ -6466,12 +6466,17 @@ function _statusFieldData(field, valueSnapshot = null) {
     const title = _statusTitle();
     switch (field) {
     case 'title':
-        // botl.c get_hilite() advances through BL_TITLE by the complete
-        // svp.plname byte length even when status formatting truncated the
-        // name. The title has one internal cell per source byte, so multibyte
-        // names follow strlen(), not JavaScript code-unit indexing.
+        // text is blstats[][BL_TITLE].val (botl.c 1007), which
+        // compare_blstats() compares and eval_notify_windowport_field()
+        // tests for emptiness; the %-30s padding changes neither result.
+        // matchText is get_hilite()'s txtstr (2536-2538), which skips the
+        // complete svp.plname byte length even when bot_via_windowport()
+        // cut the name to BOTL_NSIZ characters, so a long name leaves it
+        // empty. The title has one internal cell per source byte, so
+        // multibyte names follow strlen(), not JavaScript code-unit indexing.
         return {
-            text: title.slice(
+            text: title,
+            matchText: title.slice(
                 textBytes(game.plname || 'Hero').length + 5,
             ),
         };
@@ -7027,7 +7032,11 @@ function _collectStatusHilites(layouts, onlyField = null) {
             // percentage while the raw BL_XP direction is still downward.
             change = Math.sign(compareValue - previousCompareValue);
         if (updateAll) change = 0;
-        if (notification) {
+        // C ref: botl.c 1590. eval_notify_windowport_field() asks
+        // get_hilite() only when the field changed or its val is not empty;
+        // otherwise both banks keep the rule they had. A field without text
+        // is a number, whose val anything_to_s() never leaves empty.
+        if (notification && (change !== 0 || data.text !== '')) {
             // botl.c get_hilite() picks the rule whatever 'statushilites'
             // says; the tty applies iflags.hilite_delta when it draws the
             // field (wintty.c render_status()), in _statusFieldStyle().
@@ -7037,6 +7046,8 @@ function _collectStatusHilites(layouts, onlyField = null) {
             // both banks only when it notifies the field, including on
             // stat_update_time(). An unchanged field keeps its prior rule.
             gb.status_hilite_rule[1][fld] = selected;
+        }
+        if (notification) {
             // C ref: wintty.c tty_status_update(). tty_status[NOW][BL_TITLE]
             // .color and .attr, which render_status() draws the hitpointbar
             // with, are written by both the BL_TITLE update (the title's own
@@ -7154,8 +7165,8 @@ function _selectStatusHilite(field, data, change = 0, state = game) {
         } else if (rule.behavior === 'text') {
             // C ref: botl.c get_hilite() (2540), which skips '"', ' ', '-'
             // and '_' and folds case.
-            if (fuzzymatch(String(rule.text ?? ''), String(data.text ?? ''),
-                '" -_', true)) {
+            if (fuzzymatch(String(rule.text ?? ''),
+                String(data.matchText ?? data.text ?? ''), '" -_', true)) {
                 selected = rule;
                 exact = true;
             } else if (!exact && field === 'title' && Upolyd(state.u)

@@ -11,6 +11,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { isTerminated } from '../js/rng.js';
 import { expectTerminated } from './expect-terminated.mjs';
+import { HUNGRY, NOT_HUNGRY } from '../js/const.js';
 
 const xpField = STATUS_FIELDS.find(row => row.key === 'experience-level').fld;
 const banks = values => [Array(27).fill(values), Array(27).fill(values)];
@@ -264,4 +265,88 @@ test('a change during multi keeps no highlight past a later bot() with multi cle
     game.disp.botl = true;
     await bot();
     assert.equal(game.gb.status_hilite_rule[0][fld], null);
+});
+
+// A Ranger whose 26-byte name is 16 + strlen("Tenderfoot"): botl.c
+// bot_via_windowport() cuts the shown name to BOTL_NSIZ (16) characters, so
+// get_hilite()'s txtstr, which skips strlen(svp.plname) + 5 bytes (2536-2538),
+// is empty, while blstats[][BL_TITLE].val (1007) is the whole title.
+async function longNameTitleGame(rules) {
+    // Seed, clock and name are independent of every recorded session; the
+    // single 's' leaves the game at a live command prompt.
+    await runSegment({
+        seed: 4418203,
+        datetime: '20300517102233',
+        nethackrc: 'OPTIONS=name:Lkjhgfdsamnbvcxzpoiuytrewq,role:Ranger,'
+            + 'race:human,gender:female,align:chaotic\n'
+            + 'OPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none,statushilites:3\n'
+            + rules.map(rule => `OPTIONS=hilite_status:${rule}\n`).join(''),
+        moves: 's',
+    });
+    return STATUS_FIELDS.find(row => row.key === 'title').fld;
+}
+
+test('a long name whose title text is empty still takes the title rule',
+    async () => {
+    const fld = await longNameTitleGame(['title/always/bright-blue']);
+    assert.equal(game.plname.length, 26);
+    // eval_notify_windowport_field() calls get_hilite() because the title's
+    // val is not empty (botl.c 1590); BL_TH_ALWAYS_HILITE ignores txtstr.
+    assert.equal(game.gb.status_hilite_rule[0][fld]?.behavior, 'always');
+});
+
+test('a rank change with a long name is a title change', async () => {
+    const fld = await longNameTitleGame(['title/changed/green']);
+    assert.equal(game.gb.status_hilite_rule[0][fld], null);
+    // Experience level 3 makes the Ranger a Lookout. compare_blstats()
+    // compares the whole val, which changed, although txtstr is empty both
+    // before and after.
+    game.u.ulevel = 3;
+    game.disp.botl = true;
+    await bot();
+    assert.equal(game.gb.status_hilite_rule[0][fld]?.behavior, 'changed');
+});
+
+test('an expired change highlight on an empty field keeps its rule', async () => {
+    // An independent Tourist with a temporary hunger rule; statushilites:1
+    // makes a stamped timer expire one turn on.
+    await runSegment({
+        seed: 7730914,
+        datetime: '20300517102233',
+        nethackrc: 'OPTIONS=name:Ines,role:Tourist,race:human,'
+            + 'gender:female,align:neutral\n'
+            + 'OPTIONS=!autopickup,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none,statushilites:1\n'
+            + 'OPTIONS=hilite_status:hunger/changed/red\n',
+        moves: 's',
+    });
+    const fld = STATUS_FIELDS.find(row => row.key === 'hunger').fld;
+    // Hungry, then not hungry again: the second change has an empty val
+    // ("" for NOT_HUNGRY, botl.c 1101-1102), but chg is nonzero, so
+    // get_hilite() still picks the temporary rule.
+    game.u.uhs = HUNGRY;
+    game.disp.botl = true;
+    await bot();
+    status_eval_next_unhilite(game);
+    game.u.uhs = NOT_HUNGRY;
+    game.disp.botl = true;
+    await bot();
+    assert.equal(game.gb.status_hilite_rule[0][fld]?.behavior, 'changed');
+    status_eval_next_unhilite(game);
+    const stamped = game.gb.status_hilite_times[0][fld];
+    assert.equal(stamped, game.moves + 1);
+    // Two turns on, hilite_reset_needed() resets the field. With chg 0 and
+    // an empty val, eval_notify_windowport_field() skips get_hilite()
+    // (botl.c 1590), so both banks keep the temporary rule and the next
+    // status_eval_next_unhilite() stamps a new timer.
+    game.moves += 2;
+    status_eval_next_unhilite(game);
+    assert.equal(game.disp.botl, true);
+    await bot();
+    assert.equal(game.gb.status_hilite_rule[0][fld]?.behavior, 'changed');
+    assert.equal(game.gb.status_hilite_rule[1][fld]?.behavior, 'changed');
+    assert.equal(game.gb.status_hilite_times[0][fld], 0);
+    status_eval_next_unhilite(game);
+    assert.equal(game.gb.status_hilite_times[0][fld], game.moves + 1);
 });
