@@ -286,6 +286,7 @@ import { displayTtyTextWindow } from './tty_menu.js';
 import { note_unported } from './unported.js';
 import { choose_disco_sort } from './o_init.js';
 import { game } from './gstate.js';
+import { reset_glyphmap } from './display_glyphmap.js';
 import { zero_flag, zero_instance_flags } from './flag.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
@@ -7057,8 +7058,7 @@ export function finishStartupBooleanOptions(state) {
 // fruit state, activate the final primary boulder override, reconcile the
 // dark-room symbol, then apply the selected TTY map-mode fallback.
 //
-// reset_glyphmap(gm_optionchange) follows reglyph_darkroom() in C.  This port
-// resolves glyph presentation on demand and has no stored glyphmap to reset.
+// reset_glyphmap(gm_optionchange) follows reglyph_darkroom() in C (7348).
 //
 // update_rest_on_space() (options.c:7364) follows that reset.  It is the last
 // point at which C derives the <space> binding from flags.rest_on_space
@@ -7074,6 +7074,7 @@ export function initoptions_finish(parsedOptions = {}, state = game, env = {}) {
     if (glyphid_cache_status(state)) free_glyphid_cache(state);
     apply_customizations(state.gc?.currentgraphics ?? PRIMARYSET, state);
     reglyph_darkroom(state);
+    reset_glyphmap(state);
     updateRestOnSpaceModel(
         state.commandBindings ??= createCommandBindingModel(state),
         Boolean(state.flags?.rest_on_space),
@@ -8598,21 +8599,22 @@ const OPTION_HANDLERS = Object.freeze({
 // after its pick loop and doset_simple() runs after every pass of its own.
 export async function reset_needed_visuals(state) {
     const go = state.go ??= {};
-    // display.c reset_glyphmap(gm_optionchange) rebuilds glyphmap[], the
-    // glyph-to-symbol-and-colour table the window port prints from. This port
-    // keeps no such table: js/display.js map_glyphinfo() resolves one glyph
-    // number on demand, and the docrt() below re-runs newsym() over every
-    // square, so the rebuild and the repaint are one act here.
+    // display.c reset_glyphmap(gm_optionchange) (8982-8984) rebuilds
+    // glyphmap[], the glyph-to-symbol-and-colour table the window port prints
+    // from. This port keeps no such table: js/display.js map_glyphinfo()
+    // resolves one glyph number on demand, and reset_glyphmap() there keeps
+    // the one input the table freezes, iflags.use_color. Until this call a
+    // 'color' toggled in the options menu has changed what tty_print_glyph()
+    // prints (print_glyph_cell()) but not what a glyph maps to.
     //
-    // That argument alone was tried at 0f7b6cf and is false on its own, as the
-    // correctness pass over 5366349..909a338 proved by execution: what makes
-    // it true is that map memory holds the unresolved number. It now does for
-    // every layer that reaches map memory, so a repaint draws each remembered
-    // square under the option values in force at the repaint. Monsters need no
-    // stored number: C's comment at detect.c:2205-2209 records that
-    // levl[x][y].glyph never holds one, and docrt_flags() (display.c:1709)
-    // rebuilds every monster cell by re-running newsym(), so the repaint
-    // re-derives their glyphflags from the live monster.
+    // Map memory holds the unresolved number for every layer that reaches
+    // it, so the docrt() below draws each remembered square from the rebuilt
+    // table. Monsters need no stored number: C's comment at
+    // detect.c:2205-2209 records that levl[x][y].glyph never holds one, and
+    // docrt_flags() (display.c:1709) rebuilds every monster cell by
+    // re-running newsym(), so the repaint re-derives their glyphflags from
+    // the live monster.
+    if (go.opt_need_glyph_reset) reset_glyphmap(state);
     if (go.opt_reset_customcolors || go.opt_update_basic_palette
         || go.opt_reset_customsymbols || go.opt_need_redraw) {
         if (go.opt_update_basic_palette) {

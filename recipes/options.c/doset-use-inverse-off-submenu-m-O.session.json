@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "options.c doset() via m O in a hilite_pile game: 'use_inverse' off with a highlighted pile in view, then the msg_window sub-menu. wintty.c tty_print_glyph() reads iflags.use_inverse as docorner() repaints the pile's cell, so the pile loses its inverse before reset_needed_visuals().",
+  "segments": [
+    {
+      "seed": 39102,
+      "datetime": "20250217101112",
+      "nethackrc": "OPTIONS=name:Ilse,role:Healer,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,hilite_pile,pettype:none\n",
+      "moves": "dcdajjmO>>>u>>h\r \u001b i\u001b"
+    }
+  ]
+}

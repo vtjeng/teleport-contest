@@ -189,6 +189,7 @@ import {
     trap_to_glyph,
     tty_capacity_status,
     unmap_invisible,
+    print_glyph_attr,
     SCORER_DEC_MAP,
     weapon_status,
 } from '../js/display.js';
@@ -559,6 +560,13 @@ function enableGlyphNotices(state) {
     state.program_state = {};
 }
 
+// The attribute wintty.c tty_print_glyph() gives a mapped glyph when it prints
+// it: the record carries reset_glyphmap()'s glyphflags, and the options are
+// read at the print.
+function printedAttr(glyph, state) {
+    return print_glyph_attr(glyph.glyphflags ?? 0, state);
+}
+
 function glyphPresentationRecord(glyph) {
     const color = glyph.color ?? NO_COLOR;
     const displayCh = glyph.displayCh ?? null;
@@ -566,7 +574,6 @@ function glyphPresentationRecord(glyph) {
         ch: glyph.ch,
         color,
         dec: Boolean(glyph.dec),
-        attr: glyph.attr ?? 0,
         displayCh,
         displayColor: glyph.displayColor ?? (displayCh ? color : null),
         a11yKind: glyph.a11yKind ?? null,
@@ -988,34 +995,34 @@ test('disabled color uses tty inverse cues for ambiguous terrain symbols', () =>
 
     for (const typ of [SINK, ICE, LAVAPOOL, LAVAWALL]) {
         assert.equal(
-            terrainGlyphAt({ typ }, 7, 4, state).attr,
+            printedAttr(terrainGlyphAt({ typ }, 7, 4, state), state),
             ATR_INVERSE,
             `terrain type ${typ}`,
         );
     }
     for (const typ of [FOUNTAIN, POOL, WATER]) {
         assert.equal(
-            terrainGlyphAt({ typ }, 7, 4, state).attr,
-            undefined,
+            printedAttr(terrainGlyphAt({ typ }, 7, 4, state), state),
+            ATR_NONE,
             `reference terrain type ${typ}`,
         );
     }
     assert.equal(
-        terrainGlyphAt({ typ: DRAWBRIDGE_UP, flags: DB_LAVA }, 7, 4, state).attr,
+        printedAttr(terrainGlyphAt({ typ: DRAWBRIDGE_UP, flags: DB_LAVA }, 7, 4, state), state),
         ATR_INVERSE,
         'raised drawbridge lava uses the same cmap cue',
     );
 
     state.iflags.wc_inverse = false;
     assert.equal(
-        terrainGlyphAt({ typ: SINK }, 7, 4, state).attr,
-        undefined,
+        printedAttr(terrainGlyphAt({ typ: SINK }, 7, 4, state), state),
+        ATR_NONE,
     );
     state.iflags.wc_inverse = true;
     state.iflags.wc_color = true;
     assert.equal(
-        terrainGlyphAt({ typ: SINK }, 7, 4, state).attr,
-        undefined,
+        printedAttr(terrainGlyphAt({ typ: SINK }, 7, 4, state), state),
+        ATR_NONE,
     );
 });
 
@@ -1560,11 +1567,11 @@ test('monster glyphs run the tty attribute chain in source order', () => {
         m_ap_type: 0,
     };
 
-    assert.equal(monster_glyph_info(monster, state).attr, undefined);
+    assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_NONE);
     monster.mtame = 10;
-    assert.equal(monster_glyph_info(monster, state).attr, ATR_BOLD);
+    assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_BOLD);
     state.iflags.wc_hilite_pet = false;
-    assert.equal(monster_glyph_info(monster, state).attr, undefined);
+    assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_NONE);
 
     // A female pet raises MG_PET and MG_FEMALE together, so it can match both
     // arms; 'hilite_pet' decides which. iflags.wizmgender is set_wizonly, so
@@ -1572,17 +1579,17 @@ test('monster glyphs run the tty attribute chain in source order', () => {
     monster.female = 1;
     state.wizard = true;
     state.iflags.wizmgender = true;
-    assert.equal(monster_glyph_info(monster, state).attr, ATR_INVERSE);
+    assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_INVERSE);
     state.iflags.wc_hilite_pet = true;
-    assert.equal(monster_glyph_info(monster, state).attr, ATR_BOLD);
+    assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_BOLD);
 
     // The inverse arm as a whole sits behind iflags.use_inverse; the pet arm
     // above it does not.
     state.iflags.wc_hilite_pet = false;
     state.iflags.wc_inverse = false;
-    assert.equal(monster_glyph_info(monster, state).attr, undefined);
+    assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_NONE);
     state.iflags.wc_hilite_pet = true;
-    assert.equal(monster_glyph_info(monster, state).attr, ATR_BOLD);
+    assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_BOLD);
 
     // Both halves of tty_print_glyph()'s MG_FEMALE conjunct are required: a
     // debug game with the option off, and an ordinary game with it on, each
@@ -1591,12 +1598,12 @@ test('monster glyphs run the tty attribute chain in source order', () => {
     state.iflags.wc_hilite_pet = false;
     monster.mtame = 0;
     state.iflags.wizmgender = false;
-    assert.equal(monster_glyph_info(monster, state).attr, undefined);
+    assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_NONE);
     state.iflags.wizmgender = true;
     state.wizard = false;
-    assert.equal(monster_glyph_info(monster, state).attr, undefined);
+    assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_NONE);
     state.wizard = true;
-    assert.equal(monster_glyph_info(monster, state).attr, ATR_INVERSE);
+    assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_INVERSE);
 });
 
 // C ref: display.h hero_glyph (654-656), which passes you.h:555's Ugender to
@@ -1615,9 +1622,9 @@ test("the hero's own glyph takes its gender bit from Ugender", () => {
     };
     initialize_symbols_from_options({ flags: {} }, state);
 
-    assert.equal(hero_glyph_info(state).attr, undefined);
+    assert.equal(printedAttr(hero_glyph_info(state), state), ATR_NONE);
     state.flags.female = true;
-    assert.equal(hero_glyph_info(state).attr, ATR_INVERSE);
+    assert.equal(printedAttr(hero_glyph_info(state), state), ATR_INVERSE);
     // Polymorphed, Ugender reads u.mfemale instead, and this hero's form is
     // female while she is not.
     state.flags.female = false;
@@ -1627,7 +1634,7 @@ test("the hero's own glyph takes its gender bit from Ugender", () => {
     // two separate tests of the same disjunct, and a form coloured white
     // would leave the colour half unable to separate them.
     state.mons.push({ mlet: S_FELINE, mcolor: CLR_RED });
-    assert.equal(hero_glyph_info(state).attr, ATR_INVERSE);
+    assert.equal(printedAttr(hero_glyph_info(state), state), ATR_INVERSE);
 
     // display.h hero_glyph's species half is
     // (Upolyd || !flags.showrace) ? u.umonnum : gu.urace.mnum, so the
@@ -1666,9 +1673,9 @@ test('a monster disguise shows the mimic gender, not the appearance one',
             mx: 7,
             my: 4,
         };
-        assert.equal(monster_glyph_info(monster, state).attr, ATR_INVERSE);
+        assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_INVERSE);
         monster.female = 0;
-        assert.equal(monster_glyph_info(monster, state).attr, undefined);
+        assert.equal(printedAttr(monster_glyph_info(monster, state), state), ATR_NONE);
     });
 
 // C refs: display.h maybe_display_usteed() (246-249) and ridden_mon_to_glyph()
@@ -1731,11 +1738,11 @@ test('a hallucinated statue takes its gender from the second display draw',
         // Monster row 3 is arbitrary: every row leaves the gender to the
         // second draw, which is the one under test.
         assert.equal(
-            hallucinated_statue_glyph_info(state, scripted([3, 0])).attr,
-            undefined,
+            printedAttr(hallucinated_statue_glyph_info(state, scripted([3, 0])), state),
+            ATR_NONE,
         );
         assert.equal(
-            hallucinated_statue_glyph_info(state, scripted([3, 1])).attr,
+            printedAttr(hallucinated_statue_glyph_info(state, scripted([3, 1])), state),
             ATR_INVERSE,
         );
     });
@@ -1759,22 +1766,22 @@ test('object glyphs apply tty pile highlighting with the source boulder rule', (
     };
     state.level.objects[x][y] = top;
 
-    assert.equal(object_glyph_info(top, state).attr, ATR_INVERSE);
+    assert.equal(printedAttr(object_glyph_info(top, state), state), ATR_INVERSE);
 
     state.iflags.hilite_pile = false;
-    assert.equal(object_glyph_info(top, state).attr, undefined);
+    assert.equal(printedAttr(object_glyph_info(top, state), state), ATR_NONE);
     state.iflags.hilite_pile = true;
     state.iflags.wc_inverse = false;
-    assert.equal(object_glyph_info(top, state).attr, undefined);
+    assert.equal(printedAttr(object_glyph_info(top, state), state), ATR_NONE);
 
     state.iflags.wc_inverse = true;
     top.otyp = BOULDER;
-    assert.equal(object_glyph_info(top, state).attr, undefined);
+    assert.equal(printedAttr(object_glyph_info(top, state), state), ATR_NONE);
     lower.otyp = BOULDER;
-    assert.equal(object_glyph_info(top, state).attr, ATR_INVERSE);
+    assert.equal(printedAttr(object_glyph_info(top, state), state), ATR_INVERSE);
 
     top.where = 0;
-    assert.equal(object_glyph_info(top, state).attr, undefined);
+    assert.equal(printedAttr(object_glyph_info(top, state), state), ATR_NONE);
 });
 
 test('each object glyph macro picks the base display.h gives it', () => {
@@ -3311,7 +3318,7 @@ test('hallucinated map_object paths preserve presentation, memory, and RNG', () 
             [
                 expectedShown.ch,
                 expectedShown.color,
-                expectedShown.attr ?? 0,
+                printedAttr(expectedShown, state),
             ],
             `${label}: displayed glyph`,
         );
@@ -3482,7 +3489,7 @@ test('hallucinated revealed object mimics map disguise before real form', () => 
             [
                 expectedMonster.ch,
                 expectedMonster.color,
-                expectedMonster.attr ?? 0,
+                printedAttr(expectedMonster, state),
             ],
             label,
         );
@@ -3536,7 +3543,7 @@ test('shape-changer protection does not reveal an unsensed invisible mimic',
                 location.disp_color,
                 location.disp_attr,
             ],
-            [expected.ch, expected.color, expected.attr ?? 0],
+            [expected.ch, expected.color, printedAttr(expected, state)],
         );
         assert.deepEqual(
             location.remembered_glyph,
@@ -3604,7 +3611,7 @@ test('protected furniture mimics remember disguise regardless of hero memory',
                 [
                     expectedMonster.ch,
                     expectedMonster.color,
-                    expectedMonster.attr ?? 0,
+                    printedAttr(expectedMonster, state),
                 ],
                 `hero_memory=${heroMemory}`,
             );
@@ -3661,7 +3668,7 @@ test('unprotected furniture mimics bypass disabled hero memory without RNG',
                 location.disp_color,
                 location.disp_attr,
             ],
-            [expected.ch, expected.color, expected.attr ?? 0],
+            [expected.ch, expected.color, printedAttr(expected, state)],
         );
         assert.deepEqual(
             location.remembered_glyph,
@@ -3841,7 +3848,6 @@ test('monster disguises are transient and preserve display-RNG order', () => {
                 m_ap_type: 0,
                 mtame: 0,
             }, state);
-        if (detectedOnly) expectedShown.attr = ATR_INVERSE;
         state.u.uprops[HALLUC].intrinsic = hallucinating ? 1 : 0;
         const location = state.level.at(x, y);
         const glyphWrites = captureDisplayWrites(location);
@@ -3857,7 +3863,10 @@ test('monster disguises are transient and preserve display-RNG order', () => {
             [
                 expectedShown.ch,
                 expectedShown.color,
-                expectedShown.attr ?? 0,
+                // A detected monster's glyph carries MG_DETECT, which
+                // wintty.c tty_print_glyph() (3932-3935) prints in inverse.
+                detectedOnly
+                    ? ATR_INVERSE : printedAttr(expectedShown, state),
             ],
             label,
         );
@@ -3961,7 +3970,7 @@ test('monster disguises preserve divergent hallucinated statue memory', () => {
             location.disp_color,
             location.disp_attr,
         ],
-        [expectedReal.ch, expectedReal.color, expectedReal.attr ?? 0],
+        [expectedReal.ch, expectedReal.color, printedAttr(expectedReal, state)],
     );
     assert.deepEqual(
         glyphWrites,
@@ -5152,7 +5161,7 @@ test('glyph update identity ignores pile highlighting', async () => {
     state.iflags.hilite_pile = true;
     show_glyph_cell(x, y, object_glyph_info(object, state));
 
-    assert.equal(location.disp_glyph.attr, ATR_INVERSE);
+    assert.equal(printedAttr(location.disp_glyph, state), ATR_INVERSE);
     assert.deepEqual(
         state._glyphUpdateNotices,
         [],
@@ -5698,7 +5707,7 @@ test('see invisible keeps a warned detected mimic physically visible', () => {
             state.level.at(x, y).disp_color,
             state.level.at(x, y).disp_attr,
         ],
-        [disguise.ch, disguise.color, disguise.attr ?? 0],
+        [disguise.ch, disguise.color, printedAttr(disguise, state)],
         'physical visibility shows an unsensed disguise instead of warning',
     );
 
@@ -5710,7 +5719,7 @@ test('see invisible keeps a warned detected mimic physically visible', () => {
             state.level.at(x, y).disp_color,
             state.level.at(x, y).disp_attr,
         ],
-        [actual.ch, actual.color, actual.attr ?? 0],
+        [actual.ch, actual.color, printedAttr(actual, state)],
         'detection defeats the physically visible disguise without inversion',
     );
     assert.equal(
@@ -5866,7 +5875,7 @@ test('monster_glyph_info directly owns one hallucinated species draw', () => {
     }, state);
     state.u.uprops[HALLUC].intrinsic = 1;
     assert.deepEqual(glyph, expected);
-    assert.equal(glyph.attr, undefined);
+    assert.equal(printedAttr(glyph, state), ATR_NONE);
     assert.equal(rn2_on_display_rng(NUMMONS), followingDraw);
 });
 
@@ -5912,7 +5921,7 @@ test('physical sight owns hallucinated monster presentation over detection', () 
             state.level.at(x, y).disp_color,
             state.level.at(x, y).disp_attr,
         ],
-        [expected.ch, expected.color, expected.attr ?? 0],
+        [expected.ch, expected.color, printedAttr(expected, state)],
         'physically seen hallucinated monsters do not use inverse detection',
     );
     assert.equal(
@@ -6168,9 +6177,9 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     assert.equal(state.level.at(x, y).disp_color, CLR_BRIGHT_BLUE);
     assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
     assert.equal(
-        remembered_glyph_presentation(
+        printedAttr(remembered_glyph_presentation(
             state.level.at(x, y).remembered_glyph, state,
-        ).attr,
+        ), state),
         ATR_INVERSE,
     );
 
@@ -6178,8 +6187,16 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     newsym(x, y);
     assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
 
+    // display.c show_glyph() (2031-2044) leaves an entry whose glyph and
+    // glyphflags are unchanged alone, so turning 'use_inverse' off does not
+    // by itself reprint the cell; wintty.c tty_print_glyph() (3930-3934)
+    // reads the option when something does. cls() empties the entry, as the
+    // docrt() that follows the option change does.
     state.viz_array[y][x] = 0x2;
     state.iflags = { wc_inverse: false };
+    newsym(x, y);
+    assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
+    state.level.at(x, y).disp_glyph = null;
     newsym(x, y);
     assert.equal(state.level.at(x, y).disp_attr, 0);
 
@@ -6783,7 +6800,7 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
         // MG_OBJPILE is the first.
         state.iflags.hilite_pile = true;
         assert.equal(
-            map_glyphinfo(glyph, state).attr ?? 0,
+            printedAttr(map_glyphinfo(glyph, state), state),
             expected.flags & MG_OBJPILE ? ATR_INVERSE : 0,
             `pile attribute at ${glyph}`,
         );
@@ -6796,7 +6813,7 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
         state.wizard = true;
         state.iflags.wizmgender = true;
         assert.equal(
-            map_glyphinfo(glyph, state).attr ?? 0,
+            printedAttr(map_glyphinfo(glyph, state), state),
             expected.flags & MG_FEMALE ? ATR_INVERSE : 0,
             `gender attribute at ${glyph}`,
         );
@@ -6852,7 +6869,7 @@ test('the pile and gender attributes are resolved at print time', () => {
         state.wizard = wizard;
         state.iflags = { ...state.iflags, wc_inverse: true, ...iflags };
         assert.equal(
-            map_glyphinfo(glyph, state).attr ?? 0,
+            printedAttr(map_glyphinfo(glyph, state), state),
             expected,
             `${glyph} ${JSON.stringify(iflags)} wizard ${wizard}`,
         );
@@ -7088,11 +7105,16 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
         terrainGlyphAt({ typ: FOUNTAIN }, 7, 4, state),
         {
             ch: null,
-            color: NO_COLOR,
+            color: NO_COLOR, // reset_glyphmap()'s !iflags.use_color arm
             dec: false,
             displayCh: '⌠',
+            // glyphs.c apply_customizations() stores gm.customcolor whatever
+            // 'color' says; wintty.c tty_print_glyph() (3892) skips it when
+            // it prints the cell.
+            rgb: [0, 150, 255],
+            displayColor: 'rgb(0, 150, 255)',
         },
-        'the global color option suppresses both palette and custom colors',
+        'the global color option suppresses the palette color in the glyph map',
     );
 
     const live = resetGame();
@@ -10344,8 +10366,9 @@ test('map_glyphinfo keeps the two black-and-white gates apart', () => {
     // S_pool are both '}', S_ice and S_room are both '.', S_sink and
     // S_fountain are both '{', and S_engrcorr and S_corr are both '#'.
     const state = branchedState();
-    const attrOf = (cmap) => map_glyphinfo(cmap_to_glyph(cmap, state), state)
-        .attr ?? 0;
+    const attrOf = (cmap) => printedAttr(
+        map_glyphinfo(cmap_to_glyph(cmap, state), state), state,
+    );
 
     state.iflags = { wc_color: true, wc_inverse: true };
     for (const cmap of [S_lava, S_lavawall, S_ice, S_sink])
@@ -10375,7 +10398,7 @@ test('map_glyphinfo keeps the two black-and-white gates apart', () => {
     separated.iflags = { wc_color: false, wc_inverse: true };
     for (const cmap of [S_lava, S_ice, S_sink, S_engrcorr]) {
         assert.equal(
-            map_glyphinfo(cmap_to_glyph(cmap, separated), separated).attr ?? 0,
+            printedAttr(map_glyphinfo(cmap_to_glyph(cmap, separated), separated), separated),
             0,
             `cmap ${cmap} with its own symbol`,
         );
@@ -10533,7 +10556,7 @@ test('each black-and-white cue reads both of its own comparisons', () => {
         state.iflags = { wc_color: false, wc_inverse: true };
         for (const [cmap, expected] of cases) {
             assert.equal(
-                map_glyphinfo(cmap_to_glyph(cmap, state), state).attr ?? 0,
+                printedAttr(map_glyphinfo(cmap_to_glyph(cmap, state), state), state),
                 expected,
                 `${rc} cmap ${cmap}`,
             );
@@ -10551,7 +10574,7 @@ test('each black-and-white cue reads both of its own comparisons', () => {
         initialize_symbols_from_options(parseNethackrc(rc), state);
         state.iflags = { wc_color: true, wc_inverse: true };
         assert.equal(
-            map_glyphinfo(cmap_to_glyph(S_engrcorr, state), state).attr ?? 0,
+            printedAttr(map_glyphinfo(cmap_to_glyph(S_engrcorr, state), state), state),
             expected,
             rc,
         );

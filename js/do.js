@@ -169,6 +169,7 @@ import {
     newsym,
     reglyph_darkroom,
 } from './display.js';
+import { reset_glyphmap } from './display_glyphmap.js';
 import {
     Adjmonnam, Amonnam, Monnam, docall, hcolor, hliquid, mon_nam, rndmonnam,
     y_monnam, obj_pmname,
@@ -2966,10 +2967,11 @@ export async function goto_level(
 
     /* Reset the screen. */
     vision_reset(state);
-    // do.c:1836 reset_glyphmap(gm_levelchange) recomputes the glyph-to-symbol
+    // do.c:1838 reset_glyphmap(gm_levelchange) recomputes the glyph-to-symbol
     // table and its per-level Rogue flag. The port maps each glyph as it draws
-    // it rather than keeping the table, and Is_rogue_level is false either
-    // side of this descent, so the table it would rebuild is unchanged.
+    // it rather than keeping the table; display.js reset_glyphmap() keeps the
+    // one input a rebuild fixes.
+    reset_glyphmap(state);
     notice_mon_off(state);
     // do.c:1837 calls docrt() alone. display.c docrt_flags() brackets the
     // remembered-map pass with vision_recalc(2) and vision_recalc(0) before

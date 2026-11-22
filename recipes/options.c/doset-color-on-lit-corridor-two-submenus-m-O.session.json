@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "options.c doset() via m O from a !color game: 'color' and 'lit_corridor' on, then the menustyle and sortloot sub-menus; the map stays uncoloured until reset_glyphmap().",
+  "segments": [
+    {
+      "seed": 52260,
+      "datetime": "20250217101112",
+      "nethackrc": "OPTIONS=name:Ilse,role:Healer,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,!color\n",
+      "moves": "mO>l>i>>>gt\r \u001b \u001bi\u001b"
+    }
+  ]
+}
