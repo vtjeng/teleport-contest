@@ -6194,8 +6194,9 @@ function _statusLine3DetailsLayout() {
 // game._statusLastRowTty holds this row's tty state: `cells`, cw->data[row]
 // as {text, owners}; `before`, tty_status[BEFORE][] for the row's fields;
 // and `finalx`, finalx[row][BEFORE] as a zero-based end column. It is null
-// before the first pass and after tty_status_init(), when C's zeroed
-// [BEFORE] makes every field redraw.
+// before the first pass. wintty.js new_status_window() empties `cells` and
+// `before`, as tty_status_init()'s zeroed [BEFORE] makes every field redraw,
+// and keeps `finalx`, which C never resets.
 //
 // `nominal` is the row as statusLayouts() lays it out on a blank row, with
 // its fields; `forced` is BL_RESET's forcefields; `dirty(group)` answers
