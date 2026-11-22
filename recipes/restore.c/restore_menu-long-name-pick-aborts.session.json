@@ -1,0 +1,26 @@
+{
+  "version": 5,
+  "comment": "restore.c restore_menu() (1599): picking a saved game runs Strcpy(svp.plname, saved[ch - 1]), and the \"name-role-race-gend-algn\" text of an 18-character name is 34 characters, which with their NUL need 35 bytes of the 32 (PL_NSIZ) that svp.plname[] has. macOS's checked strcpy() (__strcpy_chk) calls abort() there, so record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder, whose strcpy() overflows into the next field and restores the game. Segment 0: an rc without a name asks \"Who are you?\"; a dwarvish Valkyrie named Sigrunvaldisdottir steps east and saves. Segment 1: the saved-games menu lists her, and a picks her: the process ends on SIGABRT (terminalSignal) before any further screen. Segment 2: abort() came before the restore and before getlock(), so the save file is still there and the next start shows the same menu; q quits. Seeds, clocks, character, name and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 52860311,
+      "datetime": "20380709083000",
+      "nethackrc": "OPTIONS=role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!tutorial,!legacy,!autopickup,pettype:none\n",
+      "moves": "Sigrunvaldisdottir\r lSy"
+    },
+    {
+      "seed": 52860319,
+      "datetime": "20380710083000",
+      "nethackrc": "OPTIONS=role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!tutorial,!legacy,!autopickup,pettype:none\n",
+      "moves": "a",
+      "terminalInputKey": "a",
+      "terminalSignal": "SIGABRT"
+    },
+    {
+      "seed": 52860323,
+      "datetime": "20380711083000",
+      "nethackrc": "OPTIONS=role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!tutorial,!legacy,!autopickup,pettype:none\n",
+      "moves": "q"
+    }
+  ]
+}

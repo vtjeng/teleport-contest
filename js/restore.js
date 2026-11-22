@@ -181,7 +181,7 @@ export async function restore_menu(bannerwin = WIN_ERR, state = game) {
             ch = choice;
             if (ch > 0) {
                 const chosen = saved[ch - 1].split('\0')[0];
-                // restore.c:1596 is Strcpy(svp.plname, saved[ch - 1]): the
+                // restore.c:1599 is Strcpy(svp.plname, saved[ch - 1]): the
                 // "name-role-race-gend-algn" text, up to PL_NSIZ_PLUS - 1
                 // characters, goes into the PL_NSIZ-byte plname[]. The
                 // judge's recordings come from macOS, whose strcpy() checks
@@ -190,10 +190,12 @@ export async function restore_menu(bannerwin = WIN_ERR, state = game) {
                 // with no further input boundary. That is a name of 16 or
                 // more characters, since the suffix adds 16. Measured on
                 // macOS 26.7: names of 12 and 15 characters restore, and 16,
-                // 17, 24 and 31 end in SIGABRT, which no recording can hold;
-                // scripts/restore-menu-long-name-abort.test.mjs pins it. A
-                // Linux build overflows into the fields after plname[] and
-                // carries on.
+                // 17, 24 and 31 end in SIGABRT.
+                // scripts/restore-menu-long-name-abort.test.mjs pins it, and
+                // recordings/restore.c/restore_menu-long-name-pick-aborts, a
+                // macOS recording (scripts/macos-abort-recordings.test.mjs),
+                // ends a segment there. A Linux build overflows into the
+                // fields after plname[] and carries on.
                 if (chosen.length >= PL_NSIZ) await NH_abort(state);
                 state.plname = chosen;
             } else if (ch < 0)

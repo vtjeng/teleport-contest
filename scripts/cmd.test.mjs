@@ -92,7 +92,9 @@ import {
     BRCORNER,
     VWALL,
     otherInp,
+    NHW_MESSAGE,
 } from '../js/const.js';
+import { tty_create_nhwindow } from '../js/wintty.js';
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
 import {
@@ -186,6 +188,10 @@ function resetParserTestGame(keys) {
     game.u = {};
     // Avoid invoking the status formatter: these tests isolate command input.
     game._renderedStatusLayouts = [];
+    // allmain.c init_sound_disp_gamewindows() has created WIN_MESSAGE, so
+    // getlin reaches it; msg_history is options.c's default of 20.
+    game.iflags.msg_history = 20;
+    tty_create_nhwindow(NHW_MESSAGE, game);
     for (const key of keys) {
         game.nhDisplay.pushKey(
             typeof key === 'number' ? key : key.charCodeAt(0),

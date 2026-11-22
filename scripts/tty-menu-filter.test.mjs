@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { PICK_ANY, PICK_ONE } from '../js/const.js';
+import { NHW_MESSAGE, PICK_ANY, PICK_ONE } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { parseNethackrc } from '../js/options.js';
@@ -16,6 +16,7 @@ import {
     ttyMenuLayout,
 } from '../js/tty_menu.js';
 import { menuitem_invert_test } from '../js/windows.js';
+import { tty_create_nhwindow } from '../js/wintty.js';
 
 function menuState(keys = '', filter = null) {
     resetGame();
@@ -28,8 +29,13 @@ function menuState(keys = '', filter = null) {
     };
     // options.c initoptions_init() (7279) sets menuinvertmode to 1. Tests that
     // need another configured mode replace this field below.
-    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    game.iflags = { window_inited: true, menuinvertmode: 1 };
+    // The windows are up: allmain.c init_sound_disp_gamewindows() has
+    // created WIN_MESSAGE and displayed it (wintty.c:1883), so pline() and
+    // getlin reach it.
+    // msg_history is options.c's default of 20, which tty_create_nhwindow()
+    // reads to size the message window's history.
+    game.iflags = { window_inited: true, menuinvertmode: 1, msg_history: 20 };
+    tty_create_nhwindow(NHW_MESSAGE, game);
     if (filter) game.roleFilter = structuredClone(filter);
     for (const character of keys)
         game.nhDisplay.pushKey(character.charCodeAt(0));

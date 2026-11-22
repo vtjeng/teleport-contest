@@ -13,6 +13,7 @@ import {
     COLNO,
     OVERRIDE_MSGTYPE,
     SUPPRESS_HISTORY,
+    WIN_ERR,
     WIN_STOP,
 } from './const.js';
 import {
@@ -26,6 +27,7 @@ import {
     extcmds_match,
 } from './cmd.js';
 import { docorner, flush_screen } from './display.js';
+import { panic } from './end.js';
 import { game } from './gstate.js';
 import {
     bytesText,
@@ -95,13 +97,32 @@ function clearMessageWindow(state) {
     display.setCursor(0, 0);
 }
 
+// C's WIN_MESSAGE: WIN_ERR until allmain.c init_sound_disp_gamewindows()
+// creates the message window, which js/wintty.js records as
+// state.wintty.messageWindow.
+function messageWindowId(state) {
+    return state.wintty?.messageWindow ?? WIN_ERR;
+}
+
+// C ref: win/tty/wintty.c tty_clear_nhwindow(WIN_MESSAGE) as getlin calls
+// it. While WIN_MESSAGE is still WIN_ERR, its first test calls
+// ttywindowpanic(), that is panic("Bad window Id %d (%s)", -1,
+// "tty_clear_nhwindow"), and end.c panic() ends in NH_abort() on every
+// recorder build, because config.h defines CRASHREPORT for macOS and Linux
+// alike.
+async function tty_clear_message_window(state) {
+    if (messageWindowId(state) === WIN_ERR)
+        await panic(`Bad window Id ${WIN_ERR} (tty_clear_nhwindow)`, state);
+    clearMessageWindow(state);
+}
+
 // C ref: getline.c hooked_tty_getlin()'s redraw after Escape or a message
 // recall: tty_clear_nhwindow(WIN_MESSAGE), cw->maxcol = cw->maxrow, then
 // addtopl(query), addtopl(" ") and addtopl(obufp).  addtopl() wraps at the
 // terminal edge, leaves the cursor after the text, and sets
 // TOPLINE_NEED_MORE.
-function redrawPrompt(query, text, state) {
-    clearMessageWindow(state);
+async function redrawPrompt(query, text, state) {
+    await tty_clear_message_window(state);
     recallFromNewest(state);
     addtopl(query, state);
     addtopl(' ', state);
@@ -132,6 +153,44 @@ async function hooked_tty_getlin(query, hook, state) {
     const display = state.nhDisplay;
     if (!display) throw new Error('getlin requires an initialized display');
 
+    // getline.c:50 is `cw = wins[WIN_MESSAGE]`. Before allmain.c
+    // init_sound_disp_gamewindows() creates the message window, WIN_MESSAGE
+    // is WIN_ERR (-1), and getlin can still run: unixmain.c calls
+    // plnamesuffix() at 198, before 217, so restore.c restore_menu()'s
+    // saved-games menu reaches here through wintty.c process_menu_window()'s
+    // MENU_SEARCH arm (':'). cw then reads wins[-1], which is undefined
+    // behaviour, so what follows depends on the host; the port follows the
+    // judge's, macOS. Measured with the recorder on macOS 26.7.2 (arm64,
+    // Apple clang 21; runs 44905485987 and 44905775555): `nm -n` puts the
+    // pointer ttyDisplay 8 bytes below wins[], so cw is ttyDisplay's 60-byte
+    // struct DisplayDesc read as a struct WinDesc, and nothing faults. (A
+    // Linux recorder finds BASE_WINDOW and padding there, reads NULL, and
+    // dies at line 55.) Through that overlay:
+    //  - cw->flags is ttyDisplay->rows and cols, and WIN_STOP is bit 0 of
+    //    rows, which is 24, so line 55 changes nothing. more() would need
+    //    TOPLINE_NEED_MORE, which nothing sets while pline() can only
+    //    raw_print().
+    //  - The prompt goes out through raw_print() (iflags.window_inited is
+    //    still unset), and each typed character through topl_putsym(), which
+    //    writes at ttyDisplay's cursor, where the menu left it
+    //    (js/tty_rawprint.js nomux_enter_raw_mode() keeps it). Its stores to
+    //    cw->curx and cw->cury land on ttyDisplay->inmore, inread, intr and
+    //    lastwin. A wrap at the last column sets intr, which makes lines
+    //    102-104 store a NUL where one already is; nothing else reads those
+    //    fields before the abort below.
+    //  - Every way out of the loop, and Escape over typed text, calls
+    //    tty_clear_nhwindow(WIN_MESSAGE), which panics
+    //    (tty_clear_message_window()). macOS ended in SIGABRT at Return and
+    //    at Escape, with or without text, and kept going through typed text
+    //    and backspaces.
+    //  - Ctrl-P's tty_doprev_message() reads cw->maxcol and cw->data, which
+    //    lie past the end of the DisplayDesc allocation. One macOS
+    //    measurement (run 44990016952, msg_window at its default) ended in
+    //    SIGABRT at the Ctrl-P key itself, after "Signal received.". That
+    //    outcome depends on heap memory no rule here describes, so it is not
+    //    modelled: the port's tty_doprev_message() returns at once without a
+    //    message window, and the port aborts at the next key instead, one
+    //    screen later than macOS.
     // getline.c:53-55: more() runs unless WIN_STOP is set, and WIN_STOP is
     // then cleared whether or not it ran.
     const cw = messageWindow(state);
@@ -201,7 +260,7 @@ async function hooked_tty_getlin(query, hook, state) {
                     // below can take it, after a single-mode Ctrl-P recall.
                     buf = [];
                     pos = 0;
-                    redrawPrompt(query, '', state);
+                    await redrawPrompt(query, '', state);
                 } else {
                     cancelled = true;
                     break;
@@ -225,13 +284,13 @@ async function hooked_tty_getlin(query, hook, state) {
                 doprev = false;
                 // *bufp = 0 drops any completion past the insertion point.
                 buf = buf.slice(0, pos);
-                redrawPrompt(query, text(), state);
+                await redrawPrompt(query, text(), state);
                 continue;
             }
             if (doprev) {
                 doprev = false;
                 buf = buf.slice(0, pos);
-                redrawPrompt(query, text(), state);
+                await redrawPrompt(query, text(), state);
             }
             // Escape, whether it restarted the prompt or not, declines every
             // remaining test.
@@ -292,7 +351,7 @@ async function hooked_tty_getlin(query, hook, state) {
 
     // ttyDisplay->toplin = TOPLINE_NON_EMPTY, then
     // clear_nhwindow(WIN_MESSAGE) takes the prompt off the screen.
-    clearMessageWindow(state);
+    await tty_clear_message_window(state);
     display.toplin = TOPLINE_EMPTY;
     state._pending_message = '';
     if (suppress_history) {

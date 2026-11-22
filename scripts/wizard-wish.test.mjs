@@ -16,7 +16,9 @@ import { rhack,
 import { init_artifacts } from '../js/artifacts.js';
 import {
     A_CON, A_STR, FIG_TRANSFORM, MOD_ENCUMBER, OBJ_FLOOR, POOL, UNENCUMBERED,
+    NHW_MESSAGE,
 } from '../js/const.js';
+import { tty_create_nhwindow } from '../js/wintty.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -107,6 +109,10 @@ function wishState(keys, { verbose = false, cmdassist = false } = {}) {
         throw new Error('the wish prompt asked for a key the test withheld');
     };
     for (const ch of keys) state.nhDisplay.pushKey(ch.charCodeAt(0));
+    // allmain.c init_sound_disp_gamewindows() has created WIN_MESSAGE, so
+    // getlin reaches it; msg_history is options.c's default of 20.
+    state.iflags.msg_history = 20;
+    tty_create_nhwindow(NHW_MESSAGE, state);
     const reads = [];
     state._preNhgetchHook = () => reads.push(topLine());
     return { state, reads };
