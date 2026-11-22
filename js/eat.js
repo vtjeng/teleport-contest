@@ -2670,11 +2670,11 @@ async function cpostfx(pm, state, env = {}) {
             state.afternmv = eatmdone;
             state.youmonst.m_ap_type = M_AP_OBJECT;
             state.youmonst.mappearance = hallucinating ? ORANGE : GOLD_PIECE;
-            newsym(state.u.ux, state.u.uy);
-            await curs_on_u(state);
             // "make gold symbol show up now": display_nhwindow(WIN_MAP,
             // TRUE) waits at --More-- whenever the top line holds text, even
             // text that an earlier key already acknowledged.
+            newsym(state.u.ux, state.u.uy);
+            await curs_on_u(state);
             await tty_display_nhwindow_map_blocking(state);
         }
         break;

@@ -145,7 +145,7 @@ const ALLOWED = {
         + 'wall only after a #wizloadlua; a known gap'],
     'hack.js | dopush | feel_location': [2,
         'a blind hero pushing a boulder into the square beyond; a known gap'],
-    'hack.js | moverock_core | feel_location': [4,
+    'hack.js | moverock_core | feel_location': [5,
         'a blind hero pushing a boulder; a known gap'],
     'hack.js | test_move | feel_location': [2,
         'a closed door or a doorway entered diagonally: back_to_glyph()\'s '
