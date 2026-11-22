@@ -12,6 +12,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { dosave0 } from '../js/save.js';
 import { InMemoryStorage } from '../js/storage.js';
 import { wiz_show_nhuuid } from '../js/wizcmds.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const source = readFileSync(new URL('../nethack-c/upstream/src/wizcmds.c', import.meta.url), 'utf8');
 const commandSource = readFileSync(new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8');
@@ -39,8 +40,9 @@ test('UUID display reads the stored value and reset owns a fresh empty field', a
         assert.equal(state.svn.nhuuid, '');
         state.svn.nhuuid = uuid;
         state.flags = {};
+        state.iflags = {};
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        state.iflags = { window_inited: true };
+        windowsUp(state);
         state.nhDisplay = new GameDisplay(null);
         assert.equal(await wiz_show_nhuuid(state), ECMD_OK);
         assert.equal(state.nhDisplay.topMessage, `The NHUUID for this game is { ${uuid} }.`);

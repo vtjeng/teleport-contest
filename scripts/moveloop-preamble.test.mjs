@@ -5,7 +5,7 @@ import { parseNethackrc } from '../js/options.js';
 import { utf8Text } from '../js/hacklib.js';
 
 import {
-    LAST_PROP, NHW_MESSAGE, NORMAL_SPEED, STAIRS, STONE,
+    LAST_PROP, NORMAL_SPEED, STAIRS, STONE,
 } from '../js/const.js';
 import { flush_screen } from '../js/display.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -30,7 +30,7 @@ import {
 } from '../js/tty_message.js';
 import { CLR_GRAY, NO_COLOR } from '../js/terminal.js';
 import { winStop } from './test-fixtures/win-stop.mjs';
-import { tty_create_nhwindow } from '../js/wintty.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 function preambleState(datetime, keys = '') {
     resetGame();
@@ -40,12 +40,9 @@ function preambleState(datetime, keys = '') {
     game.recorderIsDst = true;
     game.nhDisplay = new GameDisplay(null);
     game.flags = {};
-    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    // initoptions() has run on C's zeroed iflags; tty_create_nhwindow(NHW_MESSAGE)
-    // reads msg_history from it.
+    // initoptions() has run on C's zeroed iflags.
     game.iflags = {
         ...parseNethackrc('').iflags,
-        window_inited: true,
         menu_overlay: true,
         menu_headings: { attr: 1, color: 8 },
         // Every boundary below sits inside the move loop, long after
@@ -54,9 +51,10 @@ function preambleState(datetime, keys = '') {
         // the configuration errors printed before the window system starts.
         cbreak: true,
     };
-    // allmain.c init_sound_disp_gamewindows() created WIN_MESSAGE, whose
-    // flags hold the WIN_STOP bit an Escaped More sets.
-    tty_create_nhwindow(NHW_MESSAGE, game);
+    // allmain.c init_sound_disp_gamewindows() created and displayed
+    // WIN_MESSAGE (wintty.c:1883), whose flags hold the WIN_STOP bit an
+    // Escaped More sets.
+    windowsUp(game);
     game.program_state = {};
     game.context = { move: 17 };
     game.disp = {};

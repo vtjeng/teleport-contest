@@ -24,6 +24,7 @@ import {
     is_worn,
     wearing_armor,
 } from '../js/invent.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const {
     mime_action,
@@ -79,12 +80,11 @@ test('is_inuse recognizes an active tool and rejects an uncarried tool', () => {
 
 test('mime_action and silly_thing preserve their source messages', async () => {
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    const windowsUp = () => ({ iflags: { window_inited: true } });
-    const mimeState = windowsUp();
+    const mimeState = windowsUp({});
     await mime_action('rub the royal jelly on', mimeState);
     assert.equal(mimeState._ttyToplines, 'You mime rubbing the royal jelly on something.');
 
-    const state = windowsUp();
+    const state = windowsUp({});
     await silly_thing('call', {
         otyp: AMULET_OF_YENDOR,
         known: false,
@@ -94,7 +94,7 @@ test('mime_action and silly_thing preserve their source messages', async () => {
 
 test('ggetobj reports the empty inventory result and all-finished flag', async () => {
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    const state = { iflags: { window_inited: true } };
+    const state = windowsUp({});
     const resultflags = { value: 0 };
     const result = await ggetobj('drop', () => 1, 0, false, resultflags, state);
     assert.equal(result, 0);

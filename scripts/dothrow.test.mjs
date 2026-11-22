@@ -195,6 +195,7 @@ import { boomhit, skiprange } from '../js/zap.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_SHOPKEEPER } from '../js/monsters.js';
 import { aligns } from '../js/roles.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const DOTHROW_C = readFileSync(
     new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url), 'utf8',
@@ -1016,8 +1017,9 @@ function arena({
     state.flags = {};
     // iflags.fireassist is on by default in C, and dofire()'s launcher search
     // is the arm it gates.
+    state.iflags = { fireassist: true };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true, fireassist: true };
+    windowsUp(state);
     state.gw = {};
     // mkobj.c next_ident() refuses a zero ident, and every splitobj() in
     // throw_obj()'s volley loop draws one.

@@ -36,13 +36,15 @@ import { roles } from '../js/roles.js';
 import { initRng } from '../js/rng.js';
 import { chwepon, doquiver_core, dowield, wield_tool } from '../js/wield.js';
 import { scanSession } from './scan-sessions.mjs';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const WIELD_C = readFileSync(
     new URL('../nethack-c/upstream/src/wield.c', import.meta.url), 'utf8',
 );
 
 function makeState() {
-    const state = {
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = windowsUp({
         invent: null,
         uwep: null,
         uswapwep: null,
@@ -54,8 +56,7 @@ function makeState() {
             invlet_constant: true,
             pushweapon: false,
         },
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true, cbreak: true },
+        iflags: { cbreak: true },
         disp: {},
         multi: 0,
         context: { ident: 1 },
@@ -72,7 +73,7 @@ function makeState() {
             uroleplay: {},
             uhandedness: RIGHT_HANDED,
         },
-    };
+    });
     monst_globals_init(state);
     objects_globals_init(state);
     init_objects(state, () => 0);

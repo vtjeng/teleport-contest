@@ -138,6 +138,7 @@ import {
 } from '../js/timeout.js';
 import { _doWearInternals } from '../js/do_wear.js';
 import { expectTerminated } from './expect-terminated.mjs';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
 const HACK_JS_SOURCE = readFileSync('js/hack.js', 'utf8');
@@ -229,7 +230,8 @@ function terrainState(currentTyp, previousTyp = STAIRS) {
         ['4,4', { typ: previousTyp }],
         ['5,4', { typ: currentTyp }],
     ]);
-    return {
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    return windowsUp({
         u: {
             ux: 5, uy: 4, ux0: 4, uy0: 4, uinwater: false,
             // C stores BLevitation/BFlying in each property's blocked mask.
@@ -247,12 +249,11 @@ function terrainState(currentTyp, previousTyp = STAIRS) {
         lastseentyp: Array.from({ length: COLNO }, (_, x) => (
             x === 4 ? { 4: previousTyp } : x === 5 ? { 4: currentTyp } : []
         )),
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true, terrain_typ: previousTyp },
+        iflags: { terrain_typ: previousTyp },
         flags: { terrainstatus: true },
         context: { run: 0 },
         disp: { botl: false },
-    };
+    });
 }
 
 function smudgeState(engravings) {
@@ -605,8 +606,9 @@ test('pooleffects rereads levitation and flight after leaving water', async () =
     state.level = new GameMap();
     state.level.at(5, 4).typ = LAVAWALL;
     state.flags = { terrainstatus: false };
+    state.iflags = { in_lava_effects: 1 };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true, in_lava_effects: 1 };
+    windowsUp(state);
     state.unported = new Set();
     // docrt's cleared vision buffer redraws the hero's square, which reads
     // the initialized form just as a live game does.
@@ -774,8 +776,9 @@ test('sink arrival stops pending real levitation-boots donning before gear clean
     state.level = new GameMap();
     state.level.at(5, 4).typ = SINK;
     state.flags = { terrainstatus: false, verbose: true };
+    state.iflags = { terrain_typ: SINK };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true, terrain_typ: SINK };
+    windowsUp(state);
     state.context = { run: 0, travel: 0, travel1: 0, mv: 0 };
     state.unported = new Set();
 
@@ -820,8 +823,9 @@ test('sink arrival stops pending real levitation-boots donning before gear clean
     control.level = new GameMap();
     control.level.at(5, 4).typ = SINK;
     control.flags = { terrainstatus: false, verbose: true };
+    control.iflags = { terrain_typ: SINK };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    control.iflags = { window_inited: true, terrain_typ: SINK };
+    windowsUp(control);
     control.context = { run: 0, travel: 0, travel1: 0, mv: 0 };
     const ordinaryBoots = newObject({
         otyp: LOW_BOOTS, oclass: ARMOR_CLASS, where: OBJ_INVENT,
@@ -1108,9 +1112,8 @@ function swimDangerState(destinationTyp = POOL) {
     level.at(10, 10).typ = ROOM;
     level.at(11, 10).typ = destinationTyp;
     level.at(11, 10).seenv = 1;
-    return {
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true },
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    return windowsUp({
         level,
         u: {
             ux: 10,
@@ -1122,7 +1125,7 @@ function swimDangerState(destinationTyp = POOL) {
         youmonst: { data: { mflags1: 0, mmove: 12 } },
         context: { nopick: 0, tips: 0 },
         flags: { paranoia_bits: PARANOID_SWIM, tips: false },
-    };
+    });
 }
 
 test('known liquid warning passes the walking seam and stops before arrival',
@@ -1422,8 +1425,9 @@ test('spoteffects piercer uses the canonical worn hard-helmet slot',
             for (let y = 3; y <= 5; ++y)
                 state.level.at(x, y).typ = ROOM;
         }
+        state.iflags = { terrain_typ: ROOM };
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        state.iflags = { window_inited: true, terrain_typ: ROOM };
+        windowsUp(state);
         state.flags = { terrainstatus: false };
         state.unported = new Set();
         // HELMET is the source iron hard helmet; store it only in the C uarmh
@@ -1623,10 +1627,9 @@ function runState(overrides = {}) {
     for (let x = 8; x <= 14; ++x) level.at(x, 10).typ = ROOM;
     const uprops = [];
     uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    return {
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    return windowsUp({
         gb: initialGb(),
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true },
         level,
         u: {
             ux: 10, uy: 10, dx: 1, dy: 0, umonnum: 0,
@@ -1640,7 +1643,7 @@ function runState(overrides = {}) {
         multi: COLNO,
         moves: 3,
         ...overrides,
-    };
+    });
 }
 
 function adjacentTravelState(targetType = ROOM) {
@@ -1656,8 +1659,9 @@ function adjacentTravelState(targetType = ROOM) {
     }
     state.level.at(11, 10).typ = targetType;
     if (targetType === POOL) state.level.at(11, 10).seenv = 0;
+    state.iflags = { travelcc: { x: 0, y: 0 } };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true, travelcc: { x: 0, y: 0 } };
+    windowsUp(state);
     state.travelmap = new Uint8Array(COLNO * ROWNO);
     return state;
 }
@@ -1929,8 +1933,7 @@ test('travel validation does not consume the adjacent travel state', async () =>
             dy: 6,
         },
         context: { run: 8, travel: 1, travel1: 1, mv: 1 },
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true, travelcc: { x: 4, y: 5 } },
+        iflags: { travelcc: { x: 4, y: 5 } },
         multi: 4,
     });
     state.level = new GameMap();

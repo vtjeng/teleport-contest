@@ -7,6 +7,12 @@
 // keeps the port's writes at those sites, makes every JS reader test the flag
 // by truth value as C does, and checks the startup display and the clears on
 // a constructed state.
+//
+// Tests once raised the flag by hand without creating WIN_MESSAGE, a state C
+// never reaches, and seven fixtures hung or failed when js/getline.js began
+// to look for the window as getline.c does. The last tests keep every true
+// write under scripts/ inside scripts/test-fixtures/windows-up.mjs
+// windowsUp(), and check that it leaves what the port's startup leaves.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -18,6 +24,7 @@ import { zero_instance_flags } from '../js/flag.js';
 import { GameDisplay } from '../js/game_display.js';
 import { displayPendingTtyMessageWindow } from '../js/tty_message.js';
 import { tty_create_nhwindow, tty_exit_nhwindows } from '../js/wintty.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const ROOT = new URL('../', import.meta.url);
 
@@ -37,12 +44,13 @@ const ALLOWED_WRITES = [
     'js/wintty.js tty_exit_nhwindows false',
 ];
 
-function jsFiles(dir = 'js/') {
+// Every file under `dir`, at any depth, whose name ends with `suffix`.
+function sourceFiles(dir, suffix) {
     const files = [];
     for (const entry of readdirSync(new URL(dir, ROOT), { withFileTypes: true })) {
         const path = `${dir}${entry.name}`;
-        if (entry.isDirectory()) files.push(...jsFiles(`${path}/`));
-        else if (entry.name.endsWith('.js')) files.push(path);
+        if (entry.isDirectory()) files.push(...sourceFiles(`${path}/`, suffix));
+        else if (entry.name.endsWith(suffix)) files.push(path);
     }
     return files.sort();
 }
@@ -50,8 +58,11 @@ function jsFiles(dir = 'js/') {
 function isFlag(node) {
     if (!node) return false;
     if (node.type === 'ChainExpression') return isFlag(node.expression);
-    return node.type === 'MemberExpression' && !node.computed
-        && node.property.name === 'window_inited';
+    if (node.type !== 'MemberExpression') return false;
+    // iflags.window_inited, or iflags['window_inited'].
+    return node.computed
+        ? node.property.type === 'Literal' && node.property.value === 'window_inited'
+        : node.property.name === 'window_inited';
 }
 
 function literalText(node) {
@@ -60,7 +71,10 @@ function literalText(node) {
 
 // The writes and the forbidden reads of window_inited in one file.
 function scanFile(path) {
-    const text = source(path);
+    return scanSource(source(path), path);
+}
+
+function scanSource(text, path) {
     const writes = [];
     const forbidden = [];
     if (!text.includes('window_inited')) return { writes, forbidden };
@@ -108,7 +122,7 @@ function scanFile(path) {
 test('js/ writes window_inited only where C does, and tests it by truth value', () => {
     const writes = [];
     const forbidden = [];
-    for (const path of jsFiles()) {
+    for (const path of sourceFiles('js/', '.js')) {
         const found = scanFile(path);
         writes.push(...found.writes);
         forbidden.push(...found.forbidden);
@@ -212,4 +226,114 @@ test('a display with no message window leaves window_inited alone', async () => 
     const state = { nhDisplay: new GameDisplay(null), iflags: {} };
     await displayPendingTtyMessageWindow(state);
     assert.equal(state.iflags.window_inited, undefined);
+});
+
+// The one write of a true flag that scripts/ may hold.
+const FIXTURE_HELPER = 'scripts/test-fixtures/windows-up.mjs';
+const FIXTURE_WRITE = `${FIXTURE_HELPER} windowsUp true`;
+
+// Writes that claim the windows are up. Clearing the flag with a literal
+// `false` needs no window, so a test may do that itself; any other value,
+// a computed one included, may be true.
+function raisingWrites(writes) {
+    return writes.filter((w) => !w.key.endsWith(' false'));
+}
+
+test('scripts/ raises window_inited only through windowsUp()', () => {
+    const files = sourceFiles('scripts/', '.mjs');
+    // The scan reads this file, the helper and the tests that use it; an
+    // empty or misdirected listing would otherwise pass with nothing found.
+    assert.ok(files.includes('scripts/window-inited.test.mjs'));
+    assert.ok(files.includes(FIXTURE_HELPER));
+    const raising = [];
+    let users = 0;
+    for (const path of files) {
+        const text = source(path);
+        if (path !== FIXTURE_HELPER && /\bwindowsUp\(/u.test(text)) users += 1;
+        raising.push(...raisingWrites(scanSource(text, path).writes));
+    }
+    assert.ok(users > 0, 'no file under scripts/ calls windowsUp()');
+    assert.deepEqual(
+        raising.filter((w) => w.key !== FIXTURE_WRITE).map((w) => `${w.where} ${w.key}`),
+        [],
+        `set the flag with windowsUp() from ${FIXTURE_HELPER}, which also creates WIN_MESSAGE`,
+    );
+    // The helper's own write is there exactly once: the check fails if the
+    // helper stops raising the flag or moves.
+    assert.deepEqual(raising.map((w) => w.key), [FIXTURE_WRITE]);
+});
+
+test('the scan finds each way a test can raise window_inited by hand', () => {
+    const found = (lines) => raisingWrites(
+        scanSource(lines.join('\n'), 'sample.mjs').writes,
+    ).map((w) => Number(w.where.split(':')[1]));
+    // Each numbered line holds one hand-made write; line 1 is the first.
+    assert.deepEqual(found([
+        'const state = { iflags: { window_inited: true, cbreak: true } };', // 1: literal member
+        'state.iflags.window_inited = true;', // 2: assignment
+        "state.iflags['window_inited'] = true;", // 3: computed member name
+        'state.iflags = { ...defaults, window_inited: up };', // 4: computed value
+        'state.iflags.window_inited = 1;', // 5: C's TRUE as a number
+        'Object.assign(state.iflags, { "window_inited": !0 });', // 6: quoted key
+        'function f() { return { iflags: { window_inited: true } }; }', // 7: in a function
+    ]), [1, 2, 3, 4, 5, 6, 7]);
+    // Clearing the flag, reading it, and calling the helper are not writes
+    // of a true flag.
+    assert.deepEqual(found([
+        'state.iflags.window_inited = false;',
+        'const state = { iflags: { window_inited: false } };',
+        'assert.equal(state.iflags.window_inited, true);',
+        'if (state.iflags?.window_inited) windowsUp(state);',
+    ]), []);
+});
+
+// The fields in which a state that has started its windows differs from one
+// that has not: the flags, the window descriptors, and the terminal's
+// top-line state.
+function startedWindows(state) {
+    return {
+        iflags: state.iflags,
+        wintty: state.wintty,
+        toplin: state.nhDisplay.toplin,
+    };
+}
+
+test('windowsUp() leaves what the startup display of WIN_MESSAGE leaves', async () => {
+    // js/jsmain.js: tty_create_nhwindow(NHW_MESSAGE), then the first
+    // display, on C's zeroed iflags.
+    const started = { nhDisplay: new GameDisplay(null), iflags: zero_instance_flags() };
+    tty_create_nhwindow(NHW_MESSAGE, started);
+    await displayPendingTtyMessageWindow(started);
+
+    const fixture = windowsUp({
+        nhDisplay: new GameDisplay(null), iflags: zero_instance_flags(),
+    });
+    assert.deepEqual(startedWindows(fixture), startedWindows(started));
+    assert.equal(fixture.iflags.window_inited, true);
+
+    // A fixture that builds iflags by hand, or has none, gets the same
+    // message window and flag; its iflags holds only what the helper and
+    // tty_create_nhwindow() wrote.
+    const bare = windowsUp({ nhDisplay: new GameDisplay(null) });
+    assert.deepEqual(bare.wintty, started.wintty);
+    assert.deepEqual(Object.keys(bare.iflags).sort(), ['msg_history', 'window_inited']);
+    assert.equal(bare.iflags.msg_history, started.iflags.msg_history);
+    assert.equal(bare.iflags.window_inited, true);
+});
+
+test('windowsUp() gives a state without a terminal a message window and no terminal', () => {
+    const state = windowsUp({});
+    assert.equal(state.wintty.wins[state.wintty.messageWindow].type, NHW_MESSAGE);
+    assert.equal(state.wintty.wins[state.wintty.messageWindow].active, true);
+    assert.equal(Object.hasOwn(state, 'nhDisplay'), false);
+});
+
+test('windowsUp() keeps a message window the fixture already created', () => {
+    const state = windowState();
+    const before = state.wintty.messageWindow;
+    windowsUp(state);
+    assert.equal(state.wintty.messageWindow, before);
+    // BASE_WINDOW and WIN_MESSAGE, as windowState() created them.
+    assert.equal(state.wintty.wins.length, 2);
+    assert.equal(state.iflags.window_inited, true);
 });

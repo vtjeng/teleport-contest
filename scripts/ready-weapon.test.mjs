@@ -57,12 +57,14 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import { roles } from '../js/roles.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 // roles.js keeps role.c's order; the Samurai sits at :461.
 const ROLE_SAMURAI = 9;
 
 function makeState() {
-    const state = {
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = windowsUp({
         invent: null,
         uwep: null,
         uswapwep: null,
@@ -72,8 +74,7 @@ function makeState() {
         // The --More-- prompts below sit inside the move loop, where
         // tty_init_nhwindows() has already raised iflags.cbreak through
         // setftty(); without it xwaitforspace() would read only Return.
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true, cbreak: true },
+        iflags: { cbreak: true },
         disp: {},
         multi: 0,
         urole: roles[ROLE_SAMURAI],
@@ -94,7 +95,7 @@ function makeState() {
             // "right hand" for the primary slot and "left" for the secondary.
             uhandedness: RIGHT_HANDED,
         },
-    };
+    });
     monst_globals_init(state);
     objects_globals_init(state);
     init_objects(state, () => 0);

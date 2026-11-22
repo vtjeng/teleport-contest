@@ -16,9 +16,7 @@ import { rhack,
 import { init_artifacts } from '../js/artifacts.js';
 import {
     A_CON, A_STR, FIG_TRANSFORM, MOD_ENCUMBER, OBJ_FLOOR, POOL, UNENCUMBERED,
-    NHW_MESSAGE,
 } from '../js/const.js';
-import { tty_create_nhwindow } from '../js/wintty.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -45,6 +43,7 @@ import {
     WIZWISH_KEY,
     loadWizardWishRecipe,
 } from './run-wizard-wish.mjs';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 // win/tty/getline.c:85 tests `c == EOF`, and cmd.c:452's `return (char) ch`
 // makes 0xFF the only byte that reads back as -1. It is the one input that
@@ -90,8 +89,9 @@ function wishState(keys, { verbose = false, cmdassist = false } = {}) {
     // The --More-- the verbose announcement needs is dismissed with a space,
     // which xwaitforspace() accepts only once setftty() raised iflags.cbreak
     // inside tty_init_nhwindows(); every wish happens well after that.
+    state.iflags = { cbreak: true, cmdassist };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true, cbreak: true, cmdassist };
+    windowsUp(state);
     state.urole = { ...roles[0] };
     // readobjnam() reads the shuffled objects[] from its first block onward,
     // so even a line it refuses needs the catalog in place.  Zero choices
@@ -109,10 +109,6 @@ function wishState(keys, { verbose = false, cmdassist = false } = {}) {
         throw new Error('the wish prompt asked for a key the test withheld');
     };
     for (const ch of keys) state.nhDisplay.pushKey(ch.charCodeAt(0));
-    // allmain.c init_sound_disp_gamewindows() has created WIN_MESSAGE, so
-    // getlin reaches it; msg_history is options.c's default of 20.
-    state.iflags.msg_history = 20;
-    tty_create_nhwindow(NHW_MESSAGE, state);
     const reads = [];
     state._preNhgetchHook = () => reads.push(topLine());
     return { state, reads };

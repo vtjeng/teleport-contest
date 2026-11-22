@@ -39,6 +39,7 @@ import {
 } from '../js/wintty.js';
 import { initUnported } from '../js/unported.js';
 import { InMemoryStorage, setStorageForTesting } from '../js/storage.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const C_SOURCE = readFileSync(
     'nethack-c/upstream/win/tty/wintty.c',
@@ -377,7 +378,7 @@ test('tty_preference_update preserves the common no-op and statuslines branch', 
     tty_preference_update('symset', state);
     assert.deepEqual([...state.unported], []);
 
-    state.iflags.window_inited = true;
+    windowsUp(state);
     // A 24x80 terminal, 1 + ROWNO + 2 rows, needs no clipping with two
     // status lines.
     state.nhDisplay = new GameDisplay(null);

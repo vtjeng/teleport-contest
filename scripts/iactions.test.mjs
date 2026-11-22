@@ -94,6 +94,7 @@ import {
     armcat_to_wornmask,
     wearmask_to_obj,
 } from '../js/worn.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 // Minimal state with objects[] initialized and descriptions shuffled.
 // The constant rn2 keeps the description shuffle in source order.
@@ -104,8 +105,9 @@ function catalogState() {
     init_objects(state, () => 0);
     state.u = { uprops: [], ux: 1, uy: 1, uswallow: false, twoweap: false };
     state.flags = { sortpack: true, invlet_constant: true, inv_order: '' };
+    state.iflags = {};
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true };
+    windowsUp(state);
     state.invent = null;
     state.youmonst = { data: state.mons[PM_HUMAN] };
     state.level = { at(x, y) { return { typ: 0 }; } };

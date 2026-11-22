@@ -11,9 +11,9 @@ import test from 'node:test';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { parseNethackrc } from '../js/options.js';
-import { NHW_MESSAGE } from '../js/const.js';
-import { tty_create_nhwindow, tty_init_nhwindows } from '../js/wintty.js';
+import { tty_init_nhwindows } from '../js/wintty.js';
 import { add_menu, getlin, select_menu } from '../js/windows.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 // The same startup scripts/tty-menu.test.mjs uses: a display with the banner
 // on it and the given keys queued, which is enough for one menu or one prompt.
@@ -25,8 +25,7 @@ function windowState(keys = '') {
     // The windows are up: allmain.c init_sound_disp_gamewindows() has
     // created WIN_MESSAGE and displayed it (wintty.c:1883), so pline() and
     // getlin reach it.
-    tty_create_nhwindow(NHW_MESSAGE, game);
-    game.iflags.window_inited = true;
+    windowsUp(game);
     return game;
 }
 

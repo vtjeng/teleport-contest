@@ -7,7 +7,6 @@ import test from 'node:test';
 import { normalizeSession } from '../frozen/session_loader.mjs';
 import {
     MSGTYP_NORMAL,
-    NHW_MESSAGE,
     NO_CURS_ON_U,
     OVERRIDE_MSGTYPE,
     SUPPRESS_HISTORY,
@@ -18,7 +17,6 @@ import { GLYPH_CMAP_STONE_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
 import { ATR_NONE, CLR_RED, NO_COLOR } from '../js/terminal.js';
-import { tty_create_nhwindow } from '../js/wintty.js';
 import { docorner } from '../js/display.js';
 import {
     addtopl,
@@ -47,6 +45,7 @@ import {
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { QUEST_PAGER_OUTPUT } from '../js/questpgr.js';
 import { winStop } from './test-fixtures/win-stop.mjs';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const wrappedStartupRecording = normalizeSession(JSON.parse(readFileSync(
     new URL('../recordings/topl.c/wrapped-startup-topline.session.json', import.meta.url),
@@ -72,14 +71,12 @@ const QUESTPGR_JS = readFileSync(
 );
 
 function historyState() {
-    const state = {
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true, msg_history: 20, cbreak: true },
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = windowsUp({
+        iflags: { cbreak: true },
         nhDisplay: new GameDisplay(null),
         program_state: {},
-        wintty: { wins: [] },
-    };
-    tty_create_nhwindow(NHW_MESSAGE, state);
+    });
     return state;
 }
 
@@ -527,8 +524,6 @@ test('docorner clears physical rows without requiring status inventory state',
         display.setCell(3, 1, 'M', 5, 2);
         const state = {
             nhDisplay: display,
-            // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-            iflags: { window_inited: true },
             wintty: { WIN_MAP: 1, wins: [null, { offy: 1 }] },
         };
 

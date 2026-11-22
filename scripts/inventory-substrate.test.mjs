@@ -207,6 +207,7 @@ import {
     TOWEL,
     objects_globals_init,
 } from '../js/objects.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 // A concrete catalog member keeps body-object names source-backed too.
 const TEST_SPECIES = PM_FOX;
@@ -220,7 +221,8 @@ const INVENT_C = readFileSync(
 );
 
 function initializedState() {
-    const state = {
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = windowsUp({
         // Object/monster id 1 is reserved; startup begins from 2.
         context: { ident: 2 },
         disp: {},
@@ -230,8 +232,6 @@ function initializedState() {
         // MOD_ENCUMBER, which invent.c:1261-1264 reads on every hold, and
         // optlist.h starts invlet_constant on.
         flags: parseNethackrc('').flags,
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true },
         program_state: { in_moveloop: 1 },
         moves: 0,
         u: {
@@ -241,7 +241,7 @@ function initializedState() {
                 () => ({ blocked: 0, extrinsic: 0, intrinsic: 0 }),
             ),
         },
-    };
+    });
     objects_globals_init(state);
     // Zero choices initialize the catalog without coupling these tests to RNG.
     init_objects(state, () => 0);
@@ -2288,37 +2288,37 @@ test('free_pickinv_cache destroys and invalidates a cached window', () => {
 
 test('doperminv follows capability, option, and empty-pack gates', async () => {
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    const unsupported = { flags: {}, iflags: { window_inited: true } };
+    const unsupported = windowsUp({ flags: {} });
     await doperminv(unsupported);
     assert.equal(
         unsupported._ttyToplines,
         "Persistent inventory display is not supported by 'tty'.",
     );
 
-    const disabled = {
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        flags: {}, iflags: { window_inited: true }, wincap: WC_PERM_INVENT,
-    };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const disabled = windowsUp({
+        flags: {}, wincap: WC_PERM_INVENT,
+    });
     await doperminv(disabled);
     assert.equal(
         disabled._ttyToplines,
         "Persistent inventory ('perm_invent' option) is not presently enabled.",
     );
 
-    const empty = {
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        flags: {}, iflags: { window_inited: true, perm_invent: true }, wincap: WC_PERM_INVENT,
-    };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const empty = windowsUp({
+        flags: {}, iflags: { perm_invent: true }, wincap: WC_PERM_INVENT,
+    });
     await doperminv(empty);
     assert.equal(empty._ttyToplines, 'Persistent inventory display is empty.');
 
     // The last branch hands the window port a nonzero argument and prints
     // nothing itself.
-    const capable = {
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        flags: {}, iflags: { window_inited: true, perm_invent: true }, wincap: WC_PERM_INVENT,
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const capable = windowsUp({
+        flags: {}, iflags: { perm_invent: true }, wincap: WC_PERM_INVENT,
         invent: { nobj: null },
-    };
+    });
     assert.equal(await doperminv(capable), 0);
     assert.equal(capable._ttyToplines, undefined);
 });

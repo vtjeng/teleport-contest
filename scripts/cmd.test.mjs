@@ -92,9 +92,7 @@ import {
     BRCORNER,
     VWALL,
     otherInp,
-    NHW_MESSAGE,
 } from '../js/const.js';
-import { tty_create_nhwindow } from '../js/wintty.js';
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
 import {
@@ -153,6 +151,7 @@ import {
     ttyPline,
 } from '../js/tty_message.js';
 import { lastseentyp_grid } from '../js/dungeon.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const CMD_C = readFileSync(
     new URL('../nethack-c/upstream/src/cmd.c', import.meta.url), 'utf8',
@@ -180,18 +179,15 @@ function resetParserTestGame(keys) {
     resetGame();
     game.nhDisplay = new GameDisplay(null);
     game.flags = { rest_on_space: true };
+    game.iflags = { num_pad: false, num_pad_mode: 0 };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    game.iflags = { window_inited: true, num_pad: false, num_pad_mode: 0 };
+    windowsUp(game);
     game.program_state = { in_moveloop: 1 };
     game.context = { move: 0 };
     game.disp = {};
     game.u = {};
     // Avoid invoking the status formatter: these tests isolate command input.
     game._renderedStatusLayouts = [];
-    // allmain.c init_sound_disp_gamewindows() has created WIN_MESSAGE, so
-    // getlin reaches it; msg_history is options.c's default of 20.
-    game.iflags.msg_history = 20;
-    tty_create_nhwindow(NHW_MESSAGE, game);
     for (const key of keys) {
         game.nhDisplay.pushKey(
             typeof key === 'number' ? key : key.charCodeAt(0),
@@ -268,7 +264,8 @@ test('test_move describes remembered walls without time or PRNG work',
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
         // The other members hold the options' startup values; the message's
         // position follows getpos_coords.
-        state.iflags = { ...parseNethackrc('').iflags, window_inited: true };
+        state.iflags = parseNethackrc('').iflags;
+        windowsUp(state);
         state.u = { ux, uy, uprops: [] };
         destination.typ = VWALL;
         messages.length = 0;
@@ -325,8 +322,9 @@ test('a raised drawbridge answers for itself rather than as a wall',
         // C's pline() here is not the pline_dir() the wall line uses
         // (pline.c:114-123), so accessiblemsg adds no location prefix.
         state.a11y = { accessiblemsg: true };
+        state.iflags = {};
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        state.iflags = { window_inited: true };
+        windowsUp(state);
         state.u = { ux, uy, uprops: [] };
         messages.length = 0;
         assert.equal(
@@ -366,13 +364,12 @@ test('the obstacle arm handles special movement before ordinary refusal',
         const uy = 10;
 
         function obstacleState(typ = STONE, doorFlags = 0) {
-            const state = {
+            // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+            const state = windowsUp({
                 // mention_walls on so a state that fails to refuse reaches the
                 // message hook, which fails the case rather than passing it
                 // quietly.
                 flags: { mention_walls: true },
-                // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-                iflags: { window_inited: true },
                 context: {},
                 level: new GameMap(),
                 u: {
@@ -380,7 +377,7 @@ test('the obstacle arm handles special movement before ordinary refusal',
                     uz: { dnum: 0, dlevel: 1 },
                 },
                 youmonst: { data: { mflags1: 0 } },
-            };
+            });
             objects_globals_init(state);
             const destination = state.level.at(ux + 1, uy);
             destination.typ = typ;
@@ -2115,7 +2112,7 @@ function resetSafeWaitTestGame(options = '') {
     state.iflags = parsed.iflags;
     // parseNethackrc() starts it FALSE, as C's zeroed iflags does; the
     // windows are up by the first command (wintty.c:1883).
-    state.iflags.window_inited = true;
+    windowsUp(state);
     state.commandOperations = parsed.commandOperations;
     state.level = new GameMap();
     state.moves = 1;
@@ -2275,7 +2272,7 @@ test('special count-key bindings retain their source byte namespace', async () =
     state.iflags = parsed.iflags;
     // parseNethackrc() starts it FALSE, as C's zeroed iflags does; the
     // windows are up by the first command (wintty.c:1883).
-    state.iflags.window_inited = true;
+    windowsUp(state);
     state.commandOperations = parsed.commandOperations;
 
     const key = await parseCommand(state);

@@ -35,14 +35,15 @@ import { act_on_act, cmdq_add_dir, cmdq_add_key, reset_commands, MCMD } from '..
 import { CQ_CANNED, ECMD_OK, HOLE, PIT, ROCKTRAP, ROOM, WEB } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 function trapIdState() {
-    const state = {
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = windowsUp({
         level: new GameMap(), nhDisplay: new GameDisplay(null),
         u: { ux: 10, uy: 10, uprops: [] },
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        flags: {}, iflags: { window_inited: true }, context: {}, program_state: {},
-    };
+        flags: {}, iflags: {}, context: {}, program_state: {},
+    });
     // Central room coordinate leaves every cardinal/vertical probe in bounds.
     state.level.at(10, 10).typ = ROOM;
     reset_commands(true, state);

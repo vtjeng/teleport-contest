@@ -72,6 +72,7 @@ import {
     WAN_STRIKING,
     SPE_SLOW_MONSTER,
 } from '../js/objects.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const C_ZAP_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
@@ -89,8 +90,9 @@ function corridor(last = 6) {
     for (let x = 1; x <= last; x++) state.level.at(x, 4).typ = ROOM;
     state.u = { ux: 1, uy: 4, umonnum: 0, uz: { dnum: 0, dlevel: 1 } };
     state.flags = {};
+    state.iflags = {};
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true };
+    windowsUp(state);
     monst_globals_init(state);
     objects_globals_init(state);
     // xname() enters the named type in the discoveries list, which needs the

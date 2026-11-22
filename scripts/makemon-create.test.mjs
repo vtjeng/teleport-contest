@@ -335,6 +335,7 @@ import { rawMonsterGenerationState } from './monster-test-state.mjs';
 import { scriptedRandom, step } from './monster-scripted-random.mjs';
 import { loadMonsterPickupRecipe } from './run-monster-pickup.mjs';
 import { expectTerminated } from './expect-terminated.mjs';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const MAKEMON_C_SOURCE = readFileSync(
     'nethack-c/upstream/src/makemon.c', 'utf8',
@@ -2867,7 +2868,7 @@ test('runtime appearance defaults to Norep when the caller supplies pline',
         const state = initialLevelState();
         state.in_mklev = false;
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        state.iflags = { ...state.iflags, window_inited: true };
+        windowsUp(state);
         state.u.ux = 10;
         state.u.uy = 5;
         state.level.at(11, 6).typ = ROOM;
@@ -3270,8 +3271,9 @@ test('makemon.c create_critters hero-square null-species call is admitted',
         state.u.ux = MON_X;
         state.u.uy = MON_Y;
         state.u.umonster = PM_HUMAN;
+        state.iflags = { debug_mongen: true };
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        state.iflags = { window_inited: true, debug_mongen: true };
+        windowsUp(state);
         const random = recordingRandom();
         const monster = await makemon_runtime(
             null, state.u.ux, state.u.uy, NO_MM_FLAGS, {
@@ -4529,8 +4531,9 @@ test('initial doppelganger runs wizard monpolycontrol after species selection',
         state.u.uz = { dnum: 1, dlevel: 1 };
         state.urole = { guardnum: 369 };
         state.wizard = true;
+        state.iflags = { mon_polycontrol: true };
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        state.iflags = { window_inited: true, mon_polycontrol: true };
+        windowsUp(state);
 
         const random = scriptedRandom([
             step('rnd', [2], 1),              // next_ident

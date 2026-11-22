@@ -7,6 +7,7 @@ import { MSGTYP_NOSHOW, PLNMSG_UNKNOWN } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { regex_compile, regex_init } from '../js/posixregex.js';
 import { ttyPline } from '../js/tty_message.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 // pline.c vpline() sends a line to raw_print() when iflags.window_inited is
 // false. js/tty_message.js vplineRawPrint() is that branch; every vpline()
@@ -142,7 +143,7 @@ test('overlapping plines both reach the message window', async () => {
     // after the other are in ttyPlineCore() at once. Neither is nested, so
     // neither may take the raw_print() arm, and the second waits at the
     // first's --More--.
-    const state = messageState({ window_inited: true });
+    const state = windowsUp(messageState({}));
     const display = state.nhDisplay;
     const first = ttyPline('A yellow mold suddenly appears next to you!',
         state);
@@ -156,7 +157,7 @@ test('overlapping plines both reach the message window', async () => {
 });
 
 test('with window_inited true a pline() reaches the message window', async () => {
-    const state = messageState({ window_inited: true });
+    const state = windowsUp(messageState({}));
     // The same MSGTYPE=hide rule as above does suppress its line here.
     state.gp.plinemsg_types = hideRule('Goodbye.*');
     assert.equal(await ttyPline('Goodbye, cruel world.', state), false);

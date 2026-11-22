@@ -6,7 +6,6 @@ import {
     MSGTYP_NORMAL,
     MSGTYP_NOSHOW,
     MSGTYP_STOP,
-    NHW_MESSAGE,
     NO_CURS_ON_U,
     OVERRIDE_MSGTYPE,
     PLINE_NOREPEAT,
@@ -48,7 +47,7 @@ import {
     STARTUP_MSGTYPE_CASES,
 } from './run-startup-msgtype.mjs';
 import { setWinStop, winStop } from './test-fixtures/win-stop.mjs';
-import { tty_create_nhwindow } from '../js/wintty.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const MESSAGE_TYPES = allopt.find(({ name }) => name === 'message types');
 
@@ -65,10 +64,9 @@ function messageState(config = '', keys = '') {
     resetGame();
     game.nhDisplay = new GameDisplay(null);
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    // initoptions() has run on C's zeroed iflags; tty_create_nhwindow(NHW_MESSAGE)
-    // reads msg_history from it.
-    game.iflags = { ...parseNethackrc('').iflags, window_inited: true, cbreak: true };
-    tty_create_nhwindow(NHW_MESSAGE, game);
+    // initoptions() has run on C's zeroed iflags.
+    game.iflags = { ...parseNethackrc('').iflags, cbreak: true };
+    windowsUp(game);
     game.program_state = {};
     game.u = { ux: 0, uy: 0 };
     game.gp = { plinemsg_types: parsed.gp.plinemsg_types };

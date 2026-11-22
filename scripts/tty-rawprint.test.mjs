@@ -9,6 +9,7 @@ import {
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { tty_wait_synch } from '../js/tty_rawprint.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const WINTTY_C = readFileSync(
     new URL('../nethack-c/upstream/win/tty/wintty.c', import.meta.url),
@@ -18,13 +19,13 @@ const WINTTY_C = readFileSync(
 // A live map window: mapWindowLive() needs a display, a level and
 // iflags.window_inited, and the map arm needs ttyDisplay->rawprint == 0.
 function mapWindowState() {
-    return {
+    return windowsUp({
         nhDisplay: new GameDisplay(null),
-        iflags: { cbreak: true, window_inited: true },
+        iflags: { cbreak: true },
         level: { at: () => ({ typ: ROOM }) },
         u: { ux: 0, uy: 0 },
         program_state: { gameover: 0 },
-    };
+    });
 }
 
 function screenText(display) {

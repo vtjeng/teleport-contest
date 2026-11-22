@@ -88,6 +88,7 @@ import {
 import { expectTerminated } from './expect-terminated.mjs';
 import { isTerminated } from '../js/rng.js';
 import { setWinStop, winStop } from './test-fixtures/win-stop.mjs';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const END_C = readFileSync(
     new URL('../nethack-c/upstream/src/end.c', import.meta.url), 'utf8',
@@ -1030,12 +1031,12 @@ test('raw output dismissal restores map waits while recorder mode stays active',
         // first wait therefore consumes its dismissing space; the second
         // wait must take the map arm even with hero coordinates at zero, and
         // with more() idle it writes no marker on the pending message.
-        const state = {
+        const state = windowsUp({
             nhDisplay: new GameDisplay(null),
-            iflags: { cbreak: true, window_inited: true },
+            iflags: { cbreak: true },
             level: { at: () => ({ typ: ROOM }) },
             u: { ux: 0, uy: 0 },
-        };
+        });
         tty_raw_print(state, 'raw diagnostic');
         assert.equal(state.nhDisplay.nomuxRaw.active, true);
         assert.equal(state.nhDisplay.nomuxRaw.rawprint, 1);

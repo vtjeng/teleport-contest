@@ -5,7 +5,6 @@ import { createArtifactTable } from '../js/artifacts.js';
 import {
     HALLUC,
     HALLUC_RES,
-    NHW_MESSAGE,
     NO_SPELL,
     NON_PM,
     TOPLINE_NON_EMPTY,
@@ -42,10 +41,10 @@ import {
     buildRerollMenuSpec,
     reroll_menu,
 } from '../js/startup_reroll.js';
-import { tty_create_nhwindow } from '../js/wintty.js';
 import { u_init_misc } from '../js/u_init.js';
 import { u_init_inventory_attrs } from '../js/u_init_inventory_attrs.js';
 import { loadRerollMenuNamingRecipe } from './run-reroll-menu-naming.mjs';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const {
     rerollAttributeLine,
@@ -61,12 +60,12 @@ function rerollState({ role = M.PM_HEALER, lootabc = false } = {}) {
     init_objects(game, () => 0);
     monst_globals_init(game);
     game.flags = { implicit_uncursed: true, lootabc };
-    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
     game.iflags = {
-        window_inited: true,
         menu_overlay: true,
         menu_headings: { attr: 7 /* C ATR_INVERSE */, color: 8 },
     };
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    windowsUp(game);
     game.urole = { mnum: role, filecode: role === M.PM_CLERIC ? 'Pri' : 'Hea' };
     // botl.c describe_level() reaches dungeon.c depth(), which reads
     // svd.dungeons[u.uz.dnum].depth_start. The hero starts on the first level
@@ -905,14 +904,12 @@ test('newgame applies startup effects only after multiple rerolls are accepted',
 // line without update_topl() newlines.  At 33 columns it lays out the same
 // either way, so no recording can show the path; this pins it.
 test('the fallback reroll answer is filed as a line written directly', async () => {
-    const state = {
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true, msg_history: 20, cbreak: true },
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = windowsUp({
+        iflags: { cbreak: true },
         nhDisplay: new GameDisplay(null),
         program_state: {},
-        wintty: { wins: [] },
-    };
-    tty_create_nhwindow(NHW_MESSAGE, state);
+    });
     // 'y' is one of the two answers the prompt accepts.
     state.nhDisplay.pushKey('y'.charCodeAt(0));
     assert.equal(await y_n('Reroll this character?', state), 'y');

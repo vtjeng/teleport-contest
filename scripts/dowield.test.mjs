@@ -59,12 +59,14 @@ import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import { getobj, hands_obj } from '../js/invent.js';
 import { aligns, races, roles } from '../js/roles.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 // roles.js keeps role.c's order; the Samurai sits at :461.
 const ROLE_SAMURAI = 9;
 
 function makeState() {
-    const state = {
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = windowsUp({
         invent: null,
         uwep: null,
         uswapwep: null,
@@ -72,8 +74,7 @@ function makeState() {
         uarms: null,
         uarmg: null,
         flags: { verbose: true, invlet_constant: true, pushweapon: false },
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true, cbreak: true },
+        iflags: { cbreak: true },
         disp: {},
         multi: 0,
         context: {},
@@ -91,7 +92,7 @@ function makeState() {
             uroleplay: {},
             uhandedness: RIGHT_HANDED,
         },
-    };
+    });
     monst_globals_init(state);
     objects_globals_init(state);
     init_objects(state, () => 0);

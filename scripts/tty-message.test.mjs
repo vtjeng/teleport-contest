@@ -5,7 +5,6 @@ import { parseNethackrc } from '../js/options.js';
 import { utf8Text } from '../js/hacklib.js';
 
 import {
-    NHW_MESSAGE,
     PICK_ONE,
     PLNMSG_CAUGHT_IN_EXPLOSION,
     PLNMSG_UNKNOWN,
@@ -32,23 +31,21 @@ import {
     tty_message_menu,
 } from '../js/tty_message.js';
 import { setWinStop, winStop } from './test-fixtures/win-stop.mjs';
-import { tty_create_nhwindow } from '../js/wintty.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 function rowText(state) {
     return state.nhDisplay.grid[0].map((cell) => cell.ch).join('').trimEnd();
 }
 
 function messageState(message, toplin) {
-    const state = {
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = windowsUp({
         nhDisplay: new GameDisplay(null),
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        // initoptions() has run on C's zeroed iflags; tty_create_nhwindow(NHW_MESSAGE)
-        // reads msg_history from it.
-        iflags: { ...parseNethackrc('').iflags, window_inited: true, cbreak: true },
+        // initoptions() has run on C's zeroed iflags.
+        iflags: { ...parseNethackrc('').iflags, cbreak: true },
         _pending_message: message,
         _ttyToplines: message,
-    };
-    tty_create_nhwindow(NHW_MESSAGE, state);
+    });
     state.nhDisplay.toplin = toplin;
     state.nhDisplay.putstr(0, 0, message);
     state.nhDisplay.setCursor(message.length, 0);

@@ -27,6 +27,7 @@ import { arti_light_radius, light_globals_init, new_light_source }
     from '../js/light.js';
 import { timeout_globals_init, start_timer, peek_timer } from '../js/timeout.js';
 import { GameDisplay } from '../js/game_display.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 function makeState() {
     const state = {
@@ -119,8 +120,9 @@ test('bless adjusts carried artifact light after the BUC mutation', async () => 
     // path uses pline() when the caller supplies no message callback.
     const state = makeState();
     state.nhDisplay = new GameDisplay(null);
+    state.iflags = { cbreak: true };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true, cbreak: true };
+    windowsUp(state);
     state._pending_message = '';
     state._ttyToplines = '';
     const armor = object(state, GOLD_DRAGON_SCALE_MAIL, {

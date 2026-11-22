@@ -16,6 +16,7 @@ import { resetGame } from '../js/gstate.js';
 import { make_stoned } from '../js/potion.js';
 import { wiz_detect, wiz_intrinsic } from '../js/wizcmds.js';
 import { expectTerminated } from './expect-terminated.mjs';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 test('wiz_load_splua preserves raw filenames and awaits reset/load/finalize', async () => {
     const { wiz_load_splua } = await import('../js/wizcmds.js');
@@ -191,8 +192,9 @@ test('wiz_intrinsic routes blinded to make_blinded without generic timeout text'
     async () => {
         const state = resetGame();
         state.wizard = true;
+        state.iflags = { cbreak: true };
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        state.iflags = { window_inited: true, cbreak: true };
+        windowsUp(state);
         state.disp = { botl: false };
         state.u = {
             uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
@@ -222,8 +224,9 @@ test('wiz_intrinsic sets STONED and records its delayed killer through the menu'
     async () => {
         const state = resetGame();
         state.wizard = true;
+        state.iflags = { cbreak: true };
         // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        state.iflags = { window_inited: true, cbreak: true };
+        windowsUp(state);
         state.disp = { botl: false };
         state.u = {
             uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
@@ -273,8 +276,9 @@ test('wiz_intrinsic routes SLIMED through potion.c make_slimed', async () => {
 
     const state = resetGame();
     state.wizard = true;
+    state.iflags = { cbreak: true };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true, cbreak: true };
+    windowsUp(state);
     state.disp = { botl: false };
     state.u = {
         uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
@@ -596,7 +600,7 @@ test('wiz_panic restores the four fuzzer resource fields before returning withou
     }
     // No display/input exists: the fuzzer arm must return before the query.
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    assert.equal(await wiz_panic({ u, iflags: { window_inited: true, debug_fuzzer: true } }), ECMD_OK);
+    assert.equal(await wiz_panic(windowsUp({ u, iflags: { debug_fuzzer: true } })), ECMD_OK);
     assert.deepEqual(writes, [
         ['uhpmax', 1000], ['uhp', 1000], ['uenmax', 1000], ['uen', 1000],
     ]);

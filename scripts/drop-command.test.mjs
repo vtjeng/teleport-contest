@@ -77,6 +77,7 @@ import {
     verifyDropCommandSegment,
 } from './run-drop-command.mjs';
 import { Hallucination } from '../js/youprop.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 // The three recipes are the only record of which C branches were recorded, so
 // a silent re-recording that lost one has to fail here.
@@ -242,13 +243,12 @@ test('reset_occupations clears all three interrupted occupations', () => {
 // the empty verb C's silent callers pass reaches each `return FALSE` with
 // nothing printed. That is what lets one state cover all five arms.
 function letGoState(overrides = {}) {
-    return {
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    return windowsUp({
         u: {},
         flags: { verbose: true },
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true },
         ...overrides,
-    };
+    });
 }
 
 test('canletgo refuses each object it cannot be let go of', async () => {

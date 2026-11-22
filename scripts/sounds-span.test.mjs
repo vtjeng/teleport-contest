@@ -72,6 +72,7 @@ import {
     PM_LONG_WORM,
     S_EEL,
 } from '../js/monsters.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 const SOUNDS_C = readFileSync(
     new URL('../nethack-c/upstream/src/sounds.c', import.meta.url), 'utf8',
@@ -348,9 +349,9 @@ test('append filename builders retain sounds.c exact-size truncation quirk', () 
 test('set_voice and sound_speak carry source voice state through vpline',
     async () => {
         const calls = [];
-        const state = {
-            // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-            iflags: { window_inited: true, voices: true },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        const state = windowsUp({
+            iflags: { voices: true },
             gp: { pline_flags: PLINE_VERBALIZE },
             gv: {
                 voice: {
@@ -367,7 +368,7 @@ test('set_voice and sound_speak carry source voice state through vpline',
                 sound_triggers: SOUND_TRIGGER_VERBAL,
                 sound_verbal: (...args) => calls.push(args),
             },
-        };
+        });
         set_voice({ m_id: 77, female: true }, -2, 80, 9, state);
         assert.equal(state.gp.pline_flags,
             PLINE_VERBALIZE | PLINE_SPEECH);
@@ -394,16 +395,16 @@ test('set_voice and sound_speak carry source voice state through vpline',
 test('sound_speak passes an empty buffer instead of truncating oversized text',
     () => {
         const spoken = [];
-        const state = {
-            // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-            iflags: { window_inited: true, voices: true },
+        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+        const state = windowsUp({
+            iflags: { voices: true },
             gp: { pline_flags: 0 },
             gv: { voice: { gender: 0, tone: 1, volume: 2, moreinfo: 3 } },
             soundprocs: {
                 sound_triggers: SOUND_TRIGGER_VERBAL,
                 sound_verbal: (text) => spoken.push(text),
             },
-        };
+        });
         sound_speak('x'.repeat(511), state);
         sound_speak('y'.repeat(512), state);
         sound_speak('', state);

@@ -27,6 +27,7 @@ import { ATR_NONE, NO_COLOR } from '../js/terminal.js';
 import { renderTtyMenu } from '../js/tty_menu.js';
 import { baseWindow, tty_init_nhwindows } from '../js/wintty.js';
 import { expectTerminated } from './expect-terminated.mjs';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 function selectionState(keys = '') {
     resetGame();
@@ -39,10 +40,11 @@ function selectionState(keys = '') {
         initalign: ROLE_NONE,
         randomall: false,
     };
-    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    game.iflags = { window_inited: true, menu_overlay: true };
+    game.iflags = { menu_overlay: true };
     game.program_state = {};
     tty_init_nhwindows(null, null, game);
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    windowsUp(game);
     for (const key of keys) game.nhDisplay.pushKey(key.charCodeAt(0));
     return game;
 }

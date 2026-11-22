@@ -34,6 +34,7 @@ import { HeadlessTerminal } from '../js/terminal.js';
 import { Boots_off } from '../js/do_wear.js';
 import { lava_effects } from '../js/trap.js';
 import { statusConditionActive } from '../js/display.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 function stateWithLava() {
     const state = resetGame();
@@ -66,8 +67,9 @@ function stateWithLava() {
     };
     state.context = { ident: 1 };
     state.flags = { verbose: true };
+    state.iflags = {};
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true };
+    windowsUp(state);
     state.program_state = { gameover: false };
     state.gw = {};
     state.urole = { mnum: PM_HUMAN };

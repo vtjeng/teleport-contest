@@ -27,9 +27,7 @@ import {
     LEVITATION,
     UTOTYPE_DEFERRED,
     UTOTYPE_NONE,
-    NHW_MESSAGE,
 } from '../js/const.js';
-import { tty_create_nhwindow } from '../js/wintty.js';
 import {
     deferred_goto,
     maybe_lvltport_feedback,
@@ -50,6 +48,7 @@ import {
     WAIT_KEY,
     loadWizardLevelTeleRecipe,
 } from './run-wizard-level-tele.mjs';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 // teleport.c:1194's Strcpy(qbuf, ...). getlin() writes it followed by a
 // space, so the cursor rests one column past the 38-character question.
@@ -83,8 +82,9 @@ function levelTeleState(keys, { confused = false, wizard = true, seed = 1 } = {
 }) {
     const state = resetGame();
     state.wizard = wizard;
+    state.iflags = {};
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true };
+    windowsUp(state);
     state.flags = {};
     state.u = {
         uprops: Array.from(
@@ -100,10 +100,6 @@ function levelTeleState(keys, { confused = false, wizard = true, seed = 1 } = {
         throw new Error('the level-teleport prompt asked for a withheld key');
     };
     for (const ch of keys) state.nhDisplay.pushKey(ch.charCodeAt(0));
-    // allmain.c init_sound_disp_gamewindows() has created WIN_MESSAGE, so
-    // getlin reaches it; msg_history is options.c's default of 20.
-    state.iflags.msg_history = 20;
-    tty_create_nhwindow(NHW_MESSAGE, state);
     initRng(seed);
     enableRngLog();
     const reads = [];

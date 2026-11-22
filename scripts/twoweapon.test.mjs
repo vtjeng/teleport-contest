@@ -47,6 +47,7 @@ import { init_objects } from '../js/o_init.js';
 import { enableRngLog, getRngLog, initRng, rnd } from '../js/rng.js';
 import { roles } from '../js/roles.js';
 import { can_twoweapon, dotwoweapon } from '../js/wield.js';
+import { windowsUp } from './test-fixtures/windows-up.mjs';
 
 // roles.js keeps the role records in role.c's order, so these are the indices
 // role.c:113 (Caveman), :275 (Priest) and :533 (Wizard) sit at.
@@ -59,9 +60,8 @@ const ROLE_WIZARD = 12;
 // in the secondary one, and no shield; that pair is can_twoweapon()'s success
 // path, so every refusal test below starts from it and breaks one condition.
 function makeState(pmidx = PM_SAMURAI, roleIndex = ROLE_SAMURAI) {
-    const state = {
-        // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-        iflags: { window_inited: true },
+    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    const state = windowsUp({
         invent: null,
         uwep: null,
         uswapwep: null,
@@ -76,7 +76,7 @@ function makeState(pmidx = PM_SAMURAI, roleIndex = ROLE_SAMURAI) {
             umonster: pmidx,
             uprops: {},
         },
-    };
+    });
     monst_globals_init(state);
     objects_globals_init(state);
     // xname() enters the named type in the discoveries list, which needs the
@@ -485,8 +485,9 @@ test('dotwoweapon redraws the status line when weaponstatus is on', async () => 
 // with OPTIONS=perm_invent set inside the move loop dotwoweapon() runs on
 // past both of its update_inventory() calls.
 function permInventHero(state) {
+    state.iflags = { perm_invent: true };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    state.iflags = { window_inited: true, perm_invent: true };
+    windowsUp(state);
     state.program_state = { in_moveloop: true };
     return state;
 }
