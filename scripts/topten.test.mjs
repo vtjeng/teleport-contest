@@ -58,6 +58,8 @@ test('topten prints wizard mode message and returns without writing record', () 
                 cols: 80,
                 clearScreen() { this._cleared = true; },
                 putCaptured() {},
+                // nomux_enter_raw_mode() keeps the display cursor where it is.
+                setCursor() {},
             },
         };
         topten(DIED, at(20260101), state);
@@ -356,6 +358,8 @@ function makeDeathState({
             cols: 80,
             clearScreen() {},
             putCaptured() {},
+            // nomux_enter_raw_mode() keeps the display cursor where it is.
+            setCursor() {},
         },
     };
 }
