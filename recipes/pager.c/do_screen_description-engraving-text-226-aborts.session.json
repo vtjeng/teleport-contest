@@ -1,0 +1,20 @@
+{
+  "version": 5,
+  "comment": "pager.c do_screen_description() (1609-1613) and add_quoted_engraving() (1630-1668): the farlook suffix is built in the 256-byte temp_buf, which holds \" (engraving\" (11 characters), then \" with remembered text: \\\"<text>\\\"\" (25 characters and the text) capped at BUFSZ - 1 = 255 characters, then Strcat(temp_buf, \")\"). From 219 characters of text the \")\" and its NUL no longer fit, and macOS's checked strcat() (__strcat_chk) calls abort(). Record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder, whose strcat() overflows and carries on. Segment 0: a gnomish Healer steps east off the up staircase, writes a 226-character text in the dust in three parts (tty getlin() takes at most 80 characters), steps back onto the stairs and opens the travel prompt; l moves the cursor onto the engraving, getpos() auto_describe() runs do_screen_description() and the process ends on SIGABRT (terminalSignal) with no screen for that key. Segment 1: the next start is an ordinary new game (the recorder deletes the lock file the aborted game left), which searches once and looks here. Seeds, clocks, character, text and keys chosen independently of recipes/pager.c/do_screen_description-engraving-text-218.",
+  "segments": [
+    {
+      "seed": 73195530,
+      "datetime": "20330222161500",
+      "nethackrc": "OPTIONS=name:Rosamund,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!autopickup,!tutorial,!legacy,!tips,pettype:none\n",
+      "moves": "lE-\nsphinx of black quartz judge my vow sphinx of black quartz judge my vow sphinx o\n\u001b\u001bE-y\nf black quartz judge my vow sphinx of black quartz judge my vow sphinx of blackz\n\u001b\u001bE-y\nquartz judge my vow sphinx of black quartz judge my vow sphinx ofz\n\u001b\u001bh_l",
+      "terminalInputKey": "l",
+      "terminalSignal": "SIGABRT"
+    },
+    {
+      "seed": 73195537,
+      "datetime": "20330223161500",
+      "nethackrc": "OPTIONS=name:Rosamund,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!autopickup,!tutorial,!legacy,!tips,pettype:none\n",
+      "moves": "s:"
+    }
+  ]
+}
