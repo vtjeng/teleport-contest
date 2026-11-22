@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8431207,
+      "datetime": "20291003064512",
+      "nethackrc": "OPTIONS=name:Brisa,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=playmode:debug,!legacy,!tutorial,pettype:none,!autopickup,color\nOPTIONS=symset:RogueEpyx\nOPTIONS=S_boulder:0\n",
+      "moves": "s\u00162\ns\u00161\ns"
+    }
+  ],
+  "comment": "options.c parseoptions() (663-666): an S_ assignment in an OPTIONS line runs switch_symbols(TRUE) and then botl.c check_gold_symbol(). RogueEpyx's S_coin is the control byte ^O, so the check sets iflags.invis_goldsym and the status line shows $ for gold, here and after two level changes."
+}

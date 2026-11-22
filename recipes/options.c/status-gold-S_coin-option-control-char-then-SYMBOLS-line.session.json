@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8431209,
+      "datetime": "20291003064514",
+      "nethackrc": "OPTIONS=name:Dagny,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,pettype:none,!autopickup\nOPTIONS=S_coin:^B\nSYMBOLS=S_coin:c\n",
+      "moves": "s\u00162\ns\u00161\ns"
+    }
+  ],
+  "comment": "options.c parseoptions(): OPTIONS=S_coin:^B makes the coin symbol a control byte and check_gold_symbol() sets iflags.invis_goldsym. The later SYMBOLS=S_coin:c line goes through cfgfiles.c cnf_line_SYMBOLS(), which does not run the check, so the status line keeps $ although the coin symbol is now c."
+}

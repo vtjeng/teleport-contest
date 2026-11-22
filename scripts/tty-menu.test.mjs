@@ -180,7 +180,6 @@ test('NHW_TEXT reuses source splitting and preserves row metadata', () => {
         text: `${'A'.repeat(70)} ${'B'.repeat(20)}`,
         color: 6,
         attr: 2,
-        glyphCells: [{ column: 72, ch: 'X' }],
     };
     const data = ttyTextWindowData([source], 80);
 
@@ -191,7 +190,8 @@ test('NHW_TEXT reuses source splitting and preserves row metadata', () => {
     ]);
     assert.equal(data.lines[0].color, 6);
     assert.equal(data.lines[0].attr, 2);
-    assert.deepEqual(data.lines[1].glyphCells, [{ column: 1, ch: 'X' }]);
+    assert.equal(data.lines[1].color, 6);
+    assert.equal(data.lines[1].attr, 2);
 
     const unbroken = ttyTextWindowData([{
         text: 'Z'.repeat(100), color: 3, attr: 1,
@@ -199,27 +199,16 @@ test('NHW_TEXT reuses source splitting and preserves row metadata', () => {
     assert.equal(unbroken.lines.length, 1);
     assert.equal(unbroken.lines[0].text.length, 100);
 
-    // The source column for the B glyph follows four dropped repeated spaces.
-    // Its normalized column is therefore zero in the recursive suffix. A
-    // cell attached to one of those dropped spaces disappears. The split
-    // space itself is also nulled out of the first row by tty_putstr().
+    // compress_str() drops four of the five repeated spaces, and
+    // tty_putstr() nulls the split space itself out of the first row.
     const compressed = ttyTextWindowData([{
         text: `${'A'.repeat(65)}     ${'B'.repeat(20)}`,
         color: 4,
         attr: 1,
-        glyphCells: [
-            { column: 65, ch: ' ' },
-            { column: 66, ch: 'dropped' },
-            { column: 70, ch: 'B' },
-        ],
     }], 80);
     assert.deepEqual(compressed.lines.map(({ text }) => text), [
         'A'.repeat(65),
         'B'.repeat(20),
-    ]);
-    assert.deepEqual(compressed.lines[0].glyphCells, []);
-    assert.deepEqual(compressed.lines[1].glyphCells, [
-        { column: 0, ch: 'B' },
     ]);
     assert.equal(compressed.lines[1].color, 4);
     assert.equal(compressed.lines[1].attr, 1);

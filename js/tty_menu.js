@@ -64,6 +64,7 @@ import {
     ttyMenuColorAttribute,
 } from './windows.js';
 import { pmatchi } from './strutil.js';
+import { mixed_to_utf8 } from './utf8map.js';
 import { impossible } from './pline.js';
 import { g_putch_graphics, nomux_g_putch_byte } from './termcap.js';
 import { baseWindow } from './wintty.js';
@@ -322,45 +323,23 @@ async function erase_menu_or_text(state, display, snapshot, baseCursor) {
 
 // C ref: win/tty/wintty.c compress_str(). tty_putstr() applies this to menu
 // and text data before it measures or stores a line. CO is the live terminal
-// width and BUFSZ bounds the function's static buffer.
+// width and BUFSZ bounds the function's static buffer. Returns the bytes.
 function compressTtyWindowLine(value, columns) {
-    return compressTtyWindowBytes(value, columns).bytes;
-}
-
-// Keep the source-byte position of every retained byte while compress_str()
-// normalizes a line. NHW_TEXT callers attach glyphCells to the original
-// string; those positions must follow dropped leading/repeated spaces and the
-// BUFSZ truncation before tty_putstr() splits the normalized bytes.
-function compressTtyWindowBytes(value, columns) {
     const source = textBytes(value ?? '');
-    if (source.length < columns && !source.includes(0x0A)) {
-        return {
-            bytes: source,
-            sourceToNormalized: source.map((_, index) => index),
-        };
-    }
+    if (source.length < columns && !source.includes(0x0A)) return source;
 
     const result = [];
-    const sourceToNormalized = source.map(() => -1);
     let wasSpace = true;
-    for (let sourceIndex = 0; sourceIndex < source.length; sourceIndex++) {
-        const sourceByte = source[sourceIndex];
+    for (const sourceByte of source) {
         const byte = sourceByte === 0x0A ? 0x20 : sourceByte;
         if (wasSpace && byte === 0x20) continue;
         if (result.length >= BUFSZ - 1) break;
-        sourceToNormalized[sourceIndex] = result.length;
         result.push(byte);
         wasSpace = byte === 0x20;
     }
-    if ((wasSpace && result.length) || result.length === BUFSZ - 1) {
-        const removed = result.length - 1;
+    if ((wasSpace && result.length) || result.length === BUFSZ - 1)
         result.pop();
-        for (let index = 0; index < sourceToNormalized.length; index++) {
-            if (sourceToNormalized[index] === removed)
-                sourceToNormalized[index] = -1;
-        }
-    }
-    return { bytes: result, sourceToNormalized };
+    return result;
 }
 
 // C ref: win/tty/wintty.c tty_putstr()'s NHW_MENU/NHW_TEXT arm. The width
@@ -371,49 +350,18 @@ function ttyWindowTextData(lines, columns, preserveLines) {
     const stored = [];
     let maxcol = 0;
 
-    const storedLine = (
-        sourceLine,
-        text,
-        sourceToNormalized,
-        normalizedStart,
-        normalizedLength,
-    ) => {
-        if (!preserveLines) return text;
-        const result = {
+    const storedLine = (sourceLine, text) => (preserveLines
+        ? {
             ...(sourceLine && typeof sourceLine === 'object'
                 ? sourceLine : {}),
             text,
-        };
-        // Most text-window rows have no glyphCells. If a caller does, map its
-        // original source-byte columns through compress_str() before keeping
-        // cells in each recursive tty_putstr() suffix.
-        if (Array.isArray(sourceLine?.glyphCells)) {
-            result.glyphCells = sourceLine.glyphCells
-                .flatMap((cell) => {
-                    const normalized = sourceToNormalized[cell.column];
-                    if (normalized == null || normalized < normalizedStart
-                        || normalized >= normalizedStart + normalizedLength) {
-                        return [];
-                    }
-                    return [{
-                        ...cell,
-                        column: normalized - normalizedStart,
-                    }];
-                });
         }
-        return result;
-    };
+        : text);
 
-    const putstr = (
-        line,
-        sourceLine = line,
-        compressedData = null,
-        normalizedStart = 0,
-    ) => {
-        const compressedDataForLine = compressedData
-            ?? compressTtyWindowBytes(line, columns);
-        const { bytes: allCompressed, sourceToNormalized } = compressedDataForLine;
-        const compressed = allCompressed.slice(normalizedStart);
+    // `compressed` is the line after compress_str(). C's recursive
+    // tty_putstr() call compresses the suffix again, which leaves bytes
+    // that compress_str() has already normalized as they are.
+    const putstr = (compressed, sourceLine) => {
         const n0 = compressed.length + 1;
         maxcol = Math.max(maxcol, n0);
         if (n0 > columns) {
@@ -423,36 +371,22 @@ function ttyWindowTextData(lines, columns, preserveLines) {
                 --split;
             }
             if (split) {
-                const next = split + 1;
                 // tty_putstr() nulls cw->data[cury - 1][++i] at the
                 // break-space itself. The first row therefore excludes the
                 // split byte and the recursive suffix starts after it.
                 stored.push(storedLine(
-                    sourceLine,
-                    bytesText(compressed.slice(0, split)),
-                    sourceToNormalized,
-                    normalizedStart,
-                    split,
+                    sourceLine, bytesText(compressed.slice(0, split)),
                 ));
-                putstr(
-                    bytesText(compressed.slice(next)),
-                    sourceLine,
-                    compressedDataForLine,
-                    normalizedStart + next,
-                );
+                putstr(compressed.slice(split + 1), sourceLine);
                 return;
             }
         }
-        stored.push(storedLine(
-            sourceLine,
-            bytesText(compressed),
-            sourceToNormalized,
-            normalizedStart,
-            compressed.length,
-        ));
+        stored.push(storedLine(sourceLine, bytesText(compressed)));
     };
 
-    for (const line of lines) putstr(line?.text ?? line, line);
+    for (const line of lines) {
+        putstr(compressTtyWindowLine(line?.text ?? line, columns), line);
+    }
     return { lines: stored, maxcol };
 }
 
@@ -998,20 +932,20 @@ async function dmore(state, display, row) {
 }
 
 // C ref: win/tty/wintty.c tty_putmixed() (4169-4196) for an NHW_TEXT window:
-// the line tty_putstr() stores after windows.c decode_mixed() (or utf8map.c
-// mixed_to_utf8(), the same loop) has decoded `str`. It returns one
-// displayTtyTextWindow() line. `renderGlyph(glyph, column)` gives the port's
-// form of a decoded glyph that starts at `column`, `{ text, cell }`, where
-// `cell` is the line's glyphCells entry for that glyph; null keeps
-// decode_mixed()'s gs.showsyms[] byte with no rendered cell.
-export function ttyPutmixedLine(str, state = game, renderGlyph = undefined) {
-    const glyphCells = [];
-    const text = decode_mixed(str, state, renderGlyph && ((glyph, column) => {
-        const rendered = renderGlyph(glyph, column);
-        if (rendered?.cell) glyphCells.push(rendered.cell);
-        return rendered?.text;
-    }));
-    return { text, glyphCells };
+// the line tty_putstr() stores after utf8map.c mixed_to_utf8(), under a
+// UTF-8 symbol set, or windows.c decode_mixed() has decoded `str`. It returns
+// one displayTtyTextWindow() line. The stored line is bytes: a glyph is its
+// gs.showsyms[] byte or its UTF-8 sequence, and process_text_window() prints
+// each byte through the hooks writeStyledText() models, which leave the
+// cell of a control or high byte as cl_end() cleared it.
+export function ttyPutmixedLine(str, state = game) {
+    const handling = state.gs?.symset?.[
+        state.gc?.currentgraphics ?? PRIMARYSET
+    ]?.handling;
+    return {
+        text: handling === H_UTF8
+            ? mixed_to_utf8(str, state) : decode_mixed(str, state),
+    };
 }
 
 // C ref: win/tty/wintty.c tty_display_nhwindow(NHW_TEXT) followed by
@@ -1087,32 +1021,6 @@ export async function displayTtyTextWindow(state = game, lines) {
             display.cols - 1,
             gPutch,
         );
-        const firstByteGPutch = gPutch.handling === H_UTF8
-            || textBytes(text.slice(0, 1))[0] >= 0x80;
-        // wintty.c process_text_window() sends putmixed() lines through
-        // decode_mixed(). A decoded glyph can use a rendered DEC character
-        // that writeStyledText() deliberately drops as a non-ASCII byte, so
-        // callers identify those physical cells for direct substitution. A
-        // cell whose `ch` is null held a high-bit byte that the recorder's
-        // capture ignores, so it keeps the blank clearRow() wrote.
-        for (const cell of line.glyphCells ?? []) {
-            if (cell.column >= display.cols - 1) continue;
-            // writeStyledText() has already recorded a g_putch() first byte
-            // one column to the right; its own column stays cleared.
-            if (cell.column === 0 && firstByteGPutch) continue;
-            if (cell.ch == null) {
-                display.clearCell(cell.column, n);
-            } else {
-                // The glyph's capture, which the caller worked out.
-                display.putCaptured(
-                    cell.column,
-                    n,
-                    cell.ch,
-                    line.color ?? NO_COLOR,
-                    line.attr ?? 0,
-                );
-            }
-        }
         n++;
     }
 

@@ -502,6 +502,35 @@ test('check_gold_symbol follows botl.c printable-character boundary', () => {
     assert.equal(state.iflags.invis_goldsym, false);
 });
 
+test('only an S_ assignment in an OPTIONS line runs check_gold_symbol', () => {
+    // options.c parseoptions() follows a successful parsesymbols() with
+    // switch_symbols(TRUE) and check_gold_symbol(); cnf_line_SYMBOLS() and
+    // optfn_symset() stop at switch_symbols().
+    const OPTIONS_C = readFileSync('nethack-c/upstream/src/options.c', 'utf8');
+    assert.match(OPTIONS_C, /if \(strstr\(opts, "S_"\) == opts && parsesymbols\(opts, PRIMARYSET\)\) \{\s*switch_symbols\(TRUE\);\s*check_gold_symbol\(\);/u);
+    const CFGFILES_C = readFileSync('nethack-c/upstream/src/cfgfiles.c', 'utf8');
+    assert.match(CFGFILES_C, /cnf_line_SYMBOLS\(char \*bufp\)\s*\{\s*if \(parsesymbols\(bufp, PRIMARYSET\)\) \{\s*switch_symbols\(TRUE\);\s*return TRUE;/u);
+    const invisible = (nethackrc) => {
+        const state = resetGame();
+        state.iflags = {};
+        initialize_symbols_from_options(parseNethackrc(nethackrc), state);
+        return Boolean(state.iflags.invis_goldsym);
+    };
+    // RogueEpyx's S_coin is \x0f, a control byte. S_boulder:0 is any S_
+    // assignment that leaves the coin symbol alone.
+    // The check runs after the symset is loaded: the gold symbol is hidden.
+    assert.equal(invisible('OPTIONS=symset:RogueEpyx\nOPTIONS=S_boulder:0\n'), true);
+    // The check runs first, against the default '$'.
+    assert.equal(invisible('OPTIONS=S_boulder:0\nOPTIONS=symset:RogueEpyx\n'), false);
+    // One line is parsed from its last element: S_boulder, then symset.
+    assert.equal(invisible('OPTIONS=symset:RogueEpyx,S_boulder:0\n'), false);
+    // A SYMBOLS line does not run the check, in either direction.
+    assert.equal(invisible('OPTIONS=symset:RogueEpyx\nSYMBOLS=S_boulder:0\n'), false);
+    assert.equal(invisible('OPTIONS=S_coin:^B\nSYMBOLS=S_coin:c\n'), true);
+    // No symset alone runs it.
+    assert.equal(invisible('OPTIONS=symset:RogueEpyx\n'), false);
+});
+
 function visibleCellState({ x = 7, y = 4, ux = 1, uy = 1 } = {}) {
     const state = resetGame();
     state.context = { ident: 2 };

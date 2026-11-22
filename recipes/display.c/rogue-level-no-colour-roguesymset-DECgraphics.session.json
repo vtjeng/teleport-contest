@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 660134,
+      "datetime": "20250720050607",
+      "nethackrc": "OPTIONS=name:Ugo,role:Caveman,race:gnome,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,color,roguesymset:DECgraphics\n",
+      "moves": "\u001617\n\u0006shk:s"
+    }
+  ],
+  "comment": "display.c reset_glyphmap() on the Rogue level with a valid Rogue set whose handling is not IBM (DECgraphics): has_rogue_color is false and the level has no colour."
+}

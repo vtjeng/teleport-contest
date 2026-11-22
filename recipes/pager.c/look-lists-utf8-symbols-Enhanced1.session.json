@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7720453,
+      "datetime": "20190817194502",
+      "nethackrc": "OPTIONS=name:Hana,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,color,symset:Enhanced1\n",
+      "moves": "E-\rxyzzy\r/e\u001b/m\u001bdc/o\u001bl/O\u001b\u0006/T\u001b/M\u001b/E\u001b/t\u001b;h.s"
+    }
+  ],
+  "comment": "pager.c look lists under a UTF-8 symset: wintty.c tty_putmixed() calls utf8map.c mixed_to_utf8(), which writes a glyph's gm.u->utf8str bytes into the line. process_text_window() prints them a byte at a time, each advancing the cursor, and recorder patch 006's nomux_putch() ignores every byte with its high bit set, so Enhanced1's two-byte engraving symbol U+03BE leaves two blank cells and shifts the rest of the row by one."
+}

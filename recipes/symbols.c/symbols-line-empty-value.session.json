@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51873,
+      "datetime": "20210304101112",
+      "nethackrc": "SYMBOLS=\nOPTIONS=name:Odile,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,pettype:none,!autopickup\n",
+      "moves": "\rs:ll"
+    }
+  ],
+  "comment": "symbols.c parsesymbols() scans from opts + 1, so for the empty value of a bare SYMBOLS= line it reads the byte after the terminator, a NUL that cfgfiles.c parse_config_line()'s strncpy() padding put there. It finds no delimiter and cnf_line_SYMBOLS() reports Error in SYMBOLS definition ''."
+}

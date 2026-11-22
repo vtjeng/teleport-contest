@@ -5850,14 +5850,23 @@ function appendSymbolSelection(
 }
 
 // `switchSymbols` is false when parsesymbols() failed after applying some
-// assignments: the caller then skips switch_symbols(TRUE).
-function appendSymbolOverrides(result, set, assignments, switchSymbols = true) {
+// assignments: the caller then skips switch_symbols(TRUE). `afterSwitch` is
+// what the caller runs after its switch_symbols(TRUE):
+// parseoptions()'s S_ arm (options.c:663-666) passes botl.c
+// check_gold_symbol(); cnf_line_SYMBOLS() and cnf_line_ROGUESYMBOLS() run
+// nothing. js/symbols.js replay_symbol_operations() calls it with the game
+// state at that point of the replay. It carries the function because
+// js/symbols.js cannot import js/display.js, which holds it: modules that
+// js/display.js loads read js/symbols.js constants while they load.
+function appendSymbolOverrides(
+    result, set, assignments, switchSymbols = true, afterSwitch = null,
+) {
     // This ordered stream is authoritative.  flags/rogueSymbols below are
     // compatibility snapshots for older callers and only represent S_*
     // symbol slots. Standalone G_* records are retained here because C saves
     // them back to config, although parsesymbols() does not apply them.
     result.symbolOperations.push({
-        kind: 'override', set, assignments, switchSymbols,
+        kind: 'override', set, assignments, switchSymbols, afterSwitch,
     });
     const target = set === 'rogue' ? result.rogueSymbols : result.flags;
     for (const { kind, name, rawValue } of assignments) {
@@ -5879,7 +5888,14 @@ function appendSymbolOverrides(result, set, assignments, switchSymbols = true) {
 // munged in place.
 function parseSymbolAssignments(value) {
     const buffer = Array.from(String(value));
-    buffer.push('\0');
+    // parsesymbols() starts its scan at opts + 1 without looking at opts[0],
+    // so for an empty value it reads the byte after the terminator. That
+    // byte is a NUL: cfgfiles.c parse_config_line() copies the line into
+    // buf[4 * BUFSZ] with strncpy(), which fills the rest of the buffer with
+    // NULs. The scan then stops at once, no delimiter is found, and the
+    // statement is an error naming ''. No other read passes the terminator:
+    // a comma suffix starts at a byte the scan has seen is not a NUL.
+    buffer.push('\0', '\0');
 
     const cString = (start) => {
         let end = start;
@@ -6218,7 +6234,10 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     } else if (isSymbolAssignment) {
         // parsesymbols() does not receive parseoptions()'s negation flag.
         parsesymbolsGlyphrepNags(result, 'primary', symbolParse.assignments);
-        appendSymbolOverrides(result, 'primary', symbolParse.assignments);
+        appendSymbolOverrides(
+            result, 'primary', symbolParse.assignments, true,
+            check_gold_symbol,
+        );
     } else if (name === 'number_pad') {
         optfn_number_pad(
             result, allopt.indexOf(matchedRow), DO_SET, negated,

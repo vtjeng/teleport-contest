@@ -1,12 +1,16 @@
-// Pins windows.c encglyph(), decode_glyph() and decode_mixed() (1427-1511),
-// which are pure: they read only the string, svc.context.rndencode and the
-// symbol table. Every expectation below is read from that C source.
+// Pins windows.c encglyph(), decode_glyph() and decode_mixed() (1427-1511)
+// and utf8map.c mixed_to_utf8() (83-140), which are pure: they read only the
+// string, svc.context.rndencode and the symbol table. Every expectation
+// below is read from that C source.
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { cmap_to_glyph } from '../js/display.js';
 import { parseNethackrc } from '../js/options.js';
-import { initialize_symbols_from_options, S_throne } from '../js/symbols.js';
+import {
+    initialize_symbols_from_options, S_engroom, S_throne,
+} from '../js/symbols.js';
+import { mixed_to_utf8 } from '../js/utf8map.js';
 import { decode_glyph, decode_mixed, encglyph } from '../js/windows.js';
 
 // 0x1A2B (6699) is a key moveloop_preamble()'s rnd(9000) can draw, with
@@ -94,4 +98,29 @@ test('a decoded throne glyph keeps its backslash symbol', () => {
     const throne = cmap_to_glyph(S_throne, state);
     assert.equal(decode_mixed(`${encglyph(throne, state)}        a throne`,
         state), '\\        a throne');
+});
+
+test('mixed_to_utf8() writes a glyph\'s utf8str bytes, else its showsyms byte', () => {
+    // dat/symbols gives Enhanced1 `S_engroom: U+03BE`, whose UTF-8 form is
+    // CE BE, and no entry for S_throne, which keeps its default '\'.
+    const state = { ...keyed(), u: { uz: { dnum: 0, dlevel: 1 } } };
+    initialize_symbols_from_options(
+        parseNethackrc('OPTIONS=symset:Enhanced1\n'), state);
+    const engraving = cmap_to_glyph(S_engroom, state);
+    const throne = cmap_to_glyph(S_throne, state);
+    // gm.u->utf8str is copied byte for byte (utf8map.c 105-111).
+    assert.equal(mixed_to_utf8(`<${encglyph(engraving, state)}>`, state),
+        '<\xCE\xBE>');
+    // A glyph without gm.u takes gs.showsyms[] (112-116).
+    assert.equal(mixed_to_utf8(`<${encglyph(throne, state)}>`, state), '<\\>');
+    // The rest of the loop is decode_mixed()'s: a backslash before an
+    // ordinary character is dropped and a forgery is kept.
+    assert.equal(mixed_to_utf8('a\\b \\G0001002A', state), 'ab \\G0001002A');
+    assert.equal(mixed_to_utf8(null, state), '');
+    // Every write tests put < buf + bufsz - 1 with bufsz BUFSZ (256), so a
+    // two-byte glyph that starts at byte 254 keeps only its first byte.
+    const long = mixed_to_utf8(
+        `${'x'.repeat(254)}${encglyph(engraving, state)}yz`, state);
+    assert.equal(long.length, 255);
+    assert.equal(long.slice(-2), 'x\xCE');
 });

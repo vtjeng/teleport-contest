@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8431210,
+      "datetime": "20291003064515",
+      "nethackrc": "OPTIONS=name:Eskil,role:Barbarian,race:orc,gender:male,align:chaotic\nOPTIONS=playmode:debug,!legacy,!tutorial,pettype:none,!autopickup,color,symset:Blank\nOPTIONS=S_orc:o\n",
+      "moves": "s\u00162\ns\u00161\ns"
+    }
+  ],
+  "comment": "options.c parseoptions(): the Blank symset's S_coin is a space, which check_gold_symbol() treats as invisible (goldch <= ' ') once the S_orc option after it runs the check; the status line shows $."
+}

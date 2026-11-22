@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4410377,
+      "datetime": "20260814121530",
+      "nethackrc": "OPTIONS=name:Pim,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,pettype:dog,!tips\nROGUESYMBOLS=S_human:^A,S_dog:^E,S_food:^R\n",
+      "moves": "\n\u001617\n\n/m\u001bdd/o\u001bl/M\u001b/O\u001b;h.\u00161\n\n/m\u001bs"
+    }
+  ],
+  "comment": "pager.c look_all(), look_traps() and look_engrs() put each line's symbol through encglyph() and putmixed(); wintty.c tty_putmixed() decodes it to the glyph's gs.showsyms[] byte and process_text_window() prints the stored line a byte at a time. Recorder patch 006's nomux_putch() ignores a byte below 32 or with its high bit set, so the symbol's cell stays blank. On the Rogue level with ROGUESYMBOLS control bytes for the hero, the dog and food; back on Dlvl 1 the primary symbols are printed."
+}

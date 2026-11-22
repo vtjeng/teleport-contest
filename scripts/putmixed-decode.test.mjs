@@ -1,9 +1,9 @@
 // Every C putmixed() line runs windows.c decode_mixed() before tty_putstr()
 // (wintty.c tty_putmixed() 4169-4196). The port's two entries for it,
 // ttyPutmixed() for the message window and ttyPutmixedLine() for a text
-// window, are the only code that may hand the tty a decoded glyph's rendered
-// cell. A caller that formats a glyph itself and skips them also skips
-// decode_mixed(), so a backslash in a typed symbol, a monster or object name
+// window, are the only code that decodes one, and ttyPutmixed() alone may
+// hand the tty a decoded glyph's rendered cell. A caller that formats a glyph
+// itself and skips them also skips decode_mixed(), so a backslash in a typed symbol, a monster or object name
 // or an engraving reaches the screen where C drops it. These checks fail when
 // such a caller appears.
 import assert from 'node:assert/strict';
@@ -49,21 +49,28 @@ test('only ttyPutmixed() gives update_topl() a decoded first cell', () => {
     'the call is inside ttyPutmixed()');
 });
 
-test('only ttyPutmixedLine() builds a text-window line\'s glyph cells', () => {
-    // tty_menu.js also copies and draws glyphCells; no other file names them.
-    const others = readdirSync(JS_DIR)
-        .filter((name) => name.endsWith('.js') && name !== 'tty_menu.js')
+test('a text-window line carries no rendered glyph cells', () => {
+    // wintty.c process_text_window() prints a stored line's bytes and
+    // nothing else, so ttyPutmixedLine() returns the decoded bytes alone:
+    // utf8map.c mixed_to_utf8() under a UTF-8 symbol set, otherwise
+    // decode_mixed(). A cell drawn over those bytes showed control-byte and
+    // UTF-8 symbols that recorder patch 006's capture leaves blank.
+    const named = readdirSync(JS_DIR)
+        .filter((name) => name.endsWith('.js'))
         .filter((name) => source(name).includes('glyphCells'));
-    assert.deepEqual(others, []);
+    assert.deepEqual(named, []);
 
-    const text = source('tty_menu.js');
-    const builders = [...text.matchAll(/glyphCells\.push\(/gu)];
-    const body = functionBody(text, 'ttyPutmixedLine');
-    const bodyStart = text.indexOf(body);
-    assert.equal(builders.length, 1);
-    assert.ok(builders[0].index > bodyStart
-        && builders[0].index < bodyStart + body.length,
-    'the push is inside ttyPutmixedLine()');
+    const body = functionBody(source('tty_menu.js'), 'ttyPutmixedLine');
+    assert.match(body, /^function ttyPutmixedLine\(str, state = game\) \{/u);
+    assert.match(body, /handling === H_UTF8\s*\? mixed_to_utf8\(str, state\) : decode_mixed\(str, state\)/u);
+    assert.doesNotMatch(body, /putCaptured|renderGlyph/u);
+    // Every caller passes the encoded text and the state, with no renderer.
+    const pager = source('pager.js');
+    const calls = [...pager.matchAll(/ttyPutmixedLine\(([^()]*)\)/gu)];
+    // look_all(), look_traps() and look_engrs() each build one line form.
+    assert.equal(calls.length, 3);
+    for (const [, args] of calls)
+        assert.equal(args, 'outbuf + description, state');
 });
 
 test('both putmixed entries run decode_mixed()', () => {

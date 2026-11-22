@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8431208,
+      "datetime": "20291003064513",
+      "nethackrc": "OPTIONS=name:Corwin,role:Wizard,race:gnome,gender:male,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,pettype:none,!autopickup,color\nOPTIONS=S_boulder:0\nOPTIONS=symset:RogueEpyx,S_dog:D\n",
+      "moves": "s\u00163\ns\u00161\ns"
+    }
+  ],
+  "comment": "options.c parseoptions(): check_gold_symbol() runs only for an S_ assignment, against the symbols displayed at that point. Here both S_ options are parsed before symset:RogueEpyx is (an OPTIONS line is parsed from its last element), so iflags.invis_goldsym stays false and the status line prints RogueEpyx's control-byte coin symbol, which the capture leaves blank."
+}

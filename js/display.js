@@ -850,10 +850,14 @@ export function wall_angle(loc) {
     return finish_steps(wall_angle_steps(loc));
 }
 
+// C ref: display.c reset_glyphmap() (3078-3082), which stores NO_COLOR for
+// every glyph when !iflags.use_color, or on the Rogue level without
+// has_rogue_color. The symset's nocolor field is read only inside
+// has_rogue_color: a roguesymset that failed to load, or "default", leaves
+// it 0 through clear_symsetentry(), and the Rogue level is still colourless.
 function mapColorEnabled(state) {
-    const activeSet = state.gc?.currentgraphics ?? 0;
     return glyphmap_use_color(state)
-        && !state.gs?.symset?.[activeSet]?.nocolor;
+        && !(isRogueLevelForState(state) && !hasRogueColor(state));
 }
 
 function recorderMapColor(color, state) {

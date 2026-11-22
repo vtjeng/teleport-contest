@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7720457,
+      "datetime": "20190817194506",
+      "nethackrc": "OPTIONS=name:Ines,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,color,symset:Enhanced2,pettype:cat\nSYMBOLS=S_human:U+263A,S_tool:U+2692,S_feline:U+2663\n",
+      "moves": "E-\rxyzzy\r/e\u001b/m\u001bdc/o\u001bl/O\u001b\u0006/T\u001b/M\u001b/E\u001b/t\u001b;h.s"
+    }
+  ],
+  "comment": "pager.c look lists under the UTF-8 symset Enhanced2 with SYMBOLS overrides: three-byte sequences for the hero (U+263A) and the kitten (U+2663), which utf8map.c mixed_to_utf8() writes into the line and the capture leaves as three blank cells each. The S_tool override does not change the stethoscope, which the lists show as (."
+}

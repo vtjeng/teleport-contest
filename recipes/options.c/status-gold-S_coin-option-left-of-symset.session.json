@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8431211,
+      "datetime": "20291003064516",
+      "nethackrc": "OPTIONS=name:Fenna,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,pettype:none,!autopickup,color,S_coin:^B,symset:DECgraphics\n",
+      "moves": "s\u00162\ns\u00161\ns"
+    }
+  ],
+  "comment": "options.c parseoptions(): within one OPTIONS line symset:DECgraphics, the last element, is parsed first and S_coin:^B after it, so check_gold_symbol() sees the control byte and the status line shows $."
+}

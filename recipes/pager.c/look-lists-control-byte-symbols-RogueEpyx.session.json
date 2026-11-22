@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7720451,
+      "datetime": "20190817194500",
+      "nethackrc": "OPTIONS=name:Maeve,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!autopickup,color,symset:RogueEpyx\n",
+      "moves": "E-\rxyzzy\r/e\u001b/m\u001bdc/o\u001bl/O\u001b\u0006/T\u001b/M\u001b/E\u001b/t\u001b;h.s"
+    }
+  ],
+  "comment": "pager.c look_all(), look_traps() and look_engrs() put each line's symbol through encglyph() and putmixed(); wintty.c tty_putmixed() decodes it to the glyph's gs.showsyms[] byte and process_text_window() prints the stored line a byte at a time. Recorder patch 006's nomux_putch() ignores a byte below 32 or with its high bit set, so the symbol's cell stays blank. RogueEpyx as the primary set: the hero is ^A, gems and gold ^O, traps ^D, and the engraving symbol is the high byte \\xee."
+}
