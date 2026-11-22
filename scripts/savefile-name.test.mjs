@@ -231,3 +231,27 @@ test('a save file being restored is not listed among the saved games', () => {
         setStorageForTesting(null);
     }
 });
+
+test('startup adds gs.SAVEF to the struct that holds shk.c\'s sale state', async () => {
+    // decl.c:720-721 start gs.sell_response at 'a' and gs.sell_how at
+    // SELL_NORMAL (0); shk.c sellobj() reads both for an object thrown into
+    // a shop. js/jsmain.js once replaced the whole struct when it
+    // initialized gs.SAVEF, which made that sale ask "Sell it?"
+    // (recordings/shk.c/first-owned-book-projectile-sale).
+    const { runSegmentStrict } = await import('../js/jsmain.js');
+    // Any new game will do: a named Valkyrie and one search.
+    await runSegmentStrict({
+        seed: 4471,
+        datetime: '20240229120000',
+        nethackrc: 'OPTIONS=name:Ilse,role:Valkyrie,race:dwarf,gender:female,align:lawful\n'
+            + 'OPTIONS=!legacy,!tutorial\n',
+        moves: 's',
+        storage: new InMemoryStorage(),
+    });
+    // runSegment() replaces the game object, so read it afterwards.
+    const { game } = await import('../js/gstate.js');
+    assert.equal(game.gs.sell_response, 'a');
+    assert.equal(game.gs.sell_how, 0);
+    // unixmain.c:242 restore_saved_game() and files.c:1349 named the file.
+    assert.equal(game.gs.SAVEF, `save/${RECORDER_UID}Ilse`);
+});

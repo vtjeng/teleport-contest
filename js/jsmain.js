@@ -514,8 +514,10 @@ export class NethackGame {
             g._themeroomSelectionCollector
                 = this._themeroomSelectionCollector;
         }
-        // decl.c zero-initializes gs.SAVEF; js/files.js owns it.
-        g.gs = { SAVEF: '' };
+        // decl.c zero-initializes gs.SAVEF; js/files.js owns it. g.gs
+        // already holds shk.c's sell_response and sell_how, which
+        // shk_globals_init() set above, so the field is added to it.
+        (g.gs ??= {}).SAVEF = '';
         g.gp = {
             plnamelen: 0,
             // decl.c zero-initializes this message flag word. set_voice()
