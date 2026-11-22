@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6620417,
+      "datetime": "20280917113045",
+      "nethackrc": "OPTIONS=name:Ilse,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,!tips,force_invmenu\n",
+      "moves": "d9k : d2et*5f lss"
+    }
+  ],
+  "comment": "invent.c getobj() with force_invmenu, when a menu count is refused. After 'You don't have that many!' (2063-2067) or the throw-count refusal (2039-2047), getobj() loops; the forced-menu arm (1922-1925) keeps the letter the menu answered, and the next pass accepts it with no count. The Healer drops all 6 apples after a count of 9, drops 2 of 3 potions of healing with an accepted count, then picks '*' in the throw menu and a count of 5 for the 4 potions of extra healing, which throws one. Seed, datetime, character and inputs were chosen independently of every recorded session."
+}

@@ -1197,7 +1197,11 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
             // after the canned queue has been exhausted.
             ilet = String.fromCharCode(await readchar(state));
         } else if (state.iflags.force_invmenu) {
-            ilet = oneloop ? '' : (lets || altletsStr ? '?' : '*');
+            // C:1922-1925 -- "don't overwrite a possible quitchars": a pass
+            // after the first keeps the letter the menu answered, so a
+            // refusal that loops back (a count above the stack's quantity,
+            // or a throw count) then accepts that letter with no count.
+            if (!oneloop) ilet = lets || altletsStr ? '?' : '*';
             if (!msggiven) {
                 const { tty_putmsghistory } = await import('./topl.js');
                 tty_putmsghistory(qbuf, false, state);
