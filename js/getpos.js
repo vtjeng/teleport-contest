@@ -1344,20 +1344,21 @@ export async function getpos(ccp, force, goal, state = game) {
                     await flush_screen(0);
                     continue;
                 }
-                if (feature && !feature.matching) sidx.value = feature.sidx;
+                if (feature) sidx.value = feature.sidx;
+                // C ref: getpos.c:1117-1131. No terrain symbol matches the
+                // key: name it, with a note that depends on `force`.
+                await ttyPline(
+                    `Unknown direction: '${visctrl(String.fromCharCode(key))}' `
+                    + `(${force ? unknownDirectionNote(state) : 'aborted'}).`,
+                    state,
+                );
+                messageGiven = true;
             }
-            // C ref: getpos.c:1126-1141. Force mode prints a diagnostic for
-            // an unrecognized non-quitchar, then reaches nxtc and keeps
-            // targeting. Preserve the existing non-force exit flow below.
+            // C ref: getpos.c:1134-1141. A quitchar, which includes Escape
+            // when it follows the run or rush prefix, skips the diagnostic.
+            // Force mode reaches nxtc and keeps targeting; otherwise the
+            // prompt ends with "Done." and no position.
             if (force) {
-                if (!quitchars.includes(String.fromCharCode(key))) {
-                    await ttyPline(
-                        `Unknown direction: '${visctrl(String.fromCharCode(key))}' `
-                        + `(${unknownDirectionNote(state)}).`,
-                        state,
-                    );
-                    messageGiven = true;
-                }
                 state.gg.getposx = cx;
                 state.gg.getposy = cy;
                 await cliparound(cx, cy, state); // CLIPPING
@@ -1367,20 +1368,6 @@ export async function getpos(ccp, force, goal, state = game) {
                 await flush_screen(0);
                 continue;
             }
-            if (key === 0x20 || key === 0x0D || key === 0x0A) {
-                await ttyPline('Done.', state);
-                messageGiven = false;
-                cx = -1;
-                cy = 0;
-                result = LOOK_TRADITIONAL;
-                break;
-            }
-            await ttyPline(
-                `Unknown direction: '${visctrl(String.fromCharCode(key))}' `
-                + '(aborted).',
-                state,
-            );
-            messageGiven = true;
             await ttyPline('Done.', state);
             messageGiven = false;
             cx = -1;
