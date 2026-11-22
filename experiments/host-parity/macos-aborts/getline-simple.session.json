@@ -1,0 +1,25 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90417,
+      "datetime": "20190611142000",
+      "nethackrc": "OPTIONS=role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=symset:DECgraphics\n",
+      "moves": "Odile\rjSy"
+    },
+    {
+      "seed": 90423,
+      "datetime": "20190612142000",
+      "nethackrc": "OPTIONS=role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=symset:DECgraphics\n",
+      "moves": ">:dw\bArc\r",
+      "terminalInputKey": "\r",
+      "terminalSignal": "SIGABRT"
+    },
+    {
+      "seed": 90431,
+      "datetime": "20190613142000",
+      "nethackrc": "OPTIONS=role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=!autopickup,!legacy,!tutorial\nOPTIONS=symset:DECgraphics\n",
+      "moves": "a i"
+    }
+  ]
+}
