@@ -28,23 +28,16 @@ async function assertFullMatch(recordingPath) {
 }
 
 const KNOWN_FAILURES = [
-    {
-        // Gas-spore chain explosion kills a blinded, fire-resistant hero.
-        // Observed failing on 3e01a48b4 and ee49a85f0: RNG, cursors,
-        // animations and stream lengths match; the tombstone screen (step 75,
-        // row 10) names a different killer (explode.c killer attribution).
-        name: 'mixed-fire-blind-fatal: tombstone killer attribution',
-        recording: 'experiments/backlog-terminal-lava/recordings/mixed-fire-blind-fatal.session.json',
-    },
 ];
 
 for (const {name, recording} of KNOWN_FAILURES)
     test(name, {todo: true}, () => assertFullMatch(recording));
 
-// The list's length, pinned both ways: 1 on 9f7e42e6 (8 November 2026). A
-// listed case that starts to match still reports as a passing TODO rather
-// than failing, so only the length is pinned here.
-const KNOWN_FAILURE_COUNT = 1;
+// The list's length, pinned both ways: 0 since mixed-fire-blind-fatal, the
+// last case, matched on 362c0a1bd (22 November 2026) and joined
+// recordings/explode.c/. A listed case that starts to match still reports as
+// a passing TODO rather than failing, so only the length is pinned here.
+const KNOWN_FAILURE_COUNT = 0;
 
 test('KNOWN_FAILURES holds the pinned number of cases', () => {
     assertExceptionCount(KNOWN_FAILURES.length, KNOWN_FAILURE_COUNT, {

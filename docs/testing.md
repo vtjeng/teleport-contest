@@ -80,7 +80,6 @@ itself is wrong.
 
 | Case | Observed failing on | First difference | Cause |
 | --- | --- | --- | --- |
-| `experiments/backlog-terminal-lava/recordings/mixed-fire-blind-fatal.session.json` | `3e01a48b4`, `ee49a85f0` | Tombstone screen, step 75, row 10. RNG, cursors and lengths match. | Killer attribution in `explode.c` `explode()` |
 
 Update this table in the commit that fixes or adds a known failure.
 
