@@ -62,6 +62,7 @@ import {
     destroy_strings,
 } from '../js/zap_destroy_items.js';
 import { expectTerminated } from './expect-terminated.mjs';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 const ZAP_C = readFileSync(
     new URL('../nethack-c/upstream/src/zap.c', import.meta.url), 'utf8',
@@ -187,7 +188,7 @@ function clearTopline() {
     game._pending_message = '';
     game._ttyToplines = '';
     game._ttyPreviousMessage = '';
-    game._ttyMessageStopped = false;
+    setWinStop(game, false);
 }
 
 // A random injection that reads its answers off `script`, one entry per draw,

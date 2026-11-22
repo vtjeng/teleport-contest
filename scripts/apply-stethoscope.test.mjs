@@ -178,6 +178,7 @@ import {
     loadApplyStethoscopeRecipe,
 } from './run-apply-stethoscope.mjs';
 import { Blind } from '../js/youprop.js';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -1353,7 +1354,7 @@ function isolatedItsDeadState() {
     state._pending_message = '';
     state._ttyPreviousMessage = '';
     state._ttyToplines = '';
-    state._ttyMessageStopped = false;
+    setWinStop(state, false);
     state._emittingGlyphUpdateNotices = false;
     state.gt = {};
     state.svt = {};

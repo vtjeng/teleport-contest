@@ -14,6 +14,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { readFileSync } from 'node:fs';
+import { winStop } from './test-fixtures/win-stop.mjs';
 
 export function loadPickupDescribeDecorRecipes() {
     return validateCleanRecipe({
@@ -74,7 +75,7 @@ export async function verifyPickupDescribeDecorSegment(segment) {
     if (location?.typ !== DOOR || game.iflags.prev_decor !== DOOR) {
         throw new Error('production route did not remember the doorway terrain');
     }
-    if (game._ttyMessageStopped || game.nhDisplay.inputQueueLength !== 0) {
+    if (winStop(game) || game.nhDisplay.inputQueueLength !== 0) {
         throw new Error('doorway route left a message or input boundary');
     }
     if (game.context.run !== 0 || game.multi !== 0 || replay.getRngLog().length < 1) {
@@ -102,7 +103,7 @@ export async function verifyPickupDeferredDecorSegment(segment) {
     if (game.iflags.defer_decor !== false) {
         throw new Error('timeout route left deferred decoration pending');
     }
-    if (game._ttyMessageStopped || game.nhDisplay.inputQueueLength !== 0) {
+    if (winStop(game) || game.nhDisplay.inputQueueLength !== 0) {
         throw new Error('deferred route left a message or input boundary');
     }
     if (game.context.run !== 0 || game.multi !== 0 || replay.getRngLog().length < 1) {

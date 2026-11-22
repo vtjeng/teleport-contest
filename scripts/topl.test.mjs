@@ -46,6 +46,7 @@ import {
 } from '../js/tty_message.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { QUEST_PAGER_OUTPUT } from '../js/questpgr.js';
+import { winStop } from './test-fixtures/win-stop.mjs';
 
 const wrappedStartupRecording = normalizeSession(JSON.parse(readFileSync(
     new URL('../recordings/topl.c/wrapped-startup-topline.session.json', import.meta.url),
@@ -418,7 +419,7 @@ test('wrapped Escape more redraws lower rows from the current glyph buffer',
         assert.equal(display.cursorRow, 0);
         assert.equal(display.inmore, 0);
         assert.equal(display.toplin, 0);
-        assert.equal(state._ttyMessageStopped, true);
+        assert.equal(winStop(state), true);
     });
 
 test('docorner skips an unexplored buffer glyph even when map memory is known',

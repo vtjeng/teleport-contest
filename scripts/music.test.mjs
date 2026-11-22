@@ -27,6 +27,7 @@ import { setuwep } from '../js/wield.js';
 import { maketrap, set_utrap } from '../js/trap.js';
 import { teleds } from '../js/teleport.js';
 import { expectTerminated } from './expect-terminated.mjs';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 test('music.c do_improvisation matches the admitted self-directed frost-horn recording', async () => {
     const recording = JSON.parse(readFileSync(new URL(
@@ -860,7 +861,7 @@ test('five correct notes plus excess reveal the tune even when acoustics suppres
         state.u.uevent.uheard_tune = 0;
         Object.assign(state.level.at(state.u.ux + 1, state.u.uy), { typ: DRAWBRIDGE_UP });
         state._pending_message = state._ttyToplines = state._ttyPreviousMessage = '';
-        state._ttyMessageStopped = false;
+        setWinStop(state, false);
         for (const key of 'nABCDEZ\n') state.nhDisplay.pushKey(key.charCodeAt(0));
         const draws = scripted([['rn2', 19, 0]]); // Source wisdom exercise for trying.
         const messages = [];

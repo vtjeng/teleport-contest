@@ -13,6 +13,7 @@ import { ECMD_OK } from '../js/const.js';
 import { donamelevel, find_mapseen } from '../js/dungeon.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 // Start a game so the full game state is initialized.
 async function startedGame(seed, name) {
@@ -31,7 +32,7 @@ function clearTopline() {
     game._pending_message = '';
     game._ttyToplines = '';
     game._ttyPreviousMessage = '';
-    game._ttyMessageStopped = false;
+    setWinStop(game, false);
     if (game.nhDisplay) game.nhDisplay.toplin = 0;
 }
 

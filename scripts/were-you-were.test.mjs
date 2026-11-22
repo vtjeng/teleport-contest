@@ -12,6 +12,7 @@ import {
     UNCHANGING,
 } from '../js/const.js';
 import { verifySyntheticRanges } from './synthetic-range-evidence.mjs';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 const cSource = readFileSync(new URL('../nethack-c/upstream/src/were.c',
     import.meta.url), 'utf8');
@@ -34,7 +35,7 @@ async function initialized() {
     game._pending_message = '';
     game._ttyToplines = '';
     game._ttyPreviousMessage = '';
-    game._ttyMessageStopped = false;
+    setWinStop(game, false);
     const readKey = display.readKey;
     restoreReadKey = () => { display.readKey = readKey; };
     display.readKey = async () => ' '.charCodeAt(0);

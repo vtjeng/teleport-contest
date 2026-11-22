@@ -74,6 +74,7 @@ import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { getRngLog } from '../js/rng.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { RIDE_COMMAND, loadMountSteedRecipe } from './run-mount-steed.mjs';
+import { setWinStop, winStop } from './test-fixtures/win-stop.mjs';
 
 const C_STEED = readFileSync(new URL('../nethack-c/upstream/src/steed.c', import.meta.url), 'utf8');
 const JS_STEED = readFileSync(new URL('../js/steed.js', import.meta.url), 'utf8');
@@ -586,11 +587,11 @@ test('the death message goes out through urgent_pline, not pline', async () => {
         const pony = m_at(state.u.ux, state.u.uy + 1);
         state.u.uhp = 1;
         // The Escape-suppressed window win/tty/topl.c more():233 protects.
-        state._ttyMessageStopped = true;
+        setWinStop(state, true);
         return pony;
     });
     assert.match(error?.message ?? '', /Input queue empty/u);
-    assert.equal(game._ttyMessageStopped, false);
+    assert.equal(winStop(game), false);
     assert.match(topLine(), /^You die/u);
 });
 

@@ -94,6 +94,7 @@ import {
 } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { nomul } from '../js/hack.js';
+import { setWinStop, winStop } from './test-fixtures/win-stop.mjs';
 
 const DETECT_C = readFileSync(
     new URL('../nethack-c/upstream/src/detect.c', import.meta.url), 'utf8',
@@ -1507,7 +1508,7 @@ test('WIN_STOP suppresses trap input waiting but still redraws', async () => {
     const location = game.level.at(target.x, target.y);
     const trap = installUnseenAntiMagicTrap(target);
     installVisibleGasOverlay(target);
-    game._ttyMessageStopped = true;
+    setWinStop(game, true);
     // This rejection key must remain queued, proving that WIN_STOP skipped the
     // --More-- input boundary even though docrt() still restored the map.
     game.nhDisplay.pushKey('x'.charCodeAt(0));
@@ -1525,7 +1526,7 @@ test('WIN_STOP suppresses trap input waiting but still redraws', async () => {
         rememberedGlyphContract(trap_glyph_info(trap, game)),
     );
     assert.equal(game._pending_message, '');
-    assert.equal(game._ttyMessageStopped, true);
+    assert.equal(winStop(game), true);
     assert.equal(game.nhDisplay.inputQueueLength, 1);
     assert.equal(target.replay.getScreens().length, beforeWait);
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
@@ -1668,7 +1669,7 @@ test('explicit default search uses global trap naming, reveal, and queued acknow
     const trap = installUnseenAntiMagicTrap(target);
     game.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    game._ttyMessageStopped = false;
+    setWinStop(game, false);
     const captures = captureInputBoundaries();
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     const randomCalls = [];
@@ -1697,7 +1698,7 @@ test('dosearch caller uses the default role/rank trap-name RNG path', async () =
     game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     game.multi = 0;
     game.flags.safe_wait = false;
-    game._ttyMessageStopped = false;
+    setWinStop(game, false);
     const captures = captureInputBoundaries();
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     const randomCalls = [];

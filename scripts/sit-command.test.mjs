@@ -88,6 +88,7 @@ import {
 } from './run-sit-command.mjs';
 import { canspotmon } from '..//js/display.js';
 import { expectTerminated } from './expect-terminated.mjs';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 const C_SIT = readFileSync(
     new URL('../nethack-c/upstream/src/sit.c', import.meta.url), 'utf8',
@@ -965,7 +966,7 @@ test('object sitting uses the supplied state for both naming steps',
             state._pending_message = '';
             state._ttyPreviousMessage = '';
             state._ttyToplines = '';
-            state._ttyMessageStopped = false;
+            setWinStop(state, false);
 
             assert.equal(await dosit(state), ECMD_TIME);
             assert.equal(

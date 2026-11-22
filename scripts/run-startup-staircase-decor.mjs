@@ -10,6 +10,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { stairway_at } from '../js/stairs.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import { winStop } from './test-fixtures/win-stop.mjs';
 
 const VERBOSE_STAIRCASE_LINE =
     'There is a staircase up out of the dungeon here.';
@@ -94,7 +95,7 @@ export async function verifyStartupStaircaseDecorSegment(segment) {
         ? TERSE_STAIRCASE_LINE : VERBOSE_STAIRCASE_LINE;
     if (game._pending_message !== staircaseLine
         || game._ttyToplines !== staircaseLine
-        || game._ttyMessageStopped
+        || winStop(game)
         || game.nhDisplay.inputQueueLength !== 0) {
         throw new Error('startup did not stop at the staircase command boundary');
     }

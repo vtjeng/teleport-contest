@@ -231,6 +231,7 @@ import {
     loadWearRecipe,
     loadWearWishRecipe,
 } from './run-wear-armor.mjs';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 const { Armor_gone, Armor_on, Boots_on, Cloak_off, Cloak_on, Gloves_off, Gloves_on,
     Helmet_on, Ring_on, Boots_off, Shield_on, Shirt_on,
@@ -1161,7 +1162,7 @@ test('whole Helmet_on admission installs the source callback before its delay',
 
     // The focused test pins the state path. Suppress its two source messages
     // so this direct callback test does not need a terminal dismissal key.
-    game._ttyMessageStopped = true;
+    setWinStop(game, true);
     game.uarmh = armor(DUNCE_CAP, {
         dknown: 1, spe: 0, known: false, blessed: false, cursed: false,
     });
@@ -1170,7 +1171,7 @@ test('whole Helmet_on admission installs the source callback before its delay',
         'Helmet_on() called mkobj.c curse() before its status update');
     assert.equal(game.uarmh.known, true);
     game.uarmh = null;
-    game._ttyMessageStopped = false;
+    setWinStop(game, false);
 
     // Four ordinary helms carry an oc_delay of 1 and are the ones this
     // loop drives: each leaves Helmet_on() pending under nomul(-1) rather than

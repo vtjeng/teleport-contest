@@ -7,6 +7,7 @@ import { dowipe, wipeoff } from '../js/do.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { make_blinded } from '../js/potion.js';
+import { setWinStop } from './test-fixtures/win-stop.mjs';
 
 const WITNESS_PATH = new URL(
     '../sessions/seed0108-wizard-extcmd-wishlist.session.json',
@@ -27,7 +28,7 @@ function clearTopline() {
     game._pending_message = '';
     game._ttyToplines = '';
     game._ttyPreviousMessage = '';
-    game._ttyMessageStopped = false;
+    setWinStop(game, false);
 }
 
 test('#wipe clears three-turn cream blindness through its occupation',

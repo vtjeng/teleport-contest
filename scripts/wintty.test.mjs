@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
+import { parse, tokenizer } from 'acorn';
 
 import {
     COLNO,
@@ -587,4 +588,105 @@ test('state.wintty holds only window state, not ttyDisplay fields', () => {
     }
     assert.deepEqual(cursorCopies, []);
     assert.deepEqual(messageWindowCopies, []);
+});
+
+// wintty.h keeps the message window's stop state in cw->flags: WIN_STOP
+// (Escape at --More-- suppresses later messages until the next input),
+// WIN_NOSTOP (an urgent message's one-shot exemption) and WIN_CANCELLED
+// (the same bit as WIN_STOP, read by tty_display_nhwindow()). The port
+// keeps all three in wins[messageWindow].flags. Until 2026-11-21 WIN_STOP
+// lived in a separate game-state boolean beside the flags word, with
+// a pline argument carrying a second copy of WIN_NOSTOP into more().
+test('the message window stop bits live only in its flags word', () => {
+    const STOP_BITS = new Set(['WIN_STOP', 'WIN_NOSTOP', 'WIN_CANCELLED']);
+    // A separately named stop or cancel state: _tty...Stop..., a
+    // message...Stop... or an ...Escape...Stop... identifier.
+    const separateStop = /^(?:_tty\w*|\w*[Mm]essage\w*|\w*Escape\w*)(?:Stop|Cancel)/u;
+    const separate = [];
+    for (const dir of ['js', 'scripts']) {
+        for (const name of readdirSync(dir)) {
+            if (!/\.m?js$/u.test(name)) continue;
+            const source = readFileSync(`${dir}/${name}`, 'utf8');
+            for (const token of tokenizer(source, {
+                ecmaVersion: 'latest', sourceType: 'module', locations: true,
+                allowHashBang: true,
+            })) {
+                if (token.type.label === 'name' && separateStop.test(token.value))
+                    separate.push(`${dir}/${name}:${token.loc.start.line} ${token.value}`);
+            }
+        }
+    }
+    assert.deepEqual(separate, []);
+
+    // Every expression that names a stop bit in js/ must read or write a
+    // .flags member: the bit has no meaning outside the flags word. An
+    // expression is the outermost chain of operators, assignments and
+    // conditionals around the constant.
+    const OPERATORS = new Set([
+        'BinaryExpression', 'LogicalExpression', 'AssignmentExpression',
+        'UnaryExpression', 'ConditionalExpression', 'ChainExpression',
+    ]);
+    const hasFlagsMember = (node) => {
+        if (!node || typeof node.type !== 'string') return false;
+        if (node.type === 'MemberExpression' && !node.computed
+            && node.property.name === 'flags') return true;
+        return Object.values(node).some((child) => (Array.isArray(child)
+            ? child.some(hasFlagsMember) : hasFlagsMember(child)));
+    };
+    const outsideFlags = [];
+    let sites = 0;
+    const visit = (node, ancestors, where) => {
+        if (!node || typeof node.type !== 'string') return;
+        if (node.type === 'Identifier' && STOP_BITS.has(node.name)) {
+            const parent = ancestors.at(-1);
+            // An import or export specifier, or const.js's definition.
+            const declaration = ['ImportSpecifier', 'ExportSpecifier']
+                .includes(parent?.type)
+                || (parent?.type === 'VariableDeclarator' && parent.id === node);
+            if (!declaration) {
+                sites += 1;
+                let top = node;
+                for (let i = ancestors.length - 1;
+                    i >= 0 && OPERATORS.has(ancestors[i].type); --i)
+                    top = ancestors[i];
+                if (!hasFlagsMember(top))
+                    outsideFlags.push(`${where(node)} ${node.name}`);
+            }
+        }
+        ancestors.push(node);
+        for (const [key, child] of Object.entries(node)) {
+            if (key === 'loc') continue;
+            if (Array.isArray(child)) child.forEach((c) => visit(c, ancestors, where));
+            else if (child && typeof child.type === 'string') visit(child, ancestors, where);
+        }
+        ancestors.pop();
+    };
+    for (const name of readdirSync('js')) {
+        if (!name.endsWith('.js')) continue;
+        const ast = parse(readFileSync(`js/${name}`, 'utf8'), {
+            ecmaVersion: 'latest', sourceType: 'module', locations: true,
+        });
+        visit(ast, [], (node) => `js/${name}:${node.loc.start.line}`);
+    }
+    assert.deepEqual(outsideFlags, []);
+    // The C stop-bit sites in topl.c, getline.c and wintty.c that the port
+    // models, counted as constant references on 2026-11-21:
+    //   topl.c show_topl():150-153                         5 (topl.js)
+    //   topl.c more():233-234                              2 (tty_message.js)
+    //   topl.c update_topl()'s skip (257) and "You die"
+    //     clear (299), skip read in both its JS halves     3
+    //   topl.c tty_yn_function():390-393                   5
+    //   getline.c hooked_tty_getlin():53-55                2
+    //   wintty.c tty_display_nhwindow()'s WIN_CANCELLED
+    //     return (1865), where the port displays WIN_MESSAGE:
+    //     displayPendingTtyMessageWindow(), cls(), the
+    //     legacy text window and three tty_menu.js windows 6
+    //   wintty.c tty_putstr()'s urgent arm (2278-2282) and
+    //     one-shot clear (2300), which the port makes on
+    //     both of its write paths                          4
+    //   wintty.c tty_message_menu():2843                   1
+    //   wintty.c tty_nhgetch():4066                        1
+    // Pinned in both directions: a new reader or writer must be counted
+    // here, and a lost one means a C site stopped being modelled.
+    assert.equal(sites, 29);
 });

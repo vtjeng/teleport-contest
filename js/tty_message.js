@@ -19,7 +19,9 @@ import {
     PLNMSG_UNKNOWN,
     SUPPRESS_HISTORY,
     URGENT_MESSAGE,
+    WIN_CANCELLED,
     WIN_NOSTOP,
+    WIN_STOP,
 } from './const.js';
 import { docorner, flush_screen } from './display.js';
 import {
@@ -69,6 +71,17 @@ export const TOPLINE_NEED_MORE = 1;
 // state is not TOPLINE_EMPTY -- which is how getdir()'s clear_nhwindow() takes
 // an answered prompt off the top line.
 export const TOPLINE_NON_EMPTY = 2;
+
+// C's wins[WIN_MESSAGE], or null before tty_create_nhwindow(NHW_MESSAGE).
+// Its flags word holds the stop state wintty.h:75-80 defines: WIN_STOP
+// (Escape at --More-- suppresses later messages until tty_nhgetch() reads a
+// key), WIN_NOSTOP (an urgent message's one-shot exemption) and
+// WIN_CANCELLED, the same bit as WIN_STOP, which tty_display_nhwindow()
+// tests. The port keeps no other copy of these bits.
+export function messageWindow(state = game) {
+    const wt = state.wintty;
+    return wt?.wins?.[wt.messageWindow] ?? null;
+}
 
 // C ref: pline.c vpline()'s modest-overflow arm. The formatted byte string is
 // reduced to BUFSZ - 1 bytes once, before MSGTYPE lookup, TTY rendering, and
@@ -191,7 +204,7 @@ export function clearTtyMessageWindow(state = game) {
     if (display.toplin === TOPLINE_EMPTY) return;
     display.clearRow(0);
     display.setCursor(0, 0);
-    const cw = state.wintty?.wins?.[state.wintty.messageWindow];
+    const cw = messageWindow(state);
     if (cw?.cury) docorner(1, cw.cury + 1, 0, state);
     if (cw) cw.curx = cw.cury = 0;
     state._pending_message = '';
@@ -206,7 +219,6 @@ export function clearTtyMessageWindow(state = game) {
 export async function dismissPendingTtyMessage(
     state = game,
     {
-        preventEscapeStop = false,
         returnResponse = false,
         alwaysPrompt = false,
         promptAttr = ATR_NONE,
@@ -237,8 +249,9 @@ export async function dismissPendingTtyMessage(
     else
         writeMorePromptAtCursor(display, promptAttr);
 
-    // wintty.c tty_nhgetch() clears WIN_STOP before every key. more() restores
-    // it only when this prompt's final response is Escape without WIN_NOSTOP.
+    // wintty.c tty_nhgetch() clears WIN_STOP before every key. more() sets
+    // it again only when this prompt's final response is Escape without
+    // WIN_NOSTOP.
     const response = await xwaitforspace(state, QUITCHARS);
 
     if (multiline) {
@@ -253,14 +266,13 @@ export async function dismissPendingTtyMessage(
     }
     state._pending_message = '';
     // more() leaves gt.toplines intact for message history. Escape also
-    // sets WIN_STOP after tty_nhgetch() returns; subsequent plines update
-    // that logical buffer without drawing until the next key wait.
-    const messageWin = state.wintty?.wins?.[state.wintty.messageWindow];
-    if ((response === 0 || response === 27)
-        && !preventEscapeStop
-        && !(messageWin?.flags & WIN_NOSTOP)) {
-        // _ttyMessageStopped is the single JS owner of C's WIN_STOP bit.
-        state._ttyMessageStopped = true;
+    // sets WIN_STOP (topl.c:232-235) after tty_nhgetch() returns; subsequent
+    // plines update that logical buffer without drawing until the next key
+    // wait. C reaches more() only once WIN_MESSAGE exists; a port prompt
+    // before tty_create_nhwindow(NHW_MESSAGE) has no flags word to set.
+    if (response === 0 || response === 27) {
+        const cw = messageWindow(state);
+        if (cw && !(cw.flags & WIN_NOSTOP)) cw.flags |= WIN_STOP;
     }
     display.topMessage = state._ttyToplines;
     display.toplin = TOPLINE_EMPTY;
@@ -311,7 +323,8 @@ export async function tty_message_menu(
     // wintty.c 2840-2844: Escape at this --More-- cancels the prompt rather
     // than suppressing later messages, so C clears WIN_CANCELLED (the same
     // bit as WIN_STOP) and the caller's "Never mind." is still shown.
-    state._ttyMessageStopped = false;
+    const cw = messageWindow(state);
+    if (cw) cw.flags &= ~WIN_CANCELLED;
     display.dismiss_more = 0;
     const morc = display.morc;
     return (how === PICK_ONE && morc === selected) || morc === 27 ? morc : 0;
@@ -329,7 +342,7 @@ export async function displayPendingTtyMessageWindow(state) {
     // WIN_CANCELLED. wintty.h gives WIN_CANCELLED and WIN_STOP the same bit,
     // so after an Escape at --More-- the message window is neither waited on
     // nor marked empty until tty_nhgetch() clears WIN_STOP.
-    if (state._ttyMessageStopped) return;
+    if (messageWindow(state)?.flags & WIN_CANCELLED) return;
     // C tty_display_nhwindow() clears ttyDisplay->rawprint before selecting
     // the WIN_MESSAGE arm.  This is separate from nomuxRaw.active, which the
     // recorder keeps sticky for cursor capture.
@@ -351,7 +364,7 @@ export async function displayPendingTtyMessageWindow(state) {
     // before freeing it, and tty_exit_nhwindows() frees it outright, so no
     // later display raises the flag again. Without the window (C's
     // ttywindowpanic()) nothing changes.
-    const cw = state.wintty?.wins?.[state.wintty.messageWindow];
+    const cw = messageWindow(state);
     if (cw) {
         if (!cw.active) {
             state.iflags ??= {};
@@ -466,7 +479,13 @@ async function ttyPlineCore(
     delete state._pendingMessageLayout;
     const deathMessage = next.startsWith('You die');
     const columns = state.nhDisplay?.cols ?? 80;
-    let stoppedAtEntry = Boolean(state._ttyMessageStopped);
+    const messageWin = messageWindow(state);
+    // tty_putstr()'s urgent-arm test of WIN_STOP (wintty.c:2278), and,
+    // once that arm has run, update_topl()'s `skip` (topl.c:257). The two
+    // bits are never both set: more() sets WIN_STOP only without WIN_NOSTOP
+    // (topl.c:233-234), and the urgent arm clears WIN_STOP before it sets
+    // WIN_NOSTOP (wintty.c:2278-2282). So `skip` is WIN_STOP alone.
+    let stoppedAtEntry = Boolean(messageWin?.flags & WIN_STOP);
     // C ref: topl.c update_topl():262-279. Both the share-the-line arm and the
     // more() below it are gated on `ttyDisplay->toplin == TOPLINE_NEED_MORE`
     // (or WIN_STOP), not on the line merely being occupied. Every message the
@@ -493,10 +512,9 @@ async function ttyPlineCore(
     // before tty_putstr() invokes update_topl(): its clear_nhwindow(WIN_MESSAGE)
     // removes the stale physical line and clears WIN_STOP. Do the same at
     // this stage, then let the urgent line take the ordinary replacement path.
-    const messageWin = state.wintty?.wins?.[state.wintty.messageWindow];
     if (urgentMessage && stoppedAtEntry) {
         clearTtyMessageWindow(state);
-        state._ttyMessageStopped = false;
+        messageWin.flags &= ~WIN_STOP;
         stoppedAtEntry = false;
         current = '';
     }
@@ -550,7 +568,6 @@ async function ttyPlineCore(
     // redraw, and replacement transition. These callbacks are its terminal
     // primitives, not alternate branch implementations.
     await update_topl(next, state, {
-        urgentMessage,
         mixedFirstCell,
         stoppedAtEntry,
         deathMessage,
@@ -713,10 +730,11 @@ export async function ttyCustomPline(message, pflags, state = game) {
 // where it is what stops that Escape setting WIN_STOP for whatever comes
 // next.
 //
-// dismissPendingTtyMessage() models the second reader by receiving the urgent
-// call's prompt origin. It prevents Escape from setting the persistent stop
-// only for a prior-line or wrapped-line More inside tty_putstr(); vpline()'s
-// later explicit MSGTYP_STOP display receives no such exemption.
+// dismissPendingTtyMessage() models the second reader by testing WIN_NOSTOP
+// in the message window's flags. ttyPlineCore() sets that bit around
+// update_topl(), so it exempts only a prior-line or wrapped-line More inside
+// tty_putstr(); vpline()'s later explicit MSGTYP_STOP display runs after the
+// one-shot clear and receives no such exemption.
 //
 // With WIN_STOP set at entry, tty_clear_nhwindow(WIN_MESSAGE) wipes the top
 // line before the message is written, where an ordinary message would have
