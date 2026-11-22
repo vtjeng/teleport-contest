@@ -202,7 +202,8 @@ import { fall_asleep } from './timeout.js';
 import {
     b_trapped, deltrap, float_up, reset_utrap, selftouch, t_at,
 } from './trap.js';
-import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
+import { ttyPline } from './tty_message.js';
+import { tty_display_nhwindow_map_blocking } from './wintty.js';
 import { remove_worn_item } from './steal.js';
 import { costly_spot, sellobj_state } from './shk.js';
 import { explode } from './explode.js';
@@ -2669,9 +2670,12 @@ async function cpostfx(pm, state, env = {}) {
             state.afternmv = eatmdone;
             state.youmonst.m_ap_type = M_AP_OBJECT;
             state.youmonst.mappearance = hallucinating ? ORANGE : GOLD_PIECE;
+            // "make gold symbol show up now": display_nhwindow(WIN_MAP,
+            // TRUE) waits at --More-- whenever the top line holds text, even
+            // text that an earlier key already acknowledged.
             newsym(state.u.ux, state.u.uy);
             await curs_on_u(state);
-            await displayPendingTtyMessageWindow(state);
+            await tty_display_nhwindow_map_blocking(state);
         }
         break;
     case PM_QUANTUM_MECHANIC: {

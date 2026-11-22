@@ -23,6 +23,8 @@ import {
     DISINT_RES,
     DISMOUNT_FELL,
     DISMOUNT_GENERIC,
+    DISP_ALL,
+    DISP_END,
     DOOR,
     DO_MOVE,
     DOMOVE_RUSH,
@@ -208,8 +210,10 @@ import {
     map_object,
     newsym,
     back_to_glyph_steps,
+    tmp_at,
     unmap_invisible,
     unmap_object,
+    warning_to_glyph,
 } from './display.js';
 // cmd.c owns the command queue and js/cmd.js already imports this file, so
 // this pair of modules forms an import cycle. Only the hoisted function
@@ -2247,7 +2251,9 @@ async function moverock_core(sx, sy, state, env) {
         if (mtmp && !noncorporeal(mtmp.data)
             && (!mtmp.mtrapped || !(ttmp && is_pit(ttmp.ttyp)))) {
             let deliver_part1 = false;
-            // 459-460, the Blind arm, remains a source-backed map-memory gap.
+            // 459-460. moverock_core() returned at 356-361 unless the square
+            // already shows the boulder, so this re-maps what is displayed.
+            if (Blind(state.u)) feel_location(sx, sy, state);
             if (canspotmon(mtmp, state)) {
                 await message(
                     `There's ${a_monnam(mtmp, { state })} on the other side.`,
@@ -3011,6 +3017,22 @@ export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
                 }
             }
 
+            // 1430-1445, wizard mode's travel_debug option: show this
+            // radius's squares as warning glyphs. Erasing them redraws each
+            // square with newsym(), which draws from the display random
+            // stream for a hallucinating hero.
+            if (state.iflags?.trav_debug) {
+                await tmp_at(DISP_ALL, warning_to_glyph(1, state), state);
+                for (let i = 0; i < nn; ++i)
+                    await tmp_at(nextX[i], nextY[i], state);
+                await nh_delay_output(state);
+                if (state.flags.runmode === RUN_CRAWL) {
+                    await nh_delay_output(state);
+                    await nh_delay_output(state);
+                }
+                await tmp_at(DISP_END, 0, state);
+            }
+
             n = nn;
             set = 1 - set;
             radius += 1;
@@ -3090,6 +3112,19 @@ export async function findtravelpath(mode = TRAVP_TRAVEL, state = game) {
             return false;
         }
 
+        // 1491-1504, travel_debug again: show the guessed target.
+        if (state.iflags?.trav_debug) {
+            await tmp_at(DISP_ALL, warning_to_glyph(2, state), state);
+            await tmp_at(px, py, state);
+            await nh_delay_output(state);
+            if (state.flags.runmode === RUN_CRAWL) {
+                await nh_delay_output(state);
+                await nh_delay_output(state);
+                await nh_delay_output(state);
+                await nh_delay_output(state);
+            }
+            await tmp_at(DISP_END, 0, state);
+        }
         tx = px;
         ty = py;
         ux = state.u.ux;

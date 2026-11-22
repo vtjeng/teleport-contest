@@ -1100,17 +1100,12 @@ async function moveloop_core_body() {
     find_ac(g);
     const hallucinating = Hallucination(g.u);
     const blind = Blind(g.u);
-    // Keep the existing non-hallucinatory vision/region ordering. Hallucination
-    // below follows C's sensing layers before spending pending vision work.
-    // C ref: allmain.c moveloop_core() (454-472). Both recalculations sit
-    // inside `if (!svc.context.mv || Blind)`, so a running hero who can see
-    // keeps stale vision until the recalculation after domove(). lookaround()
-    // reads that stale seenv: on the Plane of Water, movebubbles() resets the
-    // bubbles' old cells to unseen water, so a rush can plunge into them.
-    if (!hallucinating && (!g.context?.mv || blind) && g.vision_full_recalc) {
-        await vision_recalc_async(0);
-        g.vision_full_recalc = 0;
-    }
+    // C ref: allmain.c moveloop_core() (454-472). The sensing layers and the
+    // recalculation after them sit inside `if (!svc.context.mv || Blind)`,
+    // so a running hero who can see keeps stale vision until the
+    // recalculation after domove(). lookaround() reads that stale seenv: on
+    // the Plane of Water, movebubbles() resets the bubbles' old cells to
+    // unseen water, so a rush can plunge into them.
     // Close the elapsed turn's display work before status calculation and
     // flushing can expose the completed frame.
     await emitGlyphUpdateNotices(g, { pline: ttyPline });
@@ -1135,13 +1130,17 @@ async function moveloop_core_body() {
             // overlay; objects and traps retain their ordinary memory.
             await see_monsters(g);
         }
-        // C ref: allmain.c:470-471. Recalculate after the sensing layers;
-        // a blind hero's tactile repaint can itself consume display RNG.
-        if (hallucinating && g.vision_full_recalc) {
+        // C ref: allmain.c:470-471. Recalculate after the sensing layers,
+        // hallucinating or not: see_monsters() draws with the vision the
+        // elapsed turn left, and a blind hero's tactile repaint can itself
+        // consume display RNG.
+        if (g.vision_full_recalc) {
             await vision_recalc_async(0);
             g.vision_full_recalc = 0;
         }
     }
+    // C printed each notice as show_glyph() drew; the port queues them.
+    await emitGlyphUpdateNotices(g, { pline: ttyPline });
     // C ref: allmain.c moveloop_core() (473-478). The status line repaints
     // only when a writer marked it dirty, and a turn on which only the counter
     // moved refreshes that one field. curs_on_u() is display.c's
