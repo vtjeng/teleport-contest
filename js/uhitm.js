@@ -8183,11 +8183,14 @@ export async function passive(
                     )) {
                         // Reflection owns its message and identification.
                     } else if (Hallucination(state.u) && random.rn2(4)) {
+                        // C uhitm.c:6034-6036 calls Monnam() before the
+                        // rn2() draws.
+                        const subject = Monnam(mon, state, effectEnv);
                         const intensity = !random.rn2(2) ? '' : 'rather ';
                         const adjective = !random.rn2(2)
                             ? 'numb' : 'stupefied';
                         await effectEnv.message(
-                            `${Monnam(mon, state, effectEnv)} looks ${intensity}${adjective}.`,
+                            `${subject} looks ${intensity}${adjective}.`,
                             state,
                             effectEnv,
                         );

@@ -6124,14 +6124,12 @@ async function shopper_financial_report(state) {
             const eshk = mtmp.mextra?.eshk;
             if (!eshk) continue;
             if (eshk.credit) {
-                // You()'s arguments draw in the order written: currency()
-                // before shkname().
-                const unit = currency(eshk.credit, state);
-                const name = s_suffix(shkname(mtmp, state));
                 const shop = SHTYPES[eshk.shoptype - SHOPBASE]?.name ?? 'shop';
+                // C shk.c:1024-1026 calls currency() before shkname(); both
+                // draw from the core RNG while the hero hallucinates.
                 await ttyPline(
-                    `You have ${eshk.credit} ${unit} `
-                    + `credit at ${name} ${shop}.`,
+                    `You have ${eshk.credit} ${currency(eshk.credit, state)} `
+                    + `credit at ${s_suffix(shkname(mtmp, state))} ${shop}.`,
                     state,
                 );
             } else if (mtmp === current)
