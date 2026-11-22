@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { COLNO, LAST_PROP, PICK_ANY, PICK_ONE, PICK_NONE, ROOM, ROWNO } from '../js/const.js';
+import {
+    COLNO, LAST_PROP, NHW_MESSAGE, PICK_ANY, PICK_ONE, PICK_NONE, ROOM, ROWNO,
+} from '../js/const.js';
 import { flush_screen, status_window_rows } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -37,7 +39,7 @@ import {
     ttyMenuTextLayout,
     ttyTextWindowData,
 } from '../js/tty_menu.js';
-import { tty_init_nhwindows } from '../js/wintty.js';
+import { tty_create_nhwindow, tty_init_nhwindows } from '../js/wintty.js';
 import { tty_raw_print } from '../js/tty_rawprint.js';
 import {
     init_vision_globals,
@@ -60,7 +62,10 @@ function menuState(keys = '') {
     // js/jsmain.js installs it over resetGame()'s zeroed iflags.
     game.iflags = parseNethackrc('').iflags;
     tty_init_nhwindows(null, null, game);
-    // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
+    // The windows are up: allmain.c init_sound_disp_gamewindows() has
+    // created WIN_MESSAGE and displayed it (wintty.c:1883), so pline() and
+    // getlin reach it.
+    tty_create_nhwindow(NHW_MESSAGE, game);
     game.iflags.window_inited = true;
     return game;
 }

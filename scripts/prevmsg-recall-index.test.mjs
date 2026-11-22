@@ -33,7 +33,7 @@ function pairs(source, clear, rewind) {
 
 const C_CLEAR = /^tty_clear_nhwindow\(WIN_MESSAGE\);$/u;
 const C_REWIND = /^cw->maxcol = cw->maxrow;$/u;
-const JS_CLEAR = /^(?:await )?clearMessageWindow\(state\);$/u;
+const JS_CLEAR = /^(?:await )?(?:clearMessageWindow|tty_clear_message_window)\(state\);$/u;
 const JS_REWIND = /^recallFromNewest\(state\);$/u;
 
 const count = (source, pattern) => (source.match(pattern) ?? []).length;
@@ -60,7 +60,7 @@ test('hooked_tty_getlin() rewinds the recall index at each C site', () => {
     assert.equal(pairs(js, JS_CLEAR, JS_REWIND), 1);
     const body = js.slice(js.indexOf('function redrawPrompt('));
     assert.match(body.slice(0, body.indexOf('\n}\n')),
-        /clearMessageWindow\(state\);\s*recallFromNewest\(state\);/u);
+        /tty_clear_message_window\(state\);\s*recallFromNewest\(state\);/u);
     assert.equal(count(js, /(?<!function )\bredrawPrompt\(/gu),
         pairs(c, C_CLEAR, C_REWIND));
 });

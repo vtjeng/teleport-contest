@@ -87,14 +87,19 @@ function mapWindowLive(state) {
 // top left of a blanked shadow screen. Only the shadow is blanked: wintty.c
 // and display.c still hold every cell as last printed, so while the map
 // window is live the blank cells go to the screen overlay until C prints
-// over them (js/display.js recordRawShadowCells()).
+// over them (js/display.js recordRawShadowCells()). nomux_clear_screen()
+// touches nomux_buf[] alone, so ttyDisplay->curx and cury, which this port
+// keeps as the display's cursor, stay where the window port left them; a
+// later topl_putsym() writes there without a tty_curs() first.
 function nomux_enter_raw_mode(state) {
     const display = state.nhDisplay;
     const raw = display.nomuxRaw;
     raw.active = true;
     raw.row = 0;
     raw.col = 0;
+    const { cursorCol, cursorRow } = display;
     display.clearScreen();
+    display.setCursor(cursorCol, cursorRow);
     if (!mapWindowLive(state)) return;
     const blanks = [];
     for (let row = 1; row < display.rows; ++row)
