@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "comment": "cmd.c doterrain() 1153-1164 preselects 'known map without monsters, objects, and traps' and shows the known map for n == 0 as well as for the preselected row. A Valkyrie in normal play dismisses the welcome line's --More-- with a space and opens #terrain. Segment 1 presses 'a', the preselected row's own selector, which toggles it off and ends the PICK_ONE menu (n == 0). Segment 2 searches with ':' for 'and traps', which only the preselected row matches, with the same result. Segment 3 types '2a': wintty.c toggle_menu_curr() gives a selected row a pending count instead of toggling it off, so n == 1. Each then leaves the terrain view. Seeds, clocks, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 4471903,
+      "datetime": "20510708151500",
+      "nethackrc": "OPTIONS=name:Ilsabet,role:Valkyrie,race:dwarf,gender:female,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " #terrain\na\u001b"
+    },
+    {
+      "seed": 4471904,
+      "datetime": "20510709083000",
+      "nethackrc": "OPTIONS=name:Ilsabet,role:Valkyrie,race:dwarf,gender:female,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " #terrain\n:and traps\n\u001b"
+    },
+    {
+      "seed": 4471905,
+      "datetime": "20510710114500",
+      "nethackrc": "OPTIONS=name:Ilsabet,role:Valkyrie,race:dwarf,gender:female,align:lawful,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": " #terrain\n2a\u001b"
+    }
+  ]
+}

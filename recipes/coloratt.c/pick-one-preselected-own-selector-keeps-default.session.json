@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "wintty.c process_menu_window() ends a PICK_ONE menu as soon as a selector, a search match or a group accelerator toggles a row, and toggle_menu_curr() toggles a preselected row off unless a count is pending, so tty_select_menu() returns 0. coloratt.c query_color() and query_attr() answer their default for pick_cnt == 0, and options.c handle_add_list_remove() answers 'exit' (opt_idx 3). A space dismisses the welcome line's --More--, 'O' opens the options menu, ':' searches for 'menu colors', 'a' adds the pattern. Segment 1 presses each preselected row's own selector: 'p' (no color), 'a' (none), then 'x' (exit this menu). Segment 2 reaches the same rows another way: ':' searches the colour menu for 'no col', whose only match is the preselected row (n == 0); '3a' gives the preselected 'none' row a count, which keeps it selected (n == 1); '-' clears the exit row and 'x' selects it again (n == 1). The 'Do what?' menu that follows offers its list and remove rows, so the colouring was added; ESC then leaves the options menu. Seeds, clocks, character and inputs were chosen independently of every recorded session.",
+  "segments": [
+    {
+      "seed": 55120931,
+      "datetime": "20470611204500",
+      "nethackrc": "OPTIONS=name:Tintless,role:Archeologist,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " O:menu colors\nasabre\npax\u001b"
+    },
+    {
+      "seed": 55120932,
+      "datetime": "20470612071000",
+      "nethackrc": "OPTIONS=name:Tintless,role:Archeologist,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " O:menu colors\nasabre\n:no col\n3a-x\u001b"
+    }
+  ]
+}
