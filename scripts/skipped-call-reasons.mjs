@@ -64,6 +64,11 @@ export const SKIPPED_CALL_REASONS = new Map([
     // js/end.js done() and js/cmd.js yn_function().
     ['files.c paniclog', { count: 2, reason: 'C appends to a host log file that a game cannot '
         + 'see, and discards the result' }],
+    // js/files.js plname_from_file(), for the save file a restore in progress
+    // has made unreadable (unixmain.c:246).
+    ['files.c docompress_file', { count: 1, reason: 'C forks the host\'s compressor on a file '
+        + 'it cannot read; the child fails in the forked game process and the parent shows a '
+        + '--More--, which depends on the process\'s uid and on what the child writes' }],
 ]);
 
 const isMarker = (node) => node.type === 'CallExpression'
