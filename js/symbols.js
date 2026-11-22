@@ -17,7 +17,6 @@ import {
     SYM_BOULDER,
 } from './const.js';
 import { game } from './gstate.js';
-import { check_gold_symbol } from './display.js';
 import { reset_glyphmap } from './display_glyphmap.js';
 import { g_putch_graphics, nomux_g_putch_byte } from './termcap.js';
 import { isDefaultSymsetName } from './files.js';
@@ -752,9 +751,10 @@ export function replay_symbol_operations(options, state = game) {
             // parsesymbols() succeeds.
             if (operation.switchSymbols !== false) switch_symbols(state, true);
             // options.c parseoptions() (663-666): an S_ assignment in an
-            // OPTIONS line also runs check_gold_symbol(), against the
-            // symbols the lines before it have left displayed.
-            if (operation.checkGoldSymbol) check_gold_symbol(state);
+            // OPTIONS line also runs botl.c check_gold_symbol(), against
+            // the symbols the lines before it have left displayed.
+            if (operation.switchSymbols !== false)
+                operation.afterSwitch?.(state);
             break;
         case 'glyph-customization': {
             const set = operation.set === 'rogue' ? ROGUESET : PRIMARYSET;
