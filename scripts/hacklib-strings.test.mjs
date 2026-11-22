@@ -12,6 +12,7 @@ import {
     chrcasecpy,
     digit,
     eos,
+    findword,
     highc,
     ing_suffix,
     islower,
@@ -445,4 +446,30 @@ test('str_start_is() answers for the shorter of the two strings', () => {
     assert.equal(str_start_is('FONT_map', 'font', true), true);
     assert.equal(str_start_is('FONT_map', 'font', false), false);
     assert.equal(str_start_is('COND_hp', 'cond_', true), true);
+});
+
+test('findword() matches whole space-separated words only', () => {
+    // The recorder's sysconf GENERICUSERS list, role.c plnamesuffix()'s
+    // argument; each offset is the word's position in it.
+    const list = 'play player game games nethack nethacker ec2-user';
+    // hacklib.c:614-617: the first `wordlen` characters must equal a word
+    // that ends at a space or at the end of the list.
+    assert.equal(findword(list, 'play', 4, false), 0);
+    // "play" is a prefix of "player"; the scan goes on to the next word.
+    assert.equal(findword(list, 'player', 6, false), 5);
+    assert.equal(findword(list, 'games', 5, false), 17);
+    // The last word ends at the list's NUL.
+    assert.equal(findword(list, 'ec2-user', 8, false), 41);
+    // `wordlen` cuts a "-role" suffix off the word: only "game" is compared.
+    assert.equal(findword(list, 'game-Val', 4, false), 12);
+    // A prefix of a word is not a word: p[wordlen] is neither ' ' nor NUL.
+    assert.equal(findword(list, 'gam', 3, false), -1);
+    assert.equal(findword(list, 'nethackers', 10, false), -1);
+    // An empty word matches nothing, since no word has length 0.
+    assert.equal(findword(list, '', 0, false), -1);
+    // ignorecase FALSE is strncmp(); TRUE is strncmpi().
+    assert.equal(findword(list, 'Games', 5, false), -1);
+    assert.equal(findword(list, 'Games', 5, true), 17);
+    // Leading and repeated spaces are skipped (609-611).
+    assert.equal(findword('  a  bc', 'bc', 2, false), 5);
 });

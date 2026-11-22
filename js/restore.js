@@ -335,6 +335,12 @@ export async function dorestore(state = game) {
 
     const snapshot = parseSnapshot(raw);
 
+    // C ref: dorecover():797 get_plname_from_file(nhfp, svp.plname, TRUE).
+    // The saved name replaces the one that named the file before
+    // restgamestate()'s role_init() tests it against GENERICUSERS; whatever
+    // that asks for, dorecover():893 reads the saved name again.
+    state.plname = snapshot.plname;
+
     // Apply saved fields to the game object. Fields set here overwrite the
     // values newgame_pre_mklev() would have set; fields the snapshot omits
     // keep whatever the pre-restore initialization left.
@@ -373,7 +379,7 @@ export async function dorestore(state = game) {
     // a leader or nemesis without a fixed gender draws rn2(100) again here
     // (role.c 2036-2060). Sfi_q_score() below then replaces the quest status
     // this call initializes with the saved one.
-    role_init(state);
+    await role_init(state);
     state.u = snapshot.u;
     state.context = snapshot.context;
     state.plname = snapshot.plname;

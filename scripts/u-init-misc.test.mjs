@@ -407,7 +407,7 @@ async function freshBootstrap(seed, role, race, gender, alignment) {
         pantheon: -1,
     };
     game.u = { uroleplay: {} };
-    role_init(game);
+    await role_init(game);
     init_dungeons(game);
     await u_init_misc(game);
     assert.equal(game.moves, 0);

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 60259,
+      "datetime": "20231104201500",
+      "nethackrc": "OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "play\rnsmygames-Pri-Fem\r\u0018\u001bi\u001b"
+    }
+  ],
+  "comment": "role.c plnamesuffix() from role_init() (1988) after genl_player_setup(): no role in the rc, so the typed generic name \"play\" is kept through the role menu (Samurai, which fixes human and lawful), the gender menu and the confirmation. newgame()'s role_init() then asks again; \"games-Pri-Fem\" is kept as \"games\", and its suffix replaces the confirmed role and gender (1703-1715) before role_init() validates them."
+}

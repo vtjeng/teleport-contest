@@ -1,26 +1,14 @@
 // tty_startup.js — TTY banner and player-name prompt used during startup.
-// C refs: win/tty/wintty.c tty_init_nhwindows(), tty_askname();
-// sys/unix/sysconf GENERICUSERS.
+// C refs: win/tty/wintty.c tty_init_nhwindows(), tty_askname().
 
 import { PL_NSIZ } from './const.js';
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
-import { plnamesuffix } from './role_init.js';
 import { NO_COLOR } from './terminal.js';
 import { copyright_banner_line } from './version.js';
 import { baseWindow } from './wintty.js';
 
 const WHO_ARE_YOU = 'Who are you? ';
-const GENERIC_USERS = new Set([
-    'play',
-    'player',
-    'game',
-    'games',
-    'nethack',
-    'nethacker',
-    'ec2-user',
-]);
-
 export function renderTtyStartupBanner(state = game) {
     // C ref: tty_init_nhwindows() calls gettty() and setftty(), and
     // sys/share/unixtty.c setftty():258 raises iflags.cbreak there.  Every
@@ -48,14 +36,6 @@ export function renderTtyStartupBanner(state = game) {
     const base = baseWindow(state);
     base.curx = 0;
     base.cury = 11;
-}
-
-export function isGenericPlayerName(name, plnamelen = 0) {
-    const text = String(name ?? '');
-    const suffix = text.indexOf('-', plnamelen);
-    const candidate = text.slice(0, suffix < 0 ? text.length : suffix);
-    // hacklib.c findword(..., FALSE) is case-sensitive here.
-    return GENERIC_USERS.has(candidate);
 }
 
 function ttyNameCharacter(code, length) {
@@ -154,34 +134,7 @@ export async function ttyAsknameImpl(state = game) {
     }
 }
 
-export async function ensureTtyPlayerName(state = game) {
-    const plnamelen = state.gp?.plnamelen ?? 0;
-    if (isGenericPlayerName(state.plname, plnamelen)) {
-        state.plname = '';
-        if (state.gp) state.gp.plnamelen = 0;
-    }
-    if (!state.plname) {
-        const { tty_askname } = await import('./wintty.js');
-        await tty_askname(state);
-        if (state.program_state?.gameover) return null;
-        if (state.gp) state.gp.plnamelen = 0;
-    }
-    return state.plname;
-}
-
 // Compatibility re-export for callers that used the pre-port camel-case
 // name. The implementation and source-shaped entry point remain single-owned
 // by wintty.js.
 export { tty_askname as ttyAskname } from './wintty.js';
-
-// C ref: role.c plnamesuffix(). A name can consist only of suffix tokens
-// (for example, "-Wizard"); stripping those leaves an empty base and C loops
-// straight back through askname while retaining the parsed selections.
-export async function ttyPlayerNameAndSuffix(state = game) {
-    do {
-        await ensureTtyPlayerName(state);
-        if (state.program_state?.gameover) return null;
-        plnamesuffix(state);
-    } while (!state.plname);
-    return state.plname;
-}

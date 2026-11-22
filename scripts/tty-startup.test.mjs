@@ -4,12 +4,10 @@ import test from 'node:test';
 
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
+import { plnamesuffix } from '../js/role_init.js';
 import {
-    ensureTtyPlayerName,
-    isGenericPlayerName,
     renderTtyStartupBanner,
     ttyAskname,
-    ttyPlayerNameAndSuffix,
 } from '../js/tty_startup.js';
 import { RECORDER_BUILD_DATE } from '../js/mdlib.js';
 import { tty_init_nhwindows } from '../js/wintty.js';
@@ -138,36 +136,88 @@ test('tty_askname retries empty and escaped attempts on the source rows', async 
     assert.match(screens[5], /Enter a name for your character\.\.\.\nWho are you\?$/u);
 });
 
-test('generic sysconf usernames prompt while ordinary names remain intact', async () => {
-    assert.equal(isGenericPlayerName('player-Tourist'), true);
-    // gp.plnamelen hides dashes which belong to an exact Unix username.
-    assert.equal(isGenericPlayerName('ec2-user', 'ec2-user'.length), true);
-    assert.equal(isGenericPlayerName('Player'), false);
-    assert.equal(isGenericPlayerName('PlayerOne'), false);
+// The recorder's sysconf GENERICUSERS line, which js/jsmain.js
+// set_playmode() stores in sysopt.genericusers.
+const GENERICUSERS = 'play player game games nethack nethacker ec2-user';
 
+function unsetRoleFlags() {
+    return { initrole: -1, initrace: -1, initgend: -1, initalign: -1 };
+}
+
+test('plnamesuffix() asks in place of a generic name and keeps an ordinary one', async () => {
+    // role.c:1676-1684: the name up to its first '-' past gp.plnamelen is
+    // looked up in the list, so "games-Healer" is generic and its suffix is
+    // dropped with it.
     const state = startupState('Alice\n');
     state.plname = 'games-Healer';
+    state.flags = unsetRoleFlags();
     state.gp = { plnamelen: 0 };
+    state.sysopt = { genericusers: GENERICUSERS };
     tty_init_nhwindows(null, null, state);
-    await ensureTtyPlayerName(state);
-
+    await plnamesuffix(state);
     assert.equal(state.plname, 'Alice');
     assert.equal(state.gp.plnamelen, 0);
+    assert.equal(state.flags.initrole, -1);
+
+    // findword(..., FALSE) is case-sensitive, and a longer name is not a
+    // list word: no key is queued, so asking would fail the test.
+    for (const name of ['Player', 'PlayerOne']) {
+        const ordinary = startupState('');
+        ordinary.plname = name;
+        ordinary.flags = unsetRoleFlags();
+        ordinary.gp = { plnamelen: 0 };
+        ordinary.sysopt = { genericusers: GENERICUSERS };
+        tty_init_nhwindows(null, null, ordinary);
+        await plnamesuffix(ordinary);
+        assert.equal(ordinary.plname, name);
+    }
+
+    // gp.plnamelen hides the dash of an exact Unix username (unixmain.c:195),
+    // so the whole of "ec2-user" is looked up and found.
+    const exact = startupState('Bob\n');
+    exact.plname = 'ec2-user';
+    exact.flags = unsetRoleFlags();
+    exact.gp = { plnamelen: 'ec2-user'.length };
+    exact.sysopt = { genericusers: GENERICUSERS };
+    tty_init_nhwindows(null, null, exact);
+    await plnamesuffix(exact);
+    assert.equal(exact.plname, 'Bob');
+});
+
+test('plnamesuffix() tests the list once, so a generic answer is kept', async () => {
+    // role.c:1671-1687 runs before the do loop (1689-1717): the name
+    // askname() returns is not looked up again by the same call.
+    const state = startupState('games-Hea\n');
+    state.plname = 'player';
+    state.flags = unsetRoleFlags();
+    state.gp = { plnamelen: 0 };
+    state.sysopt = { genericusers: GENERICUSERS };
+    tty_init_nhwindows(null, null, state);
+    await plnamesuffix(state);
+    assert.equal(state.plname, 'games');
+    // Healer is index 3 in the pinned role table.
+    assert.equal(state.flags.initrole, 3);
+
+    // The next call, which is role_init()'s, asks again.
+    for (const ch of 'Carol\n') state.nhDisplay.pushKey(ch.charCodeAt(0));
+    await plnamesuffix(state);
+    assert.equal(state.plname, 'Carol');
+
+    // GENERICUSERS=* makes every name generic (1672-1673).
+    for (const ch of 'Dave\n') state.nhDisplay.pushKey(ch.charCodeAt(0));
+    state.sysopt.genericusers = '*';
+    await plnamesuffix(state);
+    assert.equal(state.plname, 'Dave');
 });
 
 test('suffix-only and NUL-cancelled names return to tty_askname', async () => {
     const state = startupState('-Wizard\n\0Alice\n');
     state.plname = '';
-    state.flags = {
-        initrole: -1,
-        initrace: -1,
-        initgend: -1,
-        initalign: -1,
-    };
+    state.flags = unsetRoleFlags();
     state.gp = { plnamelen: 0 };
     tty_init_nhwindows(null, null, state);
 
-    await ttyPlayerNameAndSuffix(state);
+    await plnamesuffix(state);
 
     assert.equal(state.plname, 'Alice');
     // Wizard is index 12 in the pinned role table. The suffix selection is

@@ -168,7 +168,7 @@ test('source string matching and compatibility constraints are preserved', () =>
     );
 });
 
-test('explicit arbitrary configurations produce source welcome identities', () => {
+test('explicit arbitrary configurations produce source welcome identities', async () => {
     const cases = [
         // Exercises a role greeting and a role with no gender-specific name.
         ['Tourist', 'human', 'female', 'neutral', 'Tess',
@@ -186,7 +186,7 @@ test('explicit arbitrary configurations produce source welcome identities', () =
 
     for (const [role, race, gender, alignment, name, expected] of cases) {
         const state = explicitState(role, race, gender, alignment, name);
-        role_init(state, (bound) => {
+        await role_init(state, (bound) => {
             assert.fail(`explicit ${role} unexpectedly called random(${bound})`);
         });
         assert.equal(welcomeMessage(state), expected);
@@ -204,12 +204,12 @@ test('explicit arbitrary configurations produce source welcome identities', () =
     }
 });
 
-test('name suffix configuration follows role.c token precedence', () => {
+test('name suffix configuration follows role.c token precedence', async () => {
     const state = explicitState(
         ROLE_NONE, ROLE_NONE, ROLE_NONE, ROLE_NONE,
         'Alice-Ran-Elf-Fem-Cha',
     );
-    role_init(state, (bound) => {
+    await role_init(state, (bound) => {
         assert.fail(`complete suffix unexpectedly called random(${bound})`);
     });
 
@@ -265,13 +265,13 @@ test('constrained random role selection excludes incompatible roles', () => {
     random.done();
 });
 
-test('role_init preserves randrace factor-of-100 and quest gender calls', () => {
+test('role_init preserves randrace factor-of-100 and quest gender calls', async () => {
     const state = explicitState('Archeologist', ROLE_NONE, 'male', ROLE_NONE);
     // 201/100 selects the third permitted race (gnome); its sole compatible
     // alignment consumes rn2(1). The genderless nemesis then consumes
     // rn2(100), where 49 selects female.
     const random = scriptedRandom([201, 0, 49]);
-    role_init(state, random);
+    await role_init(state, random);
 
     assert.deepEqual(random.bounds, [300, 1, 100]);
     assert.equal(state.flags.initrace, 3);
@@ -280,7 +280,7 @@ test('role_init preserves randrace factor-of-100 and quest gender calls', () => 
     random.done();
 });
 
-test('priest pantheon retries preserve PRNG order and deity state', () => {
+test('priest pantheon retries preserve PRNG order and deity state', async () => {
     const state = explicitState('Priest', 'human', 'female', 'lawful');
     assert.equal(restrictedSpellDiscipline(SPE_LIGHT, {
         ...state,
@@ -289,7 +289,7 @@ test('priest pantheon retries preserve PRNG order and deity state', () => {
     // The first draw selects Priest again (which has no gods); the retry
     // selects Samurai, whose lawful deity is a goddess.
     const random = scriptedRandom([6, 9]);
-    role_init(state, random);
+    await role_init(state, random);
 
     assert.deepEqual(random.bounds, [13, 13]);
     assert.equal(state.flags.pantheon, 9);
@@ -307,14 +307,14 @@ test('priest pantheon retries preserve PRNG order and deity state', () => {
     random.done();
 });
 
-test('quest monster overrides apply when catalog entries are available', () => {
+test('quest monster overrides apply when catalog entries are available', async () => {
     const state = explicitState('Ranger', 'orc', 'male', 'chaotic');
     // Ranger uses leader 351, guardian 376, and nemesis 364. Initial peaceful
     // and close bits on the nemesis prove role_init clears both.
     state.mons[351] = { mflags2: 0, mflags3: 0 };
     state.mons[376] = { mflags2: 0, mflags3: 0 };
     state.mons[364] = { mflags2: 0x00200000, mflags3: 0x0080 };
-    role_init(state, (bound) => {
+    await role_init(state, (bound) => {
         assert.fail(`fixed-gender Ranger quest called random(${bound})`);
     });
 
@@ -334,10 +334,10 @@ test('quest monster overrides apply when catalog entries are available', () => {
     assert.ok(state.mons[364].mflags3 & 0x0040);
 });
 
-test('role_init rejects a missing monster catalog before state mutation', () => {
+test('role_init rejects a missing monster catalog before state mutation', async () => {
     const state = explicitState('Ranger', 'orc', 'male', 'chaotic');
     delete state.mons;
-    assert.throws(
+    await assert.rejects(
         () => role_init(state, (bound) => {
             assert.fail(`missing catalog called random(${bound})`);
         }),
@@ -347,11 +347,11 @@ test('role_init rejects a missing monster catalog before state mutation', () => 
     assert.equal(state.roleInitMonsterOverrides, undefined);
 });
 
-test('restore preserves current sex independently of initial gender', () => {
+test('restore preserves current sex independently of initial gender', async () => {
     const state = explicitState(4, 0, 0, 0, 'RestoredKnight');
     state.flags.female = true;
     state.flags.pantheon = 4;
-    role_init(state, (bound) => {
+    await role_init(state, (bound) => {
         assert.fail(`restored Knight unexpectedly called random(${bound})`);
     });
 
@@ -372,7 +372,7 @@ test('PM-index helpers and compiled greeting cases are supported', () => {
     assert.equal(Hello(342, { data: { pmidx: PM_MAIL_DAEMON } }), 'Hallo');
 });
 
-test('fresh C recorder cases match the role_init PRNG prefix', () => {
+test('fresh C recorder cases match the role_init PRNG prefix', async () => {
     const cases = [
         {
             // Fresh seed 271828 exercises Wizard's genderless nemesis draw.
@@ -404,7 +404,7 @@ test('fresh C recorder cases match the role_init PRNG prefix', () => {
         game.flags = newGameFlags(
             config.role, config.race, config.gender, config.align,
         );
-        role_init(game);
+        await role_init(game);
 
         // init_objects owns calls 1..199 in each recorder trace. Compare the
         // role_init slice immediately after that source-faithful boundary.

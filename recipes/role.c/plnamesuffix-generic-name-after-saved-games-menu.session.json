@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3391,
+      "datetime": "20250222070000",
+      "nethackrc": "OPTIONS=name:Ann,role:Monk,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "s\u001bSy"
+    },
+    {
+      "seed": 3392,
+      "datetime": "20250223070000",
+      "nethackrc": "OPTIONS=role:Rogue,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "nplay\rnRay-Wiz\ri\u001b"
+    },
+    {
+      "seed": 3393,
+      "datetime": "20250224070000",
+      "nethackrc": "OPTIONS=role:Rogue,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "nplayer\rq"
+    }
+  ],
+  "comment": "wintty.c tty_askname() reached from role_init()'s plnamesuffix() (role.c:1988) with a saved game present: iflags.renameinprogress is clear, so restore.c restore_menu() shows the saved-games menu a second time before the second \"Who are you?\". Segment 1 answers 'n' and \"play\", then 'n' and \"Ray-Wiz\", whose suffix replaces the rc's role after player selection. Segment 2 quits from the second menu, where bail() ends the program inside newgame()."
+}

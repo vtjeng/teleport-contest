@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7717,
+      "datetime": "20220630113000",
+      "nethackrc": "OPTIONS=name:Odo,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "s\u001bSy"
+    },
+    {
+      "seed": 7718,
+      "datetime": "20220701113000",
+      "nethackrc": "OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "nKim\ryanethack\ryLee\ri\u001b"
+    }
+  ],
+  "comment": "role.c genl_player_setup() case 3, \"Not yet; choose another name\" (2685-2702): the rename's plnamesuffix() keeps the generic answer \"nethack\", and the confirmation shows it. iflags.renameinprogress stays set, so when newgame()'s role_init() asks again, wintty.c:657 skips the saved-games menu although Odo's save is present."
+}

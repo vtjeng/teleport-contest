@@ -21,6 +21,7 @@ import {
     ok_gend,
     ok_race,
     ok_role,
+    plnamesuffix,
     rigid_role_checks,
 } from './role_init.js';
 import {
@@ -45,7 +46,6 @@ import {
 } from './tty_menu.js';
 import { tty_yn_function } from './topl.js';
 import { select_menu } from './windows.js';
-import { ttyPlayerNameAndSuffix } from './tty_startup.js';
 
 const ASPECT_TITLE = Object.freeze({
     [RS_ROLE]: 'Pick a role or profession',
@@ -476,9 +476,11 @@ async function renamePlayer(state, context) {
         state.flags.initgend,
         state.flags.initalign,
     ];
-    state.iflags.renameinprogress = true;
+    state.iflags.renameinprogress = true; /* affects main() in unixmain.c */
+    /* plnamesuffix() can change any or all of ROLE, RACE,
+       GEND, ALGN; we'll override that and honor only the name */
     state.plname = '';
-    await ttyPlayerNameAndSuffix(state);
+    await plnamesuffix(state); /* calls askname() when svp.plname[] is empty */
     [
         state.flags.initrole,
         state.flags.initrace,

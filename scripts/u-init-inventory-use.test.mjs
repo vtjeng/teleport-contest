@@ -69,7 +69,7 @@ async function startup(roleName, raceName = 'human', seed = 731_337) {
     finish_fruit_option({}, game);
     reset_mvitals(game);
     init_objects(game);
-    role_init(game);
+    await role_init(game);
     init_dungeons(game);
     init_artifacts(game);
     await u_init_misc(game, undefined, { now: new Date(2_000_000_000_000) });

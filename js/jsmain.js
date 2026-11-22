@@ -59,9 +59,6 @@ import { shk_globals_init } from './shk.js';
 import { objects_globals_init } from './objects.js';
 import { NON_PM, monst_globals_init } from './monsters.js';
 import { run_timers, timeout_globals_init } from './timeout.js';
-import {
-    ttyPlayerNameAndSuffix,
-} from './tty_startup.js';
 import { maybe_do_tutorial } from './tutorial_startup.js';
 import { reset_in_tele_trap } from './teleport.js';
 import {
@@ -87,7 +84,9 @@ import {
     playgroundWriteFile, set_savefile_name,
 } from './files.js';
 import { ask_about_panic_save } from './unixunix.js';
-import { welcomeBackMessage, welcomeHallucinationMessage } from './role_init.js';
+import {
+    plnamesuffix, welcomeBackMessage, welcomeHallucinationMessage,
+} from './role_init.js';
 import { udeadinside, ugenocided } from './polyself.js';
 import {
     cls,
@@ -122,6 +121,10 @@ const RECORDER_SYSTEM_OPTIONS = Object.freeze({
     // have installed.
     wizards: 'root games',
     explorers: '*',
+    // GENERICUSERS: role.c plnamesuffix() asks "Who are you?" in place of
+    // each of these names. The recorder's installed sysconf has the same
+    // line (nethack-c/recorder/install/games/lib/nethackdir/sysconf:43).
+    genericusers: 'play player game games nethack nethacker ec2-user',
 });
 
 // A stand-in for whatever get_unix_pw() returns under the recorder, not a
@@ -171,6 +174,7 @@ export function set_playmode(state = game, { loginName } = {}) {
     // list other than "*", so it stays NULL. Do not create it here — the
     // contact page must omit the "local support" line to match C's output.
     sysopt.explorers ??= RECORDER_SYSTEM_OPTIONS.explorers;
+    sysopt.genericusers ??= RECORDER_SYSTEM_OPTIONS.genericusers;
 
     const username = String(loginName ?? RECORDER_ACCOUNT);
     const authorized = (configuredUsers) => {
@@ -579,9 +583,10 @@ export class NethackGame {
         // scripts/runtime-foundation.test.mjs keeps it from being dropped.
         g.gp.plnamelen = 0;
 
-        // C filters generic Unix usernames, prompts when necessary, then
-        // strips any role/race/gender/alignment suffix before selection.
-        await ttyPlayerNameAndSuffix(g);
+        // unixmain.c:196-198: strip role,race,&c suffix; calls askname() if
+        // plname[] is empty or holds a generic user name like "player" or
+        // "games".
+        await plnamesuffix(g);
 
         // C ref: unixmain.c nethack_main() calls
         // init_sound_disp_gamewindows() after plnamesuffix() and before

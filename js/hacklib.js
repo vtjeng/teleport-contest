@@ -462,6 +462,26 @@ export function fuzzymatch(s1, s2, ignore_chars, caseblind) {
     return !c1 && !c2;
 }
 
+// C ref: hacklib.c findword() (600-621). `list` is a string of
+// space-separated words; the result is the offset in it of the first word
+// equal to the first `wordlen` characters of `word`, or -1 where C returns a
+// null pointer. A word that starts with `word` but is longer does not match.
+export function findword(list, word, wordlen, ignorecase) {
+    let p = 0;
+    while (p >= 0) {
+        while (list[p] === ' ') ++p;
+        if (p >= list.length) break;
+        const candidate = list.slice(p, p + wordlen);
+        const target = word.slice(0, wordlen);
+        if ((ignorecase ? !strncmpi(candidate, target, wordlen)
+            : candidate === target)
+            && (p + wordlen >= list.length || list[p + wordlen] === ' '))
+            return p;
+        p = list.indexOf(' ', p + 1);
+    }
+    return -1;
+}
+
 // C ref: hacklib.c ordin().  The teens all take "th".
 export function ordin(n) {
     const dd = n % 10;

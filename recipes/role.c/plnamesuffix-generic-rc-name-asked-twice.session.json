@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 41873,
+      "datetime": "20240917143000",
+      "nethackrc": "OPTIONS=name:game,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "nethacker\rUna\r \u001bi\u001b"
+    }
+  ],
+  "comment": "role.c plnamesuffix(): the rc's name \"game\" is in sysconf GENERICUSERS, so unixmain.c:198 clears it and asks \"Who are you?\". The answer \"nethacker\" is generic too but is kept, because the list is tested once, before the askname loop (1671-1687). role_init()'s call (1988) in newgame() then finds it generic and asks again, below the first prompt; \"Una\" starts the game."
+}

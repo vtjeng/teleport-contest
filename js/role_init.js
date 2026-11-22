@@ -21,6 +21,7 @@ import {
     PM_MAIL_DAEMON,
     PM_SHOPKEEPER,
 } from './monsters.js';
+import { findword } from './hacklib.js';
 import { SPE_LIGHT } from './objects.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
 import {
@@ -54,6 +55,7 @@ import {
 } from './roles.js';
 import { Hallucination,
 } from './youprop.js';
+import { tty_askname } from './wintty.js';
 
 const PM_CLERIC = 337;
 const PM_KNIGHT = 335;
@@ -328,28 +330,63 @@ export function rigid_role_checks(state, random = rn2) {
     return flags;
 }
 
-// C ref: role.c plnamesuffix(). The async tty askname and generic-user
-// filtering happen in tty_startup.js before this synchronous suffix parser.
-export function plnamesuffix(state) {
+// C ref: role.c plnamesuffix() (1664-1721). sysopt.genericusers is tested
+// once, before the loop, so a generic name that askname() returns inside the
+// loop is kept: the name typed at "Who are you?" is checked only by the next
+// call, which is role_init()'s (1988) for a new or restored game.
+// iflags.defer_plname is never set by the tty window port.
+export async function plnamesuffix(state) {
     const flags = state.flags;
-    const original = String(state.plname ?? '');
-    const plnamelen = state.gp?.plnamelen ?? 0;
-    const dash = original.indexOf('-', plnamelen);
-    if (dash >= 0) {
-        state.plname = original.slice(0, dash);
-        for (const token of original.slice(dash + 1).split('-')) {
-            let parsed = str2role(token);
-            if (parsed !== ROLE_NONE) flags.initrole = parsed;
-            else if ((parsed = str2race(token)) !== ROLE_NONE)
-                flags.initrace = parsed;
-            else if ((parsed = str2gend(token)) !== ROLE_NONE)
-                flags.initgend = parsed;
-            else if ((parsed = str2align(token)) !== ROLE_NONE)
-                flags.initalign = parsed;
+    const gp = state.gp ??= { plnamelen: 0 };
+
+    /* some generic user names will be ignored in favor of prompting */
+    const genericusers = state.sysopt?.genericusers;
+    if (genericusers) {
+        const plname = String(state.plname ?? '');
+        if (genericusers[0] === '*') {
+            state.plname = '';
+        } else {
+            /* need to ignore appended '-role-race-gender-alignment';
+               'plnamelen' is non-zero when dealing with plname[] value that
+               contains a username with dash(es) in it and is usually 0 */
+            const eptr = plname.indexOf('-', gp.plnamelen ?? 0);
+            const i = eptr >= 0 ? eptr : plname.length;
+            /* look for plname[] in the 'genericusers' space-separated list */
+            if (findword(genericusers, plname, i, false) >= 0)
+                /* it's generic; remove it so that askname() will be called */
+                state.plname = '';
         }
-    } else {
-        state.plname = original;
+        if (!state.plname) gp.plnamelen = 0;
     }
+
+    do {
+        if (!state.plname) {
+            await tty_askname(state); /* fill svp.plname[] if necessary */
+            gp.plnamelen = 0; /* plname[] might have -role-race-&c attached */
+        }
+
+        /* Look for tokens delimited by '-' */
+        const original = String(state.plname ?? '');
+        const dash = original.indexOf('-', gp.plnamelen ?? 0);
+        if (dash >= 0) {
+            state.plname = original.slice(0, dash);
+            for (const token of original.slice(dash + 1).split('-')) {
+                /* Try to match it to something */
+                let parsed = str2role(token);
+                if (parsed !== ROLE_NONE) flags.initrole = parsed;
+                else if ((parsed = str2race(token)) !== ROLE_NONE)
+                    flags.initrace = parsed;
+                else if ((parsed = str2gend(token)) !== ROLE_NONE)
+                    flags.initgend = parsed;
+                else if ((parsed = str2align(token)) !== ROLE_NONE)
+                    flags.initalign = parsed;
+            }
+        } else {
+            state.plname = original;
+        }
+    } while (!state.plname && !state.iflags?.defer_plname);
+
+    /* commas in the svp.plname confuse the record file, convert to spaces */
     state.plname = state.plname.replaceAll(',', ' ');
     return flags;
 }
@@ -436,11 +473,14 @@ function alignedGod(role, alignment) {
  * `random(bound)` callback must have rn2 semantics. Call rigid_role_checks()
  * first when selection contains ROLE_RANDOM or unspecified forced choices.
  */
-export function role_init(state, random = rn2) {
+export async function role_init(state, random = rn2) {
     if (!Array.isArray(state.mons) || state.mons.length !== NUMMONS + 1) {
         throw new Error('role_init requires monst_globals_init()');
     }
-    const flags = plnamesuffix(state);
+    /* Strip the role letter out of the player name.
+     * This is included for backwards compatibility.
+     */
+    const flags = await plnamesuffix(state);
     const filter = stateFilter(state);
 
     if (!validrole(flags.initrole)) {

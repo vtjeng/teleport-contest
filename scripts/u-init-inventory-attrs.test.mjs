@@ -500,7 +500,7 @@ test('the real object pipeline initializes every valid role/race pairing', async
             finish_fruit_option({}, game);
             reset_mvitals(game);
             init_objects(game);
-            role_init(game);
+            await role_init(game);
             init_dungeons(game);
             await u_init_misc(game, undefined, { now: new Date(2_000_000_000_000) });
             u_init_inventory_attrs(game);
