@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 271,
+    otherName: 270,
     unreachable: 174,
     noVisibleEffect: 213,
     unportedVisible: 2,
@@ -953,8 +953,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     // utf8map.c
     'utf8map.c set_map_u': ported('js/glyphs.js apply_customizations',
         'the UTF-8 glyph customisation'),
-    'utf8map.c mixed_to_utf8': ported('js/hacklib.js encodeUtf8Text',
-        'the UTF-8 text of an encoded glyph'),
     'utf8map.c add_custom_urep_entry': ported('js/glyphs.js glyphrep_to_custom_map_entries',
         'the UTF-8 glyph customisation'),
 
