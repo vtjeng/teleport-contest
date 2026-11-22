@@ -116,31 +116,82 @@ export function nh_basename(fname, keepSuffix) {
     return name;
 }
 
-// C ref: files.c set_savefile_name(TRUE) (1020-1123), the UNIX arm:
-// "save/<uid><plname>" with regularize() applied after "save/". The recorder
-// build defines no SAVE_EXTENSION and no save-file indicator. C stores the
-// result in gs.SAVEF; the port returns it, the storage name of the game's
-// save file. Every caller reads the current svp.plname, as C does when
-// restore_saved_game() and dosave0() name the file.
-export function set_savefile_name(state = game) {
-    return `save/${regularize(`${RECORDER_UID}${state.plname ?? ''}`)}`;
+// gs.SAVEF, the name of the save file every files.c save-file call opens,
+// creates or deletes. It is state of its own, not a function of svp.plname:
+// only set_savefile_name(), set_error_savefile() and plname_from_file() write
+// it. A hero renamed by role_init()'s plnamesuffix() (role.c:1988) is
+// therefore saved under the name that restore_saved_game() and
+// check_panic_save() gave the file before newgame(), and a saved-games menu
+// shown by that same call leaves gs.SAVEF at the last file it listed. A new
+// process starts with it empty (decl.c). Only the functions below read or
+// write it.
+function SAVEF(state) {
+    return (state.gs ??= {}).SAVEF ?? '';
 }
 
-// C ref: files.c set_error_savefile() (1137-1155), the UNIX arm: gs.SAVEF
-// with ".e" appended. Its callers, end.c panic() and check_panic_save(), have
-// gs.SAVEF set to set_savefile_name() of the current hero; the port returns
-// the panic save file's storage name instead of keeping gs.SAVEF.
+// C ref: files.c set_savefile_name(TRUE) (1020-1123), the UNIX arm:
+// "save/<uid><plname>" with regularize() applied after "save/". The recorder
+// build defines no SAVE_EXTENSION and no save-file indicator.
+export function set_savefile_name(state = game) {
+    (state.gs ??= {}).SAVEF = `save/${regularize(`${RECORDER_UID}${state.plname ?? ''}`)}`;
+}
+
+// C ref: files.c set_error_savefile() (1137-1155), the UNIX arm: ".e" is
+// appended to gs.SAVEF as it stands.
 export function set_error_savefile(state = game) {
-    return `${set_savefile_name(state)}.e`;
+    (state.gs ??= {}).SAVEF = `${SAVEF(state)}.e`;
+}
+
+// C ref: save.c dosave0():100, the `!gs.SAVEF[0]` test.
+export function have_savefile_name(state = game) {
+    return SAVEF(state) !== '';
+}
+
+// C ref: files.c create_savefile() (1159-1213) and the writes that follow
+// it: the file gs.SAVEF names is replaced with `content`.
+export function create_savefile(content, state = game) {
+    return playgroundWriteFile(SAVEF(state), content);
+}
+
+// C ref: files.c open_savefile() (1217-1255): the text of the file gs.SAVEF
+// names, or null where C returns no NHFILE.
+export function open_savefile(state = game) {
+    return playgroundReadFile(SAVEF(state));
+}
+
+// C ref: files.c delete_savefile() (1259-1266).
+export function delete_savefile(state = game) {
+    playgroundDeleteFile(SAVEF(state));
+    return 0;
+}
+
+// C ref: files.c restore_saved_game() (1270-1288): names the save file for
+// the current svp.plname and opens it. validate() cannot fail on a file the
+// port wrote. nh_uncompress() has no VFS counterpart.
+export function restore_saved_game(state = game) {
+    set_savefile_name(state);
+    return open_savefile(state);
+}
+
+// C ref: unixmain.c:244-246, `(void) chmod(fq_save, 0)`, "disallow parallel
+// restores": once restore_saved_game() has opened the save file, no other
+// open of it succeeds for a process that is not root, until dorecover()
+// deletes it or the keep-save answer restores its mode (unixmain.c:271).
+// The mode is not kept across segments: a process that ends in between
+// leaves the file unreadable in C and readable here.
+export function chmod_savefile(readable, state = game) {
+    (state.gs ??= {}).unreadableSavefile = readable ? null : SAVEF(state);
 }
 
 // C ref: files.c check_panic_save() (1311-1351). C tests for the panic save
 // file with COMPRESS_EXTENSION appended and then without it; the port's
 // storage keeps every file uncompressed, so one test covers both. The
-// closing set_savefile_name(TRUE) only resets gs.SAVEF, which the port does
-// not keep.
+// closing set_savefile_name(TRUE) resets gs.SAVEF to the current hero's.
 export function check_panic_save(state = game) {
-    return playgroundReadFile(set_error_savefile(state)) != null;
+    set_error_savefile(state);
+    const result = open_savefile(state) != null;
+    set_savefile_name(state); /* reset to normal */
+    return result;
 }
 
 // C ref: files.c plname_from_file() (1355-1388) and the get_plname_from_file()
@@ -150,9 +201,22 @@ export function check_panic_save(state = game) {
 // playmode ('D', 'X' or '-') in the last byte. The snapshot keeps every value
 // that header encodes, so the buffer is rebuilt from it here, with each NUL a
 // '\0' character. A file that does not parse, which validate() would refuse,
-// gives null.
-export function plname_from_file(filename) {
-    const raw = playgroundReadFile(filename);
+// gives null. files.c:1366 copies `filename` into gs.SAVEF first and nothing
+// restores it, so the last file get_saved_games() lists stays there.
+export function plname_from_file(filename, state = game) {
+    (state.gs ??= {}).SAVEF = filename;
+    // The file a restore in progress has made unreadable: reached only when
+    // restgamestate()'s role_init() finds the saved name generic and
+    // tty_askname() lists the saved games. open_savefile() fails, as it
+    // does for the recorder, which does not run as root. nh_compress() then
+    // forks a compressor that cannot read the file either, and
+    // docompress_file():1756-1759 shows a --More--; that part is not ported.
+    const unreadable = state.gs.unreadableSavefile;
+    if (unreadable != null && fileNameFold(unreadable) === fileNameFold(filename)) {
+        note_unported('files.c docompress_file');
+        return null;
+    }
+    const raw = open_savefile(state);
     if (raw == null) return null;
     let snapshot;
     try {
@@ -179,7 +243,7 @@ export function plname_from_file(filename) {
 // save/ whose name sscanf("%d%63s") splits into this process's uid and a rest
 // contributes the buffer plname_from_file() reads from it; the buffers are
 // then sorted with strcmp(), which stops at the first NUL.
-export function get_saved_games(_state = game) {
+export function get_saved_games(state = game) {
     const result = [];
     for (const path of vfsListFiles('save/')) {
         const match = /^([-+]?\d+)(\S{1,63})/u.exec(path.slice('save/'.length));
@@ -187,7 +251,7 @@ export function get_saved_games(_state = game) {
         // glibc converts the %d field as atoi(), keeping the low 32 bits.
         const uid = atoi(match[1]);
         if (uid !== RECORDER_UID) continue;
-        const r = plname_from_file(`save/${uid}${match[2]}`);
+        const r = plname_from_file(`save/${uid}${match[2]}`, state);
         if (r) result.push(r);
     }
     const cstr = (buffer) => buffer.split('\0')[0];

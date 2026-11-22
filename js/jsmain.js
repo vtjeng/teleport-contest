@@ -80,8 +80,8 @@ import {
 import { LL_NONE, NHW_MESSAGE, REST_CURRENT_LEVEL, Upolyd } from './const.js';
 import { dorestore } from './restore.js';
 import {
-    check_panic_save, playgroundDeleteFile, playgroundReadFile,
-    playgroundWriteFile, set_savefile_name,
+    check_panic_save, chmod_savefile, delete_savefile, playgroundReadFile,
+    playgroundWriteFile, restore_saved_game,
 } from './files.js';
 import { ask_about_panic_save } from './unixunix.js';
 import {
@@ -514,6 +514,8 @@ export class NethackGame {
             g._themeroomSelectionCollector
                 = this._themeroomSelectionCollector;
         }
+        // decl.c zero-initializes gs.SAVEF; js/files.js owns it.
+        g.gs = { SAVEF: '' };
         g.gp = {
             plnamelen: 0,
             // decl.c zero-initializes this message flag word. set_voice()
@@ -617,9 +619,9 @@ export class NethackGame {
         // could be opened. It opens only the file set_savefile_name() names
         // for the current svp.plname, which set_playmode() has already made
         // "wizard" in debug mode, so another hero's save starts a new game.
-        const savefile = set_savefile_name(g);
-        const haveSaveFile = !!g.plname && playgroundReadFile(savefile) != null;
+        const haveSaveFile = !!g.plname && restore_saved_game(g) != null;
         if (haveSaveFile) {
+            chmod_savefile(false, g); /* disallow parallel restores */
             // C ref: unixmain.c:255-262. A configuration raw_printf() leaves
             // its text on the screen, so the notice is raw output too rather
             // than a top-line message. pline() also files it in the message
@@ -733,11 +735,13 @@ export class NethackGame {
             await wd_message(g);
 
             // C ref: unixmain.c:266-272. Debug/explore restores ask whether
-            // to retain the save. VFS needs no chmod or compression operation.
+            // to retain the save. VFS needs no compression operation.
             if (g.discover || g.wizard) {
                 if (await yn_function('Do you want to keep the save file?',
                     'yn', 'n', true, g) === 'n') {
-                    playgroundDeleteFile(savefile);
+                    delete_savefile(g);
+                } else {
+                    chmod_savefile(true, g); /* back to readable */
                 }
             }
 

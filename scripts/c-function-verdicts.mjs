@@ -327,14 +327,12 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'files.c set_bonestemp_name': noEffect(FILE_IO),
     'files.c compress_bonesfile': noEffect(COMPRESS),
     'files.c save_savefile_name': noEffect(FILE_IO),
-    'files.c create_savefile': ported('js/save.js dosave0',
-        'playgroundWriteFile(set_savefile_name()) stands for creat(); the failure arm needs a host '
-        + 'error'),
-    'files.c open_savefile': ported('js/save.js dosave0',
-        'playgroundReadFile(savefile) != null is its success test, which decides the "old save file" '
-        + 'prompt here and the restore in js/jsmain.js'),
-    'files.c delete_savefile': ported('js/restore.js dorestore',
-        'removing the save after a restore'),
+    'files.c create_savefile': ported('js/files.js create_savefile',
+        'playgroundWriteFile() of gs.SAVEF stands for creat(); the failure arm needs a host error'),
+    'files.c open_savefile': ported('js/files.js open_savefile',
+        'a non-null result is its success test, which decides the "old save file" prompt in '
+        + 'js/save.js and the restore in js/jsmain.js'),
+    'files.c delete_savefile': ported('js/files.js delete_savefile'),
     'files.c get_freeing_nhfile': noEffect(FILE_IO),
     'files.c free_saved_games': noEffect(MEMORY),
     'files.c redirect': noEffect(COMPRESS),

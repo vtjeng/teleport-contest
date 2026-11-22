@@ -6,9 +6,11 @@
 // Asmodeus' bones by level number, missed them, and found them instead on an
 // ordinary level with that number. The first test pins the name to C; the
 // second fails when a storage call in js/ names a file any other way.
-// js/files.js set_savefile_name() is the same one place for a save file
-// (files.c set_savefile_name()): C restores only the file its name gives
-// the current hero, so a hand-made save name would restore another hero.
+// js/files.js is the same one place for a save file: it keeps gs.SAVEF,
+// which only set_savefile_name(), set_error_savefile() and plname_from_file()
+// write, as in files.c, and every other module reaches the save file through
+// its open_savefile(), create_savefile() and delete_savefile(). A save name
+// made anywhere else would restore or overwrite another hero's file.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -57,19 +59,12 @@ test('set_bonesfile_name() matches files.c on special, numbered and quest levels
 
 // The storage names js/ may use directly. Every other name is a bones file
 // and must come from set_bonesfile_name(), inside js/files_bones.js, or a
-// save file: a set_savefile_name() or set_error_savefile() call, a variable
-// or parameter default set from one, or a name listed from the save/
-// directory in the same file.
+// save file, which only js/files.js may name: gs.SAVEF through its SAVEF()
+// reader, or a name listed from the save/ directory.
 const FIXED_NAMES = new Set(["'record'", "''", "'save/'"]);
-const SAVE_NAME_CALL = /^set_(?:savefile_name|error_savefile)\(/u;
+const SAVE_NAME_CALL = /^SAVEF\(state$/u;
 const SAVE_NAME_BINDINGS = [
-    // `const name = ...` and a parameter's `name = ...` default, such as
-    // js/save.js dosave0()'s gs.SAVEF.
-    /\b(\w+) = set_(?:savefile_name|error_savefile)\(/gu,
     /\bfor \(const (\w+) of vfsListFiles\('save\/'\)\)/gu,
-    // files.c plname_from_file() opens each name get_saved_games(), beside
-    // it in js/files.js, listed from save/.
-    /\bexport function plname_from_file\((\w+)\)/gu,
 ];
 // In js/files_bones.js each bones function sets `name` from
 // set_bonesfile_name().
@@ -84,16 +79,18 @@ export function storageNameViolations(file, source) {
     const violations = [];
     const code = source.replace(/\/\*[\s\S]*?\*\//gu, '')
         .split('\n').map((line) => line.replace(/\/\/.*$/u, ''));
-    const saveNames = new Set(SAVE_NAME_BINDINGS.flatMap(
-        (pattern) => [...code.join('\n').matchAll(pattern)].map((m) => m[1])));
+    const saveNames = new Set();
     if (file === 'files.js') {
+        for (const pattern of SAVE_NAME_BINDINGS) {
+            for (const m of code.join('\n').matchAll(pattern)) saveNames.add(m[1]);
+        }
         for (const m of code.join('\n').matchAll(PLAYGROUND_KEY)) saveNames.add(m[1]);
     }
     code.forEach((line, index) => {
         for (const match of line.matchAll(STORAGE_CALL)) {
             const argument = match[1].trim();
             if (FIXED_NAMES.has(argument) || saveNames.has(argument)
-                || SAVE_NAME_CALL.test(argument)) continue;
+                || (file === 'files.js' && SAVE_NAME_CALL.test(argument))) continue;
             if (file === 'files_bones.js' && BONES_NAME.test(argument)) continue;
             violations.push(`js/${file}:${index + 1}: ${match[0].trim()}`);
         }
@@ -101,7 +98,7 @@ export function storageNameViolations(file, source) {
     return violations;
 }
 
-test('every storage call names its file through a fixed name, set_bonesfile_name(), set_savefile_name() or set_error_savefile()', () => {
+test('every storage call names its file through a fixed name, set_bonesfile_name() or js/files.js gs.SAVEF', () => {
     const violations = [];
     for (const file of readdirSync(JS_DIR).filter((name) => name.endsWith('.js'))) {
         if (file === 'storage.js') continue;
@@ -126,17 +123,23 @@ test('the check refuses a bones name built outside set_bonesfile_name()', () => 
     // The fixed save path the port used before set_savefile_name() was ported.
     assert.deepEqual(storageNameViolations('save.js', "vfsWriteFile('nhsave', data);"),
         ["js/save.js:1: vfsWriteFile('nhsave'"]);
-    assert.deepEqual(storageNameViolations('save.js',
-        'const savefile = set_savefile_name(state);\nvfsWriteFile(savefile, data);'), []);
-    assert.deepEqual(storageNameViolations('restore.js',
-        "for (const path of vfsListFiles('save/')) vfsReadFile(path);"), []);
-    // The panic save file's name, directly and through dosave0()'s
-    // parameter, and a ".e" name built by hand.
+    // js/files.js reads gs.SAVEF and lists save/; no other file may.
     assert.deepEqual(storageNameViolations('files.js',
-        'return playgroundReadFile(set_error_savefile(state)) != null;'), []);
+        'return playgroundReadFile(SAVEF(state));'), []);
+    assert.deepEqual(storageNameViolations('files.js',
+        "for (const path of vfsListFiles('save/')) vfsReadFile(path);"), []);
     assert.deepEqual(storageNameViolations('save.js',
-        'function dosave0(state, savefile = set_savefile_name(state)) {\nplaygroundWriteFile(savefile, data);'), []);
+        'playgroundWriteFile(SAVEF(state), data);'),
+    ['js/save.js:1: playgroundWriteFile(SAVEF(state']);
+    assert.deepEqual(storageNameViolations('restore.js',
+        "for (const path of vfsListFiles('save/')) vfsReadFile(path);"),
+    ['js/restore.js:1: vfsReadFile(path']);
+    // A name rebuilt from the hero's name, the form every caller used before
+    // gs.SAVEF was kept: it misses a hero renamed after the file was named.
+    assert.deepEqual(storageNameViolations('save.js',
+        'const savefile = set_savefile_name(state);\nplaygroundWriteFile(savefile, data);'),
+    ['js/save.js:2: playgroundWriteFile(savefile']);
     assert.deepEqual(storageNameViolations('end.js',
-        'playgroundWriteFile(`${set_savefile_name(state)}.e`, data);'),
-    ['js/end.js:1: playgroundWriteFile(`${set_savefile_name(state']);
+        'playgroundWriteFile(`${state.gs.SAVEF}.e`, data);'),
+    ['js/end.js:1: playgroundWriteFile(`${state.gs.SAVEF}.e`']);
 });

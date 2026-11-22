@@ -91,7 +91,7 @@ import { set_residency, restshk } from './shk.js';
 import { rest_rooms } from './mkroom.js';
 import { stairway_add, stairway_at, stairway_free_all } from './stairs.js';
 import {
-    get_saved_games, playgroundDeleteFile, playgroundReadFile, set_savefile_name,
+    delete_savefile, get_saved_games, open_savefile,
 } from './files.js';
 import { initrack } from './track.js';
 import { _uInitInternals } from './u_init.js';
@@ -329,8 +329,7 @@ function restoreLevelAt(level) {
 export async function dorestore(state = game) {
     // C ref: files.c restore_saved_game() names the file from the current
     // svp.plname; dorecover() then reads the saved name over it.
-    const savefile = set_savefile_name(state);
-    const raw = playgroundReadFile(savefile);
+    const raw = open_savefile(state);
     if (raw == null) return false;
 
     const snapshot = parseSnapshot(raw);
@@ -746,7 +745,7 @@ export async function dorestore(state = game) {
     // C ref: dorecover():904 delete_savefile(). The JS port deletes the
     // save from VFS so a subsequent segment does not restore it again.
     if (!state.wizard && !state.discover) {
-        playgroundDeleteFile(savefile);
+        delete_savefile(state);
     }
 
     restore_msghistory(snapshot.msghistory, state);

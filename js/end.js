@@ -1122,7 +1122,8 @@ export async function panic(str, state = game) {
         && !state.iflags?.debug_fuzzer) {
         // Loaded on use: js/save.js imports this module.
         const { dosave0 } = await import('./save.js');
-        if (await dosave0(state, set_error_savefile(state))) {
+        set_error_savefile(state);
+        if (await dosave0(state)) {
             /* os/win port specific recover instructions */
             if (state.sysopt?.recover)
                 tty_raw_print(state, state.sysopt.recover);

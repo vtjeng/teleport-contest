@@ -55,7 +55,7 @@ import { forget_temple_entry } from './priest.js';
 import { maybe_write_timer, save_timers } from './timeout.js';
 import { initrack } from './track.js';
 import {
-    playgroundReadFile, playgroundWriteFile, set_savefile_name,
+    create_savefile, have_savefile_name, open_savefile,
 } from './files.js';
 import { docrt } from './display.js';
 import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
@@ -430,7 +430,7 @@ export async function dosave(state = game) {
 //   - opening/closing the binary save file — replaced by playgroundWriteFile()
 //   - store_version/store_plname — part of the JSON snapshot
 //   - set_ustuck(0), u.usteed = 0 — post-serialization cleanup only
-export async function dosave0(state = game, savefile = set_savefile_name(state)) {
+export async function dosave0(state = game) {
     // C ref: save.c:86. A hangup save could arrive mid-prayer.
     state.u.uinvulnerable = 0;
     // C ref: save.c:98 done_object_cleanup(). Besides objects in transit,
@@ -440,9 +440,10 @@ export async function dosave0(state = game, savefile = set_savefile_name(state))
     await done_object_cleanup(state);
 
     // C ref: save.c:100-101. program_state.something_worth_saving is always
-    // set in the port. `savefile` is gs.SAVEF: set_savefile_name() of the
-    // hero's name, or for end.c panic() the files.c set_error_savefile()
-    // name that has ".e" appended.
+    // set in the port. gs.SAVEF (js/files.js) is the name unixmain.c's
+    // restore_saved_game() and check_panic_save() left before newgame(), or
+    // for end.c panic() that name with set_error_savefile()'s ".e" appended.
+    if (!have_savefile_name(state)) return 0;
 
     // C ref: save.c:111-124, under HUP (no hangup has arrived) and
     // iflags.window_inited (panic() has not closed the windows). An old save
@@ -453,7 +454,7 @@ export async function dosave0(state = game, savefile = set_savefile_name(state))
     // and nh_compress() have no VFS counterpart.
     const windowsUp = !state.program_state?.done_hup
         && Boolean(state.iflags?.window_inited);
-    if (windowsUp && playgroundReadFile(savefile) != null) {
+    if (windowsUp && open_savefile(state) != null) {
         clearTtyMessageWindow(state);
         // pline.c There() adds only the prefix "There ".
         await ttyPline('There seems to be an old save file.', state);
@@ -514,7 +515,7 @@ export async function dosave0(state = game, savefile = set_savefile_name(state))
     // monster and object chains keep C's order through their nmon and nobj
     // links.
     const snapshot = serializeGameState(state);
-    playgroundWriteFile(savefile, serializeSnapshot(snapshot));
+    create_savefile(serializeSnapshot(snapshot), state);
 
     return 1;
 }

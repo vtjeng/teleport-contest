@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 15527,
+      "datetime": "20210408161500",
+      "nethackrc": "OPTIONS=role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "nethack\rgame\r\u001b\u001bSy"
+    },
+    {
+      "seed": 15528,
+      "datetime": "20210409161500",
+      "nethackrc": "OPTIONS=role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "anZoe\r\u001b\u001bSy nSy y"
+    },
+    {
+      "seed": 15529,
+      "datetime": "20210410161500",
+      "nethackrc": "OPTIONS=!selectsaved\nOPTIONS=role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "nethack\r\u001b\u001bi\u001b"
+    }
+  ],
+  "comment": "files.c gs.SAVEF is not rebuilt from svp.plname. Segment 0: restore_saved_game() and check_panic_save() name the file for the typed name \"nethack\"; role_init()'s plnamesuffix() then renames the hero \"game\", and dosave0() writes that hero to nethack's file. Segment 1: the saved-games menu lists \"game\", but picking it opens game's file, which does not exist, so a new game starts; role_init() finds \"game\" generic and shows the menu again, whose plname_from_file() (files.c:1366) leaves gs.SAVEF on nethack's file. The new hero Zoe's save finds \"an old save file\" there, declines to overwrite it once, then overwrites it. Segment 2, with !selectsaved, restores Zoe by typing \"nethack\"."
+}

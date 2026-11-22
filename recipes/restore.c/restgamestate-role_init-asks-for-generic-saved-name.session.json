@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90411,
+      "datetime": "20190726054500",
+      "nethackrc": "OPTIONS=role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "player\rplay\r\u001b\u001bSy"
+    },
+    {
+      "seed": 90412,
+      "datetime": "20190727054500",
+      "nethackrc": "OPTIONS=!selectsaved\nOPTIONS=role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "player\rQuin\r\u001b\u001bi\u001b\u0018\u001b"
+    }
+  ],
+  "comment": "restore.c restgamestate():596 role_init() during a restore. Segment 0 saves a hero renamed \"play\" in the file named for \"player\" (gs.SAVEF). Segment 1, with !selectsaved, types \"player\": dorecover():797 reads the saved name \"play\", role_init()'s plnamesuffix() finds it generic and asks \"Who are you?\" under \"Restoring save file...\", and dorecover():893 then reads the saved name over the answer, so the hero is still \"play\"."
+}
