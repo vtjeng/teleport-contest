@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c render_status() (4991-5262) with highlight rules on third-row fields: hilite_status rules color BL_TERRAIN, BL_LEVELDESC and the Deaf condition under statuslines:3. A corner menu, the full-screen options menu and getpos()'s gather menu each force a redraw.",
+  "segments": [
+    {
+      "seed": 5561902,
+      "datetime": "20240611080000",
+      "nethackrc": "OPTIONS=name:Ottilie,role:Healer,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips,color\nOPTIONS=whatis_menu,!autodescribe,terrainstatus,statuslines:3,deaf\nOPTIONS=statushilites:10,hilite_status:terrain/always/blue,hilite_status:dungeon-level/always/green&underline,hilite_status:condition/deaf/red&inverse\n",
+      "moves": "hi\u001bO\u001bl;z\u001b\u001bs"
+    }
+  ]
+}

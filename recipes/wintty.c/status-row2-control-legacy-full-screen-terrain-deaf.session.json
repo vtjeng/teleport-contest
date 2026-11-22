@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Control for the status-row3 recipes: wintty.c render_status() (4991-5262) with statuslines:2, where twolineorder[] puts BL_CONDITION, BL_WEAPON and BL_TERRAIN on the second row and no condition is indented. The legacy text and the inventory menu are full-screen windows (!menu_overlay); getpos()'s gather menu is escaped.",
+  "segments": [
+    {
+      "seed": 6105532,
+      "datetime": "20250707161500",
+      "nethackrc": "OPTIONS=name:Anselm,role:Monk,race:human,gender:male,align:lawful\nOPTIONS=!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=whatis_menu,!autodescribe,weaponstatus,terrainstatus,statuslines:2,deaf,!menu_overlay\n",
+      "moves": " \ni\u001bh;z\u001b\u001bl"
+    }
+  ]
+}

@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 270,
+    otherName: 268,
     unreachable: 174,
     noVisibleEffect: 213,
     unportedVisible: 2,
@@ -889,8 +889,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         + 'which xterm-256color never takes; patch 006 records cells only through its '
         + 'nomux hooks'),
     'termcap.c xputs': noEffect(ESCAPE),
-    'termcap.c term_clear_screen': ported('js/tty_menu.js erase_menu_or_text',
-        'the full-screen erase'),
     'termcap.c home': ported('js/wintty.js tty_curs', CURSOR),
     'termcap.c standoutbeg': noEffect(ESCAPE),
     'termcap.c standoutend': noEffect(ESCAPE),
@@ -1096,7 +1094,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'wintty.c tty_status_enablefield': ported('js/display.js _statusFieldEnabled',
         'the status field table'),
     'wintty.c make_things_fit': ported('js/display.js _statusLine2Configuration', TTY_STATUS),
-    'wintty.c tty_putstatusfield': ported('js/display.js _statusPlayerName', TTY_STATUS),
     'wintty.c shrink_enc': ported('js/display.js _statusLine2Configuration', TTY_STATUS),
     'wintty.c shrink_dlvl': ported('js/display.js _statusLevelDescription', TTY_STATUS),
     'wintty.c check_windowdata': noEffect('writes to the paniclog file when the status window '

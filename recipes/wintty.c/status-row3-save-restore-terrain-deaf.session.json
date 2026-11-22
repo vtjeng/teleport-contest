@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c tty_status_init() (4335-4361) and render_status() (4991-5262) across a save and restore with statuslines:3, terrainstatus, weaponstatus and Deaf: the restored game draws its first status from blank tty_status[][] and finalx[][], then repairs a corner menu and a full-screen menu.",
+  "segments": [
+    {
+      "seed": 1274960,
+      "datetime": "20250926133000",
+      "nethackrc": "OPTIONS=name:Wendel,role:Archeologist,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=whatis_menu,!autodescribe,terrainstatus,weaponstatus,statuslines:3,deaf\n",
+      "moves": "li\u001bSy"
+    },
+    {
+      "seed": 1274961,
+      "datetime": "20250926140000",
+      "nethackrc": "OPTIONS=name:Wendel,role:Archeologist,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=whatis_menu,!autodescribe,terrainstatus,weaponstatus,statuslines:3,deaf\n",
+      "moves": "i\u001bhO\u001bl;z\u001b\u001b"
+    }
+  ]
+}

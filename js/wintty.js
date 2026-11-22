@@ -14,7 +14,7 @@ import {
     ROWNO,
     WIN_ERR,
 } from './const.js';
-import { erase_status_rows, redraw_map, status_initialize } from './display.js';
+import { redraw_map, status_initialize } from './display.js';
 import { nh_terminate } from './end.js';
 import { game } from './gstate.js';
 import {
@@ -28,6 +28,7 @@ import {
     ttyAsknameImpl,
 } from './tty_startup.js';
 import { NO_COLOR } from './terminal.js';
+import { note_unported } from './unported.js';
 import { tty_raw_print } from './tty_rawprint.js';
 
 const MAX_STATUS_ROWS = 3;
@@ -407,10 +408,351 @@ export function tty_putstr_base(str, state = game) {
     ++base.cury;
 }
 
+// The tty status window's own state, which wintty.c keeps in file statics
+// and in wins[WIN_STATUS]. state._ttyStatus holds:
+//
+// - `data`: cw->data[row], the characters tty_putstatusfield() last stored.
+//   check_fields() compares a sent value with it, and render_status() reads
+//   it to decide which indent columns need a space. Only
+//   tty_putstatusfield() and tty_clear_nhwindow() write it.
+// - `screen`: the terminal's status rows, as {ch, color, attr, owner} cells
+//   or null for a blank. tty_putstatusfield() writes a cell here together
+//   with `data`; cl_end() erases cells here alone, whether render_status()'s
+//   own (5251-5256), docorner()'s, or a screen clear's. `owner` is the
+//   port's highlight owner of the cell, which C does not keep.
+// - `before`: tty_status[BEFORE][], keyed by field, as {x, y, lth, style}
+//   with C's one-based x. tty_status_init() empties it.
+// - `finalx`: finalx[row][BEFORE]. Nothing resets it (wintty.c:1070 is
+//   commented out), so it survives a rebuilt status window.
+// - `dirty`: the fields whose tty_status[NOW][].dirty is set, which
+//   tty_status_update() sets and render_status() clears.
+//
+// All three rows exist whatever 'statuslines' is; row index is C's status
+// row, and screen row display.rows - StatusRows() + row.
+function blankStatusRow() {
+    return {
+        data: new Array(COLNO).fill(' '),
+        screen: new Array(COLNO).fill(null),
+    };
+}
+
+export function tty_status_state(state = game) {
+    if (!state._ttyStatus) {
+        const rows = Array.from({ length: MAX_STATUS_ROWS }, blankStatusRow);
+        state._ttyStatus = {
+            data: rows.map((row) => row.data),
+            screen: rows.map((row) => row.screen),
+            before: new Map(),
+            finalx: new Array(MAX_STATUS_ROWS).fill(0),
+            dirty: new Set(),
+        };
+    }
+    return state._ttyStatus;
+}
+
+// The terminal row status row `row` is drawn on.
+function statusScreenRow(row, state) {
+    return state.nhDisplay.rows - statusRows(state) + row;
+}
+
+// A map glyph or raw print over a status cell (display.js _screenOverlay())
+// lasts until wintty.c writes or erases that cell.
+function dropStatusOverlay(state, screenRow, column) {
+    state._screenOverlay?.delete(`${screenRow}:${column}`);
+}
+
+// C ref: termcap.c cl_end() on a status row: erase the terminal from
+// zero-based `column` to the end of the row. cw->data keeps its characters.
+// `row` is the status window's row.
+export function tty_status_cl_end(row, column, state = game) {
+    const tty = tty_status_state(state);
+    if (row < 0 || row >= MAX_STATUS_ROWS) return;
+    for (let c = Math.max(0, column); c < COLNO; ++c)
+        tty.screen[row][c] = null;
+    if (state._screenOverlay && state.nhDisplay) {
+        const screenRow = statusScreenRow(row, state);
+        for (const [key, cell] of state._screenOverlay)
+            if (cell.row === screenRow && cell.column >= column)
+                state._screenOverlay.delete(key);
+    }
+}
+
+// cl_end() at terminal row `screenRow`, when that row belongs to the status
+// window; docorner() and the window repairs erase by terminal row.
+export function tty_status_cl_end_screen_row(screenRow, column, state = game) {
+    if (!state.nhDisplay) return;
+    const row = screenRow - (state.nhDisplay.rows - statusRows(state));
+    if (row >= 0 && row < statusRows(state))
+        tty_status_cl_end(row, column, state);
+}
+
+// C ref: wintty.c tty_clear_nhwindow() NHW_STATUS arm (1059-1073), as
+// erase_tty_screen() reaches it after term_clear_screen(): the terminal rows
+// are already blank and cw->data becomes spaces. tty_status[][] and
+// finalx[][] keep their values. The caller sets disp.botlx.
+export function erase_status_rows(state = game) {
+    const tty = tty_status_state(state);
+    for (let row = 0; row < MAX_STATUS_ROWS; ++row) {
+        tty.data[row].fill(' ');
+        tty.screen[row].fill(null);
+    }
+}
+
+// C ref: termcap.c term_clear_screen() for a full-screen menu or text
+// window: the terminal is erased, and erase_tty_screen() (wintty.c
+// 2035-2055) blanks the status window's cw->data through
+// tty_clear_nhwindow(). The disp.botlx that arm sets is left to the
+// window's dismissal, whose docrt() sets it again before any bot() can run.
+// It lives here, not in termcap.js, because that module must not import
+// this one: the cycle breaks module initialization order.
+export function term_clear_screen(state, display) {
+    display.clearScreen();
+    erase_status_rows(state);
+}
+
+// C ref: wintty.c tty_putstatusfield() (4802-4841). `x` is one-based and
+// `y` the status row; `style` is the color and attribute render_status()
+// has switched on around the call. Returns the terminal cursor's zero-based
+// column after the call, or null when x or y is outside the window and the
+// cursor does not move.
+function tty_putstatusfield(state, text, x, y, style = null, owner = null) {
+    const tty = tty_status_state(state);
+    const ncols = COLNO; // cw->cols
+    if (!(x < ncols && y < statusRows(state))) return null;
+    // tty_curs(NHW_STATUS, x, y): cw->curx is zero-based and x one-based,
+    // so the test at 4819 never finds the cursor already in place.
+    let cursor = x - 1;
+    const screenRow = state.nhDisplay ? statusScreenRow(y, state) : null;
+    for (let i = 0; i < text.length; ++i) {
+        const n = i + x;
+        if (n >= ncols) continue;
+        tty.data[y][n - 1] = text[i];
+        tty.screen[y][n - 1] = {
+            ch: text[i],
+            color: style?.color ?? NO_COLOR,
+            attr: style?.attr ?? 0,
+            owner,
+        };
+        if (screenRow !== null) dropStatusOverlay(state, screenRow, n - 1);
+        ++cursor;
+    }
+    return cursor;
+}
+
+// C ref: wintty.c check_fields() (4646-4741) for one BL_FLUSH or BL_RESET,
+// once make_things_fit() has settled the lengths; the port's status layout
+// (display.js statusLayouts()) has already applied that shrink ladder, so
+// this is the last of its check_fields() calls, whose x and redraw flags
+// render_status() uses. `rows` holds, for each status row, its enabled
+// fields in fieldorder[] order (twolineorder or threelineorder, 4276-4301):
+//
+//   { key, kind, lth, value, style, dirty, parts, entries }
+//
+// `kind` is 'condition' for BL_CONDITION, 'version' for BL_VERS and 'field'
+// otherwise; `lth` is tty_status[NOW][].lth; `value` is status_vals[], which
+// the same-contents test compares with cw->data; `style` identifies the
+// field's color and attribute; `dirty` is tty_status[NOW][].dirty; `parts`
+// are the {text, style, owner} pieces render_status() writes, in order,
+// which for a condition is one blank and one word per set bit.
+// Sets each field's one-based `x` and its `redraw`.
+function check_fields(state, rows, forcefields) {
+    const tty = tty_status_state(state);
+    const cols = COLNO; // cw->cols
+    for (let row = 0; row < rows.length; ++row) {
+        let col = 1;
+        let update_right = false;
+        for (const field of rows[row]) {
+            const before = tty.before.get(field.key)
+                ?? { x: 0, y: 0, lth: 0, style: null };
+            field.redraw = false;
+            field.y = row;
+            field.x = col;
+            if (field.x + field.lth !== before.x + before.lth)
+                update_right = true;
+            else if (field.lth !== before.lth || field.x !== before.x)
+                field.redraw = true;
+            else
+                update_right = false;
+
+            let matchprev = false;
+            if (!update_right && !forcefields && !field.redraw
+                && field.kind !== 'condition'
+                && field.style === before.style) {
+                matchprev = true;
+                if (field.dirty) {
+                    let c = col - 1;
+                    let nb = 0;
+                    while (nb < field.value.length && c < cols) {
+                        if (field.value[nb] !== tty.data[row][c]) break;
+                        ++nb;
+                        ++c;
+                    }
+                    if (nb < field.value.length) matchprev = false;
+                }
+            }
+            if (forcefields || update_right || (field.dirty && !matchprev))
+                field.redraw = true;
+            col += field.lth;
+        }
+    }
+}
+
+// C ref: wintty.c render_status() (4991-5262). Draws every field
+// check_fields() marked, in fieldorder[] order, and leaves the terminal
+// cursor where the last tty_curs() or tty_putstatusfield() put it: at the
+// start of the last row, after the last field drawn on it, or at the
+// rest-of-row erase. `truncation_expected` is make_things_fit()'s flag for a
+// last row that does not fit after every shrink.
+function render_status(state, rows, truncation_expected) {
+    const tty = tty_status_state(state);
+    const cols = COLNO; // cw->cols
+    let cursor = null;
+    for (let row = 0; row < rows.length; ++row) {
+        const y = row;
+        const dat = tty.data[y];
+        // tty_curs(WIN_STATUS, 1, y)
+        cursor = [0, y];
+        const put = (text, x, style, owner) => {
+            const column = tty_putstatusfield(state, text, x, y, style, owner);
+            if (column !== null) cursor = [column, y];
+        };
+        let finalxNow = null;
+        for (const field of rows[row]) {
+            let x = field.x;
+            const tlth = field.lth;
+            if (field.redraw) {
+                if (field.kind === 'condition') {
+                    // 5036-5069: on the third row, line the conditions up
+                    // with BL_HUNGER on the row above, else right justify
+                    // them, else leave them where check_fields() put them.
+                    // fieldorder[row][i + 1] is BL_WEAPON, never BL_VERS, so
+                    // last_col stays cw->cols.
+                    if (row === MAX_STATUS_ROWS - 1 && field.parts.length) {
+                        const last_col = cols;
+                        const hunger = tty.before.get('hunger')
+                            ?? { x: 0, y: 0 };
+                        let cstart;
+                        if (hunger.y < row && x < hunger.x
+                            && hunger.x + tlth < last_col - 1)
+                            cstart = hunger.x;
+                        else if (x + tlth < cols - 1)
+                            cstart = last_col - tlth;
+                        else
+                            cstart = x;
+                        if (x < cstart) {
+                            do {
+                                if (dat[x - 1] !== ' ') put(' ', x);
+                            } while (++x < cstart);
+                            field.x = x;
+                            // tty_curs(WIN_STATUS, x, y)
+                            cursor = [x - 1, y];
+                        }
+                    }
+                    // 5071-5100: a blank, then the word, for each set bit;
+                    // `parts` alternates the two.
+                    for (let i = 0; i + 1 < field.parts.length; i += 2) {
+                        const word = field.parts[i + 1];
+                        put(field.parts[i].text, x++);
+                        if (x >= cols && !truncation_expected) {
+                            // C: impossible("Unexpected condition placement
+                            // overflow for \"%s\"", condtext), then no
+                            // further conditions.
+                            note_unported('pline.c impossible');
+                            break;
+                        }
+                        put(word.text, x, word.style, word.owner);
+                        x += word.text.length;
+                    }
+                    if (x > cols) x = cols;
+                } else {
+                    if (field.kind === 'version') {
+                        // 5185-5210: BL_VERS ends its row in both orders, so
+                        // it is right justified. fieldorder[row][i - 1] is
+                        // BL_TERRAIN, never BL_CONDITION, so x is not moved
+                        // to the conditions' end first.
+                        const vstart = cols - field.lth;
+                        if (x < vstart) {
+                            do {
+                                if (dat[x - 1] !== ' ') put(' ', x);
+                            } while (++x < vstart);
+                            field.x = x;
+                        }
+                    }
+                    // 5108-5182 (hitpointbar) and 5211-5231: the parts carry
+                    // the split into unhighlighted blanks, '/', '[' and ']'
+                    // and the highlighted text.
+                    for (const part of field.parts) {
+                        put(part.text, x, part.style, part.owner);
+                        x += part.text.length;
+                    }
+                }
+            } else {
+                // not rendered => same text as before
+                x += tlth;
+            }
+            finalxNow = x - 1;
+            tty.before.set(field.key, {
+                x: field.x, y: field.y, lth: field.lth, style: field.style,
+                // The port's own: display.js _statusFlush() compares it.
+                text: field.text,
+            });
+        }
+        if (finalxNow === null) continue;
+        const x = finalxNow;
+        if ((x < tty.finalx[row] || !tty.finalx[row]) && x + 1 < cols) {
+            // tty_curs(WIN_STATUS, x + 1, y); cl_end();
+            cursor = [x, y];
+            tty_status_cl_end(row, x, state);
+        }
+        tty.finalx[row] = x;
+    }
+    tty.dirty.clear();
+    return cursor;
+}
+
+// C ref: wintty.c tty_status_update()'s BL_FLUSH and BL_RESET arms
+// (4479-4487): make_things_fit(), whose last check_fields() this runs, then
+// render_status(). `forcefields` is BL_RESET's FORCE_RESET, and
+// `truncation_expected` whether the last row still overflows after
+// make_things_fit()'s last shrink. Moves the terminal cursor as
+// render_status() leaves it.
+export function tty_status_flush(
+    rows, forcefields, truncation_expected, state = game,
+) {
+    check_fields(state, rows, forcefields);
+    const cursor = render_status(state, rows, truncation_expected);
+    const display = state.nhDisplay;
+    if (cursor && display?.grid) {
+        display.setCursor(
+            Math.min(cursor[0], display.cols - 1),
+            statusScreenRow(cursor[1], state),
+        );
+    }
+}
+
+// Copies the terminal's status rows from state._ttyStatus onto `display`,
+// which the screen rebuild erases at every flush.
+export function tty_status_paint(display, state = game) {
+    if (!display?.grid) return;
+    const tty = tty_status_state(state);
+    const count = statusRows(state);
+    for (let row = 0; row < count; ++row) {
+        const screenRow = display.rows - count + row;
+        display.clearRow(screenRow);
+        for (let column = 0; column < Math.min(COLNO, display.cols);
+            ++column) {
+            const cell = tty.screen[row][column];
+            // tty_putstatusfield() prints each byte as a char.
+            if (cell)
+                display.putch(column, screenRow, cell.ch, cell.color,
+                    cell.attr);
+        }
+    }
+}
+
 // C ref: wintty.c tty_clear_nhwindow() NHW_STATUS arm (1059-1073): cl_end()
-// on every status row, spaces in the window's data, and disp.botlx. The
-// port's status window contents are the cached layouts the screen rebuild
-// writes, so blank layouts are the cleared window until bot() repaints it.
+// on every status row, spaces in the window's data, and disp.botlx.
+// state._renderedStatusLayouts, the rows as last shown, goes blank with them.
 function clear_status_window(state) {
     const rows = statusRows(state);
     state._renderedStatusLayouts = Array.from(
@@ -419,15 +761,15 @@ function clear_status_window(state) {
     );
     state._renderedStatusStyles = null;
     const display = state.nhDisplay;
+    // cl_end() also erases map glyphs that an unclipped map printed on a
+    // status row (display.js _screenOverlay()); they come back only when
+    // the map cell is printed again.
+    for (let row = 0; row < rows; ++row) tty_status_cl_end(row, 0, state);
+    erase_status_rows(state);
     if (display?.grid) {
         const firstRow = display.rows - rows;
         for (let row = firstRow; row < display.rows; ++row)
             display.clearRow(row);
-        // cl_end() also erases map glyphs that an unclipped map printed on a
-        // status row (display.js _screenOverlay()); they come back only
-        // when the map cell is printed again.
-        for (const [key, cell] of state._screenOverlay ?? [])
-            if (cell.row >= firstRow) state._screenOverlay.delete(key);
     }
     state.disp ??= {};
     state.disp.botlx = true;
@@ -454,19 +796,15 @@ export function new_status_window(state = game) {
     if (state.nhDisplay?.nomuxRaw) state.nhDisplay.nomuxRaw.rawprint = 0;
     clear_status_window(state);
     // tty_status_init() zeroes tty_status[][], so the next render_status()
-    // pass redraws every field (display.js _renderStatusLastRow()), and
-    // tty_clear_nhwindow(WIN_STATUS) blanks cw->data.  Neither touches the
-    // file-static finalx[][] (wintty.c:4304; the reset at 1070 is commented
-    // out), so a rebuilt window still compares its last row's end column
-    // with the old one at wintty.c:5251-5256: the row's tail, where the
-    // indented conditions stand, is erased only if the row got shorter.
-    if (state._statusLastRowTty) {
-        state._statusLastRowTty = {
-            cells: { text: '', owners: [] },
-            before: new Map(),
-            finalx: state._statusLastRowTty.finalx,
-        };
-    }
+    // pass redraws every field, and tty_clear_nhwindow(WIN_STATUS) blanks
+    // cw->data.  Neither touches the file-static finalx[][] (wintty.c:4304;
+    // the reset at 1070 is commented out), so a rebuilt window still
+    // compares each row's end column with the old one at wintty.c:5251-5256:
+    // the row's tail, where the indented conditions stand, is erased only
+    // if the row got shorter.
+    const tty = tty_status_state(state);
+    tty.before = new Map();
+    tty.dirty = new Set();
     status_initialize(state, true);
 }
 

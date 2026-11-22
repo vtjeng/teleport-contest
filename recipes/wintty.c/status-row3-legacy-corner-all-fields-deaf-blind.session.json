@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c render_status() (4991-5262) with statuslines:3, weaponstatus, armorstatus, terrainstatus and the conditions Blind and Deaf together. The legacy text and the inventory are corner windows (menu_overlay), repaired by docorner() and a BL_RESET pass; the options menu is a full-screen window, repaired by docrt().",
+  "segments": [
+    {
+      "seed": 2290417,
+      "datetime": "20260105070000",
+      "nethackrc": "OPTIONS=name:Ingrid,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=weaponstatus,armorstatus,terrainstatus,statuslines:3,blind,deaf\n",
+      "moves": " \ni\u001bsO\u001bsi\u001b"
+    }
+  ]
+}

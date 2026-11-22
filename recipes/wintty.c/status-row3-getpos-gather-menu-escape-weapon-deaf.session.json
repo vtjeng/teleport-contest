@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c render_status() (4991-5262) for the cursor render_status() leaves behind, with weaponstatus and Deaf and !menu_overlay: getpos()'s gather menus (\"a\", \"z\") are full-screen windows, and Escape there returns to getpos with the cursor after BL_WEAPON on the third status row.",
+  "segments": [
+    {
+      "seed": 8830127,
+      "datetime": "20240229044500",
+      "nethackrc": "OPTIONS=name:Tomas,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=whatis_menu,!autodescribe,weaponstatus,statuslines:3,deaf,!menu_overlay\n",
+      "moves": ";a\u001b\u001bs;z\u001b\u001b;aa.;za."
+    }
+  ]
+}

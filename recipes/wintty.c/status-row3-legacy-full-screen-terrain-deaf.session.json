@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Exercises wintty.c erase_menu_or_text() (966-984) and render_status() (4991-5262) with statuslines:3, terrainstatus and Deaf. !menu_overlay makes the legacy text and the inventory menu full-screen windows, whose dismissal runs docrt() and flush_screen(1): BL_RESET redraws BL_CONDITION and then BL_TERRAIN, so both stay on the third row.",
+  "segments": [
+    {
+      "seed": 5310771,
+      "datetime": "20250314091500",
+      "nethackrc": "OPTIONS=name:Odile,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!tutorial,!splash_screen,pettype:none,!autopickup,!tips\nOPTIONS=terrainstatus,statuslines:3,deaf,!menu_overlay\n",
+      "moves": " \ni\u001bhi\u001b:l"
+    }
+  ]
+}

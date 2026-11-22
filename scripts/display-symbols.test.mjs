@@ -7648,6 +7648,9 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
     state.uwep = object(SPEAR);
     state.uarms = object(SMALL_SHIELD);
 
+    // allmain.c moveloop_preamble() sets disp.botlx before the first flush;
+    // a flush with no status flag set draws no status.
+    state.disp = { botlx: true };
     await flush_screen(1);
     const row = (index) => state.nhDisplay.grid[index]
         .map((cell) => cell.ch).join('').trimEnd();
@@ -7669,6 +7672,9 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
     // 999 is the three-digit starting-gold case which makes all enabled
     // fields exceed tty's 79 printable columns.
     state.invent = { oclass: COIN_CLASS, quan: 999, nobj: null };
+    // A 'statuslines' change rebuilds the status window, which sets
+    // disp.botlx (wintty.c new_status_window()).
+    state.disp.botlx = true;
     await flush_screen(1);
     assert.match(row(23), /^Dl:1 .* T:1  Bl Df Bare-hnds Shirt Stairs/u);
     assert.equal(row(23).length, 79);
@@ -8293,6 +8299,9 @@ test('tutorial overflow shrinking preserves complete status grids and attributes
             + 'OPTIONS=hilite_status:dungeon-level/always/red&bold',
         );
         state.iflags = { ...parsed.iflags, terrain_typ: MAX_TYPE, wc2_statuslines: lines };
+        // A 'statuslines' change rebuilds the status window, which sets
+        // disp.botlx (wintty.c new_status_window()).
+        state.disp = { ...state.disp, botlx: true };
         await bot();
         for (let index = 0; index < expected[lines].length; ++index) {
             const screenRow = 24 - lines + index;
@@ -8716,6 +8725,9 @@ test('status uses source attribute order and exceptional strength text', async (
     state.plname = 'Hero';
     state.iflags = { wc2_statuslines: 3 };
     state.u.uroleplay = {};
+    // A 'statuslines' change rebuilds the status window, which sets
+    // disp.botlx (wintty.c new_status_window()).
+    state.disp = { ...state.disp, botlx: true };
     await bot();
     assert.match(
         row(21),
@@ -9662,6 +9674,8 @@ test('three-line status leaves a 24-row map unclipped', async () => {
     // Not newly flushed, so it is not printed over the status window.
     state.level.at(1, 20).disp_ch = 'Z';
 
+    // allmain.c moveloop_preamble() sets disp.botlx before the first flush.
+    state.disp = { botlx: true };
     await flush_screen(1);
 
     const row = (index) => state.nhDisplay.grid[index]
@@ -9706,6 +9720,8 @@ test('three-line status: an unexplored glyph flushed on map row 20 prints its bl
         uprops: zeroHeroProperties(),
     };
     monst_globals_init(state);
+    // allmain.c moveloop_preamble() sets disp.botlx before the first flush.
+    state.disp = { botlx: true };
     await flush_screen(1);
     const cell = () => state.nhDisplay.grid[21][2].ch;
     // Column 2 of "Hero the Digger" is the 'r' of "Hero"; map x 3 prints there.
