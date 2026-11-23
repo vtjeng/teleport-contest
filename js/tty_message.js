@@ -656,17 +656,21 @@ function vplineMsgtype(line, pflags, prevmsg, state) {
 // queued_flush_screen_status()); that step does not wait either, because
 // the code after the line can change what the status shows. `recalc` is
 // false for vision.c notice_all_mons()'s lines, which the recalculation
-// itself raises.
-export function queuedVpline(message, prevmsg, state = game, recalc = true) {
-    if (state !== game) return;
+// itself raises, and `status` is false for a line queued while the queue
+// drains, whose flush runs when it prints. Answers whether the status step
+// ran.
+export function queuedVpline(
+    message, prevmsg, state = game, { recalc = true, status = true } = {},
+) {
+    if (state !== game) return false;
     if (!message || state.program_state?.done_hup
         || state.program_state?.wizkit_wishing
         || !state.iflags?.window_inited)
-        return;
+        return false;
     const line = normalizeVplineMessage(message);
     if (vplineMsgtype(line, state.gp?.pline_flags ?? 0,
                       prevmsg ?? state._ttyPreviousMessage, state) === null)
-        return;
+        return false;
     // display.c wall_angle()'s impossible() inside the recalculation is a
     // pline nested in this one, so it joins the queue ahead of this line too.
     if (recalc && state.vision_full_recalc) {
@@ -675,7 +679,7 @@ export function queuedVpline(message, prevmsg, state = game, recalc = true) {
             onImpossible: (text) => sync_impossible(text, state),
         });
     }
-    if (state.u?.ux) queued_flush_screen_status();
+    return Boolean(status && state.u?.ux) && queued_flush_screen_status();
 }
 
 // C ref: pline.c vpline() (266-272). A recalculation another routine

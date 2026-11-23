@@ -5,7 +5,8 @@ import { parse } from 'acorn';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
-import { newsym } from '../js/display.js';
+import { flush_screen, newsym } from '../js/display.js';
+import { sync_impossible } from '../js/source_steps.js';
 import { emitGlyphUpdateNotices } from '../js/startup_a11y.js';
 import { tty_status_state } from '../js/wintty.js';
 import { FOUNTAIN } from '../js/const.js';
@@ -145,4 +146,42 @@ test('the status is drawn when the line is queued, and kept for its print', asyn
     assert.match(statusText(), new RegExp(`HP:${full - 3}\\(${full}\\)`, 'u'));
     game.delay_flushing = false;
     await emitGlyphUpdateNotices(game, { pline: ttyPline });
+    await flush_screen(1);
+    clearTtyMessageWindow(game);
+    assert.match(statusText(), new RegExp(`HP:${full - 5}\\(${full}\\)`, 'u'));
+
+    // A pline.c impossible() report from synchronous code takes the same
+    // step: 1 more hit point goes first and the report's flush draws it.
+    game.u.uhp = full - 6;
+    game.disp.botl = true;
+    sync_impossible('queued-notice-status test report', game);
+    assert.equal(game.disp.botl, false);
+    assert.match(statusText(), new RegExp(`HP:${full - 6}\\(${full}\\)`, 'u'));
+
+    // The report's three lines stop at --More-- twice; a space (0x20)
+    // dismisses each.
+    for (let more = 0; more < 2; ++more) game.nhDisplay.pushKey(0x20);
+    await emitGlyphUpdateNotices(game, { pline: ttyPline });
+    clearTtyMessageWindow(game);
+
+    // A line queued while another prints: a third fountain is announced,
+    // and during its print 1 more hit point goes and a fourth appears.
+    // The drain puts back the rows it found, so that line's status step
+    // must not draw into the rows the drain swapped in and then discards.
+    game.level.at(ux + 3, uy).typ = FOUNTAIN;
+    newsym(ux + 3, uy);
+    await emitGlyphUpdateNotices(game, {
+        pline: async (message, state) => {
+            await ttyPline(message, state);
+            game.u.uhp = full - 7;
+            game.disp.botl = true;
+            game.level.at(ux + 3, uy + 1).typ = FOUNTAIN;
+            newsym(ux + 3, uy + 1);
+        },
+    });
+    assert.deepEqual(game._glyphUpdateNotices.map((n) => n.message),
+        ['(1south,3east): fountain.']);
+    await emitGlyphUpdateNotices(game, { pline: ttyPline });
+    await flush_screen(1);
+    assert.match(statusText(), new RegExp(`HP:${full - 7}\\(${full}\\)`, 'u'));
 });

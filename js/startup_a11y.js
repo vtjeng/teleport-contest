@@ -657,6 +657,11 @@ export function queueGlyphUpdateNotice(
 function queueNoticeLine(
     notice, state, { recalc = true, nestedLocation = false } = {},
 ) {
+    // A line queued while the queue drains (a recalculation inside a
+    // drained line's print raises one) would draw its status into the rows
+    // the drain has swapped in and then puts back, so its flush is left to
+    // its own print.
+    const status = !state._emittingGlyphUpdateNotices;
     if (notice.message != null) {
         const last = state._glyphUpdateNotices?.at(-1);
         const a11y = state.a11y;
@@ -667,14 +672,14 @@ function queueNoticeLine(
                 notice.message,
                 last && !last.impossible ? last.message : null,
                 state,
-                recalc,
+                { recalc, status },
             );
         } finally {
             if (nestedLocation && a11y) a11y.accessiblemsg = accessiblemsg;
         }
     }
     notice.glyphFrame = takeNoticeGlyphFrame(state);
-    notice.statusFrame = takeNoticeStatusFrame(state);
+    notice.statusFrame = status ? takeNoticeStatusFrame(state) : null;
     (state._glyphUpdateNotices ??= []).push(notice);
     state._flushAfterQueuedNotice = null;
 }
