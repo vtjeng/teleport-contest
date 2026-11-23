@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 350742,
+      "datetime": "20360219153000",
+      "nethackrc": "OPTIONS=name:Tremor,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,pettype:none,!autopickup\n",
+      "moves": " #levelchange\n14\n\u001b\u0017helm of telepathy\nWe\u0017wand of make invisible\n\u0017scroll of earth\ndg\u0007soldier\nzfkhhmsmsmsms  : \u001b"
+    }
+  ],
+  "comment": "Variation of scroll-earth-reader-sensed-unseen with a lawful dwarf and a hero who is not blind: a wished wand of make invisible is zapped at the soldier, and the hero retreats two squares so that the soldier is not lined up and searches for the scroll. The helm of telepathy senses the invisible soldier, so canspotmon(mtmp) selects \"The ceiling rumbles above the invisible soldier!\" where canseemon() would fall through to cansee() and print \"The ceiling rumbles in the middle of nowhere!\""
+}

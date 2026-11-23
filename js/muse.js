@@ -2842,7 +2842,7 @@ export async function use_offensive(mtmp, rawEnv = {}) {
         // Pass the caller's message owner through every Earth message.
         await mreadmsg(mtmp, otmp, state, env);
         const message = env.message ?? ttyPline;
-        if (canseemon(mtmp, state)) {
+        if (canspotmon(mtmp, state)) {
             await message(
                 `The ${ceiling(mtmp.mx, mtmp.my, state)} rumbles `
                     + `${isBlessed ? 'around' : 'above'} `
