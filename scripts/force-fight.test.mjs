@@ -265,7 +265,10 @@ test('an exploding form runs the source tail after its off-edge message', async 
     // matching mobile light, including C's minimum detectable range of 2.
     await polymon(PM_YELLOW_LIGHT, state, { message: async () => {} });
     // Only relocate after ordinary-floor inventory shedding is complete.
-    state.u.ux = 0;
+    // Column 1 is the map's west edge: isok() refuses column 0, so the
+    // square to the west is off the map, and the hero's own square is one
+    // newsym() can draw without reporting it.
+    state.u.ux = 1;
     new_light_source(state.u.ux, state.u.uy,
         Math.max(2, emits_light(state.youmonst.data)), LS_MONSTER,
         state.youmonst, state);

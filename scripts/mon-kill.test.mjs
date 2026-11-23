@@ -785,7 +785,10 @@ test('unstuck re-arms a holder and leaves everything else alone',
 
         // An engulfer clears both holding and swallowing state, then redraws
         // through its injected docrt operation before re-arming its attack.
-        const engulfer = monster(PM_LICHEN);
+        // The engulfer stands on the hero's square, as C's does: unstuck()
+        // copies its position to the hero (mon.c 3450-3451), and a position
+        // in column 0 would make the redraw's newsym() report it.
+        const engulfer = monster(PM_LICHEN, { mx: game.u.ux, my: game.u.uy });
         game.u.ustuck = engulfer;
         game.u.uswallow = 1;
         game.u.uswldtim = 4;
