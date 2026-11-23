@@ -26,9 +26,15 @@ async function initialize() {
 // trap.c:2990-2993 discards impossible() and returns Finished.
 test('selector default preserves the C status after its discarded diagnostic', async () => {
     await initialize();
-    assert.equal(await trapeffect_selector({}, { ttyp: -1 }, 0, { state: game }),
+    const lines = [];
+    const record = async (text) => { lines.push(text); };
+    assert.equal(
+        await trapeffect_selector({}, { ttyp: -1 }, 0,
+            { state: game, message: record, urgentMessage: record }),
         Trap_Effect_Finished);
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    // trap.c:2988-2990: the monster is not the hero, and -1 is the type.
+    assert.equal(lines[0], 'Some monster encountered a strange trap of type -1.');
+    assert.equal(lines.length, 3);
 });
 
 // trap.c:3805-3807 returns before learning an airborne floor trap. This also

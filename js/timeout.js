@@ -1857,7 +1857,8 @@ export function end_burn(obj, timerAttached = true, env = {}) {
         // 1806-1809), then return; this function queues the report.
         // Every C caller checks lamplit first or reaches it from a lit light
         // source or burn timer.
-        sync_impossible(`end_burn: obj ${xname(obj, (env.state ?? game))} not lit`, (env.state ?? game));
+        const state = env.state ?? game;
+        sync_impossible(`end_burn: obj ${xname(obj, state)} not lit`, state);
         return false;
     }
     if (plan.mode === 'direct') {
@@ -1870,7 +1871,8 @@ export function end_burn(obj, timerAttached = true, env = {}) {
     if (plan.mode === 'untimed') {
         // impossible("end_burn: obj %s not timed!", xname(obj)); this
         // function queues the report.
-        sync_impossible(`end_burn: obj ${xname(obj, (env.state ?? game))} not timed!`, (env.state ?? game));
+        const state = env.state ?? game;
+        sync_impossible(`end_burn: obj ${xname(obj, state)} not timed!`, state);
         return true;
     }
     stop_timer(BURN_OBJECT, obj, plan.normalized.state, plan.normalized);

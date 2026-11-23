@@ -22,10 +22,6 @@ import {
 import { assertExceptionCount } from './exception-count.mjs';
 import { requireCompiler } from './recorder-headers.mjs';
 
-// include/flag.h notice_mon_on() expands to impossible("mon_notices_blocked<0")
-// at each caller; js/hack.js notice_mon_on() ports the macro once and holds
-// the marker, so the callers have none of their own.
-const NOTICE_MON_ON = 'the flag.h notice_mon_on() macro; js/hack.js notice_mon_on() holds the marker';
 // The port reads dungeon.lua through the generated DUNGEON_DATA
 // (scripts/generate-dungeon-data.mjs), not as a Lua table, so C's checks of
 // the table's Lua types have no counterpart.
@@ -40,12 +36,6 @@ const NO_C_RESOURCE = 'checks a C buffer, allocation or file read the port does 
 const SAVE_GRAPH = 'checks a step of C\'s save or restore stream that the port\'s object-graph save has no counterpart for';
 
 const EXCEPTIONS = new Map([
-    ['src/allmain.c newgame', { count: 1, reason: NOTICE_MON_ON }],
-    ['src/do.c goto_level', { count: 1, reason: NOTICE_MON_ON }],
-    ['src/read.c seffect_magic_mapping', { count: 1, reason: NOTICE_MON_ON }],
-    ['src/save.c dosave0', { count: 1, reason: NOTICE_MON_ON }],
-    ['src/teleport.c teleds', { count: 1, reason: NOTICE_MON_ON }],
-    ['src/wizcmds.c wiz_map', { count: 1, reason: NOTICE_MON_ON }],
     ['src/dungeon.c get_dgn_flags', { count: 2, reason: DUNGEON_LUA }],
     ['src/dungeon.c init_dungeon_levels', { count: 1, reason: DUNGEON_LUA }],
     ['src/dungeon.c init_dungeon_branches', { count: 1, reason: DUNGEON_LUA }],
@@ -57,9 +47,6 @@ const EXCEPTIONS = new Map([
     ['src/cmd.c get_count', { count: 1, reason: DEAD_IN_C }],
     // youprop.h defines Punished as (uball != 0).
     ['src/insight.c status_enlightenment', { count: 1, reason: DEAD_IN_C }],
-    // strchr() of a nonzero byte never returns the terminator, so the index
-    // is always in range.
-    ['src/options.c optfn_disclose', { count: 1, reason: DEAD_IN_C }],
     ['src/glyphs.c parse_id', { count: 1, reason: NO_C_RESOURCE }],
     // MAX_BMASK bounds C's fixed bmask[] table (mkmaze.c:1900).
     ['src/mkmaze.c mk_bubble', { count: 1, reason: NO_C_RESOURCE }],
@@ -98,7 +85,7 @@ const EXCEPTIONS = new Map([
         reason: 'the port keeps the status window in state._ttyStatus and has no WIN_STATUS record to be missing' }],
 ]);
 // The sum of the counts above.
-const EXCEPTION_PIN = 42;
+const EXCEPTION_PIN = 35;
 
 test('each ported C function ports or marks its missing diagnostics', async () => {
     const { deficits } = await scanDeficits({

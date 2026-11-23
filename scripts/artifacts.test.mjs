@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -90,7 +91,6 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
-import { game } from '../js/gstate.js';
 import { initUnported } from '../js/unported.js';
 import {
     ROLE_ALIGNMASK,
@@ -1676,7 +1676,8 @@ test('found_artifact() reports a non-existent artifact and leaves it unfound', (
     // Artifact index 1 exists=0 by default.
     found_artifact(1, state);
     assert.equal(state.artiexist[1].found, 0);
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    assert.deepEqual(takeQueuedReports(state),
+        ["found_artifact: artifact doesn't exist yet? (1)"]);
 });
 
 test('found_artifact() reports an out-of-range index and changes nothing', () => {
@@ -1687,6 +1688,9 @@ test('found_artifact() reports an out-of-range index and changes nothing', () =>
     // NROFARTIFACTS.
     found_artifact(0, state);
     found_artifact(99, state);
+    assert.deepEqual(takeQueuedReports(state), [
+        'found_artifact: invalid artifact index! (0)',
+        'found_artifact: invalid artifact index! (99)',
+    ]);
     assert.equal(JSON.stringify(state.artiexist), before);
-    assert.equal(game.unported.has('pline.c impossible'), true);
 });

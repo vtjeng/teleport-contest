@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -329,18 +330,23 @@ test('steal clears a nullable C-style name buffer before an early return',
 
 test('mpickobj preserves missing and attached-object return values', () => {
     const carrier = monster();
-    const ball = object();
+    // simpleonames() in the second report names the apple by its class.
+    const ball = object({ oclass: FOOD_CLASS, quan: 1 });
     const gameState = state({ uball: ball });
     const env = { state: gameState };
 
     // steal.c mpickobj() reports both through impossible(), which the port
     // records as a gap.
-    game.unported = new Set();
+    // pmname() in both reports reads the carrier's species names.
+    carrier.data = { ...carrier.data, pmnames: [null, null, 'jackal'] };
     assert.equal(mpickobj(carrier, null, env), true);
-    assert.deepEqual([...game.unported], ['pline.c impossible']);
-    game.unported = new Set();
+    assert.deepEqual(takeQueuedReports(gameState),
+        ['monster (jackal) taking or picking up nothing?']);
     assert.equal(mpickobj(carrier, ball, env), false);
-    assert.deepEqual([...game.unported], ['pline.c impossible']);
+    const attached = takeQueuedReports(gameState);
+    assert.equal(attached.length, 1);
+    assert.match(attached[0],
+        /^monster \(jackal\) taking or picking up attached ball \(.+\)\?$/u);
     assert.equal(carrier.minvent, null);
     assert.equal(ball.where, OBJ_FREE);
 });

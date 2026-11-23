@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -66,7 +67,8 @@ test('bc_order retains the source invalid-pile diagnostic as a discarded gap', (
     const state = fixture(); state.level.objects[10][8] = null;
     game.unported = new Set();
     assert.equal(bc_order(state), DIFFER);
-    assert.ok(game.unported.has('pline.c impossible'));
+    assert.deepEqual(takeQueuedReports(state),
+        ['bc_order:  ball&chain not in same location!']);
 });
 
 test('set_bc captures under a shared pile and restores either source stack', () => {

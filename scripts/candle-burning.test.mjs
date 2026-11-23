@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -25,8 +26,10 @@ import {
     MAGIC_LAMP,
     OIL_LAMP,
     POT_OIL,
+    STRANGE_OBJECT,
     TALLOW_CANDLE,
     WAX_CANDLE,
+    objects_globals_init,
 } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
@@ -365,11 +368,16 @@ test('a full candelabrum uses the candle warning and bright-light bands', () => 
 // whole age (200, the fixture's fuel) with the initial radius of 3.
 test('an unexpected burn object takes the impossible() arm', () => {
     const state = burnState();
-    // otyp -1 matches no case of begin_burn()'s switch.
-    const unexpected = candle(-1);
-    game.unported = new Set();
+    // A strange object matches no case of begin_burn()'s switch, and
+    // xname() in the report can name it from the object catalog.
+    objects_globals_init(state);
+    const unexpected = candle(STRANGE_OBJECT, {
+        oclass: state.objects[STRANGE_OBJECT].oc_class, dknown: true,
+    });
     begin_burn(unexpected, false, { state });
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    const reports = takeQueuedReports(state);
+    assert.equal(reports.length, 1);
+    assert.match(reports[0], /^begin burn: unexpected .+$/u);
     assert.equal(unexpected.lamplit, true);
     assert.equal(unexpected.age, 0);
     // The fixture starts at move 10, so the 200-turn burn expires at 210.
@@ -406,14 +414,9 @@ test('begin_burn lights a candle with no map position but adds no light', () => 
     const state = burnState();
     // A free candle: get_obj_location() finds no position for OBJ_FREE.
     const obj = candle(TALLOW_CANDLE, { where: OBJ_FREE });
-    const previous = game.unported;
-    game.unported = new Set();
-    try {
-        begin_burn(obj, false, { state });
-        assert.equal(game.unported.has('pline.c impossible'), true);
-    } finally {
-        game.unported = previous;
-    }
+    begin_burn(obj, false, { state });
+    assert.deepEqual(takeQueuedReports(state),
+        ["begin_burn: can't get obj position"]);
     assert.equal(obj.lamplit, true);
     // Age 200 burns to the 75-turn stage: 125 turns on this timer.
     assert.equal(obj.age, 75);
@@ -428,15 +431,19 @@ test('begin_burn lights a candle with no map position but adds no light', () => 
 test('end_burn reports a lit candle that has no burn timer', () => {
     const state = burnState();
     // Lit by hand with no timer and no light source: only the report runs.
-    const obj = candle(TALLOW_CANDLE, { lamplit: true });
-    const previous = game.unported;
-    game.unported = new Set();
-    try {
-        end_burn(obj, true, { state });
-        assert.equal(game.unported.has('pline.c impossible'), true);
-    } finally {
-        game.unported = previous;
-    }
+    // xname() in the report reads the object catalog; the type is marked
+    // encountered so that naming it adds nothing to the discoveries list
+    // this fixture does not build.
+    objects_globals_init(state);
+    state.objects[TALLOW_CANDLE].oc_encountered = 1;
+    const obj = candle(TALLOW_CANDLE, {
+        lamplit: true, oclass: state.objects[TALLOW_CANDLE].oc_class,
+        dknown: true,
+    });
+    end_burn(obj, true, { state });
+    const reports = takeQueuedReports(state);
+    assert.equal(reports.length, 1);
+    assert.match(reports[0], /^end_burn: obj .+ not timed!$/u);
     assert.equal(obj.lamplit, true);
     assert.equal(state.gt.timer_base, null);
 });

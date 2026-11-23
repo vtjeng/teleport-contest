@@ -36,6 +36,7 @@
 // `||`, so rewriting one `||` inside a chain of them leaves an earlier true
 // term deciding the answer.
 
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -254,7 +255,9 @@ test('eaten_stat scales by the fraction left and never answers zero', () => {
     // The synchronous port records the report as a gap.
     game.unported = new Set();
     assert.equal(eaten_stat(2, food(current, APPLE, { oeaten: 51 }), env), 2);
-    assert.ok(game.unported.has('pline.c impossible'));
+    assert.deepEqual(takeQueuedReports(current), [
+        'partly eaten food (51) more nutritious than untouched food (50)',
+    ]);
 });
 
 // C ref: eat.c consume_oeaten() (3806-3872).
@@ -286,7 +289,9 @@ test('consume_oeaten subtracts, shifts, and stops short of zero', () => {
     game.unported = new Set();
     consume_oeaten(empty, -1, current);
     assert.equal(empty.oeaten, 1);
-    assert.ok(game.unported.has('pline.c impossible'));
+    assert.deepEqual(takeQueuedReports(current), [
+        `oeaten: attempting to set 0 nutrition food (corpse [${PM_LICHEN}]) partially eaten`,
+    ]);
 });
 
 // C ref: eat.c adj_victual_nutrition() (336-357).

@@ -909,6 +909,11 @@ test('goto_level applies the endgame and tutorial transition guards',
     const oldLevel = { ...leaving.u.uz };
     downStairsUnderHero(leaving, false, { dnum: 1, dlevel: 1 });
     destinationAlreadyVisited(leaving, { dnum: 1, dlevel: 1 });
+    // This fixture never entered the tutorial, so nhlua.c nhl_gamestate()
+    // finds nothing stored and reports "inconsistent state (restore vs not
+    // stored)" through impossible(). One space answers each --More--
+    // between its three lines.
+    for (let i = 0; i < 2; i++) leaving.nhDisplay.pushKey(' '.charCodeAt(0));
     await assert.rejects(dodown(leaving), DESTINATION_REFUSAL,
         'tutorial exit continues to the reload boundary');
     const oldLedger = ledger_no(oldLevel, leaving);

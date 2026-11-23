@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -1226,7 +1227,8 @@ test('Resists_Elem retains the source impossible() diagnostic defaults', () => {
     state.u = { uprops: Array(64).fill(null) };
     initUnported();
     assert.equal(Resists_Elem(hero, 99, state), false);
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    assert.deepEqual(takeQueuedReports(state),
+        ['Resists_Elem(99), unexpected property type']);
 
     // mondata.c resists_blnd() diagnoses Blnd_resist that was not explained
     // by Blind/Unaware, monster attack type, or artifact defense, then TRUE.

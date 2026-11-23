@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { game, resetGame } from '../js/gstate.js';
+import { resetGame } from '../js/gstate.js';
 import { hornoplenty } from '../js/mkobj_hornoplenty.js';
 
 test('hornoplenty records C impossible diagnostics and returns zero', async () => {
@@ -14,12 +14,17 @@ test('hornoplenty records C impossible diagnostics and returns zero', async () =
     const invalidHorn = null;
 
     // The invalid input returns C's untouched object count; no object was made.
+    const lines = [];
+    const record = async (text) => { lines.push(text); };
     assert.equal(
-        await hornoplenty(invalidHorn, false, null, { state }),
+        await hornoplenty(invalidHorn, false, null,
+            { state, message: record, urgentMessage: record }),
         0,
     );
-    assert.ok(
-        game.unported.has('pline.c impossible'),
-        'the void diagnostic remains recorded as an unported callee',
-    );
+    // mkobj.c:2854-2855, then pline.c impossible()'s two fixed lines.
+    assert.deepEqual(lines, [
+        "bad horn o' plenty",
+        'Program in disorder!',
+        'Please report these messages to devteam@nethack.org.',
+    ]);
 });

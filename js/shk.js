@@ -2185,8 +2185,12 @@ async function buy_container(shkp, indx, ibillct, ibill, state, env) {
     for (let i = 0; i < ebillct; ++i) {
         const bp = eshk.bill_p[i];
         const obj = bp_to_obj(bp, state);
-        if (!obj) { await impossible(
-                `Can't find contained item on shop bill (#${bp.bo_id}).`, state, env); return 2; }
+        if (!obj) {
+            await impossible(
+                `Can't find contained item on shop bill (#${bp.bo_id}).`,
+                state, env);
+            return 2;
+        }
         if (obj.where !== OBJ_CONTAINED && !hasContents(obj)) continue;
         let top = obj;
         while (top.where === OBJ_CONTAINED) top = top.ocontainer;
@@ -2203,15 +2207,21 @@ async function buy_container(shkp, indx, ibillct, ibill, state, env) {
         let index = 0;
         for (; index < ebillct; ++index)
             if (eshk.bill_p[index].bo_id === id) break;
-        if (index === ebillct) { await impossible(
+        if (index === ebillct) {
+            await impossible(
                 `Buying ${simpleonames(container, state)} contents: item #${id} disappeared from bill.`,
-                state, env); return 2; }
+                state, env);
+            return 2;
+        }
         const bp = eshk.bill_p[index];
         const obj = bp_to_obj(bp, state);
         const buy = await dopayobj(shkp, bp, obj, 1, false, unseen, state, env);
-        if (buy !== PAY_BUY) { await impossible(
+        if (buy !== PAY_BUY) {
+            await impossible(
                 `Buying ${simpleonames(container, state)} contents failed unexpectedly (#${obj.o_id} ${buy}).`,
-                state, env); continue; }
+                state, env);
+            continue;
+        }
         ibill[indx].cost -= bp.price * bp.bquan;
         update_bill(id === container.o_id ? indx : -1,
             ibillct, ibill, eshk, bp, obj, state);

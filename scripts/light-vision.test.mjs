@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
@@ -699,7 +700,10 @@ test('camera flash owns the source-approved radius-zero null-object light', () =
     assert.equal(
         new_light_source(10, 7, 0, LS_MONSTER, { a_obj: null }, state), null);
     assert.equal(state.gl.light_base, source);
-    assert.ok(state.unported.has('pline.c impossible'));
+    assert.deepEqual(takeQueuedReports(state), [
+        'new_light_source:  illegal range 0',
+        'new_light_source:  illegal range 0',
+    ]);
 });
 
 test('a blocking wall stops candle light along clear_path', () => {

@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -227,7 +228,8 @@ test('cost reports blank paper and returns 1000 (impossible branch)', () => {
     try {
         assert.equal(
             cost({ oclass: SCROLL_CLASS, otyp: SCR_BLANK_PAPER }, state), 1000);
-        assert.equal(game.unported.has('pline.c impossible'), true);
+        assert.deepEqual(takeQueuedReports(state),
+            ["You can't write such a weird scroll!"]);
     } finally {
         game.unported = previous;
     }

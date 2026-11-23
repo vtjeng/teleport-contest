@@ -6,6 +6,7 @@
 // del_light_source() also has an async form that prints the report. Each
 // test builds the bad state directly and pins what C does after the report.
 
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -36,7 +37,8 @@ test('record_achievement reports an out-of-range number and records nothing', ()
     state.u = { uachieved: [0, 0, 0] };
     record_achievement(99, state);
     assert.deepEqual(state.u.uachieved, [0, 0, 0]);
-    assert.ok(game.unported.has('pline.c impossible'));
+    assert.deepEqual(takeQueuedReports(state),
+        ['Achievement #99 is out of range.']);
 });
 
 // C ref: flag.h:234-237 notice_mon_on(). An unpaired resume reports and
@@ -47,7 +49,7 @@ test('notice_mon_on reports an unpaired resume and clamps to zero', () => {
     state.a11y = { mon_notices_blocked: 0 };
     notice_mon_on(state);
     assert.equal(state.a11y.mon_notices_blocked, 0);
-    assert.ok(game.unported.has('pline.c impossible'));
+    assert.deepEqual(takeQueuedReports(state), ['mon_notices_blocked<0']);
 });
 
 // C ref: light.c del_light_source():134-137. A source that is not on the
@@ -126,10 +128,19 @@ test('dmonsfree reports a count mismatch and still purges', () => {
     // One dead monster (mhp 0) and one live one; purge_monsters claims 2.
     const live = { mhp: 5, nmon: null };
     const dead = { mhp: 0, nmon: live };
-    state.level = { monlist: dead };
+    // `at` answers no square: the report's queue entry records the map.
+    state.level = { monlist: dead, at: () => undefined };
     state.iflags = { purge_monsters: 2 };
+    // describe_level() in the report reads the hero's level: the first
+    // level of a one-dungeon game.
+    state.u = { uz: { dnum: 0, dlevel: 1 } };
+    state.dungeons = [{ depth_start: 1, num_dunlevs: 5, dname: 'The Dungeons of Doom' }];
     assert.equal(dmonsfree(state), 1);
     assert.equal(state.level.monlist, live);
     assert.equal(state.iflags.purge_monsters, 0);
-    assert.ok(game.unported.has('pline.c impossible'));
+    const reports = takeQueuedReports(state);
+    assert.equal(reports.length, 1);
+    // One dead monster was removed where the count claimed two.
+    assert.match(reports[0],
+        /^dmonsfree: 1 removed doesn't match 2 pending on .+$/u);
 });

@@ -33,20 +33,20 @@ const LABEL = /^([A-Za-z0-9_-]+\.c) ([A-Za-z_]\w*)/u;
 // A skipped impossible() or panic() is an internal-error report.
 const INTERNAL_ERROR = /^[\w-]+\.c (?:impossible|panic)$/u;
 
-// Vincent decided on 2026-11-13 to wire each impossible() and panic() report
-// only when a game reaches it. scripts/c-diagnostic-markers.test.mjs requires
-// every ported function to port or mark each such call in its C function.
-const WIRED_WHEN_REACHED = 'an internal-error report, wired when a game reaches it '
-    + '(decided 2026-11-13); scripts/c-diagnostic-markers.test.mjs enforces the marking';
+// Port code calls impossible() and panic() where C does. The markers that
+// remain are the sites scripts/impossible-sites.test.mjs lists, each with
+// its reason, and js/shknam.js shkname()'s panic();
+// scripts/c-diagnostic-markers.test.mjs requires every ported function to
+// port or mark each such call in its C function.
+const LISTED_SITE = 'an internal-error report at a site that '
+    + 'scripts/impossible-sites.test.mjs or scripts/note-unported-stale.test.mjs '
+    + 'lists with its reason';
 
 // Each label's pinned call count and reason. The reasons for the calls that
 // are not internal-error reports restate the comment at each call site.
 export const SKIPPED_CALL_REASONS = new Map([
-    // Includes the mklev.js mkinvpos() call whose argument names alloc.c panic
-    // in its other arm, and the topten.js classmon() template.
-    ['pline.c impossible', { count: 256, reason: WIRED_WHEN_REACHED }],
-    ['end.c panic', { count: 1, reason: WIRED_WHEN_REACHED }],
-    ['alloc.c panic', { count: 1, reason: WIRED_WHEN_REACHED }],
+    ['pline.c impossible', { count: 9, reason: LISTED_SITE }],
+    ['end.c panic', { count: 1, reason: LISTED_SITE }],
     // js/files.js: a playground file other than the config file, or a name
     // outside the playground or HOME.
     ['files.c fopen_wizkit_file', { count: 2, reason: 'the port has no copy of a host wizkit '
@@ -150,7 +150,7 @@ export function skippedCallsWithoutReason(jsFiles, registry = SKIPPED_CALL_REASO
     const { byLabel } = callsByLabel(calls);
     let count = calls.filter(({ labels }) => !labels
         || labels.some((label) => !registry.get(label)?.reason)).length;
-    const internalErrors = { calls: 0, reason: WIRED_WHEN_REACHED, labels: {} };
+    const internalErrors = { calls: 0, reason: LISTED_SITE, labels: {} };
     const other = [];
     for (const [label, { count: pinned, reason }] of registry) {
         if (!reason) continue;

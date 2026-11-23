@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -1036,7 +1037,7 @@ test('notice_mon_off and notice_mon_on nest and clamp an unpaired resume',
         game.unported = new Set();
         notice_mon_on(state);
         assert.equal(state.a11y.mon_notices_blocked, 0);
-        assert.ok(game.unported.has('pline.c impossible'));
+        assert.deepEqual(takeQueuedReports(state), ['mon_notices_blocked<0']);
     }
 });
 
