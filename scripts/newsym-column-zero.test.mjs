@@ -67,3 +67,16 @@ test('night vision starts at column 1', () => {
             ?.length, 1,
     );
 });
+
+test('vision_recalc() redraws the hero unless the game is panicking', () => {
+    const text = readFileSync(new URL('../js/vision.js', import.meta.url),
+        'utf8');
+    // vision.c:849-850 `if (!program_state.panicking) newsym(u.ux, u.uy)`
+    // has no column test. Two: the Blind arm's written-out `goto skip` and
+    // the end of the update loop.
+    assert.equal(
+        text.match(/if \(!state\.program_state\?\.panicking\) yield\* draw\(ux, uy\);/gu)
+            ?.length, 2,
+    );
+    assert.equal(text.match(/ux > 0\) yield\* draw/gu), null);
+});
