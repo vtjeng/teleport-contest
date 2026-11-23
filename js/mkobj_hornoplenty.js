@@ -44,8 +44,8 @@ import {
     POT_WATER,
 } from './objects.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { coreRandom } from './rng.js';
+import { impossible } from './pline.js';
 
 export async function hornoplenty(horn, tipping, targetbox, env = {}) {
     const state = env.state ?? game;
@@ -55,8 +55,8 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
 
     if (!horn || horn.otyp !== HORN_OF_PLENTY) {
         // C prints "bad horn o' plenty" through impossible(), which this
-        // build shows in every mode, and returns; the port records the gap.
-        note_unported('pline.c impossible');
+        // build shows in every mode, and returns.
+        await impossible("bad horn o' plenty", state, env);
     } else if (horn.spe < 1) {
         await ttyPline(nothing_happens, state);
         if (!horn.cknown) {

@@ -1152,9 +1152,9 @@ test('maybe_destroy_item records C impossible calls as discarded void gaps', () 
         ZAP_JS.indexOf('// Monster-caused floor fire'),
     );
     assert.match(jsBody,
-        /default:[\s\S]*?skip = 1;[\s\S]*?note_unported\('pline\.c impossible'\);[\s\S]*?break;/u);
+        /default:[\s\S]*?skip = 1;[\s\S]*?await impossible\(\s*`maybe_destroy_item with unexpected dmgtyp \$\{dmgtyp\}`, state, env\);[\s\S]*?break;/u);
     assert.match(jsDestroyBody,
-        /else if \(where !== obj\.where\)\s*note_unported\('pline\.c impossible'\);/u);
+        /else if \(where !== obj\.where\)\s*await impossible\('destroy_item: items in multiple chains', state, env\);/u);
 });
 
 test('the Book of the Dead survives the fire and says so', async () => {

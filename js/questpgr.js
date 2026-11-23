@@ -14,7 +14,6 @@ import {
 import { game } from './gstate.js';
 import { nhlL_newstate } from './nhlua.js';
 import { MS_LEADER, MS_NEMESIS, MS_GUARDIAN } from './monsters.js';
-import { note_unported } from './unported.js';
 import { impossible } from './pline.js';
 import { s_suffix, lcase, upstart } from './hacklib.js';
 import { align_str } from './insight.js';
@@ -29,6 +28,7 @@ import { ttyPline } from './tty_message.js';
 import { displayTtyTextWindow } from './tty_menu.js';
 import { Blind } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: questpgr.c quest_info(). Role quest identities remain fixed even
 // when a quest monster changes shape.
@@ -38,7 +38,7 @@ export function quest_info(typ, state = game) {
     case MS_LEADER: return state.urole.ldrnum;
     case MS_NEMESIS: return state.urole.neminum;
     case MS_GUARDIAN: return state.urole.guardnum;
-    default: note_unported('pline.c impossible');
+    default: sync_impossible(`quest_info(${typ})`, state);
     }
     return 0;
 }

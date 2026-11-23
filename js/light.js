@@ -33,7 +33,6 @@ import { artifact_light } from './artifacts.js';
 import { ignitable } from './apply_catch_lit.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
-import { note_unported } from './unported.js';
 import {
     finish_steps,
     ImpossibleCall,
@@ -59,6 +58,8 @@ import { circle_offset, clear_path, vision_recalc_async } from './vision.js';
 import { canseemon, canspotmon, flush_screen, map_invisible, newsym } from './display.js';
 import { place_object, remove_object } from './obj.js';
 import { nh_delay_output } from './hack.js';
+import { impossible } from './pline.js';
+import { otense, simpleonames, xname } from './objnam.js';
 
 // decl.c initializes gl.light_base for each game. Keep the source owner (`gl`)
 // separate from the flattened vision_full_recalc flag used by the current JS
@@ -140,8 +141,8 @@ export function new_light_source(x, y, range, type, id, state = game) {
     if (radius < 0 || radius > MAX_RADIUS
         || (radius === 0 && !cameraFlash)) {
         // impossible("new_light_source:  illegal range %d", range); this
-        // synchronous function cannot wait on the print. C returns no source.
-        note_unported('pline.c impossible');
+        // synchronous function queues the report. C returns no source.
+        sync_impossible(`new_light_source:  illegal range ${range}`, state);
         return null;
     }
     if (!id || typeof id !== 'object') {
@@ -258,7 +259,9 @@ export async function show_transient_light(obj, x, y, state = game, env = {}) {
             } else {
                 // C discards impossible()'s void result; its diagnostic path
                 // is separate from the transient-light gameplay effects.
-                note_unported('pline.c impossible');
+                await impossible(
+                    `transient light ${obj.lamplit ? 'lit' : 'unlit'} ${simpleonames(obj, state)} ${otense(obj, 'are', state)} not ${!source ? 'a light source' : 'free'}?`,
+                    state, env);
             }
             return;
         }
@@ -354,7 +357,7 @@ export function save_light_sources(range, state = game) {
         let isGlobal;
         if (ls_has_no_id(current)) {
             // C: impossible("save_light_sources: no id! [range=%d]", range);
-            note_unported('pline.c impossible');
+            sync_impossible(`save_light_sources: no id! [range=${range}]`, state);
             isGlobal = false;
         } else if (current.type === LS_OBJECT)
             isGlobal = !obj_is_local(current.id, state);
@@ -362,9 +365,11 @@ export function save_light_sources(range, state = game) {
             isGlobal = !(current.id.mx > 0);
         else {
             // impossible("save_light_sources: bad type (%d) [range=%d]",
-            // ...); this synchronous function cannot wait on the print.
+            // ...); this synchronous function queues the report.
             isGlobal = false;
-            note_unported('pline.c impossible');
+            sync_impossible(
+                `save_light_sources: bad type (${current.type}) [range=${range}]`,
+                state);
         }
 
         if (isGlobal !== (range === RANGE_LEVEL)) {
@@ -416,7 +421,7 @@ export function light_sources_in_range(range, state = game) {
         else if (ls.type === LS_MONSTER)
             isGlobal = !(ls.id.mx > 0);
         else {
-            // This synchronous function cannot wait on the print.
+            // This synchronous function queues the report.
             isGlobal = false;
             sync_impossible(
                 `maybe_write_ls: bad type (${ls.type}) [range=${range}]`,
@@ -438,7 +443,7 @@ export function light_sources_in_range(range, state = game) {
 function write_ls(ls, state = game) {
     if (ls.type !== LS_OBJECT && ls.type !== LS_MONSTER) {
         // C: impossible("write_ls: bad type (%d)", ls->type);
-        note_unported('pline.c impossible');
+        sync_impossible(`write_ls: bad type (${ls.type})`, state);
         return [];
     }
     const record = { x: ls.x, y: ls.y, range: ls.range, type: ls.type };
@@ -448,7 +453,7 @@ function write_ls(ls, state = game) {
     if (ls.type === LS_OBJECT) {
         if (find_oid(ls.id.o_id, state) !== ls.id) {
             // C: impossible("write_ls: can't find obj #%u!", ls->id.a_uint);
-            note_unported('pline.c impossible');
+            sync_impossible(`write_ls: can't find obj #${ls.id.o_id}!`, state);
             problematic = LSF_IS_PROBLEMATIC;
         }
     } else {
@@ -458,12 +463,14 @@ function write_ls(ls, state = game) {
                 // C: impossible("write_ls: can't find mon%s #%u!",
                 //               DEADMONSTER(mtmp) ? " because it's dead" : "",
                 //               ls->id.a_uint);
-                note_unported('pline.c impossible');
+                sync_impossible(
+                    `write_ls: can't find mon${ls.id.mhp < 1 ? " because it's dead" : ''} #${ls.id.m_id}!`,
+                    state);
                 problematic = LSF_IS_PROBLEMATIC;
             }
         } else {
             // C: impossible("write_ls: stashed monst ptr not in any chain");
-            note_unported('pline.c impossible');
+            sync_impossible('write_ls: stashed monst ptr not in any chain', state);
             problematic = LSF_IS_PROBLEMATIC;
         }
     }
@@ -617,7 +624,8 @@ export function obj_adjust_light_radius(obj, new_radius, state = game) {
     }
     // C reports an impossible() and continues when a lit object has no
     // corresponding source. Keep that diagnostic without fabricating one.
-    note_unported('pline.c impossible');
+    sync_impossible(
+        `obj_adjust_light_radius: can't find ${xname(obj, state)}`, state);
 }
 
 // C ref: light.c candle_light_range() (843–877). Preserve all source arms,

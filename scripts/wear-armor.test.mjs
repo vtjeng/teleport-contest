@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -2885,7 +2886,8 @@ test('Shield_on notes impossible() and continues for a non-shield',
     game.uarms = armor(FEDORA, { owornmask: W_ARMS, dknown: 1, known: false });
     assert.equal(Shield_on(game), 0);
     assert.equal(game.uarms.known, true);
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    assert.deepEqual(takeQueuedReports(game),
+        [`Unknown type of shield (${FEDORA})`]);
     game.uarms = null;
 });
 
@@ -2901,7 +2903,8 @@ test('Shirt_on notes impossible() and continues for a non-shirt',
     // do_wear.c:767-768's impossible() is discarded and the known write runs.
     assert.equal(Shirt_on(game), 0);
     assert.equal(game.uarmu.known, true);
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    assert.deepEqual(takeQueuedReports(game),
+        [`Unknown type of shirt (${FEDORA})`]);
 
     // Both shirts pass, and each sets the known bit. No recorded case reaches
     // that write: every shirt this port can hold arrives from u_init.c with
@@ -3583,8 +3586,11 @@ test('Ring_off records the discarded impossible call for a missing extrinsic',
         // ring in the worn slot, reaching C's impossible() invariant branch.
         const events = await invisibilityRingOffEvents({ ringExtrinsic: 0 });
 
-        assert.ok(game.unported.has('pline.c impossible'));
+        // do_wear.c:1353-1354's report is an urgent message, which this
+        // fixture does not capture; impossible()'s two fixed lines follow.
         assert.deepEqual(events, [
+            ['message', 'Program in disorder!  (Saving and reloading may fix this problem.)'],
+            ['message', 'Please report these messages to devteam@nethack.org.'],
             ['redraw', game.u.ux, game.u.uy],
             ['message', 'Your body seems to unfade...'],
         ]);

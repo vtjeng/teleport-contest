@@ -94,7 +94,6 @@ import { MAXMCLASSES } from './symbols.js';
 // already do, and neither side uses the other's exports at module scope.
 import { clear_path, m_canseeu } from './vision.js';
 import { mon_has_amulet } from './wizard.js';
-import { note_unported } from './unported.js';
 
 // C ref: mondata.c set_mon_data() (12-38).  `movement` belongs to the
 // monster instance while the hero's pointer is state.u.umovement; only
@@ -117,6 +116,7 @@ import {
     Blind, Blnd_resist, Breathless, EBlinded, Hallucination, Strangled,
     Unaware,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 function hasAttackType(species, attackType) {
     return Boolean(species?.mattk?.some(
@@ -674,7 +674,8 @@ export function Resists_Elem(monster, property, state = game) {
         return resists_blnd(monster, state);
     default:
         // impossible() prints a diagnostic and the C function returns FALSE.
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `Resists_Elem(${property}), unexpected property type`, state);
         return false;
     }
 

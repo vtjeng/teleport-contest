@@ -154,7 +154,6 @@ import { t_at } from './trap.js';
 import { SHTYPES } from './shtypes_data.js';
 import { DEFAULT_PRIMARY_SYMBOLS, SYM_OFF_O } from './symbol_data.js';
 import { tt_oname } from './topten.js';
-import { note_unported } from './unported.js';
 import {
     S_air,
     S_altar,
@@ -200,6 +199,7 @@ import {
     S_vwall,
     S_water,
 } from './symbols.js';
+import { sync_impossible } from './source_steps.js';
 
 // A zero room record: what a gs.subrooms[] slot holds when restore.c getlev()
 // reads a level. gs.subrooms[] lies inside svr.rooms[] (decl.c:1169,
@@ -492,7 +492,7 @@ export function invalid_shop_shape(sroom, state = game) {
     }
     // mkroom.c invalid_shop_shape():1069-1072
     if (insidect < 1) {
-        note_unported('pline.c impossible');
+        sync_impossible('invalid_shop_shape: no squares inside door?', state);
         return true;
     }
     // More than one square beside the door already gives the shopkeeper room
@@ -606,7 +606,7 @@ function mkshop(state, random) {
         const terminator = state.level.rooms[state.level.nroom];
         if (terminator && terminator.hx >= 0) {
             // C: impossible("rooms[] not closed by -1?");
-            note_unported('pline.c impossible');
+            sync_impossible('rooms[] not closed by -1?', state);
         }
         return;
     }
@@ -1124,5 +1124,5 @@ export function do_mkroom(roomtype, state = game, random = coreRandom) {
         return;
     }
     // C's impossible() result is discarded by do_mkroom().
-    note_unported('pline.c impossible');
+    sync_impossible(`Tried to make a room of type ${roomtype}.`, state);
 }

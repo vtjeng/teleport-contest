@@ -11,6 +11,7 @@
 // from a run of the port. scripts/run-leave-level.mjs is the recorded
 // evidence for the whole path.
 
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -316,7 +317,9 @@ test('a luminous monster is local while it stands on the level', () => {
     state.unported = new Set();
     save_light_sources(RANGE_LEVEL, state);
     assert.equal(state.gl.light_base, null);
-    assert.ok(state.unported.has('pline.c impossible'));
+    // LS_NONE is 0 and RANGE_LEVEL is 0 (light.c:457's format).
+    assert.deepEqual(takeQueuedReports(state),
+        ['save_light_sources: bad type (0) [range=0]']);
 });
 
 test('the stairway list is emptied and searched by origin', () => {

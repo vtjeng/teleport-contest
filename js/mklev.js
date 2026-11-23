@@ -6,6 +6,7 @@
 // Uses the real game PRNG (not a separate layout PRNG) for bit-exact parity.
 
 import { game } from './gstate.js';
+import { panic } from './end.js';
 import { isok } from './cmd_isok.js';
 import { GameMap } from './game.js';
 import {
@@ -370,10 +371,10 @@ import {
 import { create_drawbridge } from './dbridge.js';
 import { priestini } from './priest.js';
 import { makeroguerooms, makerogueghost } from './extralev.js';
-import { note_unported } from './unported.js';
 import { impossible, impossible_printer } from './pline.js';
 import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { dungeon_at } from './dungeon_table.js';
+import { sync_impossible } from './source_steps.js';
 
 const XLIM = 4;
 const YLIM = 3;
@@ -1411,8 +1412,12 @@ async function mkinvpos(x, y, dist, state = game, rawEnv = {}) {
     // C decl.c initializes these bounds to the greatest even coordinates;
     // retain optional level-specific bounds when a caller supplies them.
     if (!within_bounded_area(x, y, 2, 2, xMazeMax, yMazeMax)) {
-        if (dist < 5 && state === game)
-            note_unported(isok(x, y) ? 'pline.c impossible' : 'alloc.c panic');
+        if (dist < 5 && state === game) {
+            // mklev.c:2520-2524: panic() off the map, impossible() on it.
+            const text = `mkinvpos: <${x},${y}> (${dist}) off map edge!`;
+            if (isok(x, y)) await impossible(text, state, rawEnv);
+            else await panic(text, state);
+        }
         return;
     }
 
@@ -1463,7 +1468,8 @@ async function mkinvpos(x, y, dist, state = game, rawEnv = {}) {
     default:
         // C's impossible() arm is unreachable from mkinvokearea's fixed
         // 0..6 distance sequence; retain its discarded diagnostic boundary.
-        if (state === game) note_unported('pline.c impossible');
+        if (state === game) await impossible(
+            `mkinvpos called with dist ${dist}`, state, rawEnv);
         break;
     }
 
@@ -1756,7 +1762,7 @@ function create_corridor(c, state = game) {
     if (c.src.wall === W_ANY || c.src.wall === W_RANDOM
         || c.dest.wall === W_ANY || c.dest.wall === W_RANDOM) {
         // C: impossible("create_corridor to/from a random wall");
-        note_unported('pline.c impossible');
+        sync_impossible('create_corridor to/from a random wall', state);
         return;
     }
     const org = search_door(state.level.rooms[c.src.room], c.src.wall,
@@ -1986,7 +1992,7 @@ export function get_mkroom_name(rtype) {
             return name;
 
     // C: impossible("get_mkroom_name unknown rtype %d", rtype);
-    note_unported('pline.c impossible');
+    sync_impossible(`get_mkroom_name unknown rtype ${rtype}`, game);
     return 'unknown'; /* not NULL */
 }
 
@@ -3810,7 +3816,7 @@ export function lspo_feature(args, env) {
 
     if (typ === STONE) {
         // C: impossible("feature has unknown type param.");
-        note_unported('pline.c impossible');
+        sync_impossible('feature has unknown type param.', state);
     } else {
         sel_set_feature(x, y, typ, state);
     }
@@ -4387,7 +4393,7 @@ export function lspo_region(args, env) {
     if (room_not_needed || state.level.nroom >= MAXNROFROOMS) {
         if (!room_not_needed) {
             // C: impossible("Too many rooms on new level!");
-            note_unported('pline.c impossible');
+            sync_impossible('Too many rooms on new level!', state);
         }
         light_region({
             rlit, x1: d.x1, y1: d.y1, x2: d.x2, y2: d.y2,
@@ -4430,7 +4436,7 @@ export function lspo_region(args, env) {
     if (!room_not_needed) {
         if (coder.n_subroom > 1) {
             // C: impossible("region as subroom");
-            note_unported('pline.c impossible');
+            sync_impossible('region as subroom', state);
         } else {
             coder.tmproomlist[coder.n_subroom] = troom;
             coder.failed_room[coder.n_subroom] = false;
@@ -4484,7 +4490,7 @@ export function lspo_drawbridge(args, env) {
         db_open = rn2(2) ? 0 : 1;
     if (!create_drawbridge(c.x, c.y, dir, Boolean(db_open), state)) {
         // C: impossible("Cannot create drawbridge.");
-        note_unported('pline.c impossible');
+        sync_impossible('Cannot create drawbridge.', state);
     }
     frame.splevMap[c.x][c.y] = 1;
 }
@@ -7234,7 +7240,7 @@ function finddpos(cc, dir, aroom) {
     case DIR_E: x1 = x2 = aroom.hx + 1; y1 = aroom.ly; y2 = aroom.hy; break;
     default:
         // C: impossible("finddpos: illegal dir");
-        note_unported('pline.c impossible');
+        sync_impossible('finddpos: illegal dir', game);
         return false;
     }
     let tryct = 0;
@@ -8337,7 +8343,7 @@ export function fill_ordinary_room_supply_chest(position, env) {
         if (++tries === 50) {
             // C (mklev.c fill_ordinary_room()):
             // impossible("couldn't generate supply chest item");
-            note_unported('pline.c impossible');
+            sync_impossible("couldn't generate supply chest item", state);
             break;
         }
     } while (cursed || !random(5));
@@ -8489,7 +8495,7 @@ export function fill_ordinary_room(croom, bonusItems) {
         while (!rn2(5)) {
             if (++tryCount > 100) {
                 // C: impossible("trycnt overflow4");
-                note_unported('pline.c impossible');
+                sync_impossible('trycnt overflow4', state);
                 break;
             }
             if (somexyspace(croom, position, { state })) {
@@ -8519,7 +8525,7 @@ export function fill_ordinary_room(croom, bonusItems) {
             const subroom = subrooms[current];
             if (!subroom) {
                 // C: impossible("fill_ordinary_room: Null subroom");
-                note_unported('pline.c impossible');
+                sync_impossible('fill_ordinary_room: Null subroom', state);
                 return;
             }
             const maybeChild = fill_ordinary_room(subroom, false);

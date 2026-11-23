@@ -192,7 +192,6 @@ import { done } from './end.js';
 import { encumber_msg } from './pickup.js';
 import { ttyPline } from './tty_message.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
-import { note_unported } from './unported.js';
 import { unpunish as removePunishment } from './read.js';
 import { S_expl_tl } from './symbols.js';
 import { canspotmon } from './display.js';
@@ -201,6 +200,7 @@ import {
     Fire_resistance, Hallucination, Invulnerable, Maybe_Half_Phys,
     Poison_resistance, Shock_resistance,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 // Note: C's table is column first while the screen is row first.  These are
 // the cmap indices for S_expl_tl through S_expl_br in C's explosion[3][3].
@@ -267,7 +267,7 @@ export function explosionmask(monster, adtyp, olet, state = game) {
         case AD_ACID: return Acid_resistance(state.u) ? EXPL_HERO : EXPL_NONE;
         default:
             // C: impossible("explosion type %d?", adtyp);
-            note_unported('pline.c impossible');
+            sync_impossible(`explosion type ${adtyp}?`, state);
             return EXPL_NONE;
         }
     }
@@ -292,7 +292,7 @@ export function explosionmask(monster, adtyp, olet, state = game) {
         return Resists_Elem(monster, ACID_RES, state) ? EXPL_MON : EXPL_NONE;
     default:
         // C: impossible("explosion type %d?", adtyp);
-        note_unported('pline.c impossible');
+        sync_impossible(`explosion type ${adtyp}?`, state);
         return EXPL_NONE;
     }
 }
@@ -785,7 +785,7 @@ export function adtyp_to_expltype(adtyp) {
     case AD_PHYS:
         return 1;
     default:
-        note_unported('pline.c impossible');
+        sync_impossible(`adtyp_to_expltype: bad explosion type ${adtyp}`, game);
         return 5;
     }
 }
@@ -806,7 +806,8 @@ export async function mon_explodes(mon, mattk, state = game, rawEnv = {}) {
     else if (mattk.adtyp >= AD_MAGM && mattk.adtyp <= 10)
         type = -((mattk.adtyp - 1) + 20);
     else {
-        note_unported('pline.c impossible');
+        await impossible(
+            `unknown type for mon_explode ${mattk.adtyp}`, state, rawEnv);
         return;
     }
     if (mon.mhp > 0) await mondead(mon, state, env);
@@ -880,7 +881,9 @@ export async function scatter(
     if (individualObject && (obj.ox !== sx || obj.oy !== sy)) {
         // C calls impossible() and continues. The diagnostic is deliberately
         // not a throw: the object may still be useful to a recovery caller.
-        note_unported('pline.c impossible');
+        await impossible(
+            `scattered object <${obj.ox},${obj.oy}> not at scatter site <${sx},${sy}>`,
+            state);
     }
 
     const roomNumbers = ops.inRooms
@@ -1262,7 +1265,7 @@ export async function explode_oil(obj, x, y, state = game, rawEnv = {}) {
     const env = { ...rawEnv, state };
     const random = env.random ?? coreRandom;
 
-    if (!obj.lamplit) note_unported('pline.c impossible');
+    if (!obj.lamplit) await impossible('exploding unlit oil', state, rawEnv);
     end_burn(obj, true, env);
     obj.how_lost = LOST_EXPLODING;
     await splatter_burning_oil(x, y, dilutedOil, state, { ...env, random });

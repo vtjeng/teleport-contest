@@ -215,7 +215,6 @@ import { aligns } from './roles.js';
 import { coreRandom, d, rn2, rnd, rn2_on_display_rng, rnz } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { dismount_steed } from './steed.js';
 import { livelog_printf } from './pline.js';
 import { freeinv, getobj, hold_another_object, nxtobj, obj_extract_self, obfree, update_inventory } from './invent.js';
@@ -297,6 +296,7 @@ import {
     Shock_resistance, Sick, Slimed, Stone_resistance, Hate_silver,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
+import { sync_impossible } from './source_steps.js';
 
 // C refs: artifact.c defends() and defends_when_carried(). Artifact attack,
 // defense, and carry records all use the same damage-type encoding.
@@ -693,13 +693,13 @@ export function restore_artifacts(snapshot, state = game) {
 // as found by the hero. An index out of range or an artifact that does not
 // exist yet gets C's impossible() report ("found_artifact: invalid artifact
 // index! (%d)", "found_artifact: artifact doesn't exist yet? (%d)") and
-// nothing else; this synchronous port records that print as unported.
+// nothing else; this synchronous port queues the report.
 export function found_artifact(a, state = game) {
     artifactTables(state);
     if (a < 1 || a > NROFARTIFACTS) {
-        note_unported('pline.c impossible');
+        sync_impossible(`found_artifact: invalid artifact index! (${a})`, state);
     } else if (!state.artiexist[a].exists) {
-        note_unported('pline.c impossible');
+        sync_impossible(`found_artifact: artifact doesn't exist yet? (${a})`, state);
     } else {
         state.artiexist[a].found = 1;
     }
@@ -1211,7 +1211,8 @@ export function artifact_origin(obj, flags, state = game) {
     // Other oname() control bits, such as ONAME_SKIP_INVUPD, do not describe
     // provenance and are ignored here by the source.
     // C: impossible("invalid artifact origin: %4o", aflags), then return.
-    if (origins !== 1) note_unported('pline.c impossible');
+    if (origins !== 1) sync_impossible(
+            `invalid artifact origin: ${(flags >>> 0).toString(8).padStart(4)}`, state);
 }
 
 /** Port of artifact.c:artifact_exists() for object-name ownership. */
@@ -1604,7 +1605,7 @@ function spec_applies(weap, mtmp, state = game, env = {}) {
                            : Resists_Elem(mtmp, STONE_RES, state));
         default:
             // C: impossible("Weird weapon special attack."), then return 0.
-            note_unported('pline.c impossible');
+            sync_impossible('Weird weapon special attack.', state);
         }
     }
     return false;
@@ -1680,7 +1681,7 @@ export function discover_artifact(m, state = game) {
     /* there is one slot per artifact, so we should never reach the
        end without either finding the artifact or an empty slot... */
     // C: impossible("couldn't discover artifact (%d)", (int) m).
-    note_unported('pline.c impossible');
+    sync_impossible(`couldn't discover artifact (${m})`, state);
 }
 
 // C ref: artifact.c undiscovered_artifact() (1130-1143). Used to decide

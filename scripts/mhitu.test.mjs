@@ -2744,7 +2744,13 @@ test('mdamageu updates the ordinary hit-point pool and caps it after showing dam
     const noDamage = meleeEnv(state, []);
     await mdamageu({ m_id: 6101 }, -2, state, noDamage.env);
     assert.equal(state.u.uhp, 10);
-    assert.deepEqual(noDamage.lines, []);
+    // mhitu.c:1904-1907 reports the negative amount through impossible().
+    // Its own line is an urgent message, which this fixture does not
+    // capture; the two fixed lines that follow it are ordinary messages.
+    assert.deepEqual(noDamage.lines, [
+        'Program in disorder!',
+        'Please report these messages to devteam@nethack.org.',
+    ]);
 });
 
 test('mdamageu uses the polymorphed hit-point pool',

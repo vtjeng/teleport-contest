@@ -221,7 +221,6 @@ import {
     norep_printer,
 } from './pline.js';
 import { ImpossibleCall, finish_steps } from './source_steps.js';
-import { note_unported } from './unported.js';
 export { youHear } from './pline.js';
 import {
     angry_guards,
@@ -497,6 +496,7 @@ import {
     moveSimplePet,
     runDirectMonsterAction,
 } from './unported_monster_actions.js';
+import { sync_impossible } from './source_steps.js';
 
 
 function movementEnv(env = {}) {
@@ -1227,7 +1227,8 @@ export function m_harmless_trap(monster, trap, env = {}) {
         return true;
     default:
         // C: impossible("m_harmless_trap: unknown trap %i", ttmp->ttyp);
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `m_harmless_trap: unknown trap ${trap.ttyp}`, env.state ?? game);
         return false;
     }
 }

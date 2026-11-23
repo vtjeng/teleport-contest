@@ -246,7 +246,6 @@ import { select_menu, ttyMenuColorAttribute } from './windows.js';
 import { youFeel } from './pline.js';
 import { ttyPline } from './tty_message.js';
 import { menuTitleStyle } from './tty_menu.js';
-import { note_unported } from './unported.js';
 import { cansee, couldsee } from './vision.js';
 import { mwelded } from './wield.js';
 import {
@@ -263,6 +262,8 @@ import { canseemon, canspotmon, newsym } from './display.js';
 import { bypass_obj } from './worn.js';
 import { pline_mon } from './pline.js';
 import { panic } from './end.js';
+import { sync_impossible } from './source_steps.js';
+import { impossible } from './pline.js';
 
 const MR_STONE = 0x80;
 
@@ -1113,7 +1114,9 @@ export async function mon_wield_item(monster, env = {}) {
         obj = selectToolWeapon(monster, weaponCheck, state);
         exclaim = false;
     } else {
-        note_unported('pline.c impossible');
+        await impossible(
+            `weapon_check ${monster.weapon_check} for ${mon_nam(monster, state)}?`,
+            state, env);
         return 0;
     }
 
@@ -1554,7 +1557,8 @@ export function weapon_dam_bonus(weapon, state = game) {
         switch (P_SKILL(type, state)) {
         default:
             // C: impossible("weapon_dam_bonus: bad skill %d", P_SKILL(type));
-            note_unported('pline.c impossible');
+            sync_impossible(
+                `weapon_dam_bonus: bad skill ${P_SKILL(type, state)}`, state);
             // fall through
         case P_ISRESTRICTED:
         case P_UNSKILLED:

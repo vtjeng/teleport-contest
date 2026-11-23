@@ -4,6 +4,7 @@
 // nethack-c/upstream/src/mkroom.c:179-215 and
 // nethack-c/upstream/src/shknam.c:206-350, not from a recorded session.
 
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -707,7 +708,8 @@ test('do_mkroom dispatches every source room family',
         assert.deepEqual(swampDraws, [1, 1, 1, 1, 1]);
 
         do_mkroom(-1, state);
-        assert.ok(state.unported.has('pline.c impossible'));
+        assert.deepEqual(takeQueuedReports(state),
+            ['Tried to make a room of type -1.']);
     });
 
 test('antholemon chooses and skips genocided ant species', () => {

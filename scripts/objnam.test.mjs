@@ -374,9 +374,18 @@ test('An capitalizes the C article helper result for valid nonempty names', () =
 test('an() answers an empty name as C does after its impossible() report', () => {
     // objnam.c an():2149-2152 reports "Alphabet soup" and returns "an []";
     // An() then capitalizes its first letter.
-    assert.equal(an(''), 'an []');
-    assert.equal(an(null), 'an []');
+    // Each call queues its report on the state it is given
+    // (js/source_steps.js sync_impossible()); C's format prints a present
+    // but empty name as "" and a null pointer as <null>.
+    const state = {};
+    assert.equal(an('', state), 'an []');
+    assert.equal(an(null, state), 'an []');
     assert.equal(An(''), 'An []');
+    assert.deepEqual(
+        state._glyphUpdateNotices.filter((notice) => notice.impossible)
+            .map((notice) => notice.message),
+        ["Alphabet soup: 'an(\"\")'.", "Alphabet soup: 'an(<null>)'."],
+    );
 });
 
 test('simple_typename drops the description and the user-assigned name', () => {

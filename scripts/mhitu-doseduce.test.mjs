@@ -49,7 +49,7 @@ test('doseduce wires the source-ordered mayberem armor path', () => {
     );
     // Match the same ring-slot guards around JS's retained void impossible gap.
     assert.match(doseduceJs,
-        /if \(state\.uleft && state\.uright[\s\S]*?&& state\.uright\.otyp === RIN_ADORNMENT\)\s*\{\s*break;\s*\}[\s\S]*?if \(ring === state\.uleft \|\| ring === state\.uright\)[\s\S]*?else if \(state\.uright[\s\S]*?state\.uright\.otyp !== RIN_ADORNMENT\)[\s\S]*?else if \(state\.uleft[\s\S]*?state\.uleft\.otyp !== RIN_ADORNMENT\)[\s\S]*?note_unported\('pline\.c impossible'\)/u,
+        /if \(state\.uleft && state\.uright[\s\S]*?&& state\.uright\.otyp === RIN_ADORNMENT\)\s*\{\s*break;\s*\}[\s\S]*?if \(ring === state\.uleft \|\| ring === state\.uright\)[\s\S]*?else if \(state\.uright[\s\S]*?state\.uright\.otyp !== RIN_ADORNMENT\)[\s\S]*?else if \(state\.uleft[\s\S]*?state\.uleft\.otyp !== RIN_ADORNMENT\)[\s\S]*?await impossible\('ring replacement', state, rawEnv\)/u,
     );
 
     const mayberemJs = MHITU_JS.match(

@@ -175,9 +175,8 @@ import { surface } from './dungeon.js';
 import { youHear } from './monmove.js';
 import { coreRandom } from './rng.js';
 import { discover_object } from './o_init.js';
-import { finish_steps } from './source_steps.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { mwepgone } from './weapon.js';
-import { note_unported } from './unported.js';
 import {
     distant_name,
     donameFresh,
@@ -189,6 +188,7 @@ import {
 } from './objnam.js';
 import { canseemon } from './display.js';
 import { ETelepat, See_invisible, Stone_resistance } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: worn.c worn[] (14-35): w_mask, the hero slot pointer it names, and
 // w_what, the slot's name in check_wornmask_slots() feedback.
@@ -400,7 +400,8 @@ function* setworn_steps(obj, mask, env) {
         const old = state[slot.field] ?? null;
         if (old && !(old.owornmask & slot.mask)) {
             // C: impossible("Setworn: mask=0x%08lx.", wp->w_mask);
-            note_unported('pline.c impossible');
+            yield new ImpossibleCall(
+                `Setworn: mask=0x${slot.mask.toString(16).padStart(8, '0')}.`);
         }
         if (old) {
             if (state.u.twoweap && (old.owornmask & (W_WEP | W_SWAPWEP)))
@@ -487,7 +488,7 @@ export function which_armor(monster, mask, state = game) {
         const slot = WORN_SLOTS.find((entry) => entry.mask === mask
             && (entry.mask & W_ARMOR));
         if (!slot) {
-            note_unported('pline.c impossible');
+            sync_impossible('bad flag in which_armor', state);
             return null;
         }
         return state[slot.field] ?? null;
@@ -1061,9 +1062,11 @@ export function extract_from_minvent(
         ? result.then(next) : next());
 
     // impossible("extract_from_minvent called on object not in minvent"),
-    // then return; this function cannot wait for the print.
+    // then return; this function queues the report.
     if (obj.where !== OBJ_MINVENT) {
-        note_unported('pline.c impossible');
+        sync_impossible(
+            'extract_from_minvent called on object not in minvent',
+            env.state ?? game);
         return undefined;
     }
     let lightResult;

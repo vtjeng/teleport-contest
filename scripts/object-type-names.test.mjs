@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { BUFSZ, NON_PM } from '../js/const.js';
@@ -5,7 +6,6 @@ import { PM_KITTEN, PM_SAMURAI, monst_globals_init } from '../js/monsters.js';
 import { bytesText, textBytes, utf8Text } from '../js/hacklib.js';
 import { disco_typename, init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
-import { game } from '../js/gstate.js';
 import {
     obj_typename, safe_typename, simple_typename, xcalled, xnameFresh,
 } from '../js/objnam.js';
@@ -234,5 +234,8 @@ test('safe_typename names a type as discovered and refuses a bad otyp', () => {
     initUnported();
     assert.equal(safe_typename(NUM_OBJECTS, state), `glorkum[${NUM_OBJECTS}]`);
     assert.equal(safe_typename(-1, state), 'glorkum[-1]');
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    assert.deepEqual(takeQueuedReports(state), [
+        `safe_typename: glorkum[${NUM_OBJECTS}]`,
+        'safe_typename: glorkum[-1]',
+    ]);
 });

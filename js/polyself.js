@@ -265,7 +265,6 @@ import {
     setmangry, wakeup,
 } from './mon.js';
 import { were_beastie, were_summon } from './were.js';
-import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { learn_egg_type } from './timeout.js';
 import { canseemon, canspotmon } from './display.js';
@@ -276,6 +275,7 @@ import {
     Sick_resistance, Slimed, Stone_resistance, Stoned, Strangled, Stunned,
     Swimming, Unchanging,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 // monst.h:272 resists_fire(mon) is Resists_Elem(mon, FIRE_RES), whose
 // monster arm mondata.js ports as Resists_Elem().
@@ -1855,7 +1855,7 @@ export function body_part(part, youmonst) {
 export function mbodypart(monster, part) {
     if (part <= NO_PART) {
         // C: impossible("mbodypart: bad part %d", part);
-        note_unported('pline.c impossible');
+        sync_impossible(`mbodypart: bad part ${part}`, game);
         return 'mystery part';
     }
     // C indexes its part arrays without a bound; the port answers past them.
@@ -2311,7 +2311,7 @@ export async function dogaze(state = game) {
     }
     if (adtyp !== M.AD_CONF && adtyp !== M.AD_FIRE) {
         // C diagnoses the unexpected attack and returns without using time.
-        note_unported('pline.c impossible');
+        await impossible(`gaze attack ${adtyp}?`, state);
         return ECMD_OK;
     }
 

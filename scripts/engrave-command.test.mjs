@@ -238,13 +238,22 @@ test('disturb_grave completes makemon with the engraving command\'s random set',
 
 test('disturb_grave refuses a grave already marked in horizontal', async () => {
     // rm.h aliases disturbed to horizontal; a terrain wish sets this bit.
-    // The source impossible() arm must neither create another ghoul nor draw.
+    // The source impossible() arm (engrave.c:1713-1714) must neither create
+    // another ghoul nor draw; it prints its report and returns.
     const state = engravingGateState(GRAVE);
     state.level.at(10, 10).horizontal = true;
+    const lines = [];
+    const record = async (text) => { lines.push(text); };
     await disturb_grave(10, 10, state, {
         random: { rn2: () => assert.fail('already disturbed must not draw') },
-        message: () => assert.fail('already disturbed must not announce undead'),
+        message: record,
+        urgentMessage: record,
     });
+    assert.deepEqual(lines, [
+        'Disturbing already disturbed grave?',
+        'Program in disorder!',
+        'Please report these messages to devteam@nethack.org.',
+    ]);
     assert.equal(state.level.at(10, 10).horizontal, true);
 });
 

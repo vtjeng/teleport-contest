@@ -169,7 +169,6 @@ import { growl, yelp } from './sounds.js';
 import { ttyPline } from './tty_message.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
 import { cansee } from './vision.js';
-import { note_unported } from './unported.js';
 import { free_emin } from './minion.js';
 import { del_light_source_async } from './light.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -190,6 +189,7 @@ import {
     Aggravate_monster, BBlinded, Blind_telepat, Conflict, EBlinded, HBlinded,
     Hallucination,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 export { christen_monst } from './do_name.js';
 // Re-export for existing dog-related callers. The source implementations live
@@ -978,7 +978,7 @@ export async function keepdogs(pets_only, rawEnv = {}) {
                     m_unleash(mtmp, false, { ...env, state });
                 }
                 if (mtmp === u.usteed) {
-                    note_unported('pline.c impossible');
+                    await impossible('steed left behind?', state, env);
                     await dismount_steed(DISMOUNT_GENERIC, state, env);
                 }
                 continue;
@@ -1306,7 +1306,7 @@ export function mon_catchup_elapsed_time(monster, nmv, rawEnv = {}) {
     const { state, random } = env;
     let imv = 0;
     if (nmv < 0) throw new Error('catchup from future time?');
-    if (nmv === 0) note_unported('pline.c impossible');
+    if (nmv === 0) sync_impossible('catchup from now?', state);
     if (nmv >= LARGEST_INT) imv = LARGEST_INT - 1;
     else imv = Math.trunc(nmv);
 
@@ -1352,7 +1352,7 @@ export function mon_catchup_elapsed_time(monster, nmv, rawEnv = {}) {
         }
     }
     if (!monster.mtame && monster.mleashed) {
-        note_unported('pline.c impossible');
+        sync_impossible('catching up for leashed monster?', state);
         m_unleash(monster, false, { ...env, state });
     }
 

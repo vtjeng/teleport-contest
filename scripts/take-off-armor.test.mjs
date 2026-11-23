@@ -1077,6 +1077,11 @@ test('an amulet removal runs its source helper and clears the worn slot', async 
         cursed: 0, spe: 0,
     };
     game.uleft = ring;
+    // The ring was put in the slot by hand, without the property bit
+    // Ring_on() sets, so Ring_off_or_gone() reports "Strange... I didn't
+    // know you had that ring." (do_wear.c:1353-1354). One space answers
+    // each --More-- between impossible()'s three lines.
+    for (let i = 0; i < 2; i++) game.nhDisplay.pushKey(' '.charCodeAt(0));
     assert.equal(await armor_or_accessory_off(ring, game), ECMD_TIME);
     assert.equal(game.uleft, null);
     assert.equal(ring.owornmask, 0);

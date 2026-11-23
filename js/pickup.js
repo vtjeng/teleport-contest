@@ -288,7 +288,6 @@ import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
 import { setuwep, welded, weldmsg } from './wield.js';
 import { extract_from_minvent, which_armor, setuqwep, setuswapwep } from './worn.js';
-import { note_unported } from './unported.js';
 import { d } from './rng.js';
 import { canspotmon } from './display.js';
 import {
@@ -869,7 +868,7 @@ export async function query_category(
             break;
         }
         if (invlet >= 'u'.charCodeAt(0)) {
-            note_unported('pline.c impossible');
+            await impossible('query_category: too many categories', state);
             return { n: 0, pick_list: [] };
         }
     }
@@ -1319,7 +1318,8 @@ export async function pickup_object(
         // C's impossible() reports and returns 0. Both callers pass the
         // object's own quantity, so a smaller one means the plan and the pile
         // have gone out of step.
-        note_unported('pline.c impossible');
+        await impossible(
+            `pickup_object: count ${count} > quan ${obj.quan}?`, state, rawEnv);
         return 0;
     }
     observe_pickup_object(obj, state);
@@ -2619,8 +2619,8 @@ async function simple_look(objs, here, state) {
     if (!objs) {
         // C reaches this case only after a stale or malformed object list,
         // and prints "simple_look(null)" through impossible(), which this
-        // build shows in every mode; the port records the gap.
-        note_unported('pline.c impossible');
+        // build shows in every mode.
+        await impossible('simple_look(null)', state);
         return;
     }
 
@@ -2996,7 +2996,7 @@ async function lift_object(obj, container, cnt_p, telekinesis, state) {
 // Returns: 1 item was put in, 0 item was not put in, -1 stop.
 async function in_container(obj, state) {
     if (!state.gc.current_container) {
-        note_unported('pline.c impossible');
+        await impossible('<in> no gc.current_container?', state);
         return 0;
     }
 

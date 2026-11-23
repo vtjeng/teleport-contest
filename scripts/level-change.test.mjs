@@ -11,6 +11,7 @@
 // loss writes, and the state (u.uexp, u.uachieved[], u.weapon_slots) that
 // never reaches a screen.
 
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -1165,7 +1166,8 @@ test('record_achievement appends once and reports an out-of-range index', () => 
         game.unported = new Set();
         record_achievement(achidx, rejected);
         assert.equal(rejected.u.uachieved[0], 0, `achievement ${achidx}`);
-        assert.ok(game.unported.has('pline.c impossible'));
+        assert.deepEqual(takeQueuedReports(rejected),
+            [`Achievement #${achidx} is out of range.`]);
     }
 });
 

@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -37,7 +38,6 @@ import {
     ONAME_WISH,
 } from '../js/const.js';
 import { mksobj, newObject } from '../js/obj.js';
-import { game } from '../js/gstate.js';
 import { initUnported } from '../js/unported.js';
 import {
     ELVEN_BROADSWORD,
@@ -151,7 +151,9 @@ test('find_artifact reports an artifact that does not exist and leaves it unfoun
     initUnported();
     find_artifact(nonexistent, state);
     assert.equal(state.artiexist[ART_GIANTSLAYER].found, 0);
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    assert.deepEqual(takeQueuedReports(state), [
+        `found_artifact: artifact doesn't exist yet? (${ART_GIANTSLAYER})`,
+    ]);
 });
 
 test('existing-object selection keeps source order and mutation boundaries', () => {

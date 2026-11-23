@@ -66,7 +66,6 @@ import { S_EEL, S_MIMIC } from './monsters.js';
 import { init_oclass_probs } from './o_init.js';
 import { defineObjAliases, free_omid } from './obj.js';
 import { fruitadd } from './fruit.js';
-import { note_unported } from './unported.js';
 import { defineObjclassAliases, GRAPPLING_HOOK, PICK_AXE } from './objects.js';
 import { set_mimic_sym } from './makemon_create.js';
 import { restpriest } from './priest.js';
@@ -101,6 +100,7 @@ import { select_menu } from './windows.js';
 import { copyright_banner_line } from './version.js';
 import { tty_putmsghistory } from './topl.js';
 import { set_playmode } from './jsmain.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: restore.c restore_msghistory(). The callback buffers messages in
 // order, then the null terminator asks the window port to restore the ring.
@@ -889,7 +889,7 @@ export function restobjchn(first, state) {
 export function ghostfruit(otmp, oldfruit, state) {
     const oldf = oldfruit.find((fruit) => fruit.fid === otmp.spe);
     if (!oldf) {
-        note_unported('pline.c impossible');
+        sync_impossible('no old fruit?', state);
         return;
     }
     otmp.spe = fruitadd(oldf.fname, null, { state });
@@ -957,7 +957,7 @@ export function restmonchn(first, state) {
             else {
                 mtmp.mw = null; // C's MON_NOWEP(mtmp)
                 // C: impossible("bad monster weapon restore");
-                note_unported('pline.c impossible');
+                sync_impossible('bad monster weapon restore', state);
             }
         }
         if (mtmp.isshk)

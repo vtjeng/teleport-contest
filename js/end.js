@@ -196,6 +196,7 @@ import { force_launch_placement, launch_in_progress } from './trap_effects.js';
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
+    emitQueuedNotices,
     ttyPline,
 } from './tty_message.js';
 import { tty_raw_print, tty_wait_synch } from './tty_rawprint.js';
@@ -224,6 +225,7 @@ import {
     Blind, Hallucination, Lifesaved, Sick,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: end.c deaths[] (44-50), "the array of death". Its index is a
 // game_end_types value, so the rows are in include/hack.h:483-498 order.
@@ -788,6 +790,13 @@ export async function done(how, state = game, source = {}) {
             );
         } else {
             const killbuf = formatkiller(how, false, state, BUFSZ);
+            // topten.c formatkiller() can report through impossible():
+            // objnam.c an() for a killer name a nested done() cleared
+            // (end.c:1120). C prints it here, while timeout.c
+            // done_timeout()'s I_SPECIAL bit still shows on the status
+            // line; print the queued report (source_steps.js
+            // sync_impossible()) before returning.
+            await emitQueuedNotices(state);
             livelog_printf(
                 LL_LIFESAVE, `averted death (${killbuf})`, state,
             );
@@ -849,7 +858,9 @@ function should_query_disclose_option(category, state) {
     if (index >= 0) {
         if (index >= NUM_DISCLOSURE_OPTIONS) {
             // C: impossible("should_query_disclose_option: bad disclosure index %d %c", idx, category);
-            note_unported('pline.c impossible');
+            sync_impossible(
+                `should_query_disclose_option: bad disclosure index ${index} ${category}`,
+                state);
             return { ask: true, defquery: DISCLOSE_PROMPT_DEFAULT_YES };
         }
         const disclose = state.flags.end_disclose[index];
@@ -871,7 +882,8 @@ function should_query_disclose_option(category, state) {
         }
     }
     // C: impossible("should_query_disclose_option: bad category %c", category);
-    note_unported('pline.c impossible');
+    sync_impossible(
+        `should_query_disclose_option: bad category ${category}`, state);
     return { ask: true, defquery: 'n' };
 }
 
@@ -1832,7 +1844,7 @@ export function dealloc_killer(killer, state = game) {
     }
     if (!current) {
         // C: impossible("dealloc_killer (#%d) not on list", kptr->id);
-        note_unported('pline.c impossible');
+        sync_impossible(`dealloc_killer (#${killer.id}) not on list`, state);
     } else {
         previous.next = current.next ?? null;
     }

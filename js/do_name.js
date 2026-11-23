@@ -162,12 +162,12 @@ import { hides_under } from './mondata.js';
 import { beautiful } from './apply.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
-import { note_unported } from './unported.js';
 import { canspotmon, see_with_infrared, sensemon } from './display.js';
 import {
     Blind, Deaf, EHalluc_resistance, Hallucination,
     See_invisible,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 const GHOST_NAMES = Object.freeze([
     'Adri',
@@ -1256,7 +1256,8 @@ export function obj_pmname(obj, state = game) {
     // C reports impossible() and returns this sentinel; valid callers never
     // reach it.
     // C: impossible("obj_pmname otyp:%i,corpsenm:%i", obj->otyp, obj->corpsenm);
-    note_unported('pline.c impossible');
+    sync_impossible(
+        `obj_pmname otyp:${obj.otyp},corpsenm:${obj.corpsenm}`, state);
     return 'two-legged glorkum-seeker';
 }
 

@@ -294,8 +294,8 @@ import {
     Unblind_telepat,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
-import { note_unported } from './unported.js';
 import { impossible } from './pline.js';
+import { sync_impossible } from './source_steps.js';
 
 export const WHAT_IS_A_LOCATION = 'a monster, object or location';
 
@@ -661,7 +661,7 @@ function look_at_monster(monster, x, y, state, output = null) {
                 | MONSEEN_DETECT | MONSEEN_WARNMON);
             if (unknown) {
                 // C: impossible("lookat: unknown method of seeing monster");
-                note_unported('pline.c impossible');
+                sync_impossible('lookat: unknown method of seeing monster', state);
                 labels.push(`(${unknown >>> 0})`);
             }
             output.monbuf = labels.join(', ');
@@ -1113,7 +1113,8 @@ export function append_str(out, description) {
         if (spaceLeft < 0) {
             // C: impossible("append_str: 'buf' contains %lu characters.",
             //               (unsigned long) oldlen);
-            note_unported('pline.c impossible');
+            sync_impossible(
+                `append_str: 'buf' contains ${out.length} characters.`, game);
         }
         return out; /* no space available */
     }

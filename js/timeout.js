@@ -155,7 +155,7 @@ import {
 import { deferred_decor, encumber_msg } from './pickup.js';
 import { stuck_in_wall } from './pray.js';
 import { region_danger } from './region.js';
-import { an, donameFresh, the, vtense, xname, Yname2 } from './objnam.js';
+import { an, donameFresh, simpleonames, the, vtense, xname, Yname2 } from './objnam.js';
 import {
     candle_light_range, arti_light_radius, del_light_source,
     del_light_source_async, get_obj_location, new_light_source,
@@ -169,7 +169,6 @@ import { body_part, polymon, rehumanize } from './polyself.js';
 import { hideunder, maybe_unhide_at, restartcham, wake_nearby, zombie_form } from './mon.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { Shk_Your } from './shk.js';
-import { note_unported } from './unported.js';
 import { fmt_ptr } from './alloc.js';
 import { TIMEOUT_PROPERTY_NAMES } from './timeout_property_data.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
@@ -498,7 +497,7 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
         break;
 
     default:
-        note_unported('pline.c impossible');
+        await impossible(`egg hatched where? (${egg.where})`, state, rawEnv);
         break;
     }
 
@@ -1606,7 +1605,7 @@ export function property_by_index(index, propertynum = null) {
 export function kind_name(kind) {
     switch (kind) {
     case TIMER_NONE:
-        note_unported('pline.c impossible');
+        sync_impossible('no timer type', game);
         return 'none';
     case TIMER_LEVEL:
         return 'level';
@@ -1855,10 +1854,11 @@ export function end_burn(obj, timerAttached = true, env = {}) {
     const plan = preflight_end_burn(obj, timerAttached, env);
     if (plan.mode === 'none') {
         // impossible("end_burn: obj %s not lit", xname(obj)) (timeout.c
-        // 1806-1809), then return; this function cannot wait for the print.
+        // 1806-1809), then return; this function queues the report.
         // Every C caller checks lamplit first or reaches it from a lit light
         // source or burn timer.
-        note_unported('pline.c impossible');
+        const state = env.state ?? game;
+        sync_impossible(`end_burn: obj ${xname(obj, state)} not lit`, state);
         return false;
     }
     if (plan.mode === 'direct') {
@@ -1870,8 +1870,9 @@ export function end_burn(obj, timerAttached = true, env = {}) {
     }
     if (plan.mode === 'untimed') {
         // impossible("end_burn: obj %s not timed!", xname(obj)); this
-        // function cannot wait for the print.
-        note_unported('pline.c impossible');
+        // function queues the report.
+        const state = env.state ?? game;
+        sync_impossible(`end_burn: obj ${xname(obj, state)} not timed!`, state);
         return true;
     }
     stop_timer(BURN_OBJECT, obj, plan.normalized.state, plan.normalized);
@@ -2361,7 +2362,8 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
         if (obj && obj.age) begin_burn(obj, true, env);
         break;
     default:
-        note_unported('pline.c impossible');
+        await impossible(
+            `burn_object: unexpected obj ${xname(obj, state)}`, state, rawEnv);
         break;
     }
     if (needNewsym) (env.newsym ?? newsym)(location.x, location.y, state);
@@ -2417,7 +2419,7 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
         radius = candle_light_range(obj);
     } else {
         // C: impossible("begin burn: unexpected %s", xname(obj));
-        note_unported('pline.c impossible');
+        sync_impossible(`begin burn: unexpected ${xname(obj, state)}`, state);
         turns = age;
     }
     // The JS port can have its light owner missing, so check it before
@@ -2458,8 +2460,8 @@ export function begin_burn(obj, alreadyLit = false, env = {}) {
             );
         } else {
             // impossible("begin_burn: can't get obj position"); this
-            // function cannot wait for the print.
-            note_unported('pline.c impossible');
+            // function queues the report.
+            sync_impossible("begin_burn: can't get obj position", state);
         }
     }
 }
@@ -2561,7 +2563,9 @@ export function start_glob_timeout(obj, when = 0, env = {}) {
     const { random, state } = timeoutEnv(env);
     if (!obj.globby) {
         // C: impossible("start_glob_timeout for non-glob [%d: %s]?", obj->otyp, simpleonames(obj));
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `start_glob_timeout for non-glob [${obj.otyp}: ${simpleonames(obj, state)}]?`,
+            state);
         return false; /* skip timer creation */
     }
     if (obj.timed) stop_timer(SHRINK_GLOB, obj, state);

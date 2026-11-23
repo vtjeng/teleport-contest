@@ -53,7 +53,6 @@ import { livelog_printf, verbalize, youFeel } from './pline.js';
 import { align_gname } from './pray.js';
 import { set_voice } from './sounds.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { canseemon, canspotmon } from './display.js';
 import { enexto } from './teleport.js';
 import { m_dowear, which_armor } from './worn.js';
@@ -66,6 +65,7 @@ import {
 import { bless, mksobj } from './obj.js';
 import { mpickobj } from './steal.js';
 import { Blind, Conflict, Deaf } from './youprop.js';
+import { impossible } from './pline.js';
 
 function guardianRandom(state, rawEnv = {}) {
     return rawEnv.random ?? state.random ?? coreRandom;
@@ -197,7 +197,7 @@ export async function summon_minion(alignment, talk, state = game, rawEnv = {}) 
         mnum = ndemon(alignment, state, random);
         break;
     default:
-        note_unported('pline.c impossible');
+        await impossible('unaligned player?', state, rawEnv);
         mnum = ndemon(A_NONE, state, random);
         break;
     }

@@ -137,7 +137,7 @@ import {
     wearmask_to_obj,
 } from './worn.js';
 import { select_menu } from './windows.js';
-import { note_unported } from './unported.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: iactions.c enum item_action_actions (13-42).
 const IA_NONE            = 0;
@@ -254,7 +254,7 @@ function itemactions_pushkeys(otmp, act, state) {
     switch (act) {
     default:
         // C: impossible("Unknown item action %d", act);
-        note_unported('pline.c impossible');
+        sync_impossible(`Unknown item action ${act}`, state);
         break;
     case IA_NONE:
         break;

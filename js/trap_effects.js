@@ -384,7 +384,6 @@ import {
     self_invis_message,
     split_mon,
 } from './potion.js';
-import { note_unported } from './unported.js';
 import { dmgval, mwepgone } from './weapon.js';
 import {
     cansee,
@@ -1387,7 +1386,7 @@ async function steedintrap(trap, otmp, env) {
     switch (trap.ttyp) {
     case ARROW_TRAP:
         if (!otmp) {
-            note_unported('pline.c impossible'); // steed arrow
+            await impossible('steed hit by non-existent arrow?', state, env); // steed arrow
             return Trap_Effect_Finished;
         }
         trapkilled = await thitm(8, steed, otmp, 0, false, env);
@@ -1395,7 +1394,7 @@ async function steedintrap(trap, otmp, env) {
         break;
     case DART_TRAP:
         if (!otmp) {
-            note_unported('pline.c impossible'); // steed dart
+            await impossible('steed hit by non-existent dart?', state, env); // steed dart
             return Trap_Effect_Finished;
         }
         trapkilled = await thitm(7, steed, otmp, 0, false, env);
@@ -3074,7 +3073,8 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
         let shoes = which_armor(mtmp, W_ARMF, state);
         await extract_from_minvent(mtmp, shoes, true, true, { ...env, state });
         if (await mpickobj(mtmp, shoes, { ...env, state })) {
-            note_unported('pline.c impossible');
+            await impossible(
+                're-equipping iron shoes destroyed them?', state, env);
             return Trap_Effect_Finished;
         }
         shoes = await poly_obj(
@@ -3871,7 +3871,9 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
     if (trap.ttyp === VIBRATING_SQUARE)
         return trapeffect_vibrating_square(monster, trap, trflags, env);
     // C discards impossible()'s result and then returns Finished.
-    note_unported('pline.c impossible');
+    await impossible(
+        `${monster === env.state.youmonst ? 'You' : 'Some monster'} encountered a strange trap of type ${trap.ttyp}.`,
+        env.state, env);
     return Trap_Effect_Finished;
 }
 

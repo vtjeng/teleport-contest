@@ -3526,10 +3526,13 @@ test('an in-range gazing monster reaches gazemu', async () => {
     mattk[0] = { aatyp: AT_GAZE, adtyp: 255, damn: 1, damd: 2 };
     target.monster.data = { ...target.monster.data, mattk };
 
-    game.unported = new Set();
+    // One space answers each --More-- that the lines before the report and
+    // impossible()'s own three lines stop at.
+    for (let i = 0; i < 4; i++) game.nhDisplay.pushKey(' '.charCodeAt(0));
     await runSimpleMonsterAction(target.monster, { state: game });
-    assert.ok(game.unported.has('pline.c impossible'),
-        'gazemu records its discarded diagnostic at the source default');
+    assert.equal(game._pending_message,
+        'Please report these messages to devteam@nethack.org.',
+        'gazemu reports the unknown gaze at the source default');
 });
 
 // C ref: monmove.c dochug():745-750. Water nymphs have M1_TPORT but no

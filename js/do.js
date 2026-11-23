@@ -389,7 +389,6 @@ import {
 import { dotrap, seetrap } from './trap_effects.js';
 import { glyph_to_cmap } from './glyphs.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { create_mplayers } from './mplayer.js';
 import {
     cansee,
@@ -489,7 +488,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
         const name = canspotmon(monster, state)
             ? Amonnam(monster, { state }) : 'Something';
         if (!container) {
-            note_unported('pline.c impossible');
+            await impossible('reviving corpse from non-existent container', state, env);
         } else if (carrier && canseemon(carrier, state)) {
             await message(`${name} writhes out of ${yname(container, state)}!`,
                 state, env);
@@ -526,7 +525,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
         // C falls through for an unexpectedly revived buried non-zombie.
         // falls through
     default:
-        note_unported('pline.c impossible');
+        await impossible(`revive_corpse: lost corpse @ ${where}`, state, env);
         break;
     }
     return true;

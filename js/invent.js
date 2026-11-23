@@ -370,7 +370,6 @@ import {
 } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
 import { artitouch } from './quest.js';
-import { note_unported } from './unported.js';
 import { sync_impossible } from './source_steps.js';
 import { projectionNoticeFields } from './startup_a11y.js';
 import { panic } from './end.js';
@@ -3712,10 +3711,11 @@ export function obfree(obj, merge = null, rawEnv = {}) {
     if (obj.owornmask) {
         // C prints this through impossible(), which this build shows in every
         // mode. obfree() is synchronous and cannot wait for it, so the port
-        // records the gap.
+        // queues the report.
         // C: impossible("obfree: deleting worn obj (%d: %ld)", obj->otyp,
         //               obj->owornmask);
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `obfree: deleting worn obj (${obj.otyp}: ${obj.owornmask})`, env.state);
         setnotworn(obj, setwornEnv(env.state, env));
     }
     dealloc_obj(obj, env);

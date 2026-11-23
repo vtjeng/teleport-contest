@@ -7,6 +7,7 @@
 // `type`, zap_hit()'s `ac`, and the 10/20/75 bounce selector no horizontal
 // bolt can reach.
 
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -509,7 +510,8 @@ test('zapdir_to_glyph packs the beam direction under its type', () => {
     // a negative type.
     initUnported();
     assert.equal(zapdir_to_glyph(1, 0, 8, game).glyph, GLYPH_ZAP_OFF + 1);
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    assert.deepEqual(takeQueuedReports(game),
+        ['zapdir_to_glyph:  illegal beam type']);
 });
 
 test('the zap glyph arm reads S_vbeam and zapcolors by its two fields',
@@ -1310,9 +1312,18 @@ test('dobuzz admits a hero wand or monster breath and rejects other bands', asyn
     // beam type 9 through impossible() and draws beam type 0 (display.c
     // 2461-2467); the synchronous port records that print as a gap, and the
     // ray goes on rather than ending the game.
-    initUnported();
-    await call(9);
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    // The report is queued inside dobuzz() and printed by the beam's first
+    // delay. One space answers each --More-- its three lines and the bolt's
+    // own message stop at; five is more than they need.
+    for (let i = 0; i < 5; i++) game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await dobuzz(
+        9, 6, game.u.ux, game.u.uy, 0, 0, true, false, false,
+        game, straightThrough(),
+    );
+    assert.deepEqual(takeQueuedReports(game), [], 'the report was printed');
 });
 
 test('monster breath dobuzz consumes only its source range draw on a forced miss',

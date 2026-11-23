@@ -70,9 +70,12 @@ test('source gates and the canonical list correspond to both whole C functions',
 test('dogaze rejects invalid attack, blindness, hallucination and insufficient energy without time or draws', async () => {
     // C checks invalid AD_STON before any property or energy gate.
     const invalid = await fixture(M.PM_MEDUSA);
+    // One space answers each --More-- between impossible()'s three lines.
+    for (let i = 0; i < 2; i++) invalid.nhDisplay.pushKey(' '.charCodeAt(0));
     assert.equal(await dogaze(invalid), ECMD_OK);
     assert.equal(invalid.u.uen, 30);
-    assert.ok(invalid.unported.has('pline.c impossible'));
+    assert.equal(invalid._pending_message,
+        'Please report these messages to devteam@nethack.org.');
     for (const property of [BLINDED, HALLUC, null]) {
         const state = await fixture();
         if (property) state.u.uprops[property].intrinsic = 1;

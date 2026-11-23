@@ -470,7 +470,6 @@ import {
 import { erode_obj } from './trap_erode_obj.js';
 import { dotrap, mintrap } from './trap_effects.js';
 import { move_bc, drag_ball, drop_ball } from './ball.js';
-import { note_unported } from './unported.js';
 import { cutworm } from './worm.js';
 import { snuff_candle } from './apply_splash_lit.js';
 import { make_blinded, potionbreathe, potionhit } from './potion.js';
@@ -481,6 +480,7 @@ import {
     Hallucination, Levitation, Maybe_Half_Phys, Passes_walls,
     Stone_resistance, Stunned, Wwalking, Punished,
 } from './youprop.js';
+import { impossible } from './pline.js';
 
 
 // C ref: dothrow.c walk_path() (656-735). The callback sees every map cell
@@ -1450,7 +1450,7 @@ async function breakmsg(obj, inView, rawEnv = {}) {
     switch (obj.oclass === POTION_CLASS ? POT_WATER : obj.otyp) {
     default:
         if (obj.oclass !== WAND_CLASS)
-            note_unported('pline.c impossible');
+            await impossible(`breaking odd object (${obj.otyp})?`, state, rawEnv);
         // Glass or crystal wand.
         toPieces = ' into a thousand pieces';
         // fall through
@@ -2917,9 +2917,9 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
             break;
         default:
             // C prints "Unknown type of gloves" through impossible(), which
-            // this build shows in every mode, and goes on; the port records
-            // the gap.
-            note_unported('pline.c impossible unknown glove type');
+            // this build shows in every mode, and goes on.
+            await impossible(
+                `Unknown type of gloves (${state.uarmg.otyp})`, state, rawEnv);
             break;
         }
     }

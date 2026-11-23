@@ -93,6 +93,7 @@ import { note_unported } from './unported.js';
 import { ttyPline } from './tty_message.js';
 import { impossible, youFeel } from './pline.js';
 import { Blind, Levitation, Maybe_Half_Phys, Punished } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 const BCPOS_DIFFER = 0;
 const BCPOS_CHAIN = 1;
@@ -122,7 +123,7 @@ export function bc_order(state = game) {
         if (object === chain) return BCPOS_CHAIN;
         if (object === ball) return BCPOS_BALL;
     }
-    note_unported('pline.c impossible');
+    sync_impossible('bc_order:  ball&chain not in same location!', state);
     return BCPOS_DIFFER;
 }
 
@@ -200,7 +201,7 @@ async function placebc_core(state, rawEnv = {}) {
     const ball = state.uball;
     const chain = state.uchain;
     if (!ball || !chain) {
-        note_unported('pline.c impossible');
+        await impossible('Where are your ball and chain?', state, rawEnv);
         return;
     }
 
@@ -285,7 +286,7 @@ function unplacebc_core(state) {
 // for an already-free chain, which is the state between level save and load.
 export function unplacebc(state = game) {
     if (state.bcrestriction) {
-        note_unported('pline.c impossible');
+        sync_impossible('unplacebc denied, restriction in place', state);
         return;
     }
     unplacebc_core(state);
@@ -300,7 +301,8 @@ function check_restriction(restriction, state) {
 
 export function unplacebc_and_covet_placebc(state = game, rawEnv = {}) {
     if (state.bcrestriction) {
-        note_unported('pline.c impossible');
+        sync_impossible(
+            'unplacebc_and_covet_placebc denied, already restricted', state);
         return 0;
     }
     const restriction = (rawEnv.random?.rnd ?? rnd)(400);
@@ -312,7 +314,7 @@ export function unplacebc_and_covet_placebc(state = game, rawEnv = {}) {
 export async function lift_covet_and_placebc(pin, state = game, rawEnv = {}) {
     if (!check_restriction(pin, state)) return;
     if (state.uchain && state.uchain.where !== OBJ_FREE) {
-        note_unported('pline.c impossible');
+        await impossible('bc already placed?', state, rawEnv);
         return;
     }
     await placebc_core(state, rawEnv);

@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -384,9 +385,9 @@ test('which_armor answers the hero from the uarm* slots, not from minvent',
         // really sees, but never for the hero.
         initUnported();
         assert.equal(which_armor(hero, W_SADDLE, state), null);
-        assert.equal(game.unported.has('pline.c impossible'), true);
         assert.equal(which_armor(hero, W_ARM | W_ARMC, state), null);
-        assert.equal(game.unported.has('pline.c impossible'), true);
+        assert.deepEqual(takeQueuedReports(state),
+            ['bad flag in which_armor', 'bad flag in which_armor']);
         initUnported();
 
         // The monster branch still runs for anything that is not the hero,
@@ -674,7 +675,9 @@ test('extract_from_minvent reports an object outside a monster inventory',
         try {
             assert.equal(
                 extract_from_minvent(mon, held, false, true, env), undefined);
-            assert.equal(game.unported.has('pline.c impossible'), true);
+            assert.deepEqual(takeQueuedReports(env.state ?? game), [
+                'extract_from_minvent called on object not in minvent',
+            ]);
         } finally {
             game.unported = previous;
         }

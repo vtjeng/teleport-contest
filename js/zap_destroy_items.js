@@ -76,9 +76,9 @@ import { Ring_gone } from './do_wear.js';
 import { bypass_objlist, nxt_unbypassed_obj, setnotworn } from './worn.js';
 import { recharge } from './read.js';
 import { canseemon } from './display.js';
-import { note_unported } from './unported.js';
 import { Blind, Fire_resistance, Shock_resistance } from './youprop.js';
 import { ignite_items } from './apply_catch_lit.js';
+import { impossible } from './pline.js';
 
 // C ref: zap.c destroyable() (5612-5650), translated whole. "Return TRUE if obj
 // is eligible to pass to maybe_destroy_item given the type of elemental damage
@@ -311,7 +311,8 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
     default:
         /* zap.c calls discarded-void pline.c impossible() and continues. */
         skip = 1;
-        note_unported('pline.c impossible');
+        await impossible(
+            `maybe_destroy_item with unexpected dmgtyp ${dmgtyp}`, state, env);
         break;
     }
 
@@ -462,7 +463,7 @@ export async function destroy_items(mon, dmgtyp, dmg_in, env) {
         if (where === NOBJ_STATES)
             where = obj.where;
         else if (where !== obj.where)
-            note_unported('pline.c impossible');
+            await impossible('destroy_item: items in multiple chains', state, env);
 
         /* if loss of this item might dump us onto a trap, hold off
            until later because potential recursive destroy_items() will

@@ -12,7 +12,6 @@ import {
     strstri, lcase, ucase, upstart, highc, lowc, strncmpi,
 } from './hacklib.js';
 import { Strlen_ } from './strutil.js';
-import { note_unported } from './unported.js';
 import { name_to_mon } from './mondata.js';
 import {
     FOOD_CLASS,
@@ -21,6 +20,7 @@ import {
 } from './objects.js';
 import { LOW_PM, NUMMONS } from './monsters.js';
 import { coreRandom } from './rng.js';
+import { sync_impossible } from './source_steps.js';
 
 export const PL_FSIZ = 32;
 export const DEFAULT_FRUIT = 'slime mold';
@@ -285,7 +285,7 @@ export function makeplural(oldstr) {
     const original = String(oldstr ?? '').replace(/^ +/u, '');
     if (!original) {
         // C: impossible("plural of null?");
-        note_unported('pline.c impossible');
+        sync_impossible('plural of null?', game);
         return 's';
     }
 
@@ -388,7 +388,7 @@ export function makesingular(oldstr) {
     let original = String(oldstr ?? '').replace(/^ +/u, '');
     if (!original) {
         // C: impossible("singular of null?");
-        note_unported('pline.c impossible');
+        sync_impossible('singular of null?', game);
         return '';
     }
 

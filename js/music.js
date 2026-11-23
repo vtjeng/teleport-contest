@@ -56,7 +56,6 @@ import {
 import { mselftouch } from './trap_effects.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { block_point, cansee, does_block, recalc_block_point, unblock_point } from './vision.js';
 import { getlin } from './windows.js';
 import { flash_str, resist, ubuzz, zapyourself } from './zap.js';
@@ -66,6 +65,7 @@ import {
     Blind, Confusion, Deaf, Flying, Fumbling, HConfusion, HStun,
     Hallucination, Levitation, Maybe_Half_Phys, Stunned, Unchanging,
 } from './youprop.js';
+import { impossible } from './pline.js';
 
 
 // C ref: music.c awaken_scare() (45-60). The waiting arm excludes scare
@@ -643,7 +643,7 @@ export async function do_improvisation(instr, state = game, env = {}) {
         state.disp.botl = true;
         break;
     default:
-        note_unported('pline.c impossible');
+        await impossible(`What a weird instrument (${instr.otyp})!`, state, env);
         return 0;
     }
     return 2;

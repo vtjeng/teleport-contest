@@ -53,6 +53,8 @@ import {
     Monnam,
     Some_Monnam,
     y_monnam,
+    Mgender,
+    pmname,
 } from './do_name.js';
 import { droppables } from './dogmove.js';
 import { game } from './gstate.js';
@@ -113,6 +115,7 @@ import {
     doname_with_price,
     otense,
     yname,
+    simpleonames,
 } from './objnam.js';
 import { makeplural } from './fruit.js';
 import { impossible } from './pline.js';
@@ -146,7 +149,6 @@ import {
 import { stop_occupation } from './allmain.js';
 import { mwepgone } from './weapon.js';
 import { rloc, rloco, tele_restrict } from './teleport.js';
-import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import { canseemon, canspotmon } from './display.js';
 import { ART_ORB_OF_DETECTION, touch_artifact } from './artifacts.js';
@@ -154,6 +156,7 @@ import { body_part, mbodypart } from './polyself.js';
 import {
     Adornment, Blind, Conflict, Flying, Levitation,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 function pickupEnv(rawEnv = {}) {
     const state = rawEnv.state ?? game;
@@ -221,12 +224,16 @@ export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
     const { env } = plan;
     if (plan.outcome === 'missing') {
         /* impossible("monster (%s) taking or picking up nothing?") */
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `monster (${pmname(monster.data, Mgender(monster, env.state))}) taking or picking up nothing?`,
+            env.state);
         return true;
     }
     if (plan.outcome === 'attached') {
         /* impossible("monster (%s) taking or picking up attached %s (%s)?") */
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `monster (${pmname(monster.data, Mgender(monster, env.state))}) taking or picking up attached ${obj === env.state.uchain ? 'chain' : 'ball'} (${simpleonames(obj, env.state)})?`,
+            env.state);
         return false;
     }
 
@@ -292,12 +299,16 @@ export async function mpickobjRuntime(
     const { env } = plan;
     if (plan.outcome === 'missing') {
         /* impossible("monster (%s) taking or picking up nothing?") */
-        note_unported('pline.c impossible');
+        await impossible(
+            `monster (${pmname(monster.data, Mgender(monster, env.state))}) taking or picking up nothing?`,
+            env.state, env);
         return true;
     }
     if (plan.outcome === 'attached') {
         /* impossible("monster (%s) taking or picking up attached %s (%s)?") */
-        note_unported('pline.c impossible');
+        await impossible(
+            `monster (${pmname(monster.data, Mgender(monster, env.state))}) taking or picking up attached ${obj === env.state.uchain ? 'chain' : 'ball'} (${simpleonames(obj, env.state)})?`,
+            env.state, env);
         return false;
     }
 
@@ -346,7 +357,7 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
     try {
         if (obj.owornmask & W_ARMOR) {
             if (obj === state.uskin) {
-                note_unported('pline.c impossible');
+                await impossible('Removing embedded scales?', state, env);
                 const { skinback } = await import('./polyself.js');
                 await skinback(true, state);
             }
@@ -449,7 +460,7 @@ async function stealarm(state = game, rawEnv = {}) {
                 monster = monster.nmon;
             if (monster) {
                 if ((monster.mhp ?? 0) < 1) {
-                    note_unported('pline.c impossible');
+                    await impossible('stealarm(): dead monster stealing', state, rawEnv);
                 } else if (!dmgtype(monster.data, AD_SITM)
                     || dist2(monster.mx, monster.my,
                         state.u.ux, state.u.uy) > 2) {

@@ -29,7 +29,6 @@ import { m_at, place_monster, remove_monster } from './monst.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { BOULDER, IRON_CHAIN } from './objects.js';
 import { update_monster_region } from './region.js';
-import { note_unported } from './unported.js';
 import { deltrap, drown, lava_effects, t_at } from './trap.js';
 import { revive_nasty, spoteffects } from './hack.js';
 import { enexto, teleds } from './teleport.js';
@@ -48,6 +47,7 @@ import {
     Amphibious, Confusion, Deaf, Flying, Fumbling, Hallucination, Levitation,
     Passes_walls, Stunned, Swimming, Unaware, Wwalking,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 // C refs: dbridge.c is_pool() (46-60) and is_moat() (100-112). The `flags`
 // field is the live JavaScript owner of drawbridgemask on map records.
@@ -192,7 +192,7 @@ export function create_drawbridge(x, y, dir, flag, state = game) {
         break;
     default:
         // C: impossible("bad direction in create_drawbridge");
-        note_unported('pline.c impossible');
+        sync_impossible('bad direction in create_drawbridge', state);
         /* falls through */
     case DB_WEST:
         horiz = false;

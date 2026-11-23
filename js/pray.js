@@ -338,7 +338,6 @@ import {
     gloves_simple_name, otense, vtense, yname, Yobjnam2,
     simpleonames, xname,
 } from './objnam.js';
-import { note_unported } from './unported.js';
 import { punish, unpunish } from './read.js';
 import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
@@ -350,6 +349,8 @@ import {
     Passes_walls, Reflecting, Shock_resistance, Sick, Slimed,
     Stoned, Strangled, Unchanging, Wounded_legs, Punished,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
+import { impossible } from './pline.js';
 
 // C ref: pray.c TROUBLE_* (76-101). Positive values are serious trouble,
 // negative ones are comparative annoyances, and in_trouble() answers the worst
@@ -1378,7 +1379,7 @@ export function worst_cursed_item(state = game) {
 // than silently changing the property they own.
 export async function fix_curse_trouble(otmp, what = null, state = game) {
     if (!otmp) {
-        note_unported('pline.c impossible');
+        await impossible('fix_curse_trouble: nothing to uncurse.', state);
         return;
     }
 
@@ -1544,7 +1545,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
             }
         }
         if (nohands(state.youmonst?.data) || !freehand(state))
-            note_unported('pline.c impossible');
+            await impossible("fix_worst_trouble: couldn't cure hands.", state, env);
         break;
     case TROUBLE_CURSED_BLINDFOLD:
         await fix_curse_trouble(state.ublindf, null, state);
@@ -2642,7 +2643,7 @@ export async function pleased(g_align, state = game) {
             await give_spell(state);
             break;
         default:
-            note_unported('pline.c impossible');
+            await impossible('Confused deity!', state);
             break;
         }
     }
@@ -2998,7 +2999,7 @@ export function align_gname(alignment, state = game) {
         break;
     default:
         // C: impossible("unknown alignment.");
-        note_unported('pline.c impossible');
+        sync_impossible('unknown alignment.', state);
         gnam = 'someone';
         break;
     }
@@ -3047,11 +3048,11 @@ export function halu_gname(alignment, state = game) {
         break;
     default:
         // C: impossible("rn2 broken in halu_gname?!?");
-        note_unported('pline.c impossible');
+        sync_impossible('rn2 broken in halu_gname?!?', state);
     }
     if (!gnam) {
         // C: impossible("No random god name?");
-        note_unported('pline.c impossible');
+        sync_impossible('No random god name?', state);
         gnam = 'your Friend the Computer'; /* Paranoia */
     }
     return gnam.startsWith('_') ? gnam.slice(1) : gnam;

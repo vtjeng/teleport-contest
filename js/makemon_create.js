@@ -88,8 +88,7 @@ import {
     MHID_ALTMON,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { note_unported } from './unported.js';
-import { ImpossibleCall, finish_steps } from './source_steps.js';
+import { ImpossibleCall, finish_steps, sync_impossible } from './source_steps.js';
 import {
     ART_DEMONBANE,
     ART_EXCALIBUR,
@@ -523,7 +522,7 @@ import {
     mon_set_minvis,
     which_armor,
 } from './worn.js';
-import { canseemon, sensemon } from './display.js';
+import { canseemon, describe_level, sensemon } from './display.js';
 import { Blind, Protection_from_shape_changers, See_invisible } from './youprop.js';
 
 // include/monattk.h predicate used by muse.c's random-item selectors.
@@ -2089,8 +2088,10 @@ export function dmonsfree(state = game) {
     state.iflags.purge_monsters = 0;
     if (removed !== expected) {
         // impossible("dmonsfree: %d removed doesn't match %d pending on %s",
-        // ...); this synchronous function cannot wait on the print.
-        note_unported('pline.c impossible');
+        // ...); this synchronous function queues the report.
+        sync_impossible(
+            `dmonsfree: ${removed} removed doesn't match ${expected} pending on ${describe_level(2, state)}`,
+            state);
     }
     return removed;
 }
@@ -2268,7 +2269,8 @@ function* makemon_steps(ptr, x, y, mmflags, normalized) {
     }
     // C: impossible("makemon trying to create a monster at <%d,%d>?").
     if (!isok(x, y)) {
-        note_unported('pline.c impossible');
+        yield new ImpossibleCall(
+            `makemon trying to create a monster at <${x},${y}>?`);
         return null;
     }
     // Does a monster already exist at the position?

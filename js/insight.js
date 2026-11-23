@@ -347,7 +347,6 @@ import { costly_spot } from './shk.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { impossible, livelog_printf } from './pline.js';
-import { note_unported } from './unported.js';
 import { ATR_INVERSE, ATR_NONE } from './terminal.js';
 import { hidden_gold } from './vault.js';
 import { observable_depth } from './topten.js';
@@ -390,6 +389,7 @@ import {
     Warn_of_mon, Warning, Wounded_legs, Wwalking,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: insight.c trap_predicament() (233-270). The pager self-look
 // description and the status window share this source-owned wording. The
@@ -2054,8 +2054,8 @@ export function record_achievement(achidx, state = game) {
     if ((achidx < 1 && (absidx < ACH_RNK1 || absidx > ACH_RNK8))
         || achidx >= N_ACH) {
         // impossible("Achievement #%d is out of range.", achidx); this
-        // synchronous function cannot wait on the print.
-        note_unported('pline.c impossible');
+        // synchronous function queues the report.
+        sync_impossible(`Achievement #${achidx} is out of range.`, state);
         return;
     }
 
@@ -2499,7 +2499,9 @@ export function num_genocides(state = game) {
             ++count;
             if ((monsters[index]?.geno ?? 0) & G_UNIQ
                 && index !== PM_HIGH_CLERIC)
-                note_unported('pline.c impossible');
+                sync_impossible(
+                    `unique creature '${index}: ${monsters[index].pmnames[NEUTRAL]}' genocided?`,
+                    state);
         }
     }
     return count;

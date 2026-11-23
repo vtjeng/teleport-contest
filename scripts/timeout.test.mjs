@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -2259,10 +2260,21 @@ test('end_burn takes the timer path only for a timed ordinary light', () => {
 // records the unprinted report, as for the untimed report below it.
 test('end_burn records the report for an unlit object and changes nothing', () => {
     const state = timerState();
-    const lamp = { otyp: OIL_LAMP, lamplit: false, where: OBJ_FREE };
-    game.unported = new Set();
+    // xname() in the report reads the object catalog.
+    objects_globals_init(state);
+    // Already encountered, so naming the lamp adds nothing to the
+    // discoveries list this fixture does not build.
+    state.objects[OIL_LAMP].oc_encountered = 1;
+    const lamp = {
+        otyp: OIL_LAMP, oclass: state.objects[OIL_LAMP].oc_class, quan: 1,
+        dknown: true, lamplit: false,
+        where: OBJ_FREE,
+    };
     assert.equal(end_burn(lamp, true, { state }), false);
-    assert.ok(game.unported.has('pline.c impossible'));
+    // xname() names the lamp from this fixture's bare catalog.
+    const reports = takeQueuedReports(state);
+    assert.equal(reports.length, 1);
+    assert.match(reports[0], /^end_burn: obj .+ not lit$/u);
     assert.equal(lamp.lamplit, false);
 });
 
@@ -3306,7 +3318,8 @@ test('kind_name preserves C timer labels and records only the discarded impossib
     game.unported = new Set();
     try {
         assert.equal(kind_name(TIMER_NONE), 'none');
-        assert.deepEqual([...game.unported], ['pline.c impossible']);
+        assert.deepEqual([...game.unported], []);
+        assert.deepEqual(takeQueuedReports(game), ['no timer type']);
     } finally {
         game.unported = prior;
     }

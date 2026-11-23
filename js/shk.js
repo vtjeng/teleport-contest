@@ -289,7 +289,7 @@ import {
     findgold, mdrop_special_objs, mpickobj, remove_worn_item,
 } from './steal.js';
 import { discover_object, observe_object } from './o_init.js';
-import { Monnam, x_monnam, y_monnam } from './do_name.js';
+import { Monnam, a_monnam, x_monnam, y_monnam } from './do_name.js';
 import { coreRandom, rn2, rnd } from './rng.js';
 import { obj_stop_timers } from './timeout.js';
 import { ansimpleoname, Doname2, donameFresh, paydoname, safe_qbuf,
@@ -325,16 +325,17 @@ export function shk_globals_init(state = game) {
 
 // C ref: shk.c await money2mon() (157-184). Transfer an exact gold stack from the
 // hero's inventory to a monster. The diagnostic branches are impossible in a
-// valid payment, so their discarded pline.c result is recorded as a gap.
+// valid payment.
 export async function money2mon(monster, amount, state = game) {
     const gold = findgold(state.invent);
     const payment = Math.trunc(amount);
     if (payment <= 0) {
-        note_unported('pline.c impossible');
+        await impossible(
+            `${amount ? 'negative' : 'zero'} payment in money2mon!`, state);
         return 0;
     }
     if (!gold || gold.quan < payment) {
-        note_unported('pline.c impossible');
+        await impossible(`Paying without ${gold ? 'enough' : ''} gold?`, state);
         return 0;
     }
 
@@ -357,13 +358,16 @@ export async function money2u(monster, amount, state = game) {
     const gold = findgold(monster.minvent);
     const payment = Math.trunc(amount);
     if (payment <= 0) {
-        note_unported('pline.c impossible');
+        await impossible(
+            `${amount ? 'negative' : 'zero'} payment in money2u!`, state);
         return;
     }
     if (!gold || gold.quan < payment) {
         // C formats a_monnam(monster) while building an impossible() message;
         // the diagnostic is discarded here because this path is invalid.
-        note_unported('pline.c impossible');
+        await impossible(
+            `${a_monnam(monster, { state })} paying without ${gold ? 'enough' : ''} gold?`,
+            state);
         return;
     }
 
@@ -944,7 +948,7 @@ function cad(altusage, state = game) {
         result = 'fiend';
         break;
     default:
-        note_unported('pline.c impossible');
+        sync_impossible('cad: unknown gender', state);
         result = 'thing';
         break;
     }
@@ -1398,7 +1402,7 @@ export function get_cost(obj, shopkeeper, state = game) {
             const pair = GLASS_GEM_PRICE_TYPES[obj.otyp - FIRST_GLASS_GEM];
             const pricedType = pair
                 ? pair[pseudorand ? 0 : 1] : STRANGE_OBJECT;
-            if (!pair) note_unported('pline.c impossible');
+            if (!pair) sync_impossible(`bad glass gem ${obj.otyp}?`, state);
             price = Math.trunc(objectType(pricedType, state).oc_cost);
         } else if (oid_price_adjustment(obj, obj.o_id, state) > 0) {
             multiplier *= 4;
@@ -1846,7 +1850,7 @@ export function bp_to_obj(bp, state = game) {
 export async function doinvbill(mode, state = game) {
     const shkp = shop_keeper(firstRoom(state.u?.ushops), state);
     if (!shkp || !inhishop(shkp, state)) {
-        if (mode) note_unported('pline.c impossible');
+        if (mode) await impossible('doinvbill: no shopkeeper?', state);
         return 0;
     }
     const eshk = shkp.mextra.eshk;
@@ -1862,7 +1866,7 @@ export async function doinvbill(mode, state = game) {
     for (const bp of bill) {
         const obj = bp_to_obj(bp, state);
         if (!obj) {
-            note_unported('pline.c impossible');
+            await impossible('Bad shopkeeper administration.', state);
             break;
         }
         if (!bp.useup && bp.bquan <= obj.quan) continue;
@@ -1927,7 +1931,8 @@ export function make_itemized_bill(shkp, state = game) {
         const bp = eshk.bill_p[i];
         let obj = bp_to_obj(bp, state);
         if (!obj) {
-            note_unported('pline.c impossible');
+            sync_impossible(
+                `Can't find shop bill entry for #${bp.bo_id}`, state);
             continue;
         }
         let bidx = i;
@@ -2098,7 +2103,7 @@ export async function dopayobj(shkp, bp, obj, which, itemize, unseen,
     const consumed = which === 0;
     if (!obj.unpaid && !bp.useup
         && !(hasContents(obj) && unpaid_cost(obj, COST_CONTENTS, state))) {
-        note_unported('pline.c impossible');
+        await impossible('Paid object on bill??', state, env);
         return PAY_BUY;
     }
     if (itemize && await insufficient_funds(shkp, obj, 0, state, env)) return PAY_BROKE;
@@ -2180,7 +2185,12 @@ async function buy_container(shkp, indx, ibillct, ibill, state, env) {
     for (let i = 0; i < ebillct; ++i) {
         const bp = eshk.bill_p[i];
         const obj = bp_to_obj(bp, state);
-        if (!obj) { note_unported('pline.c impossible'); return 2; }
+        if (!obj) {
+            await impossible(
+                `Can't find contained item on shop bill (#${bp.bo_id}).`,
+                state, env);
+            return 2;
+        }
         if (obj.where !== OBJ_CONTAINED && !hasContents(obj)) continue;
         let top = obj;
         while (top.where === OBJ_CONTAINED) top = top.ocontainer;
@@ -2197,11 +2207,21 @@ async function buy_container(shkp, indx, ibillct, ibill, state, env) {
         let index = 0;
         for (; index < ebillct; ++index)
             if (eshk.bill_p[index].bo_id === id) break;
-        if (index === ebillct) { note_unported('pline.c impossible'); return 2; }
+        if (index === ebillct) {
+            await impossible(
+                `Buying ${simpleonames(container, state)} contents: item #${id} disappeared from bill.`,
+                state, env);
+            return 2;
+        }
         const bp = eshk.bill_p[index];
         const obj = bp_to_obj(bp, state);
         const buy = await dopayobj(shkp, bp, obj, 1, false, unseen, state, env);
-        if (buy !== PAY_BUY) { note_unported('pline.c impossible'); continue; }
+        if (buy !== PAY_BUY) {
+            await impossible(
+                `Buying ${simpleonames(container, state)} contents failed unexpectedly (#${obj.o_id} ${buy}).`,
+                state, env);
+            continue;
+        }
         ibill[indx].cost -= bp.price * bp.bquan;
         update_bill(id === container.o_id ? indx : -1,
             ibillct, ibill, eshk, bp, obj, state);
@@ -4201,9 +4221,9 @@ export async function splitbill(obj, child, state = game) {
         return;
     }
     if (bill.bquan < child.quan)
-        note_unported('pline.c impossible'); // negative bill quantity
+        await impossible('Negative quantity on bill??', state); // negative bill quantity
     if (bill.bquan === child.quan)
-        note_unported('pline.c impossible'); // zero bill quantity
+        await impossible('Zero quantity on bill??', state); // zero bill quantity
     bill.bquan -= child.quan;
 
     const eshk = ESHK(shopkeeper);
@@ -4246,7 +4266,9 @@ export function obfree_shop_bill(obj, merge, env = {}) {
     }
     const targetBill = onbill(merge, shkp, false, state);
     if (!targetBill) {
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `obfree: not on bill, otyp,where,quan,unpaid = (${obj.otyp},${obj.where},${obj.quan},${obj.unpaid ? 1 : 0}) (${merge.otyp},${merge.where},${merge.quan},${merge.unpaid ? 1 : 0})?`,
+            state);
         return 'preserved'; // C returns before deallocating either object.
     }
     targetBill.bquan += bill.bquan;
@@ -4500,7 +4522,8 @@ export async function globby_bill_fixup(obj_absorber, obj_absorbed, state = game
     const floor_absorber = obj_absorber.where === OBJ_FLOOR;
 
     if (!obj_absorber.globby) {
-        note_unported('pline.c impossible');
+        await impossible(
+            'globby_bill_fixup called for non-globby object', state, env);
     }
     if (floor_absorber) {
         x = obj_absorber.ox;

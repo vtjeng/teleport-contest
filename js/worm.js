@@ -33,12 +33,12 @@ import { impossible, impossible_printer } from './pline.js';
 import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { ttyPline } from './tty_message.js';
 import { rnd_nextto_goodpos } from './trap.js';
-import { note_unported } from './unported.js';
 import { fmt_ptr } from './alloc.js';
 import { isok } from './cmd_isok.js';
 import { mattacku } from './mhitu.js';
 import { canspotmon } from './display.js';
 import { mcalcmove } from './mon.js';
+import { sync_impossible } from './source_steps.js';
 
 function wormSlots(state) {
     if (!state.level)
@@ -447,7 +447,7 @@ export function wormgone(monster, rawEnv = {}) {
     const slots = wormSlots(env.state);
     const record = slots[wormno];
     const segments = record?.segments ?? [];
-    if (!wormno) note_unported('pline.c impossible');
+    if (!wormno) sync_impossible('wormgone: wormno is 0', env.state);
     monster.wormno = 0;
     toss_wsegs(segments, true, env);
     // C resets wgrowtime[wnum] before releasing the slot.
@@ -478,7 +478,7 @@ export async function cutworm(worm, x, y, cuttier, rawEnv = {}) {
     );
     if (cutIndex < 0) {
         // C reports an impossible internal map/list mismatch and returns.
-        note_unported('pline.c impossible');
+        await impossible(`cutworm: no segment at (${x},${y})`, state, rawEnv);
         return;
     }
     if (cutIndex === 0) {

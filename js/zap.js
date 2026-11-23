@@ -251,7 +251,6 @@ import { ignite_items } from './apply_catch_lit.js';
 import {
     hits_bars, m_useup, m_useupall, rnd_hallublast, thitu,
 } from './mthrowu.js';
-import { note_unported } from './unported.js';
 import {
     impossible,
     impossible_printer,
@@ -1014,7 +1013,7 @@ async function boxlock_invent(obj, state = game) {
 export async function release_hold(state = game) {
     const holder = state.u?.ustuck;
     if (!holder) {
-        note_unported('pline.c impossible'); // release_hold
+        await impossible('release_hold when not held?', state); // release_hold
         return;
     }
     const swallowed = Boolean(state.u?.uswallow);
@@ -1500,7 +1499,7 @@ export async function zapyourself(obj, ordinary, state = game) {
     }
 
     default:
-        note_unported('pline.c impossible');
+        await impossible(`zapyourself: object ${obj.otyp} used?`, state);
         break;
     }
     // Several arms above can end the game (a death ray, system shock from
@@ -3100,7 +3099,8 @@ export async function bhito(obj, wand, state = game,
         obj.bypass = false;
     }
     if (obj?.where !== OBJ_FLOOR && wand.otyp !== SPE_STONE_TO_FLESH)
-        note_unported('pline.c impossible'); // object location
+        await impossible(
+            'bhito: obj is not floor or Stone To Flesh spell', state, rawEnv); // object location
 
     if (obj === state.uball) {
         res = 0;
@@ -3314,7 +3314,8 @@ export async function bhito(obj, wand, state = game,
             res = await stone_to_flesh_obj(obj, state, random, rawEnv);
             break;
         default:
-            note_unported('pline.c impossible'); // bhito effect
+            await impossible(
+                `What an interesting effect (${wand.otyp})`, state, rawEnv); // bhito effect
             break;
         }
     }
@@ -3826,7 +3827,8 @@ export async function bhitm(monster, wand, state = game,
         }
     } else {
         // C's default is impossible() for an invalid effect/type pairing.
-        note_unported('pline.c impossible'); // bhitm effect
+        await impossible(
+            `What an interesting effect (${wand.otyp})`, state, rawEnv); // bhitm effect
     }
     if (wake && monster.mhp >= 1) {
         await wakeup(monster, !helpful_gesture, {
@@ -5015,7 +5017,7 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
             // C's impossible() here only diagnoses an impossible return from
             // boulder_hits_pool(); the value is still not otherwise used.
             if (!await boulder_hits_pool(boulder, x, y, false, env)) {
-                note_unported('pline.c impossible');
+                await impossible('melt_ice: no pool?', state, rawEnv);
             }
         } while (is_pool(x, y, state)
             && (boulder = sobj_at(BOULDER, x, y, state)));
@@ -5544,7 +5546,9 @@ export async function mon_spell_hits_spot(
             x, y, zapDamageType, shopDamage, true, 0, state, random, env,
         );
     } else {
-        note_unported('pline.c impossible');
+        await impossible(
+            `Unsupported damage type (${adtyp}) for mon_spell_hits_spot.`,
+            state, rawEnv);
     }
 }
 

@@ -149,12 +149,13 @@ import { ttyPline } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
 import { monsdump } from './glyph_ids.js';
 import { messageAt } from './startup_a11y.js';
-import { note_unported } from './unported.js';
 import { consume_obj_charge, update_inventory } from './invent.js';
 import { an } from './objnam.js';
 
 import { sensemon } from './display.js';
 import { dungeon_at } from './dungeon_table.js';
+import { sync_impossible } from './source_steps.js';
+import { impossible } from './pline.js';
 
 function generationState(env = {}) {
     const state = env.state ?? game;
@@ -478,7 +479,8 @@ export async function clone_mon(mon, x, y, state = game, rawEnv = {}) {
         mmy = y;
     }
     if (!isok(mmx, mmy)) { /* paranoia */
-        note_unported('pline.c impossible');
+        await impossible(
+            `clone_mon trying to create a monster at <${mmx},${mmy}>?`, state, rawEnv);
         return null;
     }
     /* C: MON_AT(mm.x, mm.y) checks level.monsters[x][y] */
@@ -1026,7 +1028,7 @@ export function mkclass_aligned(classSymbol, special = 0, atyp = A_NONE,
     if (!Number.isInteger(classSymbol)
         || classSymbol < 1 || classSymbol >= MAXMCLASSES) {
         // C: impossible("mkclass called with bad class!");
-        note_unported('pline.c impossible');
+        sync_impossible('mkclass called with bad class!', state);
         return null;
     }
 
@@ -1044,7 +1046,8 @@ export function mkclass_aligned(classSymbol, special = 0, atyp = A_NONE,
     }
     if (first === SPECIAL_PM) {
         // C: impossible("mkclass found no class %d monsters", class);
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `mkclass found no class ${classSymbol} monsters`, state);
         return null;
     }
 
@@ -1269,7 +1272,7 @@ export async function bagotricks(bag, tipping, state = game) {
 
     if (!bag || bag.otyp !== BAG_OF_TRICKS) {
         // C: impossible("bad bag o' tricks") -- pline.c debug output
-        note_unported('pline.c impossible');
+        await impossible("bad bag o' tricks", state);
     } else if (bag.spe < 1) {
         // C: pline1() is pline("%s", cstr)
         await ttyPline(

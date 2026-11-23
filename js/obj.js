@@ -203,7 +203,6 @@ import { ttyPline } from './tty_message.js';
 // from this file; both sides use the other's exports only inside function
 // bodies.
 import { maybe_reset_pick } from './lock.js';
-import { note_unported } from './unported.js';
 // mkobj.c shop_obj_sanity() calls these shk.c ownership predicates. The
 // modules already form a runtime cycle through invent.js; all of these reads
 // occur inside functions, after both modules have initialized.
@@ -404,6 +403,7 @@ import {
     Hallucination,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
+import { sync_impossible } from './source_steps.js';
 
 export const SPBOOK_NO_NOVEL = -SPBOOK_CLASS;
 
@@ -1141,7 +1141,8 @@ export function dealloc_obj(obj, env = {}) {
     // impossible() and returns; 2752-2759 panic for any other object that
     // is not free or is still linked.
     if (obj.where === OBJ_DELETED) {
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `dealloc_obj: obj already deleted (type=${obj.otyp})`, env.state ?? game);
         return obj;
     } else if (obj.where !== OBJ_FREE && obj.where !== OBJ_LUAFREE) {
         throw new Error(
@@ -1154,7 +1155,7 @@ export function dealloc_obj(obj, env = {}) {
         throw new Error('dealloc_obj with cobj');
     // mkobj.c dealloc_obj():2760-2763
     if (obj === hands_obj) {
-        note_unported('pline.c impossible');
+        sync_impossible('dealloc_obj with hands_obj', env.state ?? game);
         return obj;
     }
 
@@ -1715,7 +1716,9 @@ export function weight(obj, env = {}) {
 
     // mkobj.c weight():1892-1896
     if (obj.quan < 1) {
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `Calculating weight of ${obj.quan} ${simpleonames(obj, env.state ?? game)}?`,
+            env.state ?? game);
         return 0;
     }
     if (obj.globby) return Math.trunc(obj.owt);
@@ -2747,7 +2750,7 @@ export function mkobj(oclass, artif = false, env = {}) {
 
     // mkobj.c mkobj():295-298
     if (catalog[otyp]?.oc_class !== oclass || !OBJ_NAME(catalog[otyp], state)) {
-        note_unported('pline.c impossible');
+        sync_impossible(`probtype error, oclass=${oclass} i=${otyp}`, state);
         otyp = bases[oclass];
     }
     return mksobj(otyp, true, artif, normalized);
@@ -2885,7 +2888,9 @@ export function place_object(obj, x, y, env = {}) {
         || x < 0 || x >= COLNO || y < 0 || y >= ROWNO) {
         throw new RangeError(`place_object: off-map location <${x},${y}>`);
     }
-    if (!isok(x, y)) note_unported('pline.c impossible');
+    if (!isok(x, y)) sync_impossible(
+        `place_object: "${safe_typename(obj.otyp, env.state ?? game)}" [${obj.where}] off map <${x},${y}>`,
+        env.state ?? game);
     if (obj.where !== OBJ_FREE)
         throw new Error(`place_object: object where=${obj.where}, expected free`);
     // C ref: mkobj.c place_object():2331-2334, `block_point(x, y)` for a
@@ -3917,7 +3922,7 @@ export async function sanity_check_worn(obj, state = game) {
 // object near the given object's location.
 export function obj_nexto(otmp, state = game, random = null) {
     if (!otmp) {
-        note_unported('pline.c impossible');
+        sync_impossible("obj_nexto: wasn't given an object to check", state);
         return null;
     }
     return obj_nexto_xy(otmp, otmp.ox, otmp.oy, true, state, random);
@@ -3999,7 +4004,8 @@ export async function obj_absorb(otmp1, otmp2, state = game, env = {}) {
         return otmp1;
     }
 
-    note_unported('pline.c impossible');
+    await impossible(
+        'obj_absorb: not called with two actual objects', state, env);
     return null;
 }
 
@@ -4050,7 +4056,8 @@ export async function obj_meld(otmp1, otmp2, state = game, env = {}) {
         }
     } else {
         // C: impossible("obj_meld: not called with two actual objects")
-        note_unported('pline.c impossible');
+        await impossible(
+            'obj_meld: not called with two actual objects', state, env);
     }
     return result;
 }

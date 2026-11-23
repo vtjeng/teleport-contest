@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -874,7 +875,9 @@ test('m_detach takes the monster off the map and drops what it carried',
         game.unported = new Set();
         await m_detach(mon, mon.data, true, game, killEnv());
         assert.equal(game.iflags.purge_monsters, 1);
-        assert.ok(game.unported.has('pline.c impossible'));
+        const reports = takeQueuedReports(game);
+        assert.equal(reports.length, 1);
+        assert.match(reports[0], /^m_detach: .+ is already detached\?$/u);
     });
 
 test('m_detach generically dismounts a steed after detaching its corpse',

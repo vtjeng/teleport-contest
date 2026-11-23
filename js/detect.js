@@ -165,7 +165,6 @@ import { dist2, s_suffix } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { impossible_printer, youFeel, youSee } from './pline.js';
 import { finish_steps } from './source_steps.js';
-import { note_unported } from './unported.js';
 import { isBox, objectType } from './obj.js';
 import {
     CHEST,
@@ -233,6 +232,7 @@ import {
     HConfusion, HHallucination, Hallucination, Maybe_Half_Phys,
     Stunned,
 } from './youprop.js';
+import { impossible } from './pline.js';
 
 /** An explicit-search branch whose effects are still unported. */
 // C ref: detect.c:unconstrain_map() (69-81). Save all three constraint fields
@@ -819,7 +819,7 @@ export async function object_detect(detector = null, objectClass = 0,
     state = game) {
     let oclass = objectClass;
     if (oclass < 0 || oclass >= MAXOCLASSES) {
-        note_unported('pline.c impossible');
+        await impossible(`object_detect:  illegal class ${oclass}`, state);
         oclass = 0;
     }
 

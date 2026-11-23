@@ -618,7 +618,6 @@ import {
     youSee,
 } from './pline.js';
 import { finish_steps } from './source_steps.js';
-import { note_unported } from './unported.js';
 import {
     dbon, dry_a_towel, possibly_unwield, setmnotwielded, uwep_skill_type,
 } from './weapon.js';
@@ -1784,7 +1783,7 @@ async function use_tinning_kit(obj, state = game, env = {}) {
     await consume_obj_charge(obj, true, { ...env, state });
     const can = mksobj(TIN, false, false, { ...env, state });
     if (!can) {
-        note_unported('pline.c impossible');
+        await impossible('Tinning failed.', state, env);
         return;
     }
 
@@ -3339,7 +3338,7 @@ export async function use_candelabrum(obj, state = game, env = {}) {
         );
         obj.age = Math.trunc(((obj.age ?? 0) + 1) / 2);
         if (obj.age === 0) {
-            if (state === game) note_unported('pline.c impossible');
+            if (state === game) await impossible('Candelabrum with candles but no fuel?', state, env);
             obj.age = 1;
         }
     } else {
@@ -3619,7 +3618,7 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
     const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
     if (!figurine) {
-        note_unported('pline.c impossible');
+        await impossible('null figurine in fig_transform()', state, env);
         return;
     }
 
@@ -3734,7 +3733,7 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
             }
             break;
         default:
-            note_unported('pline.c impossible');
+            await impossible(`figurine came to life where? (${figurine.where})`, state, env);
             break;
         }
     }

@@ -6,6 +6,7 @@ import { exercise_nonphysical } from './attrib.js';
 import { game } from './gstate.js';
 import {
     textBytes, strncmpi, strstri, strsubst, truncateByteString, lcase,
+    visctrl,
 } from './hacklib.js';
 import {
     _getobjInternals, let_to_name,
@@ -15,7 +16,6 @@ import { PM_SAMURAI } from './monsters.js';
 import { obj_typename } from './objnam.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import { coreRandom, rn2 } from './rng.js';
-import { note_unported } from './unported.js';
 import { append_price_quote, gem_learned } from './shk.js';
 import {
     A_WIS, BUFSZ, ECMD_OK, MENU_COMBINATION,
@@ -75,6 +75,8 @@ import {
 } from './objects.js';
 import { Hallucination } from './youprop.js';
 import { ledger_no } from './dungeon.js';
+import { sync_impossible } from './source_steps.js';
+import { impossible } from './pline.js';
 
 function ensureObjectGlobals(state) {
     if (!Array.isArray(state.objects)
@@ -229,7 +231,9 @@ export function init_oclass_probs(state = game) {
             && bases[objectClass] !== bases[objectClass + 1]) {
             // C: impossible("%s (%d) probability total for oclass %d",
             //               !sum ? "zero" : "negative", sum, oclass);
-            note_unported('pline.c impossible');
+            sync_impossible(
+                `${!sum ? 'zero' : 'negative'} (${sum}) probability total for oclass ${objectClass}`,
+                state);
             /* gracefully fail by setting all members of this class to 1 */
             for (let i = bases[objectClass]; i < bases[objectClass + 1]; ++i) {
                 objects[i].oc_prob = 1;
@@ -393,7 +397,9 @@ export function init_objects(state = game, random = rn2) {
                 //     "obj #%d (%s) name is %s despite%s alternate description",
                 //     i, OBJ_NAME(objects[i]),
                 //     nmkn ? "pre-known" : "not known", nmkn ? "" : " no");
-                note_unported('pline.c impossible');
+                sync_impossible(
+                    `obj #${i} (${OBJ_NAME(objects[i], state)}) name is ${nameKnown ? 'pre-known' : 'not known'} despite${nameKnown ? '' : ' no'} alternate description`,
+                    state);
             }
             /* repair the mistake and keep going */
             objects[i].oc_name_known = nameKnown ? 0 : 1;
@@ -412,7 +418,7 @@ export function init_objects(state = game, random = rn2) {
 export function objdescr_is(obj, descr, state = game) {
     if (!obj) {
         // C: impossible("objdescr_is: null obj");
-        note_unported('pline.c impossible');
+        sync_impossible('objdescr_is: null obj', state);
         return false;
     }
     const type = state.objects[obj.otyp];
@@ -513,7 +519,7 @@ export function undiscover_object(oindx, state = game) {
         state.svd.disco[dindx - 1] = 0;
     else {
         // C: impossible("named object not in disco");
-        note_unported('pline.c impossible');
+        sync_impossible('named object not in disco', state);
     }
 
     if (acls === GEM_CLASS)
@@ -786,7 +792,8 @@ export async function doclassdisco(state = game, {
     default: {
         const oclass = def_char_to_objclass(selectedClass);
         if (oclass === MAXOCLASSES) {
-            note_unported('pline.c impossible');
+            await impossible(
+                `doclassdisco: invalid object class '${visctrl(selectedClass)}'`, state);
             return ECMD_OK;
         }
         const order = state.flags.discosort === 'o' ? 'order of discovery'

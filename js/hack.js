@@ -522,7 +522,6 @@ import {
 } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
 import { init_objects, objdescr_is } from './o_init.js';
-import { note_unported } from './unported.js';
 import { impossible, impossible_printer, livelog_printf, youFeel } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { makeplural } from './fruit.js';
@@ -545,6 +544,7 @@ import {
     Maybe_Half_Phys, Passes_walls, Protection_from_shape_changers, Stealth,
     Stunned, Swimming, Unchanging, Warning, Wwalking,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 function reset_tmp_anything(state) {
     state.tmp_anything ??= {};
@@ -5476,12 +5476,12 @@ export function notice_mon_off(state = game) {
 
 // C ref: flag.h:234-237 notice_mon_on(). C reports an unpaired resume
 // through impossible("mon_notices_blocked<0") and clamps to zero; the macro's
-// callers are synchronous here, so the print is recorded as a gap.
+// callers are synchronous here, so the report is queued.
 export function notice_mon_on(state = game) {
     state.a11y ??= {};
     let blocked = (state.a11y.mon_notices_blocked ?? 0) - 1;
     if (blocked < 0) {
-        note_unported('pline.c impossible');
+        sync_impossible('mon_notices_blocked<0', state);
         blocked = 0;
     }
     state.a11y.mon_notices_blocked = blocked;

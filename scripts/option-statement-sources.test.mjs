@@ -98,11 +98,9 @@ test('optfn_boolean() returns before its female and pauper arms', () => {
         /if \(!state\.go\.opt_initial && option\.setwhere === set_in_config\)\s*return optn_err;/u);
 });
 
-// The stand-in options.js keeps: synchronous oc_to_str() marks C's
-// impossible() for an illegal object class.
-const REMAINING_NOTES = [
-    "note_unported('pline.c impossible')",
-];
+// options.js keeps no stand-in: oc_to_str() queues C's impossible() report
+// for an illegal object class through sync_impossible().
+const REMAINING_NOTES = [];
 
 test('options.js keeps only its pinned stand-ins', () => {
     const notes = [...OPTIONS_SOURCE.matchAll(/note_unported\([^)]*\)/gu)]

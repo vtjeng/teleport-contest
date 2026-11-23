@@ -163,7 +163,6 @@ import {
     vision_recalc_async,
 } from './vision.js';
 import { dist2, s_suffix, upstart } from './hacklib.js';
-import { note_unported } from './unported.js';
 import { S_hcdoor, S_vcdoor } from './symbols.js';
 import { ttyPline } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
@@ -744,7 +743,7 @@ export async function pick_lock(pick, rx, ry, container, state = game, env = {})
     }
     if (pick !== dummypick && picktyp !== SKELETON_KEY
         && picktyp !== LOCK_PICK && picktyp !== CREDIT_CARD) {
-        note_unported('pline.c impossible: picking lock with invalid object');
+        await impossible(`picking lock with object ${picktyp}?`, state, env);
         return PICKLOCK_DID_NOTHING;
     }
     let ch = 0;
