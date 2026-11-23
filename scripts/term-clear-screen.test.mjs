@@ -129,11 +129,15 @@ test('term_clear_screen() resets the active message and map windows', () => {
     display.toplin = TOPLINE_NEED_MORE;
     state._pending_message = 'pending';
     state.disp = { botlx: false };
-    // A status cell on the terminal and its cw->data character: the terminal
-    // cell goes; the inactive status window keeps its data (wintty.c:2050).
+    // A status cell on the terminal and its cw->data character. The terminal
+    // cell goes. The status window is inactive until status_initialize(FALSE)
+    // sets gb.blinit, so its data survives this first erase (wintty.c:2050).
     const status = tty_status_state(state);
     status.data[0][0] = 'D';
     status.screen[0][0] = { ch: 'D', color: 7, attr: 0, owner: null };
+    // tty_status[BEFORE][] and finalx[][] are not reset by either erase.
+    status.before.set('hp', { x: 1, y: 0, lth: 2, style: null });
+    status.finalx[0] = 5;
 
     term_clear_screen(state);
 
@@ -144,6 +148,17 @@ test('term_clear_screen() resets the active message and map windows', () => {
     assert.equal(state.disp.botlx, true);
     assert.equal(status.screen[0][0], null);
     assert.equal(status.data[0][0], 'D');
+
+    // wintty.c:1059-1072 with erasing_tty_screen set, once the window is
+    // active: cw->data becomes spaces and disp.botlx is set.
+    state.gb = { ...state.gb, blinit: true };
+    message.active = false;
+    state.disp.botlx = false;
+    term_clear_screen(state);
+    assert.equal(status.data[0][0], ' ');
+    assert.equal(state.disp.botlx, true);
+    assert.equal(status.before.get('hp').lth, 2);
+    assert.equal(status.finalx[0], 5);
 });
 
 test('erase_tty_screen() is skipped after a hangup', () => {

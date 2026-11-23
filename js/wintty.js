@@ -502,11 +502,12 @@ export function term_clear_screen(state = game) {
 //   neither is dismissed before both are freed, so the message window's
 //   `active` answers for the map window, which the port creates only for
 //   getpos().
-// - NHW_STATUS: never reached.  config.h defines STATUS_HILITES, so
-//   init_sound_disp_gamewindows() skips its display_nhwindow(WIN_STATUS)
-//   (753-755) and no other caller displays the window: it stays inactive,
-//   and cw->data keeps the characters the cleared terminal has lost.  The
-//   map arm's disp.botlx makes the next bot() redraw every field over them.
+// - NHW_STATUS: cw->data becomes spaces, and disp.botlx.  tty_status[][]
+//   and finalx[][] keep their values.  windows.c genl_status_init()
+//   (904-905) creates and displays the window when botl.c
+//   status_initialize(FALSE) runs, which is also what sets gb.blinit
+//   (botl.c:1692-1696), so gb.blinit is the window's `active`; the port
+//   keeps the window's data in state._ttyStatus, not in wins[].
 // - NHW_BASE: nothing.
 // - NHW_MENU and NHW_TEXT: nothing.  The port keeps a displayed menu or
 //   text window's cursor in the terminal cursor alone, and every write to
@@ -527,6 +528,11 @@ function erase_tty_screen(state) {
             state.disp.botlx = true;
         }
         cw.curx = cw.cury = 0;
+    }
+    if (state.gb?.blinit) {
+        for (const row of tty_status_state(state).data) row.fill(' ');
+        state.disp ??= {};
+        state.disp.botlx = true;
     }
     if (windowAt(wt, wt.BASE_WINDOW ?? WIN_ERR))
         tty_curs(wt.BASE_WINDOW, 1, 0, state);
