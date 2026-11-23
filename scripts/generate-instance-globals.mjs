@@ -22,8 +22,10 @@
 // INSTANCE_GLOBALS table lists every member with where the port keeps it:
 //
 //   'group'  in state.g<x>, started here
-//   'state'  directly on the game state (state.multi for gm.multi); the list
-//            is HELD_ON_STATE below
+//   'state'  directly on the game state (state.multi for gm.multi), started
+//            by initial_state_held_globals(); the list is HELD_ON_STATE below
+//   'frame'  a state member that mirrors a value another object owns, or
+//            that the port holds as another type (OWNED_ELSEWHERE below)
 //   'owner'  a pointer, array, struct or char, which the function that owns
 //            it creates in the port's own representation, and each group's
 //            havestate, which only decl_globals_init() reads
@@ -88,8 +90,9 @@ const INTEGER_TYPES = new Set([
 ]);
 
 // Scalar members the port reads directly off the game state instead of
-// through their group, such as state.multi for gm.multi. They are not
-// started here: a second copy in the group would be a value nobody reads.
+// through their group, such as state.multi for gm.multi. A second copy in
+// the group would be a value that is never read, so
+// initial_state_held_globals() starts them on the state instead.
 // scripts/instance-globals.test.mjs fails if js/ names one through its group
 // or stops naming it on the state.
 export const HELD_ON_STATE = new Set([
@@ -104,6 +107,16 @@ export const HELD_ON_STATE = new Set([
     'gv.vault_x', 'gv.vault_y', 'gv.vision_full_recalc', 'gw.warn_obj_cnt',
     'gw.wailmsg', 'gx.x_maze_max', 'gx.xstart', 'gx.xsize', 'gy.y_maze_max',
     'gy.ystart', 'gy.ysize',
+]);
+
+// HELD_ON_STATE members that initial_state_held_globals() leaves out.
+// js/topten.js holds gt.toptenwin as the window's list of lines, or null,
+// where C holds a winid that starts at WIN_ERR. gx.xstart, gy.ystart,
+// gx.xsize and gy.ysize belong to js/mklev.js sp_lev_frame(); state.xstart
+// and the rest mirror it, and js/themerooms.js selection_origin() reads a
+// missing mirror as "no map frame yet".
+export const OWNED_ELSEWHERE = new Set([
+    'gt.toptenwin', 'gx.xstart', 'gy.ystart', 'gx.xsize', 'gy.ysize',
 ]);
 
 function stripComments(source) {
@@ -210,7 +223,9 @@ function holder(group, member) {
     const scalar = member.ctype === 'boolean' || member.ctype.startsWith('enum ')
         || INTEGER_TYPES.has(member.ctype);
     if (!scalar) return 'owner';
-    return HELD_ON_STATE.has(`${group}.${member.name}`) ? 'state' : 'group';
+    const qualified = `${group}.${member.name}`;
+    if (OWNED_ELSEWHERE.has(qualified)) return 'frame';
+    return HELD_ON_STATE.has(qualified) ? 'state' : 'group';
 }
 
 // Every group's members: { name, ctype, kind, initializer, held, value },
@@ -233,7 +248,7 @@ export function collectGroups(header, source) {
             const row = {
                 ...member, initializer: initializers[index], held,
             };
-            if (held === 'group') {
+            if (held === 'group' || held === 'state') {
                 const value = evaluateInitializer(
                     row.initializer, `${group}.${member.name}`,
                 );
@@ -248,6 +263,8 @@ export function collectGroups(header, source) {
     }
     for (const name of HELD_ON_STATE)
         if (!seen.has(name)) throw new Error(`HELD_ON_STATE: decl.h has no ${name}`);
+    for (const name of OWNED_ELSEWHERE)
+        if (!HELD_ON_STATE.has(name)) throw new Error(`OWNED_ELSEWHERE: ${name} is not in HELD_ON_STATE`);
     return groups;
 }
 
@@ -259,13 +276,18 @@ function cType(member) {
 export function render(groups) {
     const functions = [];
     const tables = [];
+    const stateRows = [];
+    const note = (member) => (/^(?:-?\d+|true|false)$/u.test(member.initializer)
+        || /^(?:0[UL]*|FALSE|TRUE)$/u.test(member.initializer)
+        ? '' : ` = ${member.initializer}`);
     for (const [group, members] of Object.entries(groups)) {
         const rows = members.filter(({ held }) => held === 'group').map((member) => (
-            `            ${member.name}: ${member.value}, // ${member.ctype}`
-            + `${/^(?:-?\d+|true|false)$/u.test(member.initializer)
-                || /^(?:0[UL]*|FALSE|TRUE)$/u.test(member.initializer)
-                ? '' : ` = ${member.initializer}`}`
+            `            ${member.name}: ${member.value}, // ${member.ctype}${note(member)}`
         ));
+        for (const member of members.filter(({ held }) => held === 'state')) {
+            stateRows.push(`        ${member.name}: ${member.value}, `
+                + `// ${group}, ${member.ctype}${note(member)}`);
+        }
         functions.push(rows.length
             ? `        ${group}: {\n${rows.join('\n')}\n        },`
             : `        ${group}: {},`);
@@ -293,10 +315,20 @@ export function render(groups) {
         + '    };\n'
         + '}\n'
         + '\n'
+        + '// The members the port reads directly off the game state, such as\n'
+        + '// state.multi for gm.multi, at decl.c\'s values; js/gstate.js spreads\n'
+        + '// them into the state at process start.\n'
+        + 'export function initial_state_held_globals() {\n'
+        + '    return {\n'
+        + `${stateRows.join('\n')}\n`
+        + '    };\n'
+        + '}\n'
+        + '\n'
         + '// Each group\'s members in declaration order: [name, C type, decl.c\n'
         + '// initializer, where the port keeps it]. \'group\' is state.g<x>, started\n'
         + '// above; \'state\' is the game state itself (state.multi for gm.multi);\n'
-        + '// \'owner\' is a member its owning function creates.\n'
+        + '// \'frame\' is a state member another object owns; \'owner\' is a member\n'
+        + '// its owning function creates.\n'
         + 'export const INSTANCE_GLOBALS = {\n'
         + `${tables.join('\n')}\n`
         + '};\n';

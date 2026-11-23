@@ -1,11 +1,10 @@
 // gstate.js — Global game state reference.
 // All game modules import `game` from here.
 
-import { initial_instance_globals } from './decl.js';
+import { initial_instance_globals, initial_state_held_globals } from './decl.js';
 import { zero_flag, zero_instance_flags } from './flag.js';
 import { zero_sinfo } from './program_state.js';
 
-// C decl.c:417 initializes gi.item_action_in_progress to FALSE for a new game.
 function initialGameState() {
     return {
         // C decl.c decl_globals_init() copies g_init_a ... g_init_z into
@@ -18,10 +17,11 @@ function initialGameState() {
         // fails when js/ replaces a group, tests whether such a member
         // exists, or gives a missing one another default.
         ...initial_instance_globals(),
-        item_action_in_progress: false,
-        // C decl.c:762 initializes gt.twohits to 0. uhitm.c hitum() and
-        // hmonas() set it for each melee turn and hmon_hitmon() reads it.
-        twohits: 0,
+        // The scalar members the port reads directly off the state, such as
+        // state.multi for gm.multi and state.hero_seq for gh.hero_seq, from
+        // the same initializers: gi.item_action_in_progress FALSE, gt.twohits
+        // 0, gh.hero_seq 1L << 3, gl.lastinvnr 51.
+        ...initial_state_held_globals(),
         // C decl.c:init_svn initializes the saved NHUUID buffer to zero.
         // Native get_nhuuid() is inactive in the reference recorder build.
         svn: { nhuuid: '' },

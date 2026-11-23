@@ -218,10 +218,52 @@ export function initial_instance_globals() {
     };
 }
 
+// The members the port reads directly off the game state, such as
+// state.multi for gm.multi, at decl.c's values; js/gstate.js spreads
+// them into the state at process start.
+export function initial_state_held_globals() {
+    return {
+        done_seq: 0, // gd, long
+        decor_fumble_override: false, // gd, boolean
+        force_save_hs: false, // gf, boolean
+        gmst_stored: false, // gg, boolean
+        gmst_moves: 0, // gg, long
+        hero_seq: 8, // gh, long = 1L << 3
+        in_doagain: 0, // gi, int
+        in_mklev: false, // gi, boolean
+        in_steed_dismounting: false, // gi, boolean
+        initial_don: false, // gi, boolean
+        item_action_in_progress: false, // gi, boolean
+        in_mk_themerooms: false, // gi, boolean
+        lastinvnr: 51, // gl, int
+        loot_reset_justpicked: false, // gl, boolean
+        mkot_trap_warn_count: 0, // gm, int
+        multi: 0, // gm, cmdcount_nht
+        made_branch: false, // gm, boolean
+        mesg_given: 0, // gm, int = UNDEFINED_VALUE
+        m_using: false, // gm, boolean
+        nsubroom: 0, // gn, int
+        ransacked: false, // gr, boolean
+        spec_dbon_applies: 0, // gs, int
+        somebody_can_move: false, // gs, boolean
+        themeroom_failed: false, // gt, boolean
+        twohits: 0, // gt, int
+        unweapon: false, // gu, boolean
+        vault_x: 0, // gv, coordxy = UNDEFINED_VALUE
+        vault_y: 0, // gv, coordxy = UNDEFINED_VALUE
+        vision_full_recalc: false, // gv, boolean
+        warn_obj_cnt: 0, // gw, int
+        wailmsg: 0, // gw, long
+        x_maze_max: 78, // gx, int = (COLNO - 1) & ~1
+        y_maze_max: 20, // gy, int = (ROWNO - 1) & ~1
+    };
+}
+
 // Each group's members in declaration order: [name, C type, decl.c
 // initializer, where the port keeps it]. 'group' is state.g<x>, started
 // above; 'state' is the game state itself (state.multi for gm.multi);
-// 'owner' is a member its owning function creates.
+// 'frame' is a state member another object owns; 'owner' is a member
+// its owning function creates.
 export const INSTANCE_GLOBALS = {
     ga: [
         ["afternmv", "function *", "UNDEFINED_PTR", "owner"],
@@ -585,7 +627,7 @@ export const INSTANCE_GLOBALS = {
         ["true_rumor_end", "long", "0L", "group"],
         ["themeroom_failed", "boolean", "FALSE", "state"],
         ["timer_base", "struct fe *", "UNDEFINED_PTR", "owner"],
-        ["toptenwin", "winid", "WIN_ERR", "state"],
+        ["toptenwin", "winid", "WIN_ERR", "frame"],
         ["twohits", "int", "0", "state"],
         ["havestate", "boolean", "TRUE", "owner"],
     ],
@@ -629,8 +671,8 @@ export const INSTANCE_GLOBALS = {
         ["x_maze_max", "int", "(COLNO - 1) & ~1", "state"],
         ["xlock", "struct xlock_s", "UNDEFINED_VALUES", "owner"],
         ["xnamep", "char *", "NULL", "owner"],
-        ["xstart", "coordxy", "UNDEFINED_VALUE", "state"],
-        ["xsize", "coordxy", "UNDEFINED_VALUE", "state"],
+        ["xstart", "coordxy", "UNDEFINED_VALUE", "frame"],
+        ["xsize", "coordxy", "UNDEFINED_VALUE", "frame"],
         ["havestate", "boolean", "TRUE", "owner"],
     ],
     gy: [
@@ -638,8 +680,8 @@ export const INSTANCE_GLOBALS = {
         ["youmonst", "struct monst", "DUMMY", "owner"],
         ["you_buf", "char *", "NULL", "owner"],
         ["you_buf_siz", "int", "0", "group"],
-        ["ystart", "coordxy", "UNDEFINED_VALUE", "state"],
-        ["ysize", "coordxy", "UNDEFINED_VALUE", "state"],
+        ["ystart", "coordxy", "UNDEFINED_VALUE", "frame"],
+        ["ysize", "coordxy", "UNDEFINED_VALUE", "frame"],
         ["havestate", "boolean", "TRUE", "owner"],
     ],
     gz: [

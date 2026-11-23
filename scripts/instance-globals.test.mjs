@@ -13,9 +13,11 @@
 // initial_instance_globals(), generated from decl.h and decl.c, and
 // js/options.js defaultResult() starts the groups it parses into from the
 // same values. These tests keep it that way for the integer, boolean and
-// enumeration members the port holds in a group. The pointer, array, struct
-// and char members stay with the functions that own them, and 38 scalar
-// members stay on the game state itself (HELD_ON_STATE).
+// enumeration members the port holds in a group, and for the 33 scalars it
+// reads directly off the game state (state.multi for gm.multi), which
+// initial_state_held_globals() starts. The pointer, array, struct and char
+// members stay with the functions that own them, and so do five state
+// members another object owns (OWNED_ELSEWHERE).
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -24,7 +26,11 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { COLNO, ROWNO, SELL_NORMAL, WIN_ERR } from '../js/const.js';
-import { INSTANCE_GLOBALS, initial_instance_globals } from '../js/decl.js';
+import {
+    INSTANCE_GLOBALS,
+    initial_instance_globals,
+    initial_state_held_globals,
+} from '../js/decl.js';
 import { game, initialGb, resetGame } from '../js/gstate.js';
 import { runSegmentStrict } from '../js/jsmain.js';
 import { NON_PM } from '../js/monsters.js';
@@ -35,6 +41,7 @@ import {
     CONSTANTS,
     GROUP_LETTERS,
     HELD_ON_STATE,
+    OWNED_ELSEWHERE,
     collectGroups,
     evaluateInitializer,
     parseInitializers,
@@ -97,10 +104,12 @@ test('each member is paired with its initializer by position', () => {
     assert.equal(row('gp', 'prevmsg').held, 'owner');
     assert.equal(row('gb', 'bhitpos').held, 'owner');
     assert.equal(row('gs', 'sell_response').held, 'owner');
-    // gh.hero_seq (decl.c: `1L << 3`) and gl.lastinvnr (51) are held on the
-    // state, so their starts are not this table's to give.
+    // gh.hero_seq (decl.c:394, `1L << 3`) and gl.lastinvnr (51) are held on
+    // the state and start there; gt.toptenwin is js/topten.js's list.
     assert.equal(row('gh', 'hero_seq').held, 'state');
-    assert.equal(row('gl', 'lastinvnr').initializer, '51');
+    assert.equal(row('gh', 'hero_seq').value, 8);
+    assert.equal(row('gl', 'lastinvnr').value, 51);
+    assert.equal(row('gt', 'toptenwin').held, 'frame');
     for (const group of GROUPS)
         assert.equal(groups[group].at(-1).name, 'havestate', group);
 });
@@ -170,6 +179,14 @@ test('the process starts every group from decl.c\'s values', () => {
     assert.equal(state.gc.cached_pickinv_win, WIN_ERR);
     assert.equal(state.gc.corpsenm_digested, NON_PM);
     assert.equal(state.gd.did_dig_msg, false);
+    // The members held on the state start from the same initializers.
+    for (const [name, value] of Object.entries(initial_state_held_globals()))
+        assert.equal(state[name], value, name);
+    assert.equal(state.multi, 0);
+    assert.equal(state.hero_seq, 8); // 1L << 3
+    assert.equal(state.lastinvnr, 51);
+    assert.equal(state.x_maze_max, 78); // (COLNO - 1) & ~1
+    assert.equal(state.y_maze_max, 20); // (ROWNO - 1) & ~1
     // Each call builds new groups, so two processes never share one.
     assert.notEqual(resetGame().gp, state.gp);
     // A test state built by hand takes its gb from initialGb().
@@ -246,15 +263,23 @@ test('a game restored in a later segment keeps every generated member', async ()
             if (value === undefined || Number.isNaN(value)) bad.push(`${group}.${name}`);
         }
     }
+    for (const name of Object.keys(initial_state_held_globals())) {
+        const value = game[name];
+        if (value === undefined || Number.isNaN(value)) bad.push(name);
+    }
     assert.deepEqual(bad, []);
 });
 
 test('a member held on the state is never named through its group', () => {
     const uses = groupUses();
     const sources = jsFiles(JS_DIR).map(([, source]) => source).join('\n');
-    // 38: the scalar members js/ reads as state.<name>. Lower it when one
-    // moves into its group.
+    // 38: the scalar members js/ reads as state.<name>, 5 of which another
+    // object owns. Lower a count when one moves into its group.
     assert.equal(HELD_ON_STATE.size, 38);
+    assert.equal(OWNED_ELSEWHERE.size, 5);
+    assert.deepEqual(Object.keys(initial_state_held_globals()).sort(),
+        [...HELD_ON_STATE].filter((name) => !OWNED_ELSEWHERE.has(name))
+            .map((name) => name.split('.')[1]).sort());
     for (const qualified of HELD_ON_STATE) {
         const [group, name] = qualified.split('.');
         assert.deepEqual(uses.filter((use) => use.group === group && use.member === name)
@@ -354,4 +379,29 @@ test('no code relies on a generated member being absent', () => {
         .map(({ group, site, path, cls, detail }) =>
             `${site.split(':')[0]} ${group}.${path} ${cls} ${detail}`);
     assert.deepEqual(sites.sort(), [...ABSENT_MEMBER_READS].sort());
+});
+
+test('no code tests whether a member held on the state exists', () => {
+    // typeof, a comparison with undefined or null, and Number.isInteger()
+    // used as a presence test tell an absent member from one at decl.c's
+    // value. invent.js assigninvlet() falls back to INVLET_BASIC - 1, which
+    // is gl.lastinvnr's start value, 51, for a state a test built by hand.
+    const names = Object.keys(initial_state_held_globals()).join('|');
+    const holder = String.raw`\b(?:state|game|g|env\.state)\??\.(?:${names})\b`;
+    const presence = new RegExp(
+        `typeof ${holder}|${holder} *(?:===?|!==?) *(?:undefined|null)\\b`
+        + `|Number\\.is(?:Safe)?Integer\\(${holder}\\)`, 'u',
+    );
+    const sites = [];
+    for (const [name, source] of jsFiles(JS_DIR)) {
+        source.split('\n').forEach((line) => {
+            const code = line.replace(/\/\/.*$/u, '');
+            if (presence.test(code)) sites.push(`${name} ${code.trim()}`);
+        });
+    }
+    assert.deepEqual(sites, [
+        // moveloop_core() refuses a state whose hero_seq a test left unset.
+        'allmain.js if (!Number.isSafeInteger(state.hero_seq) || state.hero_seq < 0) {',
+        'invent.js const previous = Number.isInteger(state.lastinvnr)',
+    ]);
 });
