@@ -5729,7 +5729,7 @@ async function buzzmonst(
                     `${s_suffix(Monnam(mon, state, {
                         displayRandom: env.displayRandom,
                     }))} `
-                    + `${xnameFresh(otmp, state)} is disintegrated!`,
+                    + `${distant_name(otmp, xname, state)} is disintegrated!`,
                     state, env,
                 );
             }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c dobuzz() (4937-4941): a black-dragon hero's disintegration breath destroys the shield of a sleeping Mordor orc three squares away. distant_name(otmp, xname) leaves dknown clear beyond dist2 6, so objnam.c xname() prints \"shield\". Six orcs are created so that at least one carries the 1-in-3 orcish shield; ^T places the hero on the fountain three squares south of one. Seed and clock chosen freely.",
+  "segments": [
+    {
+      "seed": 4471903,
+      "datetime": "20120306101500",
+      "nethackrc": "OPTIONS=name:Shieldfar,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#levelchange\n10\n            #polyself\nblack dragon\n     #wizgenesis\nsleeping Mordor orc\n#wizgenesis\nsleeping Mordor orc\n#wizgenesis\nsleeping Mordor orc\n#wizgenesis\nsleeping Mordor orc\n#wizgenesis\nsleeping Mordor orc\n#wizgenesis\nsleeping Mordor orc\n\u0014  ljjj.#monster\nk      "
+    }
+  ]
+}
