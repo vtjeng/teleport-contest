@@ -1864,7 +1864,8 @@ test('a declined #pray spends no move and breaks no conduct', async () => {
     await startedGame('.#pray\nn');
     // dopray():2211 returns ECMD_OK before the conduct counter moves.
     assert.equal(game.u.uconduct.gnostic, 0);
-    assert.equal(game.gp?.p_type, undefined);
+    // can_pray() follows the counter, so gp.p_type keeps decl.c's 0.
+    assert.equal(game.gp.p_type, 0);
     // cmd.c rhack() spends a turn only for ECMD_TIME, and allmain.c
     // moveloop_core() counts one per turn from the 1 a started game holds. The
     // '.' wait is the segment's one ECMD_TIME command, so a declined prayer

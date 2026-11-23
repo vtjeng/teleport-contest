@@ -1024,7 +1024,8 @@ test('losehp wails only below a tenth of the maximum and only after turn 50',
 
     // Turn 51 is the first that passes `svm.moves <= gw.wailmsg + 50`.
     assert.equal(await wailAfter(50, 12, 40, 10), '');
-    assert.equal(game.wailmsg, undefined);
+    // decl.c starts gw.wailmsg at 0L, and no wail has written it.
+    assert.equal(game.wailmsg, 0);
     // Two hit points of 40 is a twentieth, so the wail fires; a Knight is
     // neither a Wizard, an Elf nor a Valkyrie, so it takes the You_hear() arm
     // and reads the CwnAnnwn line for any survivor above one hit point.

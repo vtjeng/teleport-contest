@@ -1621,8 +1621,8 @@ test('an unseen fight is heard rather than named', async () => {
     // A fight this file's other tests never reach, so the rate limit still
     // holds decl.c's own starting values: :341 gf.far_noise FALSE and :555
     // gn.noisetime 0.
-    assert.equal(game.gf?.far_noise, undefined);
-    assert.equal(game.gn?.noisetime, undefined);
+    assert.equal(game.gf.far_noise, false);
+    assert.equal(game.gn.noisetime, 0);
     // The ten-move rule cannot have expired yet at this point in the game,
     // which is what leaves gf.far_noise's starting value deciding the row
     // below on its own.
