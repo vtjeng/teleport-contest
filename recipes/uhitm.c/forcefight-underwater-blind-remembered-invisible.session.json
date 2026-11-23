@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3153,
+      "datetime": "20280914061500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u0017blessed amulet of magical breathing\nPe\u0017blindfold\n\u0007blue jelly\n\u0017pool\nPf\u001b\u00075 newt\nFn\u001bFn",
+      "comment": "A Valkyrie wearing an amulet of magical breathing creates a blue jelly, which lands to her south-east, wishes a pool under herself, and puts on a blindfold; she sinks and the underwater display takes over. Five newts are created around her. She force-fights the unseen jelly twice. The first attack reaches uhitm.c do_attack()'s atk_done test (577-580), which calls map_invisible(): the square now remembers an 'I', and allmain.c:432 under_water(0) blanks the drawn square at the end of the turn. On the second attack the test reads levl[x][y].glyph, the remembered 'I', so nothing is drawn; the newts' bites then fill the message line and the --More-- shows the jelly's square still blank. The port read the drawn glyph there and drew a second 'I'. The seed is the only one of 120 consecutive seeds, from 3100, on which water_friction() leaves both attacks on the jelly and the second turn's messages need a --More--; the clock, character and keys were chosen for this path."
+    }
+  ]
+}

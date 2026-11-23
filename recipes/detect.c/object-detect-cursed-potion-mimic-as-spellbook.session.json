@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 546,
+      "datetime": "20310417143000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Priestess,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u0017cursed potion of object detection\n\u0007giant mimic\n4hqj\u001b\u001b:",
+      "comment": "A Priestess wishes for a cursed potion of object detection and creates a giant mimic with wizard-mode ^G; on this seed set_mimic_sym() disguises it as a spellbook. She walks four squares west, beyond the range in which display.c map_object() would observe the disguise, and quaffs. detect.c object_detect() (752-764) maps the mimic through a cg.zeroobj copy that carries only otyp: obj_is_generic() takes a spellbook by type, so generic_obj_to_glyph() adds the copy's class, zero, and the mimic draws as a strange object ']'. The seed is the first of 128 consecutive seeds, from 512, on which the port, before it zeroed the copy, stopped with a NaN glyph; the clock, character and keys were chosen for this path."
+    }
+  ]
+}

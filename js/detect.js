@@ -61,6 +61,7 @@ import {
     Has_contents,
     helpless,
     has_mcorpsenm,
+    MCORPSENM,
     SVALL,
     WM_MASK,
     u_at,
@@ -165,7 +166,7 @@ import { dist2, s_suffix } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { impossible_printer, youFeel, youSee } from './pline.js';
 import { finish_steps } from './source_steps.js';
-import { isBox, objectType } from './obj.js';
+import { isBox, newObject, objectType } from './obj.js';
 import {
     CHEST,
     COIN_CLASS,
@@ -635,13 +636,12 @@ export async function gold_detect(scroll, state = game) {
         let temp = null;
         if (findgold(monster.minvent)
             || monster.data?.pmidx === PM_GOLD_GOLEM) {
-            temp = {
-                ...state.zeroobj,
+            temp = newObject({ /* temp = cg.zeroobj */
                 otyp: GOLD_PIECE,
                 quan: rnd(10),
                 ox: monster.mx,
                 oy: monster.my,
-            };
+            });
             map_object(temp, 1, state);
         } else {
             for (let obj = monster.minvent; obj; obj = obj.nobj) {
@@ -956,22 +956,25 @@ export async function object_detect(detector = null, objectClass = 0,
         if (detector?.cursed && M_AP_TYPE(monster) === M_AP_OBJECT
             && (!oclass
                 || oclass === state.objects[monster.mappearance]?.oc_class)) {
-            map_object({
+            // temp = cg.zeroobj: the class stays zero, so a gem or spellbook
+            // disguise, which obj_is_generic() takes by type, draws
+            // generic_obj_to_glyph()'s class-zero glyph.
+            map_object(newObject({
                 otyp: monster.mappearance,
                 quan: 1,
                 ox: monster.mx,
                 oy: monster.my,
                 corpsenm: has_mcorpsenm(monster)
-                    ? monster.mextra.mcorpsenm : PM_TENGU,
-            }, 1, state);
+                    ? MCORPSENM(monster) : PM_TENGU,
+            }), 1, state);
         } else if (findgold(monster.minvent)
             && (!oclass || oclass === COIN_CLASS)) {
-            map_object({
+            map_object(newObject({ /* gold = cg.zeroobj */
                 otyp: GOLD_PIECE,
                 quan: rnd(10),
                 ox: monster.mx,
                 oy: monster.my,
-            }, 1, state);
+            }), 1, state);
         }
     }
 
@@ -1075,15 +1078,14 @@ function sense_trap(trap, x, y, srcCursed, state = game) {
         const otyp = !Hallucination(state.u)
             ? GOLD_PIECE
             : FIRST_OBJECT + rn2(NUM_OBJECTS - FIRST_OBJECT);
-        const obj = {
-            ...state.zeroobj,
+        const obj = newObject({ /* obj = cg.zeroobj */
             ox: trap ? trap.tx : x,
             oy: trap ? trap.ty : y,
             otyp,
             quan: otyp === GOLD_PIECE ? rnd(10)
                 : objectType(otyp, state).oc_merge ? rnd(2) : 1,
             corpsenm: rn2(NUMMONS),
-        };
+        });
         map_object(obj, 1, state);
         return;
     }

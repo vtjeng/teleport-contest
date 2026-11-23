@@ -915,7 +915,8 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
         if (!canspotmon(monster, state)) {
             monster.mundetected = 0;
             const spotItNow = canspotmon(monster, state);
-            const rememberedGlyph = glyph_at(rx, ry, state);
+            const rememberedGlyph
+                = state.level.at(rx, ry)?.remembered_glyph?.glyph;
             if (spotItNow || !glyph_is_invisible(rememberedGlyph)) {
                 await ttyPline(
                 `${spotItNow ? Amonnam(monster, { state }) : 'A monster'} is there that you `
@@ -1269,7 +1270,8 @@ async function use_leash(obj, state = game, env = {}) {
 // C ref: apply.c use_leash_core() (821-877). A successful attachment updates
 // both C-owned sides of the leash pair before refreshing the inventory view.
 async function use_leash_core(obj, monster, cc, spotmon, state, env = {}) {
-    if (!spotmon && !glyph_is_invisible(glyph_at(cc.x, cc.y, state))) {
+    if (!spotmon && !glyph_is_invisible(
+        state.level.at(cc.x, cc.y)?.remembered_glyph?.glyph)) {
         await ttyPline(
             `You fail to ${obj.leashmon ? 'un' : ''}leash something.`, state,
         );
