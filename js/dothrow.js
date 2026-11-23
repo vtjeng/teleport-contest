@@ -253,6 +253,7 @@ import {
     passes_rocks,
     poly_when_stoned,
     your_race,
+    eyecount,
 } from './mondata.js';
 import {
     closed_door, monnear, set_apparxy, youHear,
@@ -281,8 +282,6 @@ import {
     PM_WIZARD,
     PM_PYROLISK,
     PM_APE,
-    PM_CYCLOPS,
-    PM_FLOATING_EYE,
     AT_ENGL,
     AD_DGST,
     PM_LICHEN,
@@ -1647,10 +1646,7 @@ export async function breakobj(
                         );
                     } else {
                         let eyes = body_part(EYE, state.youmonst);
-                        const eyeCount = !haseyes(species) ? 0
-                            : (species.pmidx === PM_CYCLOPS
-                                || species.pmidx === PM_FLOATING_EYE) ? 1 : 2;
-                        if (eyeCount !== 1) eyes = makeplural(eyes);
+                        if (eyecount(species) !== 1) eyes = makeplural(eyes);
                         await message(
                             `Your ${eyes} ${vtense(eyes, 'water')}.`,
                             state,

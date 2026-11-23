@@ -1,7 +1,7 @@
 import { takeQueuedReports } from './queued-reports.mjs';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -1496,4 +1496,19 @@ test('eyecount() counts eyes as mondata.h does', () => {
     ]) {
         assert.equal(eyecount(M.MONSTER_TEMPLATES[pm]), count, `pm ${pm}`);
     }
+});
+
+test('only eyecount() tests for the two one-eyed species together', () => {
+    // Nine sites once wrote mondata.h eyecount() out as a test of PM_CYCLOPS
+    // and PM_FLOATING_EYE, some without its haseyes() arm. A file that
+    // mentions both constants within 200 characters, which is longer than
+    // any of those copies, is writing the macro out again. js/monsters.js
+    // defines the constants and import lists hold them side by side.
+    const dir = new URL('../js/', import.meta.url);
+    const pair = /PM_CYCLOPS[\s\S]{0,200}PM_FLOATING_EYE|PM_FLOATING_EYE[\s\S]{0,200}PM_CYCLOPS/u;
+    const files = readdirSync(dir)
+        .filter((name) => name.endsWith('.js') && name !== 'monsters.js')
+        .filter((name) => pair.test(readFileSync(new URL(name, dir), 'utf8')
+            .replace(/import\s*\{[^}]*\}\s*from\s*'[^']*';/gu, '')));
+    assert.deepEqual(files, ['mondata.js']);
 });

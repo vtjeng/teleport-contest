@@ -77,15 +77,13 @@ import { obfree, update_inventory, useup } from './invent.js';
 import {
     can_chant,
     Resists_Elem, defended,
-    haseyes,
     is_undead,
     is_vampshifter,
     is_whirly, is_animal, dmgtype_fromattack,
+    eyecount,
 } from './mondata.js';
 import {
     AD_ELEC,
-    PM_CYCLOPS,
-    PM_FLOATING_EYE,
     PM_FOG_CLOUD, AD_WRAP, AT_ENGL,
     PM_KNIGHT,
     PM_MASTER_LICH,
@@ -902,9 +900,7 @@ export async function study_book(spellbook, state = game, env = {}) {
         if (dullbook > 0) {
             const species = state.youmonst?.data;
             let eyes = body_part(EYE, state.youmonst);
-            const eyeCount = !species || !haseyes(species) ? 0
-                : species.pmidx === PM_CYCLOPS
-                    || species.pmidx === PM_FLOATING_EYE ? 1 : 2;
+            const eyeCount = eyecount(species);
             if (eyeCount > 1) eyes = makeplural(eyes);
             await message(
                 `This book is so dull that you can't keep your ${eyes} open.`,

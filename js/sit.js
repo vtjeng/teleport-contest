@@ -69,18 +69,16 @@ import {
     lays_eggs,
     likes_lava,
     mhis,
-    haseyes,
     is_prince,
     is_vampire,
     slithy,
     sticks,
+    eyecount,
 } from './mondata.js';
 import {
     PM_ELECTRIC_EEL,
     PM_GIANT_EEL,
     PM_GREMLIN,
-    PM_FLOATING_EYE,
-    PM_CYCLOPS,
     PM_TRAPPER,
     S_DRAGON,
 } from './monsters.js';
@@ -524,9 +522,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
                     await message('Your vision becomes clear.', state);
                 } else {
                     const species = state.youmonst?.data;
-                    const count = !haseyes(species) ? 0
-                        : (species.pmidx === PM_CYCLOPS
-                            || species.pmidx === PM_FLOATING_EYE) ? 1 : 2;
+                    const count = eyecount(species);
                     let eye = body_part(EYE, state.youmonst);
                     if (count === 0) {
                         await message(
