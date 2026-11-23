@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5522,
+      "datetime": "20470305044950",
+      "nethackrc": "OPTIONS=name:Sigurd,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\nOPTIONS=monpolycontrol\n",
+      "moves": "\u001b\u0017uncursed potion of confusion\n\u001b\u0017uncursed scroll of light\n\u001b\u0017wand of polymorph\n\u001bqe\u001brf\u001bzgjvampire\n\u00162\n     :",
+      "comment": "Variation of newsym-column-zero-arriving-vampshifter-oops: a human Valkyrie, an uncursed scroll, a plain vampire, and a teleport that keeps its destination; each --More-- is answered with a space so the two lines that follow the report and the arrival message are recorded."
+    }
+  ]
+}

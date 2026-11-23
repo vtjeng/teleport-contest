@@ -4136,6 +4136,17 @@ export function* newsym_steps(x, y) {
     // C display.c:926-928 suppresses both map memory and output while the
     // level is in flux, before even accessing the requested location.
     if (suppress_map_output()) return;
+    // display.c:928-936. Column 0 is misuse rather than a corrupt
+    // coordinate: C reports it through impossible() and draws nothing, as
+    // when dog.c mon_arrive() calls mon.c restore_cham() on a shapeshifter
+    // that is not yet placed and normal_shape() redraws <0,0>. A coordinate
+    // outside the map array reaches panic() in C; nothing is drawn for it.
+    if (newsymReportsOffMap(x, y)) {
+        yield new ImpossibleCall(
+            `newsym: attempting screen update for <${x},${y}>`,
+        );
+        return;
+    }
     const loc = game.level?.at(x, y);
     if (!loc) return;
 
