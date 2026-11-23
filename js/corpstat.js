@@ -20,7 +20,7 @@ import { CORPSE, STATUE } from './objects.js';
 import { PM_LICHEN, PM_LIZARD, S_TROLL } from './monsters.js';
 import { obj_stop_timers, start_corpse_timeout } from './timeout.js';
 import { forget_temple_entry } from './priest.js';
-import { note_unported } from './unported.js';
+import { sync_impossible } from './source_steps.js';
 
 function corpstatEnv(env = {}) {
     return {
@@ -150,7 +150,8 @@ export function mkcorpstat(
     // C: impossible("making corpstat type %d", objtype), then makes the
     // object anyway.
     if (objtype !== CORPSE && objtype !== STATUE)
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `making corpstat type ${objtype}`, corpstatEnv(rawEnv).state);
     const env = corpstatEnv(rawEnv);
     const { state } = env;
     const init = Boolean(corpstatflags & CORPSTAT_INIT);

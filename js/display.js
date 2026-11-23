@@ -307,7 +307,6 @@ import {
 import { CMAP_COLORS, SYMBOL_INDEX_BY_NAME } from './symbol_data.js';
 import { t_at, unconscious } from './trap.js';
 
-import { note_unported } from './unported.js';
 import { nomux_putch_byte } from './termcap.js';
 import { Sting_effects } from './artifacts.js';
 // pray.c owns critically_low_hp(); botl.c:2555 and wintty.c:4539 are two of
@@ -1554,7 +1553,9 @@ function display_monster(x, y, monster, sightflags, wormTail, state = game) {
             // C: impossible("display_monster:  bad m_ap_type value [ = %d ]",
             //               (int) mon->m_ap_type);
             // The arm then falls through to mon_to_glyph().
-            note_unported('pline.c impossible');
+            sync_impossible(
+                `display_monster:  bad m_ap_type value [ = ${monster.m_ap_type} ]`,
+                state);
             show_glyph_cell(
                 x, y, presentedMonsterGlyphInfo(monster, state, false),
             );
@@ -1670,7 +1671,7 @@ function display_warning(monster, state = game) {
         glyph = presentedMonsterGlyphInfo(monster, state, false);
     } else {
         // C: impossible("display_warning did not match warning type?");
-        note_unported('pline.c impossible');
+        sync_impossible('display_warning did not match warning type?', state);
         return;
     }
     show_mon_or_warn(monster.mx, monster.my, glyph, state);
@@ -3302,7 +3303,7 @@ export function swallow_to_glyph(
     let clampedLoc = loc;
     if (loc < S_sw_tl || S_sw_br < loc) {
         // C: impossible("swallow_to_glyph: bad swallow location");
-        note_unported('pline.c impossible');
+        sync_impossible('swallow_to_glyph: bad swallow location', state);
         clampedLoc = S_sw_br;
     }
     return ((displayedMnum << 3) | (clampedLoc - S_sw_tl))
@@ -4828,12 +4829,12 @@ export function reglyph_darkroom(state = game) {
 // show_glyph_cell() both take one. The number stays reachable on it.
 //
 // C's out-of-range guard is `impossible("zapdir_to_glyph:  illegal beam
-// type")` followed by beam_type = 0; this synchronous port records the print
-// as unported. Every ported caller passes dobuzz()'s hdmgtype, which is a
+// type")` followed by beam_type = 0; this synchronous port queues the
+// report. Every ported caller passes dobuzz()'s hdmgtype, which is a
 // wand's damage type (0..5) or Hallucination's rn2(6), so no play reaches it.
 export function zapdir_to_glyph(dx, dy, beam_type, state = game) {
     if (beam_type >= NUM_ZAP) {
-        note_unported('pline.c impossible');
+        sync_impossible('zapdir_to_glyph:  illegal beam type', state);
         beam_type = 0;
     }
     const dir = (dx === dy) ? 2 : (dx && dy) ? 3 : dx ? 1 : 0;
@@ -6657,7 +6658,7 @@ export function init_blstats(state = game) {
     // status_initialize() that reaches here, so it marks the same state.
     if (gb.blinit) {
         // C: impossible("init_blstats called more than once.");
-        note_unported('pline.c impossible');
+        sync_impossible('init_blstats called more than once.', state);
         return false;
     }
     const size = Math.max(...STATUS_FIELDS.map(row => row.fld)) + 1;
@@ -6703,7 +6704,7 @@ export function status_initialize(state = game, reassessOnly = true) {
     if (!reassessOnly) {
         if (state.gb.blinit) {
             // C: impossible("2nd status_initialize with full init.");
-            note_unported('pline.c impossible');
+            sync_impossible('2nd status_initialize with full init.', state);
         }
         init_blstats(state);
         state.gb.blinit = true;

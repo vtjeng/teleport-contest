@@ -391,7 +391,6 @@ import { remove_worn_item } from './steal.js';
 import { impossible, youFeel } from './pline.js';
 import { ttyPline, ttyUrgentPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
-import { note_unported } from './unported.js';
 import { empty_handed, setuwep, welded } from './wield.js';
 import { weapon_descr } from './weapon.js';
 import {
@@ -412,6 +411,7 @@ import {
     HSleepy, HStealth, HSwimming, HTelepat, Hallucination, Invis, Levitation,
     Protection_from_shape_changers, See_invisible, Slimed, Stone_resistance, Strangled, Unchanging, Very_fast,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 // Keep the armor callbacks' live defaults in one place while allowing a
 // caller to supply its message and repaint operations; C's callbacks do not
@@ -519,7 +519,8 @@ async function do_takeoff(state) {
     } else if (doff.what === WORN_BLINDF) {
         if (!await cursed(state.ublindf, state)) await Blindf_off(state.ublindf, state);
     } else {
-        note_unported('pline.c impossible');
+        await impossible(
+            `do_takeoff: taking off ${(doff.what >>> 0).toString(16)}`, state);
     }
     doff.mask &= ~I_SPECIAL;
     return otmp;
@@ -573,7 +574,8 @@ export async function take_off(state = game) {
         || doff.what === RIGHT_RING || doff.what === WORN_BLINDF) {
         doff.delay = 1;
     } else {
-        note_unported('pline.c impossible');
+        await impossible(
+            `take_off: taking off ${(doff.what >>> 0).toString(16)}`, state);
         return 0;
     }
     if (otmp) doff.delay += objectType(otmp, state).oc_delay;
@@ -1012,7 +1014,7 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
     const mask = obj.owornmask & W_RING;
     takeoffContext(state).mask &= ~mask;
     if (!(state.u.uprops[objectType(obj, state).oc_oprop]?.extrinsic & mask)) {
-        note_unported('pline.c impossible');
+        await impossible("Strange... I didn't know you had that ring.", state, env);
     }
     if (gone)
         await setnotworn(obj, setwornEnv(state, env));
@@ -1425,7 +1427,7 @@ export async function Blindf_off(otmp, state = game, rawEnv = {}) {
 
     if (!otmp) otmp = state.ublindf;
     if (!otmp) {
-        note_unported('pline.c impossible');
+        await impossible('Blindf_off without eyewear?', state, env);
         return;
     }
     takeoffContext(state).mask &= ~W_TOOL;
@@ -2046,7 +2048,8 @@ async function Cloak_on(state, rawEnv = {}) {
         break;
     default:
         // C's impossible() result is discarded for an invalid cloak type.
-        note_unported('pline.c impossible');
+        await impossible(
+            `Unknown type of cloak (${state.uarmc.otyp})`, state, rawEnv);
         break;
     }
     if (cloak && !cloak.known) { /* no known instance of !uarmc */
@@ -2123,7 +2126,7 @@ export async function Cloak_off(state = game, rawEnv = {}) {
         await toggle_displacement(cloak, oldprop, false, state, env);
         break;
     default:
-        note_unported('pline.c impossible');
+        await impossible(`Unknown type of cloak (${otyp})`, state, env);
         break;
     }
     return 0;
@@ -2183,7 +2186,7 @@ async function Helmet_on(state) {
         await helmetOnCursePath(state);
         break;
     default:
-        note_unported('pline.c impossible');
+        await impossible(`Unknown type of helmet (${state.uarmh.otyp})`, state);
         break;
     }
     /* uarmh could be Null due to uchangealign() */
@@ -2306,7 +2309,8 @@ export async function Helmet_off(state = game, rawEnv = {}) {
             A_CG_HELM_OFF, state);
         break;
     default:
-        note_unported('pline.c impossible');
+        await impossible(
+            `Unknown type of helmet (${state.uarmh.otyp})`, state, rawEnv);
         break;
     }
     await setworn(null, W_ARMH, setwornEnv(state));
@@ -2387,7 +2391,7 @@ function Gloves_on(state) {
     default:
         // impossible() only reports and continues. Its diagnostic helper is
         // not ported, and C discards its return value.
-        note_unported('pline.c impossible');
+        sync_impossible(`Unknown type of gloves (${state.uarmg.otyp})`, state);
         break;
     }
     if (!gloves.known) {
@@ -2465,7 +2469,8 @@ export async function Gloves_off(state = game, rawEnv = {}) {
             adj_abon(gloves, -gloves.spe, state);
         break;
     default:
-        note_unported('pline.c impossible');
+        await impossible(
+            `Unknown type of gloves (${state.uarmg.otyp})`, state, env);
         break;
     }
     await setworn(null, W_ARMG, setwornEnv(state, env));
@@ -2502,7 +2507,7 @@ export async function Gloves_off(state = game, rawEnv = {}) {
 // enchantment hidden. That is the one that witnesses this write.
 function Shield_on(state) {
     // C's impossible() for an unknown shield type is discarded.
-    if (!is_shield(state.uarms, state)) note_unported('pline.c impossible');
+    if (!is_shield(state.uarms, state)) sync_impossible(`Unknown type of shield (${state.uarms.otyp})`, state);
     if (!state.uarms.known) {
         /* shield's +/- evident because of status line AC */
         state.uarms.known = true;
@@ -2517,7 +2522,7 @@ function Shield_on(state) {
 export function Shield_off(state = game) {
     takeoffContext(state).mask &= ~W_ARMS;
     // C's impossible() for an unknown shield type is discarded.
-    if (!is_shield(state.uarms, state)) note_unported('pline.c impossible');
+    if (!is_shield(state.uarms, state)) sync_impossible(`Unknown type of shield (${state.uarms.otyp})`, state);
     setworn(null, W_ARMS, setwornEnv(state));
     return 0;
 }
@@ -2538,7 +2543,7 @@ function Shirt_on(state) {
 
     // C's impossible() for an unknown shirt type is discarded.
     if (otyp !== HAWAIIAN_SHIRT && otyp !== T_SHIRT)
-        note_unported('pline.c impossible');
+        sync_impossible(`Unknown type of shirt (${otyp})`, state);
     if (!state.uarmu.known) {
         /* shirt's +/- evident because of status line AC */
         state.uarmu.known = true;
@@ -2556,7 +2561,7 @@ export function Shirt_off(state = game) {
     takeoffContext(state).mask &= ~W_ARMU;
     // C's impossible() for an unknown shirt type is discarded.
     if (otyp !== HAWAIIAN_SHIRT && otyp !== T_SHIRT)
-        note_unported('pline.c impossible');
+        sync_impossible(`Unknown type of shirt (${otyp})`, state);
     setworn(null, W_ARMU, setwornEnv(state));
     return 0;
 }
@@ -3149,7 +3154,7 @@ function RING_ON_PRIMARY(state) {
 export function stuck_ring(ring, otyp, state = game) {
     if (ring !== state.uleft && ring !== state.uright) {
         // C: impossible("stuck_ring: neither left nor right?");
-        note_unported('pline.c impossible');
+        sync_impossible('stuck_ring: neither left nor right?', state);
         return null;
     }
 
@@ -3378,7 +3383,9 @@ export async function armoroff(otmp, state = game) {
         default:
             // C's impossible() result is discarded; every object in the
             // reference table belongs to one of the seven armor categories.
-            note_unported('pline.c impossible');
+            await impossible(
+                `Taking off unknown armor (${otmp.otyp}: ${objectType(otmp, state).oc_armcat}), delay ${delay}`,
+                state);
             break;
         }
         if (what) {
@@ -3412,7 +3419,9 @@ export async function armoroff(otmp, state = game) {
         default:
             // C's impossible() result is discarded; every object in the
             // reference table belongs to one of the seven armor categories.
-            note_unported('pline.c impossible');
+            await impossible(
+                `Taking off unknown armor (${otmp.otyp}: ${objectType(otmp, state).oc_armcat}), no delay`,
+                state);
             break;
         }
         /* We want off_msg() after removing the item to

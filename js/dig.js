@@ -253,7 +253,6 @@ import {
     corpse_xname, otense, simpleonames, the, xnameFresh, yname, yobjnam, Yobjnam2,
 } from './objnam.js';
 import { altar_wrath, altarmask_at, desecrate_altar } from './pray.js';
-import { note_unported } from './unported.js';
 import { angry_priest } from './priest.js';
 import { mk_tt_object } from './mkroom.js';
 import { mkclass } from './makemon.js';
@@ -1348,7 +1347,7 @@ export async function liquid_flow(
             if (typeof env.impossible === 'function')
                 await env.impossible(diagnostic, state, env);
             else
-                note_unported('pline.c impossible');
+                await impossible(diagnostic, state, env);
         }
         return;
     }
@@ -1501,7 +1500,9 @@ export async function digactualhole(
     if (await furniture_handled(x, y, madebyU, state, rawEnv)) return;
     if (trapType !== PIT && !Can_dig_down(state.u.uz, state)
         && !location.candig) {
-        note_unported('pline.c impossible');
+        await impossible(
+            `digactualhole: can't dig ${trapname(trapType, true, state)} on this level.`,
+            state, rawEnv);
         trapType = PIT;
     }
 

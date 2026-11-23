@@ -9,8 +9,8 @@ import { m_next2u } from './mhitu.js';
 import { get_iter_mons_async, mnexto } from './mon.js';
 import { youFeel } from './pline.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { mon_has_amulet } from './wizard.js';
+import { impossible } from './pline.js';
 
 // C ref: apply.c mleashed_next2u() (891-918). mnexto() is awaited because
 // mon.c's JS owner can prompt while placing the leashed monster.
@@ -22,7 +22,7 @@ async function mleashed_next2u(monster, state, rawEnv) {
             const leash = get_mleash(monster, state);
 
             if (!leash) {
-                note_unported('pline.c impossible');
+                await impossible('leashed-unleashed mon?', state, rawEnv);
                 return true;
             }
 

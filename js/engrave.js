@@ -67,7 +67,6 @@ import {
 import { donameFresh, otense, The, Tobjnam, xnameFresh, Yname2, Yobjnam2, yname } from './objnam.js';
 import { body_part } from './polyself.js';
 import { make_blinded } from './potion.js';
-import { note_unported } from './unported.js';
 import { wand_explode } from './read.js';
 import { check_unpaid } from './shk.js';
 import { learnwand, zappable, zapnodir } from './zap.js';
@@ -608,7 +607,7 @@ export async function doengrave_sfx_item(de, state = game, env = {}) {
         await message('Writing a poison pen letter?');
         break;
     case ILLOBJ_CLASS:
-        note_unported('pline.c impossible');
+        await impossible("You're engraving with an illegal object!", state, env);
         break;
     }
     return true;
@@ -662,9 +661,9 @@ export async function engrave(state = game, env = {}) {
     context.actionct = Math.trunc(context.actionct ?? 0) + 1;
 
     if (dullingWep && !is_blade(stylus, state)) {
-        note_unported('pline.c impossible');
+        await impossible('carving with non-bladed weapon', state, env);
     } else if (context.type === MARK && !marker) {
-        note_unported('pline.c impossible');
+        await impossible('making graffiti with non-marker stylus', state, env);
     }
 
     if (carving && stylus
@@ -708,7 +707,7 @@ export async function engrave(state = game, env = {}) {
         }
         if (context.actionct % 2 === 1) {
             if (stylus.spe <= -3) {
-                if (firsttime) note_unported('pline.c impossible');
+                if (firsttime) await impossible('<= -3 weapon valid for engraving', state, env);
                 truncate = true;
             } else if (end < remaining.length || context.actionct === 1) {
                 stylus.spe -= 1;
@@ -731,7 +730,7 @@ export async function engrave(state = game, env = {}) {
     } else if (marker) {
         let inkCost = Math.max(Math.trunc(rate / 2), 1);
         if (stylus.spe < inkCost) {
-            note_unported('pline.c impossible');
+            await impossible('overly dry marker valid for graffiti?', state, env);
             inkCost = stylus.spe;
             truncate = true;
         }
@@ -824,11 +823,12 @@ export async function engrave(state = game, env = {}) {
 export async function disturb_grave(x, y, state = game, env = {}) {
     const maploc = tileAt(x, y, state);
     if (!IS_GRAVE(maploc.typ)) {
-        note_unported('pline.c impossible');
+        await impossible(
+            `Disturbing grave that isn't a grave? (${maploc.typ})`, state, env);
         return;
     }
     if (maploc.horizontal) {
-        note_unported('pline.c impossible');
+        await impossible('Disturbing already disturbed grave?', state, env);
         return;
     }
 
