@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_wizkit_file() (2465-2530) with WIZKIT=/dev/null: access(\"/dev/null\", 4) succeeds and fopen() opens the null device, so nothing is reported; the first fgets() reads end of file and read_wizkit() adds nothing. /dev/null opens as an empty file on both macOS and Linux.",
+  "segments": [
+    {
+      "seed": 61120417,
+      "datetime": "20330211091500",
+      "nethackrc": "OPTIONS=name:Nullkit,role:Archeologist,race:dwarf,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=/dev/null\n",
+      "moves": "    i  "
+    }
+  ]
+}

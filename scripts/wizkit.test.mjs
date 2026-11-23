@@ -44,11 +44,11 @@ test('read_wizkit notes a kit name whose bytes the port does not have', async ()
     // access() succeeds or reaches the host for each: "rumors" and
     // "minefill.lua" are playground files, "1000wizard.3" a level file the
     // game may have written, "save/kit" a name in the save directory, and
-    // "/etc/kit" and "../kit" leave the playground. C would open any that
+    // "/usr/kit" and "../kit" leave the playground. C would open any that
     // exists and wish for its lines. Neither state has a display, so a raw
     // print before the note would throw.
     for (const wizkit of ['rumors', 'minefill.lua', '1000wizard.3',
-        'save/kit', '/etc/kit', '../kit']) {
+        'save/kit', '/usr/kit', '../kit']) {
         game.unported = new Set();
         await read_wizkit({ wizard: true, wizkit });
         assert.deepEqual([...game.unported], ['files.c fopen_wizkit_file'], wizkit);
@@ -155,9 +155,37 @@ test('resolveHostRootPath stops an absolute name at the root directory', () => {
     // "", "." and ".." all stay in the root directory.
     assert.deepEqual(resolveHostRootPath('/'), { kind: 'directory' });
     assert.deepEqual(resolveHostRootPath('/./..//'), { kind: 'directory' });
-    // "etc", "Users" and "proc" are root entries of macOS, macOS and Linux;
-    // the port cannot see inside them. The judge's volume folds case, so
-    // "USERS" is the same entry.
-    for (const name of ['/etc/kit', '/Users', '/USERS/kit', '/../proc/1'])
+    // "usr", "Users" and "proc" are root entries of both hosts, macOS and
+    // Linux; the port cannot see inside them. The judge's volume folds case,
+    // so "USERS" is the same entry.
+    for (const name of ['/usr/kit', '/Users', '/USERS/kit', '/../proc/1'])
+        assert.deepEqual(resolveHostRootPath(name), { kind: 'outside' }, name);
+});
+
+test('resolveHostRootPath knows /dev/null and what /etc and /tmp lack', () => {
+    // Each result is what the C recording of the same name shows:
+    // recordings/files.c/wizkit-dev-null, wizkit-dev-null-not-directory,
+    // wizkit-etc-missing-file, wizkit-tmp-missing-nested,
+    // wizkit-etc-sudoers-denied and wizkit-etc-directory.
+    assert.deepEqual(resolveHostRootPath('/dev/null'), { kind: 'empty' });
+    assert.deepEqual(resolveHostRootPath('//dev/./null'), { kind: 'empty' });
+    // A file followed by any component, even a trailing slash, is
+    // ENOTDIR (20).
+    assert.deepEqual(resolveHostRootPath('/dev/null/kit'), { kind: 'absent', errno: 20 });
+    assert.deepEqual(resolveHostRootPath('/dev/null/'), { kind: 'absent', errno: 20 });
+    // Neither host installs "quillkit" under /etc or /tmp: ENOENT (2),
+    // whatever follows it.
+    assert.deepEqual(resolveHostRootPath('/etc/quillkit'), { kind: 'absent', errno: 2 });
+    assert.deepEqual(resolveHostRootPath('/tmp/quillkit/items.txt'), { kind: 'absent', errno: 2 });
+    // /etc/sudoers is mode 0440, owned by root: EACCES (13).
+    assert.deepEqual(resolveHostRootPath('/etc/sudoers'), { kind: 'absent', errno: 13 });
+    // The directories themselves open for reading.
+    for (const name of ['/etc', '/tmp/', '/dev/.', '/ETC'])
+        assert.deepEqual(resolveHostRootPath(name), { kind: 'directory' }, name);
+    // Still out of sight: a file /etc holds on one of the hosts, another
+    // device, a name past ".." (macOS resolves /tmp/.. to /private), and
+    // "NULL", which the case-sensitive devfs of macOS may not hold.
+    for (const name of ['/etc/passwd', '/etc/ssh/kit', '/dev/zero', '/tmp/../kit',
+        '/dev/NULL', '/etc/sudoers/kit'])
         assert.deepEqual(resolveHostRootPath(name), { kind: 'outside' }, name);
 });

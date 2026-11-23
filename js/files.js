@@ -521,9 +521,10 @@ const INSTALLED_BY_FOLD = new Map([
     ...[...PLAYGROUND_NON_LUA_FILES].map((file) => [fileNameFold(file), { kind: 'file', file }]),
 ]);
 
-// errno values that path resolution fails with; <errno.h> gives both the
+// errno values that path resolution and access() fail with; <errno.h> gives all the
 // same numbers on macOS, the judge's host, and on Linux.
 const ENOENT = 2;
+const EACCES = 13;
 const ENOTDIR = 20;
 
 // What fopen(name, "r") reaches with C's working directory in the playground,
@@ -584,19 +585,75 @@ const HOST_ROOT_ENTRIES = new Set([
     'proc', 'root', 'run', 'snap', 'srv', 'sys',
 ].map(fileNameFold));
 
-// What an absolute name reaches, as far as the port can tell without the
-// host's filesystem: 'directory' for the root directory itself;
-// { kind: 'absent', errno: ENOENT } when the first component that leaves the
-// root is none of HOST_ROOT_ENTRIES, whatever follows it, because resolution
-// stops there; and 'outside' for a name that enters one of those entries,
-// whose contents the port cannot see. ".." in the root directory stays there.
+// Entries of /etc that macOS or a Linux distribution installs. A name under
+// /etc that is none of these is taken to be absent; a host can hold others,
+// which is the limit of resolveHostRootPath() below.
+const HOST_ETC_ENTRIES = new Set([
+    'aliases', 'bashrc', 'ca-certificates', 'crontab', 'cups', 'default',
+    'environment', 'fstab', 'ftpusers', 'group', 'gshadow', 'hostname',
+    'hosts', 'init.d', 'inputrc', 'issue', 'ld.so.cache', 'ld.so.conf',
+    'localtime', 'login.defs', 'machine-id', 'manpaths', 'master.passwd',
+    'motd', 'mtab', 'networks', 'nsswitch.conf', 'ntp.conf', 'os-release',
+    'pam.d', 'passwd', 'paths', 'paths.d', 'profile', 'profile.d',
+    'protocols', 'resolv.conf', 'rc.common', 'rpc', 'security', 'services',
+    'shadow', 'shells', 'ssh', 'ssl', 'sudo.conf', 'sudoers.d', 'sysctl.conf',
+    'syslog.conf', 'systemd', 'timezone', 'ttys', 'zprofile', 'zshrc',
+].map(fileNameFold));
+
+// What access(name, R_OK) and fopen(name, "r") reach for an absolute name, as
+// far as the port can tell without the host's filesystem:
+// - 'directory' for the root directory, /dev, /etc and /tmp, which both hosts
+//   hold (/etc and /tmp through a symbolic link on macOS);
+// - 'empty' for /dev/null, which opens on both hosts and reads as no bytes;
+// - { kind: 'absent', errno: ENOENT } when the first component that leaves the
+//   root is none of HOST_ROOT_ENTRIES, whatever follows it, because resolution
+//   stops there, and for a name under /tmp, or under /etc and not in
+//   HOST_ETC_ENTRIES, which the port takes to be missing;
+// - { kind: 'absent', errno: ENOTDIR } for a name that continues past
+//   /dev/null, even with "." or a trailing slash;
+// - { kind: 'absent', errno: EACCES } for /etc/sudoers, which both hosts keep
+//   at mode 0440 owned by root, so access() refuses the recorder's user; and
+// - 'outside' for any other name that enters one of the root's entries, whose
+//   contents the port cannot see.
+// ".." in the root directory stays there. Below it the answer differs between
+// the hosts, because macOS resolves /tmp/.. to /private, so it is 'outside'.
+// The names under /dev and /tmp are matched exactly: devfs is case-sensitive
+// on macOS.
 export function resolveHostRootPath(name) {
-    for (const part of String(name).split('/')) {
-        if (part === '' || part === '.' || part === '..') continue;
-        return HOST_ROOT_ENTRIES.has(fileNameFold(part))
-            ? { kind: 'outside' } : { kind: 'absent', errno: ENOENT };
+    const parts = String(name).split('/');
+    let index = 0;
+    // The next component that is not empty or ".", or null at the end.
+    const next = () => {
+        while (index < parts.length
+            && (parts[index] === '' || parts[index] === '.')) index++;
+        return index < parts.length ? parts[index++] : null;
+    };
+    let first = next();
+    while (first === '..') first = next();
+    if (first === null) return { kind: 'directory' };
+    const entry = fileNameFold(first);
+    if (!HOST_ROOT_ENTRIES.has(entry))
+        return { kind: 'absent', errno: ENOENT };
+    if (entry !== 'dev' && entry !== 'etc' && entry !== 'tmp')
+        return { kind: 'outside' };
+    // Whether any component, even an empty one, follows the last one read.
+    const second = next();
+    if (second === null) return { kind: 'directory' };
+    if (second === '..') return { kind: 'outside' };
+    if (entry === 'dev') {
+        if (second !== 'null') return { kind: 'outside' };
+        return index < parts.length
+            ? { kind: 'absent', errno: ENOTDIR } : { kind: 'empty' };
     }
-    return { kind: 'directory' };
+    if (entry === 'etc') {
+        if (fileNameFold(second) === 'sudoers') {
+            return index < parts.length
+                ? { kind: 'outside' } : { kind: 'absent', errno: EACCES };
+        }
+        if (HOST_ETC_ENTRIES.has(fileNameFold(second)))
+            return { kind: 'outside' };
+    }
+    return { kind: 'absent', errno: ENOENT };
 }
 
 // What fopen_wizkit_file()'s fopen("$HOME/<name>", "r") reaches. The
@@ -647,13 +704,14 @@ async function wizkit_raw_printf(state, message) {
 // text the segment supplies. The port has no copy of any other playground
 // file's bytes, and cannot see a host directory outside the playground or
 // HOME, so those names stay a gap. An absolute name is the exception where
-// resolveHostRootPath() can tell that it stops at the root directory.
+// resolveHostRootPath() can tell what both hosts hold: the root directory,
+// /dev/null, and names it takes to be missing or unreadable.
 async function fopen_wizkit_file(state) {
     const name = state.wizkit ?? '';
     if (!name) return null;
     const target = name.startsWith('/')
         ? resolveHostRootPath(name) : resolvePlaygroundPath(name);
-    if (target.kind === 'directory') return '';
+    if (target.kind === 'directory' || target.kind === 'empty') return '';
     if (target.kind !== 'absent') {
         note_unported('files.c fopen_wizkit_file');
         return null;
