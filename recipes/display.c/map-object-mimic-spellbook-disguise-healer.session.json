@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 64015,
+      "datetime": "20520229061544",
+      "nethackrc": "OPTIONS=name:Asklepia,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u001b\u0017cursed potion of object detection\n\u001b\u000710 sleeping large mimic\n\u001b\u001bql\u001b\u001b\u001b\u001b:",
+      "comment": "Variation of map-object-mimic-gem-disguise-samurai: a gnomish Healer, large mimics, and an adjacent mimic disguised as a spellbook, the other type range obj_is_generic() takes by otyp."
+    }
+  ]
+}

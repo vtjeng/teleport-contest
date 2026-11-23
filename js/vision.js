@@ -1105,7 +1105,7 @@ function* recalc_steps(control, env) {
                             // wall at the end of a dark hallway is not seen,
                             // and the not-in-sight arm below repaints it
                             // when it was in sight before.
-                            yield* draw(col, row);
+                            if (col !== 0) yield* draw(col, row);
                         }
                     } else {
                         next_row[col] |= IN_SIGHT;
@@ -1119,9 +1119,12 @@ function* recalc_steps(control, env) {
                     loc.waslit = 0;
                     yield* draw(col, row);
                 } else {
+                    // vision.c:821-836 not_in_sight. C skips column 0 here
+                    // alone ("avoid calling it for <0,y>"), where newsym()
+                    // would report the square through impossible().
                     if ((ov & IN_SIGHT)
                         || ((nv & COULD_SEE) ^ (ov & COULD_SEE))) {
-                        yield* draw(col, row);
+                        if (col !== 0) yield* draw(col, row);
                     }
                 }
             }

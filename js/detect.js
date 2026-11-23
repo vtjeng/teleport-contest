@@ -162,6 +162,7 @@ import { body_part } from './polyself.js';
 import { is_quest_artifact } from './questpgr.js';
 import { consume_obj_charge, currency, money_cnt, useup, sobj_at } from './invent.js';
 import { findgold } from './steal.js';
+import { schar } from './global.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { impossible_printer, youFeel, youSee } from './pline.js';
@@ -1654,7 +1655,8 @@ export function show_map_spot(x, y, cnf, state = game, random = coreRandom) {
 export async function do_mapping(state = game, env = {}) {
     const random = env.random ?? coreRandom;
     const unconstrained = unconstrain_map(state);
-    const confused = Boolean(Confusion(state.u));
+    // show_map_spot()'s `boolean cnf` keeps HConfusion's low byte alone.
+    const confused = schar(Confusion(state.u));
     const printer = impossible_printer(state);
     for (let x = 1; x < COLNO; ++x) {
         for (let y = 0; y < ROWNO; ++y) {
@@ -1720,7 +1722,8 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
             const oldGlyph = glyph_at(x, y, state);
             await finish_steps(show_map_spot_steps(
                 x, y,
-                Boolean(Confusion(state.u)),
+                // `boolean cnf`: HConfusion's low byte alone.
+                schar(Confusion(state.u)),
                 state, random,
             ), impossible_printer(state));
 

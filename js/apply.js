@@ -240,6 +240,7 @@ import {
     overexertion,
     spoteffects,
 } from './hack.js';
+import { schar } from './global.js';
 import { dist2, highc, isqrt, sgn, s_suffix, strstri, truncateByteString, upstart } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import { gulp_blnd_check } from './mhitu.js';
@@ -1840,7 +1841,9 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
     const wasblind = Blind(state.u);
-    const wascreamed = Boolean(state.u.ucreamed);
+    // apply.c:3571 `boolean wascreamed = u.ucreamed;` keeps the low byte of
+    // an unsigned count, so 256 turns of cream read as none.
+    const wascreamed = schar(state.u.ucreamed);
     const several = obj.quan > 1;
 
     if (several)

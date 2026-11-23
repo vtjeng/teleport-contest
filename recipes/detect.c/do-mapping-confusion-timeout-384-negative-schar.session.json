@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61902,
+      "datetime": "20440816223105",
+      "nethackrc": "OPTIONS=name:Anselm,role:Priest,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u001b\u0017uncursed scroll of magic mapping\n\u001b#wizintrinsic\n384g\r\u001bri\u001b\u001b:",
+      "comment": "Boundary beside do-mapping-confusion-timeout-512-low-byte-zero: a timeout of 384 has low byte 0x80, which is -128 as a schar and still true, so the confused hero maps one square in seven."
+    }
+  ]
+}

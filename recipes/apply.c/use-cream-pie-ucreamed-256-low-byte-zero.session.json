@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 31337043,
+      "datetime": "20490411080907",
+      "nethackrc": "OPTIONS=name:Grognak,role:Barbarian,race:orc,gender:male,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u001b\u001740 uncursed cream pies\n\u001baf af af af af af af af af af af af af af af af af 2saf :",
+      "comment": "apply.c use_cream_pie(): `boolean wascreamed = u.ucreamed;` keeps the low byte of the unsigned count. Seventeen pies bring u.ucreamed to 258 without taking time, a two-turn search brings it to 256, and the next pie reports \"There's sticky goop\" without \"more\"."
+    }
+  ]
+}

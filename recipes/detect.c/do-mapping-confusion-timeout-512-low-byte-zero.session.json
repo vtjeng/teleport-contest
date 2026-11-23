@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 88120733,
+      "datetime": "20581124101502",
+      "nethackrc": "OPTIONS=name:Ottilie,role:Priest,race:elf,gender:female,align:chaotic,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u001b\u0017uncursed scroll of magic mapping\n\u001b#wizintrinsic\n512g\r\u001brj\u001b\u001b:",
+      "comment": "detect.c do_mapping() -> show_map_spot(zx, zy, Confusion): the parameter is a boolean (schar), so a confusion timeout of 512, whose low byte is zero, arrives as 0 and the scroll of magic mapping maps the whole level although the hero is confused."
+    }
+  ]
+}

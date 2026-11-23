@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7310862,
+      "datetime": "20330918203011",
+      "nethackrc": "OPTIONS=name:Brunhild,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\nOPTIONS=monpolycontrol\n",
+      "moves": "\u001b\u0017uncursed potion of confusion\n\u001b\u0017blessed scroll of light\n\u001b\u0017wand of polymorph\n\u001bqe\u001brf\u001bzgh\u001bzghvampire lord\n\u001b\u00164\n\u001b\u001b\u001b:",
+      "comment": "display.c newsym() impossible() for <0,0>, from dog.c mon_arrive() -> mon.c restore_cham() -> normal_shape(): a confused reading of a scroll of light makes cancelled tame yellow lights, monpolycontrol turns one into a vampire lord (newcham() gives it cham), and it follows a confused level teleport, so the report follows \"Oops...\" on one line."
+    }
+  ]
+}

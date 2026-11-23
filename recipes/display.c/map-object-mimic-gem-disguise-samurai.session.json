@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 19230418,
+      "datetime": "20411007142233",
+      "nethackrc": "OPTIONS=name:Kazuko,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u0017cursed potion of object detection\n\u000712 sleeping giant mimic\n\u001b\u001bqf\u001b\u001b\u001b\u001b:",
+      "comment": "display.c map_object() from detect.c object_detect(): a cursed potion of object detection maps a sleeping giant mimic disguised as a gem through a copy of cg.zeroobj, whose class-zero generic glyph glyph_is_generic_object() excludes, so the adjacent disguise is not observed and stays a strange object."
+    }
+  ]
+}

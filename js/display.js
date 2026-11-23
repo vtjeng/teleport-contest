@@ -4089,9 +4089,15 @@ export function see_nearby_objects(state = game, { redraw = null } = {}) {
     }
 }
 
+// C ref: display.c map_object() (339-351). C asks whether the glyph is a
+// generic one, not whether the object is: glyph_is_generic_object() starts
+// above GLYPH_OBJ_OFF, so the class-zero glyph that detect.c
+// object_detect() gets for a mimic's gem or spellbook disguise (a copy of
+// cg.zeroobj with only the type set) is left unobserved and stays ']'.
 function observeNearbyObject(object, x, y, state) {
     if (Hallucination(state.u)
         || !object_is_generic(object)
+        || !glyph_is_generic_object(generic_obj_to_glyph(object, state))
         || !cansee(x, y, state)) return;
     const radius = state.u?.xray_range > 2 ? state.u.xray_range : 2;
     const nearDistance = radius * radius * 2 - radius;
@@ -4130,6 +4136,17 @@ export function* newsym_steps(x, y) {
     // C display.c:926-928 suppresses both map memory and output while the
     // level is in flux, before even accessing the requested location.
     if (suppress_map_output()) return;
+    // display.c:928-936. Column 0 is misuse rather than a corrupt
+    // coordinate: C reports it through impossible() and draws nothing, as
+    // when dog.c mon_arrive() calls mon.c restore_cham() on a shapeshifter
+    // that is not yet placed and normal_shape() redraws <0,0>. A coordinate
+    // outside the map array reaches panic() in C; nothing is drawn for it.
+    if (newsymReportsOffMap(x, y)) {
+        yield new ImpossibleCall(
+            `newsym: attempting screen update for <${x},${y}>`,
+        );
+        return;
+    }
     const loc = game.level?.at(x, y);
     if (!loc) return;
 
@@ -4587,9 +4604,11 @@ export function newsymReportsOffMap(x, y) {
     return !isok(x, y) && x >= 0 && y >= 0 && x <= COLNO - 1 && y <= ROWNO - 1;
 }
 
-// The port's newsym() is synchronous and cannot wait at the --More-- that
-// impossible() reaches, so callers that can meet an off-map square raise the
-// report through this helper.
+// newsym_steps() raises this report itself, and the synchronous newsym()
+// queues it for the next message. A caller that can wait and knows it may
+// hold an off-map square (a vault guard parked at <0,0>) prints the report
+// through this helper instead, at C's point in its own messages, and does
+// not call newsym() for that square.
 export function newsymOffMapImpossible(x, y, state = game, env = {}) {
     return impossible(`newsym: attempting screen update for <${x},${y}>`,
         state, {
