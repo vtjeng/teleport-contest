@@ -1006,7 +1006,11 @@ function* recalc_steps(control, env) {
     // C:670 gives x-ray precedence and suppresses night vision underwater.
     if (!underwaterOutsideWaterLevel && (u.xray_range ?? -1) < (u.nv_range ?? 1)) {
         for (let row = 0; row < ROWNO; row++) {
-            for (let col = next_rmin[row]; col <= next_rmax[row]; col++) {
+            // vision.c:686 `start = max(1, u.ux - ranges[dy])`: night vision
+            // never puts column 0 in sight, so a hero in column 1 does not
+            // send <0,y> to newsym(), which would report it.
+            const start = Math.max(1, next_rmin[row]);
+            for (let col = start; col <= next_rmax[row]; col++) {
                 if (!(next[row][col] & COULD_SEE)) continue;
                 if (Math.abs(col - ux) <= 1 && Math.abs(row - uy) <= 1)
                     next[row][col] |= IN_SIGHT;

@@ -7,6 +7,13 @@
 // vision.c vision_recalc() (821-836) is the one C caller that avoids the
 // report: its not_in_sight arm skips column 0. The port reaches that arm
 // from two places, because C's `goto not_in_sight` is written out.
+//
+// The other arms of that loop call newsym() for any square in sight, so
+// they rely on column 0 never being put in sight. Each C loop that sets
+// IN_SIGHT starts at column 1 or later; night vision does at vision.c:686
+// (`start = max(1, u.ux - ranges[dy])`). The port's night-vision loop began
+// at the row's leftmost could-see column, which is 0 for a hero in column 1
+// (recordings/explode.c/scatter-kicked-gold-off-map-edge and seven others).
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -48,5 +55,15 @@ test('vision_recalc() skips column 0 in both not-in-sight arms', () => {
     // final else arm at vision.c:821.
     assert.equal(
         text.match(/if \(col !== 0\) yield\* draw\(col, row\);/gu)?.length, 2,
+    );
+});
+
+test('night vision starts at column 1', () => {
+    const text = readFileSync(new URL('../js/vision.js', import.meta.url),
+        'utf8');
+    // One: the night-vision loop in recalc_steps(), vision.c:686.
+    assert.equal(
+        text.match(/const start = Math\.max\(1, next_rmin\[row\]\);/gu)
+            ?.length, 1,
     );
 });
