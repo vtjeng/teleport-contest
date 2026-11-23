@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 599,
+      "datetime": "20310417143000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Priestess,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u0017cursed potion of object detection\n\u0007giant mimic\n4hqj\u001b\u001b:",
+      "comment": "The gem variation of object-detect-cursed-potion-mimic-as-spellbook: on this seed set_mimic_sym() disguises the ^G giant mimic as a piece of worthless glass, the other type obj_is_generic() takes without a class. detect.c object_detect() (752-764) maps it through the cg.zeroobj copy, so it draws as a strange object ']'. The seed is the third of 128 consecutive seeds, from 512, on which the port stopped with a NaN glyph before it zeroed the copy, and the first of them with a gem disguise."
+    }
+  ]
+}

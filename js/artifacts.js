@@ -252,6 +252,7 @@ import {
     Is_dragon_armor,
     Is_dragon_mail,
     mksobj,
+    newObject,
     objectType,
     uncurse,
     weight,
@@ -2320,7 +2321,7 @@ async function nothing_special(obj, state) {
 
 // C ref: artifact.c invoke_taming() (1768-1777).
 async function invoke_taming(obj, state) {
-    const pseudo = { ...state.zeroobj, otyp: SCR_TAMING };
+    const pseudo = newObject({ otyp: SCR_TAMING }); /* pseudo = cg.zeroobj */
     await seffects(pseudo, state);
     return ECMD_TIME;
 }
