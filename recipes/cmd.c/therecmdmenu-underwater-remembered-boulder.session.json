@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7412,
+      "datetime": "20290306101500",
+      "nethackrc": "OPTIONS=name:Odalys,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u0017blessed amulet of magical breathing\nPf\u0017boulder\nh\u0017pool\ns\n\n\n#therecmdmenu\nl\u001b",
+      "comment": "A Samurai wearing an amulet of magical breathing wishes for a boulder, which drops at her feet, steps west so that she sees it to her east, wishes a pool under herself and searches for a turn; she sinks, and display.c under_water() draws only her own square. #therecmdmenu towards the boulder reaches cmd.c there_cmd_menu_next2u(), which offers \"Push the boulder\" when levl[x][y].glyph, the remembered glyph, is a boulder (4576). The drawn square is blank here, so the port, which read glyph_at(), left the entry out and moved instead of showing the menu. The seed, clock, character and keys were chosen for this recipe."
+    }
+  ]
+}
