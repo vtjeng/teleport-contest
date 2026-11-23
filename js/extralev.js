@@ -30,7 +30,6 @@ import {
     dodoor,
 } from './mklev.js';
 import { game } from './gstate.js';
-import { note_unported } from './unported.js';
 import { rn1, rn2, rnd } from './rng.js';
 import { somex, somey } from './room_coordinates.js';
 import { makemon } from './makemon_create.js';
@@ -41,6 +40,7 @@ import {
     curse,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { sync_impossible } from './source_steps.js';
 
 // C stores the 3x3 room graph in the file-global gr.r[][]. A level build
 // overwrites all nine entries, so the JavaScript equivalent can live on the
@@ -80,7 +80,8 @@ function roguejoin(x1, y1, x2, y2, horiz, state = game) {
 }
 
 // C ref: extralev.c roguecorr(). Each impossible() report C makes here is
-// recorded with note_unported(): level creation cannot wait for the print.
+// queued (source_steps.js sync_impossible()): level creation cannot wait for
+// the print.
 function roguecorr(x, y, dir, state = game) {
     const rooms = rogueRooms(state);
     const here = rooms[x][y];
@@ -99,13 +100,13 @@ function roguecorr(x, y, dir, state = game) {
             fromx += 1 + 26 * x;
             fromy += 7 * y;
             if (!IS_WALL(state.level.at(fromx, fromy).typ))
-                note_unported('pline.c impossible'); /* "down: no wall at %d,%d?" */
+                sync_impossible(`down: no wall at ${fromx},${fromy}?`, state); /* "down: no wall at %d,%d?" */
             dodoor(fromx, fromy, state.level.rooms[here.nroom], state);
             state.level.at(fromx, fromy).flags = D_NODOOR;
             ++fromy;
         }
         if (y >= 2) {
-            note_unported('pline.c impossible'); /* "down door from %d,%d going nowhere?" */
+            sync_impossible(`down door from ${x},${y} going nowhere?`, state); /* "down door from %d,%d going nowhere?" */
             return;
         }
         ++y;
@@ -122,7 +123,7 @@ function roguecorr(x, y, dir, state = game) {
             tox += 1 + 26 * x;
             toy += 7 * y;
             if (!IS_WALL(state.level.at(tox, toy).typ))
-                note_unported('pline.c impossible'); /* "up: no wall at %d,%d?" */
+                sync_impossible(`up: no wall at ${tox},${toy}?`, state); /* "up: no wall at %d,%d?" */
             dodoor(tox, toy, state.level.rooms[next.nroom], state);
             state.level.at(tox, toy).flags = D_NODOOR;
             --toy;
@@ -144,13 +145,13 @@ function roguecorr(x, y, dir, state = game) {
             fromx += 1 + 26 * x;
             fromy += 7 * y;
             if (!IS_WALL(state.level.at(fromx, fromy).typ))
-                note_unported('pline.c impossible'); /* "down: no wall at %d,%d?" */
+                sync_impossible(`down: no wall at ${fromx},${fromy}?`, state); /* "down: no wall at %d,%d?" */
             dodoor(fromx, fromy, state.level.rooms[here.nroom], state);
             state.level.at(fromx, fromy).flags = D_NODOOR;
             ++fromx;
         }
         if (x >= 2) {
-            note_unported('pline.c impossible'); /* "right door from %d,%d going nowhere?" */
+            sync_impossible(`right door from ${x},${y} going nowhere?`, state); /* "right door from %d,%d going nowhere?" */
             return;
         }
         ++x;
@@ -167,7 +168,7 @@ function roguecorr(x, y, dir, state = game) {
             tox += 1 + 26 * x;
             toy += 7 * y;
             if (!IS_WALL(state.level.at(tox, toy).typ))
-                note_unported('pline.c impossible'); /* "left: no wall at %d,%d?" */
+                sync_impossible(`left: no wall at ${tox},${toy}?`, state); /* "left: no wall at %d,%d?" */
             dodoor(tox, toy, state.level.rooms[next.nroom], state);
             state.level.at(tox, toy).flags = D_NODOOR;
             --tox;
@@ -176,7 +177,7 @@ function roguecorr(x, y, dir, state = game) {
         return;
     }
 
-    note_unported('pline.c impossible'); /* "corridor in direction %d?" */
+    sync_impossible(`corridor in direction ${dir}?`, state); /* "corridor in direction %d?" */
 }
 
 // Modified walkfrom() from mkmaze.c.
@@ -282,9 +283,9 @@ function makeroguerooms(state = game) {
             if (here.doortable & XL_DOWN) roguecorr(x, y, XL_DOWN, state);
             if (here.doortable & XL_RIGHT) roguecorr(x, y, XL_RIGHT, state);
             if (here.doortable & XL_LEFT)
-                note_unported('pline.c impossible'); /* "left end of %d, %d never connected?" */
+                sync_impossible(`left end of ${x}, ${y} never connected?`, state); /* "left end of %d, %d never connected?" */
             if (here.doortable & XL_UP)
-                note_unported('pline.c impossible'); /* "up end of %d, %d never connected?" */
+                sync_impossible(`up end of ${x}, ${y} never connected?`, state); /* "up end of %d, %d never connected?" */
         }
     }
 }

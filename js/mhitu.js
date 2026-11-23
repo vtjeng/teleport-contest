@@ -300,7 +300,6 @@ import { acid_damage, burnarmor } from './trap_erode_obj.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { burn_away_slime } from './timeout.js';
-import { note_unported } from './unported.js';
 import {
     impossible,
     impossible_printer,
@@ -918,7 +917,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 if (state.u.utotype || !m_next2u(mon, state)) return 1;
                 await setworn(ring, LEFT_RING, { state });
             } else {
-                note_unported('pline.c impossible');
+                await impossible('ring replacement', state, rawEnv);
             }
             await Ring_on(ring, state, effectEnv);
             await prinv(null, ring, 0, effectEnv);
@@ -2058,7 +2057,8 @@ export async function expels(mtmp, rawEnv = {}) {
                 if (typeof rawEnv.impossible === 'function')
                     rawEnv.impossible('Swallower has no engulfing attack?');
                 else
-                    note_unported('pline.c impossible');
+                    await impossible(
+                        'Swallower has no engulfing attack?', state, rawEnv);
             } else {
                 if (is_whirly(mdat)) {
                     if (attack.adtyp === M.AD_ELEC)
@@ -2832,7 +2832,8 @@ export async function explmu(mtmp, mattk, ufound, rawEnv = {}) {
         break;
     }
     default:
-        note_unported('pline.c impossible');
+        await impossible(
+            `unknown exploder damage type ${mattk.adtyp}`, state, rawEnv);
         break;
     }
 
@@ -3125,8 +3126,8 @@ export async function gazemu(monster, attack, rawEnv = {}) {
 
     default:
         // C prints "Gaze attack %d?" through impossible(), which this build
-        // shows in every mode, and goes on; the port records the gap.
-        note_unported('pline.c impossible');
+        // shows in every mode, and goes on.
+        await impossible(`Gaze attack ${attack.adtyp}?`, state, rawEnv);
         break;
     }
 
@@ -3157,7 +3158,7 @@ export async function mdamageu(mtmp, n, state, env = {}) {
 
     if (n < 0) {
         // C discards the diagnostic's result and continues with zero damage.
-        note_unported('pline.c impossible');
+        await impossible(`mdamageu for negative damage? (${n})`, state, env);
         n = 0;
     }
 

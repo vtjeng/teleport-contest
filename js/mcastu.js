@@ -93,7 +93,6 @@ import { burnarmor } from './trap_erode_obj.js';
 import { ignite_items } from './apply_catch_lit.js';
 import { destroy_items } from './zap_destroy_items.js';
 import { ureflects } from './muse.js';
-import { note_unported } from './unported.js';
 import {
     buzz, flash_str, flashburn, mon_spell_hits_spot,
 } from './zap.js';
@@ -837,7 +836,7 @@ async function mcast_clone_wiz(mtmp, rawEnv = {}) {
         await message('Double Trouble...', state, rawEnv);
         await clonewiz(state, rawEnv);
     } else {
-        note_unported('pline.c impossible');
+        await impossible('bad wizard cloning?', state, rawEnv);
     }
 }
 
@@ -1085,11 +1084,13 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
     const state = env.state ?? game;
 
     if (dmg < 0) {
-        note_unported('pline.c impossible');
+        await impossible(
+            `monster cast spell (${spellnum}) with negative dmg (${dmg})?`, state, env);
         return;
     }
     if (dmg === 0 && !is_undirected_spell(spellnum)) {
-        note_unported('pline.c impossible');
+        await impossible(
+            `cast directed wizard spell (${spellnum}) with dmg=0?`, state, env);
         return;
     }
 
@@ -1167,7 +1168,7 @@ async function mcast_spell(mtmp, dmg, spellnum, env = {}) {
         await mcast_confuse_you(mtmp, env);
         break;
     default:
-        note_unported('pline.c impossible');
+        await impossible(`mcastu: invalid magic spell (${spellnum})`, state, env);
         break;
     }
 
@@ -1197,7 +1198,8 @@ async function mcast_blind_you(env = {}) {
             await message(`Your ${vision_clears}`, state);
     } else {
         // C: impossible("no reason for monster to cast blindness spell?").
-        note_unported('pline.c impossible');
+        await impossible(
+            'no reason for monster to cast blindness spell?', state, env);
     }
 }
 
@@ -1207,7 +1209,8 @@ async function mcast_blind_you(env = {}) {
 async function mcast_disappear(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     if (mtmp.minvis || mtmp.invis_blkd) {
-        note_unported('pline.c impossible');
+        await impossible(
+            'no reason for monster to cast disappear spell?', state, rawEnv);
         return;
     }
 
