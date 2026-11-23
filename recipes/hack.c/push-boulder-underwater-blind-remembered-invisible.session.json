@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5150,
+      "datetime": "20270711223000",
+      "nethackrc": "OPTIONS=name:Gudrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u0017blessed amulet of magical breathing\nPe\u0017blindfold\n\u0017wand of teleportation\n\u0007shrieker\nlPfFkzgk\u0017boulder\nj\u0017pool\nx\n\n\n\n\nkk\n",
+      "comment": "A Valkyrie wearing an amulet of magical breathing creates a shrieker and steps east so that it stands to her north. She puts on a blindfold and force-fights it, so its square remembers an 'I', then zaps a wand of teleportation at it; the shrieker leaves without her noticing and the 'I' stays. She wishes for a boulder, which drops at her feet, steps south, wishes a pool under herself and swaps weapons for a turn: she sinks, and display.c under_water() draws the squares around her blank. Her first step north feels the boulder; her second pushes it onto the marker's square. hack.c dopush() tests levl[rx][ry].glyph there (206-207) and unmaps the remembered 'I'; movobj()'s newsym() and feel_location() both return early for a square beside a submerged hero, so the square now remembers plain floor. She comes out onto dry land, and docrt() repaints the map from memory. The port read glyph_at(), the blank drawn glyph, kept the marker, and drew an 'I' there on the last screen. The seed, clock, character and keys were chosen for this recipe."
+    }
+  ]
+}
