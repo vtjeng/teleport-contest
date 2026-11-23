@@ -77,7 +77,9 @@ import {
 import { SHTYPES } from './shtypes_data.js';
 // js/display.js imports update_lastseentyp() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
-import { describe_level, map_location, see_nearby_objects } from './display.js';
+import {
+    canseemon, describe_level, map_location, see_nearby_objects,
+} from './display.js';
 import { hliquid } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { switch_terrain } from './hack.js';
@@ -1864,8 +1866,8 @@ export function surface(x, y, state = game) {
         return 'ground';
 }
 
-// C ref: dungeon.c update_lastseentyp(). The caller supplies canseemon()
-// because dungeon topology does not own hero sensing.
+// C ref: dungeon.c update_lastseentyp(). A caller may supply its own
+// canSeeMonster; without one this tests canseemon(), as C does.
 // C ref: svl.lastseentyp[COLNO][ROWNO], the terrain type the hero last saw at
 // each square. It is one game-wide grid, not part of the level structure:
 // init_mapseen() clears it for a newly made level, savelev() and getlev()
@@ -1890,7 +1892,7 @@ export function update_lastseentyp(
     x,
     y,
     state = game,
-    { canSeeMonster = () => false } = {},
+    { canSeeMonster = canseemon } = {},
 ) {
     const location = state.level?.at(x, y);
     if (!location) return STONE;
@@ -1898,7 +1900,7 @@ export function update_lastseentyp(
     const monster = state.level?.monsters?.[x]?.[y] ?? null;
     if (monster
         && (monster.m_ap_type & M_AP_TYPMASK) === M_AP_FURNITURE
-        && canSeeMonster(monster)) {
+        && canSeeMonster(monster, state)) {
         typ = cmap_to_type(monster.mappearance);
     }
     lastseentyp_grid(state)[x][y] = typ;

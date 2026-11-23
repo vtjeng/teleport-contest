@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91823,
+      "datetime": "20381104120000",
+      "nethackrc": "OPTIONS=name:Tumbler,role:Archeologist,race:gnome,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,pettype:none,!autopickup,accessiblemsg\n",
+      "moves": " hh\u0017rolling boulder trap\nh\u0017land mine\najl  : \u001b"
+    }
+  ],
+  "comment": "Variation of launch_obj-land-mine-unseen-accessiblemsg with a hero who is not blind: cansee(x, y) holds, so C calls set_msg_xy() and the accessiblemsg prefix names the land mine's square before \"KAABLAMM!!!  The rolling boulder triggers a land mine.\""
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40913,
+      "datetime": "20310418142300",
+      "nethackrc": "OPTIONS=name:Branch,role:Wizard,race:gnome,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0016fort ludios\n\u001b:\u001b\u000f\u001b\u001b"
+    }
+  ],
+  "comment": "Independent wizard-mode ^V answered with a dungeon name whose branch is not placed yet. dungeon.c lev_by_name() finds no level called \"fort ludios\" and calls find_branch(), which matches the branch whose end2 is Fort Ludios. fixup_level_locations() left that branch's end1.dnum at the bogus n_dgns, so ledger_no(&br->end1) reads svd.dungeons[n_dgns].ledger_start, a zeroed unused slot, and returns end1.dlevel alone; lev_by_name() takes that ledger as the Dungeons of Doom level to arrive on. ':' and ^O show the arrival level."
+}

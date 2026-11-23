@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 350742,
+      "datetime": "20360219153000",
+      "nethackrc": "OPTIONS=name:Rumble,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,pettype:none,!autopickup\n",
+      "moves": " #levelchange\n14\n\u001b\u0017helm of telepathy\nWe\u0017blindfold\n\u0017scroll of earth\ndg\u0007soldier\nhPfmsms  : \u001b"
+    }
+  ],
+  "comment": "Independent muse.c use_offensive() MUSE_SCR_EARTH entry from mhitu.c mattacku(): a debug-mode Valkyrie wearing a wished helm of telepathy drops a wished scroll of earth, creates a soldier, steps into the doorway so that the soldier walks onto the scroll and picks it up, puts on a wished blindfold and waits with forced searches. The blind hero senses the soldier by telepathy without seeing it, so canspotmon(mtmp) holds and the soldier reading the scroll prints \"The ceiling rumbles above the soldier!\"; with canseemon() nothing is printed, because cansee() is false for a blind hero."
+}

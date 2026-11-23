@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8126,
+      "datetime": "20290907061145",
+      "nethackrc": "OPTIONS=name:Floater,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0016the Portal to Fort Ludios\n\u001b:\u001b\u000f\u001b\u001b"
+    }
+  ],
+  "comment": "Variation of levtele-name-unplaced-fort-ludios with another role and seed, and the \"<branch> to Xyzzy\" spelling: dungeon.c lev_by_name() strips \"the \", find_branch(\"Portal to Fort Ludios\") matches no dungeon name, and the retry with the text after \" to \" matches the unplaced Fort Ludios branch in mixed case (strcmpi), whose end1 ledger_no() reads the zeroed svd.dungeons[n_dgns]."
+}
