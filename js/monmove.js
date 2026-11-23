@@ -2681,6 +2681,10 @@ export async function dochug(monster, rawEnv = {}) {
             // cornered monster attacks even though fear would otherwise stop
             // it.
             if (status === MMOVE_NOMOVES && range.scared) panicattk = true;
+            // monmove.c:925-927: "vault guard might have vanished". A guard
+            // vault.c parkguard() put at <0,0> must not reach the redraw.
+            if (monster.isgd && (monster.mhp < 1 || monster.mx === 0))
+                return 1; /* behave as if it died */
             if (hallucinating()) redraw(monster.mx, monster.my);
         }
     }
