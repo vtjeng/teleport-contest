@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7719340,
+      "datetime": "20410605071500",
+      "nethackrc": "OPTIONS=name:Takeo,role:Samurai,race:human,gender:male,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,!debug_mongen,pettype:none,!autopickup\n",
+      "moves": " #levelchange\n14\n\u001b\u0017long sword\nwf\u0017lawful altar\n\u00175 mastodon corpses\n #offer\ny #offer\ny #offer\ny n #offer\ny n #offer\ny n\u0016?\n>y \u001b\u0014hhhhhhhk.#chat\nb  y \u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001bs\u001b#pray\ny n    :#chronicle\n \u001b"
+    }
+  ],
+  "comment": "pray.c gcrownu(): a lawful male human Samurai in debug mode wields a wished plain long sword, raises Luck to 10 with sacrifices on a wished altar (declining each gift), teleports beside Lord Sato on the quest home level (the level is flipped on both axes for this seed, so the leader stands southwest of the arrival square) and takes his debug-mode alignment adjustment to 20, waits 17 turns and prays. The seventeen waits were chosen by recording 0 to 45 waits and taking the first whose pleased() roll reaches gcrownu(). The lawful arm turns the wielded long sword into Excalibur, and #chronicle lists \"had his wielded long sword transformed into Excalibur\" (livelog_printf() with uhis())."
+}
