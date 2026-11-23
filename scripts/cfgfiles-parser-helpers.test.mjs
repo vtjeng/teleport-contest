@@ -1,6 +1,7 @@
 // Source-pinned tests for cfgfiles.c's section parser helpers.
 
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -12,6 +13,7 @@ import {
     is_config_section,
 } from '../js/cfgfiles.js';
 import { PREFIX_COUNT } from '../js/const.js';
+import { read_sym_file } from '../js/files.js';
 import { parseNethackrc } from '../js/options.js';
 
 function parserState() {
@@ -132,4 +134,54 @@ test('parseNethackrc uses cfgfiles.c section state without local duplicates', ()
     assert.equal(parsed.gc.config_section_current, null);
     assert.equal(parsed.flags.legacy, true);
     assert.deepEqual(parsed.configErrorFrame.output, []);
+});
+
+test('read_sym_file forgets the CHOOSE choice and the current section', () => {
+    // files.c read_sym_file() hands dat/symbols to parse_conf_file(), and
+    // cfgfiles.c parse_conf_file() frees the sections before and after its
+    // loop, whichever set the caller asked for.
+    const filesC = readFileSync(
+        new URL('../nethack-c/upstream/src/files.c', import.meta.url), 'utf8',
+    );
+    const cfgfilesC = readFileSync(
+        new URL('../nethack-c/upstream/src/cfgfiles.c', import.meta.url), 'utf8',
+    );
+    const readSym = filesC.slice(filesC.indexOf('\nread_sym_file(int which_set)'));
+    assert.match(
+        readSym.slice(0, readSym.indexOf('\n}\n')),
+        /parse_conf_file\(fp, proc_symset_line\);/u,
+    );
+    const parseConf = cfgfilesC.slice(cfgfilesC.indexOf('\nparse_conf_file(FILE *fp,'));
+    assert.equal(
+        parseConf.slice(0, parseConf.indexOf('\n}\n'))
+            .split('free_config_sections();').length - 1,
+        2,
+    );
+
+    // A set dat/symbols holds, one it does not hold, and the built-in
+    // default, which the port answers without consulting its table: the
+    // three results differ and all three clear both fields.
+    for (const [name, found] of [
+        ['DECgraphics', true], ['NoSuchSymbols', false], ['default', true],
+    ]) {
+        const state = parserState();
+        state.gc.config_section_chosen = 'marsh';
+        state.gc.config_section_current = 'marsh';
+        assert.equal(read_sym_file(name, state), found, name);
+        assert.equal(state.gc.config_section_chosen, null, name);
+        assert.equal(state.gc.config_section_current, null, name);
+    }
+
+    // The same through the parser: after the symset line no section is
+    // current, so the showexp line under the unchosen [fen] applies, where
+    // without the symset line the choice of [marsh] skips it.
+    const withSymset = parseNethackrc(
+        'CHOOSE=marsh\n[marsh]\nOPTIONS=symset:DECgraphics\n[fen]\nOPTIONS=showexp\n',
+        () => 0,
+    );
+    assert.equal(withSymset.flags.showexp, true);
+    const without = parseNethackrc(
+        'CHOOSE=marsh\n[marsh]\n[fen]\nOPTIONS=showexp\n', () => 0,
+    );
+    assert.equal(Boolean(without.flags.showexp), false);
 });

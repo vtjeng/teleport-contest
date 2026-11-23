@@ -1684,3 +1684,66 @@ test('PICK_ANY group accelerators follow process_menu_window gacc[]', async () =
         }), expected, JSON.stringify(keys));
     }
 });
+
+test('a page command that does nothing never reaches a group accelerator', async () => {
+    // wintty.c process_menu_window() (1554-1561): only a key found in resp[]
+    // before resp_len is MENU_EXPLICIT_CHOICE; any other key is mapped, and
+    // the switch runs on the mapped command.
+    assert.match(WINTTY_C, /morc = MENU_EXPLICIT_CHOICE;\s*else\s*morc = map_menu_cmd\(morc\);/u);
+    // The three page arms test their page and break either way (1633-1650),
+    // so they never fall into the default arm's gacc[] test.
+    for (const [command, pageTest] of [
+        ['MENU_PREVIOUS_PAGE', 'curr_page != 0'],
+        ['MENU_FIRST_PAGE', 'curr_page != 0'],
+        ['MENU_LAST_PAGE', 'curr_page != cw->npages - 1'],
+    ]) {
+        const arm = WINTTY_C.slice(WINTTY_C.indexOf(`case ${command}:`));
+        assert.ok(
+            arm.startsWith(`case ${command}:\n            if (cw->npages > 0 && ${pageTest}) {`),
+            command,
+        );
+        assert.match(arm.slice(0, arm.indexOf('case ', 5)), /\}\s*break;\s*$/u, command);
+    }
+
+    // '<', '^' and '|' are MENU_PREVIOUS_PAGE, MENU_FIRST_PAGE and
+    // MENU_LAST_PAGE (wintype.h:151-154); ')' is a group accelerator that is
+    // no menu command. The letters are the entries' own selectors.
+    const items = () => [
+        { selector: 'a', groupSelector: '<', value: 1, label: 'previous' },
+        { selector: 'b', groupSelector: '^', value: 2, label: 'first' },
+        { selector: 'c', groupSelector: '|', value: 3, label: 'last' },
+        { selector: 'd', groupSelector: ')', value: 4, label: 'weapon' },
+    ];
+    // options.c add_menu_cmd_alias('&', MENU_FIRST_PAGE), which is what
+    // OPTIONS=menu_first_page:& stores.
+    const mappedState = (keys) => {
+        const state = menuState(keys);
+        state.iflags.mapped_menu_cmds = '&';
+        state.iflags.mapped_menu_op = '^';
+        return state;
+    };
+    for (const [keys, expected] of [
+        // PICK_ANY leaves gacc[] out of the explicit choices (1527-1531), so
+        // each raw key is a page command; on a one-page menu it does nothing.
+        ['<\n', []],
+        ['^\n', []],
+        ['|\n', []],
+        // '&' is mapped to '^' and runs the same MENU_FIRST_PAGE arm.
+        ['&\n', []],
+        // Control: ')' has no arm, so the default arm inverts its group.
+        [')\n', [{ value: 4, count: -1 }]],
+    ]) {
+        assert.deepEqual(await selectTtyMenu(mappedState(keys), {
+            how: PICK_ANY, title: 'Pick what?', items: items(),
+        }), expected, JSON.stringify(keys));
+    }
+
+    // PICK_ONE counts gacc[] among the explicit choices, so the raw '^'
+    // picks its entry (value 2), while '&', mapped to '^', is the page
+    // command and leaves the menu open for the Escape that follows.
+    for (const [keys, expected] of [['^', 2], ['&\x1b', null]]) {
+        assert.equal(await selectTtyMenu(mappedState(keys), {
+            how: PICK_ONE, title: 'Pick what?', items: items(),
+        }), expected, JSON.stringify(keys));
+    }
+});

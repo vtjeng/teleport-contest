@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_sym_file() from options.c optfn_roguesymset() between CHOOSE and the first section. read_sym_file() (files.c:2631-2646) reads dat/symbols with parse_conf_file(), which calls free_config_sections() before and after (cfgfiles.c:1849, 1858) and so forgets both the CHOOSE choice and the current section of the configuration file being read. Both section headers are then \"Section without CHOOSE\" errors and the lines of both sections apply. Seed, date, Samurai and section names chosen independently.",
+  "segments": [
+    {
+      "seed": 87120534,
+      "datetime": "20450312064500",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nCHOOSE=heron\nOPTIONS=roguesymset:RogueEpyx\n[egret]\nOPTIONS=showexp\n[heron]\nOPTIONS=time\n",
+      "moves": "\n s i "
+    }
+  ]
+}

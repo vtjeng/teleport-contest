@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_sym_file() for a set name dat/symbols does not hold. read_sym_file() (files.c:2631-2646) reads dat/symbols with parse_conf_file(), which calls free_config_sections() before and after (cfgfiles.c:1849, 1858) and so forgets both the CHOOSE choice and the current section of the configuration file being read. The read fails (\"Unable to load symbol set\"), but the file was parsed first, so [curlew] is a \"Section without CHOOSE\" error and OPTIONS=time applies. Seed, date, dwarvish Valkyrie and names chosen independently.",
+  "segments": [
+    {
+      "seed": 87120535,
+      "datetime": "20450313064500",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nCHOOSE=plover\n[plover]\nOPTIONS=symset:Sandpiper\n[curlew]\nOPTIONS=time\n",
+      "moves": "\n s i "
+    }
+  ]
+}

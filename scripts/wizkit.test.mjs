@@ -12,7 +12,9 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { RECORDER_HOME } from '../js/cfgfiles.js';
-import { read_wizkit, resolveRecorderHomePath } from '../js/files.js';
+import {
+    read_wizkit, resolveHostRootPath, resolveRecorderHomePath,
+} from '../js/files.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
 import { parseNethackrc } from '../js/options.js';
@@ -138,4 +140,24 @@ test('resolveRecorderHomePath follows POSIX resolution in a HOME holding .nethac
     assert.deepEqual(resolve('.nethackrc/..'), { kind: 'absent', errno: 20 });
     // ".." above HOME reaches the host.
     assert.deepEqual(resolve('../kit'), { kind: 'outside' });
+});
+
+test('resolveHostRootPath stops an absolute name at the root directory', () => {
+    // fopen_wizkit_file() hands the name to access() unchanged
+    // (files.c:2479), so an absolute name resolves from the host's root.
+    // recordings/files.c/wizkit-absolute-path-missing-root-entry and
+    // wizkit-root-directory show the first two results in C.
+    // "quillwort" is no entry of a macOS or Linux root directory, so
+    // resolution fails there with ENOENT (2) whatever follows it.
+    assert.deepEqual(resolveHostRootPath('/quillwort'), { kind: 'absent', errno: 2 });
+    assert.deepEqual(resolveHostRootPath('/quillwort/kit.txt'), { kind: 'absent', errno: 2 });
+    assert.deepEqual(resolveHostRootPath('//./quillwort/../etc'), { kind: 'absent', errno: 2 });
+    // "", "." and ".." all stay in the root directory.
+    assert.deepEqual(resolveHostRootPath('/'), { kind: 'directory' });
+    assert.deepEqual(resolveHostRootPath('/./..//'), { kind: 'directory' });
+    // "etc", "Users" and "proc" are root entries of macOS, macOS and Linux;
+    // the port cannot see inside them. The judge's volume folds case, so
+    // "USERS" is the same entry.
+    for (const name of ['/etc/kit', '/Users', '/USERS/kit', '/../proc/1'])
+        assert.deepEqual(resolveHostRootPath(name), { kind: 'outside' }, name);
 });

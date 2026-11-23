@@ -505,11 +505,11 @@ export function set_occupation(fn, txt, xtime, state = game) {
     state.go.occtime = 0;
 }
 
-// C ref: cmd.c extcmd_initiator(). reset_commands() keeps gc.Cmd.extcmd_char
-// at cmd_from_func(doextcmd), the key currently bound to the '#' row, which
-// keyForCommand() ports.
+// C ref: cmd.c extcmd_initiator() (455-460). gc.Cmd.extcmd_char lives on the
+// binding model as extcmdChar; command_bindings.js resetCommandBindings(),
+// the body of reset_commands(), is its only writer.
 export function extcmd_initiator(state = game) {
-    return keyForCommand(commandBindings(state), '#');
+    return commandBindings(state).extcmdChar;
 }
 
 // C ref: cmd.c accept_menu_prefix().
@@ -4246,8 +4246,9 @@ export function reset_commands(initial = false, state = game) {
         resetCommandBindingModel(model, numberPad, mode);
     }
     if (updated) state.serialno = (state.serialno ?? 0) + 1;
+    // resetCommandBindingModel() ends with update_rest_on_space() and the
+    // gc.Cmd.extcmd_char assignment (cmd.c:3474-3475).
     update_rest_on_space(state);
-    state.extcmd_char = cmd_from_func(doextcmd, state);
 }
 
 // C ref: cmd.c update_rest_on_space() (3511-3550).

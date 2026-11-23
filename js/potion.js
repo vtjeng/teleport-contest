@@ -135,6 +135,7 @@ import {
     ismnum,
     ECMD_FAIL,
     vision_clears,
+    uhis,
 } from './const.js';
 import { acurr, adjattrib, exercise, poisontell } from './attrib.js';
 import { permapoisoned, Sting_effects } from './artifacts.js';
@@ -3279,7 +3280,7 @@ export async function potion_dip(obj, potion, state = game, rawEnv = {}) {
             state.u.uconduct.polypiles ??= 0;
             if (!state.u.uconduct.polypiles++)
                 livelog_printf(LL_CONDUCT,
-                    `polymorphed ${state.flags?.female ? 'her' : 'his'} first item`, state);
+                    `polymorphed ${uhis(state)} first item`, state);
             obj = await poly_obj(obj, STRANGE_OBJECT, state, random, env);
             if (!obj) {
                 discover_object(POT_POLYMORPH, true, true, true, state, env);

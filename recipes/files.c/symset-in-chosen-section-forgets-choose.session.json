@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_sym_file() from options.c optfn_symset() inside the chosen section. read_sym_file() (files.c:2631-2646) reads dat/symbols with parse_conf_file(), which calls free_config_sections() before and after (cfgfiles.c:1849, 1858) and so forgets both the CHOOSE choice and the current section of the configuration file being read. OPTIONS=showexp still applies because no section is current any more; [bog] and [] are then each \"Section without CHOOSE\" errors, and OPTIONS=time, which the choice would have skipped, applies. [fen], before the symset line, is skipped as usual. Seed, date, orcish Barbarian and section names chosen independently.",
+  "segments": [
+    {
+      "seed": 87120533,
+      "datetime": "20450311064500",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Barbarian,race:orc,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nCHOOSE=marsh\n[fen]\nOPTIONS=showscore\n[marsh]\nOPTIONS=symset:curses\nOPTIONS=showexp\n[bog]\nOPTIONS=time\n[]\nOPTIONS=!color\n",
+      "moves": "\n s i "
+    }
+  ]
+}

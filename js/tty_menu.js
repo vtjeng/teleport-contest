@@ -1094,6 +1094,16 @@ function isDismissMoreKey(state, code) {
     return x !== 0 && code === x;
 }
 
+// C ref: win/tty/wintty.c process_menu_window(): the menu commands its
+// switch gives an arm of their own (1621-1735). map_menu_cmd() can turn a key
+// into any of them, and each arm ends in a break, so none of them reaches the
+// default arm's group-accelerator test.
+const MENU_SWITCH_COMMANDS = new Set([
+    MENU_NEXT_PAGE, MENU_PREVIOUS_PAGE, MENU_FIRST_PAGE, MENU_LAST_PAGE,
+    MENU_SELECT_PAGE, MENU_UNSELECT_PAGE, MENU_INVERT_PAGE,
+    MENU_SELECT_ALL, MENU_UNSELECT_ALL, MENU_INVERT_ALL, MENU_SEARCH,
+]);
+
 function isDefaultMenuResponse(ch) {
     return ch === '\0' || ch === '\x1b' || ch === '\n' || ch === '\r'
         || ch === ' ' || (ch >= '0' && ch <= '9')
@@ -1355,13 +1365,6 @@ async function selectOneTtyMenu(state, spec) {
         const mapping = menuCommandMapping(state, incoming);
         const ch = mapping.command;
 
-        // A mapped key can resolve to a unique group accelerator.  The C
-        // dispatcher maps it before its fallback group-accelerator branch.
-        if (groupChoices.has(ch)) {
-            await dismissTtyMenu(state, rendered);
-            return selectedValue(groupChoices.get(ch));
-        }
-
         if (ch === '\0' || ch === '\x1b') {
             if (pendingCount !== null) {
                 pendingCount = null;
@@ -1456,6 +1459,15 @@ async function selectOneTtyMenu(state, spec) {
                 ch === MENU_UNSELECT_ALL,
             );
             continue;
+        }
+
+        // The switch's default arm (1737-1761) is the only place a mapped
+        // key reaches a group accelerator. A key mapped to a command with an
+        // arm of its own runs that arm, even where the arm does nothing on
+        // this page, and never falls through to here.
+        if (!MENU_SWITCH_COMMANDS.has(ch) && groupChoices.has(ch)) {
+            await dismissTtyMenu(state, rendered);
+            return selectedValue(groupChoices.get(ch));
         }
 
         // xwaitforspace() rejects an unknown byte internally, without
@@ -1738,7 +1750,9 @@ async function selectAnyTtyMenu(state, spec) {
             changed = setItems(state, allItems, false);
         } else if (ch === MENU_INVERT_ALL) {
             changed = invertItems(state, allItems);
-        } else if (grouped.length) {
+        } else if (!MENU_SWITCH_COMMANDS.has(ch) && grouped.length) {
+            // The default arm; a page command that did nothing above has
+            // its own arm in C and stops there.
             changed = invertItems(state, grouped, commandCount, true);
         } else {
             if (acceptedIncoming) pendingCount = null;

@@ -3006,6 +3006,18 @@ export function uhim(state = game) {
     return genders[state?.flags?.female ? 1 : 0].him;
 }
 
+// C ref: you.h:316 -- #define uhis() (genders[flags.female ? 1 : 0].his),
+// the hero's possessive pronoun, "his" or "her", by the same flag as uhim().
+export function uhis(state = game) {
+    return genders[state?.flags?.female ? 1 : 0].his;
+}
+
+// C ref: you.h:314 -- #define uhe() (genders[flags.female ? 1 : 0].he),
+// the hero's subjective pronoun, "he" or "she".
+export function uhe(state = game) {
+    return genders[state?.flags?.female ? 1 : 0].he;
+}
+
 // Canonical macros — previously duplicated as local stubs in 15+ files
 // C ref: you.h:562 u_at(). The optional state argument matches the rest of the
 // port's calling convention; the module-global default preserves the reading

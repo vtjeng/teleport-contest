@@ -167,6 +167,7 @@ import {
     u_at,
     Upolyd,
     plur,
+    uhis,
 } from './const.js';
 import {
     is_pool,
@@ -6300,10 +6301,9 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
             const named = has_mgivenname(mtmp);
             const given = named ? MGIVENNAME(mtmp) : '';
             const comma = named ? ', ' : '';
-            const heroHis = state.flags?.female ? 'her' : 'his';
             livelog_printf(
                 LL_KILLEDPET,
-                `murdered ${given}${comma}${heroHis} faithful ${pmname(
+                `murdered ${given}${comma}${uhis(state)} faithful ${pmname(
                     mdat,
                     gender(mtmp),
                 )}`,

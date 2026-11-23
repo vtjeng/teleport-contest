@@ -93,6 +93,7 @@ import {
     Upolyd,
     Ugender,
     plur,
+    uhis,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { is_pool } from './dbridge.js';
@@ -2760,10 +2761,9 @@ export async function do_class_genocide(state = game, env = {}) {
                         DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_M + monsterClass],
                     );
                     if (!already) {
-                        const heroPossessive = state.flags?.female ? 'her' : 'his';
                         livelog_printf(
                             LL_CONDUCT | LL_GENOCIDE,
-                            `performed ${heroPossessive} first genocide (class ${symbol})`,
+                            `performed ${uhis(state)} first genocide (class ${symbol})`,
                             state,
                         );
                     } else {
@@ -2957,10 +2957,9 @@ export async function do_genocide(how, state = game) {
     if (really) {
         const { num_genocides } = await import('./insight.js');
         if (!num_genocides(state)) {
-            const heroPossessive = state.flags?.female ? 'her' : 'his';
             livelog_printf(
                 LL_CONDUCT | LL_GENOCIDE,
-                `performed ${heroPossessive} first genocide (${makeplural(realName)})`,
+                `performed ${uhis(state)} first genocide (${makeplural(realName)})`,
                 state,
             );
         } else {

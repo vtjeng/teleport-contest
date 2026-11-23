@@ -57,6 +57,7 @@ import {
     do_run_southeast,
     do_run_south,
     do_run_southwest,
+    extcmd_initiator,
     extcmdRow,
     extcmds_getentry,
     cmdbind_add,
@@ -298,8 +299,30 @@ test('special keys, autocomplete options, mouse locks, and source reset state', 
     reset_commands(false, state);
     assert.equal(cmd_dirchars(state), '41236987><');
     assert.equal(cmd_alphadirchars(state), 'hykulnjb><');
-    assert.equal(state.extcmd_char, '#'.charCodeAt(0));
+    // cmd.c reset_commands():3475; the default '#' row is the only binding of
+    // doextcmd here, so cmd_from_func() finds '#'.
+    assert.equal(extcmd_initiator(state), '#'.charCodeAt(0));
     assert.equal(state.serialno, 1);
+});
+
+test('extcmd_initiator answers the key the last reset_commands found', () => {
+    // cmd.c reset_commands():3475 is the only assignment of
+    // gc.Cmd.extcmd_char, and extcmd_initiator():459 returns that field.
+    const state = { flags: {}, iflags: {}, extcmdFlags: initialExtcmdFlags() };
+    reset_commands(true, state);
+    assert.equal(extcmd_initiator(state), '#'.charCodeAt(0));
+
+    // '!' is a printable key other than the row's own '#'. bind_key() puts
+    // it at the head of gc.Cmd.cmdbinds, but no reset has run since, so the
+    // field still holds '#'.
+    assert.equal(bind_key('!'.charCodeAt(0), '#', false, state), true);
+    assert.equal(cmd_from_func('doextcmd', state), '!'.charCodeAt(0));
+    assert.equal(extcmd_initiator(state), '#'.charCodeAt(0));
+
+    // The next reset stores what cmd_from_func(doextcmd) (3036-3069) finds:
+    // the first printable binding in the list, which is the newer '!'.
+    reset_commands(false, state);
+    assert.equal(extcmd_initiator(state), '!'.charCodeAt(0));
 });
 
 test('reset_cmd_vars clears command-owned state and both queues', () => {

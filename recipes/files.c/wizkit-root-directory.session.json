@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_wizkit_file() with WIZKIT=/: access(\"/\", 4) succeeds and fopen() opens the directory for reading, so nothing is reported; the first fgets() fails and read_wizkit() adds nothing. Seed, date and Priest chosen independently.",
+  "segments": [
+    {
+      "seed": 55093120,
+      "datetime": "20370821213000",
+      "nethackrc": "OPTIONS=name:Quill,role:Priest,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=/\n",
+      "moves": "    i  "
+    }
+  ]
+}

@@ -275,7 +275,20 @@ export function isDefaultSymsetName(name) {
 // of dat/symbols, so opening or parsing that immutable file cannot fail here.
 // This covers the function's selected-name/default-alias result; symbols.c owns
 // the table and metadata mutations made while the matching block is parsed.
-export function read_sym_file(name) {
+//
+// C reads the file with parse_conf_file() (2646) whatever the name, and that
+// calls free_config_sections() before and after its loop (cfgfiles.c:1849,
+// 1858). dat/symbols holds no CHOOSE or section line, so the one state change
+// left is that gc.config_section_chosen and gc.config_section_current are
+// null afterwards. `state` is the holder of those two fields: the parser
+// result while a configuration file is being read. The two assignments are
+// the body of js/cfgfiles.js free_config_sections(), written out because a
+// static import of that module from this one closes an import cycle that
+// leaves js/makemon_create.js reading display symbols before they exist.
+export function read_sym_file(name, state = game) {
+    state.gc ??= {};
+    state.gc.config_section_chosen = null;
+    state.gc.config_section_current = null;
     if (isDefaultSymsetName(name)) return true;
     const folded = lcase(String(name));
     return SYMBOL_SET_DEFINITIONS.some(
@@ -559,6 +572,37 @@ export function resolvePlaygroundPath(name) {
     return { ...file };
 }
 
+// The entries of the root directory on the hosts a recording is made on:
+// macOS, the judge's host, and Linux, where local recordings are made. The
+// names are folded because the judge's volume is case-insensitive. Either
+// host can hold others, which is the limit of resolveHostRootPath() below.
+const HOST_ROOT_ENTRIES = new Set([
+    // macOS
+    '.DocumentRevisions-V100', '.Spotlight-V100', '.TemporaryItems',
+    '.Trashes', '.VolumeIcon.icns', '.file', '.fseventsd', '.nofollow',
+    '.resolve', '.vol', 'Applications', 'Library', 'Network', 'System',
+    'Users', 'Volumes', 'bin', 'cores', 'dev', 'etc', 'home', 'net', 'opt',
+    'private', 'sbin', 'tmp', 'usr', 'var',
+    // Linux
+    'boot', 'lib', 'lib32', 'lib64', 'libx32', 'lost+found', 'media', 'mnt',
+    'proc', 'root', 'run', 'snap', 'srv', 'sys',
+].map(fileNameFold));
+
+// What an absolute name reaches, as far as the port can tell without the
+// host's filesystem: 'directory' for the root directory itself;
+// { kind: 'absent', errno: ENOENT } when the first component that leaves the
+// root is none of HOST_ROOT_ENTRIES, whatever follows it, because resolution
+// stops there; and 'outside' for a name that enters one of those entries,
+// whose contents the port cannot see. ".." in the root directory stays there.
+export function resolveHostRootPath(name) {
+    for (const part of String(name).split('/')) {
+        if (part === '' || part === '.' || part === '..') continue;
+        return HOST_ROOT_ENTRIES.has(fileNameFold(part))
+            ? { kind: 'outside' } : { kind: 'absent', errno: ENOENT };
+    }
+    return { kind: 'directory' };
+}
+
 // What fopen_wizkit_file()'s fopen("$HOME/<name>", "r") reaches. The
 // recorder's HOME holds only the config file it writes before each launch
 // (docs/recording-environment.md), so the result is 'file' for that file,
@@ -606,11 +650,13 @@ async function wizkit_raw_printf(state, message) {
 // empty text. $HOME holds only the config file the recorder writes, whose
 // text the segment supplies. The port has no copy of any other playground
 // file's bytes, and cannot see a host directory outside the playground or
-// HOME, so those names stay a gap.
+// HOME, so those names stay a gap. An absolute name is the exception where
+// resolveHostRootPath() can tell that it stops at the root directory.
 async function fopen_wizkit_file(state) {
     const name = state.wizkit ?? '';
     if (!name) return null;
-    const target = resolvePlaygroundPath(name);
+    const target = name.startsWith('/')
+        ? resolveHostRootPath(name) : resolvePlaygroundPath(name);
     if (target.kind === 'directory') return '';
     if (target.kind !== 'absent') {
         note_unported('files.c fopen_wizkit_file');

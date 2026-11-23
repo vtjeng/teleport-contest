@@ -1581,7 +1581,7 @@ function selectLegacyPrimary(result, name) {
     const current = legacySymbolName(result, 'primary');
     if (current) return false;
     context.set = 'primary';
-    if (!read_sym_file(name)) {
+    if (!read_sym_file(name, result)) {
         context.names.primary = null;
         result.symbolOperations.push({
             kind: 'clear', set: 'primary', nameToo: true,
@@ -1727,7 +1727,7 @@ function optfn_IBMgraphics(result, request, negated, opts, op) {
             }
             if (set === 'rogue') badName = name;
             context.set = set;
-            if (!read_sym_file(name)) {
+            if (!read_sym_file(name, result)) {
                 bad = true;
                 context.names[set] = null;
                 result.symbolOperations.push({ kind: 'clear', set, nameToo: true });
@@ -6407,7 +6407,7 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         // the attempted name and metadata but deliberately leaves bytes from
         // an earlier successful selection in place, so retain that cleanup
         // in the ordered symbols.c operation stream.
-        if (!read_sym_file(value)) {
+        if (!read_sym_file(value, result)) {
             result.parserGlyphSetContext.names[set] = null;
             result[name] = undefined;
             result.symbolOperations.push({

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c reset_commands(FALSE) from options.c optfn_number_pad() after BIND=!:#: the reset stores cmd_from_func(doextcmd) in gc.Cmd.extcmd_char with the player's binding already in gc.Cmd.cmdbinds, so the extended-command prompt shows the character that search returns. 'ov' autocompletes to overview; Escape leaves. Seed, date, Healer and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 61804418,
+      "datetime": "20410923101500",
+      "nethackrc": "OPTIONS=name:Odalys,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nBIND=!:#\nOPTIONS=number_pad:1\n",
+      "moves": " !ov\u001b\u001b#ov\u001b\u001bi"
+    }
+  ]
+}
