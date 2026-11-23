@@ -3703,9 +3703,7 @@ export function* map_location_steps(x, y, show, state) {
     } else {
         yield* map_background_steps(x, y, show, state);
     }
-    update_lastseentyp(x, y, state, {
-        canSeeMonster: (subject) => canseemon(subject, state),
-    });
+    update_lastseentyp(x, y, state);
     if (show && !Blind(state.u)) {
         const region = visible_region_at(x, y, state);
         if (region) show_region(region, x, y, state);
@@ -3983,9 +3981,7 @@ export function* magic_map_background_steps(x, y, show, state = game) {
         location.remembered_glyph = remembered_glyph_from_presentation(glyph);
     }
     if (show) show_glyph_cell(x, y, glyph);
-    update_lastseentyp(x, y, state, {
-        canSeeMonster: (subject) => canseemon(subject, state),
-    });
+    update_lastseentyp(x, y, state);
 }
 
 // magic_map_background() for a caller that cannot wait.
@@ -4307,9 +4303,7 @@ export function* newsym_steps(x, y) {
     // seen under a gas cloud or an 'I' keeps its last seen type, which
     // #terrain shows (detect.c reveal_terrain_getglyph()).
     if (visible) {
-        update_lastseentyp(x, y, game, {
-            canSeeMonster: (subject) => mon_visible(subject, game),
-        });
+        update_lastseentyp(x, y, game);
     }
 
     const covered = floorLayersCovered(loc, game);
