@@ -261,7 +261,7 @@ import { obj_shuffle_range, observe_object } from './o_init.js';
 import {
     capitalizedMonsterName,
     hcolor as nameColor,
-    monsterCommonName,
+    mon_nam,
 } from './do_name.js';
 import {
     cancel_monst, resist, flashburn,
@@ -1819,9 +1819,7 @@ export async function Mb_hit(
             } else {
                 /* canceled shapeshifter/vamp may have changed forms */
                 if (mdef.data !== old_mdat)
-                    hittee.value = monsterCommonName(
-                        mdef, state, 0, env,
-                    );
+                    hittee.value = mon_nam(mdef, state, env);
                 if (mdef.data === state.mons[PM_CLAY_GOLEM])
                     mdef.mhp = 1; /* cancelled clay golems will die */
                 if (youattack && attacktype(mdef.data, AT_MAGC)) {
@@ -1848,9 +1846,7 @@ export async function Mb_hit(
                     && sticks(state.youmonst.data)) {
                     set_ustuck(null, state);
                     await message(
-                        `You release ${monsterCommonName(
-                            magr, state, 0, env,
-                        )}!`,
+                        `You release ${mon_nam(magr, state, env)}!`,
                         state, env);
                 }
             }
@@ -1974,7 +1970,7 @@ export async function artifact_hit(
     let realizes_damage;
     let wepdesc;
     let hittee = youdefend ? 'you'
-        : monsterCommonName(mdef, state, 0, effectEnv);
+        : mon_nam(mdef, state, effectEnv);
 
     /* The following takes care of most of the damage, but not all--
      * the exception being for level draining, which is specially
@@ -2080,7 +2076,7 @@ export async function artifact_hit(
             /* not really beheading, but so close, why add another SPFX */
             if (youattack && engulfing_u(mdef, state)) {
                 await message(
-                    `You slice ${monsterCommonName(mdef, state)} wide open!`,
+                    `You slice ${mon_nam(mdef, state)} wide open!`,
                     state);
                 dmgptr.value = 2 * mdef.mhp + FATAL_DAMAGE_MODIFIER;
                 return true;
@@ -2093,7 +2089,7 @@ export async function artifact_hit(
                 if (bigmonst(mdef.data)) {
                     if (youattack) {
                         await message(
-                            `You slice deeply into ${monsterCommonName(mdef, state)}!`,
+                            `You slice deeply into ${mon_nam(mdef, state)}!`,
                             state);
                     } else if (vis) {
                         await message(
@@ -2105,7 +2101,7 @@ export async function artifact_hit(
                 }
                 dmgptr.value = 2 * mdef.mhp + FATAL_DAMAGE_MODIFIER;
                 await message(
-                    `${wepdesc} cuts ${monsterCommonName(mdef, state)} in half!`,
+                    `${wepdesc} cuts ${mon_nam(mdef, state)} in half!`,
                     state);
                 observe_object(otmp, state);
                 return true;
@@ -2144,11 +2140,11 @@ export async function artifact_hit(
                     || state.u.uswallow) {
                     if (youattack) {
                         await message(
-                            `Somehow, you miss ${monsterCommonName(mdef, state, 0, nameEnv)} wildly.`,
+                            `Somehow, you miss ${mon_nam(mdef, state, nameEnv)} wildly.`,
                             state);
                     } else if (vis) {
                         await message(
-                            `Somehow, ${monsterCommonName(magr, state, 0, nameEnv)} misses wildly.`,
+                            `Somehow, ${mon_nam(magr, state, nameEnv)} misses wildly.`,
                             state);
                     }
                     dmgptr.value = 0;
@@ -2156,7 +2152,7 @@ export async function artifact_hit(
                 }
                 if (noncorporeal(mdef.data) || amorphous(mdef.data)) {
                     await message(
-                        `${wepdesc} slices through ${s_suffix(monsterCommonName(mdef, state, 0, nameEnv))} ${mbodypart(mdef, NECK)}.`,
+                        `${wepdesc} slices through ${s_suffix(mon_nam(mdef, state, nameEnv))} ${mbodypart(mdef, NECK)}.`,
                         state);
                     return true;
                 }
@@ -2165,7 +2161,7 @@ export async function artifact_hit(
                 const msg = behead_msg[random.rn2(2)];
                 await message(
                     msg.replace('%wepdesc', wepdesc)
-                       .replace('%target', monsterCommonName(mdef, state, 0, nameEnv)),
+                       .replace('%target', mon_nam(mdef, state, nameEnv)),
                     state);
                 if (Hallucination(state.u) && !state.flags.female)
                     await message(
@@ -2175,7 +2171,7 @@ export async function artifact_hit(
             } else {
                 if (!has_head(state.youmonst.data)) {
                     await message(
-                        `Somehow, ${magr ? monsterCommonName(magr, state, 0, nameEnv) : wepdesc} misses you wildly.`,
+                        `Somehow, ${magr ? mon_nam(magr, state, nameEnv) : wepdesc} misses you wildly.`,
                         state);
                     dmgptr.value = 0;
                     return true;
@@ -2224,11 +2220,11 @@ export async function artifact_hit(
 
                 if (is_art(otmp, ART_STORMBRINGER)) {
                     await message(
-                        `The ${nameColor('black', state, effectEnv)} blade draws the ${life} from ${monsterCommonName(mdef, state, 0, effectEnv)}!`,
+                        `The ${nameColor('black', state, effectEnv)} blade draws the ${life} from ${mon_nam(mdef, state, effectEnv)}!`,
                         state);
                 } else {
                     await message(
-                        `${The(otmpname, state)} draws the ${life} from ${monsterCommonName(mdef, state)}!`,
+                        `${The(otmpname, state)} draws the ${life} from ${mon_nam(mdef, state)}!`,
                         state);
                 }
             }

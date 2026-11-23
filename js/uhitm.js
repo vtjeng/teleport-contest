@@ -182,7 +182,6 @@ import {
     mon_nam_too,
     Some_Monnam,
     Mgender,
-    monsterCommonName,
     pmname,
     some_mon_nam,
     x_monnam,
@@ -2800,7 +2799,7 @@ async function hmon_hitmon_weapon_melee(hmd, mon, obj, state, env, random) {
                /* multi-shot throwing is too powerful here */
                && hmd.hand_to_hand) {
         await (env.message ?? ttyPline)(
-            `You strike ${monsterCommonName(mon, state)} from behind!`,
+            `You strike ${mon_nam(mon, state)} from behind!`,
             state,
         );
         hmd.dmg += random.rnd(state.u.ulevel);
@@ -3026,7 +3025,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             hmd.dmg = 1;
             hmd.hittxt = true;
             await message(
-                `You hit ${monsterCommonName(mon, state)} with `
+                `You hit ${mon_nam(mon, state)} with `
                     + `${corpse_xname(
                         obj,
                         null,
@@ -3065,7 +3064,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             ? state.mons?.[obj.corpsenm] : null;
         if (eggSpecies && touch_petrifies(eggSpecies)) {
             await message(
-                `Splat!  You hit ${monsterCommonName(mon, state)} with `
+                `Splat!  You hit ${mon_nam(mon, state)} with `
                     + `${obj.known ? 'the' : count > 1 ? 'some' : 'a'} `
                     + `${obj.known ? `the ${pmname(eggSpecies, NEUTRAL)}` : 'petrifying'} egg`
                     + `${count === 1 ? '' : 's'}!`,
@@ -3091,7 +3090,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             ? `the ${pmname(eggSpecies, NEUTRAL)}`
             : count > 1 ? 'some' : 'an';
         await message(
-            `You hit ${monsterCommonName(mon, state)} with ${eggName} egg`
+            `You hit ${mon_nam(mon, state)} with ${eggName} egg`
                 + `${count === 1 ? '' : 's'}.`,
             state,
         );
@@ -3150,7 +3149,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
                 await message(obj.otyp === CREAM_PIE ? 'Splat!' : 'Splash!', state);
             } else if (obj.otyp === BLINDING_VENOM) {
                 await message(
-                    `The venom blinds ${monsterCommonName(mon, state)}`
+                    `The venom blinds ${mon_nam(mon, state)}`
                         + `${mon.mcansee ? '' : ' further'}!`,
                     state,
                 );
@@ -3186,13 +3185,13 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
     if (obj.otyp === ACID_VENOM) {
         if (Resists_Elem(mon, ACID_RES, state)) {
             await message(
-                `Your venom hits ${monsterCommonName(mon, state)} harmlessly.`,
+                `Your venom hits ${mon_nam(mon, state)} harmlessly.`,
                 state,
             );
             hmd.dmg = 0;
         } else {
             await message(
-                `Your venom burns ${monsterCommonName(mon, state)}!`,
+                `Your venom burns ${mon_nam(mon, state)}!`,
                 state,
             );
             hmd.dmg = dmgval(obj, mon, state, lifeEnv);
@@ -3619,7 +3618,7 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
                     : state.urole?.mnum === PM_BARBARIAN ? 'smite'
                         : 'hit';
             await message(
-                `You ${verb} ${monsterCommonName(mon, state)}`
+                `You ${verb} ${mon_nam(mon, state)}`
                     + `${canseemon(mon, state) ? exclam(hmd.dmg) : '.'}`,
                 state,
             );

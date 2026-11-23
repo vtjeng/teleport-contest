@@ -202,7 +202,6 @@ import {
     Monnam,
     mon_nam,
     mon_pmname,
-    monsterCommonName,
     noit_mon_nam,
     oname,
     pmname,
@@ -2531,7 +2530,7 @@ export async function minliquid_core(monster, env = {}) {
                     // C prints this with You(), which records no location.
                     await liquidPlainMessage(
                         'You drown '
-                            + monsterCommonName(monster, state, 0, namingEnv) + '.',
+                            + mon_nam(monster, state, namingEnv) + '.',
                         env,
                     );
                 }
@@ -6049,7 +6048,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         await message(
             `You ${nonliving(mtmp.data) ? 'destroy' : 'kill'} `
             + `${!(wasinside || canspotmon(mtmp, state)) ? 'it'
-                : !mtmp.mtame ? monsterCommonName(mtmp, state)
+                : !mtmp.mtame ? mon_nam(mtmp, state)
                     : x_monnam(mtmp, namedpet ? ARTICLE_NONE : ARTICLE_THE,
                                'poor', namedpet ? SUPPRESS_SADDLE : 0,
                                false, state, env)}!`,

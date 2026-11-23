@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { readdirSync, readFileSync } from 'node:fs';
 
-import { SUPPRESS_NAME, LAST_PROP } from '../js/const.js';
+import { LAST_PROP } from '../js/const.js';
 import { bytesText, encodeUtf8Text } from '../js/hacklib.js';
 import {
     Amonnam,
@@ -25,7 +26,6 @@ import {
     mon_nam_too,
     m_monnam,
     mon_pmname,
-    monsterCommonName,
     monsterPossessive,
     new_mgivenname,
     new_oname,
@@ -157,7 +157,7 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
             mtame: 10, // A positive tame value selects ARTICLE_YOUR.
         };
 
-        assert.equal(monsterCommonName(monster, state), 'the saddled pony');
+        assert.equal(mon_nam(monster, state), 'the saddled pony');
         assert.equal(
             capitalizedMonsterName(monster, state),
             'The saddled pony',
@@ -177,7 +177,7 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
             extrinsic: 0,
             blocked: 0,
         };
-        assert.equal(monsterCommonName(monster, state), 'the pony');
+        assert.equal(mon_nam(monster, state), 'the pony');
         monster.mextra.mgivenname = 'Horses';
         assert.equal(monsterPossessive(monster, state), "Horses'");
 
@@ -186,7 +186,7 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         // saddle adjective alike. noit_mon_nam() (1053-1060) is the one
         // wrapper that keeps its name, because it passes SUPPRESS_IT.
         state.u.uprops[DETECT_MONSTERS].intrinsic = 0;
-        assert.equal(monsterCommonName(monster, state), 'it');
+        assert.equal(mon_nam(monster, state), 'it');
         assert.equal(capitalizedMonsterName(monster, state), 'It');
         assert.equal(
             capitalizedAlwaysVisibleMonsterName(monster, state),
@@ -203,12 +203,12 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         // species while omitting the assigned name.
         state.u.uprops[DETECT_MONSTERS].intrinsic = 1;
         assert.equal(
-            monsterCommonName(monster, state, SUPPRESS_NAME),
+            noname_monnam(monster, ARTICLE_THE, state),
             'the pony',
         );
     });
 
-test('monsterCommonName names a gendered species by the monster\'s own gender',
+test('mon_nam names a gendered species by the monster\'s own gender',
     () => {
         // do_name.c mon_nam():911 reads mon_pmname(), which pmname():1300-1308
         // resolves to pmnames[gender] and only falls back to the NEUTRAL slot
@@ -225,15 +225,15 @@ test('monsterCommonName names a gendered species by the monster\'s own gender',
             intrinsic: 1, extrinsic: 0, blocked: 0,
         };
         const ruler = { data: state.mons[PM_GNOME_RULER], mextra: {}, female: 0 };
-        assert.equal(monsterCommonName(ruler, state), 'the gnome king');
+        assert.equal(mon_nam(ruler, state), 'the gnome king');
         ruler.female = 1;
-        assert.equal(monsterCommonName(ruler, state), 'the gnome queen');
+        assert.equal(mon_nam(ruler, state), 'the gnome queen');
 
         const newt = { data: state.mons[PM_NEWT], mextra: {}, female: 1 };
-        assert.equal(monsterCommonName(newt, state), 'the newt');
+        assert.equal(mon_nam(newt, state), 'the newt');
     });
 
-test('monsterCommonName uses a shopkeeper\'s stored name', () => {
+test('mon_nam uses a shopkeeper\'s stored name', () => {
     const state = {
         u: { uprops: [], uroleplay: { blind: false } },
     };
@@ -246,7 +246,7 @@ test('monsterCommonName uses a shopkeeper\'s stored name', () => {
         my: 1,
     };
     assert.equal(
-        monsterCommonName(shopkeeper, state, 0, {
+        mon_nam(shopkeeper, state, {
             canSpotMonster: () => true,
         }),
         'Akranes',
@@ -259,7 +259,7 @@ test('monsterCommonName uses a shopkeeper\'s stored name', () => {
     );
 });
 
-test('monsterCommonName uses C hallucinated names and display RNG', () => {
+test('mon_nam uses C hallucinated names and display RNG', () => {
     const state = {
         u: { uprops: [], uroleplay: { blind: false } },
     };
@@ -290,7 +290,7 @@ test('monsterCommonName uses C hallucinated names and display RNG', () => {
         my: 0,
     };
     assert.equal(
-        monsterCommonName(monster, state, 0, {
+        mon_nam(monster, state, {
             displayRandom(bound) {
                 const next = script.shift();
                 assert.deepEqual(next?.bound, bound);
@@ -387,7 +387,7 @@ test('x_monnam formats named ghosts before the called-name branch', () => {
     }
 });
 
-test('monsterCommonName formats a named ghost as a possessive ghost', () => {
+test('mon_nam formats a named ghost as a possessive ghost', () => {
     const state = { u: { uprops: [] } };
     monst_globals_init(state);
     state.u.uprops[DETECT_MONSTERS] = {
@@ -400,7 +400,7 @@ test('monsterCommonName formats a named ghost as a possessive ghost', () => {
 
     // uhitm.c missum() calls mon_nam(), whose x_monnam() ghost arm appends
     // the species after making the given name possessive.
-    assert.equal(monsterCommonName(monster, state), "Elara's ghost");
+    assert.equal(mon_nam(monster, state), "Elara's ghost");
 });
 
 test('Amonnam preserves gender, invisibility, appearance, and display RNG', () => {
@@ -1402,4 +1402,21 @@ test('christen_orc preserves pointer branches and the C byte limit', () => {
     // 126 two-byte characters plus the generated name and " of " exceed the
     // 256-byte BUFSZ check.
     assert.equal(oversizedMonster.mextra.mgivenname, undefined);
+});
+
+// do_name.c has one mon_nam(). The port once had a second, under a name of
+// its own, which took a suppression mask and honoured part of it, and its 56
+// callers included muse.c you_aggravate(), where C calls noit_mon_nam() and
+// a tame drinker is "your kitten". A caller names the function C calls.
+test('js/ has no second port of mon_nam()', () => {
+    // Assembled so that this file does not hold the name it searches for.
+    const name = ['monster', 'Common', 'Name'].join('');
+    const holders = readdirSync('js').filter((file) => file.endsWith('.js'))
+        .filter((file) => readFileSync(`js/${file}`, 'utf8').includes(name));
+    assert.deepEqual(holders, []);
+    const muse = readFileSync('js/muse.js', 'utf8');
+    const body = muse.match(/\nasync function you_aggravate\(mtmp, state\) \{([\s\S]*?)\n\}/u)?.[1];
+    // muse.c:2633-2641 names the drinker twice, both times with
+    // noit_mon_nam().
+    assert.equal(body.match(/\bnoit_mon_nam\(mtmp, state\)/gu)?.length, 2);
 });

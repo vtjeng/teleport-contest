@@ -106,7 +106,6 @@ import {
     Monnam,
     capitalizedMonsterName,
     mon_nam,
-    monsterCommonName,
     noit_mon_nam,
 } from './do_name.js';
 import { docrt, newsym, see_monsters, shieldeff } from './display.js';
@@ -588,7 +587,7 @@ export async function tele_restrict(mon, state = game, rawEnv = {}) {
         if (canseemon(mon, state)) {
             await message(
                 'A mysterious force prevents '
-                    + monsterCommonName(mon, state, 0, rawEnv)
+                    + mon_nam(mon, state, rawEnv)
                     + ' from teleporting!',
                 state,
             );
@@ -814,7 +813,7 @@ export async function mlevel_tele_trap(
         await message(messageAt(
             portal || levelTeleporter
                 ? `Suddenly, ${mon_nam(monster, state)} disappears out of sight.`
-                : `Suddenly, ${monsterCommonName(monster, state)} `
+                : `Suddenly, ${mon_nam(monster, state)} `
                     + `${trapType === HOLE
                         ? 'falls into a hole'
                         : 'falls through a trap door'}.`,
@@ -1477,7 +1476,7 @@ export async function scrolltele(scroll, state = game, rawEnv = {}) {
             );
         } else {
             const whobuf = state.u?.usteed
-                ? `you and ${monsterCommonName(state.u.usteed, state)}`
+                ? `you and ${mon_nam(state.u.usteed, state)}`
                 : 'you';
             await message(
                 `Where do ${whobuf} want to be teleported?`,

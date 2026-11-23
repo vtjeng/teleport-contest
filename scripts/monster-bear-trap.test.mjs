@@ -456,7 +456,7 @@ test('a bear trap under the hero own steed is reported unseen', async () => {
     // out of sight without taking the hero's own square with it. C reads
     // nothing but the identity `mtmp == u.usteed`, so the square is free to
     // differ. Tameness is left alone for the same reason: nothing in the arm
-    // reads it, and js/do_name.js monsterCommonName() has no "your" form.
+    // reads it, and js/do_name.js mon_nam() has no "your" form.
     const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13);
     blind_to(x, y);
     assert.equal(canseemon(mon, game), false, 'the hero cannot watch');

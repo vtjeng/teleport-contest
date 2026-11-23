@@ -74,7 +74,6 @@ import {
     a_monnam,
     YMonnam,
     hliquid,
-    monsterCommonName,
     mon_nam,
     monverbself,
     pmname,
@@ -907,7 +906,7 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
             }
         } else {
             await ttyPline(
-                `You dismount ${monsterCommonName(mtmp, state)}.`, state,
+                `You dismount ${mon_nam(mtmp, state)}.`, state,
             );
         }
         break;
