@@ -68,11 +68,13 @@ import {
     LEPREHALL,
 } from './const.js';
 import {
-    In_hell, induced_align, level_difficulty, mapseen_room, ROOM_INDEX,
+    In_hell, induced_align, level_difficulty, level_difficulty_steps,
+    mapseen_room, ROOM_INDEX,
 } from './dungeon.js';
 import { del_engr_at } from './engrave.js';
 import { dist2 } from './hacklib.js';
 import { game } from './gstate.js';
+import { impossible_printer } from './pline.js';
 import { isok } from './cmd_isok.js';
 import { add_to_container, sobj_at } from './invent.js';
 import { occupied, somexyspace, topologize } from './mklev.js';
@@ -199,7 +201,7 @@ import {
     S_vwall,
     S_water,
 } from './symbols.js';
-import { sync_impossible } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 
 // A zero room record: what a gs.subrooms[] slot holds when restore.c getlev()
 // reads a level. gs.subrooms[] lies inside svr.rooms[] (decl.c:1169,
@@ -698,7 +700,11 @@ export function courtmon(state = game, random = coreRandom) {
 export async function mkundead(mm, reviveCorpses, mmFlags, state = game, rawEnv = {}) {
     const random = rawEnv.random ?? coreRandom;
     const env = { ...rawEnv, state, random };
-    let count = Math.trunc((level_difficulty(state) + 1) / 10) + random.rnd(5);
+    // level_difficulty()'s impossible() on a dungeon -1 level prints here,
+    // before the count is drawn (mkroom.c:461).
+    const difficulty = await finish_steps(level_difficulty_steps(state),
+        impossible_printer(state));
+    let count = Math.trunc((difficulty + 1) / 10) + random.rnd(5);
     while (count-- > 0) {
         const species = morguemon(state, random);
         if (!species) continue;
