@@ -75,6 +75,7 @@ import {
     MHID_PREFIX,
     MHID_ARTICLE,
     MHID_REGION,
+    URGENT_MESSAGE,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { cansee } from './vision.js';
@@ -699,11 +700,27 @@ export function projectionNoticeFields() {
 }
 
 export function queueImpossibleNotice(text, state) {
+    // impossible() prints its first line through pline() with
+    // gp.pline_flags = URGENT_MESSAGE (pline.c:603-605), and that vpline()
+    // (266-272) spends a pending vision recalculation before it prints, as
+    // queueGlyphUpdateNotice()'s does: the code after the report reads the
+    // recalculated vision, and the recalculation's own notices queue first.
+    const gp = state.gp ??= {};
+    const pline_flags = gp.pline_flags;
+    gp.pline_flags = URGENT_MESSAGE;
+    try {
+        const last = state._glyphUpdateNotices?.at(-1);
+        queuedVplineVisionRecalc(
+            text, last && !last.impossible ? last.message : null, state);
+    } finally {
+        gp.pline_flags = pline_flags;
+    }
     const glyphFrame = takeNoticeGlyphFrame(state);
     (state._glyphUpdateNotices ??= []).push({
         message: text,
         impossible: true,
         glyphFrame,
+        visionSpent: true,
     });
     state._flushAfterQueuedNotice = null;
 }
