@@ -2303,7 +2303,7 @@ async function shrinking_glob_gone(obj, env = {}) {
 
     if (owhere === OBJ_INVENT) {
         if (obj.owornmask) {
-            remove_worn_item(obj, false, state);
+            await remove_worn_item(obj, false, state);
             await stop_occupation(state, { message: env.message });
         }
         await useupall(obj, env);
@@ -2780,7 +2780,9 @@ export function costly_alteration(obj, alterType, env = {}) {
     const { state } = normalized;
     if (!Number.isInteger(alterType) || alterType < 0
         || alterType >= alterationVerbs.length) {
-        return ttyPline(`impossible: invalid alteration type (${alterType})`, state)
+        // C: impossible("invalid alteration type (%d)", alter_type)
+        // (mkobj.c 761), then alter_type = 0.
+        return impossible(`invalid alteration type (${alterType})`, state)
             .then(() => costly_alteration(obj, 0, normalized));
     }
 
@@ -3163,10 +3165,10 @@ function* add_to_migration_steps(obj, state) {
     state.gm.migrating_objs = obj;
 }
 
-// add_to_migration() for a caller that cannot wait: gap_impossible() records
-// the report as unported and the transfer goes on as in C.
+// add_to_migration() for a caller that cannot wait: sync_impossible() queues
+// the report and the transfer goes on as in C.
 export function add_to_migration(obj, state = game) {
-    finish_steps(add_to_migration_steps(obj, state));
+    finish_steps(add_to_migration_steps(obj, state), sync_impossible, state);
 }
 
 // add_to_migration() for a caller that can wait on the result: it prints

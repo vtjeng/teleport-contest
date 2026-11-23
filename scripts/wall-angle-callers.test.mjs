@@ -54,7 +54,8 @@ import { wall_angle_steps } from '../js/display.js';
 import { ImpossibleCall } from '../js/source_steps.js';
 import { S_stone } from '../js/symbols.js';
 
-// Synchronous forms: each runs its *_steps twin with gap_impossible().
+// Synchronous forms: each runs its *_steps twin with sync_impossible, which
+// queues the report for the next message.
 const SYNC_FORMS = new Set([
     'wall_angle',
     'back_to_glyph',

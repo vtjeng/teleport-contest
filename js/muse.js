@@ -189,7 +189,7 @@ import { stairway_at } from './stairs.js';
 import { messageAt } from './startup_a11y.js';
 import { impossible, impossible_printer, pline_mon, verbalize, youFeel } from './pline.js';
 import { panic } from './end.js';
-import { finish_steps } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 import {
     destroy_drawbridge,
     find_drawbridge,
@@ -2638,9 +2638,10 @@ export function* find_offensive_steps(mtmp, rawEnv = {}) {
     return true;
 }
 
-// Synchronous form for callers that cannot wait; records the print as a gap.
+// Synchronous form for callers that cannot wait; queues the report for the next message.
 export function find_offensive(mtmp, rawEnv = {}) {
-    return finish_steps(find_offensive_steps(mtmp, rawEnv));
+    return finish_steps(find_offensive_steps(mtmp, rawEnv), sync_impossible,
+        rawEnv.state ?? game);
 }
 
 // C ref: muse.c use_offensive() (1824-2032). "Perform an offensive action for

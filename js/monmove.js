@@ -1606,10 +1606,11 @@ export function* mfndpos_steps(monster, data, initialFlags, env = {}) {
     }
 }
 
-// The synchronous form of mfndpos_steps(), which records each impossible()
-// as a gap. Only tests call it.
+// The synchronous form of mfndpos_steps(), which queues each impossible()
+// report for the next message. Only tests call it.
 export function mfndpos(monster, data, initialFlags, env = {}) {
-    return finish_steps(mfndpos_steps(monster, data, initialFlags, env));
+    return finish_steps(mfndpos_steps(monster, data, initialFlags, env),
+        sync_impossible, env.state ?? game);
 }
 
 function isArmorCategory(obj, category, state) {

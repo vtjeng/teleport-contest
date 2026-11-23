@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Independent witness for dungeon.c level_difficulty() called from synchronous port code on a dungeon -1 level: mkroom.c mkundead() (461) and morguemon() (480), reached by ringing a cursed Bell of Opening (apply.c use_bell() 1262-1267). A Valkyrie improvises once on a wished wooden flute, wishes for a magic portal, which keeps maketrap()'s dst of {-1, -1}, and steps back onto it, arriving on a level of dungeon -1 (C reads that dungeon's fields from svc.context.jingle, the improvised tune). There she wishes for the cursed Bell and applies it. At each level_difficulty() call builds_up() finds no branch for dungeon -1 and calls impossible(), with three --More-- prompts: once for mkundead()'s count, once for each morguemon(), and in makemon() for each undead. morguemon()'s rn2(level_difficulty()) is rn2(-2), which draws (rnd.c RND()). Date, role and inputs chosen independently; the seed is the only one of 6390271-6390289 that the port replays past the arrival: with three the recorder wrote no recording, with two the portal is not created, and with thirteen the port stops there (for 6390271, in js/dungeon.js level_info() with a ledger number out of range).",
+  "segments": [
+    {
+      "seed": 6390284,
+      "datetime": "20530422190500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\naeyh\u0017magic portal\nlh         \u0017cursed +2 Bell of Opening\n   af                              s"
+    }
+  ]
+}

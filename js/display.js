@@ -650,7 +650,7 @@ function* cornerAngle(seenv, mode, which, outer, inner, name) {
 // impossible() C prints for a wall whose wall_info mode its type does not
 // know, which a wall gets when a level program that #wizloadlua runs puts it
 // on a square whose flags held something else (a closed door's D_CLOSED is
-// mode 4); the synchronous form below records the print as a gap.
+// mode 4); the synchronous form below queues the report for the next message.
 // scripts/wall-angle-callers.test.mjs lists the callers that still use it.
 export function* wall_angle_steps(loc) {
     let seenv = (loc.seenv ?? 0) & 0xFF;
@@ -853,7 +853,7 @@ function* hwallAngle(seenv, mode) {
 
 // wall_angle() for a caller that cannot wait: an impossible() is a gap.
 export function wall_angle(loc) {
-    return finish_steps(wall_angle_steps(loc));
+    return finish_steps(wall_angle_steps(loc), sync_impossible, game);
 }
 
 // C ref: display.c reset_glyphmap() (3078-3082), which stores NO_COLOR for
@@ -2925,7 +2925,7 @@ export function* back_to_glyph_steps(x, y, state = game) {
 export function back_to_glyph(x, y, state = game) {
     const ptr = state.level?.at(x, y);
     if (WALL_TYPES.has(ptr.typ))
-        return finish_steps(back_to_glyph_steps(x, y, state));
+        return finish_steps(back_to_glyph_steps(x, y, state), sync_impossible, state);
     return terrain_to_glyph(ptr, x, y, state);
 }
 
@@ -3481,9 +3481,9 @@ export function same_remembered_glyph(before, after) {
 //
 // A step generator (js/source_steps.js), for wall_angle()'s impossible(): a
 // blind hero who feels a wall laid with a mode wall_angle() cannot draw
-// reports it here in C. The synchronous feel_location() records it as a gap.
+// reports it here in C. The synchronous feel_location() queues it for the next message.
 export function feel_location(x, y, state = game) {
-    finish_steps(feel_location_steps(x, y, state));
+    finish_steps(feel_location_steps(x, y, state), sync_impossible, state);
 }
 
 export function* feel_location_steps(x, y, state = game) {
@@ -3677,9 +3677,9 @@ function rememberedCmap(cmap, state) {
 // it are map_engraving()'s two statements.
 //
 // A step generator (js/source_steps.js), for wall_angle()'s impossible() in
-// its background arm; the synchronous map_location() records it as a gap.
+// its background arm; the synchronous map_location() queues it for the next message.
 export function map_location(x, y, show, state) {
-    finish_steps(map_location_steps(x, y, show, state));
+    finish_steps(map_location_steps(x, y, show, state), sync_impossible, state ?? game);
 }
 
 export function* map_location_steps(x, y, show, state) {
@@ -3939,9 +3939,9 @@ export function map_trap(trap, show, state = game) {
 // C ref: display.c map_background() (278-287). Puts the square's own terrain
 // back into map memory, and paints it when `show` is set.
 // A step generator (js/source_steps.js), for wall_angle()'s impossible();
-// the synchronous map_background() records it as a gap.
+// the synchronous map_background() queues it for the next message.
 export function map_background(x, y, show, state = game) {
-    finish_steps(map_background_steps(x, y, show, state));
+    finish_steps(map_background_steps(x, y, show, state), sync_impossible, state);
 }
 
 export function* map_background_steps(x, y, show, state = game) {
@@ -3990,7 +3990,8 @@ export function* magic_map_background_steps(x, y, show, state = game) {
 
 // magic_map_background() for a caller that cannot wait.
 export function magic_map_background(x, y, show, state = game) {
-    return finish_steps(magic_map_background_steps(x, y, show, state));
+    return finish_steps(magic_map_background_steps(x, y, show, state),
+        sync_impossible, state);
 }
 
 // C ref: display.c map_engraving() (318-325). Mapping reveals the engraving
@@ -4108,10 +4109,10 @@ function observeNearbyObject(object, x, y, state) {
 // see, and a seen wall whose mode wall_angle() does not know reports there,
 // with the map drawn so far behind the report. vision.js vision_recalc()
 // delegates to it, so a caller that can wait prints the report at C's point
-// in the recalculation. The synchronous newsym() below records it as a gap;
+// in the recalculation. The synchronous newsym() below queues it for the next message;
 // scripts/wall-angle-callers.test.mjs counts its callers.
 export function newsym(x, y) {
-    finish_steps(newsym_steps(x, y));
+    finish_steps(newsym_steps(x, y), sync_impossible, game);
 }
 
 // newsym() for a caller that can wait, which awaits the result: it prints

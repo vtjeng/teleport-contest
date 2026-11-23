@@ -4,9 +4,11 @@
 // only on a path that can wait. Each function on that path is written once as
 // a `*_steps` generator (js/source_steps.js): a caller that can wait drives
 // it with finish_steps(..., impossible_printer(state)) or `yield*`; the
-// synchronous form under the C name records the print as a gap instead.
+// synchronous form under the C name queues the report instead
+// (sync_impossible()), which prints it at the next message, not at C's
+// point.
 //
-// This check keeps the gap from spreading or coming back:
+// This check keeps the late print from spreading or coming back:
 // - every call of a synchronous form is listed below with the reason it
 //   cannot wait yet, so a new one, or a converted path going back to a
 //   synchronous call, fails; a listed call that is gone fails too, so the
@@ -32,7 +34,8 @@ import { assertExceptionCount } from './exception-count.mjs';
 
 const JS_DIR = fileURLToPath(new URL('../js/', import.meta.url));
 
-// Synchronous forms: each runs its *_steps twin with gap_impossible().
+// Synchronous forms: each runs its *_steps twin with sync_impossible, which
+// queues the report for the next message.
 const SYNC_FORMS = new Set([
     'builds_up',
     'level_difficulty',
@@ -96,8 +99,6 @@ const ALLOWED = {
         `${NO_RECIPE_YET}; Schroedinger's cat at the end of a game at -1`],
     'fountain.js | dowaterdemon | level_difficulty': [1,
         `${NO_RECIPE_YET}; a water demon from a wished fountain`],
-    'mkroom.js | mkundead | level_difficulty': [1,
-        `${NO_RECIPE_YET}; a cursed Bell of Opening or create undead`],
     'mon.js | m_respond_shrieker | level_difficulty': [1,
         `${NO_RECIPE_YET}; C calls it only after rn2(13) chooses a purple worm`],
     'trap.js | b_trapped | level_difficulty': [1,
@@ -145,8 +146,10 @@ const ALLOWED = {
 
 // Entries and calls in ALLOWED, pinned both ways (scripts/exception-count.mjs).
 // 35 entries holding 39 calls on branch levdiff (11 November 2026); 39 and 43
-// once light.c del_light_source() joined (15 November 2026).
-const ALLOWED_PINS = { entries: 39, calls: 43 };
+// once light.c del_light_source() joined (15 November 2026); 38 and 42
+// since mkroom.c mkundead() drives the steps (22 November 2026,
+// recordings/mkroom.c/mkundead-cursed-bell-dungeon-minus-one.session.json).
+const ALLOWED_PINS = { entries: 38, calls: 42 };
 
 const FUNCTION_TYPES = new Set([
     'FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression',

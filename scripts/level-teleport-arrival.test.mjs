@@ -447,7 +447,7 @@ test('single-level and Wizard tower predicates read their source-owned state',
 
         // dungeon.c:1927-1929: a tower level with no dndest boundary (another
         // level file loaded there) is impossible() and FALSE. A caller that
-        // can wait receives the message; any other records the gap.
+        // can wait receives the message; any other queues the report.
         state.dndest = { nlx: 0, nly: 0, nhx: 0, nhy: 0 };
         const messages = [];
         assert.equal(finish_steps(
@@ -455,13 +455,14 @@ test('single-level and Wizard tower predicates read their source-owned state',
             (message) => { messages.push(message); },
         ), false);
         assert.deepEqual(messages, ["No boundary for Wizard's Tower?"]);
-        game.unported = new Set();
+        const queued = () => (state._glyphUpdateNotices ?? [])
+            .filter((notice) => notice.impossible).map((notice) => notice.message);
         assert.equal(In_W_tower(35, 8, { dnum: 9, dlevel: 2 }, state), false);
-        assert.deepEqual([...game.unported], ['pline.c impossible']);
+        assert.deepEqual(queued(), ["No boundary for Wizard's Tower?"]);
         // Off the tower levels the boundary is never consulted.
-        game.unported = new Set();
+        state._glyphUpdateNotices = [];
         assert.equal(In_W_tower(35, 8, { dnum: 0, dlevel: 2 }, state), false);
-        assert.deepEqual([...game.unported], []);
+        assert.deepEqual(queued(), []);
     });
 
 test('ordinary tower-level arrivals do not use the tower-preservation region',

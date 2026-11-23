@@ -1,7 +1,7 @@
 import { queueVisionMonsterNotices } from './startup_a11y.js';
 import { emitQueuedNotices } from './tty_message.js';
 import { impossible_printer } from './pline.js';
-import { finish_steps } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 import { panic } from './end.js';
 // vision.js — C ref: vision.c Algorithm C shadow-casting
 
@@ -843,12 +843,13 @@ export function* vision_recalc_steps(control = 0, env = {}) {
 }
 
 // vision_recalc() for a caller that cannot wait: wall_angle()'s impossible()
-// is a gap. A caller that can wait but prints the queued notices itself
+// report is queued for the next message (sync_impossible()). A caller that can wait but prints the queued notices itself
 // passes env.onImpossible, as finish_steps() takes it, and awaits the
 // result. scripts/wall-angle-callers.test.mjs lists the callers that pass
 // none.
 export function vision_recalc(control = 0, env = {}) {
-    return finish_steps(recalc_steps(control, env), env.onImpossible);
+    return finish_steps(recalc_steps(control, env),
+        env.onImpossible ?? sync_impossible, env.state ?? game);
 }
 
 // The body of C's vision_recalc(). Each square it redraws goes through

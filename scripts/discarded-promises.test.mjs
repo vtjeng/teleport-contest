@@ -43,8 +43,15 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // of del_light_source_steps() (branch followups-light-norep, 15 November
 // 2026). 239 and 309 with tty_message.js queuedVplineVisionRecalc()'s
 // vision_recalc(), synchronous because sync_impossible() returns nothing
-// (branch mention-map-notices, 22 November 2026).
-const ALLOWLIST_PINS = { entries: 239, calls: 309 };
+// (branch mention-map-notices, 22 November 2026). 230 and 299 since the
+// `async` callers of five `async` callees await them (branch
+// deferred-output-audit, 22 November 2026): exercise(), remove_worn_item(),
+// rot_organic(), rouse_shk() and add_weapon_skill(), whose bodies run past
+// the caller's next statement once they reach an await; pray.c gcrownu()'s
+// add_weapon_skill(1) prints weapon.c give_may_advance_msg()'s line.
+// hideunder() is `async` too and stays discarded in eight `async` callers:
+// each passes the hero, for whom it reaches no await (see their reasons).
+const ALLOWLIST_PINS = { entries: 230, calls: 299 };
 
 // Callees that take an object out of a chain. A carried object goes through
 // invent.c freeinv(), whose impossible() reports and artifact intrinsic

@@ -2,7 +2,7 @@
   "entries": {
     "js/apply.js | check_leash | m_unleash": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with feedback false: apply.c m_unleash() (726-745) prints only under its feedback argument, and js/apply.js m_unleash() returns a Promise only from that arm."
     },
     "js/artifacts.js | dispose_of_orig_obj | obj_extract_self": {
       "count": 1,
@@ -10,11 +10,11 @@
     },
     "js/ball.js | ballrelease | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/ball.js | ballrelease | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/ball.js | move_bc | place_object": {
       "count": 4,
@@ -52,14 +52,6 @@
       "count": 4,
       "reason": "curse() returns a promise only while the hero studies the book or for a lit object whose light radius changes. resetobjs() runs after death, so no study is active, and the Amulet, the Bell, the Book and the Candelabrum (its burn ended first) are not lit."
     },
-    "js/detect.js | food_detect | exercise": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/detect.js | gold_detect | exercise": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/dig.js | buried_ball_to_freedom | place_object": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
@@ -70,7 +62,7 @@
     },
     "js/dig.js | dig | rnd_treefruit_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/dig.js | expose | obj_extract_self": {
       "count": 1,
@@ -78,19 +70,15 @@
     },
     "js/dig.js | mdig_tunnel | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/dig.js | mdig_tunnel | rnd_treefruit_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/dig.js | rot_corpse | hideunder": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/dig.js | rot_corpse | rot_organic": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The monster is the hero: mon.c hideunder() (4776-4781) keeps the hero's \"You hide under\" line under #if 0, so js/mon.js hideunder() reaches no await and completes before it returns."
     },
     "js/display.js | docrt | vision_recalc": {
       "count": 1,
@@ -98,31 +86,31 @@
     },
     "js/display.js | feel_location | finish_steps": {
       "count": 1,
-      "reason": "feel_location() is the synchronous form of feel_location_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
+      "reason": "feel_location() is the synchronous form of feel_location_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
     },
     "js/display.js | map_background | finish_steps": {
       "count": 1,
-      "reason": "map_background() is the synchronous form of map_background_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
+      "reason": "map_background() is the synchronous form of map_background_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
     },
     "js/display.js | map_location | finish_steps": {
       "count": 1,
-      "reason": "map_location() is the synchronous form of map_location_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
+      "reason": "map_location() is the synchronous form of map_location_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
     },
     "js/display.js | newsym | finish_steps": {
       "count": 1,
-      "reason": "newsym() is the synchronous form of newsym_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
+      "reason": "newsym() is the synchronous form of newsym_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so finish_steps() returns synchronously. scripts/wall-angle-callers.test.mjs counts its callers."
     },
     "js/do_wear.js | glibr | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/do_wear.js | Ring_on | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/do_wear.js | Ring_on | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/do_wear.js | Shield_off | setworn": {
       "count": 1,
@@ -134,27 +122,27 @@
     },
     "js/do.js | clearDropSlots | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/do.js | clearDropSlots | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/do.js | drop | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/do.js | drop | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/dog.js | keepdogs | m_unleash": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with feedback false: apply.c m_unleash() (726-745) prints only under its feedback argument, and js/apply.js m_unleash() returns a Promise only from that arm."
     },
     "js/dog.js | mon_catchup_elapsed_time | m_unleash": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with feedback false: apply.c m_unleash() (726-745) prints only under its feedback argument, and js/apply.js m_unleash() returns a Promise only from that arm."
     },
     "js/dog.js | discard_migrations | discard_minvent": {
       "count": 1,
@@ -162,11 +150,11 @@
     },
     "js/dogmove.js | dog_move | m_unleash": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with feedback false: apply.c m_unleash() (726-745) prints only under its feedback argument, and js/apply.js m_unleash() returns a Promise only from that arm."
     },
     "js/dogmove.js | quickmimic | m_unleash": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with feedback false: apply.c m_unleash() (726-745) prints only under its feedback argument, and js/apply.js m_unleash() returns a Promise only from that arm."
     },
     "js/dokick.js | deliver_obj_to_mon | obj_extract_self": {
       "count": 1,
@@ -174,27 +162,23 @@
     },
     "js/dokick.js | kick_nondoor | mksobj_at": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/dokick.js | obj_delivery | place_object": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
-    "js/dokick.js | ship_object | remove_worn_item": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/dothrow.js | autoquiver | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/dothrow.js | return_throw_to_inv | setuqwep": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/dothrow.js | return_throw_to_inv | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/dothrow.js | throw_gold | place_object": {
       "count": 1,
@@ -202,7 +186,7 @@
     },
     "js/dothrow.js | throw_obj | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/dothrow.js | throwit | place_object": {
       "count": 1,
@@ -210,7 +194,7 @@
     },
     "js/dothrow.js | throwit | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/end.js | finishInUseInventory | useup": {
       "count": 1,
@@ -226,7 +210,7 @@
     },
     "js/explode.js | scatter | hideunder": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The monster is the hero: mon.c hideunder() (4776-4781) keeps the hero's \"You hide under\" line under #if 0, so js/mon.js hideunder() reaches no await and completes before it returns."
     },
     "js/extralev.js | makerogueghost | curse": {
       "count": 6,
@@ -238,19 +222,19 @@
     },
     "js/fountain.js | dofindgem | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/fountain.js | drinksink | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/fountain.js | sink_backs_up | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/hack.js | domove_core | hideunder": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The monster is the hero: mon.c hideunder() (4776-4781) keeps the hero's \"You hide under\" line under #if 0, so js/mon.js hideunder() reaches no await and completes before it returns."
     },
     "js/hack.js | moverock_core | place_object": {
       "count": 3,
@@ -270,7 +254,7 @@
     },
     "js/invent.js | hold_another_object | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/invent.js | obfree | setnotworn": {
       "count": 1,
@@ -282,11 +266,11 @@
     },
     "js/invent.js | useupf | hideunder": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The monster is the hero: mon.c hideunder() (4776-4781) keeps the hero's \"You hide under\" line under #if 0, so js/mon.js hideunder() reaches no await and completes before it returns."
     },
     "js/light.js | del_light_source | finish_steps": {
       "count": 1,
-      "reason": "del_light_source() is the synchronous form of del_light_source_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. del_light_source_async() is the form for a caller that can wait; scripts/level-difficulty-steps.test.mjs lists the synchronous callers."
+      "reason": "del_light_source() is the synchronous form of del_light_source_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so finish_steps() returns synchronously. del_light_source_async() is the form for a caller that can wait; scripts/level-difficulty-steps.test.mjs lists the synchronous callers."
     },
     "js/makemon.js | unmakemon | discard_minvent": {
       "count": 1,
@@ -306,11 +290,11 @@
     },
     "js/makemon_create.js | makemon_steps | hideunder": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Runs only during level creation, where mon.c hideunder() (4732) sets seeit to 0 and so prints nothing; js/mon.js hideunder() reaches no await and completes before it returns."
     },
     "js/makemon_create.js | makemon_steps | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/makemon_create.js | makemon_steps | mon_adjust_speed": {
       "count": 1,
@@ -334,7 +318,7 @@
     },
     "js/mineralize.js | mineralize | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mineralize.js | mineralize | place_object": {
       "count": 2,
@@ -358,7 +342,7 @@
     },
     "js/mklev.js | dig_corridor | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | fake_delphi | run_room_descriptor": {
       "count": 1,
@@ -366,11 +350,11 @@
     },
     "js/mklev.js | fill_empty_maze | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | fill_empty_maze | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | finishMonster | make_level_trap": {
       "count": 1,
@@ -382,15 +366,15 @@
     },
     "js/mklev.js | finishMonster | mkobj_at": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | finishMonster | mksobj_at": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | generate_way_out_method | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | huge_room_with_another_room_inside | run_room_descriptor": {
       "count": 1,
@@ -406,11 +390,11 @@
     },
     "js/mklev.js | makeniche | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | makeniche | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | map_cleanup | obj_extract_self": {
       "count": 1,
@@ -458,11 +442,11 @@
     },
     "js/mkmaze.js | populate_maze | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mkmaze.js | populate_maze | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mkmaze.js | populate_maze | mktrap": {
       "count": 1,
@@ -482,11 +466,11 @@
     },
     "js/mkroom.js | finishCell | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mkroom.js | finishCell | mksobj_at": {
       "count": 3,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mkroom.js | finishZoo | add_to_container": {
       "count": 1,
@@ -510,7 +494,7 @@
     },
     "js/mon.js | apply_newcham_steps | newmonhp": {
       "count": 1,
-      "reason": "newmonhp() is the synchronous form of newmonhp_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so it returns synchronously. scripts/level-difficulty-steps.test.mjs lists this call."
+      "reason": "newmonhp() is the synchronous form of newmonhp_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so it returns synchronously. scripts/level-difficulty-steps.test.mjs lists this call."
     },
     "js/mon.js | apply_newcham_steps | place_object": {
       "count": 1,
@@ -518,19 +502,19 @@
     },
     "js/mon.js | m_detach | m_unleash": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with feedback false: apply.c m_unleash() (726-745) prints only under its feedback argument, and js/apply.js m_unleash() returns a Promise only from that arm."
     },
     "js/mon.js | make_corpse | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mon.js | maybe_unhide_at | hideunder": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "One call passes the hero (no message; mon.c 4776-4781 is #if 0). The other passes a monster that is already undetected, which canseemon() never sees, under conditions (no object, trapped, or an unusable top object; mon.c 4714-4718) that leave it unhidden, so mon.c hideunder() prints nothing and js/mon.js hideunder() reaches no await."
     },
     "js/mon.js | meatmetal | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mon.js | monstone | add_to_container": {
       "count": 1,
@@ -550,7 +534,7 @@
     },
     "js/monst.js | place_monster | finish_steps": {
       "count": 1,
-      "reason": "place_monster() is the synchronous form of place_monster_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. place_monster_async() is the form for a caller that can wait."
+      "reason": "place_monster() is the synchronous form of place_monster_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so finish_steps() returns synchronously. place_monster_async() is the form for a caller that can wait."
     },
     "js/mplayer.js | mk_mplayer_armor | bless": {
       "count": 1,
@@ -566,7 +550,7 @@
     },
     "js/obj.js | add_to_migration | finish_steps": {
       "count": 1,
-      "reason": "add_to_migration() is the synchronous form of add_to_migration_steps() (js/source_steps.js); with gap_impossible() its steps never yield a promise, so finish_steps() returns synchronously. add_to_migration_async() is the form for a caller that can wait; the synchronous caller is mksobj_migr_to_species(), whose new object is never unpaid."
+      "reason": "add_to_migration() is the synchronous form of add_to_migration_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so finish_steps() returns synchronously. add_to_migration_async() is the form for a caller that can wait; the synchronous caller is mksobj_migr_to_species(), whose new object is never unpaid."
     },
     "js/obj.js | initializeTin | blessorcurse": {
       "count": 1,
@@ -582,10 +566,6 @@
     },
     "js/obj.js | mksobj_init | curse": {
       "count": 6,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/obj.js | shrinking_glob_gone | remove_worn_item": {
-      "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/objnam_readobjnam.js | readobjnam_typfnd_finish | obj_extract_self": {
@@ -626,11 +606,11 @@
     },
     "js/pickup.js | in_container | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/pickup.js | in_container | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/pickup.js | observe_quantum_cat | oname": {
       "count": 1,
@@ -638,7 +618,7 @@
     },
     "js/pickup.js | pickup | hideunder": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The monster is the hero: mon.c hideunder() (4776-4781) keeps the hero's \"You hide under\" line under #if 0, so js/mon.js hideunder() reaches no await and completes before it returns."
     },
     "js/polyself.js | break_armor | consume": {
       "count": 3,
@@ -646,17 +626,13 @@
     },
     "js/polyself.js | polymon | hideunder": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The monster is the hero: mon.c hideunder() (4776-4781) keeps the hero's \"You hide under\" line under #if 0, so js/mon.js hideunder() reaches no await and completes before it returns."
     },
     "js/potion.js | impact_arti_light | bless": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/potion.js | impact_arti_light | curse": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/pray.js | gcrownu | add_weapon_skill": {
       "count": 1,
       "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
@@ -710,7 +686,7 @@
     },
     "js/restore.js | hide_monst | hideunder": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "restore.c hide_monst() runs from getlev() before vision is rebuilt, so canseemon() is false, mon.c hideunder() (4732, 4788) prints nothing and js/mon.js hideunder() reaches no await."
     },
     "js/room_features.js | mkgrave | curse": {
       "count": 1,
@@ -718,15 +694,7 @@
     },
     "js/room_features.js | mkgrave | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/shk.js | inherits | rouse_shk": {
-      "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/shk.js | money2mon | remove_worn_item": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/shk.js | paybill | mongone": {
       "count": 1,
@@ -746,11 +714,11 @@
     },
     "js/shknam.js | makeShopItem | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/shknam.js | makeShopItem | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/shknam.js | shkinit | rloc": {
       "count": 1,
@@ -786,7 +754,7 @@
     },
     "js/steed.js | mount_steed | m_unleash": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with feedback false: apply.c m_unleash() (726-745) prints only under its feedback argument, and js/apply.js m_unleash() returns a Promise only from that arm."
     },
     "js/steed.js | put_saddle_on_mon | update_mon_extrinsics": {
       "count": 1,
@@ -794,7 +762,7 @@
     },
     "js/teleport.js | teleport_pet | m_unleash": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with feedback false: apply.c m_unleash() (726-745) prints only under its feedback argument, and js/apply.js m_unleash() returns a Promise only from that arm."
     },
     "js/themeroom_fill.js | fillBoulderRoom | createRoomTrap": {
       "count": 1,
@@ -866,11 +834,11 @@
     },
     "js/u_init_inventory_use.js | initialWeapon | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/u_init_inventory_use.js | initialWeapon | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/uhitm.js | hmon_hitmon_misc_obj | place_object": {
       "count": 1,
@@ -882,39 +850,39 @@
     },
     "js/wield.js | doquiver_core | setuqwep": {
       "count": 3,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/wield.js | doquiver_core | setuswapwep": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/wield.js | doswapweapon | setuswapwep": {
       "count": 3,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/wield.js | dowield | setuqwep": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/wield.js | dowield | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/wield.js | uqwepgone | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/wield.js | uswapwepgone | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/wield.js | wield_tool | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/wield.js | wield_tool | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/worn.js | m_dowear_type_steps | curse": {
       "count": 1,
@@ -928,25 +896,21 @@
       "count": 1,
       "reason": "extract_from_minvent() has already checked that obj is OBJ_MINVENT, whose obj_extract_self() arm only unlinks it; only the OBJ_INVENT arm (freeinv()) returns a promise."
     },
-    "js/zap.js | bhito | exercise": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/zap.js | bhito | hideunder": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The monster is the hero: mon.c hideunder() (4776-4781) keeps the hero's \"You hide under\" line under #if 0, so js/mon.js hideunder() reaches no await and completes before it returns."
     },
     "js/zap.js | poly_obj | setuqwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/zap.js | poly_obj | setuswapwep": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
     "js/zap.js | zap_updown | hideunder": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The monster is the hero: mon.c hideunder() (4776-4781) keeps the hero's \"You hide under\" line under #if 0, so js/mon.js hideunder() reaches no await and completes before it returns."
     },
     "js/restore.js | find_lev_obj | setworn": {
       "count": 1,

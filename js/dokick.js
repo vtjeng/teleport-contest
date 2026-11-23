@@ -1693,7 +1693,7 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
         if (container) picked_container(obj);
         if (obj.oclass !== COIN_CLASS) obj.no_charge = 0;
     }
-    if (obj.owornmask) remove_worn_item(obj, true, state);
+    if (obj.owornmask) await remove_worn_item(obj, true, state);
     if (breaktest(obj, { ...env, state, random })) {
         let result;
         if (objectType(obj, state).oc_material === GLASS

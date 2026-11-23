@@ -31,8 +31,13 @@ export function pushRngLogEntry(entry) {
     _rngLog.push(entry);
 }
 
+// C ref: rnd.c RND() (60-64): `isaac64_next_uint64(...) % x`, returned as
+// int. C converts a negative int x to uint64 before the division (2^64 + x)
+// and the int return keeps the remainder's low 32 bits.
 function coreDraw(context, x) {
     const val = isaac64_next_uint64(context);
+    if (x < 0)
+        return Number(BigInt.asIntN(32, val % BigInt.asUintN(64, BigInt(Math.trunc(x)))));
     return Number(val % BigInt(x));
 }
 
@@ -174,8 +179,12 @@ export async function raceTermination(body) {
     return outcome;
 }
 
+// C ref: rnd.c rn2() (94-107). The recorder is a released build
+// (patchlevel.h:33), so a non-positive x reaches RND(x) with no impossible():
+// a negative x draws (mkroom.c morguemon()'s rn2(level_difficulty()) on a
+// dungeon -1 level), and zero, which divides by zero in C, answers 0 here.
 function rn2From(context, x, log) {
-    if (x <= 0) return 0;
+    if (x === 0) return 0;
     const val = coreDraw(context, x);
     log?.('rn2', x, val);
     return val;

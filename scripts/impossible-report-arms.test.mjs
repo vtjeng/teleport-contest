@@ -11,7 +11,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { LS_NONE, LS_OBJECT, RANGE_LEVEL } from '../js/const.js';
-import { game, resetGame } from '../js/gstate.js';
+import { resetGame } from '../js/gstate.js';
 import { notice_mon_on } from '../js/hack.js';
 import { record_achievement } from '../js/insight.js';
 import {
@@ -53,8 +53,8 @@ test('notice_mon_on reports an unpaired resume and clamps to zero', () => {
 });
 
 // C ref: light.c del_light_source():134-137. A source that is not on the
-// list is reported and nothing is deleted. The synchronous form records the
-// report as a gap; del_light_source_async() prints it, as rehumanize() does
+// list is reported and nothing is deleted. The synchronous form queues the
+// report for the next message; del_light_source_async() prints it, as rehumanize() does
 // for a yellow light that died inside polymon()
 // (recordings/light.c/rehumanize-before-hero-light-eye.session.json).
 test('del_light_source reports a missing source and deletes nothing', async () => {
@@ -65,7 +65,11 @@ test('del_light_source reports a missing source and deletes nothing', async () =
     const kept = new_light_source(5, 5, 3, LS_OBJECT, lamp, state);
     del_light_source(LS_OBJECT, { where: 'floor' }, state);
     assert.equal(state.gl.light_base, kept);
-    assert.ok(game.unported.has('pline.c impossible'));
+    assert.deepEqual(
+        state._glyphUpdateNotices.filter((notice) => notice.impossible)
+            .map((notice) => notice.message),
+        ['del_light_source: not found type=1, id=<ptr>']);
+    state._glyphUpdateNotices = [];
 
     const lines = [];
     const sink = async (text) => { lines.push(text); };

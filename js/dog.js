@@ -787,10 +787,11 @@ export async function makedog(env = {}) {
             carryingType(state, EXPENSIVE_CAMERA),
             normalized,
         );
-    } else if (typeof normalized.impossible === 'function') {
-        normalized.impossible(
-            'makedog() when startingpet_mid is already non-zero?',
-        );
+    } else {
+        // C: dog.c 276. A test may collect the text through env.impossible.
+        const text = 'makedog() when startingpet_mid is already non-zero?';
+        if (typeof normalized.impossible === 'function') normalized.impossible(text);
+        else await impossible(text, state, normalized);
     }
 
     const firstPetName = Math.trunc(state.gp.petname_used ?? 0) === 0;

@@ -12,11 +12,13 @@
 // the same depends on the caller, not on the body: a caller that can wait
 // passes an `onImpossible` that prints and returns impossible()'s promise,
 // so everything after the call runs after the keys, at C's point in the RNG
-// sequence. Any other caller gets gap_impossible(), which records the
-// unported print and continues. scripts/level-difficulty-steps.test.mjs lists
-// the synchronous callers that still do that for dungeon.c builds_up().
+// sequence. A caller that cannot wait passes sync_impossible and its game
+// state, which queue the report for the next message.
+// scripts/level-difficulty-steps.test.mjs lists the synchronous callers that
+// still do that for dungeon.c builds_up(). Every caller chooses one of the
+// two: scripts/impossible-sites.test.mjs fails on a call without one, since a
+// report with no handler would be dropped.
 
-import { note_unported } from './unported.js';
 import { queueImpossibleNotice } from './startup_a11y.js';
 
 // The text of one impossible() call, yielded where C makes it.
@@ -26,14 +28,10 @@ export class ImpossibleCall {
     }
 }
 
-// The onImpossible of a caller that cannot wait.
-export function gap_impossible() {
-    note_unported('pline.c impossible');
-}
-
 // Run `steps` to its return value. Synchronous until a step yields a promise
-// or onImpossible returns one; from then on it returns a promise.
-export function finish_steps(steps, onImpossible = gap_impossible) {
+// or onImpossible returns one; from then on it returns a promise. `state` is
+// onImpossible's second argument, which sync_impossible needs.
+export function finish_steps(steps, onImpossible, state) {
     const advance = (input, failed) => {
         let value = input;
         let threw = failed;
@@ -41,7 +39,7 @@ export function finish_steps(steps, onImpossible = gap_impossible) {
             const step = threw ? steps.throw(value) : steps.next(value);
             if (step.done) return step.value;
             value = step.value instanceof ImpossibleCall
-                ? onImpossible(step.value.text)
+                ? onImpossible(step.value.text, state)
                 : step.value;
             threw = false;
             if (value && typeof value.then === 'function') {

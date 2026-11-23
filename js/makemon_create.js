@@ -2227,7 +2227,8 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     const normalized = creationEnv(env);
     return finish_steps(
         makemon_steps(ptr, x, y, mmflags, normalized),
-        normalized.onImpossible,
+        normalized.onImpossible ?? sync_impossible,
+        normalized.state,
     );
 }
 
@@ -2643,7 +2644,7 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
         allowMinvent,
         mmflags,
         normalized,
-    ), normalized.onImpossible);
+    ), normalized.onImpossible ?? sync_impossible, normalized.state);
     await finishRuntimeCreationTail(monster, mmflags, normalized);
     return monster;
 }
@@ -2709,7 +2710,7 @@ export function makemon_revival(ptr, x, y, mmflags, rawEnv = {}) {
             runtimeContinuation.allowMinvent,
             mmflags,
             normalized,
-        ), normalized.onImpossible);
+        ), normalized.onImpossible ?? sync_impossible, normalized.state);
         return stocked && typeof stocked.then === 'function'
             ? stocked.then(afterInventory) : afterInventory();
     };

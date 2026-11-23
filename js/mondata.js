@@ -276,9 +276,9 @@ export function* resists_blnd_steps(mon, state = game) {
     return false;
 }
 
-// Synchronous form for callers that cannot wait; records the print as a gap.
+// Synchronous form for callers that cannot wait; queues the report for the next message.
 export function resists_blnd(mon, state = game) {
-    return finish_steps(resists_blnd_steps(mon, state));
+    return finish_steps(resists_blnd_steps(mon, state), sync_impossible, state);
 }
 
 // C ref: mondata.c can_blnd() (305-398).  This is called for monster
@@ -350,9 +350,10 @@ export function* can_blnd_steps(magr, mdef, aatyp, obj, state = game) {
     return true;
 }
 
-// Synchronous form for callers that cannot wait; records the print as a gap.
+// Synchronous form for callers that cannot wait; queues the report for the next message.
 export function can_blnd(magr, mdef, aatyp, obj, state = game) {
-    return finish_steps(can_blnd_steps(magr, mdef, aatyp, obj, state));
+    return finish_steps(can_blnd_steps(magr, mdef, aatyp, obj, state),
+        sync_impossible, state);
 }
 
 export function nohands(species) { return flag1(species, M.M1_NOHANDS); }

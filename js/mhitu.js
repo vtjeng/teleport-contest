@@ -575,16 +575,15 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
     const unotthere = Displaced(state.u);
     const usubmerged = Boolean(state.u?.uinwater);
 
-    // C's impossible() diagnostic is not a gameplay message. This path means
-    // the caller violated mattacku()'s target invariant, so return after the
-    // diagnostic seam (when one is provided) without changing the PRNG.
+    // C: impossible("%s attacks you without knowing your location?",
+    // Monst_name) (mhitu.c 188-189), then return. The caller violated
+    // mattacku()'s target invariant; a test may collect the text through
+    // rawEnv.impossible instead.
     if (!unotseen && !unotthere && !usubmerged) {
-        if (typeof rawEnv.impossible === 'function') {
-            rawEnv.impossible(
-                `${capitalizedMonsterName(mtmp, state, rawEnv)} attacks you `
-                + 'without knowing your location?',
-            );
-        }
+        const text = `${capitalizedMonsterName(mtmp, state, rawEnv)} attacks you `
+            + 'without knowing your location?';
+        if (typeof rawEnv.impossible === 'function') rawEnv.impossible(text);
+        else await impossible(text, state, rawEnv);
         return;
     }
 

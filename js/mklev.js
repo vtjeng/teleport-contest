@@ -2962,6 +2962,8 @@ export function get_table_roomtype_opt(table, name, defval, env = {}) {
             res = found[1];
         else if (typeof env.hooks?.impossible === 'function')
             env.hooks.impossible(`Unknown room type '${roomstr}'`, env);
+        else
+            sync_impossible(`Unknown room type '${roomstr}'`, env.state ?? game);
     }
     return res;
 }
@@ -7353,7 +7355,7 @@ function dig_corridor(org, dest, npoints_out, nxcor, ftyp, btyp) {
 // makecorridors() -> join() -> dodoor(), where makemon() takes its runtime
 // form. dosdoor() then returns a Promise.
 function dosdoor(x, y, aroom, type) {
-    return finish_steps(dosdoor_steps(x, y, aroom, type));
+    return finish_steps(dosdoor_steps(x, y, aroom, type), sync_impossible, game);
 }
 
 function* dosdoor_steps(x, y, aroom, type) {
@@ -7484,7 +7486,8 @@ function rnddoor(random) {
 // proper place!"); the caller's onImpossible prints it (see
 // js/source_steps.js), and the result is a promise when it waits.
 export function create_door(dd, broom, random = rn2, onImpossible) {
-    return finish_steps(create_door_steps(dd, broom, random), onImpossible);
+    return finish_steps(create_door_steps(dd, broom, random),
+        onImpossible ?? sync_impossible, game);
 }
 
 function* create_door_steps(dd, broom, random) {
@@ -7577,15 +7580,15 @@ export function create_room_door(spec, broom, random = rn2) {
     const mask = ROOM_DOOR_STATE_MASKS[stateName];
     if (mask === -1) rnddoor(random);
     // The synchronous form of create_door(): not every themeroom callback
-    // here can wait, so its impossible() stays a recorded gap
-    // (source_steps.js gap_impossible()) and the steps never yield a promise,
+    // here can wait, so its impossible() report is queued
+    // (source_steps.js sync_impossible()) and the steps never yield a promise,
     // so the result is create_door_steps()'s placement flag.
     const placed = finish_steps(create_door_steps({
         secret: mask === D_SECRET ? 1 : 0,
         mask,
         pos: spec.pos ?? -1,
         wall: ROOM_DOOR_WALL_MASKS[wallName],
-    }, broom, random));
+    }, broom, random), sync_impossible, game);
     return placed;
 }
 
@@ -7706,7 +7709,7 @@ function* join_steps(a, b, nxcor) {
 // C ref: mklev.c makecorridors(). Synchronous during level creation; a
 // Promise when a door's mimic waits for makemon()'s runtime form (dosdoor()).
 function makecorridors() {
-    return finish_steps(makecorridors_steps());
+    return finish_steps(makecorridors_steps(), sync_impossible, game);
 }
 
 function* makecorridors_steps() {
@@ -7814,7 +7817,8 @@ function generate_stairs_find_room() {
 // an off-map square and for a square that is not floor, print through the
 // caller's onImpossible (js/source_steps.js); every caller waits for it.
 export function mkstairs(x, y, up, croom, force = false, onImpossible) {
-    return finish_steps(mkstairs_steps(x, y, up, croom, force), onImpossible);
+    return finish_steps(mkstairs_steps(x, y, up, croom, force),
+        onImpossible ?? sync_impossible, game);
 }
 
 function* mkstairs_steps(x, y, up, croom, force) {

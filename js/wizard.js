@@ -93,7 +93,7 @@ import { mpickobj } from './steal.js';
 import { dist2 } from './hacklib.js';
 import { m_next2u } from './mhitu.js';
 import { impossible_printer, verbalize, youFeel } from './pline.js';
-import { finish_steps } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 import { Blind, Deaf, Protection_from_shape_changers } from './youprop.js';
 import { rndcurse } from './sit.js';
 
@@ -191,10 +191,10 @@ export function* has_aggravatables_steps(mon, state = game) {
     return false;
 }
 
-// The synchronous form of has_aggravatables_steps(), which records
-// In_W_tower()'s impossible() as a gap. Only tests call it.
+// The synchronous form of has_aggravatables_steps(), which queues
+// In_W_tower()'s impossible() report. Only tests call it.
 export function has_aggravatables(mon, state = game) {
-    return finish_steps(has_aggravatables_steps(mon, state));
+    return finish_steps(has_aggravatables_steps(mon, state), sync_impossible, state);
 }
 
 // C ref: wizard.c aggravate() (494-511). Scan the live monster chain in
@@ -224,10 +224,10 @@ export function* aggravate_steps(state = game, random = coreRandom) {
     }
 }
 
-// The synchronous form of aggravate_steps(), which records In_W_tower()'s
-// impossible() as a gap. Only tests call it.
+// The synchronous form of aggravate_steps(), which queues In_W_tower()'s
+// impossible() report. Only tests call it.
 export function aggravate(state = game, random = coreRandom) {
-    return finish_steps(aggravate_steps(state, random));
+    return finish_steps(aggravate_steps(state, random), sync_impossible, state);
 }
 
 function creationEnv(state, rawEnv) {

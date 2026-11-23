@@ -19,6 +19,7 @@ import {
 import { exercise_nonphysical } from './attrib.js';
 import { bogon_is_pname } from './do_name.js';
 import { game } from './gstate.js';
+import { sync_impossible } from './source_steps.js';
 import { bytesText, lowc, xcrypt } from './hacklib.js';
 import { G_UNIQ, LOW_PM, NUMMONS } from './monsters.js';
 import { the_unique_pm } from './objnam.js';
@@ -210,7 +211,8 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
             ending = BigInt.asIntN(64, BigInt(state.gf.false_rumor_end));
             break;
         default:
-            env.impossible?.('strange truth value for rumor');
+            (env.impossible ?? ((text) => sync_impossible(text, state)))(
+                'strange truth value for rumor');
             return 'Oops...';
         }
         rumor = get_rnd_line(
@@ -232,7 +234,8 @@ export function getrumor(truth, excludeCookie, rawEnv = {}) {
     }
 
     if (count >= 50) {
-        env.impossible?.("Can't find non-cookie rumor?");
+        (env.impossible ?? ((text) => sync_impossible(text, state)))(
+            "Can't find non-cookie rumor?");
     } else if (!env.state?.in_mklev) {
         /* avoid exercising wisdom for graffiti */
         const exerciseWisdom = env.exercise
