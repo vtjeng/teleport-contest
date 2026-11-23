@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40277,
+      "datetime": "20360602173349",
+      "nethackrc": "OPTIONS=name:Leakey,role:Archeologist,race:gnome,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
+      "moves": "\u001b#wizintrinsic\n768g\r\u001b#wizcast\nt\u001b\u001b\u001b:",
+      "comment": "Variation of do-mapping-confusion-timeout-512-low-byte-zero through the second caller, detect.c do_vicinity_map(): a gnomish Archeologist casts clairvoyance with #wizcast while the confusion timeout is 768."
+    }
+  ]
+}
