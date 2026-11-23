@@ -2759,12 +2759,11 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 switch (t.ttyp) {
                 case LANDMINE:
                     if (env.random.rn2(10) <= 2) break;
-                    await message(messageAt(
-                        `KAABLAMM!!!${cansee(x, y, state)
-                            ? '  The rolling boulder triggers a land mine.'
-                            : ''}`,
-                        x, y, state,
-                    ), state, env);
+                    // C calls set_msg_xy(x, y) only if (cansee(x, y)).
+                    await message(cansee(x, y, state)
+                        ? messageAt('KAABLAMM!!!  The rolling boulder '
+                            + 'triggers a land mine.', x, y, state)
+                        : 'KAABLAMM!!!', state, env);
                     deltrap(t, state);
                     del_engr_at(x, y, state);
                     {

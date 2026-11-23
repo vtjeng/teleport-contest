@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91823,
+      "datetime": "20381104120000",
+      "nethackrc": "OPTIONS=name:Roller,role:Archeologist,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,!acoustics,!tips,pettype:none,!autopickup,accessiblemsg\n",
+      "moves": " hh\u0017rolling boulder trap\nh\u0017land mine\n\u0017blindfold\najPkl: \u001b"
+    }
+  ],
+  "comment": "trap.c launch_obj() LANDMINE arm with the accessiblemsg option: a debug-mode Archeologist wishes a rolling boulder trap, whose boulder appears two squares west, arms a wished land mine on the square between them, puts on a wished blindfold and steps back onto the trap. The boulder rolls onto the land mine out of the blind hero's sight, so C skips set_msg_xy() and prints a bare \"KAABLAMM!!!\" with no location prefix."
+}
