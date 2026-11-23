@@ -63,6 +63,7 @@ import {
     STRAT_WAITFORU,
     Upolyd,
     helpless,
+    uhis,
 } from './const.js';
 import {
     is_pool,
@@ -145,7 +146,6 @@ import {
     S_DOG,
 } from './monsters.js';
 import { an, the, Tobjnam, xnameFresh } from './objnam.js';
-import { genders } from './roles.js';
 import {
     make_happy_shk, make_happy_shoppers, picked_container, set_residency,
 } from './shk.js';
@@ -394,7 +394,7 @@ export function initedog(monster, everything = true, env = {}) {
     if (!state.u.uconduct.pets && state.program_state?.in_moveloop) {
         livelog_printf(
             LL_CONDUCT,
-            `obtained ${genders[state.flags?.female ? 1 : 0].his} first pet (${an(mon_pmname(monster, state))})`,
+            `obtained ${uhis(state)} first pet (${an(mon_pmname(monster, state))})`,
             state,
         );
     }
