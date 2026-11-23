@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "win/tty/wintty.c process_menu_window() (1554-1561, 1643-1648). menu_last_page:& maps '&' to MENU_LAST_PAGE, '|', which is also the group accelerator of the '/' menu's \"all engravings\" entry; the mapped key runs the MENU_LAST_PAGE arm, which leaves the one-page menu open. menu_next_page:^ maps '^' to MENU_NEXT_PAGE, but '^' is the group accelerator of \"nearby traps\", an explicit PICK_ONE choice, so the raw key selects that entry without being mapped. Seed, date, Monk and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 30517267,
+      "datetime": "20330215083000",
+      "nethackrc": "OPTIONS=name:Ilse,role:Monk,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=menu_last_page:&,menu_next_page:^\n",
+      "moves": " /&^ i"
+    }
+  ]
+}

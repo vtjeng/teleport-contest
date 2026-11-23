@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "win/tty/wintty.c process_menu_window() (1554-1561, 1637-1642). menu_first_page:& maps '&' to MENU_FIRST_PAGE, '^', which is also the group accelerator of the '/' menu's \"nearby traps\" entry. '&' is not an explicit choice, so map_menu_cmd() turns it into '^' and the MENU_FIRST_PAGE arm runs: on the only page it does nothing and the menu stays, twice. The raw '^' is found in resp[] before resp_len, so it is MENU_EXPLICIT_CHOICE and picks the traps entry. Seed, date, dwarvish Cavewoman and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 30517266,
+      "datetime": "20330214083000",
+      "nethackrc": "OPTIONS=name:Ilse,role:Caveman,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=menu_first_page:&\n",
+      "moves": " /&&^ i"
+    }
+  ]
+}
