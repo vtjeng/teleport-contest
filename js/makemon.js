@@ -633,10 +633,16 @@ export function unmakemon(mon, mmflags, state = game) {
     /* uncreate any artifact that the monster was provided with; unlike
        mongone(), this doesn't protect special items like the Amulet
        by dropping them so caller should handle them when applicable */
-    discard_minvent(mon, true, { state });
-
-    mongone(mon, { state });
-    return null;
+    // nasty() waits for the result: mongone() answers a promise when the
+    // removal prints or waits (mon.c m_detach() -> mon_leaving_level()).
+    const afterDiscard = () => {
+        const gone = mongone(mon, { state });
+        return gone && typeof gone.then === 'function'
+            ? gone.then(() => null) : null;
+    };
+    const discarded = discard_minvent(mon, true, { state });
+    return discarded && typeof discarded.then === 'function'
+        ? discarded.then(afterDiscard) : afterDiscard();
 }
 
 // C ref: makemon.c mbirth_limit().

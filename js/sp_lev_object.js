@@ -562,7 +562,14 @@ function populateMedusaStatue(obj, specification, env) {
                 propagate(speciesIndex, true, false, env);
                 return finishAccepted(monster);
             }
-            mongone(monster, env);
+            // C finishes mongone() before it picks the next species.
+            const gone = mongone(monster, env);
+            if (isThenable(gone)) {
+                return gone.then(() => {
+                    speciesIndex = rndmonnum(env);
+                    return tryMonster(attempts + 1);
+                });
+            }
         }
         speciesIndex = rndmonnum(env);
         return tryMonster(attempts + 1);
@@ -594,8 +601,8 @@ function populateMedusaStatue(obj, specification, env) {
             add_to_container(obj, carried, env);
         }
         obj.owt = weight(obj, env);
-        mongone(monster, env);
-        return obj;
+        const gone = mongone(monster, env);
+        return isThenable(gone) ? gone.then(() => obj) : obj;
     };
     return tryMonster();
 }

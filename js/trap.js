@@ -858,7 +858,8 @@ function mk_trap_statue(x, y, env) {
                     return addition.then(transfer);
             }
             statue.owt = weight(statue, donorEnv);
-            mongone(monster, donorEnv);
+            // maketrap() waits for a promise from the donor's removal.
+            return mongone(monster, donorEnv);
         };
         return transfer();
     };

@@ -595,7 +595,7 @@ export async function nasty(summoner, rawEnv = {}) {
                             && monsterClass === S_ANGEL)
                         || (summonerClass === S_ANGEL
                             && monsterClass === S_DEMON)) {
-                        monster = removeMonster(monster, NO_MM_FLAGS);
+                        monster = await removeMonster(monster, NO_MM_FLAGS);
                     }
                 }
             }

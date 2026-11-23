@@ -994,14 +994,17 @@ async function disclose(how, taken, state) {
 // C ref: restore.c inven_inuse() (113-128), called by end.c's
 // done_object_cleanup(). Store the next link before useup() because consuming
 // the last item in a stack removes it from the inventory chain.
-function finishInUseInventory(state) {
+async function finishInUseInventory(state) {
     // useup()'s obfree() stops the timers and light source of an item still
     // in use, such as a lit potion of oil whose quaff killed the hero.
     const env = objectGenerationEnv({ state });
     for (let obj = state.invent; obj;) {
         const next = obj.nobj;
+        // invent.c useup() -> freeinv() can print and wait (an artifact's
+        // intrinsic, a loadstone's curse); C finishes it before the next
+        // object.
         if (obj.in_use)
-            useup(obj, env);
+            await useup(obj, env);
         obj = next;
     }
 }
@@ -1009,7 +1012,7 @@ function finishInUseInventory(state) {
 // C ref: end.c done_object_cleanup() (851-906). The C globals gt.thrownobj
 // and gk.kickedobj live at state.gt.thrownobj and state.gk.kickedobj.
 export async function done_object_cleanup(state) {
-    finishInUseInventory(state);
+    await finishInUseInventory(state);
 
     const ox0 = state.u.ux + state.u.dx;
     const oy0 = state.u.uy + state.u.dy;

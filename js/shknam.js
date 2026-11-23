@@ -418,17 +418,21 @@ function shkinit(shop, sroom, normalized) {
         return null;
     }
     const occupant = m_at(placement.sx, placement.sy, state);
-    if (occupant) rloc(occupant, RLOC_NOMSG, normalized);
+    const moved = occupant ? rloc(occupant, RLOC_NOMSG, normalized) : null;
 
     // sp_lev.c fill_special_room() stocks a shop after in_mklev is cleared
     // when lspo_finalize_level() runs it (#wizloaddes).
-    const maybeShk = makemon_by_context(
+    const makeShk = () => makemon_by_context(
         state.mons[PM_SHOPKEEPER],
         placement.sx,
         placement.sy,
         MM_ESHK,
         normalized,
     );
+    // C finishes rloc() before makemon(); rloc() answers a promise when the
+    // relocation prints or waits.
+    const maybeShk = moved && typeof moved.then === 'function'
+        ? moved.then(makeShk) : makeShk();
     const finishShopkeeper = (shk) => {
         if (!shk) return null;
         const eshk = shk.mextra.eshk;
@@ -623,11 +627,16 @@ export function stock_room(shopIndex, sroom, rawEnv = {}) {
             // order, then the keeper is dismissed after stocking. mongone()
             // preserves special items while discarding ordinary inventory and
             // consumes obj_resists() once per item.
-            if (on_level(state.u?.uz, state.orcus_level) && sroom.resident)
-                mongone(sroom.resident, normalized);
-
-            state.level.flags.has_shop = true;
-            return true;
+            const markShop = () => {
+                state.level.flags.has_shop = true;
+                return true;
+            };
+            if (on_level(state.u?.uz, state.orcus_level) && sroom.resident) {
+                const gone = mongone(sroom.resident, normalized);
+                if (gone && typeof gone.then === 'function')
+                    return gone.then(markShop);
+            }
+            return markShop();
         };
         // The squares in C's x-major order. stockSquares() resumes after a
         // square whose mkshobj_at() returned a promise.

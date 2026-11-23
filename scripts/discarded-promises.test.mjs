@@ -61,8 +61,19 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // insight.js status_enlightenment()'s youhiding(), found once the scan
 // resolved `(env.hook ?? callee)(...)` (same branch); the two such calls in
 // `async` functions, potion.js djinni_from_bottle()'s mongone() and
-// wizcmds.js wiz_custom()'s docrt(), are awaited.
-const ALLOWLIST_PINS = { entries: 139, calls: 193 };
+// wizcmds.js wiz_custom()'s docrt(), are awaited. 126 and 180 since every
+// entry has an audited reason (branch sync-discards, 23 November 2026): 13
+// entries holding 13 calls went. bones.js give_to_nearby_mon(),
+// fixuporacle() and purgeDefunctBonesMonsters() and end.js
+// finishInUseInventory() became `async` and await; makemon.js unmakemon(),
+// priest.js priestini() and mk_roamer(), shknam.js shkinit() and
+// finishStocking(), sp_lev_object.js's statue monster (two calls) and
+// trap.js mk_trap_statue() hand the callee's Promise to a caller that
+// already waits. A replay of 4,810 recordings with every listed call wrapped
+// found a Promise returned only by the `async` callees hideunder(),
+// mon_adjust_speed() and update_mon_extrinsics()'s Promise.resolve(), whose
+// reasons say why no await is reached.
+const ALLOWLIST_PINS = { entries: 126, calls: 180 };
 
 // Callees that take an object out of a chain. A carried object goes through
 // invent.c freeinv(), whose impossible() reports and artifact intrinsic

@@ -438,7 +438,7 @@ function resetobjs(ochain, restore, state) {
 // C ref: bones.c give_to_nearby_mon() (225-255). Gives an object to a random
 // object-liking monster adjacent to (x,y), skipping the hero's location.
 // Falls back to place_object if no suitable monster is found.
-function give_to_nearby_mon(otmp, x, y, state) {
+async function give_to_nearby_mon(otmp, x, y, state) {
     let selected = null;
     let nmon = 0;
     for (let xx = x - 1; xx <= x + 1; xx++) {
@@ -457,7 +457,7 @@ function give_to_nearby_mon(otmp, x, y, state) {
     if (selected && can_carry(selected, otmp, { state })) {
         add_to_minv(selected, otmp, bonesObjectEnv(state));
     } else {
-        place_object(otmp, x, y, { state });
+        await place_object(otmp, x, y, { state });
     }
 }
 
@@ -501,7 +501,7 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
         } else if (cont) {
             await add_to_container(cont, otmp, bonesObjectEnv(state));
         } else if (!rn2(8)) {
-            give_to_nearby_mon(otmp, x, y, state);
+            await give_to_nearby_mon(otmp, x, y, state);
         } else {
             await place_object(otmp, x, y, { state });
         }
@@ -512,7 +512,7 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
 // C ref: bones.c fixuporacle() (305-352). Answers false when the Oracle is
 // off her own level and should be removed; otherwise she is made peaceful and,
 // if she has left her chamber, moved back and the chamber's type restored.
-function fixuporacle(oracle, state) {
+async function fixuporacle(oracle, state) {
     if (!Is_oracle_level(state.u.uz, state))
         return false;
 
@@ -536,7 +536,7 @@ function fixuporacle(oracle, state) {
         const cy = Math.trunc((room.ly + room.hy) / 2);
         const cc = enexto(cx, cy, oracle.data, { state });
         if (cc) {
-            rloc_to(oracle, cc.x, cc.y, { state });
+            await rloc_to(oracle, cc.x, cc.y, { state });
             o_ridx = roomAt(oracle.mx, oracle.my);
         }
     }
@@ -553,7 +553,7 @@ async function remove_mon_from_bones(mtmp, state) {
     if (mtmp.iswiz || mptr === state.mons[PM_MEDUSA]
         || mptr.msound === MS_NEMESIS || mptr.msound === MS_LEADER
         || is_Vlad(mtmp)
-        || (mptr === state.mons[PM_ORACLE] && !fixuporacle(mtmp, state)))
+        || (mptr === state.mons[PM_ORACLE] && !await fixuporacle(mtmp, state)))
         await mongone(mtmp, { state });
 }
 
@@ -1107,13 +1107,13 @@ async function find_lev_obj(state) {
 // fmon chain and dmonsfree() unlinks them. Complete that lifecycle here so
 // the restored level's chain and coordinate grid are consistent before the
 // arrival code begins iterating monsters.
-function purgeDefunctBonesMonsters(state) {
+async function purgeDefunctBonesMonsters(state) {
     for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
         // C ref: bones.c:717-718.
         if (has_mgivenname(mtmp))
             mtmp.mextra.mgivenname = sanitize_name(mtmp.mextra.mgivenname, state);
         if (mtmp.mhpmax === DEFUNCT_MONSTER) {
-            mongone(mtmp, { state });
+            await mongone(mtmp, { state });
         } else {
             // C resets named-artifact bookkeeping only for survivors.
             resetobjs(mtmp.minvent, true, state);
@@ -1185,7 +1185,7 @@ export async function getbones(state = game) {
     }
 
     // Process defunct monsters and surviving inventories for the restore path.
-    purgeDefunctBonesMonsters(state);
+    await purgeDefunctBonesMonsters(state);
     resetobjs(state.level?.objlist, true, state);
     resetobjs(state.level?.buriedobjlist, true, state);
 
