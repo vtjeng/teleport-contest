@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of dobuzz-rider-reintegrates-floating-eye: the hero is a gas spore, for which eyecount() is 2 and the part is the plural of the sphere's \"optic nerve\". A sleeping black dragon is created beside the hero, ^T moves the hero six squares east, a sleeping Death is created there and lands on the dragon's row, and a second ^T puts the hero on that row behind Death. The dragon wakes and breathes along the row; the blast reaches Death first. Seed and clock chosen freely. ",
+  "segments": [
+    {
+      "seed": 8830417,
+      "datetime": "20150921183000",
+      "nethackrc": "OPTIONS=name:Twoeyes,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#wizgenesis\nsleeping black dragon\n\u0014  llllll.#wizgenesis\nsleeping Death\ny\u0014 k.#polyself\ngas spore\n  s s    "
+    }
+  ]
+}
