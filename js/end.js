@@ -385,7 +385,7 @@ async function fuzzer_savelife(how, state = game, source = {}) {
                 ? { state, random: source.random }
                 : { state };
             potion = mksobj(POT_WATER, true, false, objectEnv);
-            bless(potion, { state });
+            await bless(potion, { state });
             await peffects(potion, state, effectEnv);
             obfree(potion, null, { state });
             ++remedies;
@@ -395,7 +395,7 @@ async function fuzzer_savelife(how, state = game, source = {}) {
                 ? { state, random: source.random }
                 : { state };
             potion = mksobj(POT_RESTORE_ABILITY, true, false, objectEnv);
-            bless(potion, { state });
+            await bless(potion, { state });
             await peffects(potion, state, effectEnv);
             obfree(potion, null, { state });
             ++remedies;
@@ -1020,7 +1020,7 @@ export async function done_object_cleanup(state) {
         if (!obj || obj.where !== OBJ_FREE) return;
         // mkobj.c place_object() block_point()s a landed boulder, such as
         // one a giant threw at the hero.
-        place_object(obj, ox, oy, { state });
+        await place_object(obj, ox, oy, { state });
         // A thrown or kicked glob merges with a glob already there, and
         // merged() prints pudding_merge_message(); the runtime form waits.
         await stackobjRuntime(obj, { state });

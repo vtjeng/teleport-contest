@@ -181,7 +181,7 @@ test('accessibility startup options retain their source-owned state', () => {
     );
 });
 
-test('dolookaround describes the room then scans interesting glyphs by row', () => {
+test('collectLookaroundMessages scans interesting glyphs by row', () => {
     const state = startupState();
     // A 7-by-3 rectangle makes both dimensions and the rectangular shape
     // visible in the room summary.
@@ -213,8 +213,8 @@ test('dolookaround describes the room then scans interesting glyphs by row', () 
     state.level.monsters[12][5] = pet;
     state.level.at(12, 5).disp_glyph = monster_glyph_info(pet, state);
 
+    // The room's own line is js/cmd.js lookaround_known_room()'s.
     assert.deepEqual(collectLookaroundMessages(state), [
-        'You are in a rectangular 7 by 3 room.',
         '(1north,2west): sink.',
         '(northwest): tame little dog.',
         '(4west): broken door.',

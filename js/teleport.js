@@ -620,7 +620,7 @@ export async function teleport_pet(monster, forceIt, rawEnv = {}) {
         await (env.message ?? ttyPline)('Your leash goes slack.', state, env);
     }
 
-    m_unleash(monster, false, { ...env, state });
+    await m_unleash(monster, false, { ...env, state });
     return true;
 }
 

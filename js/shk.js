@@ -4931,7 +4931,7 @@ export async function paybill(croaked, silently, state = game) {
             taken = (await inherits(mtmp, numsk, croaked, silently, state)) || taken;
         }
         /* for bones: we don't want a shopless shk around */
-        if (!local) mongone(mtmp, { state });
+        if (!local) await mongone(mtmp, { state });
     }
     return taken;
 }

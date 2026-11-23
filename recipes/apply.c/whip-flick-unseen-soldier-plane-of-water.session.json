@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "Variation of whip-flick-unseen-warned-soldier on a level without hero memory: the Archeologist level-teleports to the Plane of Water, where display.c map_invisible() (381-383) draws the I without remembering it, and flicks twice at an invisible soldier to the west. The two flicks fall in different turns and mkmaze.c movebubbles() redraws the map between them, so the drawn I is gone as well; a pair of flicks inside one turn would show the difference between the drawn and the remembered glyph, and none was found among seeds 4410933 to 4410938.",
+ "segments": [
+  {
+   "seed": 4410933,
+   "datetime": "20360229041500",
+   "nethackrc": "OPTIONS=name:Ferrand,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+   "moves": "\u0016?\n>>K\n\n\n                              \u001b\u001b\u001b\u001b\u0007hostile invisible sleeping soldier\n\u001baah\u001b\u001b\u001baah\u001b\u001b\u001b"
+  }
+ ]
+}

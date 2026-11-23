@@ -1707,7 +1707,7 @@ export async function pickup(what, state = game) {
     if (state.program_state?.gameover) return n_tried > 0 ? 1 : 0;
     if (!swallowed && !skipFloorTail) {
         if (hides_under(state.youmonst?.data))
-            hideunder(state.youmonst, { state });
+            await hideunder(state.youmonst, { state });
         // newsym_force is newsym() plus dirty bookkeeping; the display owner
         // treats the ordinary redraw as the complete effect here.
         if (n_picked) newsym(u.ux, u.uy);
@@ -2006,7 +2006,7 @@ export async function observe_quantum_cat(box, makecat, givemsg, rawEnv = {}) {
         if (deadcat) {
             deadcat.age = state.moves;
             set_corpsenm(deadcat, PM_HOUSECAT, { state, random });
-            oname(deadcat, sc, ONAME_NO_FLAGS, { state });
+            await oname(deadcat, sc, ONAME_NO_FLAGS, { state });
             if (!state.context?.mon_moving) {
                 more_experienced(20, 10, state);
                 await newexplevel(state, { message: ttyPline, random });
@@ -3045,9 +3045,9 @@ async function in_container(obj, state) {
         if (state.uwep)
             return 0; /* unwielded, died, rewielded */
     } else if (obj === state.uswapwep) {
-        setuswapwep(null, setwornEnv(state));
+        await setuswapwep(null, setwornEnv(state));
     } else if (obj === state.uquiver) {
-        setuqwep(null, setwornEnv(state));
+        await setuqwep(null, setwornEnv(state));
     }
 
     if (await fatal_corpse_mistake(obj, false, state))

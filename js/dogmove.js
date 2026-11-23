@@ -724,7 +724,7 @@ export async function quickmimic(mtmp, rawEnv = {}) {
                     data: state.mons[appearance],
                 }))) {
             await message('Your leash goes slack.', state);
-            m_unleash(mtmp, false, { ...rawEnv, state });
+            await m_unleash(mtmp, false, { ...rawEnv, state });
         }
         const currentGlyph = location.disp_glyph?.glyph;
         if (currentGlyph !== previousGlyph) {
@@ -1627,7 +1627,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
                     state,
                     env,
                 );
-                m_unleash(monster, false, { ...env, state });
+                await m_unleash(monster, false, { ...env, state });
             }
             // The live caller binds attackHeroWithMattacku(), which adds the
             // missile, spell and item operations mattacku() takes from env.

@@ -2308,7 +2308,7 @@ async function moverock_core(sx, sy, state, env) {
             case LANDMINE:
                 if (random.rn2(10)) {
                     await obj_extract_self(otmp, objectEnv);
-                    place_object(otmp, rx, ry, objectEnv);
+                    await place_object(otmp, rx, ry, objectEnv);
                     redraw(sx, sy, state);
                     await message(
                         `${(!Deaf(state.u) || !Blind(state.u))
@@ -2330,7 +2330,7 @@ async function moverock_core(sx, sy, state, env) {
                     state.viz_array[ry][rx] |= IN_SIGHT;
                 const { flooreffects } = await import('./do.js');
                 if (!await flooreffects(otmp, rx, ry, 'fall', effectEnv))
-                    place_object(otmp, rx, ry, objectEnv);
+                    await place_object(otmp, rx, ry, objectEnv);
                 if (mtmp && !Blind(state.u)) redraw(rx, ry, state);
                 return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
             }
@@ -2445,7 +2445,7 @@ async function moverock_core(sx, sy, state, env) {
          */
         if (otmp !== state.level.objlist) {
             remove_object(otmp, { state });
-            place_object(otmp, otmp.ox, otmp.oy, { state });
+            await place_object(otmp, otmp.ox, otmp.oy, { state });
         }
         await dopush(sx, sy, rx, ry, otmp, state, {
             ...effectEnv,
@@ -4395,7 +4395,7 @@ async function domove_core(state = game) {
     if (hides_under(state.youmonst.data)
         || state.youmonst.data.mlet === S_EEL
         || u.dx || u.dy) {
-        hideunder(state.youmonst, { state });
+        await hideunder(state.youmonst, { state });
     }
 
     // C hack.c:2954-2960. Directional movement exposes an imitation of

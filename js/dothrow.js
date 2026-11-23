@@ -2223,7 +2223,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
                 // dothrow.c remove_worn_item() reaches uqwepgone() for the
                 // quiver slot; clear that slot before freeinv() consumes the
                 // singleton, and refresh the inventory as uqwepgone() does.
-                setuqwep(null, setwornEnv(state));
+                await setuqwep(null, setwornEnv(state));
                 update_inventory({ state });
             } else if (otmp.owornmask) {
                 // dothrow.c:263 removes a singleton worn item before freeinv;
@@ -2375,14 +2375,14 @@ async function return_throw_to_inv(obj, wepMask, twoweap, oldslot, state) {
         if (!result) result = obj;
         if ((result.owornmask & W_QUIVER)
             && ((result.owornmask | wepMask) & (W_WEP | W_SWAPWEP))) {
-            setuqwep(null, { state });
+            await setuqwep(null, { state });
         }
         if ((wepMask & W_WEP) && !state.uwep)
             await setuwep(result, { state });
         else if ((wepMask & W_SWAPWEP) && !state.uswapwep)
-            setuswapwep(result, { state });
+            await setuswapwep(result, { state });
         else if ((wepMask & W_QUIVER) && !state.uquiver)
-            setuqwep(result, { state });
+            await setuqwep(result, { state });
         if (twoweap && !state.u.twoweap) set_twoweap(true, state);
     }
     await encumber_msg(state);
@@ -2720,7 +2720,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                 // then reports encumbrance before restoring weapon slots.
                 obj = await addinv_before(obj, oldslot, { state });
                 await encumber_msg(state);
-                if (obj.owornmask & W_QUIVER) setuqwep(null, { state });
+                if (obj.owornmask & W_QUIVER) await setuqwep(null, { state });
                 await setuwep(obj, { state });
                 set_twoweap(twoweap, state);
                 if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
@@ -2833,7 +2833,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         return;
     }
     clearThrownObject(state);
-    place_object(obj, bx, by, { state });
+    await place_object(obj, bx, by, { state });
     if (!IS_SOFT(location.typ)) {
         // dothrow.c passes the hero's launch square, not the landing square.
         await container_impact_dmg(obj, state.u.ux, state.u.uy, { state });
@@ -3346,7 +3346,7 @@ async function throw_gold(obj, state = game) {
             state,
         );
     }
-    place_object(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, { state });
+    await place_object(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, { state });
     /* `*u.ushops` is the first entry of the room list naming shops the hero
        stands in; sellobj() owns all further shop checks. */
     if (u.ushops?.[0])

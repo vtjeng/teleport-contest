@@ -1230,7 +1230,7 @@ export async function scatter(
     if (getHero(sx, sy) && state.u?.uundetected
         && hides_under(state.youmonst?.data)) {
         if (ops.hideUnder) await ops.hideUnder(state.youmonst, env);
-        else hideunder(state.youmonst, { ...env, state });
+        else await hideunder(state.youmonst, { ...env, state });
     }
     if (sourceMonster?.mtrapped) sourceMonster.mtrapped = 0;
     reveal(sx, sy);

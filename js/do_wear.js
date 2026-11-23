@@ -904,8 +904,8 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
     // C clears any weapon-slot alias with the matching canonical setter.
     if (obj === state.uwep) await setuwep(null, setwornEnv(state));
     else if (obj === state.uswapwep)
-        setuswapwep(null, setwornEnv(state));
-    else if (obj === state.uquiver) setuqwep(null, setwornEnv(state));
+        await setuswapwep(null, setwornEnv(state));
+    else if (obj === state.uquiver) await setuqwep(null, setwornEnv(state));
 
     // C masks W_RING only when the property is not supplied by both slots.
     let maskedOldprop = oldprop;
@@ -3057,7 +3057,7 @@ export async function glibr(state = game, env = {}) {
         );
         xfl = true;
         wastwoweap = true;
-        setuswapwep(null, setwornEnv(state));
+        await setuswapwep(null, setwornEnv(state));
         cmdq_clear(CQ_CANNED, state);
         if (await canLetGo(object, '', state)) await drop(object);
     }

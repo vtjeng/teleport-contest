@@ -4695,7 +4695,7 @@ export async function docrt(options = {}) {
             await under_water(1);
         } else {
             if (options.suspendVision) options.suspendVision();
-            else vision_recalc(2);
+            else await vision_recalc(2);
             await cls();
             const unexplored = unexploredGlyphInfo(game);
             // display.c docrt_flags() first paints remembered map glyphs,

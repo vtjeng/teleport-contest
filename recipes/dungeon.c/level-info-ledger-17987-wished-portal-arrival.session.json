@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "Variation of level-info-ledger-16708-wished-portal-arrival: another seed gives another tune and ledger 17987, a different subroom slot of svr.rooms[], and a level whose creation prints builds_up()'s impossible() report through level_difficulty() 77 times. The 250 spaces answer every --More-- of the arrival, so the recording ends after the level is complete: the port queues the reports of its synchronous level_difficulty() callers and draws ahead of C's PRNG log while one is still waiting.",
+ "segments": [
+  {
+   "seed": 2207715,
+   "datetime": "20410817063000",
+   "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+   "moves": "#wizwish\nwooden flute\naeyl\u0017magic portal\nhl                                                                                                                                                                                                                                                          \u001b:\u001bs\u000f\u001b\u001bjkjk\u0012i\u001b"
+  }
+ ]
+}

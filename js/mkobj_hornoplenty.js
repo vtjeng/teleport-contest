@@ -117,7 +117,7 @@ export async function hornoplenty(horn, tipping, targetbox, env = {}) {
                 { ...env, state },
             );
         } else if (targetbox) {
-            add_to_container(targetbox, obj, { ...env, state });
+            await add_to_container(targetbox, obj, { ...env, state });
             // C's add_to_container() deliberately leaves the weight stale.
             targetbox.owt = weight(targetbox, { ...env, state });
             if (carried(targetbox)) {

@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "dungeon.c ledger_no() and do.c goto_level() on a wished magic portal's destination {-1, -1}: a Valkyrie improvises on a wished flute, so svd.dungeons[-1].ledger_start reads the tune from svc.context.jingle and the ledger is 16708, past svl.level_info[MAXLINFO]. In the recorder's Linux build that byte lies in an unused subroom slot of svr.rooms[] and reads 0, so goto_level() makes a new level; builds_up() and goto_level() print their impossible() reports. She then looks, searches, opens the overview and redraws. Seed, date, role and inputs chosen independently. The layout is the Linux build's and may differ on macOS.",
+ "segments": [
+  {
+   "seed": 2207718,
+   "datetime": "20410817063000",
+   "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+   "moves": "#wizwish\nwooden flute\naeyl\u0017magic portal\nhl                                                                                          \u001b:\u001bs\u000f\u001b\u001bjkjk\u0012i\u001b"
+  }
+ ]
+}

@@ -233,18 +233,6 @@ const SITES = [
 // same row shape, but each C site has the opposite kind. Remove the row here
 // and add one to SITES when the function is fixed or deleted.
 const DIFFERENT = [
-    // cmd.c:1205-1237 test glyph_at(x, y) == GLYPH_UNEXPLORED. These two
-    // test for an absent remembered glyph, so a square that shows a sensed
-    // monster and was never seen counts as unseen. No play reaches them:
-    // collectLookaroundMessages() calls them only with includeRoom set, and
-    // its one caller in js/, cmd.js dolookaround(), passes false and uses
-    // js/cmd.js's own u_have_seen_whole_selection() and
-    // u_have_seen_bounds_selection(), which read the drawn glyph.
-    // scripts/startup-a11y.test.mjs still calls them.
-    ['startup_a11y.js', 'selectionBoundsSeen', 'remembered', 2,
-        ['cmd.c u_have_seen_bounds_selection']],
-    ['startup_a11y.js', 'describeKnownRoom', 'remembered', 1,
-        ['cmd.c u_have_seen_whole_selection']],
 ];
 
 // C functions that touch a glyph and have no JS site, with the reason.
@@ -313,10 +301,10 @@ test('every C function that touches a glyph has a JS site or a reason', () => {
 });
 
 test('the exception counts are the ones last reviewed', () => {
-    // 2: js/startup_a11y.js selectionBoundsSeen() and describeKnownRoom().
-    // Lower it when one is fixed; a new row needs the same review a new
-    // SITES row does.
-    assert.equal(DIFFERENT.length, 2);
+    // 0 since js/startup_a11y.js's unreachable copies of
+    // selectionBoundsSeen() and describeKnownRoom() were deleted. A new row
+    // needs the same review a new SITES row does.
+    assert.equal(DIFFERENT.length, 0);
     // 4: POSITIONBAR, nhl_getmap(), display.c's macros, and the background
     // glyph. A new row needs its reason.
     assert.equal(UNPORTED.size, 4);

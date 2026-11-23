@@ -3455,7 +3455,7 @@ export async function useupf(obj, numused, env = {}) {
     }
     await delobj(otmp, normalized);
     if (at_u && state.u.uundetected && hides_under(state.youmonst?.data))
-        hideunder(state.youmonst, { ...normalized, state });
+        await hideunder(state.youmonst, { ...normalized, state });
 }
 
 function hasTextExtra(obj, field) {
@@ -4936,7 +4936,7 @@ export async function hold_another_object(
             && (is_missile(obj, state)
                 || ammo_and_launcher(obj, state.uwep, state)
                 || ammo_and_launcher(obj, state.uswapwep, state))) {
-            setuqwep(obj, { state });
+            await setuqwep(obj, { state });
         }
         if (hold_msg || drop_fmt)
             await prinv(hold_msg, obj, oquan, normalized);

@@ -6,7 +6,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { readJsSources, scanDiscardedPromises } from './discarded-promises.mjs';
+import {
+    readJsSources, scanDiscardedPromises, scanDiscardedPromisesInAsync,
+} from './discarded-promises.mjs';
 import { assertExceptionCount } from './exception-count.mjs';
 
 const ALLOWLIST = JSON.parse(readFileSync(
@@ -52,7 +54,15 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // add_weapon_skill(1) prints weapon.c give_may_advance_msg()'s line.
 // hideunder() is `async` too and stays discarded in eight `async` callers:
 // each passes the hero, for whom it reaches no await (see their reasons).
-const ALLOWLIST_PINS = { entries: 230, calls: 299 };
+// 138 and 192 since no `async` function discards a call (branch small-gaps,
+// 23 November 2026): the 107 calls left inside `async` functions are awaited,
+// those eight hideunder() calls among them, and the test below allows none.
+// Every remaining entry sits in a synchronous function. 139 and 193 with
+// insight.js status_enlightenment()'s youhiding(), found once the scan
+// resolved `(env.hook ?? callee)(...)` (same branch); the two such calls in
+// `async` functions, potion.js djinni_from_bottle()'s mongone() and
+// wizcmds.js wiz_custom()'s docrt(), are awaited.
+const ALLOWLIST_PINS = { entries: 139, calls: 193 };
 
 // Callees that take an object out of a chain. A carried object goes through
 // invent.c freeinv(), whose impossible() reports and artifact intrinsic
@@ -82,6 +92,14 @@ test('every discarded promise in js/ is on the allowlist with a reason', () => {
         if (typeof entry.reason !== 'string' || !entry.reason.trim())
             problems.push(`no reason: ${key}`);
     assert.deepEqual(problems, []);
+});
+
+// An `async` function can always await, and C finishes the callee before the
+// caller's next statement: a callee that returns a Promise only from an arm
+// that prints or waits is exactly the one whose output would land late. The
+// allowlist cannot excuse these; it holds synchronous callers only.
+test('no async function in js/ discards a promise', () => {
+    assert.deepEqual(scanDiscardedPromisesInAsync(readJsSources()), {});
 });
 
 test('the allowlist holds the pinned number of entries and calls', () => {
@@ -131,6 +149,7 @@ test('the scan finds discarded calls to async and promise-returning functions on
             '    await kept;',
             "    const { later: dyn } = await import('./b.js');",
             '    dyn();', // discarded call through a dynamic import
+            '    (b.hook ?? slow)();', // discarded call through a hook's fallback
             '    const run = () => { slow(); };', // nested arrow, named by its binding
             '    run();',
             '}',
@@ -145,8 +164,17 @@ test('the scan finds discarded calls to async and promise-returning functions on
         'js/a.js | caller | b.later': 1,
         'js/a.js | caller | dyn': 1,
         'js/a.js | caller | later': 1,
-        'js/a.js | caller | slow': 2,
+        'js/a.js | caller | slow': 3,
         'js/a.js | caller | sometimes': 1,
         'js/a.js | run | slow': 1,
+    });
+    // run() is a synchronous arrow, so its call is not inside an async
+    // function although caller() encloses it.
+    assert.deepEqual(scanDiscardedPromisesInAsync(sources), {
+        'js/a.js | caller | b.later': 1,
+        'js/a.js | caller | dyn': 1,
+        'js/a.js | caller | later': 1,
+        'js/a.js | caller | slow': 3,
+        'js/a.js | caller | sometimes': 1,
     });
 });

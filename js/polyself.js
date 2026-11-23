@@ -648,7 +648,7 @@ async function break_armor(state, rawEnv = {}) {
                 encumberMessage: (target) => encumber_msg(target, { message }),
             });
             await Armor_gone(state, env);
-            consume(otmp);
+            await consume(otmp);
         }
         if ((otmp = state.uarmc) != null
             && (otmp.otyp !== MUMMY_WRAPPING || !WrappingAllowed(uptr))) {
@@ -659,7 +659,7 @@ async function break_armor(state, rawEnv = {}) {
                     env,
                 );
                 await Cloak_off(state, env);
-                consume(otmp);
+                await consume(otmp);
             } else if (otmp.otyp === ALCHEMY_SMOCK) {
                 await message(
                     `The knot on your ${cloak_simple_name(otmp, state)} is pulled apart!`,
@@ -680,7 +680,7 @@ async function break_armor(state, rawEnv = {}) {
         }
         if ((otmp = state.uarmu) != null) {
             await message('Your shirt rips to shreds!', state, env);
-            consume(otmp);
+            await consume(otmp);
         }
     } else if (sliparm(uptr)) {
         if ((otmp = state.uarm) != null
@@ -1043,7 +1043,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     find_ac(state);
 
     if (wasHidingUnder)
-        hideunder(state.youmonst, env);
+        await hideunder(state.youmonst, env);
 
     if (u.utrap && u.utraptype === TT_PIT) {
         set_utrap(random.rn1(6, 2), TT_PIT, state);

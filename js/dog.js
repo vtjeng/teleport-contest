@@ -974,7 +974,7 @@ export async function keepdogs(pets_only, rawEnv = {}) {
                     await message(
                         `${pronoun} leash suddenly comes loose.`, state, env,
                     );
-                    m_unleash(mtmp, false, { ...env, state });
+                    await m_unleash(mtmp, false, { ...env, state });
                 }
                 if (mtmp === u.usteed) {
                     await impossible('steed left behind?', state, env);
@@ -1008,7 +1008,7 @@ export async function keepdogs(pets_only, rawEnv = {}) {
                 state,
                 env,
             );
-            m_unleash(mtmp, false, { ...env, state });
+            await m_unleash(mtmp, false, { ...env, state });
         }
     }
 }
@@ -1474,7 +1474,7 @@ export async function discard_migrations(state = game, rawEnv = {}) {
             if (previousMonster) previousMonster.nmon = next;
             else state.gm.migrating_mons = next;
             monster.nmon = null;
-            discard_minvent(monster, false, env);
+            await discard_minvent(monster, false, env);
             if (emits_light(monster.data))
                 await del_light_source_async(LS_MONSTER, monster, state);
             dealloc_monst(monster);

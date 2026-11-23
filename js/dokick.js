@@ -1017,7 +1017,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
                     LUCKSTONE - 1,
                     objects,
                 );
-                mksobj_at(gem, x, y, false, true, objects);
+                await mksobj_at(gem, x, y, false, true, objects);
             }
             await ttyPline(
                 Blind(state.u)
@@ -1097,7 +1097,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
         maploc.typ = ROOM;
         maploc.flags = 0; // C emptygrave aliases rm.flags.
         maploc.horizontal = false;
-        mksobj_at(ROCK, x, y, true, false, objects);
+        await mksobj_at(ROCK, x, y, true, false, objects);
         del_engr_at(x, y, state);
         if (Blind(state.u)) {
             await ttyPline('Crack!  Something broke!', state);
@@ -1794,7 +1794,7 @@ export async function obj_delivery(near_hero, rawEnv = {}) {
         otmp.omigr_from_dlevel = 0;
 
         if (nx > 0) {
-            place_object(otmp, nx, ny, env);
+            await place_object(otmp, nx, ny, env);
             if (!nobreak && !IS_SOFT(state.level.locations[nx][ny].typ)) {
                 if (where === MIGR_WITH_HERO) {
                     if (await breaks(otmp, nx, ny, env)) {

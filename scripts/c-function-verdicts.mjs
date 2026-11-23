@@ -813,9 +813,9 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'selvar.c selection_do_gradient': unreachable('its only caller, l_selection_gradient(), '
         + 'is a binding no shipped program calls'),
     'selvar.c selection_do_line': ported('js/bigrm.js selection_line', SELECTION_CLASS),
-    'selvar.c selection_is_irregular': ported('js/startup_a11y.js selectionDescription',
+    'selvar.c selection_is_irregular': ported('js/cmd.js selectionSizeDescription',
         'the travel-room size description'),
-    'selvar.c selection_size_description': ported('js/startup_a11y.js selectionDescription',
+    'selvar.c selection_size_description': ported('js/cmd.js selectionSizeDescription',
         'the travel-room size description'),
     'selvar.c selection_from_mkroom': ported('js/themerooms.js selection_room', SELECTION_CLASS),
     'selvar.c selection_force_newsyms': ported('js/getpos.js getpos_sethilite',

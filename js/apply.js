@@ -1398,7 +1398,7 @@ export async function check_leash(x, y, rawEnv = {}) {
                 state,
                 rawEnv,
             );
-            m_unleash(monster, false, { ...rawEnv, state });
+            await m_unleash(monster, false, { ...rawEnv, state });
         } else {
             await message('You pull on the leash.', state, rawEnv);
             if (monster.data?.msound !== MS_SILENT) {

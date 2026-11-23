@@ -92,7 +92,7 @@ export async function lose_guardian_angel(mon, state = game, rawEnv = {}) {
                 );
             }
         }
-        mongone(mon, env);
+        await mongone(mon, env);
     }
     for (let i = random.rn1(3, 2); i > 0; --i) {
         const at = enexto(state.u.ux, state.u.uy,
@@ -148,7 +148,7 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
                 if (mpickobj(angel, weapon, env))
                     throw new Error('gain_guardian_angel: merged weapon');
             }
-            bless(weapon, env);
+            await bless(weapon, env);
             if (weapon.spe < 4) weapon.spe += random.rnd(4);
             const arms = which_armor(angel, W_ARMS, state);
             if (!arms || arms.otyp !== SHIELD_OF_REFLECTION) {
@@ -336,7 +336,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         `bribed ${x_monnam(mtmp, ARTICLE_A, null, EXACT_NAME, false, state)} with ${offer} ${offer === 1 ? 'zorkmid' : 'zorkmids'} for safe passage`,
         state,
     );
-    mongone(mtmp, { state });
+    await mongone(mtmp, { state });
     return 1;
 }
 

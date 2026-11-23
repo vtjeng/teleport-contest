@@ -219,10 +219,10 @@ async function placebc_core(state, rawEnv = {}) {
         state.u.bc_order = BCPOS_DIFFER;
     } else {
         await flooreffects(ball, state.u.ux, state.u.uy, '', effectEnv);
-        place_object(ball, state.u.ux, state.u.uy, { state });
+        await place_object(ball, state.u.ux, state.u.uy, { state });
         state.u.bc_order = BCPOS_CHAIN;
     }
-    place_object(chain, state.u.ux, state.u.uy, { state });
+    await place_object(chain, state.u.ux, state.u.uy, { state });
     const glyph = memoryGlyph(state.u.ux, state.u.uy, state);
     state.u.bglyph = glyph;
     state.u.cglyph = glyph;
@@ -332,8 +332,8 @@ export async function ballrelease(showmsg, state = game) {
     if (!ball || !carried(ball) || welded(ball, state)) return;
     if (showmsg) await ttyPline('Startled, you drop the iron ball.', state);
     if (state.uwep === ball) await setuwep(null, { state });
-    if (state.uswapwep === ball) setuswapwep(null, { state });
-    if (state.uquiver === ball) setuqwep(null, { state });
+    if (state.uswapwep === ball) await setuswapwep(null, { state });
+    if (state.uquiver === ball) await setuqwep(null, { state });
     await freeinv(ball, { state });
     await encumber_msg(state);
 }

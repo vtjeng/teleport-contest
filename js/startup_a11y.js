@@ -51,10 +51,7 @@ import {
     M_AP_TYPMASK,
     MOAT,
     POOL,
-    ROOM,
-    ROOMOFFSET,
     ROWNO,
-    SCORR,
     SDOOR,
     SINK,
     STAIRS,
@@ -828,137 +825,11 @@ export async function emitGlyphUpdateNotices(state, env = {}) {
     return pending.map((notice) => notice.message);
 }
 
-function roomFloodAllows(location) {
-    if (!location) return false;
-    const typ = location.typ;
-    return !(typ <= DBWALL
-        || typ === DOOR
-        || typ === TREE
-        || typ === WATER
-        || typ === LAVAWALL
-        || typ === IRONBARS
-        || typ === SCORR
-        || typ === SDOOR
-        || typ === DRAWBRIDGE_UP);
-}
-
-function floodRoom(x, y, state) {
-    const selected = new Set();
-    const pending = [[x, y]];
-    while (pending.length) {
-        const [cx, cy] = pending.pop();
-        if (!isok(cx, cy)) continue;
-        const key = `${cx},${cy}`;
-        if (selected.has(key)) continue;
-        selected.add(key);
-
-        for (let dx = -1; dx <= 1; ++dx) {
-            for (let dy = -1; dy <= 1; ++dy) {
-                if (!dx && !dy) continue;
-                const nx = cx + dx;
-                const ny = cy + dy;
-                const nextKey = `${nx},${ny}`;
-                if (isok(nx, ny)
-                    && !selected.has(nextKey)
-                    && roomFloodAllows(state.level?.at(nx, ny))) {
-                    pending.push([nx, ny]);
-                }
-            }
-        }
-    }
-    return selected;
-}
-
-function selectionBounds(selection) {
-    let lx = COLNO;
-    let ly = ROWNO;
-    let hx = 0;
-    let hy = 0;
-    for (const key of selection) {
-        const [x, y] = key.split(',').map(Number);
-        lx = Math.min(lx, x);
-        ly = Math.min(ly, y);
-        hx = Math.max(hx, x);
-        hy = Math.max(hy, y);
-    }
-    return { lx, ly, hx, hy };
-}
-
-function everySelected(selection, predicate) {
-    for (const key of selection) {
-        const [x, y] = key.split(',').map(Number);
-        if (!predicate(x, y)) return false;
-    }
-    return true;
-}
-
-function selectionBoundsSeen(selection, bounds, state) {
-    for (let x = bounds.lx; x <= bounds.hx; ++x) {
-        for (const y of [bounds.ly, bounds.hy]) {
-            if (selection.has(`${x},${y}`)
-                && !state.level.at(x, y)?.remembered_glyph) return false;
-        }
-    }
-    for (let y = bounds.ly; y <= bounds.hy; ++y) {
-        for (const x of [bounds.lx, bounds.hx]) {
-            if (selection.has(`${x},${y}`)
-                && !state.level.at(x, y)?.remembered_glyph) return false;
-        }
-    }
-    return true;
-}
-
-function selectionDescription(selection) {
-    const bounds = selectionBounds(selection);
-    const width = bounds.hx - bounds.lx + 1;
-    const height = bounds.hy - bounds.ly + 1;
-    let irregular = false;
-    for (let x = bounds.lx; x <= bounds.hx && !irregular; ++x) {
-        for (let y = bounds.ly; y <= bounds.hy; ++y) {
-            if (isok(x, y) && !selection.has(`${x},${y}`)) {
-                irregular = true;
-                break;
-            }
-        }
-    }
-    const shape = irregular
-        ? 'irregularly shaped' : width === height ? 'square' : 'rectangular';
-    return { bounds, text: `${shape} ${width} by ${height}` };
-}
-
 function indefiniteArticle(text) {
     const lower = lcase(text);
     if (/^(?:uni(?:corn|form)|use|ewe|one\b)/u.test(lower)) return 'a';
     if (/^(?:hour|honest|heir)/u.test(lower)) return 'an';
     return /^[aeiou]/u.test(lower) ? 'an' : 'a';
-}
-
-function describeKnownRoom(x, y, state) {
-    const selection = floodRoom(x, y, state);
-    const { bounds, text } = selectionDescription(selection);
-    const wholeSeen = everySelected(selection, (sx, sy) => (
-        Boolean(state.level.at(sx, sy)?.remembered_glyph)
-    ));
-    const room = (state.u?.urooms?.[0] ?? 0) - ROOMOFFSET >= 0
-        ? 'room' : 'area';
-    const article = indefiniteArticle(text);
-    const heroHere = state.u.ux === x && state.u.uy === y;
-    if (wholeSeen) {
-        const canSeeWhole = everySelected(
-            selection,
-            (sx, sy) => cansee(sx, sy, state),
-        );
-        const relation = heroHere && canSeeWhole
-            ? 'are in' : heroHere ? 'remember this as' : 'remember that as';
-        const message = `You ${relation} ${article} ${text} ${room}.`;
-        return heroHere ? message : messageAt(message, x, y, state, true);
-    }
-    if (selectionBoundsSeen(selection, bounds, state)) {
-        const message = `You guess ${heroHere ? 'this' : 'that'} to be ${article} ${text} ${room}.`;
-        return heroHere ? message : messageAt(message, x, y, state, true);
-    }
-    const message = `You can't guess the size of ${heroHere ? 'this' : 'that'} area.`;
-    return heroHere ? message : messageAt(message, x, y, state, true);
 }
 
 function speciesName(monster) {
@@ -1550,26 +1421,14 @@ function visibleSubjectAt(x, y, state) {
     return description.aborted || description.found ? description : null;
 }
 
-export function collectLookaroundMessages(state, { includeRoom = true } = {}) {
+export function collectLookaroundMessages(state) {
     const messages = [];
     const { ux, uy } = state.u;
     const heroLocation = state.level?.at(ux, uy);
-    let mentionAdjacentCorridors = false;
-
-    if (heroLocation?.typ === CORR) {
-        mentionAdjacentCorridors = true;
-    } else if (heroLocation?.typ === DOOR) {
-        const cardinals = [[-1, 0], [0, -1], [1, 0], [0, 1]];
-        for (const [dx, dy] of cardinals) {
-            const x = ux + dx;
-            const y = uy + dy;
-            if (includeRoom && state.level?.at(x, y)?.typ >= ROOM)
-                messages.push(describeKnownRoom(x, y, state));
-        }
-        mentionAdjacentCorridors = true;
-    } else if (includeRoom) {
-        messages.push(describeKnownRoom(ux, uy, state));
-    }
+    // cmd.c dolookaround() 1318-1337 sets this in a corridor and in a
+    // doorway. Its room descriptions are js/cmd.js lookaround_known_room().
+    const mentionAdjacentCorridors
+        = heroLocation?.typ === CORR || heroLocation?.typ === DOOR;
 
     for (let y = 0; y < ROWNO; ++y) {
         for (let x = 1; x < COLNO; ++x) {
@@ -1721,10 +1580,8 @@ export function collectMonsterNoticeMessages(state, compare = null) {
 export const _startupA11yInternals = Object.freeze({
     compassDescription,
     coordinateDescription,
-    describeKnownRoom,
     describeMonster,
     describeObject,
-    floodRoom,
     terrainDescription,
     visibleSubjectAt,
 });

@@ -3112,7 +3112,7 @@ async function hmon_hitmon_misc_obj(hmd, mon, obj, state, env, random) {
             obj.spe = 0;
             obj.known = obj.dknown = obj.bknown = 0;
             obj.owt = weight(obj, lifeEnv);
-            if (hmd.thrown) place_object(obj, mon.mx, mon.my, lifeEnv);
+            if (hmd.thrown) await place_object(obj, mon.mx, mon.my, lifeEnv);
         } else if (obj.corpsenm === PM_PYROLISK) {
             if (hmd.thrown) obfree(obj, null, lifeEnv);
             else await useupall(obj, lifeEnv);

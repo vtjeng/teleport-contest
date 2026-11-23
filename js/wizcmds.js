@@ -1462,7 +1462,7 @@ export async function wiz_custom(state = game, env = {}) {
     wizcustom_glyphids(items, wizcustom_callback, state);
     await (env.menu ?? select_menu)(state, { title, how: PICK_NONE, items, cancelValue: null });
     if (glyphid_cache_status(state)) free_glyphid_cache(state);
-    (env.redraw ?? docrt)(state);
+    await (env.redraw ?? docrt)(state);
     return ECMD_OK;
 }
 

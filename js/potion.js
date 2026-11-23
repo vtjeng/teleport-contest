@@ -480,7 +480,7 @@ export async function djinni_from_bottle(obj, state = game, env = {}) {
                 state,
             );
         }
-        (env.removeMonster ?? mongone)(
+        await (env.removeMonster ?? mongone)(
             monster,
             { ...env, state, random },
         );
@@ -2345,8 +2345,8 @@ export async function impact_arti_light(obj, worsen, seeit, state = game, rawEnv
         || obj_resists(obj, 25, 75, env)) return;
 
     const potion = mksobj(POT_WATER, true, false, env);
-    if (worsen) curse(potion, env);
-    else bless(potion, env);
+    if (worsen) await curse(potion, env);
+    else await bless(potion, env);
     const objphrase = seeit ? Yobjnam2(obj, 'glow', state) : '';
     await H2Opotion_dip(potion, obj, seeit, objphrase, state, env);
     dealloc_obj(potion, env);

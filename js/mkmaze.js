@@ -382,7 +382,7 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
             case 'object':
                 for (let object = contents.list; object;) {
                     const next = object.nexthere;
-                    place_object(object, contents.x, contents.y,
+                    await place_object(object, contents.x, contents.y,
                                  objectGenerationEnv({ state }));
                     await stackobjRuntime(object, objectGenerationEnv({ state }));
                     object = next;

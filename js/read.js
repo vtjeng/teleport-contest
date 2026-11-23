@@ -718,7 +718,7 @@ export async function recharge(obj, curseBless, state = game) {
             if (isCursed) {
                 if (!obj.cursed) {
                     await p_glow2(obj, 'black', state);
-                    curse(obj, { state });
+                    await curse(obj, { state });
                 } else {
                     await ttyPline(`${Yobjnam2(obj, 'vibrate', state)} briefly.`, state);
                 }
@@ -2312,7 +2312,7 @@ export async function drop_boulder_on_player(
     // C performs floor effects before hp loss, preserving object and bhitpos
     // order even when the boulder lands in a trap or pool.
     if (!await flooreffects(rock, state.u.ux, state.u.uy, 'fall', env)) {
-        place_object(rock, state.u.ux, state.u.uy, env);
+        await place_object(rock, state.u.ux, state.u.uy, env);
         stackobj(rock, env);
         redraw(state.u.ux, state.u.uy, state);
     }
@@ -2408,7 +2408,7 @@ export async function drop_boulder_on_monster(
     }
 
     if (!await flooreffects(rock, x, y, 'fall', env)) {
-        place_object(rock, x, y, env);
+        await place_object(rock, x, y, env);
         stackobj(rock, env);
         redraw(x, y, state);
     }

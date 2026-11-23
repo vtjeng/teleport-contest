@@ -2219,7 +2219,7 @@ async function makemaz(proto, slev, state) {
             impossible_printer(state));
     } else {
         state.inv_pos = pick_vibrasquare_location(frame, state);
-        maketrap(state.inv_pos.x, state.inv_pos.y, VIBRATING_SQUARE,
+        await maketrap(state.inv_pos.x, state.inv_pos.y, VIBRATING_SQUARE,
             { state });
     }
     await place_branch(is_branchlev(), 0, 0, frame);
@@ -5795,7 +5795,7 @@ async function fill_empty_maze(frame, state, env) {
         // Objects: gems or random class
         for (let i = rnd(Math.trunc((20 * mapfact) / 100)); i > 0; i--) {
             const mm = maze1xy(DRY, frame, state);
-            mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS,
+            await mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS,
                 mm.x, mm.y, true, env);
         }
         // Boulders
@@ -5804,7 +5804,7 @@ async function fill_empty_maze(frame, state, env) {
             const ttmp = t_at(mm.x, mm.y, state);
             if (ttmp && (is_pit(ttmp.ttyp) || is_hole(ttmp.ttyp)))
                 continue;
-            mksobj_at(BOULDER, mm.x, mm.y, true, false, env);
+            await mksobj_at(BOULDER, mm.x, mm.y, true, false, env);
         }
         // Minotaurs
         for (let i = rn2(2); i > 0; i--) {
@@ -7968,7 +7968,7 @@ export async function makeniche(trap_type) {
                     }
                 }
                 if (!g.level.flags.noteleport) {
-                    mksobj_at(
+                    await mksobj_at(
                         SCR_TELEPORTATION,
                         xx,
                         yy + dy,
@@ -7978,7 +7978,7 @@ export async function makeniche(trap_type) {
                     );
                 }
                 if (!rn2(3)) {
-                    mkobj_at(
+                    await mkobj_at(
                         RANDOM_CLASS,
                         xx,
                         yy + dy,

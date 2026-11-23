@@ -133,7 +133,7 @@ test('dolookaround() stops collecting at the aborting square', async () => {
     // the hero stands next to the engraving, so it is one of them.
     const engraving = await engravingAfterGame();
     engraving.engr_txt[1] = piece(219);
-    const messages = collectLookaroundMessages(game, { includeRoom: false });
+    const messages = collectLookaroundMessages(game);
     assert.equal(messages.aborted, true);
 });
 

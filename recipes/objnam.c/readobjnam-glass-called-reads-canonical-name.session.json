@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "objnam.c readobjnam_postparse2() 4711-4715: Strcpy(d->bp, tbuf) writes \"worthless piece of shiny white glass\" over the \" called plugh\" tail, so d->un, 8 bytes past the cut, reads \"white glass\" and rnd_otyp_by_namedesc(d->un) grants the white gem after the full name fails. A green variation follows, then \"shiny red glass called plugh\", where d->un reads \"y red glass\" and nothing matches.",
+ "segments": [
+  {
+   "seed": 5530217,
+   "datetime": "20310314101500",
+   "nethackrc": "OPTIONS=name:Vitra,role:Archeologist,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+   "moves": " \u0017shiny white glass called plugh\n\u0017dusty green glass called xyzzy\n\u0017shiny red glass called plugh\n\u001b\u001bi\u001b"
+  }
+ ]
+}
