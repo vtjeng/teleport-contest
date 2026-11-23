@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 268,
+    otherName: 267,
     unreachable: 174,
     noVisibleEffect: 213,
     unportedVisible: 2,
@@ -742,7 +742,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     // rnd.c
     'rnd.c whichrng': ported('js/rng.js initRng', RNG_SETUP),
     'rnd.c init_isaac64': ported('js/rng.js initRng', RNG_SETUP),
-    'rnd.c RND': ported('js/rng.js initRng', RNG_SETUP),
     'rnd.c set_random': ported('js/rng.js initRng', RNG_SETUP),
     'rnd.c init_random': ported('js/rng.js initRng', RNG_SETUP),
     'rnd.c reseed_random': noEffect('a no-op in the patched build (js/do.js goto_level says '

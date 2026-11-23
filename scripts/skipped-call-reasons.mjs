@@ -45,7 +45,7 @@ const LISTED_SITE = 'an internal-error report at a site that '
 // Each label's pinned call count and reason. The reasons for the calls that
 // are not internal-error reports restate the comment at each call site.
 export const SKIPPED_CALL_REASONS = new Map([
-    ['pline.c impossible', { count: 9, reason: LISTED_SITE }],
+    ['pline.c impossible', { count: 8, reason: LISTED_SITE }],
     ['end.c panic', { count: 1, reason: LISTED_SITE }],
     // js/files.js: a playground file other than the config file, or a name
     // outside the playground or HOME.
