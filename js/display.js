@@ -34,7 +34,7 @@ import { select_menu, getlin, ttyMenuColorAttribute } from './windows.js';
 import { query_color, query_attr, clr2colorname } from './coloratt.js';
 import { STATUS_FIELDS, STATUS_CONDITIONS, STATUS_CONDITION_ALIASES } from './status_field_data.js';
 import {
-    erase_status_rows,
+    tty_clear_map_window,
     tty_status_cl_end_screen_row,
     tty_status_flush,
     tty_status_paint,
@@ -7405,7 +7405,7 @@ function clipProjectedMessage(column, ymax, state) {
 // display.c row_refresh(). More can overwrite the top map rows with its
 // wrapped prompt. Once it is dismissed, C clears each physical row and
 // redraws from gg.gbuf, skipping GLYPH_UNEXPLORED unless a background frame
-// colour is active.
+// colour is active. A repair that reaches the status window ends in bot().
 export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
     const display = state.nhDisplay;
     if (!display?.grid || ystartBetweenMenuPages) return;
@@ -7510,6 +7510,15 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
                 recordScreenOverlay(x - 1, screenRow, ch, color, attr);
             }
         }
+    }
+    // wintty.c:3716-3721: "we have wrecked the bottom line". ymax is tested
+    // after the clamp to the terminal's rows, and reaching the status
+    // window's first row is enough, although the loop stops one row short
+    // of it. bot() honours gb.bot_disabled itself.
+    if (lastRow >= firstStatusRow) {
+        state.disp ??= {};
+        state.disp.botlx = true;
+        bot_now();
     }
 }
 
@@ -7981,8 +7990,8 @@ export async function cls() {
         }
         game.disp ??= {};
         game.disp.botlx = true;
-        if (display?.clearScreen) display.clearScreen();
-        erase_status_rows(game);
+        // clear_nhwindow(WIN_MAP).
+        tty_clear_map_window(game);
         // C's cls() clears both the physical terminal and its pending glyph
         // buffer.  disp_* is the JS glyph-buffer owner; leaving it populated lets
         // the next flush reconstruct dungeon cells which were meant to stay

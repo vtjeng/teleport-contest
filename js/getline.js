@@ -87,6 +87,15 @@ let suppress_history = false;
 // map glyphs.  cw->cury is the row of the last wrap, not the cursor's row:
 // backspacing onto the first row moves only ttyDisplay's cursor.  getlin
 // always clears with a non-empty top line, so the toplin test is omitted.
+//
+// C does not home the terminal cursor after docorner() (1052-1056); the
+// final setCursor() here stands for `cw->curx = cw->cury = 0` (1108). The
+// port keeps the message window's column in the terminal cursor alone
+// (js/topl.js addtopl()), and C's next top-line write starts with
+// tty_curs(BASE_WINDOW, cw->curx + 1, cw->cury) (topl.c:198), which homes.
+// Between the two, C's cursor is where docorner() left it; every caller
+// places the cursor again before it waits for a key
+// (recordings/getline.c/menu-search-wrapped-answer-no-match).
 function clearMessageWindow(state) {
     const display = state.nhDisplay;
     const cw = messageWindow(state);

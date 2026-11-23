@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 640219,
+      "datetime": "20310522184500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:human,gender:female,align:neutral,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\n",
+      "moves": "  D:qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq\n\u001bi\u001b"
+    }
+  ],
+  "comment": "getline.c hooked_tty_getlin() ends with clear_nhwindow(WIN_MESSAGE). The 12-column \"Search for: \" prompt and 74 typed bytes wrap onto a second row (cw->cury 1), so wintty.c tty_clear_nhwindow() (1047-1057) homes, clears the top row and calls docorner(1, 2, 0), which clears row 1 across the menu and leaves the terminal cursor at the start of that row. The two spaces dismiss the welcome --More-- and draw \"Unknown command ' '.\"; 'D' opens the multi-drop class menu and ':' its MENU_SEARCH arm (wintty.c:1700-1731). No entry matches the q's, so process_menu_window() goes round its loop and places the cursor after the menu's prompt before it waits again: the cursor docorner() left is never recorded, which is why the port may home it. Rows 0 and 1 of the menu stay erased. Escape closes the menu and 'i' shows that the game goes on."
+}

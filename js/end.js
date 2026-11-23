@@ -220,7 +220,7 @@ import {
 } from './rng.js';
 import { timet_delta } from './allmain.js';
 import { canspotmon } from './display.js';
-import { tty_exit_nhwindows } from './wintty.js';
+import { term_clear_screen, tty_curs, tty_exit_nhwindows } from './wintty.js';
 import {
     Blind, Hallucination, Lifesaved, Sick,
 } from './youprop.js';
@@ -1502,6 +1502,13 @@ async function really_done(how, state) {
     // boundary after the synchronous wait, before the tombstone window.
     if (haveWindows) {
         await displayPendingTtyMessageWindow(state);
+        // end.c:1385 destroy_nhwindow(WIN_MAP): tty_destroy_nhwindow() ends
+        // the map window with term_clear_screen() (wintty.c:2023-2024).
+        // Each of the three windows is dismissed first, which leaves
+        // BASE_WINDOW's cursor on the terminal's last row
+        // (tty_dismiss_nhwindow(), wintty.c:1977).
+        term_clear_screen(state);
+        tty_curs(state.wintty.BASE_WINDOW, 1, state.nhDisplay.rows - 1, state);
         // end.c:1388 destroy_nhwindow(WIN_MESSAGE): tty_destroy_nhwindow()
         // clears iflags.window_inited for the message window
         // (wintty.c:2021-2022), so a pline() from here on is raw_print()ed

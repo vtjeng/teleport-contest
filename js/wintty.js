@@ -243,7 +243,7 @@ export function tty_curs(window, x, y, state = game, _env = {}) {
 // no longer holds; here the hangup-frozen GameDisplay ignores the clear.
 export function tty_suspend_nhwindows(str, state = game) {
     const display = state.nhDisplay;
-    display?.clearScreen();
+    term_clear_screen(state);
     if (str) {
         tty_raw_print(state, str);
     } else if (state.program_state?.done_hup) {
@@ -366,16 +366,7 @@ export async function tty_display_nhwindow_map_blocking(state = game) {
 export function tty_clear_map_window(state = game) {
     state.disp ??= {};
     state.disp.botlx = true;
-    const display = state.nhDisplay;
-    if (!display?.grid) return;
-    display.clearScreen();
-    // erase_tty_screen() clears every active window: the message window
-    // loses a pending --More-- here, and the status window its rows.
-    eraseTtyMessageWindow(state);
-    erase_status_rows(state);
-    // erase_tty_screen()'s tty_curs(BASE_WINDOW, 1, 0).
-    const base = baseWindow(state);
-    base.curx = base.cury = 0;
+    term_clear_screen(state);
 }
 
 // C ref: wintty.c tty_clear_nhwindow() NHW_BASE arm (1079-1090) and its
@@ -383,14 +374,7 @@ export function tty_clear_map_window(state = game) {
 // erase_tty_screen() leaves BASE_WINDOW's cursor at its first row.
 // restore.c restore_menu() calls it on BASE_WINDOW before and after its menu.
 export function tty_clear_base_window(state = game) {
-    const display = state.nhDisplay;
-    if (!display?.grid) return;
-    display.clearScreen();
-    // erase_tty_screen() clears the message window too, once it exists.
-    eraseTtyMessageWindow(state);
-    display.setCursor(0, 0);
-    const base = baseWindow(state);
-    base.curx = base.cury = 0;
+    term_clear_screen(state);
 }
 
 // C ref: wintty.c tty_putstr() NHW_BASE arm with attribute 0, for a line
@@ -486,28 +470,72 @@ export function tty_status_cl_end_screen_row(screenRow, column, state = game) {
         tty_status_cl_end(row, column, state);
 }
 
-// C ref: wintty.c tty_clear_nhwindow() NHW_STATUS arm (1059-1073), as
-// erase_tty_screen() reaches it after term_clear_screen(): the terminal rows
-// are already blank and cw->data becomes spaces. tty_status[][] and
-// finalx[][] keep their values. The caller sets disp.botlx.
-export function erase_status_rows(state = game) {
-    const tty = tty_status_state(state);
-    for (let row = 0; row < MAX_STATUS_ROWS; ++row) {
-        tty.data[row].fill(' ');
-        tty.screen[row].fill(null);
-    }
+// C ref: termcap.c term_clear_screen() (667-679) with recorder patch 006's
+// nomux_clear_screen(), and wintty.c erase_tty_screen() (2036-2055), which it
+// calls.  This is the port's only whole-terminal erase: every C caller of
+// term_clear_screen(), and of tty_clear_nhwindow() on the map or base
+// window, comes here.  scripts/term-clear-screen.test.mjs fails when another
+// function calls display.clearScreen().
+//
+// xputs(CL), home() and nomux_clear_screen() are display.clearScreen().  They
+// run after a hangup too; the hangup-frozen GameDisplay ignores the call.
+// `screen`, the port's record of the terminal's status rows, goes blank
+// with the terminal.
+export function term_clear_screen(state = game) {
+    const display = state.nhDisplay;
+    if (!display) return;
+    display.clearScreen();
+    for (const row of tty_status_state(state).screen) row.fill(null);
+    erase_tty_screen(state);
 }
 
-// C ref: termcap.c term_clear_screen() for a full-screen menu or text
-// window: the terminal is erased, and erase_tty_screen() (wintty.c
-// 2035-2055) blanks the status window's cw->data through
-// tty_clear_nhwindow(). The disp.botlx that arm sets is left to the
-// window's dismissal, whose docrt() sets it again before any bot() can run.
-// It lives here, not in termcap.js, because that module must not import
-// this one: the cycle breaks module initialization order.
-export function term_clear_screen(state, display) {
-    display.clearScreen();
-    erase_status_rows(state);
+// C ref: wintty.c erase_tty_screen() (2036-2055): tty_clear_nhwindow() of
+// every active window with erasing_tty_screen set, so that no arm draws,
+// then tty_curs(BASE_WINDOW, 1, 0).  The flag also stops the map and base
+// arms from calling term_clear_screen() again; the port has no such call to
+// stop.  What each active window's arm (1047-1108) does:
+//
+// - NHW_MESSAGE: a top line that is not TOPLINE_EMPTY becomes so, without a
+//   --More--.  The window is active from its first display on.
+// - NHW_MAP: disp.botlx.  allmain.c init_sound_disp_gamewindows() displays
+//   the map window two statements after the message window (756-758) and
+//   neither is dismissed before both are freed, so the message window's
+//   `active` answers for the map window, which the port creates only for
+//   getpos().
+// - NHW_STATUS: cw->data becomes spaces, and disp.botlx.  tty_status[][]
+//   and finalx[][] keep their values.  windows.c genl_status_init()
+//   (904-905) creates and displays the window when botl.c
+//   status_initialize(FALSE) runs, which is also what sets gb.blinit
+//   (botl.c:1692-1696), so gb.blinit is the window's `active`; the port
+//   keeps the window's data in state._ttyStatus, not in wins[].
+// - NHW_BASE: nothing.
+// - NHW_MENU and NHW_TEXT: nothing.  The port keeps a displayed menu or
+//   text window's cursor in the terminal cursor alone, and every write to
+//   one follows a tty_curs() of its own.
+//
+// Every arm ends by zeroing the window's curx and cury (1108).
+function erase_tty_screen(state) {
+    if (state.program_state?.done_hup) return; // HUPSKIP()
+    const wt = winttyState(state);
+    for (const cw of wt.wins ?? []) {
+        if (!cw?.active) continue;
+        if (cw.type === NHW_MESSAGE) {
+            eraseTtyMessageWindow(state);
+            state.disp ??= {};
+            state.disp.botlx = true;
+        } else if (cw.type === NHW_MAP) {
+            state.disp ??= {};
+            state.disp.botlx = true;
+        }
+        cw.curx = cw.cury = 0;
+    }
+    if (state.gb?.blinit) {
+        for (const row of tty_status_state(state).data) row.fill(' ');
+        state.disp ??= {};
+        state.disp.botlx = true;
+    }
+    if (windowAt(wt, wt.BASE_WINDOW ?? WIN_ERR))
+        tty_curs(wt.BASE_WINDOW, 1, 0, state);
 }
 
 // C ref: wintty.c tty_putstatusfield() (4802-4841). `x` is one-based and
@@ -765,7 +793,11 @@ function clear_status_window(state) {
     // status row (display.js _screenOverlay()); they come back only when
     // the map cell is printed again.
     for (let row = 0; row < rows; ++row) tty_status_cl_end(row, 0, state);
-    erase_status_rows(state);
+    const tty = tty_status_state(state);
+    for (let row = 0; row < MAX_STATUS_ROWS; ++row) {
+        tty.data[row].fill(' ');
+        tty.screen[row].fill(null);
+    }
     if (display?.grid) {
         const firstRow = display.rows - rows;
         for (let row = firstRow; row < display.rows; ++row)
@@ -855,6 +887,8 @@ export function tty_init_nhwindows(argcp = null, argv = null, state = game) {
     // set_wc2_option_mod_status(WC2_STATUSLINES, set_in_game) gives
     // statuslines the mode include/optlist.h already gives it.  They
     // therefore are not unported gaps in a normal browser startup.
+    // wintty.c:560 tty_clear_nhwindow(BASE_WINDOW), before the banner.
+    tty_clear_base_window(state);
     renderTtyStartupBanner(state);
 }
 

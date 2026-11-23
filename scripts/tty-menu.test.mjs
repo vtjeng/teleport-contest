@@ -1641,6 +1641,42 @@ test('PICK_ONE group accelerators need exactly one counted entry', () => {
     assert.deepEqual([...menuGroupAccelerators([gold], PICK_ONE)], []);
 });
 
+test('PICK_ONE tests a group accelerator before a selector', async () => {
+    // wintty.c process_menu_window()'s default arm (1737-1761): the gacc[]
+    // test and its invert_all() come before the loop that looks for a
+    // selector on the page.
+    const arm = WINTTY_C.slice(WINTTY_C.indexOf('} else if (strchr(gacc, morc)) {'));
+    assert.ok(arm.indexOf('invert_all(window, page_start, page_end, morc,') > 0);
+    assert.ok(arm.indexOf('invert_all(window, page_start, page_end, morc,')
+        < arm.indexOf('if (morc == curr->selector) {'));
+
+    // 'b' is one entry's selector and another entry's only group
+    // accelerator: gcnt['b'] is 1, so 'b' toggles the group (value 1) and
+    // never reaches the selector's entry (value 2).
+    const shadowed = () => [
+        { selector: 'a', groupSelector: 'b', value: 1, label: 'grouped' },
+        { selector: 'b', value: 2, label: 'selected by letter' },
+    ];
+    assert.equal(await selectTtyMenu(menuState('b'), {
+        how: PICK_ONE, title: 'Pick one', items: shadowed(),
+    }), 1);
+    // Control: 'a' is only a selector.
+    assert.equal(await selectTtyMenu(menuState('a'), {
+        how: PICK_ONE, title: 'Pick one', items: shadowed(),
+    }), 1);
+
+    // invert_all() also toggles an entry that carries the accelerator as
+    // its own selector (1250-1251 test gselector alone), so tty_select_menu()
+    // returns both, in menu order.
+    assert.deepEqual(await selectTtyMenu(menuState('x'), {
+        how: PICK_ONE, title: 'Pick one', returnSelections: true,
+        items: [
+            { selector: 'x', groupSelector: 'x', value: 3, label: 'own selector' },
+            { selector: 'a', groupSelector: 'x', value: 4, label: 'counted' },
+        ],
+    }), [{ value: 3, count: -1 }, { value: 4, count: -1 }]);
+});
+
 test('PICK_ANY group accelerators follow process_menu_window gacc[]', async () => {
     // wintty.c process_menu_window() (1349-1379): an accelerator enters gacc[]
     // only once some entry's differs from its selector; then each one that

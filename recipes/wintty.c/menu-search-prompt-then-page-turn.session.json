@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 482650,
+      "datetime": "20270311213000",
+      "nethackrc": "OPTIONS=name:Ansgar,role:Knight,race:human,gender:male,align:lawful,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\n",
+      "moves": "  O:zqx\n>:mail\n><\u001bi\u001b"
+    },
+    {
+      "seed": 482651,
+      "datetime": "20270311214500",
+      "nethackrc": "OPTIONS=name:Ansgar,role:Knight,race:human,gender:male,align:lawful,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!tips,!autopickup\n",
+      "moves": "  O>:zq\u001b\u001b>>\u001b:\u001b"
+    }
+  ],
+  "comment": "win/tty/wintty.c process_menu_window(): a getlin prompt drawn on the top line of a full-screen menu, then a page turn, whose term_clear_screen() (1412) runs erase_tty_screen() (2036-2055) over the message, map and status windows. 'O' opens the options menu, which fills two pages. Segment 0: ':' asks \"Search for:\" (MENU_SEARCH, 1700-1731) on page 1 and again on page 2, each answer ended by Return, with page turns after them. Escape leaves the menu and 'i' shows the status and map redrawn. Segment 1 is the variation: the search is cancelled with Escape over typed text and again over the empty line, '>' on the last page does nothing, and after the menu ':' looks here. The two spaces dismiss the welcome --More--. Seeds, clocks, character and keys chosen independently."
+}

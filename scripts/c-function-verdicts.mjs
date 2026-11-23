@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 267,
+    otherName: 266,
     unreachable: 174,
     noVisibleEffect: 213,
     unportedVisible: 2,
@@ -880,8 +880,8 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'termcap.c tty_decgraphics_termcap_fixup': noEffect(ESCAPE),
     'termcap.c term_start_screen': noEffect(ESCAPE),
     'termcap.c term_end_screen': ported('js/wintty.js tty_suspend_nhwindows',
-        'its term_clear_screen() clears patch 006\'s shadow screen, which display.clearScreen() '
-        + 'mirrors; VE and TE are escapes the buffer does not capture'),
+        'its term_clear_screen() is js/wintty.js term_clear_screen(); VE and TE are escapes '
+        + 'the buffer does not capture'),
     'termcap.c nocmov': ported('js/wintty.js tty_curs', CURSOR),
     'termcap.c cmov': ported('js/wintty.js tty_curs', CURSOR),
     'termcap.c xputc': noEffect('a putchar() for tputs() and the no-CE and no-CM fallbacks, '
@@ -1065,8 +1065,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'wintty.c toggle_menu_attr': ported('js/tty_menu.js selectionMarker', TTY_MENU),
     'wintty.c tty_dismiss_nhwindow': ported('js/tty_menu.js erase_menu_or_text', TTY_MENU),
     'wintty.c tty_destroy_nhwindow': ported('js/tty_menu.js erase_menu_or_text', TTY_MENU),
-    'wintty.c erase_tty_screen': ported('js/wintty.js tty_clear_map_window',
-        'the full-screen erase'),
     'wintty.c tty_display_file': ported('js/pager.js display_file', 'the text file display'),
     'wintty.c tty_start_menu': ported('js/tty_menu.js selectTtyMenu',
         'without TTY_PERM_INVENT it only empties the menu with tty_clear_nhwindow(); the port '

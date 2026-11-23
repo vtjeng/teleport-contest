@@ -166,7 +166,7 @@ export function renderTtyLegacyIntroduction(state = game) {
     if (layout.fullScreen) display.toplin = TOPLINE_EMPTY;
     else clearTtyMessageWindow(state);
     const snapshot = snapshotDisplay(display);
-    if (layout.fullScreen) term_clear_screen(state, display);
+    if (layout.fullScreen) term_clear_screen(state);
     for (let row = 0; row < lines.length; ++row) {
         clearFrom(display, layout.offx, row);
         writeTextWindowLine(

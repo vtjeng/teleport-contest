@@ -233,27 +233,24 @@ function clearRowFrom(display, firstColumn, row) {
 // 0..maxrow the window covered, so its length is docorner()'s ymax.
 export async function restoreCorner(state, display, repairColumn, snapshot) {
     if (state.level && state.u?.ux) {
+        // docorner() ends by calling bot() when ymax reaches WIN_STATUS,
+        // even when the half-open clear range ends exactly at its first row
+        // and therefore clears no status cells. It does not restore the
+        // status suffix the window covered.
         docorner(repairColumn + 1, snapshot.length, 0, state);
-    } else {
-        restoreRegion(display, repairColumn, snapshot);
+        return;
     }
+    restoreRegion(display, repairColumn, snapshot);
 
-    // C docorner() ends by calling bot() when ymax reaches WIN_STATUS, even
-    // when the half-open clear range ends exactly at its first row and
-    // therefore clears no status cells. It does not restore the status
-    // suffix the window covered: keep the cells left of the repair column
-    // and let bot() redraw the status only when its caller has not disabled
-    // bot updates.
-    // docorner() already cleared those rows and then reprinted any map row
-    // that lies over the status window (three status lines on 24 rows).
+    // Without a level the same repair is written out: clear the status rows
+    // from the repair column, keep the cells left of it, and let bot()
+    // redraw the status unless its caller has disabled bot updates.
     const firstStatusRow = display.rows - status_window_rows();
     if (snapshot.length < firstStatusRow) return;
-    if (!(state.level && state.u?.ux)) {
-        for (let row = Math.max(0, firstStatusRow); row < snapshot.length;
-            ++row) {
-            clearRowFrom(display, repairColumn, row);
-            tty_status_cl_end_screen_row(row, repairColumn, state);
-        }
+    for (let row = Math.max(0, firstStatusRow); row < snapshot.length;
+        ++row) {
+        clearRowFrom(display, repairColumn, row);
+        tty_status_cl_end_screen_row(row, repairColumn, state);
     }
     state.disp ??= {};
     state.disp.botlx = true;
@@ -504,7 +501,7 @@ export async function displayTtyMenuTextWindow(
         const promptRow = pageLines.length;
 
         if (layout.clearsScreen || pageIndex > 0)
-            term_clear_screen(state, display);
+            term_clear_screen(state);
         for (let row = 0; row < pageLines.length; ++row) {
             clearRowFrom(display, layout.firstColumn, row);
             const line = pageLines[row];
@@ -802,7 +799,7 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
         maxrow: layout.maxrow,
     };
 
-    if (layout.fullScreen) term_clear_screen(state, display);
+    if (layout.fullScreen) term_clear_screen(state);
     else clearRegion(display, layout.firstColumn, visibleRows);
 
     // process_menu_window() decides once from the complete linked menu, before
@@ -884,9 +881,8 @@ export async function dismissTtyMenu(state = game, rendered) {
     if (!display || !rendered) return;
     if (rendered.base.fullScreen) {
         if (state.program_state?.in_role_selection) {
-            display.clearScreen();
-            const base = baseWindow(state);
-            base.curx = base.cury = 0;
+            // erase_menu_or_text()'s `clear` branch (wintty.c:975-976).
+            term_clear_screen(state);
         } else {
             await erase_menu_or_text(
                 state, display, rendered.snapshot, rendered.baseCursor,
@@ -996,7 +992,7 @@ export async function displayTtyTextWindow(state = game, lines) {
     const baseCursor = [display.cursorCol, display.cursorRow];
 
     if (maxrow >= display.rows || !menuOverlay(state)) {
-        term_clear_screen(state, display);
+        term_clear_screen(state);
     } else {
         // A window short enough to overlay clears only the message window
         // here, the same clear renderTtyMenu() performs for a corner menu.
@@ -1017,7 +1013,7 @@ export async function displayTtyTextWindow(state = game, lines) {
                 cancelled = true;
                 break;
             }
-            term_clear_screen(state, display);
+            term_clear_screen(state);
             n = 0;
         }
         const line = lines[i];
@@ -1176,19 +1172,20 @@ function sourceChoiceSelector(line) {
 // accelerator only when that count is exactly one.  Gold's '$', which is its
 // own selector under USE_INVLET, is therefore counted zero times and is not a
 // group accelerator: '$' picks gold only as a selector, on gold's own page.
-// The value is that of the one counted entry.  Two parts of the C are not
-// represented: invert_all() also toggles an entry that carries the
-// accelerator as its own selector, and gcnt[] also counts an entry with a
-// zero identifier, which selectableItems() leaves out here as it does for
-// PICK_ANY.
+//
+// Each accelerator maps to `items`, every entry invert_all() toggles: the
+// counted entry and any entry that carries the accelerator as its own
+// selector.  `value` is that of the first, which is the first selection
+// tty_select_menu() returns.  One part of the C is not represented: gcnt[]
+// also counts an entry with a zero identifier, which selectableItems()
+// leaves out here as it does for PICK_ANY.
 function pickOneGroupChoices(spec) {
     if (spec.items) {
         const items = selectableItems(spec);
         const grouped = new Map();
         for (const ch of menuGroupAccelerators(items, PICK_ONE)) {
-            grouped.set(ch, items.find((item) => (
-                item.groupSelector === ch && item.selector !== ch
-            )).value);
+            const group = items.filter((item) => item.groupSelector === ch);
+            grouped.set(ch, { value: group[0].value, items: group });
         }
         return grouped;
     }
@@ -1197,9 +1194,9 @@ function pickOneGroupChoices(spec) {
     const lineSelectors = new Set(
         (spec.lines ?? []).map(sourceChoiceSelector).filter(Boolean),
     );
-    return new Map([...choices].filter(([selector]) => (
-        !lineSelectors.has(selector)
-    )));
+    return new Map([...choices]
+        .filter(([selector]) => !lineSelectors.has(selector))
+        .map(([selector, value]) => [selector, { value, items: [] }]));
 }
 
 // C ref: wintty.c process_menu_window(). resp[] collects the selector of
@@ -1208,7 +1205,15 @@ function pickOneGroupChoices(spec) {
 // menu. An entry with a zero identifier comes back from tty_select_menu()
 // as one selected item whose identifier is zero, which this port returns as
 // 0, the zeroany a_int its only caller (dungeon.c tport_menu()) reads.
+//
+// The default arm tests gacc[] before it looks for a selector (1741-1749),
+// so a key that is both a unique group accelerator and a selector on this
+// page toggles the group.  `group` is that group's entry in groupChoices.
 function visiblePickOneChoice(rendered, spec, groupChoices, ch) {
+    if (groupChoices.has(ch)) {
+        const group = groupChoices.get(ch);
+        return { found: true, value: group.value, group };
+    }
     const explicitLine = rendered.layout.lines.find((line) => (
         line.item
             ? line.item.selector === ch
@@ -1229,9 +1234,6 @@ function visiblePickOneChoice(rendered, spec, groupChoices, ch) {
         if (explicitLine && choices.has(ch)) {
             return { found: true, value: choices.get(ch) };
         }
-    }
-    if (groupChoices.has(ch)) {
-        return { found: true, value: groupChoices.get(ch) };
     }
     return { found: false, value: undefined };
 }
@@ -1342,6 +1344,13 @@ async function selectOneTtyMenu(state, spec) {
         }
         return spec.returnCount ? { value, count: count ?? -1 } : value;
     };
+    // invert_all() with the group accelerator (wintty.c:1745-1746): every
+    // entry of the group is toggled, with the pending count if there is one.
+    const selectedGroup = (group, count = pendingCount) => {
+        if (!spec.returnSelections) return selectedValue(group.value, count);
+        invertItems(state, group.items, count, true);
+        return selectedRows();
+    };
     for (;;) {
         const code = await menuKey(state);
         const incoming = keyCharacter(code);
@@ -1359,7 +1368,9 @@ async function selectOneTtyMenu(state, spec) {
                 continue;
             }
             await dismissTtyMenu(state, rendered);
-            return selectedValue(explicit.value);
+            return explicit.group
+                ? selectedGroup(explicit.group)
+                : selectedValue(explicit.value);
         }
 
         const mapping = menuCommandMapping(state, incoming);
@@ -1467,7 +1478,7 @@ async function selectOneTtyMenu(state, spec) {
         // this page, and never falls through to here.
         if (!MENU_SWITCH_COMMANDS.has(ch) && groupChoices.has(ch)) {
             await dismissTtyMenu(state, rendered);
-            return selectedValue(groupChoices.get(ch));
+            return selectedGroup(groupChoices.get(ch));
         }
 
         // xwaitforspace() rejects an unknown byte internally, without

@@ -1133,7 +1133,9 @@ function* recalc_steps(control, env) {
                 }
             }
         }
-        if (ux > 0) yield* draw(ux, uy);
+        // vision.c:849-850: "Make sure the hero shows up!", unless the
+        // game is panicking. C does not test the column.
+        if (!state.program_state?.panicking) yield* draw(ux, uy);
     }
 
     state._viz_rmin = next_rmin;
