@@ -346,7 +346,7 @@ test('offer_real_amulet follows its whole high-altar source branch', () => {
     assert.match(cBody, /u\.uevent\.ascended = 1;[\s\S]*done\(ASCENDED\);/u);
 
     assert.match(jsBody, /if \(state\.uamul === otmp\) await Amulet_off\(state\)/u);
-    assert.match(jsBody, /if \(carried\(otmp\)\) useup\(otmp, \{ state \}\);[\s\S]*await useupf\(otmp, 1, \{ state \}\)/u);
+    assert.match(jsBody, /if \(carried\(otmp\)\) await useup\(otmp, \{ state \}\);[\s\S]*await useupf\(otmp, 1, \{ state \}\)/u);
     assert.match(jsBody, /if \(altaralign === A_NONE\)[\s\S]*else if \(u\.ualign\.type !== altaralign\)[\s\S]*else \{/u);
     assert.match(jsBody, /await done\(DIED, state\);[\s\S]*await fry_by_god\(A_NONE, true, state\);[\s\S]*await done\(ESCAPED, state\);/u);
     assert.match(jsBody, /u\.uevent\.ascended = 1;[\s\S]*await done\(ASCENDED, state\);/u);

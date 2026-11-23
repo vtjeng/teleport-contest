@@ -101,7 +101,7 @@ test('AD_ENCH passive and floor-drain callers preserve their C guards', () => {
     // C's monster-pair, polymorph-passive and floor-zap calls each pass their
     // source-selected object and by-you flag to the one zap.c drain_item owner.
     assert.match(MHITM_C, /if \(mhitb && !mdef->mcan && mwep\)\s*\{\s*\(void\) drain_item\(mwep, FALSE\);/u);
-    assert.match(MHITM_JS, /if \(mhitb && !mdef\.mcan && mwep\)\s*drain_item\(mwep, false, state, env\);/u);
+    assert.match(MHITM_JS, /if \(mhitb && !mdef\.mcan && mwep\)\s*await drain_item\(mwep, false, state, env\);/u);
     assert.match(MHITU_C,
         /case AD_ENCH:[\s\S]*?if \(mon_currwep\) \{[\s\S]*?drain_item\(mon_currwep, TRUE\);[\s\S]*?\}\s*return M_ATTK_HIT;/u);
     // The async JavaScript wrapper keeps C's weapon guard, then waits for the
