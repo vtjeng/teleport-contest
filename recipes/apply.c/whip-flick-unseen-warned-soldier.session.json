@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "apply.c use_whip() whipattack (3128-3145): an Archeologist wearing a ring of warning flicks a bullwhip three times at an invisible soldier created to the north-west. Each flick finds !canspotmon() and tests glyph_is_invisible(levl[rx][ry].glyph); the report prints every time because display.c show_mon_or_warn() (489-493) forgets the remembered I whenever newsym() draws the warning number over it. Reaches the site; it does not tell the remembered glyph from the drawn one, which no recipe found does (see whip-flick-unseen-soldier-plane-of-water).",
+ "segments": [
+  {
+   "seed": 4410933,
+   "datetime": "20360229041500",
+   "nethackrc": "OPTIONS=name:Ferrand,role:Archeologist,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+   "moves": "\u0017blessed ring of warning\nPjr\u0007hostile invisible sleeping soldier\naay\n\n\u0012aay\n\n\u0012aay\n\n"
+  }
+ ]
+}
