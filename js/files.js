@@ -14,6 +14,7 @@ import {
     truncateByteString,
 } from './hacklib.js';
 import { coreRandom } from './rng.js';
+import { free_config_sections } from './cfgfiles.js';
 import { DAT_LUA_FILES } from './dat_files.js';
 import { note_unported } from './unported.js';
 import { TRIBUTE_DATA } from './tribute_data.js';
@@ -281,14 +282,9 @@ export function isDefaultSymsetName(name) {
 // 1858). dat/symbols holds no CHOOSE or section line, so the one state change
 // left is that gc.config_section_chosen and gc.config_section_current are
 // null afterwards. `state` is the holder of those two fields: the parser
-// result while a configuration file is being read. The two assignments are
-// the body of js/cfgfiles.js free_config_sections(), written out because a
-// static import of that module from this one closes an import cycle that
-// leaves js/makemon_create.js reading display symbols before they exist.
+// result while a configuration file is being read.
 export function read_sym_file(name, state = game) {
-    state.gc ??= {};
-    state.gc.config_section_chosen = null;
-    state.gc.config_section_current = null;
+    free_config_sections(state);
     if (isDefaultSymsetName(name)) return true;
     const folded = lcase(String(name));
     return SYMBOL_SET_DEFINITIONS.some(

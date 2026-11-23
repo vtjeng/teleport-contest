@@ -16,12 +16,12 @@ import {
 import {
     BUFSZ,
     ECMD_OK,
+    FEATURE_NOTICE_VER,
     PREFIX_COUNT,
     WARNCOUNT,
     WIZKIT_MAX,
 } from './const.js';
 import { add_menu_coloring } from './coloratt.js';
-import { get_feature_notice_ver } from './version.js';
 import { rn2 } from './rng.js';
 
 // C ref: cfgfiles.c default_configfile (126-139), the UNIX arm.
@@ -36,7 +36,11 @@ export const RECORDER_HOME =
     '/Users/davidbau/git/mazesofmenace/teleport/maud/test/comparison/c-harness/results';
 export const RECORDER_CONFIGFILE = `${RECORDER_HOME}/${DEFAULT_CONFIGFILE}`;
 
-const FEATURE_NOTICE_3_7_0 = Number(get_feature_notice_ver('3.7.0'));
+// cfgfiles.c:178 compares with the macro. This module must not import
+// js/version.js: files.c read_sym_file() calls free_config_sections() below,
+// js/symbols.js imports js/files.js, and version.js reaches symbols.js, so
+// the import would close a cycle (scripts/symbol-entry-modules.test.mjs).
+const FEATURE_NOTICE_3_7_0 = Number(FEATURE_NOTICE_VER(3, 7, 0));
 const OVERWRITE_PROMPT_FORMAT = 'Overwrite config file %.*s?';
 // C's sizeof overwrite_prompt includes its terminating NUL, and the extra two
 // bytes leave room for the formatted string's own terminating NUL and margin.
