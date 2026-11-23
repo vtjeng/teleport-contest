@@ -119,6 +119,7 @@ import {
     st_petrifies,
     st_resists,
     u_at,
+    uhis,
 } from './const.js';
 import {
     is_pool,
@@ -3116,7 +3117,7 @@ async function in_container(obj, state) {
         && mbag_explodes(obj, 0, state)) {
         livelog_printf(
             LL_ACHIEVE,
-            'just blew up your bag of holding',
+            `just blew up ${uhis(state)} bag of holding`,
             state,
         );
         await ttyUrgentPline(
@@ -4147,7 +4148,7 @@ async function tipcontainer(box, state) {
             if (isMbag(targetbox) && mbag_explodes(otmp, 0, state)) {
                 livelog_printf(
                     LL_ACHIEVE,
-                    `just blew up your bag of holding via tipping`,
+                    `just blew up ${uhis(state)} bag of holding via tipping`,
                     state,
                 );
                 await ttyUrgentPline(

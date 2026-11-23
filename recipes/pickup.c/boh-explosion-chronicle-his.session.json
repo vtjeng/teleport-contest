@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pickup.c in_container() (2658-2659): a male Priest in debug mode, raised to level 12 so the blast is survivable, wishes for a bag of holding and a wand of cancellation and stashes the wand in the bag. mbag_explodes() is true, so livelog_printf() records \"just blew up %s bag of holding\" with uhis(), and #chronicle lists the line with \"his\". Seed, date, Priest and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 40718263,
+      "datetime": "20290604150000",
+      "nethackrc": "OPTIONS=name:Anselm,role:Priest,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " #levelchange\n12\n          \u0017bag of holding\n\u0017wand of cancellation\naisj#chronicle\n  i"
+    }
+  ]
+}
