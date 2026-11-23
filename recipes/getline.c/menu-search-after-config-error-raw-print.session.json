@@ -1,0 +1,24 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 730461,
+      "datetime": "20290817063000",
+      "nethackrc": "OPTIONS=role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial,pettype:none\n",
+      "moves": "Faelar\r  kSy"
+    },
+    {
+      "seed": 730462,
+      "datetime": "20290817064500",
+      "nethackrc": "OPTIONS=role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial,pettype:none\nOPTIONS=menu_headlines\n",
+      "moves": "\r:el\r"
+    },
+    {
+      "seed": 730463,
+      "datetime": "20290817070000",
+      "nethackrc": "OPTIONS=role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial,pettype:none\n",
+      "moves": "a i"
+    }
+  ],
+  "comment": "Unrecorded: record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder, which dies at getline.c:55 on the ':' key. A variation of menu-search-before-message-window for win/tty/getline.c hooked_tty_getlin() reached from wintty.c process_menu_window()'s MENU_SEARCH arm (1700-1709) at restore.c restore_menu()'s saved-games menu, before WIN_MESSAGE exists. Segment 1's rc holds an unknown option, so cfgfiles.c reports it through raw_print() before tty_init_nhwindows(): recorder patch 006 nomux_raw_emit() enters raw mode there and nomux_raw_active stays set, so the later raw_print(\"Search for:\") does not clear the shadow screen again and lands on the raw row after the error lines, across the menu, where the first recording's prompt lands on a blank screen. topl_putsym() still echoes 'e' and 'l' at ttyDisplay's cursor, after the menu's \"(end)\", and the recorded cursor is the raw one. Return calls tty_clear_nhwindow(WIN_MESSAGE), whose ttywindowpanic() ends in SIGABRT on macOS. Segment 0 saves a nameless-rc Priest; segment 2 picks the save and plays on. The port's screens for segment 1 are a prediction from the patch text, not yet compared with a macOS recording. Seeds, clocks, character, name and keys chosen independently."
+}
