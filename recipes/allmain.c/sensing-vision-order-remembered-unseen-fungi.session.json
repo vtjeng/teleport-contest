@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7730037,
+      "datetime": "20281102071500",
+      "nethackrc": "OPTIONS=name:Mistral,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b\u0017cursed scroll of light\nrg \u00076 tame violet fungus\n\u00072 peaceful baby gold dragon\n\u00073 fog cloud\nssssssss",
+      "comment": "Variation of sensing-vision-order-remembered-unseen-jackals with another seed and room: six tame violet fungi, two peaceful baby gold dragons and three fog clouds. A fungus beside the hero attacks a fog cloud in the dark ('The violet fungus misses it.'), leaving a remembered unseen monster, and a baby gold dragon ends the same turn next to that square. allmain.c moveloop_core() (454-471) runs see_monsters() before vision_recalc(), so the screen after that turn shows the fog cloud as 'v' two squares east of the hero rather than its gas region's '#'."
+    }
+  ]
+}

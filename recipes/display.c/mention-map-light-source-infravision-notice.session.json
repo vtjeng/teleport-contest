@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 640136,
+      "datetime": "20270623184000",
+      "nethackrc": "OPTIONS=name:Wick,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,mention_map,time\n",
+      "moves": "\u001b\u001b\u001619\n\u00078 peaceful sleeping lichen\n\u0007shocking sphere\n ",
+      "comment": "mention_map and the time option, a dwarvish Valkyrie in a level 19 dark room with eight sleeping lichens on the adjacent squares. ^G creates a shocking sphere two squares away; infravision shows it on an unexplored square, so display.c show_glyph() (2011-2068) reports '(1south,2west): shocking sphere.' through pline_xy() from makemon.c makemon()'s newsym() (1473). pline.c vpline() (266-272) recalculates vision for the sphere's new light source before printing, so that line's map flush already shows the floor and wall the sphere lights, and 'A shocking sphere appears close by.' joins it on the top line."
+    }
+  ]
+}

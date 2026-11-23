@@ -24,7 +24,10 @@ import { parse } from 'acorn';
 // generator (js/source_steps.js) whose callers are partly synchronous, such
 // as worn.js m_dowear_type_steps() on the creation path;
 // tty_message.js vplineVisionRecalc() prints the notices under its outer
-// message's pline flags; display.js docrt() brackets its two recalculations
+// message's pline flags; tty_message.js queuedVplineVisionRecalc() is the
+// vpline() recalculation of a mention_map notice that is itself being
+// queued, so the notices it raises queue ahead of that one and print with
+// it; display.js docrt() brackets its two recalculations
 // with program_state.in_docrt and prints after both, so the suspendVision
 // and restoreVision callbacks a caller passes to docrt() may call
 // vision_recalc() too.
@@ -32,6 +35,7 @@ const ALLOWED = new Set([
     'js/vision.js vision_recalc_async',
     'js/vision.js vision_recalc_steps',
     'js/tty_message.js vplineVisionRecalc',
+    'js/tty_message.js queuedVplineVisionRecalc',
     'js/display.js docrt',
 ]);
 const DOCRT_PHASES = new Set(['suspendVision', 'restoreVision']);

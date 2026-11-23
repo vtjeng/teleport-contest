@@ -34,6 +34,7 @@ import { YOU_BUF_FORMATS } from './you_buf_messages_data.js';
 import { impossible_printer, youFeel, youHear, youSee } from './pline.js';
 import { ATR_NONE, NO_COLOR } from './terminal.js';
 import { vision_recalc } from './vision.js';
+import { sync_impossible } from './source_steps.js';
 import { decode_mixed } from './windows.js';
 import { tty_raw_print } from './tty_rawprint.js';
 import { msgtype_type } from './options.js';
@@ -468,17 +469,12 @@ async function ttyPlineCore(
     let normalizedMessage = normalizeVplineMessage(message);
     let next = normalizedMessage;
     if (viaVpline && vplineRawPrint(normalizedMessage, state)) return true;
-    const noRepeat = Boolean(pflags & PLINE_NOREPEAT);
     const urgentMessage = Boolean(pflags & URGENT_MESSAGE);
     let msgtype = MSGTYP_NORMAL;
-    if (viaVpline && !(pflags & OVERRIDE_MSGTYPE)) {
-        msgtype = msgtype_type(normalizedMessage, noRepeat, state);
-        if (!(pflags & URGENT_MESSAGE)
-            && (msgtype === MSGTYP_NOSHOW
-                || (msgtype === MSGTYP_NOREP
-                    && normalizedMessage === state._ttyPreviousMessage))) {
-            return false;
-        }
+    if (viaVpline) {
+        msgtype = vplineMsgtype(
+            normalizedMessage, pflags, state._ttyPreviousMessage, state);
+        if (msgtype === null) return false;
     }
     // C ref: pline.c vpline() (266-271). C brackets the call with
     // in_pline = 0 so a message raised inside it counts as top level; this
@@ -617,6 +613,59 @@ async function ttyPlineCore(
     return true;
 }
 
+// C ref: pline.c vpline() (245-264). The MSGTYPE lookup, skipped under
+// OVERRIDE_MSGTYPE. Answers the message's type, or null when vpline() goes
+// to pline_done without printing it: a hidden line, or a no-repeat line that
+// equals `prevmsg`, C's gp.prevmsg, unless the line is urgent.
+function vplineMsgtype(line, pflags, prevmsg, state) {
+    if (pflags & OVERRIDE_MSGTYPE) return MSGTYP_NORMAL;
+    const msgtype = msgtype_type(line, Boolean(pflags & PLINE_NOREPEAT), state);
+    if (!(pflags & URGENT_MESSAGE)
+        && (msgtype === MSGTYP_NOSHOW
+            || (msgtype === MSGTYP_NOREP && line === prevmsg)))
+        return null;
+    return msgtype;
+}
+
+// C ref: pline.c vpline() (166-272), for a line the port queues instead of
+// printing: display.c show_glyph()'s mention_map notice, whose pline_xy()
+// runs inside show_glyph() (js/startup_a11y.js queueGlyphUpdateNotice()).
+// Printing waits for the queue to drain, but the recalculation vpline()
+// spends before it prints does not, because the code after show_glyph()
+// reads the recalculated vision. makemon.c makemon() (1349, 1473-1485) gives
+// a light-emitting monster its light source, draws it through newsym() while
+// its square is still dark, and then tests canseemon() for the "appears"
+// message; the notice for the glyph newsym() drew is what lights the square.
+// The squares the recalculation draws raise notices of their own, which
+// queue here ahead of the caller's, as C prints them first.
+//
+// `message` is the line as the recursive vpline() receives it, location
+// prefix included, and `prevmsg` is the line C printed last: the notice
+// queued before this one when there is one, and gp.prevmsg otherwise. A
+// synchronous queue site calls this before it queues its line, with
+// gp.pline_flags as they stand then. The early returns are vpline()'s own:
+// lines 166-173, the raw_print() arm at 239-243, and the MSGTYPE arm at
+// 245-264. emitGlyphUpdateNotices() marks the lines that passed through
+// here, and vplineVisionRecalc() then leaves a later recalculation to the
+// message C spends it on.
+export function queuedVplineVisionRecalc(message, prevmsg, state = game) {
+    if (state !== game || !state.vision_full_recalc) return;
+    if (!message || state.program_state?.done_hup
+        || state.program_state?.wizkit_wishing
+        || !state.iflags?.window_inited)
+        return;
+    const line = normalizeVplineMessage(message);
+    if (vplineMsgtype(line, state.gp?.pline_flags ?? 0,
+                      prevmsg ?? state._ttyPreviousMessage, state) === null)
+        return;
+    // display.c wall_angle()'s impossible() inside the recalculation is a
+    // pline nested in this one, so it joins the queue ahead of this line too.
+    vision_recalc(0, {
+        state,
+        onImpossible: (text) => sync_impossible(text, state),
+    });
+}
+
 // C ref: pline.c vpline() (266-272). A recalculation another routine
 // deferred -- a new light source, options.c:5372's lit_corridor toggle --
 // is spent by the next message, before its map flush. The notices that
@@ -632,6 +681,10 @@ async function ttyPlineCore(
 // a recalculation ran.
 export async function vplineVisionRecalc(pflags, state = game) {
     if (state !== game || !state.vision_full_recalc) return false;
+    // A queued line that queuedVplineVisionRecalc() saw has had its
+    // vpline()'s recalculation already. One pending now was raised after C
+    // printed that line, and belongs to the next message.
+    if (state._queuedNoticeVisionSpent) return false;
     // newsym() inside it prints display.c wall_angle()'s impossible() as a
     // message nested in this one, as C's does once in_pline is cleared.
     await vision_recalc(0, { state, onImpossible: impossible_printer(state) });
