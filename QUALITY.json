@@ -13,7 +13,10 @@
         "js/color_data.js",
         "js/coloratt.js",
         "js/config_statement_data.js",
+        "js/dat_files.js",
         "js/files.js",
+        "js/files_bones.js",
+        "js/ioctl.js",
         "js/jsmain.js",
         "js/legacy_startup.js",
         "js/options.js",
@@ -22,11 +25,22 @@
         "js/player_selection.js",
         "js/player_selection_tty.js",
         "js/posixregex.js",
+        "js/regcomp.js",
+        "js/regerror.js",
+        "js/regexec.js",
         "js/startup_a11y.js",
         "js/startup_reroll.js",
+        "js/termcap.js",
+        "js/tre_ast.js",
+        "js/tre_compile.js",
+        "js/tre_internal.js",
+        "js/tre_match_parallel.js",
+        "js/tre_parse.js",
         "js/tty_rawprint.js",
         "js/tty_startup.js",
         "js/tutorial_startup.js",
+        "js/unixmain.js",
+        "js/unixunix.js",
         "js/wintty.js"
       ],
       "generatedOutputs": [
@@ -39,6 +53,11 @@
           "path": "js/config_statement_data.js",
           "generator": "scripts/generate-config-statements.mjs",
           "check": "node scripts/generate-config-statements.mjs --check"
+        },
+        {
+          "path": "js/dat_files.js",
+          "generator": "scripts/generate-dat-files.mjs",
+          "check": "node scripts/generate-dat-files.mjs --check"
         },
         {
           "path": "js/optlist_data.js",
@@ -68,7 +87,8 @@
         "js/startup_skills.js",
         "js/u_init.js",
         "js/u_init_inventory_attrs.js",
-        "js/wield.js"
+        "js/wield.js",
+        "js/youprop.js"
       ],
       "generatedOutputs": [
         {
@@ -137,6 +157,7 @@
         "js/cav_strt_level_data.js",
         "js/dungeon.js",
         "js/dungeon_data.js",
+        "js/dungeon_table.js",
         "js/earth_level_data.js",
         "js/earth_levels.js",
         "js/extralev.js",
@@ -184,6 +205,7 @@
         "js/sanctum_level_data.js",
         "js/sanctum_levels.js",
         "js/save.js",
+        "js/selvar.js",
         "js/shknam.js",
         "js/shtypes_data.js",
         "js/sokoban_levels.js",
@@ -371,7 +393,8 @@
         "js/windows.js",
         "js/wizcmds.js",
         "js/wizcmds_data.js",
-        "js/write.js"
+        "js/write.js",
+        "js/you_buf_messages_data.js"
       ],
       "generatedOutputs": [
         {
@@ -383,6 +406,11 @@
           "path": "js/help_data.js",
           "generator": "scripts/generate-help-data.mjs",
           "check": "node scripts/generate-help-data.mjs --check"
+        },
+        {
+          "path": "js/you_buf_messages_data.js",
+          "generator": "scripts/generate-you-buf-messages.mjs",
+          "check": "node --test scripts/you-buf-messages-generated.test.mjs"
         }
       ]
     },
@@ -391,6 +419,7 @@
       "label": "Display and symbols",
       "paths": [
         "js/display.js",
+        "js/display_glyphmap.js",
         "js/drawing.js",
         "js/game_display.js",
         "js/glyph_ids.js",
@@ -416,22 +445,45 @@
         "js/alloc.js",
         "js/bones.js",
         "js/const.js",
+        "js/context.js",
+        "js/decl.js",
         "js/end.js",
+        "js/flag.js",
         "js/game.js",
+        "js/global.js",
         "js/gstate.js",
         "js/hacklib.js",
+        "js/heapsort.js",
+        "js/lua_load_errors_data.js",
         "js/mdlib.js",
         "js/moveloop_preamble.js",
         "js/nethack.js",
         "js/nhlua.js",
+        "js/program_state.js",
+        "js/qsort.js",
+        "js/report.js",
         "js/restore.js",
         "js/rnd.js",
         "js/rng.js",
+        "js/snapshot.js",
+        "js/source_steps.js",
         "js/strutil.js",
         "js/timeout.js",
         "js/timeout_property_data.js",
         "js/unported.js",
         "js/version.js"
+      ],
+      "generatedOutputs": [
+        {
+          "path": "js/decl.js",
+          "generator": "scripts/generate-instance-globals.mjs",
+          "check": "node scripts/generate-instance-globals.mjs --check"
+        },
+        {
+          "path": "js/lua_load_errors_data.js",
+          "generator": "scripts/generate-lua-load-errors.mjs",
+          "check": "node scripts/generate-lua-load-errors.mjs --check"
+        }
       ]
     },
     {
