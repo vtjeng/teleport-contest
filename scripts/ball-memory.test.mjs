@@ -2,12 +2,14 @@ import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { bc_order, set_bc } from '../js/ball.js';
+import { bc_order, set_bc, unplacebc } from '../js/ball.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { place_object, remove_object } from '../js/obj.js';
 import { HEAVY_IRON_BALL, IRON_CHAIN, BALL_CLASS, CHAIN_CLASS } from '../js/objects.js';
-import { BC_BALL, BC_CHAIN, OBJ_FREE, OBJ_INVENT } from '../js/const.js';
+import {
+    BC_BALL, BC_CHAIN, BLINDED, OBJ_FREE, OBJ_INVENT,
+} from '../js/const.js';
 import { GLYPH_CMAP_A_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { S_room, S_corr } from '../js/symbols.js';
 
@@ -124,6 +126,26 @@ test('already blind or swallowed setup reads hero memory without extraction/redr
     set_bc(1, state);
     assert.equal(state.u.bglyph, GLYPH_UNEXPLORED_OFF);
     assert.equal(state.u.cglyph, GLYPH_UNEXPLORED_OFF);
+});
+
+test('a blind hero puts unexplored memory back as the port stores it', () => {
+    // ball.c unplacebc_core() 166 and 172 write u.bglyph and u.cglyph back
+    // to levl[x][y].glyph. When they hold GLYPH_UNEXPLORED the port must
+    // store undefined, its one form of unexplored memory, not a record
+    // holding the number: display.js magic_map_background_steps() treats
+    // only undefined as C's glyph_is_unexplored().
+    const state = fixture();
+    state.level.at(10, 8).remembered_glyph = undefined;
+    set_bc(1, state);
+    assert.equal(state.u.bglyph, GLYPH_UNEXPLORED_OFF);
+    // 1 is any nonzero intrinsic: youprop.js Blind() tests it for truth.
+    state.u.uprops = { [BLINDED]: { intrinsic: 1 } };
+    state.u.bc_felt = BC_BALL | BC_CHAIN;
+    // Stand-in for a newsym() between the two calls, so that the assertion
+    // below sees unplacebc()'s write and not the value set above.
+    state.level.at(10, 8).remembered_glyph = { glyph: ROOM_MEMORY };
+    unplacebc(state);
+    assert.equal(state.level.at(10, 8).remembered_glyph, undefined);
 });
 
 test('set_bc on a foreign state preserves live floor and display state', () => {
