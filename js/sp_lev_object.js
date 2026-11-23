@@ -24,6 +24,7 @@ import { canseemon, describe_level } from './display.js';
 import { can_saddle, put_saddle_on_mon } from './dog.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { schar } from './global.js';
 import { sync_impossible } from './source_steps.js';
 import {
     addToContainerRuntime,
@@ -143,11 +144,6 @@ function normalizedSpe(specification, nonpmobj) {
 function signedShort(value) {
     const word = ((value % 0x10000) + 0x10000) % 0x10000;
     return word >= 0x8000 ? word - 0x10000 : word;
-}
-
-function signedChar(value) {
-    const byte = ((value % 0x100) + 0x100) % 0x100;
-    return byte >= 0x80 ? byte - 0x100 : byte;
 }
 
 function unsignedThreeBits(value) {
@@ -308,7 +304,7 @@ function constructObject(specification, coordinate, env) {
 
 function applyObjectFields(obj, specification, env) {
     if (specification.spe !== -127)
-        obj.spe = signedChar(specification.spe);
+        obj.spe = schar(specification.spe);
     applyBuc(obj, specification.buc, env);
 
     if (specification.corpsenm !== NON_PM) {

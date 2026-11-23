@@ -82,6 +82,7 @@ import {
     GLYPH_UNEXPLORED_OFF,
 } from './glyph_offsets.js';
 import { game } from './gstate.js';
+import { signed_char } from './global.js';
 import { handle_tip, is_valid_travelpt } from './hack.js';
 import { visctrl } from './hacklib.js';
 import { an } from './objnam.js';
@@ -886,7 +887,7 @@ export async function getpos_menu(ccp, gloc, state = game) {
 // (decl.h:861), both promoted to a non-negative int: such a key matches no
 // symbol, even one whose DECgraphics or IBMgraphics byte it equals.
 function featureSymbolMatches(key, state) {
-    const c = key >= 0x80 ? key - 0x100 : key;
+    const c = signed_char(key);
     const matching = Array(MAXPCHARS).fill(0);
     let count = 0;
     let sidx;

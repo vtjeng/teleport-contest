@@ -2,6 +2,7 @@
 // C refs: hacklib.c.
 
 import { recordArgumentMisuse } from './gstate.js';
+import { signed_char } from './global.js';
 import { qsort } from './qsort.js';
 
 const utf8Encoder = new TextEncoder();
@@ -545,13 +546,6 @@ export function online2(x0, y0, x1, y1) {
     return !dy || !dx || dy === dx || dy === -dx;
 }
 
-// A C `char` holding this byte. char is signed on the recorder's x86-64
-// build, so a byte from 0x80 up is negative.
-function signedChar(ch) {
-    const byte = ch.charCodeAt(0);
-    return byte >= 0x80 ? byte - 0x100 : byte;
-}
-
 // C ref: hacklib.c strncmpi(). Compare at most `n` source characters,
 // stopping at either NUL terminator, with lowc()'s ASCII-only case fold.
 // strcmpi() passes -1, which keeps C's while(n--) running through NUL.
@@ -565,8 +559,9 @@ export function strncmpi(s1, s2, n) {
         const c2 = s2?.[index] ?? '\0';
         if (c2 === '\0') return c1 === '\0' ? 0 : 1;
         if (c1 === '\0') return -1;
-        const t1 = signedChar(lowc(c1));
-        const t2 = signedChar(lowc(c2));
+        // `char t1, t2`: a byte from 0x80 up orders below every ASCII one.
+        const t1 = signed_char(lowc(c1).charCodeAt(0));
+        const t2 = signed_char(lowc(c2).charCodeAt(0));
         if (t1 !== t2) return t1 > t2 ? 1 : -1;
         index++;
     }

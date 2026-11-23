@@ -164,6 +164,7 @@ import {
     LOOK_ONCE, LOOK_QUICK, LOOK_VERBOSE, coord_desc, getpos,
 } from './getpos.js';
 import { game } from './gstate.js';
+import { signed_char } from './global.js';
 import { createCommandBindingModel, keyForCommand } from './command_bindings.js';
 import { visible_region_at } from './region.js';
 import {
@@ -2020,8 +2021,7 @@ export async function do_look(mode, clickCc = null, state = game) {
             // selected, then performs the optional help lookup afterward.
             // `sym = out_str[0]` reads a signed char, so a byte above 0x7F
             // is negative and matches no symbol.
-            const sym = answerBytes[0] < 0x80
-                ? answerBytes[0] : answerBytes[0] - 0x100;
+            const sym = signed_char(answerBytes[0]);
             const description = do_screen_description(
                 { x: 0, y: 0 }, false, sym, state,
             );

@@ -37,6 +37,11 @@ const SITES = {
         // use_cream_pie()
         'const wascreamed = schar(state.u.ucreamed);',
     ],
+    'sp_lev_object.js': [
+        // sp_lev.c create_object():2231, `otmp->spe = (schar) o->spe`: not a
+        // boolean, but the same narrowing of an int to schar.
+        'obj.spe = schar(specification.spe);',
+    ],
 };
 
 test('schar() keeps the low byte, sign-extended', () => {
@@ -80,6 +85,6 @@ test('the schar() call count matches the listed sites', () => {
         const text = readFileSync(new URL(name, JS_DIR), 'utf8');
         count += text.match(/(?<![\w.])schar\(/gu)?.length ?? 0;
     }
-    // Three: the calls in SITES.
+    // Four: the calls in SITES.
     assert.equal(count, Object.values(SITES).flat().length);
 });

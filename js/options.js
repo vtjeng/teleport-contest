@@ -286,6 +286,7 @@ import { choose_disco_sort } from './o_init.js';
 import { game } from './gstate.js';
 import { reset_glyphmap } from './display_glyphmap.js';
 import { initial_instance_globals } from './decl.js';
+import { signed_char } from './global.js';
 import { zero_flag, zero_instance_flags } from './flag.js';
 import { sync_impossible } from './source_steps.js';
 
@@ -1832,7 +1833,7 @@ function optfn_boulder(result, statement) {
     const clash = monsterClass !== MAXMCLASSES && byte !== 0
         ? 'monster'
         : byte >= 0x31 && byte < 0x30 + 6 ? 'warning' : null;
-    const signedByte = byte >= 0x80 ? byte - 0x100 : byte;
+    const signedByte = signed_char(byte);
     if (signedByte < 0x20) {
         configErrorAdd(
             result, 'boulder symbol cannot be a control character',
@@ -8302,7 +8303,7 @@ const OPTION_SET_HANDLERS = Object.freeze({
         const clash = monsterClass !== MAXMCLASSES && byte !== 0
             ? 'monster'
             : byte >= 0x31 && byte < 0x30 + WARNCOUNT ? 'warning' : null;
-        const signedByte = byte >= 0x80 ? byte - 0x100 : byte;
+        const signedByte = signed_char(byte);
         if (signedByte < 0x20) {
             await ttyPline('boulder symbol cannot be a control character.', state);
             await tty_wait_synch(state);
