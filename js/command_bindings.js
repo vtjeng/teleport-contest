@@ -363,7 +363,10 @@ export function createCommandBindingModel(state) {
         || model.phone !== (Boolean(finalMode & 2) && finalNumberPad)) {
         resetCommandBindings(model, finalNumberPad, finalMode);
     }
-    updateRestOnSpace(model, Boolean(state.flags?.rest_on_space));
+    // flags.rest_on_space is not read here: each OPTIONS=rest_on_space is a
+    // replayed operation above, and options.c initoptions_finish()'s closing
+    // update_rest_on_space() is js/options.js initoptions_finish()'s call of
+    // updateRestOnSpaceModel().
     return model;
 }
 
