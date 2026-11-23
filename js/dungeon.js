@@ -4,6 +4,7 @@
 
 import { memoryLayout } from './wizcmds_data.js';
 import { game } from './gstate.js';
+import { schar } from './global.js';
 // end.c panic(); the local panic() below stands in for it in the synchronous
 // dungeon-description loader.
 import { done, panic as end_panic } from './end.js';
@@ -592,7 +593,7 @@ function add_level(newLevel, state) {
 // depth() returns schar.
 export function depth(level, state = game) {
     const result = dungeon_at(level.dnum, state).depth_start + level.dlevel - 1;
-    return (result << 24) >> 24;
+    return schar(result);
 }
 
 // C ref: dungeon.c endgamelevelname(). Translate the observable depth used by
