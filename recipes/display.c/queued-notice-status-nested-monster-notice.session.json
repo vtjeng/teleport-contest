@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51907,
+      "datetime": "20270314101500",
+      "nethackrc": "OPTIONS=name:Quillon,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!tips,mention_map,spot_monsters,time,showexp,!autopickup\n",
+      "moves": "\u001b\u001b\u0006\u001b\u001bn\u0017fountain\nk\u0017fountain\nb\u0017fountain\nk\u0007peaceful yellow light\n\u0007peaceful lichen\nCmj.Bartholomew Featherstonehaugh the Unreasonably Persistent\n#wizkill\nj.   \u001b",
+      "comment": "A debug-mode human Valkyrie maps the level with ^F so that walking raises no notices. She wishes fountains onto the three squares around the corner stairs, returns to the stairs, creates a yellow light and then a peaceful lichen (which nothing has announced yet, because no vision recalculation follows it), names the light with a 57-character name and slays it with #wizkill. wizcmds.c wiz_kill() prints \"You kill <name>!\", which nearly fills the top line, and calls mon.c xkilled(): m_detach() deletes the light source, which leaves a vision recalculation pending, and xkilled()'s own newsym() (3642) draws the fountain again while its gbuf entry is still new, so display.c show_glyph() (2011-2068) announces it through pline_xy() with a11y.accessiblemsg raised. That vpline() (pline.c 266-272) spends the recalculation first, whose vision.c notice_all_mons() prints hack.c notice_mon()'s line for the lichen with a location prefix, \"(southeast): You see a peaceful lichen.\", although accessiblemsg is off. That line does not fit after the kill message, so it waits at --More-- after its own flush_screen() has run bot() (display.c 2236-2239), before xkilled() reaches more_experienced() and newexplevel() (3672-3674): the status shows HP:16(16) and Xp:1/0 there, and HP:27(27) Xp:2/22 once \"Welcome to experience level 2.\" prints. Seed, clock, character and inputs were chosen for this path, independently of every recorded session."
+    }
+  ]
+}

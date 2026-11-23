@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51907,
+      "datetime": "20270314101500",
+      "nethackrc": "OPTIONS=name:Quillon,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!tips,mention_map,time,showexp,!autopickup\n",
+      "moves": "\u001b\u001b\u0006\u001b\u001bllljj\u0007hostile jackal\n\u0017fountain\nysCmn.Bartholomew Featherstonehaugh the Unreasonably Persistent\n#wizkill\nn.\u001b",
+      "comment": "A debug-mode human Valkyrie maps the level with ^F so that walking raises no notices. She creates a hostile jackal, wishes a fountain onto her own square and steps away from the jackal, which follows onto the fountain; she names it with a 57-character name and slays it with #wizkill. wizcmds.c wiz_kill() prints \"You kill <name>!\", which nearly fills the top line, and calls mon.c xkilled(): mondead()'s m_detach() redraws the square, xkilled()'s own newsym() (3642) draws the fountain again while its gbuf entry is still new, and display.c show_glyph() (2011-2068) announces \"(southeast): fountain.\" through pline_xy(). The line does not fit, so it waits at --More-- after vpline()'s flush_screen() has run bot() (display.c 2236-2239): the status rows there are the ones from before xkilled() reaches more_experienced() (3672-3674). With time and showexp the --More-- shows Xp:1/0 and the next line Xp:1/1. Seed, clock, character and inputs were chosen for this path, independently of every recorded session."
+    }
+  ]
+}

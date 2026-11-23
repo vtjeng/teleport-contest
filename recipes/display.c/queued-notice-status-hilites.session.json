@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51907,
+      "datetime": "20270314101500",
+      "nethackrc": "OPTIONS=name:Quillon,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!tips,mention_map,spot_monsters,time,showexp,!autopickup\nOPTIONS=statushilites:3\nOPTIONS=hilite_status:experience/changed/inverse\nOPTIONS=hilite_status:hitpoints/up/green&bold\nOPTIONS=hilite_status:experience-level/changed/red\n",
+      "moves": "\u001b\u001b\u0006\u001b\u001bn\u0017fountain\nk\u0017fountain\nb\u0017fountain\nk\u0007peaceful yellow light\n\u0007peaceful lichen\nCmj.Bartholomew Featherstonehaugh the Unreasonably Persistent\n#wizkill\nj.   \u001bss",
+      "comment": "Variation of queued-notice-status-nested-monster-notice with statushilites:3 and highlight rules for hit points, experience level and experience points, followed by two searches under the temporary highlights. A debug-mode human Valkyrie maps the level with ^F so that walking raises no notices. She wishes fountains onto the three squares around the corner stairs, returns to the stairs, creates a yellow light and then a peaceful lichen (which nothing has announced yet, because no vision recalculation follows it), names the light with a 57-character name and slays it with #wizkill. wizcmds.c wiz_kill() prints \"You kill <name>!\", which nearly fills the top line, and calls mon.c xkilled(): m_detach() deletes the light source, which leaves a vision recalculation pending, and xkilled()'s own newsym() (3642) draws the fountain again while its gbuf entry is still new, so display.c show_glyph() (2011-2068) announces it through pline_xy() with a11y.accessiblemsg raised. That vpline() (pline.c 266-272) spends the recalculation first, whose vision.c notice_all_mons() prints hack.c notice_mon()'s line for the lichen with a location prefix, \"(southeast): You see a peaceful lichen.\", although accessiblemsg is off. bot() at the notice's flush finds nothing changed; the highlights start at the flush after newexplevel(), as botl.c evaluate_and_notify_windowport() compares against the values of the previous bot()."
+    }
+  ]
+}

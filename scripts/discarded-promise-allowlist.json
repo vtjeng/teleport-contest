@@ -824,7 +824,7 @@
       "count": 1,
       "reason": "trap.c mk_trap_statue() moves the donor monster's minvent into the statue, so each object is OBJ_MINVENT. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
-    "js/tty_message.js | queuedVplineVisionRecalc | vision_recalc": {
+    "js/tty_message.js | queuedVpline | vision_recalc": {
       "count": 1,
       "reason": "vision_recalc() returns a promise only when its env.onImpossible does; this call passes sync_impossible(), which queues the report and returns nothing, so finish_steps() runs to the end synchronously."
     },

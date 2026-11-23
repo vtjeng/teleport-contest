@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51907,
+      "datetime": "20270314101500",
+      "nethackrc": "OPTIONS=name:Quillon,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!tips,mention_map,time,showexp,!autopickup\nMSGTYPE=hide \"fountain\"\n",
+      "moves": "\u001b\u001b\u0006\u001b\u001bllljj\u0007hostile jackal\n\u0017fountain\nysCmn.Bartholomew Featherstonehaugh the Unreasonably Persistent\n#wizkill\nn.\u001b",
+      "comment": "Variation of queued-notice-status-kill-on-fountain with MSGTYPE=hide for the fountain notice. A debug-mode human Valkyrie maps the level with ^F so that walking raises no notices. She creates a hostile jackal, wishes a fountain onto her own square and steps away from the jackal, which follows onto the fountain; she names it with a 57-character name and slays it with #wizkill. wizcmds.c wiz_kill() prints \"You kill <name>!\", which nearly fills the top line, and calls mon.c xkilled(): mondead()'s m_detach() redraws the square, xkilled()'s own newsym() (3642) draws the fountain again while its gbuf entry is still new, and display.c show_glyph() (2011-2068) announces \"(southeast): fountain.\" through pline_xy(). pline.c vpline() (245-264) drops the hidden line before it reaches flush_screen(), so the status is not drawn there: the --More-- comes from \"Next monster:\", after more_experienced(), and shows Xp:1/1."
+    }
+  ]
+}

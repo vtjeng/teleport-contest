@@ -7882,7 +7882,12 @@ export async function flush_screen(mode) {
     try {
         // C ref: display.c flush_screen() (2235-2239). The turn counter has
         // its own arm, which refreshes that field alone.
-        if (game.disp?.botl || game.disp?.botlx) {
+        // A queued line took this step when it was queued
+        // (queued_flush_screen_status()), where C printed it; the status
+        // marked dirty since belongs to the next flush.
+        if (game._queuedNoticeStatusSpent) {
+            // nothing
+        } else if (game.disp?.botl || game.disp?.botlx) {
             await bot();
         } else if (game.disp?.time_botl) {
             await timebot();
@@ -7905,6 +7910,25 @@ export async function flush_screen(mode) {
     } finally {
         game.flushing = false;
     }
+}
+
+// C ref: display.c flush_screen() (2220-2239), for a line the port queues
+// instead of printing (js/startup_a11y.js queueNoticeLine()). C's vpline()
+// calls flush_screen() before it prints the line, and flush_screen() brings
+// the status rows up to date first: bot() when disp.botl or disp.botlx is
+// set, timebot() when only disp.time_botl is. The line then waits at
+// --More-- under that status if the top line is full. Code after the line
+// may change what the status shows (mon.c xkilled() awards experience after
+// the newsym() whose notice this is), so the status step cannot wait for the
+// queue to drain. The guards are flush_screen()'s own; the map half of the
+// flush is the notice's glyph frame. Answers whether the step ran.
+export function queued_flush_screen_status() {
+    if (suppress_map_output()) return false;
+    if (game.delay_flushing || game.flushing) return false;
+    if (game.program_state?.done_hup) return false;
+    if (game.disp?.botl || game.disp?.botlx) bot_now();
+    else if (game.disp?.time_botl) timebot_now();
+    return true;
 }
 
 // ── cls ──
@@ -7995,6 +8019,12 @@ export async function cls() {
 // during the "You die..." --More-- sequence would show HP:0 instead of the
 // pre-damage value that C's incremental terminal leaves on screen.
 export async function bot() {
+    bot_now();
+}
+
+// bot()'s whole body. It never waits, so a synchronous caller standing where
+// C calls bot() -- queued_flush_screen_status() below -- runs it in place.
+export function bot_now() {
     if (game.gb?.bot_disabled === true)
         return;
     // C botl.c bot() line 259: skip the status update when u.uhp == -1 but
@@ -8078,6 +8108,11 @@ export async function bot() {
 // cleared, exactly as bot() does above; suppress_map_output() covers the save,
 // restore and hangup states this port does not enter.
 export async function timebot() {
+    timebot_now();
+}
+
+// timebot()'s whole body; see bot_now().
+export function timebot_now() {
     if (game.gb?.bot_disabled === true)
         return;
     if (game.flags?.time && game.iflags?.status_updates !== false) {
