@@ -230,14 +230,17 @@ const SITES = [
 ];
 
 // JS functions that touch the other glyph than their C function does: the
-// same row shape, but each C site has the opposite kind. Each is a defect to
-// fix; remove the row here and add one to SITES when it is fixed.
+// same row shape, but each C site has the opposite kind. Remove the row here
+// and add one to SITES when the function is fixed or deleted.
 const DIFFERENT = [
     // cmd.c:1205-1237 test glyph_at(x, y) == GLYPH_UNEXPLORED. These two
     // test for an absent remembered glyph, so a square that shows a sensed
-    // monster and was never seen counts as unseen. js/cmd.js has the C
-    // functions under their own names, reading the drawn glyph;
-    // collectLookaroundMessages() still calls these.
+    // monster and was never seen counts as unseen. No play reaches them:
+    // collectLookaroundMessages() calls them only with includeRoom set, and
+    // its one caller in js/, cmd.js dolookaround(), passes false and uses
+    // js/cmd.js's own u_have_seen_whole_selection() and
+    // u_have_seen_bounds_selection(), which read the drawn glyph.
+    // scripts/startup-a11y.test.mjs still calls them.
     ['startup_a11y.js', 'selectionBoundsSeen', 'remembered', 2,
         ['cmd.c u_have_seen_bounds_selection']],
     ['startup_a11y.js', 'describeKnownRoom', 'remembered', 1,
@@ -266,6 +269,9 @@ test('SITES and DIFFERENT list every glyph access in js/ with its count', () => 
     assert.deepEqual(
         [...JS_SITES].sort(([a], [b]) => a.localeCompare(b)),
         [...listed].sort(([a], [b]) => a.localeCompare(b)),
+        'a function in js/ touches remembered_glyph, disp_glyph or glyph_at '
+        + 'differently from its row in SITES; compare it with its C function '
+        + 'as the comment at the top of this file says, then update the row',
     );
 });
 
