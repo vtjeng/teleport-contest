@@ -2363,7 +2363,7 @@ async function gcrownu(state) {
         await ttyPline(youFeel('unworthy.', state), state);
     }
     update_inventory({ state });
-    add_weapon_skill(1, state);
+    await add_weapon_skill(1, state);
 }
 
 // C ref: pray.c pleased() (1071-1386). A successful prayer first reports the

@@ -2303,7 +2303,7 @@ async function shrinking_glob_gone(obj, env = {}) {
 
     if (owhere === OBJ_INVENT) {
         if (obj.owornmask) {
-            remove_worn_item(obj, false, state);
+            await remove_worn_item(obj, false, state);
             await stop_occupation(state, { message: env.message });
         }
         await useupall(obj, env);

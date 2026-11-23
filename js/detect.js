@@ -669,7 +669,7 @@ export async function gold_detect(scroll, state = game) {
         terrainType |= TER_MON;
     }
     await ttyPline(youFeel('very greedy, and sense gold!', state), state);
-    exercise(A_WIS, true, state, coreRandom);
+    await exercise(A_WIS, true, state, coreRandom);
     await browse_map(terrainType, 'gold', state);
     await map_redisplay(state);
     return 0;
@@ -796,7 +796,7 @@ export async function food_detect(scroll, state = game) {
     } else {
         await ttyPline(`You sense ${description}.`, state);
     }
-    exercise(A_WIS, true, state, coreRandom);
+    await exercise(A_WIS, true, state, coreRandom);
     await browse_map(terrainType, 'food', state);
     await map_redisplay(state);
     return 0;

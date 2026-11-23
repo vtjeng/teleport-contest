@@ -343,7 +343,7 @@ export async function money2mon(monster, amount, state = game) {
     if (gold.quan > payment)
         paid = await splitobj(gold, payment, { state });
     else if (gold.owornmask)
-        remove_worn_item(gold, false, state);
+        await remove_worn_item(gold, false, state);
     await freeinv(paid, { state });
     add_to_minv(monster, paid, { state });
     state.disp ??= {};
@@ -4812,7 +4812,7 @@ async function inherits(shopkeeper, numsk, croaked, silently, state) {
 
     if (eshkp.following || !NOTANGRY(shopkeeper) || take) {
         if (!state.invent) {
-            rouse_shk(shopkeeper);
+            await rouse_shk(shopkeeper);
             if (!inhishop(shopkeeper, state))
                 await home_shk(shopkeeper, false, state);
         } else {
@@ -4854,7 +4854,7 @@ async function inherits(shopkeeper, numsk, croaked, silently, state) {
                 eshkp.following = 0;
                 eshkp.robbed = 0;
             }
-            rouse_shk(shopkeeper);
+            await rouse_shk(shopkeeper);
             if (!inhishop(shopkeeper, state))
                 await home_shk(shopkeeper, false, state);
         }

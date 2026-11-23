@@ -2414,7 +2414,7 @@ export async function rot_corpse(arg, timeout, rawEnv = {}) {
     } else if (obj.where === OBJ_MIGRATING) {
         obj.owornmask = 0;
     }
-    rot_organic(arg, timeout, env);
+    await rot_organic(arg, timeout, env);
     if (onFloor) {
         const mtmp = m_at(x, y, state);
         if (mtmp && !OBJ_AT(x, y, state) && mtmp.mundetected

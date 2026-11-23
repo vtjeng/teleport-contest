@@ -3291,7 +3291,7 @@ export async function bhito(obj, wand, state = game,
                         if (canspotmon(monster, state))
                             await message(`${Monnam(monster, state)} appears.`, state, rawEnv);
                     }
-                    if (learn_it) exercise(A_WIS, true, state);
+                    if (learn_it) await exercise(A_WIS, true, state);
                 }
             }
             break;
