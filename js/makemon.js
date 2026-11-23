@@ -307,10 +307,10 @@ export function wrong_elem_type(monster, state) {
 }
 
 // C ref: makemon.c adj_lev(). level_difficulty()'s impossible() is a step
-// (js/source_steps.js); adj_lev() is the synchronous form, which records it
-// as a gap.
+// (js/source_steps.js); adj_lev() is the synchronous form, which queues it
+// for the next message.
 export function adj_lev(monster, state = game) {
-    return finish_steps(adj_lev_steps(monster, state));
+    return finish_steps(adj_lev_steps(monster, state), sync_impossible, state);
 }
 
 export function* adj_lev_steps(monster, state = game) {
@@ -781,9 +781,10 @@ function isRider(mndx) {
 }
 
 // C ref: makemon.c newmonhp(). adj_lev()'s impossible() is a step;
-// newmonhp() is the synchronous form, which records it as a gap.
+// newmonhp() is the synchronous form, which queues it for the next message.
 export function newmonhp(mon, mndx, env = {}) {
-    return finish_steps(newmonhp_steps(mon, mndx, env));
+    return finish_steps(newmonhp_steps(mon, mndx, env), sync_impossible,
+        env.state ?? game);
 }
 
 export function* newmonhp_steps(mon, mndx, env = {}) {
@@ -1166,9 +1167,10 @@ export function qt_montype(env = {}) {
 // every viable positive-weight candidate, in mons[] order; replacing it with
 // a final weighted draw would select the same distribution but the wrong RNG.
 // Its own impossible() and level_difficulty()'s are steps; rndmonst_adj() is
-// the synchronous form, which records them as gaps.
+// the synchronous form, which queues them for the next message.
 export function rndmonst_adj(minadj = 0, maxadj = 0, env = {}) {
-    return finish_steps(rndmonst_adj_steps(minadj, maxadj, env));
+    return finish_steps(rndmonst_adj_steps(minadj, maxadj, env), sync_impossible,
+        env.state ?? game);
 }
 
 export function* rndmonst_adj_steps(minadj = 0, maxadj = 0, env = {}) {

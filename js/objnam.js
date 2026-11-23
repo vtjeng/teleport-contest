@@ -865,9 +865,11 @@ function nextobuf(value = '') {
 // by the immutable name plus the byte offset that doname_base retains.
 // The default arm of its class switch calls pline.c impossible(), which can
 // wait at --More--; the body is a step generator (js/source_steps.js), so a
-// caller that can wait passes impossible_printer() as onImpossible.
+// caller that can wait passes impossible_printer() as onImpossible. Any
+// other caller's report is queued for the next message (sync_impossible()).
 export function xname_flags(obj, state, cxnFlags = CXN_NORMAL, onImpossible) {
-    return finish_steps(xname_flags_steps(obj, state, cxnFlags), onImpossible);
+    return finish_steps(xname_flags_steps(obj, state, cxnFlags),
+        onImpossible ?? sync_impossible, state ?? game);
 }
 
 function* xname_flags_steps(obj, state, cxnFlags = CXN_NORMAL) {
@@ -1740,7 +1742,8 @@ export function Yobjnam2(obj, verb, state = game) {
 // onImpossible is xname_flags()'s; a caller that can wait passes
 // impossible_printer() and awaits the result.
 export function Tobjnam(otmp, verb, state = game, onImpossible) {
-    return finish_steps(Tobjnam_steps(otmp, verb, state), onImpossible);
+    return finish_steps(Tobjnam_steps(otmp, verb, state),
+        onImpossible ?? sync_impossible, state);
 }
 
 function* Tobjnam_steps(otmp, verb, state) {

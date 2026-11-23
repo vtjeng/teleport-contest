@@ -20,14 +20,14 @@ const JS_ROOT = join(PROJECT_ROOT, 'js');
 
 // impossible() is ported as js/pline.js impossible(); a synchronous caller
 // reports through js/source_steps.js sync_impossible(), which the next output
-// prints. The markers that remain are the nine sites
+// prints. The markers that remain are the eight sites
 // scripts/impossible-sites.test.mjs lists, each with its reason. Every
 // impossible() marker uses this label, whatever C file it sits in, because
 // scripts/c-diagnostic-markers.test.mjs counts markers by it.
 const IMPOSSIBLE = 'a site scripts/impossible-sites.test.mjs lists with its reason';
 
 const EXCEPTIONS = new Map([
-    ['pline.c impossible', { count: 9, reason: IMPOSSIBLE }],
+    ['pline.c impossible', { count: 8, reason: IMPOSSIBLE }],
     // js/shknam.js shkname() must stay synchronous (its value is used inside
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.

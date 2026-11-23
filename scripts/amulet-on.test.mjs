@@ -286,6 +286,10 @@ test('set_wear awaits the selected amulet callback in source order', async () =>
     game.uamul = amul;
     // A target selects this callback only, leaving the starting armor alone.
     const armor = game.uarm;
+    // The slot holds an amulet whose owornmask lacks W_AMUL, which worn.c
+    // setworn() (87-88) reports through impossible(). Three spaces answer the
+    // report's --More-- prompts.
+    for (let i = 0; i < 3; ++i) game.nhDisplay.pushKey(0x20);
     await set_wear(game, amul);
     assert.equal(amul.owornmask & W_AMUL, W_AMUL);
     assert.equal(game.uarm, armor);

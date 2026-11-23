@@ -21,7 +21,7 @@ import {
 } from '../js/worm.js';
 import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
-import { finish_steps } from '../js/source_steps.js';
+import { finish_steps, sync_impossible } from '../js/source_steps.js';
 
 function wormState() {
     return {
@@ -560,10 +560,13 @@ test('place_worm_tail_randomly reports a missing tail and a stray lone segment',
         assert.equal(state.level.monsters[5][7], null);
         assert.deepEqual(state.level.worms[1].segments[0], { x: 9, y: 9 });
 
-        // A caller that cannot wait records the report and goes on.
+        // A caller that cannot wait queues the report and goes on.
         state.level.worms[1].segments[0] = { x: 5, y: 7 };
-        game.unported = new Set();
-        finish_steps(place_worm_tail_randomly_steps(worm, 9, 9, { state }));
-        assert.ok(game.unported.has('pline.c impossible'));
+        finish_steps(place_worm_tail_randomly_steps(worm, 9, 9, { state }),
+            sync_impossible, state);
+        assert.deepEqual(
+            state._glyphUpdateNotices.filter((notice) => notice.impossible)
+                .map((notice) => notice.message),
+            ['place_worm_tail_randomly: tail segment at <5,7>, worm at <9,9>']);
         assert.deepEqual(state.level.worms[1].segments[0], { x: 9, y: 9 });
     });

@@ -3163,10 +3163,10 @@ function* add_to_migration_steps(obj, state) {
     state.gm.migrating_objs = obj;
 }
 
-// add_to_migration() for a caller that cannot wait: gap_impossible() records
-// the report as unported and the transfer goes on as in C.
+// add_to_migration() for a caller that cannot wait: sync_impossible() queues
+// the report and the transfer goes on as in C.
 export function add_to_migration(obj, state = game) {
-    finish_steps(add_to_migration_steps(obj, state));
+    finish_steps(add_to_migration_steps(obj, state), sync_impossible, state);
 }
 
 // add_to_migration() for a caller that can wait on the result: it prints

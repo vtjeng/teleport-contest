@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -542,11 +543,11 @@ test('add_to_migration reports an unpaid object and still ships it', async () =>
     assert.equal(apple.no_charge, 0);
     assert.equal(state.gm.migrating_objs, apple);
 
-    // The synchronous form records the unprinted report and goes on.
+    // The synchronous form queues the report and goes on.
     const second = mksobj(APPLE, false, false, objectGenerationEnv({ state }));
     second.unpaid = 1;
-    state.unported = new Set();
     add_to_migration(second, state);
-    assert.ok(state.unported.has('pline.c impossible'));
+    assert.deepEqual(takeQueuedReports(state),
+        ['unpaid object migrating to another level? [apple]']);
     assert.equal(state.gm.migrating_objs, second);
 });

@@ -174,7 +174,7 @@ export function new_light_source(x, y, range, type, id, state = game) {
 // wait drives del_light_source_steps() with finish_steps(...,
 // impossible_printer(state)) or `yield*`, so the report and its --More--
 // prompts come where C prints them. del_light_source() is the synchronous
-// form, which records the print as a gap;
+// form, which queues the report for the next message;
 // scripts/level-difficulty-steps.test.mjs lists the callers that use it.
 // del_light_source_async() is the form for a caller that can wait.
 export function* del_light_source_steps(type, id, state = game) {
@@ -207,7 +207,7 @@ export function* del_light_source_steps(type, id, state = game) {
 }
 
 export function del_light_source(type, id, state = game) {
-    finish_steps(del_light_source_steps(type, id, state));
+    finish_steps(del_light_source_steps(type, id, state), sync_impossible, state);
 }
 
 export function del_light_source_async(type, id, state = game, env = {}) {

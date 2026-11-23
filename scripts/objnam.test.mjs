@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -656,7 +657,8 @@ test('xname preserves the numeric invalid-class diagnostic result', () => {
     });
     assert.equal(xnameFresh(invalid, state),
         `glorkum ${'?'.charCodeAt(0)} ${FOOD_RATION} 3`);
-    assert.ok(game.unported.has('pline.c impossible'));
+    assert.deepEqual(takeQueuedReports(state),
+        [`xname_flags: glorkum ${'?'.charCodeAt(0)} ${FOOD_RATION} 3`]);
 });
 
 test('type discovery and holy water follow class branches', () => {

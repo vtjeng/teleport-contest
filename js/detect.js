@@ -164,7 +164,7 @@ import { findgold } from './steal.js';
 import { dist2, s_suffix } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { impossible_printer, youFeel, youSee } from './pline.js';
-import { finish_steps } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 import { isBox, objectType } from './obj.js';
 import {
     CHEST,
@@ -367,7 +367,7 @@ export function reveal_terrain_getglyph(
     x, y, swallowed, defaultGlyph, whichSubset, state = game,
 ) {
     return finish_steps(reveal_terrain_getglyph_steps(
-        x, y, swallowed, defaultGlyph, whichSubset, state));
+        x, y, swallowed, defaultGlyph, whichSubset, state), sync_impossible, state);
 }
 
 // C ref: detect.c browse_map() (94-106). The temporary presentation is a
@@ -1643,7 +1643,8 @@ export function* show_map_spot_steps(
 
 // show_map_spot() for a caller that cannot wait; every caller now waits.
 export function show_map_spot(x, y, cnf, state = game, random = coreRandom) {
-    return finish_steps(show_map_spot_steps(x, y, cnf, state, random));
+    return finish_steps(show_map_spot_steps(x, y, cnf, state, random),
+        sync_impossible, state);
 }
 
 // C ref: detect.c do_mapping() (1422-1444). The temporary map is browsed when

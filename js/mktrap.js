@@ -108,7 +108,7 @@ import {
 import { coreRandom } from './rng.js';
 import { maketrap, t_at } from './trap.js';
 import { makemon_by_context } from './makemon_create.js';
-import { finish_steps } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 import { mkcorpstat } from './corpstat.js';
 import { begin_burn } from './timeout.js';
 import { dungeon_at } from './dungeon_table.js';
@@ -410,7 +410,8 @@ export function mktrap(
     tm = null,
     rawEnv = {},
 ) {
-    return finish_steps(mktrap_steps(num, mktrapflags, croom, tm, rawEnv));
+    return finish_steps(mktrap_steps(num, mktrapflags, croom, tm, rawEnv),
+        sync_impossible, rawEnv.state ?? game);
 }
 
 function* mktrap_steps(num, mktrapflags, croom, tm, rawEnv) {

@@ -32,8 +32,6 @@ const REMAINING = new Map([
         + 'monster number and the given name; the fields were not traced'],
     ['shknam.js shkinit', 'shknam.c:644-652 follows the report with room and '
         + 'door plines that are not ported'],
-    ['source_steps.js gap_impossible', 'the onImpossible of a finish_steps() '
-        + 'caller that passes none and has no state to queue the report on'],
     ['spell.js learn', 'spell.c learn() has no impossible() for a missing '
         + 'book: the marker stands for a null context.spbook.book'],
     ['topten.js get_rnd_toptenentry', 'the record file is missing only when '
@@ -87,7 +85,44 @@ test('note_unported() stands in for impossible() only at the listed sites', () =
         + 'with the C format text; remove the entry of a site that now does');
     for (const [site, reason] of REMAINING)
         assert.ok(reason, `${site} needs a reason`);
-    // 9 on 2026-11-22, after 247 of 256 sites were converted. The count
+    // 9 on 2026-11-22, after 247 of 256 sites were converted; 8 since
+    // source_steps.js gap_impossible() went (see the next test). The count
     // falls only when a listed site is converted and its entry removed.
-    assert.equal(REMAINING.size, 9);
+    assert.equal(REMAINING.size, 8);
+});
+
+// finish_steps() hands each ImpossibleCall to its second argument. Until
+// 2026-11-22 a caller could leave it out and get gap_impossible(), which
+// dropped the report: 30 synchronous forms did, and 9 more passed on a
+// handler their own caller had left out. A caller now passes
+// impossible_printer(state) when it can wait, or sync_impossible and the
+// game state when it cannot.
+test('every finish_steps() call says how its impossible() reports print', () => {
+    const missing = [];
+    const names = readdirSync(JS_DIR).filter((name) => name.endsWith('.js'));
+    for (const name of names.sort()) {
+        const text = readFileSync(new URL(name, JS_DIR), 'utf8');
+        if (!text.includes('finish_steps')) continue;
+        const ast = parse(text, { ecmaVersion: 'latest', sourceType: 'module' });
+        for (const [node] of walk(ast)) {
+            if (node.type !== 'CallExpression'
+                || node.callee.name !== 'finish_steps') continue;
+            const handler = node.arguments[1];
+            const written = handler ? text.slice(handler.start, handler.end) : '';
+            // A handler is impossible_printer(...), sync_impossible, or a
+            // caller's handler with sync_impossible behind it; a bare
+            // caller's handler may be undefined. sync_impossible(text,
+            // state) needs the state as third argument. detect.js keeps one
+            // impossible_printer(state) in `printer` across a map loop.
+            const waits = /^impossible_printer\(/u.test(written)
+                || (name === 'detect.js' && written === 'printer');
+            const queues = /(^|\?\? )sync_impossible$/u.test(written)
+                && node.arguments.length === 3;
+            if (!waits && !queues) {
+                const line = text.slice(0, node.start).split('\n').length;
+                missing.push(`${name}:${line}`);
+            }
+        }
+    }
+    assert.deepEqual(missing, []);
 });

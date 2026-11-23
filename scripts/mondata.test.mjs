@@ -123,7 +123,6 @@ import {
     RIN_POISON_RESISTANCE,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
-import { game } from '../js/gstate.js';
 import { initUnported } from '../js/unported.js';
 import {
     GROWTH_END_MARKER,
@@ -1235,7 +1234,8 @@ test('Resists_Elem retains the source impossible() diagnostic defaults', () => {
     initUnported();
     state.u.uprops[38] = { intrinsic: 1, extrinsic: 0 };
     assert.equal(Resists_Elem(hero, 38, state), true);
-    assert.equal(game.unported.has('pline.c impossible'), true);
+    assert.deepEqual(takeQueuedReports(state),
+        ["'Blnd_resist' but not resists_blnd()?"]);
     initUnported();
 });
 

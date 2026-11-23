@@ -24,6 +24,7 @@ import { canseemon, describe_level } from './display.js';
 import { can_saddle, put_saddle_on_mon } from './dog.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { sync_impossible } from './source_steps.js';
 import {
     addToContainerRuntime,
     add_to_container,
@@ -380,6 +381,7 @@ function applyObjectFields(obj, specification, env) {
 function impossible(message, env) {
     if (typeof env.hooks.impossible === 'function')
         return env.hooks.impossible(message, env);
+    sync_impossible(message, env.state ?? game);
     return undefined;
 }
 

@@ -391,7 +391,9 @@ function captureGlyphBuffer(state) {
     const snapshot = new Array(COLNO * ROWNO);
     for (let x = 1; x < COLNO; ++x) {
         for (let y = 0; y < ROWNO; ++y) {
-            const location = state.level?.at(x, y);
+            // A state with no map yet has no frame to keep: a report queued
+            // before the first level exists still prints.
+            const location = state.level?.at?.(x, y);
             if (!location) continue;
             snapshot[glyphBufferIndex(x, y)]
                 = captureBufferedLocation(location);

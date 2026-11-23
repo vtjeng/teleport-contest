@@ -7,7 +7,7 @@ import { isok } from './cmd_isok.js';
 import { describe_level } from './display.js';
 import { minimal_monnam } from './do_name.js';
 import { impossible_printer } from './pline.js';
-import { ImpossibleCall, finish_steps } from './source_steps.js';
+import { ImpossibleCall, finish_steps, sync_impossible } from './source_steps.js';
 import { game } from './gstate.js';
 import { update_monster_region } from './region.js';
 
@@ -138,13 +138,13 @@ function* place_monster_steps(mon, x, y, state) {
     mon.mstate = MON_FLOOR;
 }
 
-// place_monster() for a caller that cannot wait: gap_impossible() records
-// each report as unported and the placement goes on as in C. C returns
+// place_monster() for a caller that cannot wait: sync_impossible() queues
+// each report and the placement goes on as in C. C returns
 // nothing; the port returns the monster for its callers' convenience.
 export function place_monster(monster, x, y, state = game) {
     if (!monster || typeof monster !== 'object')
         throw new TypeError('place_monster requires a monster instance');
-    finish_steps(place_monster_steps(monster, x, y, state));
+    finish_steps(place_monster_steps(monster, x, y, state), sync_impossible, state);
     return monster;
 }
 

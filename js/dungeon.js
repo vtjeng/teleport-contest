@@ -7,7 +7,7 @@ import { game } from './gstate.js';
 // end.c panic(); the local panic() below stands in for it in the synchronous
 // dungeon-description loader.
 import { done, panic as end_panic } from './end.js';
-import { finish_steps, ImpossibleCall } from './source_steps.js';
+import { finish_steps, ImpossibleCall, sync_impossible } from './source_steps.js';
 import { isok } from './cmd_isok.js';
 import { rn2, rnd } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
@@ -660,7 +660,7 @@ export function On_W_tower_level(level, state = game) {
 // The impossible() is yielded as an ImpossibleCall (js/source_steps.js), so
 // a caller that can wait drives In_W_tower_steps() with finish_steps(...,
 // impossible_printer(state)) and prints it where C does. In_W_tower() is the
-// synchronous form, which records the print as a gap;
+// synchronous form, which queues the report for the next message;
 // scripts/in-w-tower-callers.test.mjs lists its callers.
 export function* In_W_tower_steps(x, y, level, state = game) {
     if (!On_W_tower_level(level, state))
@@ -679,7 +679,7 @@ export function* In_W_tower_steps(x, y, level, state = game) {
 }
 
 export function In_W_tower(x, y, level, state = game) {
-    return finish_steps(In_W_tower_steps(x, y, level, state));
+    return finish_steps(In_W_tower_steps(x, y, level, state), sync_impossible, state);
 }
 
 // C ref: dungeon.c single_level_branch() (1966-1975). C's own comment calls
@@ -782,10 +782,10 @@ export function* Can_rise_up_steps(x, y, lev, state = game) {
             && stway && stway.up);
 }
 
-// The synchronous form of Can_rise_up_steps(), which records In_W_tower()'s
-// impossible() as a gap. Only tests call it.
+// The synchronous form of Can_rise_up_steps(), which queues In_W_tower()'s
+// impossible() report. Only tests call it.
 export function Can_rise_up(x, y, lev, state = game) {
-    return finish_steps(Can_rise_up_steps(x, y, lev, state));
+    return finish_steps(Can_rise_up_steps(x, y, lev, state), sync_impossible, state);
 }
 
 // C ref: dungeon.c has_ceiling() (1689-1698). Every level has a ceiling
@@ -818,8 +818,8 @@ export function avoid_ceiling(level, state = game) {
 // C ref: dungeon.c builds_up() (1477-1493). Only a level of dungeon -1 (see
 // js/dungeon_table.js) reaches the impossible() arm; it is yielded as an
 // ImpossibleCall (js/source_steps.js), so a caller that can wait prints it
-// where C does. builds_up() is the synchronous form, which records the print
-// as a gap; scripts/level-difficulty-steps.test.mjs lists its callers.
+// where C does. builds_up() is the synchronous form, which queues the report
+// for the next message; scripts/level-difficulty-steps.test.mjs lists its callers.
 export function* builds_up_steps(level, state = game) {
     const dungeon = dungeon_at(level.dnum, state);
     if (dungeon.num_dunlevs > 1)
@@ -834,7 +834,7 @@ export function* builds_up_steps(level, state = game) {
 }
 
 export function builds_up(level, state = game) {
-    return finish_steps(builds_up_steps(level, state));
+    return finish_steps(builds_up_steps(level, state), sync_impossible, state);
 }
 
 // C ref: dungeon.c next_level() (1496-1514), the '>' command's descent.
@@ -912,7 +912,7 @@ export function deepest_lev_reached(state, noquest = false) {
 // object generation, so retain the source's endgame, Amulet, and upward-branch
 // adjustments rather than treating dungeon depth as interchangeable.
 // builds_up()'s impossible() is a step (see builds_up_steps() above);
-// level_difficulty() is the synchronous form, which records it as a gap.
+// level_difficulty() is the synchronous form, which queues it for the next message.
 export function* level_difficulty_steps(state = game) {
     const level = state.u?.uz;
     if (!level || !dungeon_at(level.dnum, state))
@@ -945,7 +945,7 @@ export function* level_difficulty_steps(state = game) {
 }
 
 export function level_difficulty(state = game) {
-    return finish_steps(level_difficulty_steps(state));
+    return finish_steps(level_difficulty_steps(state), sync_impossible, state);
 }
 
 // C ref: dungeon.c ledger_no() (1375-1379), which returns

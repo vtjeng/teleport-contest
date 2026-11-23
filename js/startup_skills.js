@@ -155,14 +155,16 @@ export function initialspell(obj, state = game, options = {}) {
            && slots[index].sp_id !== otyp) ++index;
 
     if (index === MAXSPELL) {
+        // C: impossible("Too many spells memorized!");
+        sync_impossible('Too many spells memorized!', state);
         reportImpossible(options, 'Too many spells memorized!');
         return -1;
     }
     if (slots[index].sp_id !== NO_SPELL) {
-        reportImpossible(
-            options,
-            `Spell ${OBJ_NAME(objectCatalog(state)[otyp], state)} already known.`,
-        );
+        // C: impossible("Spell %s already known.", OBJ_NAME(objects[otyp]));
+        const known = `Spell ${OBJ_NAME(objectCatalog(state)[otyp], state)} already known.`;
+        sync_impossible(known, state);
+        reportImpossible(options, known);
         return -1;
     }
 

@@ -83,6 +83,7 @@ import {
 } from './do_name.js';
 import { canseemon } from './display.js';
 import { game } from './gstate.js';
+import { sync_impossible } from './source_steps.js';
 import {
     losehp,
     near_capacity,
@@ -212,27 +213,25 @@ export function can_saddle(monster) {
         && !(flags & M1_UNSOLID);
 }
 
+// C: impossible("put_saddle_on_mon: saddle obj could get orphaned");
+// (steed.c 145-146), through the caller's hook or queued for the next message.
+function saddleOrphaned(env) {
+    const text = 'put_saddle_on_mon: saddle obj could get orphaned';
+    if (typeof env.hooks?.impossible === 'function') env.hooks.impossible(text, env);
+    else sync_impossible(text, env.state);
+}
+
 // C ref: steed.c put_saddle_on_mon() (141-165). dog.c:makedog() calls this
 // before initedog(); special-level construction can supply a prebuilt saddle.
 export function put_saddle_on_mon(saddle, monster, env = {}) {
     const normalized = saddleEnv(env);
     if (!can_saddle(monster)) {
-        if (saddle && typeof normalized.hooks?.impossible === 'function') {
-            normalized.hooks.impossible(
-                'put_saddle_on_mon: saddle obj could get orphaned',
-                normalized,
-            );
-        }
+        if (saddle) saddleOrphaned(normalized);
         return null;
     }
     for (let object = monster.minvent; object; object = object.nobj) {
         if (object.owornmask & W_SADDLE) {
-            if (saddle && typeof normalized.hooks?.impossible === 'function') {
-                normalized.hooks.impossible(
-                    'put_saddle_on_mon: saddle obj could get orphaned',
-                    normalized,
-                );
-            }
+            if (saddle) saddleOrphaned(normalized);
             return null;
         }
     }

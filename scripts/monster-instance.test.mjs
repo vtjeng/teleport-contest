@@ -1,3 +1,4 @@
+import { takeQueuedReports } from './queued-reports.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
@@ -112,11 +113,12 @@ test('place_monster reports bad placements as steed.c does and goes on', async (
     assert.equal(lines[0], 'placing defunct monster onto map, mstate:0, on Dlvl:1 ?');
     assert.equal(m_at(41, 10, game), null);
 
-    // The synchronous form records the unprinted report and still places.
+    // The synchronous form queues the report and still places.
     const fourth = newt();
+    takeQueuedReports(game);
     assert.equal(place_monster(fourth, 40, 10, game), fourth);
     assert.equal(m_at(40, 10, game), fourth);
-    assert.ok(game.unported.has('pline.c impossible'));
+    assert.equal(takeQueuedReports(game).length, 1);
 });
 
 test('place_monster retains the source vault-guard parking exception', () => {

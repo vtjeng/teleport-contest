@@ -376,20 +376,9 @@ export function set_twoweap(enabled, state = game) {
 // pointers of a restored game; all ordinary worn slots are complete here.
 // Worn setters normally complete without waiting. Artifact display can
 // suspend, so advance the source statements until that operation completes.
-function finishWornSteps(steps) {
-    const advance = (value, failed = false) => {
-        const step = failed ? steps.throw(value) : steps.next(value);
-        if (step.done) return step.value;
-        if (step.value && typeof step.value.then === 'function')
-            return Promise.resolve(step.value).then(
-                result => advance(result), error => advance(error, true));
-        return advance(step.value);
-    };
-    return advance(undefined);
-}
-
 export function setworn(obj, mask, env = {}) {
-    return finishWornSteps(setworn_steps(obj, mask, env));
+    return finish_steps(setworn_steps(obj, mask, env), sync_impossible,
+        env.state ?? game);
 }
 
 function* setworn_steps(obj, mask, env) {
@@ -437,7 +426,8 @@ function* setworn_steps(obj, mask, env) {
 }
 
 export function setnotworn(obj, env = {}) {
-    return finishWornSteps(setnotworn_steps(obj, env));
+    return finish_steps(setnotworn_steps(obj, env), sync_impossible,
+        env.state ?? game);
 }
 
 function* setnotworn_steps(obj, env) {
@@ -996,7 +986,8 @@ function* m_dowear_type_steps(
 // prints vision notices, which cannot happen during level creation because
 // vision_recalc() does nothing there.
 export function m_dowear(monster, creation = false, rawEnv = {}) {
-    return finish_steps(m_dowear_steps(monster, creation, rawEnv));
+    return finish_steps(m_dowear_steps(monster, creation, rawEnv), sync_impossible,
+        rawEnv.state ?? game);
 }
 
 export function* m_dowear_steps(monster, creation = false, rawEnv = {}) {

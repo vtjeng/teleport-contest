@@ -376,8 +376,11 @@ test('an unexpected burn object takes the impossible() arm', () => {
     });
     begin_burn(unexpected, false, { state });
     const reports = takeQueuedReports(state);
-    assert.equal(reports.length, 1);
-    assert.match(reports[0], /^begin burn: unexpected .+$/u);
+    // objnam.c xname_flags() (931-934) reports the class it cannot name
+    // while C evaluates begin_burn()'s argument, so its report comes first.
+    assert.equal(reports.length, 2);
+    assert.match(reports[0], /^xname_flags: glorkum /u);
+    assert.match(reports[1], /^begin burn: unexpected glorkum /u);
     assert.equal(unexpected.lamplit, true);
     assert.equal(unexpected.age, 0);
     // The fixture starts at move 10, so the 200-turn burn expires at 210.

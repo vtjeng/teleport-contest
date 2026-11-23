@@ -29,7 +29,8 @@ import test from 'node:test';
 
 import { parse } from 'acorn';
 
-// Synchronous forms: each runs its *_steps twin with gap_impossible().
+// Synchronous forms: each runs its *_steps twin with sync_impossible, which
+// queues the report for the next message.
 const SYNC_FORMS = new Set([
     'In_W_tower',
     'Can_rise_up',

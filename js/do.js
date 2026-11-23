@@ -221,7 +221,7 @@ import {
     impossible, impossible_printer, livelog_printf, youFeel,
     youSee,
 } from './pline.js';
-import { finish_steps } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 import { dist2, s_suffix, upstart, lcase } from './hacklib.js';
 import { get_obj_location } from './light.js';
 import {
@@ -2484,7 +2484,8 @@ export async function doup(state = game) {
 // assignment. builds_up()'s impossible() prints where C prints it when the
 // caller passes impossible_printer() as onImpossible.
 export function updateDunlevReached(level, state = game, onImpossible) {
-    return finish_steps(updateDunlevReachedSteps(level, state), onImpossible);
+    return finish_steps(updateDunlevReachedSteps(level, state),
+        onImpossible ?? sync_impossible, state);
 }
 
 function* updateDunlevReachedSteps(level, state) {

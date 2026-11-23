@@ -1522,6 +1522,10 @@ test('set_wear dispatches accessory callbacks and keeps only the named gaps',
     game.ublindf = { otyp: BLINDFOLD, oclass: TOOL_CLASS, owornmask: 0,
         quan: 1, dknown: true, known: true, spe: 0 };
     game.nhDisplay.pushKey(0x20); // New eyewear on_msg precedes sight-loss feedback.
+    // The blindfold and amulet slots hold objects whose owornmask lacks the
+    // slot's bit, which worn.c setworn() (87-88) reports through
+    // impossible(): three lines each, with a --More-- between them.
+    for (let i = 0; i < 6; ++i) game.nhDisplay.pushKey(0x20);
     const right = syntheticRing(RIN_INCREASE_ACCURACY, 2);
     right.owornmask = W_RINGR;
     game.uright = right;

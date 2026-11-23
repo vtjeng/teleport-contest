@@ -81,6 +81,7 @@ import { sobj_at } from './invent.js';
 import { t_at } from './trap.js';
 import { make_engr_at } from './engrave.js';
 import { game } from './gstate.js';
+import { sync_impossible } from './source_steps.js';
 import { induced_align } from './dungeon.js';
 import {
     discard_minvent,
@@ -531,6 +532,8 @@ function createPostprocessTrap(specification, env) {
 function impossible(message, env) {
     if (typeof env.hooks.impossible === 'function')
         env.hooks.impossible(message, env);
+    else
+        sync_impossible(message, env.state ?? game);
 }
 
 // C ref: sp_lev.c create_monster(), from the class lookup through the
