@@ -4547,7 +4547,11 @@ export function there_cmd_menu_next2u(win, x, y, mod, act, state = game) {
             add(MCMD.UNTRAP_TRAP, 'Attempt to disarm trap');
         add(MCMD.MOVE_DIR, 'Move on the trap');
     }
-    if (glyph_at(x, y, state) === objnum_to_glyph(BOULDER))
+    // cmd.c:4576 tests levl[x][y].glyph, the remembered glyph: a boulder the
+    // hero remembers is offered even where the drawn square shows something
+    // else, such as the blank under_water() draws beside a submerged hero.
+    if (state.level.at(x, y)?.remembered_glyph?.glyph
+        === objnum_to_glyph(BOULDER))
         add(MCMD.MOVE_DIR, 'Push the boulder');
 
     let mtmp = m_at(x, y, state);

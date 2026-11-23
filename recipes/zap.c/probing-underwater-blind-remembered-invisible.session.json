@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 9026,
+      "datetime": "20310122184000",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Samurai,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u0017blessed amulet of magical breathing\nPf\u0017blindfold\n\u0017wand of teleportation\n\u0017wand of probing\n\u0007shrieker\nPgFyzhy\u0017pool\nx\n\n\n\nziyh\n",
+      "comment": "A Samurai wearing an amulet of magical breathing creates a shrieker, which lands to her north-west, puts on a blindfold and force-fights it: the square now remembers an 'I'. She zaps a wand of teleportation at the shrieker, which leaves without her noticing, so the 'I' stays. She wishes a pool under herself and swaps weapons for a turn; she sinks, and display.c under_water() draws the squares around her blank. She zaps a wand of probing at the marker. zap.c bhit() finds no monster there and tests levl[x][y].glyph (4039-4043): the remembered 'I' is unmapped, though newsym() draws nothing under water. She then steps west onto dry land, and docrt() repaints the map from memory with the floor where the marker was. The port read glyph_at(), the blank drawn glyph, kept the marker, and drew an 'I' there on that last screen. The wait is a weapon swap because a search would clear the marker itself (detect.c dosearch0()). The seed, clock, character and keys were chosen for this recipe."
+    }
+  ]
+}
