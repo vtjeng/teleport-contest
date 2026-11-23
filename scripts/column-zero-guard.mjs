@@ -5,7 +5,8 @@
 // prints, and a guard it drops prints one C does not.
 //
 // A drawing call is a call of one of DRAW_CALLS whose first argument is a
-// column. Its guard tests are the places the function compares an expression
+// column, or a call of one of STRUCT_DRAW_CALLS, which take an object, a trap
+// or an engraving and draw at the square it records. Its guard tests are the places the function compares an expression
 // with the same last member name (`mx` for `mtmp->mx` and `mon.mx`) with 0 or
 // 1, tests it for truth, or passes it to isok(). Only the counts are compared.
 //
@@ -27,12 +28,20 @@ const DRAW_CALLS = [
     'map_invisible', 'unmap_invisible', 'unmap_object', 'show_glyph',
     'feel_location', 'feel_newsym', 'display_monster',
 ];
+// display.c functions that take a struct and draw at its square, with the
+// member that holds the column: map_trap() (298) reads trap->tx,
+// map_engraving() (315) ep->engr_x and map_object() (335) obj->ox.
+const STRUCT_DRAW_CALLS = { map_object: 'ox', map_trap: 'tx', map_engraving: 'engr_x' };
 // The spellings the port gives the same calls.
 const JS_DRAW_SUFFIXES = ['', '_steps', '_async', '_cell', '_memory_only'];
 
 // A JS function stands for C function `name` when it is called `name` or
 // `name` with one of these suffixes.
 const JS_SUFFIXES = ['', '_steps', '_core', '_runtime', '_impl'];
+// C functions the port holds under another C function's name: display.c
+// docrt() (1702-1705) only calls docrt_flags(docrtRecalc), and js/display.js
+// docrt() is that body with the flag as an option.
+const JS_NAMES = { docrt_flags: 'docrt' };
 
 function stripComments(source) {
     return source
@@ -72,6 +81,14 @@ function jsFunctions(source) {
 const drawCall = new RegExp(
     `\\b(?:${DRAW_CALLS.join('|')})(?:${JS_DRAW_SUFFIXES.join('|')})\\s*\\(\\s*`
     + '([A-Za-z_$][\\w$.>?\\-\\[\\]]*)\\s*,', 'gu');
+const structDrawCall = new RegExp(
+    `\\b(${Object.keys(STRUCT_DRAW_CALLS).join('|')})(?:${JS_DRAW_SUFFIXES.join('|')})\\s*\\(`,
+    'gu');
+
+// The number of drawing calls of either kind in `body`.
+export function drawCalls(body) {
+    return [...body.matchAll(drawCall)].length + [...body.matchAll(structDrawCall)].length;
+}
 
 // The last member name of a column expression: `mx` for `mtmp->mx`.
 const member = (expression) => expression.match(/([A-Za-z_$][\w$]*)\]?$/u)?.[1];
@@ -83,6 +100,8 @@ export function columns(body) {
         const name = member(match[1]);
         if (name) members.add(name);
     }
+    for (const match of body.matchAll(structDrawCall))
+        members.add(STRUCT_DRAW_CALLS[match[1]]);
     return members;
 }
 
@@ -124,13 +143,15 @@ export function analyse() {
             // function is tested for the C function's column names as well
             // as its own.
             const cColumns = columns(fn.body);
-            const draws = [...fn.body.matchAll(drawCall)].length;
+            // display.c defines the three struct calls; their own bodies
+            // are compared through the show_glyph() call each makes.
+            const draws = drawCalls(fn.body);
             if (!draws) continue;
             result.functions++;
             result.cDraws += draws;
             const key = `${file} ${fn.name}`;
             const bodies = JS_SUFFIXES.flatMap(
-                (suffix) => jsBodies.get(fn.name + suffix) ?? []);
+                (suffix) => jsBodies.get((JS_NAMES[fn.name] ?? fn.name) + suffix) ?? []);
             if (!bodies.length) {
                 result.unported.push(key);
                 continue;
