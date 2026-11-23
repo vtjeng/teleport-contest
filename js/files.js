@@ -275,7 +275,20 @@ export function isDefaultSymsetName(name) {
 // of dat/symbols, so opening or parsing that immutable file cannot fail here.
 // This covers the function's selected-name/default-alias result; symbols.c owns
 // the table and metadata mutations made while the matching block is parsed.
-export function read_sym_file(name) {
+//
+// C reads the file with parse_conf_file() (2646) whatever the name, and that
+// calls free_config_sections() before and after its loop (cfgfiles.c:1849,
+// 1858). dat/symbols holds no CHOOSE or section line, so the one state change
+// left is that gc.config_section_chosen and gc.config_section_current are
+// null afterwards. `state` is the holder of those two fields: the parser
+// result while a configuration file is being read. The two assignments are
+// the body of js/cfgfiles.js free_config_sections(), written out because a
+// static import of that module from this one closes an import cycle that
+// leaves js/makemon_create.js reading display symbols before they exist.
+export function read_sym_file(name, state = game) {
+    state.gc ??= {};
+    state.gc.config_section_chosen = null;
+    state.gc.config_section_current = null;
     if (isDefaultSymsetName(name)) return true;
     const folded = lcase(String(name));
     return SYMBOL_SET_DEFINITIONS.some(

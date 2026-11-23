@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_sym_file() from options.c optfn_DECgraphics(), the BACKWARD_COMPAT boolean. read_sym_file() (files.c:2631-2646) reads dat/symbols with parse_conf_file(), which calls free_config_sections() before and after (cfgfiles.c:1849, 1858) and so forgets both the CHOOSE choice and the current section of the configuration file being read. [wigeon] is then a \"Section without CHOOSE\" error and OPTIONS=showexp applies. Seed, date, Rogue and section names chosen independently.",
+  "segments": [
+    {
+      "seed": 87120536,
+      "datetime": "20450314064500",
+      "nethackrc": "OPTIONS=name:Tamsin,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nCHOOSE=teal\n[teal]\nOPTIONS=DECgraphics\n[wigeon]\nOPTIONS=showexp\n",
+      "moves": "\n s i "
+    }
+  ]
+}
