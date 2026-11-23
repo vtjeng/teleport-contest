@@ -62,7 +62,7 @@
     },
     "js/dig.js | dig | rnd_treefruit_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/dig.js | expose | obj_extract_self": {
       "count": 1,
@@ -70,11 +70,11 @@
     },
     "js/dig.js | mdig_tunnel | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/dig.js | mdig_tunnel | rnd_treefruit_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/dig.js | rot_corpse | hideunder": {
       "count": 1,
@@ -162,7 +162,7 @@
     },
     "js/dokick.js | kick_nondoor | mksobj_at": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/dokick.js | obj_delivery | place_object": {
       "count": 1,
@@ -222,15 +222,15 @@
     },
     "js/fountain.js | dofindgem | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/fountain.js | drinksink | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/fountain.js | sink_backs_up | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/hack.js | domove_core | hideunder": {
       "count": 1,
@@ -294,7 +294,7 @@
     },
     "js/makemon_create.js | makemon_steps | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/makemon_create.js | makemon_steps | mon_adjust_speed": {
       "count": 1,
@@ -318,7 +318,7 @@
     },
     "js/mineralize.js | mineralize | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mineralize.js | mineralize | place_object": {
       "count": 2,
@@ -342,7 +342,7 @@
     },
     "js/mklev.js | dig_corridor | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | fake_delphi | run_room_descriptor": {
       "count": 1,
@@ -350,11 +350,11 @@
     },
     "js/mklev.js | fill_empty_maze | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | fill_empty_maze | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | finishMonster | make_level_trap": {
       "count": 1,
@@ -366,15 +366,15 @@
     },
     "js/mklev.js | finishMonster | mkobj_at": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | finishMonster | mksobj_at": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | generate_way_out_method | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | huge_room_with_another_room_inside | run_room_descriptor": {
       "count": 1,
@@ -390,11 +390,11 @@
     },
     "js/mklev.js | makeniche | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | makeniche | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | map_cleanup | obj_extract_self": {
       "count": 1,
@@ -442,11 +442,11 @@
     },
     "js/mkmaze.js | populate_maze | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mkmaze.js | populate_maze | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mkmaze.js | populate_maze | mktrap": {
       "count": 1,
@@ -466,11 +466,11 @@
     },
     "js/mkroom.js | finishCell | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mkroom.js | finishCell | mksobj_at": {
       "count": 3,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mkroom.js | finishZoo | add_to_container": {
       "count": 1,
@@ -506,7 +506,7 @@
     },
     "js/mon.js | make_corpse | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mon.js | maybe_unhide_at | hideunder": {
       "count": 2,
@@ -514,7 +514,7 @@
     },
     "js/mon.js | meatmetal | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mon.js | monstone | add_to_container": {
       "count": 1,
@@ -694,7 +694,7 @@
     },
     "js/room_features.js | mkgrave | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/shk.js | paybill | mongone": {
       "count": 1,
@@ -714,11 +714,11 @@
     },
     "js/shknam.js | makeShopItem | mkobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/shknam.js | makeShopItem | mksobj_at": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/shknam.js | shkinit | rloc": {
       "count": 1,

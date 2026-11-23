@@ -2780,7 +2780,9 @@ export function costly_alteration(obj, alterType, env = {}) {
     const { state } = normalized;
     if (!Number.isInteger(alterType) || alterType < 0
         || alterType >= alterationVerbs.length) {
-        return ttyPline(`impossible: invalid alteration type (${alterType})`, state)
+        // C: impossible("invalid alteration type (%d)", alter_type)
+        // (mkobj.c 761), then alter_type = 0.
+        return impossible(`invalid alteration type (${alterType})`, state)
             .then(() => costly_alteration(obj, 0, normalized));
     }
 
