@@ -30,7 +30,9 @@ import {
     TREE,
 } from '../js/const.js';
 import { AUTOCOMP_ADJ, AUTOCOMPLETE } from '../js/extcmdlist_data.js';
-import { commandForKey } from '../js/command_bindings.js';
+import {
+    cmd_from_func, commandForKey, keyForCommand,
+} from '../js/command_bindings.js';
 import {
     cmdq_add_dir,
     cmdq_add_int,
@@ -71,7 +73,6 @@ import {
     bind_specialkey,
     cmd_from_dir,
     cmd_from_ecname,
-    cmd_from_func,
     cmdname_from_func,
     commands_init,
     directionname,
@@ -256,6 +257,18 @@ test('cmd.c command lookup helpers preserve binding order and source names', () 
     assert.equal(cmd_from_ecname('not-a-command', state), '');
     assert.equal(ecname_from_fn('dohelp'), 'help');
     assert.equal(cmd_from_dir(4, MV_WALK, state), 'l'.charCodeAt(0));
+
+    // cmd.c:3054 compares ef_funct, so a command that shares its handler
+    // with another answers either one's key. extcmdlist[] gives docallcmd
+    // to 'call' ('C') and 'name' (M-n); commands_init() adds M-N for 'name'
+    // last, and the printable 'C' wins over both meta keys.
+    assert.equal(cmd_from_func('docallcmd', state), 'C'.charCodeAt(0));
+    assert.equal(keyForCommand(state.commandBindings, 'name'),
+        'C'.charCodeAt(0));
+    assert.equal(keyForCommand(state.commandBindings, 'call'),
+        'C'.charCodeAt(0));
+    // A name outside extcmdlist[] has no handler and so no key.
+    assert.equal(keyForCommand(state.commandBindings, 'not-a-command'), 0);
 
     // cmd_from_func() skips a non-number-pad digit, then retains a control
     // fallback only when no printable binding exists.
