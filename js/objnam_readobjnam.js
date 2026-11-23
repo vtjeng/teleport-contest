@@ -884,6 +884,12 @@ export function readobjnam_init(bp, state) {
         contents: TIN_UNDEFINED,
         oclass: 0,
         actualn: null, dn: null, un: null,
+        // Not fields of C's struct.  C's d->name, d->un and d->dn point into
+        // the wish buffer after readobjnam_postparse1() cuts it at " named ",
+        // " called " and " labeled "; these are their distances from origbp.
+        // readobjnam_postparse2() writes the canonical glass name over the
+        // buffer, and tailsAfterCopy() uses them to read what C then reads.
+        nameAt: -1, unAt: -1, dnAt: -1,
         wetness: 0,
         gsize: 0,
         zombify: false,
@@ -1304,12 +1310,14 @@ export function readobjnam_postparse1(d, env) {
     if ((p = strstri(d.bp, ' named ')) >= 0) {
         /* note: if 'name' is too long, oname() will truncate it */
         d.name = d.bp.slice(p + 7);
+        d.nameAt = d.consumed.length + p + 7;
         d.nameIsArtiName = false; /* C's pointer lands in the wish buffer */
         d.bp = d.bp.slice(0, p);
     }
     if ((p = strstri(d.bp, ' called ')) >= 0) {
         /* note: if 'un' is too long, obj lookup just won't match anything */
         d.un = d.bp.slice(p + 8);
+        d.unAt = d.consumed.length + p + 8;
         d.bp = d.bp.slice(0, p);
         /* "helmet called telepathy" is not "helmet" (a specific type)
          * "shield called reflection" is not "shield" (a general type)
@@ -1322,9 +1330,11 @@ export function readobjnam_postparse1(d, env) {
     }
     if ((p = strstri(d.bp, ' labeled ')) >= 0) {
         d.dn = d.bp.slice(p + 9);
+        d.dnAt = d.consumed.length + p + 9;
         d.bp = d.bp.slice(0, p);
     } else if ((p = strstri(d.bp, ' labelled ')) >= 0) {
         d.dn = d.bp.slice(p + 10);
+        d.dnAt = d.consumed.length + p + 10;
         d.bp = d.bp.slice(0, p);
     }
     if ((p = strstri(d.bp, ' of spinach')) >= 0) {
@@ -1411,7 +1421,7 @@ export function readobjnam_postparse1(d, env) {
         d.mntmp = NON_PM; /* not useful for "glob of <foo>" lookup */
         d.oclass = FOOD_CLASS;
         d.actualn = d.bp;
-        d.dn = null;
+        d.dn = null; d.dnAt = -1;
         return 1; /*goto srch;*/
     } else {
         /*
@@ -1690,6 +1700,23 @@ export function readobjnam_postparse1(d, env) {
     return 0;
 }
 
+// C's Strcpy(d->bp, tbuf) at objnam.c:4715 writes the canonical glass name
+// and its '\0' into the wish buffer at bp.  The name is longer than the text
+// it replaces unless the player typed "worthless piece of", so the copy runs
+// past the old end of bp into the " named ", " called " and " labeled " tails
+// that readobjnam_postparse1() cut off.  A pointer the copy reaches then
+// reads the rest of the canonical name: "shiny white glass called x" leaves
+// d->un reading "white glass", which is what grants the gem.  d.bp already
+// holds the copied name when this runs.
+function tailsAfterCopy(d) {
+    const start = d.consumed.length;
+    for (const [field, at] of [['name', 'nameAt'], ['un', 'unAt'], ['dn', 'dnAt']]) {
+        const offset = d[at] - start;
+        if (d[at] >= 0 && offset >= 0 && offset <= d.bp.length)
+            d[field] = d.bp.slice(offset);
+    }
+}
+
 // C ref: objnam.c readobjnam_postparse2() (4665-4724).
 export function readobjnam_postparse2(d, env) {
     const { state } = wishEnv(env);
@@ -1727,8 +1754,9 @@ export function readobjnam_postparse2(d, env) {
             if (state.objects[d.typ].oc_class === GEM_CLASS)
                 return 2; /*goto typfnd;*/
             d.typ = 0;
-        } else {
+        } else { /* try to construct canonical form */
             d.bp = `worthless piece of ${s}`;
+            tailsAfterCopy(d);
         }
     }
 

@@ -1,0 +1,12 @@
+{
+ "version": 5,
+ "comment": "objnam.c readobjnam_postparse2() 4711-4715: Strcpy(d->bp, tbuf) writes \"worthless piece of green glass\" over the \" named Kermit\" tail, so d->name, 7 bytes past the cut, reads from inside the canonical name. The second wish already starts \"worthless piece of\", so the copy does not grow and the name survives.",
+ "segments": [
+  {
+   "seed": 7719403,
+   "datetime": "20290908174500",
+   "nethackrc": "OPTIONS=name:Smalt,role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup\n",
+   "moves": " \u0017green glass named Kermit\n\u0017worthless piece of violet glass named Grape\ni\u001b"
+  }
+ ]
+}
