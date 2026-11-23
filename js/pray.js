@@ -128,6 +128,7 @@ import {
     CXN_ARTICLE,
     uhim,
     LL_SPOILER,
+    uhis,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -2282,7 +2283,7 @@ async function gcrownu(state) {
                 u.ugifts = (u.ugifts ?? 0) + 1;
                 livelog_printf(
                     LL_DIVINEGIFT | LL_ARTIFACT,
-                    `had ${uhim(state)} wielded ${before} transformed into `
+                    `had ${uhis(state)} wielded ${before} transformed into `
                         + `${artiname(ART_EXCALIBUR, state)}`,
                     state,
                 );
