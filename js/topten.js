@@ -80,7 +80,7 @@ export function formatkiller(how, incl_helpless, state = game, siz) {
     case NO_KILLER_PREFIX:
         break;
     case KILLED_BY_AN:
-        kname = an(kname);
+        kname = an(kname, state);
         // fall through
     case KILLED_BY:
         // strncat(buf, killed_by_prefix[how], siz - 1)
