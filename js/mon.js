@@ -4191,8 +4191,15 @@ export function normal_shape(mon, state = game, rawEnv = {}) {
             mon.cham = NON_PM;
             // newcham() may uncancel a polymorphing monster; C overrides that.
             if (mcan) mon.mcan = 1;
-            redrawSquare(mon.mx, mon.my);
-            return finishWere();
+            // mon.c:4443. Every caller waits, so display.c newsym()'s
+            // impossible() reports print here, where C prints them: dog.c
+            // mon_arrive() reverts an arriving shapeshifter that is still at
+            // <0,0>, and newsym() reports that column.
+            const drawn = redrawSquare === newsym
+                ? newsym_async(mon.mx, mon.my, { state })
+                : redrawSquare(mon.mx, mon.my);
+            return drawn && typeof drawn.then === 'function'
+                ? drawn.then(finishWere) : finishWere();
         };
         if (pending && typeof pending.then === 'function')
             return pending.then(afterShape);
