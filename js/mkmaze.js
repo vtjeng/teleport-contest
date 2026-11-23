@@ -468,7 +468,9 @@ export function setup_waterlevel(state = game, random = rn2) {
     // first call's bubbles.
     state.air_bubbles ??= [];
     state.waterlevel_bounds = { xmin: 4, ymin: 2, xmax: 77, ymax: 19 };
-    state.waterlevel_portal = null;
+    // C leaves gw.wportal alone here and in unsetup_waterlevel(): once
+    // movebubbles() has set it, set_wportal() never runs again in that
+    // process, even on a remade level that has no portal.
     // hero_bubble keeps whatever the last movebubbles() left; see
     // unsetup_waterlevel().
     for (let x = 1; x <= COLNO - 1; ++x) {
@@ -702,7 +704,6 @@ export function set_wportal(state = game) {
 // allocator-dependent effect is not modelled.)
 export function unsetup_waterlevel(state = game) {
     state.air_bubbles = [];
-    state.waterlevel_portal = null;
 }
 
 // C ref: mkmaze.c maybe_adjust_hero_bubble() (1927-1940).
