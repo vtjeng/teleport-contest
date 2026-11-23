@@ -11,6 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { MAXDUNGEON } from '../js/const.js';
 import { depth, dunlevs_in_dungeon, ledger_no } from '../js/dungeon.js';
 import { dungeon_at } from '../js/dungeon_table.js';
 
@@ -198,4 +199,49 @@ test('depth(), dunlevs_in_dungeon() and ledger_no() read dungeon -1 there', () =
     // ledger_start is jingle[0..3] = 0x43: 0x43 - 1.
     assert.equal(ledger_no(nowhere, state), 66);
     assert.equal(depth({ dnum: 0, dlevel: 3 }, state), 3);
+});
+
+// svd.dungeons[n_dgns] to svd.dungeons[MAXDUNGEON - 1] are the slots
+// init_dungeons() leaves zeroed. fixup_level_locations() gives the floating
+// Fort Ludios branch an end1.dnum of n_dgns, and find_branch() takes
+// ledger_no() of it.
+test('dungeon_at() reads the unused slots from n_dgns up as zero', () => {
+    const header = readFileSync(resolve(JS_DIR, '..', 'nethack-c', 'upstream',
+        'include', 'global.h'), 'utf8');
+    const bound = Number(header.match(/^#define MAXDUNGEON (\d+)/mu)[1]);
+    assert.equal(bound, MAXDUNGEON);
+    // Two dungeons, as n_dgns counts them. The values of the filled slots
+    // are arbitrary nonzero ones, so a read of them cannot pass for zero.
+    const state = {
+        n_dgns: 2,
+        dungeons: [
+            { ledger_start: 0, num_dunlevs: 4, depth_start: 1 },
+            { ledger_start: 4, num_dunlevs: 5, depth_start: 3 },
+        ],
+    };
+    // The last filled slot is still the array element.
+    assert.equal(dungeon_at(1, state), state.dungeons[1]);
+    // The first unused slot (n_dgns) and the last (MAXDUNGEON - 1).
+    for (const dnum of [2, bound - 1]) {
+        assert.deepEqual(dungeon_at(dnum, state), {
+            dname: '', proto: '', fill_lvl: '', themerms: '', boneid: '',
+            flags: {
+                town: false, hellish: false, maze_like: false,
+                rogue_like: false, align: 0, unconnected: false,
+            },
+            entry_lev: 0, num_dunlevs: 0, dunlev_ureached: 0,
+            ledger_start: 0, depth_start: 0,
+        });
+    }
+    // dungeons[MAXDUNGEON] is past the table, which this does not model.
+    assert.equal(dungeon_at(bound, state), undefined);
+    // dlevel 3 is arbitrary. ledger_no(): 3 + ledger_start 0. depth():
+    // depth_start 0 + 3 - 1.
+    assert.equal(ledger_no({ dnum: 2, dlevel: 3 }, state), 3);
+    assert.equal(depth({ dnum: 2, dlevel: 3 }, state), 2);
+    assert.equal(dunlevs_in_dungeon({ dnum: 2, dlevel: 3 }, state), 0);
+    // C would keep a write to the slot; the frozen model refuses it.
+    assert.throws(() => { dungeon_at(2, state).dunlev_ureached = 1; }, TypeError);
+    // Before init_dungeons() sets n_dgns, every slot is still unset.
+    assert.equal(dungeon_at(2, { dungeons: [] }), undefined);
 });

@@ -6,13 +6,51 @@
 import { game } from './gstate.js';
 
 // svd.dungeons[dnum]: every read of the dungeon table goes through here
-// (scripts/dungeon-index.test.mjs fails on any other index of it). For dnum
-// 0 and up it is the array element, undefined before init_dungeons() fills
-// it. For dnum -1 it is the view below.
+// (scripts/dungeon-table.test.mjs fails on any other index of it). For a
+// dnum from 0 to n_dgns - 1 it is the array element, undefined before
+// init_dungeons() fills it. For dnum -1 it is the view below, and for the
+// unused slots from n_dgns up it is UNUSED_DUNGEON.
 export function dungeon_at(dnum, state = game) {
     if (dnum === -1) return dungeon_before_table(state);
+    if (dnum >= state.n_dgns && dnum < MAXDUNGEON) return UNUSED_DUNGEON;
     return state.dungeons?.[dnum];
 }
+
+// global.h MAXDUNGEON, the length of svd.dungeons[]. const.js exports the
+// same value (scripts/dungeon-table.test.mjs compares the two); this file
+// cannot import it without closing a cycle.
+const MAXDUNGEON = 16;
+
+// svd.dungeons[n_dgns] to svd.dungeons[MAXDUNGEON - 1], the slots that
+// init_dungeons() leaves unused. svd is zero-initialized, init_dungeons()
+// panics unless n_dgns < MAXDUNGEON, init_dungeon_dungeons() writes only
+// slots below n_dgns, and goto_level() writes only the hero's own dungeon,
+// so every field of these slots stays zero. C reads one of them through
+// the floating Fort Ludios branch: fixup_level_locations() gives its end1
+// the "bogus dnum, namely n_dgns" until mk_knox_portal() places the portal,
+// and find_branch() takes ledger_no(&br->end1) of it when a level teleport
+// names the dungeon. Frozen, so a write that C would keep fails here
+// instead of being lost.
+const UNUSED_DUNGEON = Object.freeze({
+    dname: '',
+    proto: '',
+    fill_lvl: '',
+    themerms: '',
+    boneid: '',
+    flags: Object.freeze({
+        town: false,
+        hellish: false,
+        maze_like: false,
+        rogue_like: false,
+        align: 0,
+        unconnected: false,
+    }),
+    entry_lev: 0,
+    num_dunlevs: 0,
+    dunlev_ureached: 0,
+    ledger_start: 0,
+    depth_start: 0,
+});
 
 // svd.dungeons[-1]. maketrap() gives every trap a dst of {-1, -1}, and only
 // a magic portal that mkportal() made gets a real one; a portal made by a
