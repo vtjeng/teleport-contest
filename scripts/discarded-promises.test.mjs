@@ -41,8 +41,10 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // add_to_migration_steps() (branch loose-ends, 13 November 2026). 238 and
 // 308 with light.js del_light_source()'s finish_steps(), the synchronous form
 // of del_light_source_steps() (branch followups-light-norep, 15 November
-// 2026).
-const ALLOWLIST_PINS = { entries: 238, calls: 308 };
+// 2026). 239 and 309 with tty_message.js queuedVplineVisionRecalc()'s
+// vision_recalc(), synchronous because sync_impossible() returns nothing
+// (branch mention-map-notices, 22 November 2026).
+const ALLOWLIST_PINS = { entries: 239, calls: 309 };
 
 // Callees that take an object out of a chain. A carried object goes through
 // invent.c freeinv(), whose impossible() reports and artifact intrinsic
