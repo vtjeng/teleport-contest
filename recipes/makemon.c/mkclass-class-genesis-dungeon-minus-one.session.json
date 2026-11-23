@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Witness for makemon.c mkclass_aligned() on a dungeon -1 level, reached from read.c create_particular() when ^G is given a class letter. A Valkyrie improvises once on a wished wooden flute, wishes for a magic portal, which keeps maketrap()'s dst of {-1, -1}, and steps back onto it, arriving on a level of dungeon -1. There ^G creates a Z (a kobold zombie) and then an o (a goblin). C prints builds_up()'s impossible() report, with three --More-- prompts, at each level_difficulty() call that mkclass_aligned() and makemon() make (three reports for the Z, four for the o), and makes the draws that follow a report only after its prompts are answered. The port's screens matched before js/read.js drove mkclass_steps(), because the synchronous mkclass() queued each report for the next message, but its RNG calls did not fall in the same steps as C's: 7 of 85 steps differed, and none does now. No committed check compares RNG calls step by step, so this recording passes before and after; it shows that the awaited path prints the same screens. The seed, date and arrival keys are those of recipes/mkroom.c/mkundead-cursed-bell-dungeon-minus-one, whose comment says how few seeds reach a dungeon -1 level the port replays; the class letters are this recipe's own.",
+  "segments": [
+    {
+      "seed": 6390284,
+      "datetime": "20530422190500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "#wizwish\nwooden flute\naeyh\u0017magic portal\nlh       \u0007Z\n          \u0007o\n                  s"
+    }
+  ]
+}
