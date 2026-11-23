@@ -89,6 +89,7 @@ import {
     waterbody_name,
 } from './pager.js';
 import { is_drawbridge_wall } from './dbridge.js';
+import { tty_status_state } from './wintty.js';
 import { gather_locs_interesting } from './getpos.js';
 import { visible_region_at } from './region.js';
 import {
@@ -204,7 +205,7 @@ import {
 } from './symbols.js';
 import { Blind, Hallucination } from './youprop.js';
 import { lcase, lowc, strncmpi } from './hacklib.js';
-import { queuedVplineVisionRecalc, ttyPline } from './tty_message.js';
+import { queuedVpline, ttyPline } from './tty_message.js';
 import { impossible } from './pline.js';
 import { NH_abort } from './end.js';
 
@@ -622,30 +623,73 @@ export function queueGlyphUpdateNotice(
         state,
         true,
     );
-    // pline.c vpline() (266-272) spends a pending vision recalculation
-    // before it prints the line, so the recalculation's own notices queue
-    // first and this notice's frame is the map after it.
-    if (message !== null) {
-        const last = state._glyphUpdateNotices?.at(-1);
-        queuedVplineVisionRecalc(
-            message, last && !last.impossible ? last.message : null, state);
-    }
-    const glyphFrame = takeNoticeGlyphFrame(state);
     // An aborted description ends the process inside C's show_glyph(); the
     // port ends it when the queue drains to this notice, after the notices
     // before it have printed.
-    const notice = {
+    queueNoticeLine({
         x,
         y,
         previous,
         current,
         ...(description.aborted ? { abort: true } : { message }),
-        glyphFrame,
         visionSpent: true,
-    };
+    }, state, { nestedLocation: true });
+    return true;
+}
+
+// The one way onto the notice queue: every line C prints from code the port
+// runs synchronously joins it here, as the pline.c vpline() call it is.
+//
+// vpline() (266-274) spends a pending vision recalculation and then
+// flushes the screen before it prints the line, and the code after the line
+// reads the recalculated vision and may change what the status rows show.
+// Neither step can wait for the drain, so tty_message.js queuedVpline() takes
+// both now: the recalculation's own notices queue ahead of this one, as C
+// prints them first, and the notice keeps the map and the status rows as
+// that flush left them. emitGlyphUpdateNotices() prints the line over both.
+// scripts/queued-notice-status.test.mjs checks that nothing else pushes.
+//
+// `recalc` is false for the lines vision_recalc() itself raises.
+// `nestedLocation` is display.c show_glyph() (2066-2070) raising
+// a11y.accessiblemsg around its pline_xy(): hack.c notice_mon() lines that
+// the nested recalculation prints carry their location prefix whether or
+// not the option is set.
+function queueNoticeLine(
+    notice, state, { recalc = true, nestedLocation = false } = {},
+) {
+    // A line queued while the queue drains (a recalculation inside a
+    // drained line's print raises one) would draw its status into the rows
+    // the drain has swapped in and then puts back, so its flush is left to
+    // its own print.
+    const status = !state._emittingGlyphUpdateNotices;
+    if (notice.message != null) {
+        const last = state._glyphUpdateNotices?.at(-1);
+        const a11y = state.a11y;
+        const accessiblemsg = a11y?.accessiblemsg;
+        if (nestedLocation && a11y) a11y.accessiblemsg = true;
+        try {
+            queuedVpline(
+                notice.message,
+                last && !last.impossible ? last.message : null,
+                state,
+                { recalc, status },
+            );
+        } finally {
+            if (nestedLocation && a11y) a11y.accessiblemsg = accessiblemsg;
+        }
+    }
+    notice.glyphFrame = takeNoticeGlyphFrame(state);
+    notice.statusFrame = status ? takeNoticeStatusFrame(state) : null;
     (state._glyphUpdateNotices ??= []).push(notice);
     state._flushAfterQueuedNotice = null;
-    return true;
+}
+
+// The terminal's status rows (wintty.js tty_status_state().screen) as the
+// notice's own flush left them. wintty.js replaces a cell when it writes
+// one, so a copy of each row is a whole snapshot.
+function takeNoticeStatusFrame(state) {
+    if (state !== game) return null;
+    return tty_status_state(state).screen.map((row) => row.slice());
 }
 
 function takeNoticeGlyphFrame(state) {
@@ -667,13 +711,8 @@ function takeNoticeGlyphFrame(state) {
 export function queueVisionMonsterNotices(state) {
     if (!state.a11y?.mon_notices || state.a11y.mon_notices_blocked) return;
     for (const message of collectMonsterNoticeMessages(state)) {
-        const glyphFrame = takeNoticeGlyphFrame(state);
-        (state._glyphUpdateNotices ??= []).push({
-            message,
-            glyphFrame,
-            youBuf: NOTICE_MON_YOU_BUF,
-        });
-        state._flushAfterQueuedNotice = null;
+        queueNoticeLine(
+            { message, youBuf: NOTICE_MON_YOU_BUF }, state, { recalc: false });
     }
 }
 
@@ -711,20 +750,11 @@ export function queueImpossibleNotice(text, state) {
     const pline_flags = gp.pline_flags;
     gp.pline_flags = URGENT_MESSAGE;
     try {
-        const last = state._glyphUpdateNotices?.at(-1);
-        queuedVplineVisionRecalc(
-            text, last && !last.impossible ? last.message : null, state);
+        queueNoticeLine(
+            { message: text, impossible: true, visionSpent: true }, state);
     } finally {
         gp.pline_flags = pline_flags;
     }
-    const glyphFrame = takeNoticeGlyphFrame(state);
-    (state._glyphUpdateNotices ??= []).push({
-        message: text,
-        impossible: true,
-        glyphFrame,
-        visionSpent: true,
-    });
-    state._flushAfterQueuedNotice = null;
 }
 
 export async function emitGlyphUpdateNotices(state, env = {}) {
@@ -737,6 +767,11 @@ export async function emitGlyphUpdateNotices(state, env = {}) {
     state._glyphNoticeFrameTracker = null;
     let lastFlushedIndex = -1;
     const dirty = dirtyGlyphBufferCells(pending[0].glyphFrame.base);
+    // Each line prints over the status rows its own flush left when it was
+    // queued; the rows the terminal holds now come back when the queue is
+    // empty, and the status marked dirty since waits for the next flush.
+    const status = state === game ? tty_status_state(state) : null;
+    const finalStatus = status?.screen.slice();
     state._emittingGlyphUpdateNotices = true;
     try {
         restoreGlyphBuffer(state, pending[0].glyphFrame.base);
@@ -744,14 +779,23 @@ export async function emitGlyphUpdateNotices(state, env = {}) {
             const notice = pending[index];
             if (index)
                 applyGlyphFrameChanges(state, notice.glyphFrame.changes, dirty);
+            if (status && notice.statusFrame) {
+                notice.statusFrame.forEach((row, at) => {
+                    status.screen[at] = row;
+                });
+            }
             if (notice.abort) await NH_abort(state);
             if (notice.youBuf) (state.gy ??= {}).you_buf = notice.youBuf;
             // queueGlyphUpdateNotice() ran this line's vpline() vision
             // recalculation when it queued the line.
             state._queuedNoticeVisionSpent = Boolean(notice.visionSpent);
+            // queueNoticeLine() took this line's status step too
+            // (display.js flush_screen() reads the mark).
+            state._queuedNoticeStatusSpent = Boolean(notice.statusFrame);
             if (notice.impossible) await impossible(notice.message, state);
             else await pline(notice.message, state);
             state._queuedNoticeVisionSpent = false;
+            state._queuedNoticeStatusSpent = false;
             lastFlushedIndex = index;
             // ttyPline() normally performed this flush itself. Keep injected
             // callbacks and subsequent sparse frames source-equivalent too.
@@ -766,8 +810,14 @@ export async function emitGlyphUpdateNotices(state, env = {}) {
                 materializeGlyphFrame(pending, lastFlushedIndex),
             );
         }
+        if (finalStatus) {
+            finalStatus.forEach((row, at) => {
+                status.screen[at] = row;
+            });
+        }
         state._emittingGlyphUpdateNotices = false;
         state._queuedNoticeVisionSpent = false;
+        state._queuedNoticeStatusSpent = false;
     }
     // The notices' own lines flushed the map as it stood when each arose.
     // C then flushed the later map again before this point; do the same.

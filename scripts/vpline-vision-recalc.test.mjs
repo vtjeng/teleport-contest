@@ -14,13 +14,14 @@ import { parse } from 'acorn';
 // A line the port queues instead of printing still spends the recalculation
 // where C's vpline() runs: display.c show_glyph() prints its mention_map
 // notice through pline_xy(), and makemon.c makemon() tests canseemon() right
-// after the newsym() that raised it. queuedVplineVisionRecalc() is that
-// recalculation for a queued line, and the queue site must call it.
+// after the newsym() that raised it. queuedVpline() is that recalculation
+// for a queued line, and queueNoticeLine(), the one way onto the queue
+// (scripts/queued-notice-status.test.mjs), must call it.
 const RECALC_FUNCTIONS = new Set([
-    'vplineVisionRecalc', 'queuedVplineVisionRecalc',
+    'vplineVisionRecalc', 'queuedVpline',
 ]);
 const QUEUE_SITES = [
-    ['js/startup_a11y.js', 'queueGlyphUpdateNotice'],
+    ['js/startup_a11y.js', 'queueNoticeLine'],
 ];
 const WINDOW_PORT_FILES = ['js/tty_message.js', 'js/getline.js', 'js/topl.js'];
 const VPLINE_ENTRIES = [
@@ -79,7 +80,7 @@ for (const [file, name] of QUEUE_SITES) {
     test(`${name}() spends deferred vision before it queues its line`, () => {
         const fn = functions(file).get(name);
         assert.ok(fn, `${file} has no function ${name}`);
-        assert.ok(calledNames(fn).includes('queuedVplineVisionRecalc'));
+        assert.ok(calledNames(fn).includes('queuedVpline'));
     });
 }
 
