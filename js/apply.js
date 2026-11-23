@@ -268,7 +268,7 @@ import {
     sobj_at,
 } from './invent.js';
 import { pick_lock } from './lock.js';
-import { bagotricks, mkclass } from './makemon.js';
+import { bagotricks, mkclass_steps } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
 import { mkundead } from './mkroom.js';
 import {
@@ -3865,7 +3865,11 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
             && !(state.mvitals[PM_WOOD_NYMPH]?.mvflags & G_GONE)
             && !(state.mvitals[PM_WATER_NYMPH]?.mvflags & G_GONE)
             && !(state.mvitals[PM_MOUNTAIN_NYMPH]?.mvflags & G_GONE)) {
-            const nymphSpecies = mkclass(S_NYMPH, 0, { state, random });
+            // mkclass() prints level_difficulty()'s impossible() report
+            // for a dungeon -1 level before its draws.
+            const nymphSpecies = await finish_steps(
+                mkclass_steps(S_NYMPH, 0, { state, random }),
+                impossible_printer(state));
             // makemon(NULL, ...) selects a random species; mkclass returning
             // null does not skip the C makemon call.
             const monster = await makemon_runtime(

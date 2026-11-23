@@ -223,7 +223,7 @@ import { get_obj_location, obj_is_burning } from './light.js';
 import { snuff_lit } from './apply_splash_lit.js';
 import { bagotricks, set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { courtmon } from './mkroom.js';
+import { courtmon_steps } from './mkroom.js';
 import { remove_worn_item } from './steal.js';
 import { hornoplenty } from './mkobj_hornoplenty.js';
 import { discover_object, observe_object } from './o_init.js';
@@ -283,8 +283,9 @@ import {
     scatter,
 } from './explode.js';
 import {
-    impossible, livelog_printf, verbalize, norep_printer,
+    impossible, impossible_printer, livelog_printf, verbalize, norep_printer,
 } from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { tiphat } from './sounds.js';
 import { setwornEnv } from './do_wear.js';
 import { setuwep, welded, weldmsg } from './wield.js';
@@ -3804,7 +3805,10 @@ export async function reverse_loot(state = game, rawEnv = {}) {
         } else {
             // rm.h looted aliases the feature flags field.
             const mon = location.flags !== T_LOOTED
-                ? await makemon_runtime(courtmon(state, random), x, y, 0, env)
+                ? await makemon_runtime(
+                    await finish_steps(courtmon_steps(state, random),
+                        impossible_printer(state)),
+                    x, y, 0, env)
                 : null;
             if (mon) {
                 await freeinv(goldob, env);

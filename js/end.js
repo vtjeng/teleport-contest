@@ -112,7 +112,7 @@ import { mk_named_object } from './corpstat.js';
 import { bot, status_finish } from './display.js';
 import { schedule_goto } from './do.js';
 import { m_monnam, mon_nam, Monnam, pmname } from './do_name.js';
-import { adj_lev } from './makemon.js';
+import { adj_lev_steps } from './makemon.js';
 import { deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
 import { make_grave } from './grave.js';
@@ -179,7 +179,7 @@ import {
     record_achievement,
     show_conduct,
 } from './insight.js';
-import { livelog_printf, youFeel } from './pline.js';
+import { impossible_printer, livelog_printf, youFeel } from './pline.js';
 import { select_menu } from './windows.js';
 import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
@@ -225,7 +225,7 @@ import {
     Blind, Hallucination, Lifesaved, Sick,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
-import { sync_impossible } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 
 // C ref: end.c deaths[] (44-50), "the array of death". Its index is a
 // game_end_types value, so the rows are in include/hack.h:483-498 order.
@@ -1579,7 +1579,12 @@ async function really_done(how, state) {
         }
         if (state.schroedingers_cat) {
             const cat = state.mons?.[PM_HOUSECAT];
-            const catLevel = cat ? adj_lev(cat, state) : 1;
+            // end.c:1464. adj_lev() reaches level_difficulty(), whose
+            // builds_up() report prints before d(m_lev, 8).
+            const catLevel = cat
+                ? await finish_steps(adj_lev_steps(cat, state),
+                    impossible_printer(state))
+                : 1;
             state.u.urexp = nowrap_add(state.u.urexp, d(catLevel, 8));
             pets.push("Schroedinger's cat");
         }

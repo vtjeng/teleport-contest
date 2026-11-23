@@ -198,7 +198,7 @@ import {
 import { makemon_runtime, newcham } from './makemon_create.js';
 import {
     create_critters,
-    mkclass,
+    mkclass_steps,
     rndmonst_steps,
     set_malign,
 } from './makemon.js';
@@ -3538,7 +3538,9 @@ async function create_particular_creation(d, state = game) {
 
     for (let i = 0; i < d.quan; ++i) {
         if (d.monclass !== MAXMCLASSES)
-            whichpm = mkclass(d.monclass, 0, { state });
+            whichpm = await finish_steps(
+                mkclass_steps(d.monclass, 0, { state }),
+                impossible_printer(state));
         else if (d.randmonst)
             whichpm = await finish_steps(rndmonst_steps({ state }),
                 impossible_printer(state));

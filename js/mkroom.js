@@ -68,7 +68,7 @@ import {
     LEPREHALL,
 } from './const.js';
 import {
-    In_hell, induced_align, level_difficulty, level_difficulty_steps,
+    In_hell, induced_align, level_difficulty_steps,
     mapseen_room, ROOM_INDEX,
 } from './dungeon.js';
 import { del_engr_at } from './engrave.js';
@@ -86,7 +86,7 @@ import {
 } from './makemon_create.js';
 import { enexto } from './teleport.js';
 import { revive } from './zap.js';
-import { mkclass, set_malign } from './makemon.js';
+import { mkclass, mkclass_steps, set_malign } from './makemon.js';
 import { m_at } from './monst.js';
 import { ndemon } from './minion.js';
 import {
@@ -682,17 +682,29 @@ function mkzoo(type, state, random) {
 // C ref: mkroom.c courtmon(). D:5 can reach the kobold, gnome, hobgoblin,
 // bugbear and orc outcomes; the higher thresholds remain source-complete for
 // callers that exercise this pure selector at a deeper difficulty.
+//
+// level_difficulty()'s impossible() on a dungeon -1 level is a step
+// (js/source_steps.js), as it is in morguemon(), antholemon() and squadmon()
+// below: a caller that can wait drives the `*_steps` form, and the function
+// under the C name is the synchronous form, which queues the report.
 export function courtmon(state = game, random = coreRandom) {
-    const i = random.rn2(60) + random.rn2(3 * level_difficulty(state));
-    if (i > 100) return mkclass(S_DRAGON, 0, { state, random });
-    if (i > 95) return mkclass(S_GIANT, 0, { state, random });
-    if (i > 85) return mkclass(S_TROLL, 0, { state, random });
-    if (i > 75) return mkclass(S_CENTAUR, 0, { state, random });
-    if (i > 60) return mkclass(S_ORC, 0, { state, random });
+    return finish_steps(courtmon_steps(state, random), sync_impossible, state);
+}
+
+export function* courtmon_steps(state = game, random = coreRandom) {
+    // mkroom.c:524. The recorder's binary draws rn2(60) and then calls
+    // level_difficulty() for the second draw's argument.
+    const base = random.rn2(60);
+    const i = base + random.rn2(3 * (yield* level_difficulty_steps(state)));
+    if (i > 100) return yield* mkclass_steps(S_DRAGON, 0, { state, random });
+    if (i > 95) return yield* mkclass_steps(S_GIANT, 0, { state, random });
+    if (i > 85) return yield* mkclass_steps(S_TROLL, 0, { state, random });
+    if (i > 75) return yield* mkclass_steps(S_CENTAUR, 0, { state, random });
+    if (i > 60) return yield* mkclass_steps(S_ORC, 0, { state, random });
     if (i > 45) return state.mons[PM_BUGBEAR];
     if (i > 30) return state.mons[PM_HOBGOBLIN];
-    if (i > 15) return mkclass(S_GNOME, 0, { state, random });
-    return mkclass(S_KOBOLD, 0, { state, random });
+    if (i > 15) return yield* mkclass_steps(S_GNOME, 0, { state, random });
+    return yield* mkclass_steps(S_KOBOLD, 0, { state, random });
 }
 
 // C ref: mkroom.c mkundead(). Select and place each attempt before examining
@@ -706,7 +718,8 @@ export async function mkundead(mm, reviveCorpses, mmFlags, state = game, rawEnv 
         impossible_printer(state));
     let count = Math.trunc((difficulty + 1) / 10) + random.rnd(5);
     while (count-- > 0) {
-        const species = morguemon(state, random);
+        const species = await finish_steps(morguemon_steps(state, random),
+            impossible_printer(state));
         if (!species) continue;
         const coordinate = enexto(mm.x, mm.y, species, env);
         if (!coordinate) continue;
@@ -721,25 +734,29 @@ export async function mkundead(mm, reviveCorpses, mmFlags, state = game, rawEnv 
 
 // C ref: mkroom.c morguemon().
 export function morguemon(state = game, random = coreRandom) {
+    return finish_steps(morguemon_steps(state, random), sync_impossible, state);
+}
+
+export function* morguemon_steps(state = game, random = coreRandom) {
     const i = random.rn2(100);
-    const hd = random.rn2(level_difficulty(state));
+    const hd = random.rn2(yield* level_difficulty_steps(state));
 
     if (hd > 10 && i < 10) {
         if (In_hell(state.u.uz, state)
             || (state.u.uz.dnum != null
                 && state.u.uz.dnum === state.astral_level?.dnum)) {
-            return mkclass(S_DEMON, 0, { state, random });
+            return yield* mkclass_steps(S_DEMON, 0, { state, random });
         }
         const ndemonResult = ndemon(A_NONE, state, random);
         if (ndemonResult !== NON_PM) return state.mons[ndemonResult];
     }
 
     if (hd > 8 && i > 85)
-        return mkclass(S_VAMPIRE, 0, { state, random });
+        return yield* mkclass_steps(S_VAMPIRE, 0, { state, random });
 
     return (i < 20) ? state.mons[PM_GHOST]
         : (i < 40) ? state.mons[PM_WRAITH]
-            : mkclass(S_ZOMBIE, 0, { state, random });
+            : yield* mkclass_steps(S_ZOMBIE, 0, { state, random });
 }
 
 // C ref: mkroom.c antholemon(). The birthday and level difficulty choose the
@@ -747,8 +764,12 @@ export function morguemon(state = game, random = coreRandom) {
 // classes are skipped. This selector is pure: it only reads the level's
 // birthday, difficulty, and monster-vital flags.
 export function antholemon(state = game) {
+    return finish_steps(antholemon_steps(state), sync_impossible, state);
+}
+
+export function* antholemon_steps(state = game) {
     const birthday = Math.trunc(state.ubirthday ?? 0);
-    const index = (birthday % 3) + level_difficulty(state);
+    const index = (birthday % 3) + (yield* level_difficulty_steps(state));
     let monsterIndex = PM_GIANT_ANT;
     let tryCount = 0;
     do {
@@ -782,7 +803,12 @@ const squadprob = Object.freeze([
 // cumulative table, including its uniform fallback draw when the difficulty
 // makes the first roll exceed the table's 80-point common range.
 export function squadmon(state = game, random = coreRandom) {
-    const selectedProbability = random.rnd(80 + level_difficulty(state));
+    return finish_steps(squadmon_steps(state, random), sync_impossible, state);
+}
+
+export function* squadmon_steps(state = game, random = coreRandom) {
+    const selectedProbability = random.rnd(
+        80 + (yield* level_difficulty_steps(state)));
     let cumulativeProbability = 0;
     let monsterIndex;
     for (const entry of squadprob) {
@@ -819,25 +845,23 @@ export function mk_tt_object(objtype, x, y, env = {}) {
     return otmp;
 }
 
-function mk_zoo_thronemon(x, y, normalized) {
+// C ref: mkroom.c mk_zoo_thronemon() (251-266), a step generator
+// (js/source_steps.js) that fill_zoo_steps() drives.
+function* mk_zoo_thronemon_steps(x, y, normalized) {
     const { random, state } = normalized;
-    const roll = random.rnd(level_difficulty(state));
+    const roll = random.rnd(yield* level_difficulty_steps(state));
     const species = state.mons[
         roll > 9 ? PM_OGRE_TYRANT
             : roll > 5 ? PM_ELVEN_MONARCH
                 : roll > 2 ? PM_DWARF_RULER : PM_GNOME_RULER
     ];
-    const finish = (monster) => {
-        if (!monster) return null;
-        monster.msleeping = true;
-        monster.mpeaceful = false;
-        set_malign(monster, state);
-        mongets(monster, MACE, normalized);
-        return monster;
-    };
-    const maybeMonster = makemon_by_context(species, x, y, 0, normalized);
-    return maybeMonster && typeof maybeMonster.then === 'function'
-        ? maybeMonster.then(finish) : finish(maybeMonster);
+    const monster = yield makemon_by_context(species, x, y, 0, normalized);
+    if (!monster) return null;
+    monster.msleeping = true;
+    monster.mpeaceful = false;
+    set_malign(monster, state);
+    mongets(monster, MACE, normalized);
+    return monster;
 }
 
 export function courtCellIsFillable(sroom, x, y, state) {
@@ -862,17 +886,31 @@ export function courtCellIsFillable(sroom, x, y, state) {
 
 // C ref: mkroom.c fill_zoo(). Fills the complete set of room families passed
 // by sp_lev.c fill_special_room(), including their source-ordered side effects.
+//
+// Its only caller, sp_lev.c fill_special_room(), accepts a promise, so the
+// body is a step generator (js/source_steps.js) driven with a printing
+// handler: on a dungeon -1 level each level_difficulty() call and each
+// makemon() prints builds_up()'s impossible() report and waits at its
+// --More-- where C does, before the draws that follow it. Everywhere else no
+// step yields a promise and fill_zoo() returns synchronously.
 export function fill_zoo(sroom, env = {}) {
+    const state = env.state ?? game;
+    return finish_steps(fill_zoo_steps(sroom, env), impossible_printer(state));
+}
+
+function* fill_zoo_steps(sroom, env) {
     const state = env.state ?? game;
     const random = env.random ?? coreRandom;
     // C's fill_special_room() may run after level_finalize_topology() has
     // cleared in_mklev.  Keep that state transition intact while marking the
     // exact internal level-filling call shape for makemon's admission gate.
+    // onImpossible reaches makemon_create.js makemon(), which prints with it.
     const normalized = {
         ...env,
         state,
         random,
         _specialRoomFill: true,
+        onImpossible: impossible_printer(state),
     };
     const type = sroom.rtype;
 
@@ -882,9 +920,8 @@ export function fill_zoo(sroom, env = {}) {
     let tx = 0;
     let ty = 0;
     let goldlim = 0;
-    let pendingThroneMonster = null;
     if (type === ZOO || type === LEPREHALL) {
-        goldlim = 500 * level_difficulty(state);
+        goldlim = 500 * (yield* level_difficulty_steps(state));
     } else if (type === COURT) {
         // C reuses an explicitly placed throne only on maze levels. Scan
         // x-major, then y-major, exactly as mkroom.c's nested loops do.
@@ -910,7 +947,7 @@ export function fill_zoo(sroom, env = {}) {
             tx = throne.x;
             ty = throne.y;
         }
-        pendingThroneMonster = mk_zoo_thronemon(tx, ty, normalized);
+        yield* mk_zoo_thronemon_steps(tx, ty, normalized);
     } else if (type === BEEHIVE) {
         // C ref: fill_zoo() lines 305-316. Center of the room; irregular rooms
         // relocate the queen when the center is outside the room.
@@ -929,13 +966,45 @@ export function fill_zoo(sroom, env = {}) {
     }
 
     // C ref: fill_zoo() lines 323-419 — per-cell loop shared across zoo types.
-    // Keep the source's cell and post-monster item order when makemon's
-    // shapechange continuation yields.  The common case remains synchronous,
-    // so existing direct callers retain the C-shaped return behavior.
-    let nextX = sroom.lx;
-    let nextY = sroom.ly;
+    for (let x = sroom.lx; x <= sroom.hx; x++) {
+        for (let y = sroom.ly; y <= sroom.hy; y++) {
+            if (!courtCellIsFillable(sroom, x, y, state)) continue;
+            // Check each cell in source order after the previous monster.
+            if (type === COURT && state.level.at(x, y).typ === THRONE) continue;
+            // C ref: lines 344-361 — type-specific monster selection.
+            // ZOO passes null: makemon picks a random monster.
+            const species = type === COURT
+                ? yield* courtmon_steps(state, random)
+                : type === MORGUE
+                    ? yield* morguemon_steps(state, random)
+                    : type === BARRACKS
+                        ? yield* squadmon_steps(state, random)
+                        : type === BEEHIVE
+                            ? (x === tx && y === ty
+                                ? state.mons[PM_QUEEN_BEE]
+                                : state.mons[PM_KILLER_BEE])
+                            : type === LEPREHALL
+                                ? state.mons[PM_LEPRECHAUN]
+                                : type === COCKNEST
+                                    ? state.mons[PM_COCKATRICE]
+                                    : type === ANTHOLE
+                                        ? yield* antholemon_steps(state)
+                                        : null;
+            const monster = yield makemon_by_context(
+                species,
+                x,
+                y,
+                MM_ASLEEP | MM_NOGRP,
+                normalized,
+            );
+            yield* finishCell(x, y, monster);
+        }
+    }
+    // C ref: fill_zoo() lines 420-451 — post-loop, type-specific finalization.
+    yield* finishZoo();
+    return;
 
-    const finishCell = (x, y, monster) => {
+    function* finishCell(x, y, monster) {
         if (monster && type === COURT && monster.mpeaceful) {
             monster.mpeaceful = false;
             set_malign(monster, state);
@@ -953,7 +1022,7 @@ export function fill_zoo(sroom, env = {}) {
                 i = goldlim;
             }
             if (i >= goldlim)
-                i = 5 * level_difficulty(state);
+                i = 5 * (yield* level_difficulty_steps(state));
             goldlim -= i;
             mkgold(random.rn1(i, 10), x, y, normalized);
         } else if (type === MORGUE) {
@@ -983,66 +1052,17 @@ export function fill_zoo(sroom, env = {}) {
         } else if (type === ANTHOLE && !random.rn2(3)) {
             mkobj_at(FOOD_CLASS, x, y, false, normalized);
         }
-    };
+    }
 
-    const fillZooCells = () => {
-        while (nextX <= sroom.hx) {
-            const x = nextX;
-            const y = nextY;
-            if (++nextY > sroom.hy) {
-                nextY = sroom.ly;
-                ++nextX;
-            }
-            if (!courtCellIsFillable(sroom, x, y, state)) continue;
-            // Check each cell in source order after the previous monster.
-            if (type === COURT && state.level.at(x, y).typ === THRONE) continue;
-            // C ref: lines 344-361 — type-specific monster selection.
-            // ZOO passes null: makemon picks a random monster.
-            const species = type === COURT
-                ? courtmon(state, random)
-                : type === MORGUE
-                    ? morguemon(state, random)
-                    : type === BARRACKS
-                        ? squadmon(state, random)
-                        : type === BEEHIVE
-                            ? (x === tx && y === ty
-                                ? state.mons[PM_QUEEN_BEE]
-                                : state.mons[PM_KILLER_BEE])
-                            : type === LEPREHALL
-                                ? state.mons[PM_LEPRECHAUN]
-                                : type === COCKNEST
-                                    ? state.mons[PM_COCKATRICE]
-                                    : type === ANTHOLE
-                                        ? antholemon(state)
-                            : null;
-            const maybeMonster = makemon_by_context(
-                species,
-                x,
-                y,
-                MM_ASLEEP | MM_NOGRP,
-                normalized,
-            );
-            if (maybeMonster && typeof maybeMonster.then === 'function') {
-                return maybeMonster.then((monster) => {
-                    finishCell(x, y, monster);
-                    return fillZooCells();
-                });
-            }
-            finishCell(x, y, maybeMonster);
-        }
-
-        // C ref: fill_zoo() lines 420-451 — post-loop, type-specific finalization.
-        return finishZoo();
-    };
-
-    const finishZoo = () => {
+    function* finishZoo() {
         // C ref: fill_zoo() lines 420-451 — post-loop, type-specific finalization.
         if (type === COURT) {
             state.level.at(tx, ty).typ = THRONE;
             const coffers = { x: 0, y: 0 };
             somexyspace(sroom, coffers, normalized);
             const gold = mksobj(GOLD_PIECE, true, false, normalized);
-            gold.quan = random.rn1(50 * level_difficulty(state), 10);
+            gold.quan = random.rn1(
+                50 * (yield* level_difficulty_steps(state)), 10);
             gold.owt = weight(gold, normalized);
             const chest = mksobj_at(
                 CHEST,
@@ -1067,11 +1087,7 @@ export function fill_zoo(sroom, env = {}) {
         } else if (type === SWAMP) {
             state.level.flags.has_swamp = true;
         }
-    };
-
-    return pendingThroneMonster
-        && typeof pendingThroneMonster.then === 'function'
-        ? pendingThroneMonster.then(fillZooCells) : fillZooCells();
+    }
 }
 
 // C ref: mkroom.c shrine_pos(). Returns the center of a room, adjusted

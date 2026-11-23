@@ -32,7 +32,7 @@ import {
     ROOM_INDEX,
 } from './dungeon.js';
 import {
-    antholemon,
+    antholemon_steps,
     do_mkroom,
     fill_zoo,
     has_dnstairs,
@@ -936,7 +936,9 @@ async function makelevel(specialLevelLoader = null) {
             do_mkroom(BEEHIVE, g);
         } else if (u_depth > 11 && !rn2(6)) {
             do_mkroom(MORGUE, g);
-        } else if (u_depth > 12 && !rn2(8) && antholemon(g)) {
+        } else if (u_depth > 12 && !rn2(8)
+                   && await finish_steps(antholemon_steps(g),
+                       impossible_printer(g))) {
             // C's antholemon() picks the ant species that fills the hole and
             // answers NON_PM when every candidate is gone.
             do_mkroom(ANTHOLE, g);

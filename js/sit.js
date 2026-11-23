@@ -436,7 +436,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
                 state,
                 { message },
             );
-            const { courtmon } = await import('./mkroom.js');
+            const { courtmon_steps } = await import('./mkroom.js');
             const { makemon_runtime } = await import('./makemon_create.js');
             const creationRandom = random ?? coreRandom;
             const creationEnv = {
@@ -447,7 +447,8 @@ async function throne_sit_effect(state, rawEnv = {}) {
             };
             while (count--) {
                 await makemon_runtime(
-                    courtmon(state, random),
+                    await finish_steps(courtmon_steps(state, random),
+                        impossible_printer(state)),
                     tx,
                     ty,
                     0,

@@ -43,6 +43,12 @@ const SYNC_FORMS = new Set([
     'newmonhp',
     'rndmonst_adj',
     'rndmonst',
+    'mkclass',
+    'mkclass_aligned',
+    'courtmon',
+    'morguemon',
+    'squadmon',
+    'antholemon',
     'del_light_source',
 ]);
 
@@ -54,6 +60,14 @@ const STEP_FORMS = new Set([
     'newmonhp_steps',
     'rndmonst_adj_steps',
     'rndmonst_steps',
+    'mkclass_steps',
+    'mkclass_aligned_steps',
+    'courtmon_steps',
+    'morguemon_steps',
+    'squadmon_steps',
+    'antholemon_steps',
+    'mk_zoo_thronemon_steps',
+    'fill_zoo_steps',
     'm_initinv_steps',
     'makemon_steps',
     'finishMonsterInventoryAndStrategySteps',
@@ -67,59 +81,48 @@ const STEP_FORMS = new Set([
 // if a stale five-note jingle makes depth_start large (special rooms).
 const LEVEL_CREATION = 'level creation; a plain dungeon -1 level never '
     + 'reaches it, and makelevel() and its callees are synchronous';
+const LEVEL_PROGRAM = 'a level program or themed room; dungeon -1 has '
+    + 'neither (its levels come from makelevel()\'s plain-room arm)';
 const OBJECT_CREATION = 'mksobj()/mkobj() and their callers are synchronous; '
     + 'C reaches it at -1 through a wished box, statue or gold';
-// An async caller that could drive the steps now; it waits for a recipe
-// that reaches it on a dungeon -1 level.
-const NO_RECIPE_YET = 'async, so convertible, but no recording reaches it yet';
 const ALLOWED = {
-    'dog.js | mon_arrive | builds_up': [1,
-        'dog.js is being changed by another branch; a pet arriving at -1'],
-    'dog.js | pick_familiar_pm | rndmonst_adj': [1,
-        'dog.js is being changed by another branch; make_familiar() at -1'],
     'dungeon.js | print_mapseen | builds_up': [1,
         'the #overview menu is built synchronously'],
     'wizard.js | choose_stairs | builds_up': [1,
         'monster strategy (covetous monsters) is synchronous'],
-    'makemon.js | mkclass_aligned | level_difficulty': [1,
-        'mkclass() callers are synchronous (class-based creation)'],
-    'makemon.js | mkclass_aligned | adj_lev': [1,
-        'mkclass() callers are synchronous (class-based creation)'],
     'makemon.js | rndmonst | rndmonst_adj': [1,
         'the synchronous form of rndmonst_steps()'],
+    'makemon.js | mkclass | mkclass_aligned': [1,
+        'the synchronous form of mkclass_steps()'],
+    'makemon.js | qt_montype | mkclass': [1,
+        'runs only in the quest dungeon, where builds_up() finds the branch'],
+    'minion.js | lminion | mkclass': [1,
+        'the minion selectors lminion() and llord() are synchronous'],
+    'minion.js | ndemon | mkclass_aligned': [1,
+        'the minion selector ndemon() is synchronous'],
     'makemon.js | rndmonnum_adj | rndmonst_adj': [1,
         'object initialization (statue, figurine, corpse) is synchronous'],
     'mon.js | apply_newcham_steps | newmonhp': [1,
         'newcham() callers do not all accept a promise'],
-    'muse.js | muse_newcham_mon | rndmonst': [1,
-        'muse.js is being changed by another branch; a monster polymorphs at -1'],
     'weapon.js | abon | adj_lev': [1,
         'the to-hit calculation is synchronous'],
-    'end.js | really_done | adj_lev': [1,
-        `${NO_RECIPE_YET}; Schroedinger's cat at the end of a game at -1`],
-    'fountain.js | dowaterdemon | level_difficulty': [1,
-        `${NO_RECIPE_YET}; a water demon from a wished fountain`],
-    'mon.js | m_respond_shrieker | level_difficulty': [1,
-        `${NO_RECIPE_YET}; C calls it only after rn2(13) chooses a purple worm`],
-    'trap.js | b_trapped | level_difficulty': [1,
-        `${NO_RECIPE_YET}; a trapped door or tin`],
-    'trap.js | disarm_box | level_difficulty': [1,
-        `${NO_RECIPE_YET}; #untrap on a trapped box`],
-    'trap.js | untrap | level_difficulty': [1,
-        `${NO_RECIPE_YET}; #untrap on a trapped door`],
     'mklev.js | dispatch_themeroom | level_difficulty': [1, LEVEL_CREATION],
     'mklev.js | dosdoor_steps | level_difficulty': [3, LEVEL_CREATION],
+    'mklev.js | dosdoor_steps | mkclass': [1, LEVEL_CREATION],
+    'mklev.js | makeniche | mkclass': [1,
+        `${LEVEL_CREATION}; mk_knox_portal()'s and makeniche()'s callers `
+            + 'are synchronous'],
+    'mklev.js | createSpecialLevelApi | mkclass': [1, LEVEL_PROGRAM],
+    'mklev.js | mausoleum | mkclass': [1, LEVEL_PROGRAM],
+    'quest_levels.js | oracle | mkclass': [1, LEVEL_PROGRAM],
+    'themeroom_fill.js | createMonsterBody | mkclass': [1, LEVEL_PROGRAM],
+    'mkroom.js | mkswamp | mkclass': [1, LEVEL_CREATION],
+    'shknam.js | mkshobj_at | mkclass': [1,
+        'a shop is stocked only on a level with doors, which a dungeon -1 '
+            + 'level never has'],
     'mklev.js | fill_ordinary_room | level_difficulty': [1, LEVEL_CREATION],
     'mklev.js | makerooms | level_difficulty': [1,
         'called only when the dungeon has Lua themed rooms; dungeon -1 has none'],
-    'mkroom.js | antholemon | level_difficulty': [1, LEVEL_CREATION],
-    'mkroom.js | courtmon | level_difficulty': [1,
-        `${LEVEL_CREATION}; also #sit on a wished throne`],
-    'mkroom.js | fill_zoo | level_difficulty': [3, LEVEL_CREATION],
-    'mkroom.js | mk_zoo_thronemon | level_difficulty': [1, LEVEL_CREATION],
-    'mkroom.js | morguemon | level_difficulty': [1,
-        `${LEVEL_CREATION}; also mkundead()'s species`],
-    'mkroom.js | squadmon | level_difficulty': [1, LEVEL_CREATION],
     'mktrap.js | mktrap_steps | level_difficulty': [1, LEVEL_CREATION],
     'mktrap.js | mktrap_victim | level_difficulty': [1, LEVEL_CREATION],
     'mktrap.js | traptype_rnd | level_difficulty': [1, LEVEL_CREATION],
@@ -149,7 +152,14 @@ const ALLOWED = {
 // once light.c del_light_source() joined (15 November 2026); 38 and 42
 // since mkroom.c mkundead() drives the steps (22 November 2026,
 // recordings/mkroom.c/mkundead-cursed-bell-dungeon-minus-one.session.json).
-const ALLOWED_PINS = { entries: 38, calls: 42 };
+// 33 and 35 on branch sync-discards (23 November 2026): 17 entries holding
+// 19 calls went, since every `async` caller drives the steps (dowaterdemon(),
+// disarm_box(), untrap(), b_trapped(), m_respond_shrieker(), really_done(),
+// pick_familiar_pm(), muse_newcham_mon(), mon_arrive()) and mkroom.c
+// fill_zoo() and its species pickers are step generators that
+// fill_special_room() waits for; 12 came in, the synchronous callers of
+// mkclass() and mkclass_aligned(), which this check did not follow before.
+const ALLOWED_PINS = { entries: 33, calls: 35 };
 
 const FUNCTION_TYPES = new Set([
     'FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression',

@@ -512,9 +512,9 @@ test('dig_up_grave keeps the C selector values for zombie and mummy creation', (
     assert.match(cGrave,
         /case 3:[\s\S]*?mkclass\(S_MUMMY,\s*0\)[\s\S]*?default:/u);
     assert.match(jsGrave,
-        /case 2:[\s\S]*?mkclass\(S_ZOMBIE,\s*0,\s*\{\s*state,\s*random\s*\}\)[\s\S]*?MM_NOMSG[\s\S]*?case 3:/u);
+        /case 2:[\s\S]*?mkclass_steps\(S_ZOMBIE,\s*0,\s*\{\s*state,\s*random\s*\}\)[\s\S]*?MM_NOMSG[\s\S]*?case 3:/u);
     assert.match(jsGrave,
-        /case 3:[\s\S]*?mkclass\(S_MUMMY,\s*0,\s*\{\s*state,\s*random\s*\}\)[\s\S]*?MM_NOMSG[\s\S]*?default:/u);
+        /case 3:[\s\S]*?mkclass_steps\(S_MUMMY,\s*0,\s*\{\s*state,\s*random\s*\}\)[\s\S]*?MM_NOMSG[\s\S]*?default:/u);
 });
 
 test('dighole returns the drawbridge refusal after source-ordered spot checks', async () => {
