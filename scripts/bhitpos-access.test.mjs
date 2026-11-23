@@ -69,8 +69,13 @@ export function accessFindings(source, file = '<source>') {
             const before = line.slice(0, match.index);
             if (/^\s*\.\s*[xy]\b/u.test(after)) continue;
             if (/\.\.\.\s*[\w$.]*$/u.test(before)) continue;
+            // initialGb() adds it to the generated gb members.
             if (file === 'js/gstate.js'
-                && /return \{ bhitpos: \{ x: 0, y: 0 \} \};/u.test(line)) continue;
+                && /return \{ (?:\.\.\.initial_instance_globals\(\)\.gb, )?bhitpos: \{ x: 0, y: 0 \} \};/u
+                    .test(line)) continue;
+            // The generated table of decl.h members lists it by name.
+            if (file === 'js/decl.js'
+                && /^\s*\["bhitpos", "coord", /u.test(line)) continue;
             findings.push(`${file}:${index + 1}`);
         }
     });
@@ -135,6 +140,12 @@ test('the access scan allows only field access and spread copies', () => {
     const init = '    return { bhitpos: { x: 0, y: 0 } };';
     assert.deepEqual(accessFindings(init, 'js/gstate.js'), []);
     assert.deepEqual(accessFindings(init, 'js/other.js'), ['js/other.js:1']);
+    const generated = '    return { ...initial_instance_globals().gb, bhitpos: { x: 0, y: 0 } };';
+    assert.deepEqual(accessFindings(generated, 'js/gstate.js'), []);
+    assert.deepEqual(accessFindings(generated, 'js/other.js'), ['js/other.js:1']);
+    const row = '        ["bhitpos", "coord", "{ 0, 0 }", "owner"],';
+    assert.deepEqual(accessFindings(row, 'js/decl.js'), []);
+    assert.deepEqual(accessFindings(row, 'js/other.js'), ['js/other.js:1']);
 });
 
 test('every js/ use of gb.bhitpos is a field access or a spread copy', () => {

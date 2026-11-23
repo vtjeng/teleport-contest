@@ -57,7 +57,7 @@ import { setStorageForTesting } from './storage.js';
 import { light_globals_init } from './light.js';
 import { shk_globals_init } from './shk.js';
 import { objects_globals_init } from './objects.js';
-import { NON_PM, monst_globals_init } from './monsters.js';
+import { monst_globals_init } from './monsters.js';
 import { run_timers, timeout_globals_init } from './timeout.js';
 import { maybe_do_tutorial } from './tutorial_startup.js';
 import { reset_in_tele_trap } from './teleport.js';
@@ -100,6 +100,7 @@ import {
     vision_reset,
 } from './vision.js';
 import { initUnported } from './unported.js';
+import { initial_instance_globals } from './decl.js';
 import { zero_context_info } from './context.js';
 import { process_options, recorderArguments } from './unixmain.js';
 
@@ -417,7 +418,7 @@ export class NethackGame {
         g.options_set_window_colors_flag
             = opts.options_set_window_colors_flag;
         g.wcolors_opt = [...opts.wcolors_opt];
-        g.gc = { ...opts.gc, corpsenm_digested: NON_PM };
+        g.gc = { ...opts.gc };
         g.gf = {
             ...opts.gf,
             fqn_prefix: [...(opts.gf?.fqn_prefix ?? [])],
@@ -473,7 +474,7 @@ export class NethackGame {
         // raw_printf() adds to it until program_state.beyond_savefile_load is
         // set, which no configuration output can follow; the restore branch
         // below and restore.c dorecover() read it.
-        g.ge = { early_raw_messages: 0 };
+        g.ge.early_raw_messages = 0;
         // Each event names the C call that printed it. A pline() reaches
         // vpline()'s raw_print() arm (pline.c:239) because
         // iflags.window_inited is still FALSE; a raw_print() or raw_printf()
@@ -519,6 +520,9 @@ export class NethackGame {
         // shk_globals_init() set above, so the field is added to it.
         (g.gs ??= {}).SAVEF = '';
         g.gp = {
+            // Every other member restarts from decl.c's value, as the
+            // members named here do.
+            ...initial_instance_globals().gp,
             plnamelen: 0,
             // decl.c zero-initializes this message flag word. set_voice()
             // raises PLINE_SPEECH for the next vpline() call, which clears it.
@@ -532,6 +536,7 @@ export class NethackGame {
         // decl.c g_init_v zero-initializes gv.voice. sounds.c set_voice()
         // updates these fields together and deliberately leaves `mon` alone.
         g.gv = {
+            ...initial_instance_globals().gv,
             voice: {
                 serialno: 0,
                 gender: 0,

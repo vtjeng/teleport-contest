@@ -67,6 +67,13 @@ export const TUTORIAL_SECOND_LEVEL_MAP = Object.freeze([
     '--------------',
 ]);
 
+// gc.Cmd, which options.c initoptions() builds once from the configuration
+// file and the option and key-binding menus then change in place.
+function liveCommandBindings(state) {
+    state.commandBindings ??= createCommandBindingModel(state);
+    return state.commandBindings;
+}
+
 function tutorialCommandKey(command, model) {
     let nonPrintable = 0;
     for (const binding of model.bindings) {
@@ -88,8 +95,10 @@ function tutorialCommandKey(command, model) {
 
 function tutorialKeys(des, state) {
     let controlKey = null;
-    const commandBindings = des.eckey
-        ? null : createCommandBindingModel(state);
+    // nh.eckey() asks cmd.c cmd_from_ecname(), which reads the live gc.Cmd
+    // table: a key the player rebound in play, before this level was made,
+    // is the key the engraving names.
+    const commandBindings = des.eckey ? null : liveCommandBindings(state);
 
     function key(command) {
         const source = des.eckey?.(command)
@@ -555,7 +564,7 @@ export async function loadTutorialSecondLevel(des, state) {
     await des.engraving({
         coord: [1, 1],
         type: 'burn',
-        text: `Use '${tutorialCommandKey('up', createCommandBindingModel(state))}'`
+        text: `Use '${tutorialCommandKey('up', liveCommandBindings(state))}'`
             + ' to go up the stairs',
         degrade: false,
     });

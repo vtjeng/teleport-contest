@@ -103,7 +103,9 @@ export async function verifyStartupParanoiaSegment(segment) {
         );
     }
     if (entry.prayers === 0) {
-        if (game.gp?.p_type !== undefined) {
+        // pray.c dopray() counts the prayer (u.uconduct.gnostic, tested
+        // above) before it calls can_pray(), so gp.p_type keeps decl.c's 0.
+        if (game.gp.p_type !== 0) {
             throw new Error(`${entry.label} reached can_pray()`);
         }
     } else if (game.gp?.p_type !== 0 || game.u.ugangr !== entry.prayers

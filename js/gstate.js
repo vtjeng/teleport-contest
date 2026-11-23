@@ -1,16 +1,27 @@
 // gstate.js — Global game state reference.
 // All game modules import `game` from here.
 
+import { initial_instance_globals, initial_state_held_globals } from './decl.js';
 import { zero_flag, zero_instance_flags } from './flag.js';
 import { zero_sinfo } from './program_state.js';
 
-// C decl.c:417 initializes gi.item_action_in_progress to FALSE for a new game.
 function initialGameState() {
     return {
-        item_action_in_progress: false,
-        // C decl.c:762 initializes gt.twohits to 0. uhitm.c hitum() and
-        // hmonas() set it for each melee turn and hmon_hitmon() reads it.
-        twohits: 0,
+        // C decl.c decl_globals_init() copies g_init_a ... g_init_z into
+        // ga ... gz once per process and saves none of them, so each segment,
+        // restored or not, starts every member from decl.c's value: mostly
+        // zero, but -1 for gp.polearm_range_min and WIN_ERR for
+        // gc.cached_pickinv_win. js/decl.js is generated from decl.h and
+        // decl.c and holds the integer, boolean and enumeration members the
+        // port keeps in these groups; scripts/instance-globals.test.mjs
+        // fails when js/ replaces a group, tests whether such a member
+        // exists, or gives a missing one another default.
+        ...initial_instance_globals(),
+        // The scalar members the port reads directly off the state, such as
+        // state.multi for gm.multi and state.hero_seq for gh.hero_seq, from
+        // the same initializers: gi.item_action_in_progress FALSE, gt.twohits
+        // 0, gh.hero_seq 1L << 3, gl.lastinvnr 51.
+        ...initial_state_held_globals(),
         // C decl.c:init_svn initializes the saved NHUUID buffer to zero.
         // Native get_nhuuid() is inactive in the reference recorder build.
         svn: { nhuuid: '' },
@@ -75,7 +86,7 @@ function initialGameState() {
 // both rules and that js/ never guards, defaults or deletes it. Test states
 // built by hand take their gb from here as well.
 export function initialGb() {
-    return { bhitpos: { x: 0, y: 0 } };
+    return { ...initial_instance_globals().gb, bhitpos: { x: 0, y: 0 } };
 }
 
 export let game = initialGameState();

@@ -11,6 +11,7 @@ import {
     ROGUESET,
 } from './const.js';
 import { game } from './gstate.js';
+import { signed_char } from './global.js';
 import { textBytes, lcase } from './hacklib.js';
 import { rgbstr_to_int32 } from './coloratt.js';
 import {
@@ -180,8 +181,7 @@ export function glyph_hash(id) {
     for (const byte of textBytes(id)) {
         if (!byte) break;
         // The reference build uses signed char; its XOR promotes high bytes.
-        const ch = byte >= 128 ? byte - 256
-            : byte >= 65 && byte <= 90 ? byte + 32 : byte;
+        const ch = byte >= 65 && byte <= 90 ? byte + 32 : signed_char(byte);
         hash = (((hash << 1) | (hash >>> 31)) ^ ch) >>> 0;
     }
     return hash;

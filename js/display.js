@@ -132,6 +132,7 @@ import { monsndx, sticks } from './mondata.js';
 import { m_at } from './monst.js';
 import {
     dist2,
+    bytesText,
     textBytes,
     mungspaces,
     sgn, lcase, ucase, upstart, strcmpi, atol,
@@ -5230,12 +5231,11 @@ function _statusPlayerName() {
             Math.max(30 - 5 - roleBytes.length, BOTL_NSIZ),
         );
     }
-    // wintty.c:tty_putstatusfield() advances once per byte. Use NUL as an
-    // internal skipped-cell marker for high-bit bytes; _newStatusRow() turns
-    // each marker into an unowned blank, matching patch 006 nomux_putch().
-    return nameBytes.map((byte) => (
-        byte < 0x80 ? String.fromCharCode(byte) : '\0'
-    )).join('');
+    // The title holds the name's bytes as botl.c stores them, one character
+    // a byte. wintty.c tty_putstatusfield() advances once per byte, and the
+    // recorder's capture rule decides which of them reach a cell where the
+    // row is printed (_statusCellSkipped()).
+    return bytesText(nameBytes);
 }
 
 function _statusTitle() {
@@ -5754,7 +5754,8 @@ function _statusVitals(u) {
 // sequence. The concrete object shares its class slot, so this does not
 // require the full object catalog during early status-layout tests.
 // tty_putstatusfield() prints that byte through putchar(); a byte
-// nomux_putch() ignores becomes the NUL marker _newStatusRow() leaves blank.
+// nomux_putch() ignores leaves its cell blank where the row is printed
+// (_statusCellSkipped()).
 // The tty shows the prefix it was last sent (see _deliverStatusGold()).
 function _statusGoldSymbol() {
     return game._statusGoldShown ?? _currentStatusGoldSymbol();
@@ -5762,9 +5763,7 @@ function _statusGoldSymbol() {
 
 function _currentStatusGoldSymbol() {
     if (game.iflags?.invis_goldsym) return '$';
-    const byte = symbol_at(SYM_OFF_O + COIN_CLASS, game).ttychar;
-    const stored = nomux_putch_byte(byte);
-    return stored === null ? '\0' : String.fromCharCode(stored);
+    return String.fromCharCode(symbol_at(SYM_OFF_O + COIN_CLASS, game).ttychar);
 }
 
 // C ref: botl.c initblstats[]'s BL_TIME entry, whose "%ld" is filled from
@@ -5858,6 +5857,15 @@ function _statusLine3DetailsConfiguration() {
     return { conditionLevel, shortLevel, time, version };
 }
 
+// Whether patch 006's nomux_putch() ignores this status character, one byte
+// as a one-character string: wintty.c tty_putstatusfield() prints each byte
+// through putchar(), whose capture hook drops a control byte and, the char
+// being signed, a byte above 0x7F (js/termcap.js nomux_putch_byte()). The
+// cursor still advances, so the cell stays as the cleared row left it.
+function _statusCellSkipped(ch) {
+    return nomux_putch_byte(ch.charCodeAt(0)) === null;
+}
+
 function _newStatusRow() {
     const chars = new Array(TTY_STATUS_WIDTH).fill(' ');
     const owners = new Array(TTY_STATUS_WIDTH).fill(null);
@@ -5866,7 +5874,7 @@ function _newStatusRow() {
         for (let index = 0; index < text.length; ++index) {
             const column = start + index;
             if (column >= 0 && column < TTY_STATUS_WIDTH) {
-                const skippedByte = text[index] === '\0';
+                const skippedByte = _statusCellSkipped(text[index]);
                 chars[column] = skippedByte ? ' ' : text[index];
                 owners[column] = skippedByte ? null : owner;
             }
@@ -6351,14 +6359,15 @@ function _recordRenderedStatus(layouts) {
     layouts.forEach((layout, row) => {
         const cells = tty.screen[row];
         let length = cells.length;
-        const blank = (cell) => !cell || cell.ch === ' ' || cell.ch === '\0';
+        const blank = (cell) => !cell || cell.ch === ' '
+            || _statusCellSkipped(cell.ch);
         while (length > 0 && blank(cells[length - 1])) --length;
         const shown = cells.slice(0, length);
         rendered.push({
-            // A byte nomux_putch() ignores (the NUL marker) leaves a blank.
-            text: shown.map((cell) => (cell && cell.ch !== '\0'
+            // A byte nomux_putch() ignores leaves a blank.
+            text: shown.map((cell) => (cell && !_statusCellSkipped(cell.ch)
                 ? cell.ch : ' ')).join(''),
-            owners: shown.map((cell) => (cell && cell.ch !== '\0'
+            owners: shown.map((cell) => (cell && !_statusCellSkipped(cell.ch)
                 ? cell.owner : null)),
             fields: layout.fields,
             hungerX: layout.hungerX,

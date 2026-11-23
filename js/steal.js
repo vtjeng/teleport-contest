@@ -705,7 +705,7 @@ export async function steal(
                 otmp = state.uarm;
 
             // gotobj: check stealoid
-            if (otmp.o_id === (state.gs?.stealoid ?? -1))
+            if (otmp.o_id === state.gs?.stealoid)
                 return 0;
 
             // Boulder check: animals can't lift boulders

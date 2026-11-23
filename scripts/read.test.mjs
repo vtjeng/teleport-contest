@@ -430,7 +430,7 @@ test('read.c cursed gold detection selects the trap detector and consumes its sc
 
     assert.equal(await seffects(goldScroll, game), 1);
     assert.equal(goldScroll.quan, 19);
-    assert.equal(game.gk.known, undefined);
+    assert.equal(game.gk.known, false); // decl.c starts it at FALSE
     assert.match(game._pending_message, /stop itching/);
 });
 

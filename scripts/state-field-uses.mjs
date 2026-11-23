@@ -79,6 +79,10 @@ const STATE_NAMES = /^(?:state|game|g|env\.state|liveState|normalized\.state)$/u
 // are different structs.
 const HOLDER_BASES = {
     flags: /^(?:state|game|g|env\.state|liveState|normalized\.state|result|opts|options|snapshot)$/u,
+    // C's gx and gy groups, which share their names with gg.gx and gg.gy,
+    // dogmove.c's goal coordinates (`goal.gx` in js/dogmove.js).
+    gx: /^(?:state|game|g|env\.state|liveState)$/u,
+    gy: /^(?:state|game|g|env\.state|liveState)$/u,
 };
 
 const isNode = (value) => value && typeof value.type === 'string';
@@ -137,6 +141,9 @@ const isNullLiteral = (node) => (node.type === 'Literal' && node.value === null)
 
 // Every use of a `holder` field in one file's source.
 export function scanSource(file, source, holder = 'context') {
+    // A file that never spells the holder has no use of it; skipping the
+    // parse keeps a scan of many holders (C's ga ... gz) quick.
+    if (!new RegExp(`\\b${holder}\\b`, 'u').test(source)) return [];
     const ast = parse(source, {
         ecmaVersion: 'latest', sourceType: 'module', locations: true,
     });

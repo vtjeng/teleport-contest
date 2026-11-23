@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "nhlua.c nhl_get_cmd_key() -> cmd.c cmd_from_ecname() reads the live gc.Cmd table. A debug Archeologist enters the tutorial, binds '<' to toggle(autopickup) from the options menu (cmd.c handler_rebind_keys_add()'s Snprintf() path, which binds on Linux and macOS alike), level-teleports to tut-2 and reads its engraving: no key runs #up any more, so cmd_from_ecname() gives '#up'. Seed, date, character and inputs chosen independently.",
+  "segments": [
+    {
+      "seed": 8830417,
+      "datetime": "20261123141500",
+      "nethackrc": "OPTIONS=name:Rebinder,role:Archeologist,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!splash_screen,!tips,!autopickup\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " y\u001b\u001b#optionsfull\n      r\na<:toggle:\nautopickup\n\u001b\u001b\u00162\n\u001b_<.y\n"
+    }
+  ]
+}

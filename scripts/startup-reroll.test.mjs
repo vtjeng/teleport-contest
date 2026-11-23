@@ -312,9 +312,11 @@ test('the reroll menu raises and lowers both naming counters', () => {
             return O.APPLE;
         },
     });
-    // Both start unset, as the C globals do; the menu is the only writer.
+    // Neither is raised before the menu, which is their only writer here:
+    // iflags.override_ID is unset on this hand-built state and
+    // gd.distantname holds decl.c's 0.
     assert.equal(state.iflags.override_ID, undefined);
-    assert.equal(state.gd?.distantname, undefined);
+    assert.equal(state.gd.distantname, 0);
     menuInventoryNames(state, [apple]);
     assert.ok(seen.length > 0);
     for (const pair of seen) assert.deepEqual(pair, [1, 1]);

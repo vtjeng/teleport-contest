@@ -23,6 +23,7 @@ const GENERATED_CHECKS = [
     'check:extcmds',
     'check:glyph-offsets',
     'check:help-data',
+    'check:instance-globals',
     'check:monsters',
     'check:nasties',
     'check:objects',

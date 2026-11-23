@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of eckey-tutorial-up-rebound-in-play with another seed, a Priest, and '<' bound to toggle(time): tut-2's engraving names '#up' because nhl_get_cmd_key() reads the key table as play has left it.",
+  "segments": [
+    {
+      "seed": 30566192,
+      "datetime": "20270304091200",
+      "nethackrc": "OPTIONS=name:Keymap,role:Priest,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,!tips,time\nOPTIONS=pettype:none,!acoustics,playmode:debug\n",
+      "moves": " y\u001b\u001b#optionsfull\n      r\na<:toggle:\ntime\n\u001b\u001b\u00162\n\u001b_<.y\n"
+    }
+  ]
+}

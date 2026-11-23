@@ -111,6 +111,7 @@ test('checkpoint runs full, generated, static, and score', () => {
             'generated data (check:extcmds)',
             'generated data (check:glyph-offsets)',
             'generated data (check:help-data)',
+            'generated data (check:instance-globals)',
             'generated data (check:monsters)',
             'generated data (check:nasties)',
             'generated data (check:objects)',
