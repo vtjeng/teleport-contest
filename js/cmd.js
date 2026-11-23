@@ -2622,9 +2622,10 @@ export async function lookaround_known_room(x, y, state = game) {
     );
 }
 
-// C ref: cmd.c dolookaround() (1311-1375). startup_a11y.js owns the same
-// source-order room and visible-cell description primitives; this wrapper
-// supplies the command's filter lifetime and emits their pline_xy messages.
+// C ref: cmd.c dolookaround() (1311-1375). lookaround_known_room() above
+// describes the rooms and startup_a11y.js collectLookaroundMessages() the
+// visible squares; this wrapper supplies the command's filter lifetime and
+// emits their pline_xy messages.
 export async function dolookaround(state = game) {
     const oldFilter = state.iflags?.getloc_filter;
     const oldAccessible = state.a11y?.accessiblemsg;
@@ -2652,7 +2653,7 @@ export async function dolookaround(state = game) {
         }
         // The room/area description above is emitted by this cmd.c function;
         // the shared helper supplies only the visible-cell pline_xy loop.
-        const messages = collectLookaroundMessages(state, { includeRoom: false });
+        const messages = collectLookaroundMessages(state);
         for (const message of messages)
             await ttyPline(message, state);
         // pager.c do_screen_description() ended the process at a square.
