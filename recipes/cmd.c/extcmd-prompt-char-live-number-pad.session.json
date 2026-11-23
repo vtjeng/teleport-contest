@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c reset_commands(FALSE) from the options menu after BIND=!:#. Before the change the prompt shows the '#' that initoptions_init() left; choosing number_pad On in the O menu (found with the ':' search) runs reset_commands(FALSE), which stores cmd_from_func(doextcmd) again with the player's binding in place. 'wi' autocompletes to wipe; Escape leaves. Seed, date, Ranger and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 61804420,
+      "datetime": "20410925101500",
+      "nethackrc": "OPTIONS=name:Odalys,role:Ranger,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nBIND=!:#\n",
+      "moves": " !wi\u001b\u001bO:number_pad\nb\u001b!wi\u001b\u001b#wi\u001b\u001bi"
+    }
+  ]
+}

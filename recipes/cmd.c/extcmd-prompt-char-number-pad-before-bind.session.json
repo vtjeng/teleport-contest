@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cmd.c reset_commands(FALSE) from options.c optfn_number_pad() before BIND=!:#: the binding comes after the last reset, so gc.Cmd.extcmd_char keeps what that reset found. 'tu' autocompletes to turn; Escape leaves. Seed, date, elven Priestess and keys chosen independently.",
+  "segments": [
+    {
+      "seed": 61804419,
+      "datetime": "20410924101500",
+      "nethackrc": "OPTIONS=name:Odalys,role:Priest,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=number_pad:1\nBIND=!:#\n",
+      "moves": " !tu\u001b\u001b#tu\u001b\u001bi"
+    }
+  ]
+}

@@ -263,6 +263,11 @@ function resetCommandBindings(
         }
     }
     updateRestOnSpace(model, model.restOnSpace);
+    // cmd.c reset_commands():3475 is the only writer of gc.Cmd.extcmd_char:
+    // the key cmd_from_func(doextcmd) finds as each reset ends. A later
+    // BIND or in-game rebinding of '#' leaves it alone, so the prompt
+    // character extcmd_initiator() answers is the one the last reset found.
+    model.extcmdChar = keyForCommand(model, '#');
 }
 
 export function resetCommandBindingModel(
