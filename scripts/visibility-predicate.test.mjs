@@ -15,6 +15,11 @@
 // scripts/visibility-predicate-reviewed.json records the JS sequence that
 // was compared with C by hand and why it differs. Changing a listed
 // function's predicates fails this test until the entry is reviewed again.
+//
+// Limits: the scan takes an alias such as canSeeMonster for the predicate
+// its name suggests and does not read what the alias is bound to (dungeon.c
+// update_lastseentyp()'s once defaulted to "never"), and it takes equal
+// sequences as agreement, so two opposite swaps in one function pass.
 
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
