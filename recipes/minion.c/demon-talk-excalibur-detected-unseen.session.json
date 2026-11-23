@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 29874,
+      "datetime": "20330822201500",
+      "nethackrc": "OPTIONS=name:Caliburn,role:Samurai,race:human,gender:male,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017Excalibur\nwf\u0017blessed potion of monster detection\nqg\u0007peaceful Dispater\nysss  \u0010\u001b"
+    }
+  ],
+  "comment": "Variation of demon-talk-demonbane-sensed-unseen with the other artifact minion.c demon_talk() tests, another role, seed and demon lord, and another reason sensemon() is true: a blessed potion of monster detection sets Detect_monsters, so the hero spots the invisible Dispater without seeing it and canspotmon(mtmp) selects \"<Demon> looks very angry.\""
+}

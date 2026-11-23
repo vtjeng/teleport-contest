@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61507,
+      "datetime": "20270314103000",
+      "nethackrc": "OPTIONS=name:Bane,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!tips\n",
+      "moves": "\u0017Demonbane\nwe\u0017helm of telepathy\nWf\u0007peaceful Baalzebub\nyss  \u0010\u001b"
+    }
+  ],
+  "comment": "Independent minion.c demon_talk() entry from monmove.c dochug(): a lawful Valkyrie wields a wished Demonbane and wears a wished helm of telepathy, then creates a peaceful Baalzebub. Baalzebub is invisible, so the hero senses it (display.h sensemon(), extrinsic telepathy within range) without seeing it. When it next moves beside the hero, demon_talk() tests canspotmon(mtmp), which is true, and prints \"<Demon> looks very angry.\" rather than \"You feel tension building.\", then attacks."
+}

@@ -238,7 +238,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
 
     if (is_art(state.uwep, ART_EXCALIBUR)
         || is_art(state.uwep, ART_DEMONBANE)) {
-        if (canseemon(mtmp, state))
+        if (canspotmon(mtmp, state))
             await message(`${Amonnam(mtmp, { state })} looks very angry.`, state);
         else
             await message(youFeel('tension building.', state), state);
