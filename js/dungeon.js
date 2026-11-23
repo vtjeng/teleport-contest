@@ -1093,12 +1093,12 @@ const MAXLINFO = MAXDUNGEON * MAXLEVEL;
 // level's longer subroom list, which this does not model. Any other address
 // (svm, the rooms in use, or memory past svr) is not modelled, and a build
 // laid out differently, such as the judge's macOS one, reads other bytes.
-const LEVEL_INFO_TO_ROOMS = 0x54d8d8 - (0x542bc8 + 42056);
-const SIZEOF_MKROOM = 224;
-const ROOM_SLOTS = 41; // MAXNROFROOMS + 1
+const levelInfoToRooms = 0x54d8d8 - (0x542bc8 + 42056);
+const sizeofMkroom = 224;
+const roomSlots = 41; // MAXNROFROOMS + 1
 function level_info_in_spare_subroom(ledger, state) {
-    const slot = Math.floor((ledger - LEVEL_INFO_TO_ROOMS) / SIZEOF_MKROOM);
-    return slot > ROOM_SLOTS + (state.nsubroom ?? 0) && slot < 2 * ROOM_SLOTS;
+    const slot = Math.floor((ledger - levelInfoToRooms) / sizeofMkroom);
+    return slot > roomSlots + (state.nsubroom ?? 0) && slot < 2 * roomSlots;
 }
 
 export function maxledgerno(state = game) {
