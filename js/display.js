@@ -4604,9 +4604,11 @@ export function newsymReportsOffMap(x, y) {
     return !isok(x, y) && x >= 0 && y >= 0 && x <= COLNO - 1 && y <= ROWNO - 1;
 }
 
-// The port's newsym() is synchronous and cannot wait at the --More-- that
-// impossible() reaches, so callers that can meet an off-map square raise the
-// report through this helper.
+// newsym_steps() raises this report itself, and the synchronous newsym()
+// queues it for the next message. A caller that can wait and knows it may
+// hold an off-map square (a vault guard parked at <0,0>) prints the report
+// through this helper instead, at C's point in its own messages, and does
+// not call newsym() for that square.
 export function newsymOffMapImpossible(x, y, state = game, env = {}) {
     return impossible(`newsym: attempting screen update for <${x},${y}>`,
         state, {

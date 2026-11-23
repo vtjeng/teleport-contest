@@ -10,7 +10,8 @@
 //   Confusion, the long HConfusion, to show_map_spot()'s `boolean cnf`
 //   (recipes/detect.c/do-mapping-confusion-timeout-*, do-vicinity-map-*);
 // - apply.c:3571 use_cream_pie() initialises `boolean wascreamed` from the
-//   unsigned u.ucreamed.
+//   unsigned u.ucreamed
+//   (recipes/apply.c/use-cream-pie-ucreamed-256-low-byte-zero).
 //
 // This check fails when one of those sites stops calling schar(), and when
 // the number of schar() calls in js/ changes: add the C site above with the
