@@ -1273,7 +1273,7 @@ async function emergency_disrobe(lostsome, state = game) {
                     || obj === state.uarmu
                     || (obj.cursed && (obj === state.uarmh || obj === state.uarms))
                     || welded(obj, state)
-                    || obj.o_id === (state.gs?.stealoid ?? -1)
+                    || obj.o_id === state.gs?.stealoid
                     || obj.in_use;
                 if (!undroppable) selected = obj;
                 if (--index < 0 && selected) break;

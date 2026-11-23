@@ -1,12 +1,23 @@
 // gstate.js — Global game state reference.
 // All game modules import `game` from here.
 
+import { initial_instance_globals } from './decl.js';
 import { zero_flag, zero_instance_flags } from './flag.js';
 import { zero_sinfo } from './program_state.js';
 
 // C decl.c:417 initializes gi.item_action_in_progress to FALSE for a new game.
 function initialGameState() {
     return {
+        // C decl.c decl_globals_init() copies g_init_a ... g_init_z into
+        // ga ... gz once per process and saves none of them, so each segment,
+        // restored or not, starts every member from decl.c's value: mostly
+        // zero, but -1 for gp.polearm_range_min and WIN_ERR for
+        // gc.cached_pickinv_win. js/decl.js is generated from decl.h and
+        // decl.c and holds the integer, boolean and enumeration members the
+        // port keeps in these groups; scripts/instance-globals.test.mjs
+        // fails when js/ replaces a group, tests whether such a member
+        // exists, or gives a missing one another default.
+        ...initial_instance_globals(),
         item_action_in_progress: false,
         // C decl.c:762 initializes gt.twohits to 0. uhitm.c hitum() and
         // hmonas() set it for each melee turn and hmon_hitmon() reads it.
@@ -75,7 +86,7 @@ function initialGameState() {
 // both rules and that js/ never guards, defaults or deletes it. Test states
 // built by hand take their gb from here as well.
 export function initialGb() {
-    return { bhitpos: { x: 0, y: 0 } };
+    return { ...initial_instance_globals().gb, bhitpos: { x: 0, y: 0 } };
 }
 
 export let game = initialGameState();

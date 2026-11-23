@@ -5013,7 +5013,7 @@ export async function mhitm_ad_phys(
                 const artifactDamage = { value: mhm.damage };
                 artifactHit = await artifact_hit(
                     magr, mdef, otmp, artifactDamage,
-                    env.dieroll ?? state.gn?.mhitu_dieroll ?? 0,
+                    env.dieroll ?? state.gm?.mhitu_dieroll ?? 0,
                     state,
                     env,
                 );

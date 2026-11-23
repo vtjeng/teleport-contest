@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of do_osshock-upward-polymorph-unset-poly_zapped-darts with another seed and 6 cursed arrows: zap.c do_osshock() reached through zap_updown()'s direct bhito() call while gp.poly_zapped still holds decl.c's 0, so C draws no rn2(Luck + 45) before splitting the stack.",
+  "segments": [
+    {
+      "seed": 5120737,
+      "datetime": "20261123101500",
+      "nethackrc": "OPTIONS=name:Hider,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed spellbook of polymorph\n#levelchange\n30\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nro\n#enhance\ny>d\n>d\n\u001b\u00176 cursed arrows\nTdbdadcdddedfdgdhdidjdkdldmdndodp#polyself\ngarter snake\n\n#monster\nZc<:"
+    }
+  ]
+}

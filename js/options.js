@@ -173,7 +173,6 @@ import {
     assign_soundlib,
     get_soundlib_name,
     soundlib_id_from_opt,
-    soundlib_nosound,
 } from './sounds.js';
 // js/display.js, js/invent.js and js/vision.js do not import this file, so
 // these three are plain one-way dependencies; js/tty_message.js reaches
@@ -286,6 +285,7 @@ import { displayTtyTextWindow } from './tty_menu.js';
 import { choose_disco_sort } from './o_init.js';
 import { game } from './gstate.js';
 import { reset_glyphmap } from './display_glyphmap.js';
+import { initial_instance_globals } from './decl.js';
 import { zero_flag, zero_instance_flags } from './flag.js';
 import { sync_impossible } from './source_steps.js';
 
@@ -496,6 +496,10 @@ function applyBooleanOptionDefaults(result) {
 
 function defaultResult() {
     const startupEvents = [];
+    // The parser writes the same process-start groups js/gstate.js creates,
+    // which nothing has written yet: each group below starts from decl.c's
+    // values (js/decl.js) and js/jsmain.js installs the result on the game.
+    const globals = initial_instance_globals();
     const result = {
         name: '',
         role: ROLE_NONE,
@@ -606,9 +610,9 @@ function defaultResult() {
         // are their configuration-time writers, and #optionsfull reads the
         // same fields through OPTION_VALUE_HANDLERS.
         gc: {
+            ...globals.gc,
             crash_email: null,
             crash_name: null,
-            crash_urlmax: -1,
             // cfgfiles.c handle_config_section() owns these parser pointers
             // in instance_globals_c.  They are reset by
             // free_config_sections() when one configuration read ends.
@@ -618,33 +622,28 @@ function defaultResult() {
             // Unix startup configuration pass, optfn_windowtype() is its sole
             // writer and jsmain.js installs this same value on the game.
             chosen_windowtype: '',
-            // sounds.c assign_soundlib() writes the requested interface here;
-            // allmain.c activates it after configuration and name parsing.
-            chosen_soundlib: soundlib_nosound,
         },
         // decl.c instance_globals_f starts every configured full-path prefix
         // as NULL. cfgfiles.c adjust_prefix() is the source-owned writer.
         gf: {
+            ...globals.gf,
             fqn_prefix: Array(PREFIX_COUNT).fill(null),
         },
         ga: {
-            // decl.c instance_globals_a starts on the built-in interface.
-            active_soundlib: soundlib_nosound,
+            ...globals.ga,
             // coloratt.c alternative_palette() stores NH_ALTPALETTE-tagged
             // RGB values here when CHANGE_COLOR is enabled.
             altpalette: Array(CLR_MAX).fill(0),
         },
         gp: {
+            ...globals.gp,
             // decl.c instance_globals_p starts this list at NULL. Each valid
             // direct MSGTYPE row prepends one compiled rule; jsmain.js moves
             // the resulting per-parse list into the new game's gp owner.
             plinemsg_types: null,
         },
         gm: {
-            // decl.c instance_globals_m zero-initializes the temporary flag
-            // that objnam.c doname() reads while pickup.c reports a wielded
-            // stack merge.
-            mrg_to_wielded: false,
+            ...globals.gm,
             // decl.c instance_globals_m starts this list at NULL. Each valid
             // direct MENUCOLOR row prepends one compiled coloratt.c rule.
             menu_colorings: null,
@@ -653,6 +652,7 @@ function defaultResult() {
         // warning array before reading either OPTIONS=warnings or the legacy
         // direct WARNINGS statement. jsmain.js installs this object at gw.
         gw: {
+            ...globals.gw,
             warnsyms: def_warnsyms.map(({ ch }) => ch.charCodeAt(0)),
         },
         roleFilter: defaultRoleFilter(),
@@ -676,6 +676,7 @@ function defaultResult() {
         // decl.c zeros these option-transition flags. Symbol-set handlers set
         // all three during the configuration pass, before the first input.
         go: {
+            ...globals.go,
             opt_phase: RC_FILE_OPT,
             opt_initial: true,
             opt_from_file: true,

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "zap.c do_osshock() reached with gp.poly_zapped at its decl.c start value, 0. A level-30 debug Wizard learns polymorph, advances matter spells twice, drops everything with 5 cursed darts on top (obj_shudders() odds 3 / 2 = 1, so they always shudder), becomes a garter snake, hides with #monster and casts polymorph upward. zap_updown()'s hiding arm calls bhito() directly, not through bhitpile(), which is the only place that sets gp.poly_zapped to -1; C reads 0, skips the rn2(Luck + 45) loop and splits the stack with the next draw. The look shows how many darts survive.",
+  "segments": [
+    {
+      "seed": 5120734,
+      "datetime": "20261123101500",
+      "nethackrc": "OPTIONS=name:Hider,role:Wizard,race:human,gender:female,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!acoustics\n",
+      "moves": "\u0017blessed spellbook of polymorph\n#levelchange\n30\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nro\n#enhance\ny>d\n>d\n\u001b\u00175 cursed darts\nTdbdadcdddedfdgdhdidjdkdldmdndodp#polyself\ngarter snake\n\n#monster\nZc<:"
+    }
+  ]
+}
