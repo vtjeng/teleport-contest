@@ -372,7 +372,37 @@ test('the level-identity helpers read dat/dungeon.lua', () => {
     // maxledgerno() is the last dungeon's ledger_start plus its level count,
     // which is 29 + 8 here, and is itself a valid row.
     assert.equal(level_info(37, state).flags, 0);
-    assert.throws(() => level_info(38, state), /out of range/u);
+    // C's array has MAXLINFO = 16 * 32 = 512 rows (hack.h 425) whatever the
+    // dungeon's size, so 38 and 511 are rows of their own and 512 is the
+    // first index past the array.
+    assert.equal(level_info(38, state).flags, 0);
+    assert.equal(level_info(511, state).flags, 0);
+    assert.throws(() => level_info(512, state), /out of range/u);
+    // Past the array the recorder's Linux build reads svr.rooms[] byte
+    // `ledger - 2248`, in 224-byte records: 41 rooms, then 41 subrooms.
+    // Ledger 16708 is a two-note tune's jingle bytes 'E','A' less one
+    // (0x4145 - 1) and lands in record 64, subroom 23. With no subrooms on
+    // the level that record is spare and reads 0; a write to it is kept.
+    state.nsubroom = 0;
+    assert.equal(level_info(16708, state).flags, 0);
+    level_info(16708, state).flags |= LFILE_EXISTS;
+    assert.equal(level_info(16708, state).flags, LFILE_EXISTS);
+    // Record 41 + nsubroom is the list's hx = -1 terminator, so with 23
+    // subrooms record 64 is not spare, and with 22 it is.
+    state.nsubroom = 23;
+    assert.throws(() => level_info(16708, state), /out of range/u);
+    state.nsubroom = 22;
+    assert.equal(level_info(16708, state).flags, LFILE_EXISTS);
+    state.nsubroom = 0;
+    // 2248 + 41 * 224 - 1 is the last byte of the rooms proper, and
+    // 2248 + 82 * 224 is the first byte past svr.rooms[]; neither is
+    // modelled. 2248 + 42 * 224 is the first byte of subroom 1, the first
+    // spare record when the level has no subrooms.
+    assert.throws(() => level_info(2248 + 41 * 224 - 1, state), /out of range/u);
+    assert.throws(() => level_info(2248 + 42 * 224 - 1, state), /out of range/u);
+    assert.equal(level_info(2248 + 42 * 224, state).flags, 0);
+    assert.equal(level_info(2248 + 82 * 224 - 1, state).flags, 0);
+    assert.throws(() => level_info(2248 + 82 * 224, state), /out of range/u);
     assert.equal(level_info(0, state).flags, 0);
     assert.throws(() => level_info(-1, state), /out of range/u);
 
