@@ -272,7 +272,7 @@
     "reason": "JS keeps C's three canspotmon(mon) in one variable; only a pline() lies between them."
   },
   "trap.c launch_obj": {
-    "js": "cansee cansee cansee cansee canseemon cansee cansee cansee cansee cansee",
+    "js": "cansee cansee cansee cansee canseemon cansee cansee cansee cansee cansee cansee",
     "reason": "The canseemon is the env passed to mpickobj()."
   },
   "trap.c fire_damage": {

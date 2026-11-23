@@ -172,8 +172,10 @@ import { game } from './gstate.js';
 import { get_obj_location } from './light.js';
 import { losexp } from './exper.js';
 import {
+    consume_msg_xy,
     impossible,
     impossible_printer,
+    set_msg_xy,
     youFeel as plineYouFeel,
     youHear as plineYouHear,
     youSee as plineYouSee,
@@ -2759,11 +2761,13 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                 switch (t.ttyp) {
                 case LANDMINE:
                     if (env.random.rn2(10) <= 2) break;
-                    // C calls set_msg_xy(x, y) only if (cansee(x, y)).
-                    await message(cansee(x, y, state)
-                        ? messageAt('KAABLAMM!!!  The rolling boulder '
-                            + 'triggers a land mine.', x, y, state)
-                        : 'KAABLAMM!!!', state, env);
+                    if (cansee(x, y, state)) set_msg_xy(x, y, state);
+                    await message(consume_msg_xy(
+                        `KAABLAMM!!!${cansee(x, y, state)
+                            ? '  The rolling boulder triggers a land mine.'
+                            : ''}`,
+                        state,
+                    ), state, env);
                     deltrap(t, state);
                     del_engr_at(x, y, state);
                     {
