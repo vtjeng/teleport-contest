@@ -258,7 +258,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
                     state,
                     random,
                 })) {
-                    place_object(child, x, y, objectGenerationEnv({
+                    await place_object(child, x, y, objectGenerationEnv({
                         ...rawEnv,
                         state,
                     }));

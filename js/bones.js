@@ -503,7 +503,7 @@ export async function drop_upon_death(mtmp, cont, x, y, state) {
         } else if (!rn2(8)) {
             give_to_nearby_mon(otmp, x, y, state);
         } else {
-            place_object(otmp, x, y, { state });
+            await place_object(otmp, x, y, { state });
         }
     }
     if (cont) cont.owt = weight(cont, bonesObjectEnv(state));

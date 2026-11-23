@@ -1742,7 +1742,7 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
         break;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
         if (mhitb && !mdef.mcan && mwep)
-            drain_item(mwep, false, state, env);
+            await drain_item(mwep, false, state, env);
         break;
     default:
         break;

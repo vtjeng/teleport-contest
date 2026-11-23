@@ -847,7 +847,7 @@ export async function dowield(state = game) {
                     );
                     return ECMD_OK;
                 }
-                setuqwep(null, setwornEnv(state));
+                await setuqwep(null, setwornEnv(state));
             }
         } else {
             const usePlural = is_plural(quiver, state)
@@ -863,7 +863,7 @@ export async function dowield(state = game) {
                 );
                 return ECMD_OK;
             }
-            setuqwep(null, setwornEnv(state));
+            await setuqwep(null, setwornEnv(state));
         }
     } else if (wep.owornmask & (W_ARMOR | W_ACCESSORY | W_SADDLE)) {
         await ttyPline('You cannot wield that!', state);
@@ -874,7 +874,7 @@ export async function dowield(state = game) {
     const oldwep = state.uwep ?? null;
     const result = await ready_weapon(wep, state);
     if (state.flags.pushweapon && oldwep && (state.uwep ?? null) !== oldwep)
-        setuswapwep(oldwep, setwornEnv(state));
+        await setuswapwep(oldwep, setwornEnv(state));
     await untwoweapon(state);
 
     return result;
@@ -901,7 +901,7 @@ export async function doswapweapon(state = game) {
     /* Unwield your current secondary weapon */
     const oldwep = state.uwep ?? null;
     const oldswap = state.uswapwep ?? null;
-    setuswapwep(null, setwornEnv(state));
+    await setuswapwep(null, setwornEnv(state));
 
     /* Set your new primary weapon */
     const result = await ready_weapon(oldswap, state);
@@ -909,9 +909,9 @@ export async function doswapweapon(state = game) {
     /* Set your new secondary weapon */
     if ((state.uwep ?? null) === oldwep) {
         /* Wield failed for some reason */
-        setuswapwep(oldswap, setwornEnv(state));
+        await setuswapwep(oldswap, setwornEnv(state));
     } else {
-        setuswapwep(oldwep, setwornEnv(state));
+        await setuswapwep(oldwep, setwornEnv(state));
         if (state.uswapwep)
             await prinv(null, state.uswapwep, 0, { state });
         else
@@ -952,7 +952,7 @@ export async function doquiver_core(verb, state = game) {
     if (newquiver === hands_obj) {
         if (state.uquiver) {
             await ttyPline('You now have no ammunition readied.', state);
-            setuqwep(null, setwornEnv(state));
+            await setuqwep(null, setwornEnv(state));
         } else {
             await ttyPline('You already have no ammunition readied!', state);
         }
@@ -1068,7 +1068,7 @@ export async function doquiver_core(verb, state = game) {
                     );
                     return ECMD_OK;
                 }
-                setuswapwep(null, setwornEnv(state));
+                await setuswapwep(null, setwornEnv(state));
                 await untwoweapon(state);
             }
         } else {
@@ -1087,7 +1087,7 @@ export async function doquiver_core(verb, state = game) {
                 );
                 return ECMD_OK;
             }
-            setuswapwep(null, setwornEnv(state));
+            await setuswapwep(null, setwornEnv(state));
             await untwoweapon(state);
         }
     }
@@ -1095,11 +1095,11 @@ export async function doquiver_core(verb, state = game) {
     // C label quivering: a split child, or a newly selected ordinary item,
     // reaches this common slot/message tail without spending a turn.
     if (verb === 'ready') {
-        setuqwep(newquiver, setwornEnv(state));
+        await setuqwep(newquiver, setwornEnv(state));
         await prinv(null, newquiver, 0, { state });
     } else {
         await prinv('You ready:', newquiver, 0, { state });
-        setuqwep(newquiver, setwornEnv(state));
+        await setuqwep(newquiver, setwornEnv(state));
     }
 
     let res = 0;
@@ -1164,7 +1164,7 @@ export async function wield_tool(obj, verb, state = game) {
         return false;
     }
     if (state.uquiver === obj)
-        setuqwep(null, setwornEnv(state));
+        await setuqwep(null, setwornEnv(state));
     if (state.uswapwep === obj) {
         await doswapweapon(state);
         if (state.uswapwep === obj) return false;
@@ -1180,7 +1180,7 @@ export async function wield_tool(obj, verb, state = game) {
         }
         if (state.flags.pushweapon && oldwep
             && (state.uwep ?? null) !== oldwep)
-            setuswapwep(oldwep, setwornEnv(state));
+            await setuswapwep(oldwep, setwornEnv(state));
     }
 
     if (state.uwep && state.uwep !== obj)

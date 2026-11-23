@@ -423,7 +423,7 @@ async function dofindgem(state = game, env = {}) {
     }
     // C ref: fountain.c:171. rnd_class(DILITHIUM_CRYSTAL, LUCKSTONE - 1)
     // picks a random gem type.
-    mksobj_at(
+    await mksobj_at(
         rnd_class(DILITHIUM_CRYSTAL, LUCKSTONE - 1, { random, state }),
         state.u.ux, state.u.uy,
         false, false,
@@ -1257,7 +1257,7 @@ export async function sink_backs_up(x, y, state = game, env = {}) {
     if (!(location.flags & S_LRING)) {
         if (!blind)
         await message(youSee('a ring shining in its midst.', state), state);
-        mkobj_at(RING_CLASS, x, y, true, { ...env, state, random });
+        await mkobj_at(RING_CLASS, x, y, true, { ...env, state, random });
         newsym(x, y);
         await exercise(A_DEX, true, state, random, {
             encumberMessage: env.encumberMessage,
@@ -1340,7 +1340,7 @@ export async function drinksink(state = game, env = {}) {
         const location = state.level.at(x, y);
         if (!(location.flags & S_LRING)) {
             await message('You find a ring in the sink!', state);
-            mkobj_at(RING_CLASS, x, y, true, { ...env, state, random });
+            await mkobj_at(RING_CLASS, x, y, true, { ...env, state, random });
             location.flags |= S_LRING;
             await exercise(A_WIS, true, state, random,
                 { encumberMessage: env.encumberMessage });

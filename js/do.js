@@ -1664,10 +1664,10 @@ async function drop(obj, state = game) {
         await setuwep(null, setwornEnv(state));
     }
     if (obj === state.uquiver) {
-        setuqwep(null, setwornEnv(state));
+        await setuqwep(null, setwornEnv(state));
     }
     if (obj === state.uswapwep) {
-        setuswapwep(null, setwornEnv(state));
+        await setuswapwep(null, setwornEnv(state));
     }
 
     if (state.u.uswallow) {
@@ -2028,8 +2028,8 @@ export async function dropx(obj, env = {}, prepared = null) {
 async function clearDropSlots(obj, env) {
     const { state } = env;
     if (obj === state.uwep) await setuwep(null, env);
-    if (obj === state.uquiver) setuqwep(null, env);
-    if (obj === state.uswapwep) setuswapwep(null, env);
+    if (obj === state.uquiver) await setuqwep(null, env);
+    if (obj === state.uswapwep) await setuswapwep(null, env);
 }
 
 // C ref: do.c dropy() (799-804).

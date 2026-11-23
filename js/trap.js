@@ -2387,7 +2387,7 @@ export async function cnv_trap_obj(otyp, cnt, ttmp, bury_it, state = game, rawEn
     otmp.owt = weight(otmp, env);
     /* Only dart traps are capable of being poisonous */
     if (otyp !== DART) otmp.opoisoned = 0;
-    place_object(otmp, ttmp.tx, ttmp.ty, env);
+    await place_object(otmp, ttmp.tx, ttmp.ty, env);
     if (bury_it) {
         const { bury_an_obj } = await import('./bury.js');
         await bury_an_obj(otmp, env);

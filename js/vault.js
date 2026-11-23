@@ -327,7 +327,7 @@ async function clear_fcorr(grd, forceshow, state, env) {
 async function restfakecorr(grd, state, env) {
     if (await clear_fcorr(grd, false, state, env)) {
         grd.isgd = 0; // dmonsfree() should delete this mon
-        mongone(grd, { state });
+        await mongone(grd, { state });
     }
 }
 

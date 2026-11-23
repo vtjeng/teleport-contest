@@ -2554,11 +2554,11 @@ export async function poly_obj(obj, id, state = game,
                     set_twoweap(true, state);
             } else if (newWornMask & W_SWAPWEP) {
                 if (wasTwoHanded || !bimanual(replacement, state))
-                    setuswapwep(replacement, env);
+                    await setuswapwep(replacement, env);
                 if (wasTwoweap && state.uswapwep)
                     set_twoweap(true, state);
             } else if (newWornMask & W_QUIVER) {
-                setuqwep(replacement, env);
+                await setuqwep(replacement, env);
             } else if (newWornMask) {
                 await setworn(replacement, newWornMask, env);
                 await set_wear(state, replacement, { ...rawEnv, random });
@@ -3136,7 +3136,7 @@ export async function bhito(obj, wand, state = game,
                     && hides_under(state.youmonst?.data);
                 learn_it = cansee(obj.ox, obj.oy, state);
                 await do_osshock(obj, state, random, rawEnv);
-                if (cover) hideunder(state.youmonst, { ...rawEnv, state });
+                if (cover) await hideunder(state.youmonst, { ...rawEnv, state });
             } else {
                 const replacement = await poly_obj(
                     obj, STRANGE_OBJECT, state, random, rawEnv,
@@ -6473,7 +6473,7 @@ export async function zap_updown(obj, state = game,
                && hides_under(state.youmonst?.data)) {
         const top = state.level?.objects?.[x]?.[y];
         if (top && await bhito(top, obj, state, random, rawEnv)) {
-            hideunder(state.youmonst, { ...rawEnv, state });
+            await hideunder(state.youmonst, { ...rawEnv, state });
             disclose = true;
         }
     }

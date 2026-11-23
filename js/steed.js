@@ -520,7 +520,7 @@ export async function mount_steed(mtmp, force, state = game) {
             + `${mtmp.mleashed ? ' and its leash comes off' : ''}!`,
             state,
         );
-        if (mtmp.mleashed) m_unleash(mtmp, false, { state });
+        if (mtmp.mleashed) await m_unleash(mtmp, false, { state });
         return false;
     }
     if (!force && state.u.uinwater && !is_swimmer(ptr)) {

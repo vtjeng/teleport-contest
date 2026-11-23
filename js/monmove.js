@@ -3786,7 +3786,7 @@ export async function m_move(monster, rawEnv = {}) {
         }
         // mongone() redraws the vacated square through its creation hooks.
         const redraw = rawEnv.redraw ?? rawEnv.hooks?.newsym ?? newsym;
-        mongone(monster, {
+        await mongone(monster, {
             ...env,
             state,
             hooks: {

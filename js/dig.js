@@ -771,7 +771,7 @@ export async function dig(state = game, rawEnv = {}) {
             const remainingBoulder = sobj_at(BOULDER, x, y, state);
             if (remainingBoulder) {
                 await obj_extract_self(remainingBoulder, { ...rawEnv, state });
-                place_object(remainingBoulder, x, y, { ...rawEnv, state });
+                await place_object(remainingBoulder, x, y, { ...rawEnv, state });
             }
             digtext = 'The boulder falls apart.';
         } else if (location.typ === STONE || location.typ === SCORR
@@ -796,7 +796,7 @@ export async function dig(state = game, rawEnv = {}) {
                 digtext = 'You cut down the tree.';
                 setTerrain(location, ROOM);
                 if (!random.rn2(5))
-                    rnd_treefruit_at(x, y, objectGenerationEnv({
+                    await rnd_treefruit_at(x, y, objectGenerationEnv({
                         ...rawEnv, state, random,
                     }));
                 if (state.urace?.mnum === PM_ELF
@@ -2282,11 +2282,11 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
     } else if (IS_TREE(location.typ, state)) {
         setTerrain(location, ROOM, 0);
         if (pile && pile < 5)
-            rnd_treefruit_at(x, y, objectEnv);
+            await rnd_treefruit_at(x, y, objectEnv);
     } else {
         setTerrain(location, CORR, 0);
         if (pile && pile < 5) {
-            mksobj_at(
+            await mksobj_at(
                 pile === 1 ? BOULDER : ROCK,
                 x,
                 y,
@@ -2422,7 +2422,7 @@ export async function rot_corpse(arg, timeout, rawEnv = {}) {
             mtmp.mundetected = 0;
         } else if (u_at(x, y, state) && state.u.uundetected
             && hides_under(state.youmonst.data)) {
-            hideunder(state.youmonst, { ...env, state });
+            await hideunder(state.youmonst, { ...env, state });
         }
         env.hooks.newsym(x, y, env);
     } else if (inInvent) {
@@ -2481,7 +2481,7 @@ export async function buried_ball_to_freedom(state = game, rawEnv = {}) {
 
     const env = objectGenerationEnv({ ...rawEnv, state });
     await obj_extract_self(ball, env);
-    place_object(ball, cc.x, cc.y, env);
+    await place_object(ball, cc.x, cc.y, env);
     stackobj(ball, env);
     await reset_utrap(true, state);
     del_engr_at(cc.x, cc.y, state);

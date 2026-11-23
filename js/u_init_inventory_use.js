@@ -69,11 +69,11 @@ function initialArmor(obj, env) {
 async function initialWeapon(obj, env) {
     const { state } = env;
     if (is_ammo(obj, state) || is_missile(obj, state)) {
-        if (!state.uquiver) setuqwep(obj, env);
+        if (!state.uquiver) await setuqwep(obj, env);
     } else if (!state.uwep && (!state.uarms || !bimanual(obj, state))) {
         await setuwep(obj, env);
     } else if (!state.uswapwep) {
-        setuswapwep(obj, env);
+        await setuswapwep(obj, env);
     }
 }
 

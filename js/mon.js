@@ -1734,7 +1734,7 @@ export async function meatmetal(mtmp, rawEnv = {}) {
         await m_consume_obj(mtmp, obj, { ...rawEnv, state, random });
         if (mtmp.mhp < 1) return 2;
         if (random.rnd(25) < 3) {
-            mksobj_at(ROCK, mtmp.mx, mtmp.my, true, false, {
+            await mksobj_at(ROCK, mtmp.mx, mtmp.my, true, false, {
                 ...objectGenerationEnv({ ...rawEnv, state, random }),
             });
         }
@@ -5606,7 +5606,7 @@ async function make_corpse(mtmp, corpseflags, state, env) {
         break; // C jumps to default_1 and also makes the ordinary corpse.
     case PM_LONG_WORM:
         // C discards mksobj_at()'s result but still leaves the tooth on floor.
-        mksobj_at(WORM_TOOTH, x, y, true, false, objectEnv);
+        await mksobj_at(WORM_TOOTH, x, y, true, false, objectEnv);
         break; // C jumps to default_1 and also makes the ordinary corpse.
     case PM_VAMPIRE:
     case PM_VAMPIRE_LEADER:
@@ -5871,7 +5871,7 @@ export async function monstone(mdef, state = game, env = {}) {
             const obj = oldminvent;
             oldminvent = obj.nobj;
             obj.nobj = null;
-            add_to_container(
+            await add_to_container(
                 statue,
                 obj,
                 objectEnv,

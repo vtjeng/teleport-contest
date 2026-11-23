@@ -387,7 +387,7 @@ async function precheck(mon, obj, state, env = {}, selection = null) {
                             `${capitalizedMonsterName(mtmp, state)} vanishes.`,
                             state);
                     }
-                    mongone(mtmp, { state });
+                    await mongone(mtmp, { state });
                 }
             }
             return 2;

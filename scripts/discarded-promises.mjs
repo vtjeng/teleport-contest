@@ -15,7 +15,8 @@
 //
 // The scan is a review aid, not a proof. It resolves a callee only when it is
 // an identifier bound to a function in the same file, a static import, a
-// namespace import's member, or a name destructured from `await import()`;
+// namespace import's member, a name destructured from `await import()`, or
+// such a callee as the fallback of `(env.hook ?? callee)(...)`;
 // a method call on any other object (`env.message()`, `display.readKey()`)
 // is not resolved. It sees only statement-level calls: not `.then()` chains,
 // callbacks handed to synchronous code, or `cond && f()` forms.
@@ -169,6 +170,25 @@ export function listJsFiles(root = PROJECT_ROOT) {
 // The current list: { "<file> | <enclosing function> | <callee>": count }.
 // `sources` maps each js/ path to its text (tests pass edited copies).
 export function scanDiscardedPromises(sources) {
+    return countByKey(findDiscardedPromises(sources));
+}
+
+// The same list restricted to calls whose nearest enclosing function is
+// `async`. Such a caller can always await, and C finishes the callee before
+// the caller's next statement, so the test allows none of these.
+export function scanDiscardedPromisesInAsync(sources) {
+    return countByKey(findDiscardedPromises(sources).filter((call) => call.inAsync));
+}
+
+function countByKey(calls) {
+    const counts = {};
+    for (const { key } of calls) counts[key] = (counts[key] ?? 0) + 1;
+    return Object.fromEntries(Object.entries(counts).sort(([a], [b]) => a.localeCompare(b)));
+}
+
+// Every discarded call: its allowlist key and whether the nearest enclosing
+// function is `async`.
+function findDiscardedPromises(sources) {
     const modules = new Map();
     for (const [file, text] of Object.entries(sources))
         modules.set(file, indexModule(file, parse(text)));
@@ -199,6 +219,8 @@ export function scanDiscardedPromises(sources) {
     };
     const resolveCallee = (module, callee) => {
         if (callee.type === 'Identifier') return resolveLocal(module, callee.name);
+        // (env.redraw ?? docrt)(...): the fallback is what runs in a game.
+        if (callee.type === 'LogicalExpression') return resolveCallee(module, callee.right);
         if (callee.type === 'MemberExpression' && !callee.computed
             && callee.object.type === 'Identifier'
             && module.namespaces.has(callee.object.name))
@@ -251,7 +273,7 @@ export function scanDiscardedPromises(sources) {
         }
     }
 
-    const counts = {};
+    const calls = [];
     for (const module of modules.values()) {
         walk(module.ast, (node, ancestors) => {
             if (node.type !== 'ExpressionStatement') return;
@@ -260,15 +282,18 @@ export function scanDiscardedPromises(sources) {
             if (expr.type === 'ChainExpression') expr = expr.expression;
             if (expr.type !== 'CallExpression') return;
             if (!resolveCallee(module, expr.callee).some((fn) => promising.has(fn))) return;
-            const key = `${module.file} | ${enclosingName(ancestors)} | ${calleeText(expr.callee)}`;
-            counts[key] = (counts[key] ?? 0) + 1;
+            calls.push({
+                key: `${module.file} | ${enclosingName(ancestors)} | ${calleeText(expr.callee)}`,
+                inAsync: ancestors.findLast((n) => FUNCTION_TYPES.has(n.type))?.async === true,
+            });
         });
     }
-    return Object.fromEntries(Object.entries(counts).sort(([a], [b]) => a.localeCompare(b)));
+    return calls;
 }
 
 function calleeText(callee) {
     if (callee.type === 'Identifier') return callee.name;
+    if (callee.type === 'LogicalExpression') return calleeText(callee.right);
     return `${callee.object.name}.${callee.property.name}`;
 }
 
