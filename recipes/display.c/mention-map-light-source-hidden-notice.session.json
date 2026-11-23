@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2718411,
+      "datetime": "20310905031200",
+      "nethackrc": "OPTIONS=name:Tallow,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!acoustics,mention_map\nMSGTYPE=hide \"unknown creature causing you anxiety\"\n",
+      "moves": "\u001b\u001b\u001617\ntdhtdjtdktdl#wizintrinsic\n>v\r \u00078 peaceful sleeping lichen\ns\u0007fire vortex\n   ",
+      "comment": "Variation of mention-map-light-source-warning-notice with MSGTYPE=hide for the warning glyph's notice. pline.c vpline() (245-264) drops a hidden line before it reaches the vision recalculation at 266-272, so makemon.c makemon()'s canseemon() test (1479) still reads the dark square and prints no 'appears' message. The recalculation waits for the end of the command, and only '(2north): a +0 ya.' is printed."
+    }
+  ]
+}

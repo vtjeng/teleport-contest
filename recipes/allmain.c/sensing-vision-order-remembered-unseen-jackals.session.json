@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7730034,
+      "datetime": "20281102071500",
+      "nethackrc": "OPTIONS=name:Mistral,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u001b\u001b\u0017cursed scroll of light\nrg \u00074 tame jackal\n\u0007peaceful gold dragon\n\u00074 fog cloud\nssssssss",
+      "comment": "A Rogue darkens the first room with a cursed scroll of light, then creates four tame jackals, a peaceful gold dragon and four fog clouds. Jackals attack a fog cloud on a dark square two squares from the hero ('The jackal misses it.'), so mhitm.c (62-68) remembers an unseen monster there. In the same turn the gold dragon ends its move next to that square, and its light leaves vision_full_recalc set with no later message to spend it. allmain.c moveloop_core() (454-471) calls see_monsters() with the stale vision first, which keeps the remembered marker, and only then vision_recalc(), whose newsym() lets the marker override the cloud's gas region (display.c mon_overrides_region() 697-699) and draws the fog cloud as 'v'. Recalculating before see_monsters() draws '#' instead."
+    }
+  ]
+}

@@ -203,7 +203,7 @@ import {
 } from './symbols.js';
 import { Blind, Hallucination } from './youprop.js';
 import { lcase, lowc, strncmpi } from './hacklib.js';
-import { ttyPline } from './tty_message.js';
+import { queuedVplineVisionRecalc, ttyPline } from './tty_message.js';
 import { impossible } from './pline.js';
 import { NH_abort } from './end.js';
 
@@ -612,6 +612,21 @@ export function queueGlyphUpdateNotice(
 
     const description = describeGlyphUpdate(current, x, y, state);
     if (!description) return false;
+    const message = description.aborted ? null : messageAt(
+        `${description.firstmatch}.`,
+        x,
+        y,
+        state,
+        true,
+    );
+    // pline.c vpline() (266-272) spends a pending vision recalculation
+    // before it prints the line, so the recalculation's own notices queue
+    // first and this notice's frame is the map after it.
+    if (message !== null) {
+        const last = state._glyphUpdateNotices?.at(-1);
+        queuedVplineVisionRecalc(
+            message, last && !last.impossible ? last.message : null, state);
+    }
     const glyphFrame = takeNoticeGlyphFrame(state);
     // An aborted description ends the process inside C's show_glyph(); the
     // port ends it when the queue drains to this notice, after the notices
@@ -621,16 +636,9 @@ export function queueGlyphUpdateNotice(
         y,
         previous,
         current,
-        ...(description.aborted ? { abort: true } : {
-            message: messageAt(
-                `${description.firstmatch}.`,
-                x,
-                y,
-                state,
-                true,
-            ),
-        }),
+        ...(description.aborted ? { abort: true } : { message }),
         glyphFrame,
+        visionSpent: true,
     };
     (state._glyphUpdateNotices ??= []).push(notice);
     state._flushAfterQueuedNotice = null;
@@ -719,8 +727,12 @@ export async function emitGlyphUpdateNotices(state, env = {}) {
                 applyGlyphFrameChanges(state, notice.glyphFrame.changes, dirty);
             if (notice.abort) await NH_abort(state);
             if (notice.youBuf) (state.gy ??= {}).you_buf = notice.youBuf;
+            // queueGlyphUpdateNotice() ran this line's vpline() vision
+            // recalculation when it queued the line.
+            state._queuedNoticeVisionSpent = Boolean(notice.visionSpent);
             if (notice.impossible) await impossible(notice.message, state);
             else await pline(notice.message, state);
+            state._queuedNoticeVisionSpent = false;
             lastFlushedIndex = index;
             // ttyPline() normally performed this flush itself. Keep injected
             // callbacks and subsequent sparse frames source-equivalent too.
@@ -736,6 +748,7 @@ export async function emitGlyphUpdateNotices(state, env = {}) {
             );
         }
         state._emittingGlyphUpdateNotices = false;
+        state._queuedNoticeVisionSpent = false;
     }
     // The notices' own lines flushed the map as it stood when each arose.
     // C then flushed the later map again before this point; do the same.
