@@ -207,6 +207,7 @@ import {
     pmname,
     x_monnam,
     y_monnam,
+    minimal_monnam,
 } from './do_name.js';
 import { flooreffects, revive_corpse } from './do.js';
 import { cursed_object_at, finish_meating, quickmimic } from './dogmove.js';
@@ -714,7 +715,6 @@ import {
     t_at,
 } from './trap.js';
 import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 import { fmt_ptr } from './alloc.js';
 import { panic } from './end.js';
 import { unpunish } from './read.js';
@@ -754,6 +754,7 @@ import {
     runSimpleMonsterAction,
     wieldMonsterItemAgainstMonster,
 } from './unported_monster_actions.js';
+import { sync_impossible } from './source_steps.js';
 
 // movemon()'s callees default to the functions C calls; a caller may replace
 // any of them.
@@ -1365,11 +1366,13 @@ export function restore_cham(monster, state = game, rawEnv = {}) {
 // calling this. Under iflags.sanity_check or the debug fuzzer, C first
 // reports a holder that is not next to the hero through impossible(). This
 // function has 35 synchronous callers and cannot wait for that message, so
-// the port records the gap when the condition holds.
+// the port queues the report when the condition holds.
 export function set_ustuck(mtmp, state = game) {
     if ((state.iflags?.sanity_check || state.iflags?.debug_fuzzer)
         && mtmp && !m_next2u(mtmp, state))
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `Sticking to ${mon_nam(mtmp, state)} at distu ${(mtmp.mx - state.u.ux) ** 2 + (mtmp.my - state.u.uy) ** 2}?`,
+            state);
     state.disp ??= {};
     state.disp.botl = true;
     state.u.ustuck = mtmp;
@@ -4859,7 +4862,9 @@ export function m_detach(
 
         // mon.c m_detach():2791-2797
         if ((mtmp.mstate ?? 0) & MON_DETACH) {
-            note_unported('pline.c impossible');
+            sync_impossible(
+                `m_detach: ${minimal_monnam(mtmp, false, state)} is already detached?`,
+                state);
         } else {
             mtmp.mstate |= MON_DETACH;
             state.iflags ??= {};
@@ -6336,10 +6341,8 @@ export async function mon_to_stone(mtmp, state = game, env = {}) {
             await message('... and returns to normal.', state, env);
         }
     } else {
-        // C evaluates a_monnam() while constructing impossible()'s text. The
-        // diagnostic itself is a discarded pline.c result, so record the gap.
-        a_monnam(mtmp, { ...env, state });
-        note_unported('pline.c impossible');
+        await impossible(
+            `Can't polystone ${a_monnam(mtmp, { ...env, state })}!`, state, env);
     }
 }
 

@@ -446,6 +446,7 @@ import {
     HSee_invisible, HStun, Hallucination, Invis, Maybe_Half_Phys, Punished,
     Unchanging,
 } from './youprop.js';
+import { impossible } from './pline.js';
 
 
 // C refs: read.c erode_obj_text(), tshirt_text(), hawaiian_motif(),
@@ -3303,7 +3304,7 @@ export async function seffects(scroll, state = game, env = {}) {
         await seffect_stinking_cloud(scroll, state);
         break;
     default:
-        note_unported('pline.c impossible');
+        await impossible(`What weird effect is this? (${scroll.otyp})`, state, env);
         break;
     }
 

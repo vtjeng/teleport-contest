@@ -97,7 +97,6 @@ import {
 // wield.js holds the port's single reading of youprop.h:112 Glib. It imports
 // naming helpers from this file in turn; the cycle is safe because neither
 // side calls the other during module evaluation.
-import { note_unported } from './unported.js';
 import { ImpossibleCall, finish_steps, sync_impossible } from './source_steps.js';
 import { Blind, EWarn_of_mon, Glib } from './youprop.js';
 
@@ -304,12 +303,12 @@ export function simple_typename(otyp, state = game) {
 // C ref: objnam.c safe_typename() (310-330). A type name for debugging
 // feedback where the data may be suspect: an otyp out of range or without a
 // name gets "glorkum[otyp]" and its own impossible() report, which this
-// synchronous port records as unported; any other type is named as if fully
+// synchronous port queues; any other type is named as if fully
 // discovered.
 export function safe_typename(otyp, state = game) {
     if (otyp < STRANGE_OBJECT || otyp >= NUM_OBJECTS
         || !OBJ_NAME(state.objects[otyp], state)) {
-        note_unported('pline.c impossible');
+        sync_impossible(`safe_typename: glorkum[${otyp}]`, state);
         return `glorkum[${otyp}]`;
     }
     /* force it to be treated as fully discovered */
@@ -1693,7 +1692,8 @@ export function otense(otmp, verb, state = game) {
 // retains C's discarded impossible() path when a prefix exceeds PREFIX bytes.
 export function strprepend(s, pref) {
     if (Strlen_(pref, 'strprepend', 126) > PREFIX) {
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `PREFIX too short (for ${Strlen_(pref, 'strprepend', 126)}).`, game);
         return s;
     }
     return `${pref}${s}`;

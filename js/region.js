@@ -26,7 +26,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { on_level } from './dungeon.js';
-import { Monnam } from './do_name.js';
+import { Monnam, m_monnam } from './do_name.js';
 import { losehp } from './hack.js';
 import { dist2, textBytes } from './hacklib.js';
 import { makeplural } from './fruit.js';
@@ -57,11 +57,11 @@ import { cansee, block_point, does_block, unblock_point } from './vision.js';
 import { newsym } from './display.js';
 import { S_cloud, S_poisoncloud } from './symbols.js';
 import { TOWEL } from './objects.js';
-import { note_unported } from './unported.js';
 import {
     Blind, EMagical_breathing, HBlinded, HMagical_breathing, Maybe_Half_Phys,
     Poison_resistance,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 const MAX_CLOUD_SIZE = 150;
 const INSIDE_GAS_CLOUD = 'inside_gas_cloud';
@@ -227,7 +227,9 @@ export function add_mon_to_reg(region, monster) {
         if (monster.data?.pmidx !== PM_LONG_WORM) {
             // C: impossible("add_mon_to_reg: %s [#%u] already in region.",
             //               m_monnam(mon), mon->m_id);
-            note_unported('pline.c impossible');
+            sync_impossible(
+                `add_mon_to_reg: ${m_monnam(monster)} [#${monster.m_id}] already in region.`,
+                game);
         }
         return region;
     }

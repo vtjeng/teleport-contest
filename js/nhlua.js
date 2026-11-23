@@ -15,6 +15,7 @@ import {
     NHCORE_LEAVE_TUTORIAL,
     NUM_TIME_FUNCS,
 } from './const.js';
+import { impossible } from './pline.js';
 
 // C ref: nhlua.c nhcore_call_names[]. The JS port has no Lua VM: the
 // nhcore.lua callbacks a game reaches (getpos_tip, enter_tutorial,
@@ -146,7 +147,9 @@ export async function nhl_gamestate(reststate, state = game) {
     if (reststate !== Boolean(state.gmst_stored)) {
         // C calls impossible() for a save while stored or a restore with
         // nothing stored, then still runs update_inventory().
-        note_unported('pline.c impossible');
+        await impossible(
+            `nhl_gamestate: inconsistent state (${reststate ? 'restore' : 'save'} vs ${state.gmst_stored ? 'already stored' : 'not stored'})`,
+            state);
         modules.update_inventory({
             state, hooks: tutorialInventoryHooks(modules),
         });

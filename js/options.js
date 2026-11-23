@@ -283,11 +283,11 @@ import {
 import { reset_customsymbols } from './utf8map.js';
 import { add_menu_heading, choose_classes_menu, getlin, select_menu } from './windows.js';
 import { displayTtyTextWindow } from './tty_menu.js';
-import { note_unported } from './unported.js';
 import { choose_disco_sort } from './o_init.js';
 import { game } from './gstate.js';
 import { reset_glyphmap } from './display_glyphmap.js';
 import { zero_flag, zero_instance_flags } from './flag.js';
+import { sync_impossible } from './source_steps.js';
 
 const PET_NAME_BYTE_LIMIT = 62; // PL_PSIZ - 1
 const PLAYER_NAME_BYTE_LIMIT = 31; // PL_NSIZ - 1
@@ -7158,7 +7158,7 @@ export function oc_to_str(classes) {
     for (const oclass of classes) {
         if (oclass < 0 || oclass >= MAXOCLASSES) {
             // C: impossible("oc_to_str:  illegal object class %d", i);
-            note_unported('pline.c impossible');
+            sync_impossible(`oc_to_str:  illegal object class ${oclass}`, game);
         } else {
             dest += String.fromCharCode(
                 DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass],

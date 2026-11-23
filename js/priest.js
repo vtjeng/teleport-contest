@@ -115,7 +115,6 @@ import { incr_itimeout } from './potion.js';
 import { impossible_printer, livelog_printf, verbalize, youFeel } from './pline.js';
 import { mpickobj } from './steal.js';
 import { ttyPline } from './tty_message.js';
-import { note_unported } from './unported.js';
 
 import { rloc } from './teleport.js';
 import { which_armor } from './worn.js';
@@ -125,6 +124,7 @@ import { buzz } from './zap.js';
 import {
     Conflict, Deaf, Displaced, HProtection, Hallucination, Invis,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: priest.c local constants.
 const ALGN_SINNED = -4;
@@ -384,7 +384,8 @@ export function free_epri(monster) {
 export function forget_temple_entry(priest) {
     const epri_p = priest.ispriest ? EPRI(priest) : null;
     if (!epri_p) {
-        note_unported('pline.c impossible');
+        sync_impossible(
+            'attempting to manipulate shrine data for non-priest?', game);
         return;
     }
     epri_p.intone_time = epri_p.enter_time = epri_p.peaceful_time =
