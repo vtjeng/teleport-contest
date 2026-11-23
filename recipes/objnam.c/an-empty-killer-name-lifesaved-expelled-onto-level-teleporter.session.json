@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "Cheap variation on an-empty-killer-name-lifesaved-engulfed-over-lava: teleport.c level_tele() (1321) clears the killer name instead of a nested done(), so no 'Die?' answer is involved. A debug-mode gnomish Archeologist reaches experience level 8, puts on a blessed amulet of life saving, steps off the stairs, lets a hostile purple worm swallow him, and wishes a level teleporter under himself. The worm digests him: mhitu.c done_in_by() names the worm with KILLED_BY_AN, end.c done() uses up the amulet, savelife() expels him onto the trap, and level_tele() clears svk.killer.name on the way to its destination. The outer done() then calls topten.c formatkiller(), whose KILLED_BY_AN branch calls objnam.c an(\"\") and its pline.c impossible() report. The seed, clock, character, engulfer and inputs were chosen for this path.",
+  "segments": [
+    {
+      "seed": 5530962,
+      "datetime": "20290918163000",
+      "nethackrc": "OPTIONS=name:Anselm,role:Archeologist,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup\n",
+      "moves": "#levelchange\n8\n\u001b\u001b\u0017blessed amulet of life saving\n\u001bPj\u001bhh\u0007hostile purple worm\n\u001bm. m. \u0017level teleporter\n\u001bm. m. m.     c     i\u001b"
+    }
+  ]
+}

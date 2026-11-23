@@ -795,7 +795,17 @@ test('the() prefixes an article only where C does', () => {
     assert.equal(the('Excalibur'), 'Excalibur');
     // objnam.c the():2177-2180: an empty name is reported through
     // impossible() and answered with "the []".
-    assert.equal(the(''), 'the []');
+    const reported = {};
+    assert.equal(the('', reported), 'the []');
+    assert.equal(the(null, reported), 'the []');
+    // The reports wait on the notice queue (js/source_steps.js
+    // sync_impossible()) with C's format: "" for an empty name, <null> for
+    // a null pointer.
+    assert.deepEqual(
+        reported._glyphUpdateNotices.filter((notice) => notice.impossible)
+            .map((notice) => notice.message),
+        ["Alphabet soup: 'the(\"\")'.", "Alphabet soup: 'the(<null>)'."],
+    );
     // C's test is `*str < 'A' || *str > 'Z'`, so both ends of the range are
     // capitals and both enter the proper-name decisions rather than the
     // unconditional article arm.

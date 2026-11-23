@@ -39,7 +39,10 @@ const EXCEPTIONS = new Map([
     // sync_impossible() (2026-11-19).
     // 257: wintty.c render_status()'s condition-overflow report, which needs
     // a third status row that overflows without truncation_expected.
-    ['pline.c impossible', { count: 257, reason: IMPOSSIBLE }],
+    // 255: objnam.c an() and the() queue their "Alphabet soup" reports,
+    // which end.c done() prints for a killer name that a nested done() or
+    // level_tele() cleared (2026-11-22).
+    ['pline.c impossible', { count: 255, reason: IMPOSSIBLE }],
     // js/shknam.js shkname() must stay synchronous (its value is used inside
     // expressions) and js/end.js panic() never settles; no valid state
     // reaches the arm.

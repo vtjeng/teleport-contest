@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "objnam.c an() reports an empty name through pline.c impossible(). A debug-mode dwarvish Valkyrie reaches experience level 12, puts on a blessed amulet of life saving, lets a hostile ice vortex engulf her, wishes lava under herself, and sets a short Sick timeout with #wizintrinsic. The illness kills her inside the vortex: end.c done() uses up the amulet, savelife() expels her into the lava, where her small shield burns, and the nested done(BURNING) asks 'Die?'; n keeps her alive and clears svk.killer.name (end.c 1120). The outer done() then calls topten.c formatkiller(), whose KILLED_BY_AN branch calls an(\"\"): 'Alphabet soup: 'an(\"\")'.', 'Program in disorder!  (Saving and reloading may fix this problem.)' and 'Please report these messages to devteam@nethack.org.' print before 'You survived that attempt on your life.', with timeout.c done_timeout()'s FoodPois still on the status line. The seed, clock, character, engulfer and inputs were chosen for this path.",
+  "segments": [
+    {
+      "seed": 880417,
+      "datetime": "20310305101500",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=pettype:none,!autopickup\n",
+      "moves": "#levelchange\n12\n\u001b\u001b\u0017blessed amulet of life saving\n\u001bPe\u001b\u0007hostile ice vortex\n\u001bm.m.m.m.m.m.\u001b\u0017lava\n\u001b#wizintrinsic\n2e\r\u001bm.m.m.m.       n     i\u001b"
+    }
+  ]
+}

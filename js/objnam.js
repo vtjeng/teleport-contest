@@ -759,10 +759,14 @@ export function just_an(str) {
 }
 
 // C ref: objnam.c an() (2145-2156). An empty or missing name is reported
-// through impossible() and answered with "an []".
-export function an(str) {
+// through impossible() and answered with "an []". The report is queued
+// (source_steps.js sync_impossible()) on `state`, the game whose screen
+// prints it.
+export function an(str, state = game) {
     if (!str) {
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `Alphabet soup: 'an(${str != null ? '""' : '<null>'})'.`, state,
+        );
         return 'an []';
     }
     const article = just_an(str);
@@ -1599,7 +1603,9 @@ export function singular(otmp, func, state) {
 export function the(str, state = game) {
     // objnam.c the():2177-2180
     if (!str) {
-        note_unported('pline.c impossible');
+        sync_impossible(
+            `Alphabet soup: 'the(${str != null ? '""' : '<null>'})'.`, state,
+        );
         return 'the []';
     }
     if (lcase(str.slice(0, 4)) === 'the ')

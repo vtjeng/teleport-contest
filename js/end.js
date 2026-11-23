@@ -196,6 +196,7 @@ import { force_launch_placement, launch_in_progress } from './trap_effects.js';
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
+    emitQueuedNotices,
     ttyPline,
 } from './tty_message.js';
 import { tty_raw_print, tty_wait_synch } from './tty_rawprint.js';
@@ -788,6 +789,13 @@ export async function done(how, state = game, source = {}) {
             );
         } else {
             const killbuf = formatkiller(how, false, state, BUFSZ);
+            // topten.c formatkiller() can report through impossible():
+            // objnam.c an() for a killer name a nested done() cleared
+            // (end.c:1120). C prints it here, while timeout.c
+            // done_timeout()'s I_SPECIAL bit still shows on the status
+            // line; print the queued report (source_steps.js
+            // sync_impossible()) before returning.
+            await emitQueuedNotices(state);
             livelog_printf(
                 LL_LIFESAVE, `averted death (${killbuf})`, state,
             );
