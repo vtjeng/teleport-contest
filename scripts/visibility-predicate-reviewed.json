@@ -1,0 +1,338 @@
+{
+  "apply.c snuff_candle": {
+    "js": "",
+    "reason": "The site is (context.squareVisible ?? cansee)(...) in js/apply_splash_lit.js, which the token pattern does not read."
+  },
+  "apply.c snuff_lit": {
+    "js": "",
+    "reason": "The site is (context.squareVisible ?? cansee)(...), which the token pattern does not read."
+  },
+  "apply.c splash_lit": {
+    "js": "",
+    "reason": "Both sites are squareVisible ?? cansee and squareCouldSee ?? couldsee calls, which the token pattern does not read."
+  },
+  "apply.c catch_lit": {
+    "js": "",
+    "reason": "Both sites are (env.squareVisible ?? cansee)(...), which the token pattern does not read."
+  },
+  "apply.c use_whip": {
+    "js": "canspotmon",
+    "reason": "C's whipattack: label is the helper whipattack(), which holds the other two canspotmon() and the sensemon()."
+  },
+  "dbridge.c e_died": {
+    "js": "canspotmon canspotmon",
+    "reason": "The second canspotmon is the canSpotMonster passed to mhe() for the pronoun."
+  },
+  "detect.c mfind0": {
+    "js": "canspotmon canspotmon sensemon",
+    "reason": "JS keeps C's second and third canspotmon() in one variable; nothing between them changes it."
+  },
+  "display.c canseemon": {
+    "js": "canseemon cansee mon_visible",
+    "reason": "JS writes out display.h _canseemon(): cansee(), see_with_infrared() and mon_visible()."
+  },
+  "display.c magic_map_background": {
+    "js": "cansee canseemon",
+    "reason": "The canseemon is the callback handed to update_lastseentyp(), which C calls inside that function."
+  },
+  "display.c map_object": {
+    "js": "",
+    "reason": "cansee() is in the helper observeNearbyObject(), under the same condition."
+  },
+  "display.c newsym": {
+    "js": "cansee mon_visible sensemon mon_visible mon_visible",
+    "reason": "The extra sensemon and mon_visible are display.c mon_overrides_region() written inline and the update_lastseentyp() callback."
+  },
+  "do.c revive_corpse": {
+    "js": "cansee canseemon canseemon canseemon cansee canseemon canspotmon canspotmon canspotmon canseemon cansee cansee canspotmon",
+    "reason": "JS evaluates canseemon(monster) for the name and again for the verb where C branches once."
+  },
+  "do_name.c x_monnam": {
+    "js": "",
+    "reason": "canspotmon is in the helper x_monnam_do_it(), as env.canSpotMonster ?? canspotmon."
+  },
+  "dog.c wary_dog": {
+    "js": "",
+    "reason": "Both sites are (env.canSee ?? cansee) and (env.canSpot ?? canspotmon) calls, which the token pattern does not read."
+  },
+  "dogmove.c dog_starve": {
+    "js": "",
+    "reason": "The site is (rawEnv.canSee ?? cansee)(...), which the token pattern does not read."
+  },
+  "dogmove.c dog_hunger": {
+    "js": "",
+    "reason": "Both sites are (env.canSee ?? cansee) and (env.couldSee ?? couldsee) calls, which the token pattern does not read."
+  },
+  "dogmove.c dog_goal": {
+    "js": "couldsee couldsee",
+    "reason": "One couldsee is the default of the couldSee alias; the other is its one use, for in_masters_sight."
+  },
+  "dokick.c kick_door": {
+    "js": "verbose couldsee couldsee",
+    "reason": "The two couldsee are dokick.c watchman_thief_arrest() and watchman_door_damage() written inline."
+  },
+  "dothrow.c throwit": {
+    "js": "cansee cansee cansee canseemon cansee",
+    "reason": "The canseemon is the canSeeMonster callback passed to mpickobj()."
+  },
+  "explode.c scatter": {
+    "js": "cansee",
+    "reason": "Both fracture sites call isVisible, defined once as ops.canSee ?? cansee."
+  },
+  "fountain.c drinksink": {
+    "js": "canspotmon cansee",
+    "reason": "The cansee is a canSee callback in an env passed to a helper."
+  },
+  "getpos.c getpos": {
+    "js": "verbose verbose verbose",
+    "reason": "The third flags.verbose is a cursor-placement condition that C keeps in tty code."
+  },
+  "hack.c findtravelpath": {
+    "js": "couldsee couldsee",
+    "reason": "C's levl.seenv || (!Blind && couldsee()) is the helper travelSquareVisible(), called at each site."
+  },
+  "hack.c notice_mon": {
+    "js": "",
+    "reason": "The logic is js/startup_a11y.js canNoticeMonster() and updateMonsterNotice(), with the same two predicates."
+  },
+  "hack.c notice_all_mons": {
+    "js": "",
+    "reason": "js/startup_a11y.js collectMonsterNoticeMessages() tests canspotmon() for each monster in one pass."
+  },
+  "hack.c domove_core": {
+    "js": "canspotmon canspotmon",
+    "reason": "The mon_visible()/sensemon() run-stop test is the helper runStopsBeforeMonster()."
+  },
+  "makemon.c makemon": {
+    "js": "",
+    "reason": "The three sites are in the helper runtimeAppearanceMessage() in js/makemon_create.js, in C's order."
+  },
+  "mcastu.c mcast_insects": {
+    "js": "",
+    "reason": "The site is env.canseemon ?? canseemon, which the token pattern does not read."
+  },
+  "mhitu.c mswings": {
+    "js": "verbose",
+    "reason": "mon_visible is rawEnv.monsterVisible ?? mon_visible, which the token pattern does not read."
+  },
+  "mhitu.c wildmiss": {
+    "js": "cansee verbose cansee",
+    "reason": "The first cansee is the default of the canSee alias; its use follows flags.verbose as in C."
+  },
+  "mhitu.c mattacku": {
+    "js": "cansee sensemon",
+    "reason": "The three canspotmon sites are (env.canSpotMonster ?? canspotmon)(...), which the token pattern does not read."
+  },
+  "mhitu.c gulpmu": {
+    "js": "canseemon canspotmon mon_visible verbose",
+    "reason": "The three extra predicates build the env that names the engulfer."
+  },
+  "mhitu.c doseduce": {
+    "js": "canspotmon canseemon",
+    "reason": "The canspotmon builds the env that names the seducer; seewho is canseemon() as in C."
+  },
+  "minion.c msummon": {
+    "js": "canseemon canseemon canseemon",
+    "reason": "The third canseemon is the default of the seeMonster alias."
+  },
+  "mon.c minliquid": {
+    "js": "",
+    "reason": "The site is the helper liquidCanSeeMonster(), which defaults to canseemon()."
+  },
+  "mon.c minliquid_core": {
+    "js": "",
+    "reason": "The five sites call the helper liquidCanSee(), which defaults to cansee()."
+  },
+  "mon.c movemon_singlemon": {
+    "js": "canseemon",
+    "reason": "cansee is operations.canSeeSquare, a name the alias list does not include."
+  },
+  "mon.c m_consume_obj": {
+    "js": "canseemon canseemon canseemon",
+    "reason": "The third canseemon is the default of the canSeeMonster alias."
+  },
+  "mon.c meatobj": {
+    "js": "cansee verbose verbose verbose cansee",
+    "reason": "The last test is regrouped: one flags.verbose guards what C tests in two nested conditions."
+  },
+  "mon.c peacefuls_respond": {
+    "js": "couldsee canseemon verbose canseemon",
+    "reason": "The two canseemon are the env passed to monflee()."
+  },
+  "mon.c wake_msg": {
+    "js": "canseemon canseemon",
+    "reason": "The second canseemon is the default of the canSeeMonster alias."
+  },
+  "mon.c newcham": {
+    "js": "",
+    "reason": "Both sites are normalized.canSpotMonster in apply_newcham(), which defaults to canspotmon()."
+  },
+  "mon.c see_nearby_monsters": {
+    "js": "canseemon sensemon sensemon",
+    "reason": "The second sensemon is the env passed to see_monster_closeup()."
+  },
+  "monmove.c msg_mon_movement": {
+    "js": "",
+    "reason": "The test is in js/startup_a11y.js collectMonsterMovementMessage()."
+  },
+  "monmove.c dochugw": {
+    "js": "canspotmon",
+    "reason": "The second canspotmon and both couldsee are in the helper dochugwInterruptsOccupation()."
+  },
+  "monmove.c disturb": {
+    "js": "couldsee couldsee",
+    "reason": "The second couldsee is the env passed to wake_msg()."
+  },
+  "monmove.c monflee": {
+    "js": "couldsee canseemon couldsee canseemon",
+    "reason": "The couldsee and the first canseemon fill an env passed on; the message test is canseemon() as in C."
+  },
+  "monmove.c postmov": {
+    "js": "cansee cansee canspotmon verbose canseemon verbose canspotmon verbose canspotmon verbose canspotmon canseemon verbose canseemon",
+    "reason": "The extra canspotmon is the env passed to vamp_shift()."
+  },
+  "monmove.c set_apparxy": {
+    "js": "couldsee couldsee couldsee",
+    "reason": "The third couldsee is the destructured couldSee alias."
+  },
+  "muse.c use_offensive": {
+    "js": "canseemon cansee canspotmon cansee",
+    "reason": "C's fourth cansee() is in #if 0 (MUSE_SCR_FIRE), and JS handles the potion arm before the scroll of earth."
+  },
+  "music.c charm_snakes": {
+    "js": "canseemon canseemon canseemon",
+    "reason": "The third canseemon is the default of the canSeeMonster alias."
+  },
+  "music.c calm_nymphs": {
+    "js": "canseemon canseemon",
+    "reason": "The second canseemon is the default of the canSeeMonster alias."
+  },
+  "music.c awaken_soldiers": {
+    "js": "canseemon canseemon",
+    "reason": "The second canseemon is the default of the canSeeMonster alias."
+  },
+  "pager.c do_look": {
+    "js": "verbose verbose verbose verbose verbose",
+    "reason": "C reads and restores flags.verbose on one line; JS keeps it in savedVerbose."
+  },
+  "potion.c potionhit": {
+    "js": "cansee cansee canseemon cansee canseemon canspotmon canspotmon cansee canspotmon canseemon canseemon canseemon canseemon canseemon cansee",
+    "reason": "JS handles the healing and sickness arms after the switch; each site tests C's predicate."
+  },
+  "pray.c maybe_turn_mon_iter": {
+    "js": "couldsee couldsee couldsee canseemon",
+    "reason": "The extra couldsee and canseemon are the env passed to monflee()."
+  },
+  "priest.c move_special": {
+    "js": "",
+    "reason": "C's only cansee() is in #if 0."
+  },
+  "read.c doread": {
+    "js": "verbose verbose verbose verbose verbose verbose verbose verbose",
+    "reason": "C's one flags.verbose for the T-shirt's end punctuation and \"It reads:\" is two tests in JS."
+  },
+  "read.c seffect_scare_monster": {
+    "js": "cansee cansee",
+    "reason": "The second cansee is a canSee callback passed to a helper."
+  },
+  "region.c add_region": {
+    "js": "cansee cansee",
+    "reason": "The first cansee is the alias assignment from env.canSee."
+  },
+  "shk.c repair_damage": {
+    "js": "cansee canseemon cansee cansee",
+    "reason": "C tests cansee() in two switch arms that JS merges into one."
+  },
+  "sounds.c domonnoise": {
+    "js": "canspotmon canspotmon canspotmon",
+    "reason": "The extra canspotmon are the alias default and the canSpotMonster passed to mhis()."
+  },
+  "sounds.c dochat": {
+    "js": "canspotmon canspotmon canspotmon",
+    "reason": "C tests canspotmon() twice in one pline(); JS tests it once."
+  },
+  "sounds.c tiphat": {
+    "js": "couldsee canseemon canspotmon",
+    "reason": "The canspotmon is the alias passed to mhis()."
+  },
+  "spell.c deadbook_pacify_undead": {
+    "js": "cansee canseemon",
+    "reason": "The canseemon is the env passed to monflee()."
+  },
+  "topten.c tt_doppel": {
+    "js": "canseemon canseemon",
+    "reason": "JS uses an injected canSeeMonster, else canseemon()."
+  },
+  "trap.c erode_obj": {
+    "js": "cansee verbose",
+    "reason": "vismon is canseemon() through an env and visobj is cansee(); C's later tests read those variables."
+  },
+  "trap.c animate_statue": {
+    "js": "canspotmon cansee cansee",
+    "reason": "JS keeps C's three canspotmon(mon) in one variable; only a pline() lies between them."
+  },
+  "trap.c launch_obj": {
+    "js": "cansee cansee cansee cansee canseemon cansee cansee cansee cansee cansee",
+    "reason": "The canseemon is the env passed to mpickobj()."
+  },
+  "trap.c fire_damage": {
+    "js": "",
+    "reason": "in_sight is the helper floorFireVisible(): !Blind && couldsee(x, y)."
+  },
+  "uhitm.c known_hitum": {
+    "js": "verbose canseemon",
+    "reason": "The canseemon is the env passed to monflee()."
+  },
+  "uhitm.c mhitm_ad_drin": {
+    "js": "canspotmon canspotmon canspotmon canseemon",
+    "reason": "The third canspotmon is an env default."
+  },
+  "uhitm.c flash_hits_mon": {
+    "js": "canseemon canseemon verbose",
+    "reason": "The second canseemon is the env passed to monflee()."
+  },
+  "vault.c gd_move": {
+    "js": "cansee",
+    "reason": "canspotmon is in gd_move_proceed(); the cansee here is vault.c gd_pick_corridor_gold() written inline."
+  },
+  "weapon.c select_rwep": {
+    "js": "",
+    "reason": "Both sites call seesHeroLine(), which is normalized.couldSee ?? couldsee."
+  },
+  "weapon.c setmnotwielded": {
+    "js": "",
+    "reason": "canseemon() is in the helper endMonsterArtifactLight()."
+  },
+  "wizcmds.c wiz_telekinesis": {
+    "js": "",
+    "reason": "Both sites are (env.canspotmon ?? canspotmon)(...), which the token pattern does not read."
+  },
+  "worn.c update_mon_extrinsics": {
+    "js": "",
+    "reason": "Both sites are in the helper updateMonsterExtrinsicsCore()."
+  },
+  "worn.c m_dowear_type": {
+    "js": "",
+    "reason": "All five sites are in the helper applyMonsterArmorRuntime()."
+  },
+  "worn.c mon_break_armor": {
+    "js": "canspotmon",
+    "reason": "cansee() is in mon_break_armor_effects(); the canspotmon here builds the env for mhim() and mhis()."
+  },
+  "zap.c bhitm": {
+    "js": "canseemon canspotmon canseemon couldsee canseemon canseemon canseemon canseemon cansee canseemon cansee canseemon canseemon cansee canspotmon canspotmon canseemon canseemon canspotmon cansee canspotmon",
+    "reason": "JS orders the wand arms as an if/else chain and names a local couldSee; each of C's 19 sites tests C's predicate."
+  },
+  "zap.c dobuzz": {
+    "js": "cansee canspotmon cansee cansee",
+    "reason": "The monster arm, with its six sites, is the helper buzzmonst()."
+  },
+  "zap.c melt_ice": {
+    "js": "cansee cansee cansee",
+    "reason": "The third cansee is the default of the canSee alias."
+  },
+  "zap.c zap_over_floor": {
+    "js": "cansee cansee cansee cansee couldsee",
+    "reason": "The extra cansee are the env passed to melt_ice()."
+  }
+}
