@@ -4379,7 +4379,8 @@ export async function bhit(
                 return mtmp;
             }
         } else if (zapped && obj.otyp === WAN_PROBING
-            && glyph_is_invisible(glyph_at(x, y, state))) {
+            && glyph_is_invisible(
+                state.level.at(x, y)?.remembered_glyph?.glyph)) {
             // C zap.c:4039-4043 clears a remembered invisible marker when
             // probing confirms that the square no longer contains a monster.
             unmap_object(x, y, state);

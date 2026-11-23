@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8801,
+      "datetime": "20280914061500",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none\n",
+      "moves": "\u0017blessed amulet of magical breathing\nPe\u0017blindfold\n\u0017leash\n\u0007blue jelly\n\u0017pool\nPf\u001bagbagb",
+      "comment": "A Valkyrie wearing an amulet of magical breathing wishes for a leash, creates a blue jelly, which lands to her south-west, wishes a pool under herself, and puts on a blindfold; she sinks and the underwater display takes over. She applies the leash toward the unseen jelly twice. The first try fails in apply.c use_leash_core() (823-828) with \"You fail to leash something.\" and map_invisible(); allmain.c:432 under_water(0) then blanks the drawn square while levl[x][y].glyph keeps the 'I'. The second try reads that remembered 'I' and goes on to \"It cannot be leashed!\". The port read the drawn glyph and repeated the first message. The seed is the first of five consecutive seeds tried, from 8801; the clock, character and keys were chosen for this path."
+    }
+  ]
+}

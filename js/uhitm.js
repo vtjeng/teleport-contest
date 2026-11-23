@@ -2315,7 +2315,8 @@ export async function do_attack(monster, state = game, env = {}) {
     const y = state.u.uy + state.u.dy;
     if (state.context?.forcefight && monster.mhp >= 1
         && !canspotmon(monster, state)
-        && !glyph_is_invisible(glyph_at(x, y, state))
+        && !glyph_is_invisible(
+            state.level.at(x, y)?.remembered_glyph?.glyph)
         && !engulfing_u(monster, state)) {
         map_invisible(x, y, state);
     }

@@ -2062,7 +2062,7 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
     /* Move the boulder *after* the message. */
     // 206-207. Restore underlying memory before moving the boulder onto a
     // square that remembers an invisible monster.
-    if (glyph_is_invisible(glyph_at(rx, ry, state)))
+    if (glyph_is_invisible(state.level.at(rx, ry)?.remembered_glyph?.glyph))
         unmap_object(rx, ry, state);
     otmp.next_boulder = 0;
     movobj(otmp, rx, ry, state); /* does newsym(rx,ry) */
