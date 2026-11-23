@@ -13,7 +13,7 @@
 // tests keep one live table.
 
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -42,15 +42,18 @@ test('every caller of createCommandBindingModel() fills the live table', () => {
     // the table for a state a test built by hand; a call in any other form
     // would build a second table.
     const live = /state\.commandBindings \?\?= createCommandBindingModel\(state\)/gu;
-    const any = /createCommandBindingModel\(/gu;
-    const counts = {};
-    for (const name of ['cmd.js', 'getpos.js', 'hack.js', 'options.js', 'pager.js',
-        'tutorial_level.js']) {
+    const any = /(?<!function )createCommandBindingModel\(/gu;
+    const callers = [];
+    for (const name of readdirSync(new URL('../js/', import.meta.url))) {
+        if (!name.endsWith('.js')) continue;
         const text = source(name).replace(/^\s*\/\/.*$/gmu, '');
-        counts[name] = [(text.match(any) ?? []).length, (text.match(live) ?? []).length];
+        const calls = (text.match(any) ?? []).length;
+        if (!calls) continue;
+        callers.push(name);
+        assert.equal(calls, (text.match(live) ?? []).length, name);
     }
-    for (const [name, [calls, liveCalls]] of Object.entries(counts)) {
-        assert.ok(calls > 0, name);
-        assert.equal(calls, liveCalls, name);
-    }
+    // The tutorial is one of them; a scan that found no caller would pass
+    // while checking nothing.
+    assert.ok(callers.includes('tutorial_level.js'), callers.join(' '));
+    assert.ok(callers.length >= 6, callers.join(' '));
 });

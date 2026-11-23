@@ -95,9 +95,9 @@ function tutorialCommandKey(command, model) {
 
 function tutorialKeys(des, state) {
     let controlKey = null;
-    // C ref: nhlua.c nhl_get_cmd_key() -> cmd.c cmd_from_ecname(), which
-    // reads the live gc.Cmd table: a key the player rebound in play, before
-    // this level was made, is the key the engraving names.
+    // nh.eckey() asks cmd.c cmd_from_ecname(), which reads the live gc.Cmd
+    // table: a key the player rebound in play, before this level was made,
+    // is the key the engraving names.
     const commandBindings = des.eckey ? null : liveCommandBindings(state);
 
     function key(command) {

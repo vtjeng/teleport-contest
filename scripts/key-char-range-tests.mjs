@@ -116,6 +116,9 @@ function constantValue(node) {
         && node.callee.object.type === 'Literal'
         && typeof node.callee.object.value === 'string')
         return node.callee.object.value.charCodeAt(0);
+    // A named constant, such as KEY_ESC or MAXOCLASSES: its value is not
+    // read, so a test against one is never taken for half of a pair.
+    if (node.type === 'Identifier' && /^[A-Z][A-Z0-9_]*$/u.test(node.name)) return NaN;
     return null;
 }
 

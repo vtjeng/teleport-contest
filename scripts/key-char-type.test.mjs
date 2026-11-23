@@ -155,6 +155,9 @@ const TRACED_RANGE_TESTS = [
 
     // Not a key: a loop over all 256 key codes (cmd.c keylist_putcmds()),
     // a check that a list holds bytes, and a menu selection's return value.
+    // The scan follows a key by its source function or its name within one
+    // function, so it also meets other variables with those names, and it
+    // does not follow a key passed to another function under another name.
     ['cmd.js', 'keylist_func_has_key', 'key < 256'],
     ['cmd.js', 'keylist_putcmds', 'key < 256'],
     ['hacklib.js', 'bytesText', 'byte < 0'],
@@ -162,14 +165,16 @@ const TRACED_RANGE_TESTS = [
     ['restore.js', 'restore_menu', 'ch > 0'],
     ['restore.js', 'restore_menu', 'ch < 0'],
     ['restore.js', 'restore_menu', 'ch > 0'],
+    // A screen column, named c as in wintty.c.
+    ['wintty.js', 'tty_status_cl_end', 'c < COLNO'],
 ];
 
 test('every one-sided range test on a key is traced to C', () => {
     const key = ([file, fn, text]) => `${file} ${fn} ${text}`;
     const found = scanRepository().map(({ file, fn, test: text }) => key([file, fn, text]));
-    // 20 tests. A new one needs its C line here, or signed_char() if C makes
+    // 21 tests. A new one needs its C line here, or signed_char() if C makes
     // the test on a char.
-    assert.equal(TRACED_RANGE_TESTS.length, 20);
+    assert.equal(TRACED_RANGE_TESTS.length, 21);
     assert.deepEqual(found.sort(), TRACED_RANGE_TESTS.map(key).sort());
 });
 
@@ -188,7 +193,8 @@ test('the scan finds one-sided tests and passes two-sided ones', () => {
         "    if (c < ' ') return 2;", // 10: a key held as text
         '    if (0x20 <= key && key < 0x7f) return 3;', // both ends, mirrored
         '    if (key >= 0x20 && key <= 0xff) return 4;', // 12, 12: an end past 0x7F
+        '    if (key < MAX_KEY) return 5;', // 13: a named constant
         '    return count < 5;', // not a key
         '}',
-    ].join('\n')), [3, 5, 9, 10, 12, 12]);
+    ].join('\n')), [3, 5, 9, 10, 12, 12, 13]);
 });
