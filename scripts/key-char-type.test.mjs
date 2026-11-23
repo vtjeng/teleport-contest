@@ -152,7 +152,6 @@ const TRACED_RANGE_TESTS = [
     ['termcap.js', 'nomux_putch_byte', 'byte < 0x80'],
     ['tty_menu.js', 'writeStyledText', 'byte >= 0x80'],
     ['tty_rawprint.js', 'nomux_raw_write', 'byte >= 32'],
-    ['display.js', '_statusPlayerName', 'byte < 0x80'],
 
     // Not a key: a loop over all 256 key codes (cmd.c keylist_putcmds()),
     // a check that a list holds bytes, and a menu selection's return value.
@@ -168,9 +167,9 @@ const TRACED_RANGE_TESTS = [
 test('every one-sided range test on a key is traced to C', () => {
     const key = ([file, fn, text]) => `${file} ${fn} ${text}`;
     const found = scanRepository().map(({ file, fn, test: text }) => key([file, fn, text]));
-    // 21 tests. A new one needs its C line here, or signed_char() if C makes
+    // 20 tests. A new one needs its C line here, or signed_char() if C makes
     // the test on a char.
-    assert.equal(TRACED_RANGE_TESTS.length, 21);
+    assert.equal(TRACED_RANGE_TESTS.length, 20);
     assert.deepEqual(found.sort(), TRACED_RANGE_TESTS.map(key).sort());
 });
 
