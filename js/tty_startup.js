@@ -24,7 +24,6 @@ export function renderTtyStartupBanner(state = game) {
     const display = state.nhDisplay;
     if (!display) return;
 
-    display.clearScreen();
     // C ref: wintty.c tty_init_nhwindows() prints copyright_banner_line(1)
     // to (4) from row 4.
     for (let i = 1; i <= 4; i++) {

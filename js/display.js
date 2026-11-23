@@ -34,7 +34,7 @@ import { select_menu, getlin, ttyMenuColorAttribute } from './windows.js';
 import { query_color, query_attr, clr2colorname } from './coloratt.js';
 import { STATUS_FIELDS, STATUS_CONDITIONS, STATUS_CONDITION_ALIASES } from './status_field_data.js';
 import {
-    erase_status_rows,
+    tty_clear_map_window,
     tty_status_cl_end_screen_row,
     tty_status_flush,
     tty_status_paint,
@@ -7987,8 +7987,8 @@ export async function cls() {
         }
         game.disp ??= {};
         game.disp.botlx = true;
-        if (display?.clearScreen) display.clearScreen();
-        erase_status_rows(game);
+        // clear_nhwindow(WIN_MAP).
+        tty_clear_map_window(game);
         // C's cls() clears both the physical terminal and its pending glyph
         // buffer.  disp_* is the JS glyph-buffer owner; leaving it populated lets
         // the next flush reconstruct dungeon cells which were meant to stay

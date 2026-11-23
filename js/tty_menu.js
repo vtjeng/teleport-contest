@@ -504,7 +504,7 @@ export async function displayTtyMenuTextWindow(
         const promptRow = pageLines.length;
 
         if (layout.clearsScreen || pageIndex > 0)
-            term_clear_screen(state, display);
+            term_clear_screen(state);
         for (let row = 0; row < pageLines.length; ++row) {
             clearRowFrom(display, layout.firstColumn, row);
             const line = pageLines[row];
@@ -802,7 +802,7 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
         maxrow: layout.maxrow,
     };
 
-    if (layout.fullScreen) term_clear_screen(state, display);
+    if (layout.fullScreen) term_clear_screen(state);
     else clearRegion(display, layout.firstColumn, visibleRows);
 
     // process_menu_window() decides once from the complete linked menu, before
@@ -884,9 +884,8 @@ export async function dismissTtyMenu(state = game, rendered) {
     if (!display || !rendered) return;
     if (rendered.base.fullScreen) {
         if (state.program_state?.in_role_selection) {
-            display.clearScreen();
-            const base = baseWindow(state);
-            base.curx = base.cury = 0;
+            // erase_menu_or_text()'s `clear` branch (wintty.c:975-976).
+            term_clear_screen(state);
         } else {
             await erase_menu_or_text(
                 state, display, rendered.snapshot, rendered.baseCursor,
@@ -996,7 +995,7 @@ export async function displayTtyTextWindow(state = game, lines) {
     const baseCursor = [display.cursorCol, display.cursorRow];
 
     if (maxrow >= display.rows || !menuOverlay(state)) {
-        term_clear_screen(state, display);
+        term_clear_screen(state);
     } else {
         // A window short enough to overlay clears only the message window
         // here, the same clear renderTtyMenu() performs for a corner menu.
@@ -1017,7 +1016,7 @@ export async function displayTtyTextWindow(state = game, lines) {
                 cancelled = true;
                 break;
             }
-            term_clear_screen(state, display);
+            term_clear_screen(state);
             n = 0;
         }
         const line = lines[i];
