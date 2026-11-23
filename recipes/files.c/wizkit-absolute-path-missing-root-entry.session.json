@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c read_wizkit() -> fopen_wizkit_file() in debug mode with WIZKIT naming an absolute path whose first component is no entry of the host's root directory: access() fails with ENOENT, so C raw_printf()s \"Access to /quillwort/kit.txt denied (2).\" and wait_synch()s, then fopen(\"$HOME//quillwort/kit.txt\") fails with ENOENT too, which is silent. Seed, date, gnomish Healer and path chosen independently.",
+  "segments": [
+    {
+      "seed": 55093118,
+      "datetime": "20370819213000",
+      "nethackrc": "OPTIONS=name:Quill,role:Healer,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=/quillwort/kit.txt\n",
+      "moves": "    i  "
+    }
+  ]
+}

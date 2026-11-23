@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_wizkit_file() with WIZKIT=/.nethackrc: the root directory holds no such entry, so access() fails with ENOENT and C reports \"Access to /.nethackrc denied (2).\"; it then opens \"$HOME//.nethackrc\", the configuration file itself, and read_wizkit() wishes for its two item lines (which initoptions() first reported as \"Not a config statement\"). Seed, date, Samurai and items chosen independently.",
+  "segments": [
+    {
+      "seed": 55093119,
+      "datetime": "20370820213000",
+      "nethackrc": "OPTIONS=name:Quill,role:Samurai,race:human,gender:female,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=/.nethackrc\n# kit items\n3 cursed scrolls of teleportation\nblessed +1 elven dagger\n",
+      "moves": "\n     i    "
+    }
+  ]
+}
