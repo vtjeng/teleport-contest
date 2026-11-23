@@ -1175,19 +1175,20 @@ function sourceChoiceSelector(line) {
 // accelerator only when that count is exactly one.  Gold's '$', which is its
 // own selector under USE_INVLET, is therefore counted zero times and is not a
 // group accelerator: '$' picks gold only as a selector, on gold's own page.
-// The value is that of the one counted entry.  Two parts of the C are not
-// represented: invert_all() also toggles an entry that carries the
-// accelerator as its own selector, and gcnt[] also counts an entry with a
-// zero identifier, which selectableItems() leaves out here as it does for
-// PICK_ANY.
+//
+// Each accelerator maps to `items`, every entry invert_all() toggles: the
+// counted entry and any entry that carries the accelerator as its own
+// selector.  `value` is that of the first, which is the first selection
+// tty_select_menu() returns.  One part of the C is not represented: gcnt[]
+// also counts an entry with a zero identifier, which selectableItems()
+// leaves out here as it does for PICK_ANY.
 function pickOneGroupChoices(spec) {
     if (spec.items) {
         const items = selectableItems(spec);
         const grouped = new Map();
         for (const ch of menuGroupAccelerators(items, PICK_ONE)) {
-            grouped.set(ch, items.find((item) => (
-                item.groupSelector === ch && item.selector !== ch
-            )).value);
+            const group = items.filter((item) => item.groupSelector === ch);
+            grouped.set(ch, { value: group[0].value, items: group });
         }
         return grouped;
     }
@@ -1196,9 +1197,9 @@ function pickOneGroupChoices(spec) {
     const lineSelectors = new Set(
         (spec.lines ?? []).map(sourceChoiceSelector).filter(Boolean),
     );
-    return new Map([...choices].filter(([selector]) => (
-        !lineSelectors.has(selector)
-    )));
+    return new Map([...choices]
+        .filter(([selector]) => !lineSelectors.has(selector))
+        .map(([selector, value]) => [selector, { value, items: [] }]));
 }
 
 // C ref: wintty.c process_menu_window(). resp[] collects the selector of
@@ -1207,7 +1208,15 @@ function pickOneGroupChoices(spec) {
 // menu. An entry with a zero identifier comes back from tty_select_menu()
 // as one selected item whose identifier is zero, which this port returns as
 // 0, the zeroany a_int its only caller (dungeon.c tport_menu()) reads.
+//
+// The default arm tests gacc[] before it looks for a selector (1741-1749),
+// so a key that is both a unique group accelerator and a selector on this
+// page toggles the group.  `group` is that group's entry in groupChoices.
 function visiblePickOneChoice(rendered, spec, groupChoices, ch) {
+    if (groupChoices.has(ch)) {
+        const group = groupChoices.get(ch);
+        return { found: true, value: group.value, group };
+    }
     const explicitLine = rendered.layout.lines.find((line) => (
         line.item
             ? line.item.selector === ch
@@ -1228,9 +1237,6 @@ function visiblePickOneChoice(rendered, spec, groupChoices, ch) {
         if (explicitLine && choices.has(ch)) {
             return { found: true, value: choices.get(ch) };
         }
-    }
-    if (groupChoices.has(ch)) {
-        return { found: true, value: groupChoices.get(ch) };
     }
     return { found: false, value: undefined };
 }
@@ -1341,6 +1347,13 @@ async function selectOneTtyMenu(state, spec) {
         }
         return spec.returnCount ? { value, count: count ?? -1 } : value;
     };
+    // invert_all() with the group accelerator (wintty.c:1745-1746): every
+    // entry of the group is toggled, with the pending count if there is one.
+    const selectedGroup = (group, count = pendingCount) => {
+        if (!spec.returnSelections) return selectedValue(group.value, count);
+        invertItems(state, group.items, count, true);
+        return selectedRows();
+    };
     for (;;) {
         const code = await menuKey(state);
         const incoming = keyCharacter(code);
@@ -1358,7 +1371,9 @@ async function selectOneTtyMenu(state, spec) {
                 continue;
             }
             await dismissTtyMenu(state, rendered);
-            return selectedValue(explicit.value);
+            return explicit.group
+                ? selectedGroup(explicit.group)
+                : selectedValue(explicit.value);
         }
 
         const mapping = menuCommandMapping(state, incoming);
@@ -1466,7 +1481,7 @@ async function selectOneTtyMenu(state, spec) {
         // this page, and never falls through to here.
         if (!MENU_SWITCH_COMMANDS.has(ch) && groupChoices.has(ch)) {
             await dismissTtyMenu(state, rendered);
-            return selectedValue(groupChoices.get(ch));
+            return selectedGroup(groupChoices.get(ch));
         }
 
         // xwaitforspace() rejects an unknown byte internally, without
