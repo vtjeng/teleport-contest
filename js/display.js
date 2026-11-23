@@ -4089,9 +4089,15 @@ export function see_nearby_objects(state = game, { redraw = null } = {}) {
     }
 }
 
+// C ref: display.c map_object() (339-351). C asks whether the glyph is a
+// generic one, not whether the object is: glyph_is_generic_object() starts
+// above GLYPH_OBJ_OFF, so the class-zero glyph that detect.c
+// object_detect() gets for a mimic's gem or spellbook disguise (a copy of
+// cg.zeroobj with only the type set) is left unobserved and stays ']'.
 function observeNearbyObject(object, x, y, state) {
     if (Hallucination(state.u)
         || !object_is_generic(object)
+        || !glyph_is_generic_object(generic_obj_to_glyph(object, state))
         || !cansee(x, y, state)) return;
     const radius = state.u?.xray_range > 2 ? state.u.xray_range : 2;
     const nearDistance = radius * radius * 2 - radius;
