@@ -33,7 +33,7 @@ const REVIEWED = JSON.parse(readFileSync(
 // Functions whose sequences differ and were compared by hand on 23 November
 // 2026. Lower this when an entry is removed; give a reason in the JSON file
 // for each one added.
-const REVIEWED_COUNT = 84;
+const REVIEWED_COUNT = 83;
 
 // C functions that test a predicate and have no JS function of the same
 // name, so the scan compares nothing for them:

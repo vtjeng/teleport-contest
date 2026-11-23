@@ -193,6 +193,7 @@ import {
     Resists_Elem,
     throws_rocks,
     your_race,
+    eyecount,
 } from './mondata.js';
 import { makeplural } from './fruit.js';
 import {
@@ -202,8 +203,6 @@ import {
     PM_CLERIC,
     PM_MONK,
     PM_WIZARD,
-    PM_CYCLOPS,
-    PM_FLOATING_EYE,
     PM_KNIGHT,
     PM_ACID_BLOB,
     PM_WRAITH,
@@ -1596,8 +1595,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
         let eyes = body_part(EYE, state.youmonst);
         const cureDeaf = Boolean(HDeaf(state.u) & TIMEOUT);
         if (Blinded(state.u)) {
-            const pmidx = state.youmonst?.data?.pmidx;
-            if (pmidx !== PM_FLOATING_EYE && pmidx !== PM_CYCLOPS)
+            if (eyecount(state.youmonst.data) !== 1)
                 eyes = makeplural(eyes);
             msgbuf = `Your ${eyes} ${vtense(eyes, 'feel')} better`;
             state.u.ucreamed = 0;

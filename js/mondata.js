@@ -232,6 +232,12 @@ export function ceiling_hider(species) {
             || is_flyer(species));
 }
 export function haseyes(species) { return !flag1(species, M.M1_NOEYES); }
+// C ref: mondata.h eyecount() (48-51).
+export function eyecount(species) {
+    return !haseyes(species) ? 0
+        : (species.pmidx === M.PM_CYCLOPS
+            || species.pmidx === M.PM_FLOATING_EYE) ? 1 : 2;
+}
 
 // C ref: mondata.c resists_blnd_by_arti() (278-303).  Artifact defenses are
 // checked separately from ordinary blindness resistance because can_blnd()

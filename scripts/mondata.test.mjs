@@ -1,7 +1,7 @@
 import { takeQueuedReports } from './queued-reports.mjs';
 import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -39,6 +39,7 @@ import {
     flesh_petrifies,
     flaming,
     get_atkdam_type,
+    eyecount,
     haseyes,
     hides_under,
     humanoid,
@@ -871,6 +872,12 @@ test('movement predicates are exact projections of permonst flags', () => {
             );
         }
         assert.equal(haseyes(species), !(species.mflags1 & M1_NOEYES));
+        // mondata.h:48-51 eyecount(): 0 without eyes, 1 for the Cyclops and
+        // the floating eye, 2 for every other species.
+        assert.equal(eyecount(species),
+            species.mflags1 & M1_NOEYES ? 0
+                : species.pmidx === M.PM_CYCLOPS
+                    || species.pmidx === M.PM_FLOATING_EYE ? 1 : 2);
         assert.equal(verysmall(species), species.msize < MZ_SMALL);
         assert.equal(bigmonst(species), species.msize >= MZ_LARGE);
         assert.equal(
@@ -1474,3 +1481,34 @@ test('get_atkdam_type rolls only a random breath, in the source array order',
             assert.equal(get_atkdam_type(adtyp, refuse), adtyp, `${adtyp}`);
         }
     });
+
+test('eyecount() counts eyes as mondata.h does', () => {
+    // mondata.h:48-51. One species per arm: the lichen has M1_NOEYES
+    // (monsters.h), the Cyclops and the floating eye are the two named
+    // one-eyed species, and the gas spore and the newt are ordinary sighted
+    // species that take the default of two.
+    for (const [pm, count] of [
+        [M.PM_LICHEN, 0],
+        [M.PM_CYCLOPS, 1],
+        [M.PM_FLOATING_EYE, 1],
+        [M.PM_GAS_SPORE, 2],
+        [M.PM_NEWT, 2],
+    ]) {
+        assert.equal(eyecount(M.MONSTER_TEMPLATES[pm]), count, `pm ${pm}`);
+    }
+});
+
+test('only eyecount() tests for the two one-eyed species together', () => {
+    // Nine sites once wrote mondata.h eyecount() out as a test of PM_CYCLOPS
+    // and PM_FLOATING_EYE, some without its haseyes() arm. A file that
+    // mentions both constants within 200 characters, which is longer than
+    // any of those copies, is writing the macro out again. js/monsters.js
+    // defines the constants and import lists hold them side by side.
+    const dir = new URL('../js/', import.meta.url);
+    const pair = /PM_CYCLOPS[\s\S]{0,200}PM_FLOATING_EYE|PM_FLOATING_EYE[\s\S]{0,200}PM_CYCLOPS/u;
+    const files = readdirSync(dir)
+        .filter((name) => name.endsWith('.js') && name !== 'monsters.js')
+        .filter((name) => pair.test(readFileSync(new URL(name, dir), 'utf8')
+            .replace(/import\s*\{[^}]*\}\s*from\s*'[^']*';/gu, '')));
+    assert.deepEqual(files, ['mondata.js']);
+});

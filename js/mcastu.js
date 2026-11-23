@@ -66,7 +66,7 @@ import {
     mhe,
     nonliving,
     type_is_pname,
-    haseyes,
+    eyecount,
 } from './mondata.js';
 import {
     AD_COLD,
@@ -75,8 +75,6 @@ import {
     AD_FIRE,
     AD_MAGM,
     AD_SPEL,
-    PM_CYCLOPS,
-    PM_FLOATING_EYE,
     S_ANT,
     S_SNAKE,
 } from './monsters.js';
@@ -1184,10 +1182,7 @@ async function mcast_blind_you(env = {}) {
     const message = env.message ?? ttyPline;
 
     if (!Blinded(state.u)) {
-        const species = state.youmonst.data;
-        const numEyes = !haseyes(species) ? 0
-            : (species.pmidx === PM_CYCLOPS
-                || species.pmidx === PM_FLOATING_EYE) ? 1 : 2;
+        const numEyes = eyecount(state.youmonst.data);
         let eyes = body_part(EYE, state.youmonst);
         if (numEyes !== 1) eyes = makeplural(eyes);
 

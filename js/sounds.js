@@ -111,7 +111,7 @@ import {
 import { cursed } from './do_wear.js';
 import {
     capitalizedMonsterName,
-    monsterCommonName,
+    mon_nam,
     noveltitle,
     pmname,
     rndmonnam,
@@ -1565,7 +1565,7 @@ async function dochat(state) {
         const xresponse = humanoid(state.youmonst.data)
             ? 'falls on deaf ears' : 'is inaudible';
         const name = canspotmon(mtmp, state)
-            ? ` from ${monsterCommonName(mtmp, state)}` : '';
+            ? ` from ${mon_nam(mtmp, state)}` : '';
         await ttyPline(`Any response${name} ${xresponse}.`, state);
         return ECMD_OK;
     }

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Variation of dobuzz-disintegrated-shield-far: ^T places the hero two squares from the first orc (dist2 4, inside distant_name()'s near range of 6), so xname() sets dknown and prints that shield's description; an orc further up the ray is still named from afar.",
+  "segments": [
+    {
+      "seed": 4471903,
+      "datetime": "20120306101500",
+      "nethackrc": "OPTIONS=name:Shieldnear,role:Wizard,race:human,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,!autopickup\n",
+      "moves": "#levelchange\n10\n            #polyself\nblack dragon\n     #wizgenesis\nsleeping Mordor orc\n#wizgenesis\nsleeping Mordor orc\n#wizgenesis\nsleeping Mordor orc\n#wizgenesis\nsleeping Mordor orc\n#wizgenesis\nsleeping Mordor orc\n#wizgenesis\nsleeping Mordor orc\n\u0014  ljj.#monster\nk      "
+    }
+  ]
+}

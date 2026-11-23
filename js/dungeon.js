@@ -1866,8 +1866,6 @@ export function surface(x, y, state = game) {
         return 'ground';
 }
 
-// C ref: dungeon.c update_lastseentyp(). A caller may supply its own
-// canSeeMonster; without one this tests canseemon(), as C does.
 // C ref: svl.lastseentyp[COLNO][ROWNO], the terrain type the hero last saw at
 // each square. It is one game-wide grid, not part of the level structure:
 // init_mapseen() clears it for a newly made level, savelev() and getlev()
@@ -1888,19 +1886,15 @@ export function copy_lastseentyp_grid(grid) {
     return grid ? grid.map((column) => [...column]) : new_lastseentyp_grid();
 }
 
-export function update_lastseentyp(
-    x,
-    y,
-    state = game,
-    { canSeeMonster = canseemon } = {},
-) {
+// C ref: dungeon.c update_lastseentyp() (2925-2938).
+export function update_lastseentyp(x, y, state = game) {
     const location = state.level?.at(x, y);
     if (!location) return STONE;
     let typ = surface_typ(location);
     const monster = state.level?.monsters?.[x]?.[y] ?? null;
     if (monster
         && (monster.m_ap_type & M_AP_TYPMASK) === M_AP_FURNITURE
-        && canSeeMonster(monster, state)) {
+        && canseemon(monster, state)) {
         typ = cmap_to_type(monster.mappearance);
     }
     lastseentyp_grid(state)[x][y] = typ;

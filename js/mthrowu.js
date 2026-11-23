@@ -132,6 +132,7 @@ import {
     is_orc,
     is_prince,
     monsndx,
+    eyecount,
 } from './mondata.js';
 import {
     AD_ACID,
@@ -142,8 +143,6 @@ import {
     AT_SPIT,
     AT_WEAP,
     MZ_TINY,
-    PM_CYCLOPS,
-    PM_FLOATING_EYE,
     PM_MONK,
     PM_ROGUE,
     PM_STONE_GOLEM,
@@ -1048,8 +1047,7 @@ export async function m_throw(monster, x, y, dx, dy, range, obj, rawEnv = {}) {
                         }
                     } else if (Blind(state.u)) {
                         let eyes = body_part(EYE, state.youmonst);
-                        const pmidx = state.youmonst.data?.pmidx;
-                        if (pmidx !== PM_CYCLOPS && pmidx !== PM_FLOATING_EYE)
+                        if (eyecount(state.youmonst.data) !== 1)
                             eyes = makeplural(eyes);
                         await env.message(
                             `Your ${eyes} ${vtense(eyes, 'sting')}.`,

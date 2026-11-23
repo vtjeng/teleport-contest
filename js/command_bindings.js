@@ -1,5 +1,6 @@
 // command_bindings.js -- Source command-key binding state.
-// C ref: cmd.c extcmdlist[], commands_init(), and reset_commands().
+// C ref: cmd.c extcmdlist[], commands_init(), reset_commands(), and
+// cmd_from_func().
 
 import { CMD_PARAM, extcmdlist } from './extcmdlist_data.js';
 import { push_front, lcase, ucase } from './hacklib.js';
@@ -8,6 +9,10 @@ import { push_front, lcase, ucase } from './hacklib.js';
 // carrying a nonzero key. Keeping that order matters because rebinding an
 // existing key does not move its linked-list node while binding a new key
 // inserts at the head.
+export const EXTCMD_BY_NAME = new Map(
+    extcmdlist.map((entry) => [entry.ef_txt, entry]),
+);
+
 const SOURCE_EXTENDED_COMMAND_DEFAULTS = Object.freeze(
     extcmdlist.filter((entry) => entry.key)
         .map((entry) => Object.freeze([entry.key, entry.ef_txt])),
@@ -267,7 +272,7 @@ function resetCommandBindings(
     // the key cmd_from_func(doextcmd) finds as each reset ends. A later
     // BIND or in-game rebinding of '#' leaves it alone, so the prompt
     // character extcmd_initiator() answers is the one the last reset found.
-    model.extcmdChar = keyForCommand(model, '#');
+    model.extcmdChar = cmd_from_func('doextcmd', null, model);
 }
 
 export function resetCommandBindingModel(
@@ -371,27 +376,52 @@ export function commandForKey(model, key) {
     return bindingAt(model.bindings, key)?.command ?? null;
 }
 
-// C ref: cmd.c cmd_from_func(). cmdbinds is ordered newest-first, just like
-// model.bindings. Prefer the first printable non-space binding, retain the
-// last control/meta binding as a fallback, and use Space only as a last
-// resort. The fight-command '-' exception is irrelevant to current callers.
-export function keyForCommand(model, command) {
-    let fallback = 0;
+// C ref: cmd.c cmd_from_func() (3036-3066), the key bound to the extended
+// command whose handler is `fn`. `fn` is the handler's name (ef_funct), a
+// function of that name, or an extcmdlist entry. `model` stands for gc.Cmd;
+// reset_commands() passes the model it is still building, and every other
+// caller leaves it to come from `state`.
+//
+// model.bindings is ordered newest-first like cmdbinds. A Cmd_bind node's
+// `cmd` is its command's extcmdlist entry; update_rest_on_space()'s
+// `restonspace` clone keeps the ef_funct of the 'wait' entry it copies.
+export function cmd_from_func(
+    fn,
+    state,
+    model = (state.commandBindings ??= createCommandBindingModel(state)),
+) {
+    const name = typeof fn === 'string' ? fn
+        : typeof fn?.ef_funct === 'string' ? fn.ef_funct
+            : typeof fn?.name === 'string' ? fn.name : null;
+    const handles = (binding) => name !== null
+        && EXTCMD_BY_NAME.get(binding?.command)?.ef_funct === name;
+    const space = commandKeyCode(' ');
+    let ret = 0;
     for (const binding of model.bindings) {
         const key = binding.key & 0xFF;
-        if (key === commandKeyCode(' ')) continue;
+        /* skip space; we'll use it below as last resort if no other
+           keystroke invokes space's command */
+        if (key === space) continue;
+        /* skip digits if number_pad is Off; also skip '-' unless it has
+           been bound to something other than what number_pad assigns */
         if (((key >= commandKeyCode('0') && key <= commandKeyCode('9'))
-                || (key === commandKeyCode('-') && command === 'fight'))
+                || (key === commandKeyCode('-') && name === 'do_fight'))
             && !model.numPad) {
             continue;
         }
-        if (binding.command !== command) continue;
+        if (!handles(binding)) continue;
         if (key >= 0x20 && key <= 0x7E) return key;
-        fallback = key;
+        ret = key;
     }
-    if (bindingAt(model.bindings, commandKeyCode(' '))?.command === command)
-        return commandKeyCode(' ');
-    return fallback;
+    if (handles(bindingAt(model.bindings, space))) return space;
+    return ret;
+}
+
+// cmd_from_func() for a caller that names the command by its ef_txt, as the
+// binding model does, where C passes the handler.
+export function keyForCommand(model, command) {
+    return cmd_from_func(
+        EXTCMD_BY_NAME.get(command)?.ef_funct ?? null, null, model);
 }
 
 export function visibleCommandKey(code) {

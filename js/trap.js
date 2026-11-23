@@ -214,8 +214,7 @@ import { schedule_goto } from './do.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { check_leash, number_leashed, unleash_all } from './apply.js';
 import { done } from './end.js';
-import {
-    canseemon, feel_newsym, rank_of, map_invisible, under_water,
+import { feel_newsym, rank_of, map_invisible, under_water,
 } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -1207,9 +1206,7 @@ export async function rescued_from_terrain(how, state = game, env = {}) {
 
     state.iflags ??= {};
     state.iflags.last_msg = PLNMSG_BACK_ON_GROUND;
-    update_lastseentyp(u.ux, u.uy, state, {
-        canSeeMonster: (monster) => canseemon(monster, state),
-    });
+    update_lastseentyp(u.ux, u.uy, state);
     state.iflags.prev_decor = lastseentyp_grid(state)[u.ux][u.uy];
 }
 

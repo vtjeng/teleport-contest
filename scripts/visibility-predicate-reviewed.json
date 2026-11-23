@@ -31,17 +31,13 @@
     "js": "canseemon cansee mon_visible",
     "reason": "JS writes out display.h _canseemon(): cansee(), see_with_infrared() and mon_visible()."
   },
-  "display.c magic_map_background": {
-    "js": "cansee canseemon",
-    "reason": "The canseemon is the callback handed to update_lastseentyp(), which C calls inside that function."
-  },
   "display.c map_object": {
     "js": "",
     "reason": "cansee() is in the helper observeNearbyObject(), under the same condition."
   },
   "display.c newsym": {
-    "js": "cansee mon_visible sensemon mon_visible mon_visible",
-    "reason": "The extra sensemon and mon_visible are display.c mon_overrides_region() written inline and the update_lastseentyp() callback."
+    "js": "cansee mon_visible sensemon mon_visible",
+    "reason": "The extra sensemon is display.c mon_overrides_region() written inline."
   },
   "do.c revive_corpse": {
     "js": "cansee canseemon canseemon canseemon cansee canseemon canspotmon canspotmon canspotmon canseemon cansee cansee canspotmon",
