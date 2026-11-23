@@ -16,7 +16,6 @@ import {
 import { exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
 import { game } from './gstate.js';
-import { note_unported } from './unported.js';
 import { mungspaces, strstri, upstart, lcase } from './hacklib.js';
 import { getobj, hold_another_object, obfree, useup } from './invent.js';
 import { update_inventory } from './invent.js';
@@ -72,6 +71,7 @@ import { getlin } from './windows.js';
 import { Blind, Glib, Hallucination } from './youprop.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { dropx } from './do.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: write.c cost() (12-57). Returns the base ink cost for a scroll or
 // spellbook type. The table values are copied verbatim from the C source.
@@ -114,7 +114,7 @@ export function cost(otmp, state) {
     default:
         // impossible("You can't write such a weird scroll!"): dowrite(), the
         // only caller, cannot wait inside cost().
-        note_unported('pline.c impossible');
+        sync_impossible("You can't write such a weird scroll!", state);
     }
     return 1000;
 }

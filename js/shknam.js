@@ -70,6 +70,7 @@ import {
 } from './shtypes_data.js';
 import { Hallucination,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: shknam.c saleable() (805-825).
 export function saleable(shkp, obj, state = game) {
@@ -100,7 +101,7 @@ export function shkname(shopkeeper, state = game, env = {}) {
         shopkeeper.isshk = wasShopkeeper;
     }
     if (!shopkeeper.isshk) {
-        note_unported('pline.c impossible');
+        sync_impossible(`shkname: "${fallback}" is not a shopkeeper.`, state);
         return fallback;
     }
     const extension = shopkeeper.mextra?.eshk;

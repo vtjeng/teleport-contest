@@ -88,7 +88,9 @@ import { mon_sanity_check, mongone, monkilled, rescham, usmellmon, xkilled } fro
 import { atoi, dist2, encodeUtf8Text, textBytes, mungspaces, strncmpi, upstart, truncateByteString, lcase } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
-import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow, emitQueuedNotices, ttyPline,
+} from './tty_message.js';
 import { impossible, impossible_printer } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { displayTtyTextWindow } from './tty_menu.js';
@@ -1532,6 +1534,11 @@ export async function sanity_check(state = game) {
         state.iflags.sanity_no_check = false;
         return;
     }
+    // A report that synchronous code queued (source_steps.js
+    // sync_impossible()) prints with the flag as it stood when C printed
+    // it: one queued before the checks gets its full block, and one a check
+    // queues prints its one line before the flag is lowered.
+    await emitQueuedNotices(state);
     state.program_state.in_sanity_check
         = (state.program_state.in_sanity_check ?? 0) + 1;
     try {
@@ -1544,6 +1551,7 @@ export async function sanity_check(state = game) {
         await trap_sanity_check(state);
         await engraving_sanity_check(state);
         await levl_sanity_check(state);
+        await emitQueuedNotices(state);
     } finally {
         state.program_state.in_sanity_check--;
     }

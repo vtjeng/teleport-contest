@@ -39,10 +39,11 @@ import { displayTtyTextWindow } from './tty_menu.js';
 import { ATR_BOLD } from './terminal.js';
 import { coreRandom, rnd } from './rng.js';
 
-import { note_unported } from './unported.js';
 import { RECORDER_UID } from './unixunix.js';
 import { canseemon } from './display.js';
 import { dungeon_at } from './dungeon_table.js';
+import { sync_impossible } from './source_steps.js';
+import { note_unported } from './unported.js';
 
 // C ref: topten.c:96-105 killed_by_prefix[].  Indexed by game_end_types
 // (hack.h:483-498): DIED, CHOKING, POISONING, STARVING, DROWNING, BURNING,
@@ -75,7 +76,7 @@ export function formatkiller(how, incl_helpless, state = game, siz) {
     switch (killer.format) {
     default:
         // C: impossible("bad killer format? (%d)", svk.killer.format);
-        note_unported('pline.c impossible');
+        sync_impossible(`bad killer format? (${killer.format})`, state);
         // fall through
     case NO_KILLER_PREFIX:
         break;
@@ -213,7 +214,7 @@ export function classmon(plrole) {
     if (code === 'E') return PM_RANGER;
     // C's impossible() diagnostic is emitted by pline.c; keep the gap owner
     // aligned with that source call rather than naming the caller file.
-    note_unported(`pline.c impossible: classmon(${code})`);
+    sync_impossible(`What weird role is this? (${code})`, game);
     return PM_HUMAN_MUMMY;
 }
 
@@ -234,6 +235,11 @@ export function get_rnd_toptenentry(rawEnv = {}) {
     // The recorder startup owner creates an empty file before gameplay, so an
     // existing empty file still takes C's rank draw below.
     if (recordData == null) {
+        // C: impossible("Cannot open record file!"). The recorder always
+        // has a record file; here the file is missing only when a caller
+        // starts a game without storage (js/jsmain.js _startGame() cannot
+        // create it then), which every unit test that plays a segment does.
+        // The report stays a gap until that startup creates the file.
         note_unported('pline.c impossible: get_rnd_toptenentry fopen record');
         return null;
     }

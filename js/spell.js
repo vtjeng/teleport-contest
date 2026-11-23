@@ -211,6 +211,7 @@ import {
     HStun, Hallucination, Maybe_Half_Phys, Poison_resistance, Sick,
     Sleep_resistance, Slimed, Stunned,
 } from './youprop.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: spell.c's spellmenu arguments. 0..MAXSPELL-1 double as svs.spl_book[]
 // indices while swapping two spells.
@@ -289,7 +290,7 @@ export function force_learn_spell(otyp, state = game) {
         if (current === NO_SPELL || current === otyp) break;
     }
     if (index === MAXSPELL) {
-        if (state === game) note_unported('pline.c impossible');
+        if (state === game) sync_impossible('Too many spells memorized', state);
         return '\0';
     }
 
@@ -336,8 +337,8 @@ export function tport_spell(what, state = game) {
         // C prints "tport_spell: spellbook full" through impossible(), which
         // this build shows in every mode; it returns nothing for dotelecmd()
         // to consume. tport_spell() is synchronous and cannot wait for it,
-        // so the port records the gap.
-        if (state === game) note_unported('pline.c impossible');
+        // so the port queues the report.
+        if (state === game) sync_impossible('tport_spell: spellbook full', state);
     } else if (spellid(index, state) === NO_SPELL) {
         if (what === HIDE || what === REMOVE) {
             save_tport.tport_indx = MAXSPELL;
@@ -827,7 +828,7 @@ export async function learn(state = game, env = {}) {
         ? `"${OBJ_NAME(type, state)}"`
         : `the "${OBJ_NAME(type, state)}" spell`;
     if (index === MAXSPELL) {
-        if (state === game) note_unported('pline.c impossible');
+        if (state === game) await impossible('Too many spells memorized!', state, env);
     } else if ((slots[index]?.sp_id ?? NO_SPELL) === booktype) {
         if ((book.spestudied ?? 0) > MAX_SPELL_STUDY) {
             await ttyPline('This spellbook is too faint to be read any more.', state);
@@ -1082,7 +1083,7 @@ export function spelltypemnemonic(skill) {
     case P_MATTER_SPELL:
         return 'matter';
     default:
-        note_unported('pline.c impossible');
+        sync_impossible(`Unknown spell skill, ${skill};`, game);
         return '';
     }
 }

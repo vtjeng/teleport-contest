@@ -55,7 +55,8 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { skillsForRole } from './role_skills.js';
-import { note_unported } from './unported.js';
+import { sync_impossible } from './source_steps.js';
+import { P_NAME } from './weapon.js';
 
 export const SPELL_KNOWLEDGE_KEEN = 20000;
 export const LEVEL_ONE_SPELL_POWER = 5;
@@ -300,7 +301,8 @@ export function skill_init(
         if (skills[skill].skill === P_ISRESTRICTED) continue;
         if (skills[skill].max_skill < skills[skill].skill) {
             // C: impossible("skill_init: curr > max: %s", P_NAME(skill));
-            note_unported('pline.c impossible');
+            sync_impossible(
+                `skill_init: curr > max: ${P_NAME(skill, state)}`, state);
             reportImpossible(options, `skill_init: current exceeds maximum for ${skill}`);
             skills[skill].max_skill = skills[skill].skill;
         }

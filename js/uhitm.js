@@ -672,7 +672,6 @@ import {
     Finish_digestion, eating_conducts, eat_brains, is_fainted, morehungry,
     newuhs,
 } from './eat.js';
-import { note_unported } from './unported.js';
 import { ghod_hitsu } from './priest.js';
 import { m_useup } from './mthrowu.js';
 import { explode, adtyp_to_expltype } from './explode.js';
@@ -2095,7 +2094,8 @@ export async function hmonas(mon, state = game, env = {}) {
                 dhit = 0;
                 break;
             default:
-                note_unported('pline.c impossible');
+                await impossible(
+                    `strange attack of yours (${mattk.aatyp})`, state, env);
                 break;
             }
         }
@@ -4912,7 +4912,7 @@ export async function mhitm_ad_phys(
             mhm.damage = 0;
             if (!mhm.specialdmg) {
                 // C calls impossible() and continues into special damage.
-                note_unported('pline.c impossible');
+                await impossible('bad shade attack function flow?', state, env);
             }
         }
         mhm.damage += mhm.specialdmg;

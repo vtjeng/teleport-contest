@@ -225,7 +225,6 @@ import {
     subfrombill,
     u_left_shop,
 } from './shk.js';
-import { note_unported } from './unported.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { morehungry } from './eat.js';
 import { clamp_hole_destination, deltrap, fill_pit, reset_utrap,
@@ -1325,7 +1324,9 @@ export function rloc_to(monster, x, y, rawEnv = {}) {
 export async function tele_to_rnd_pet(state = game, env = {}) {
     const random = env.random ?? coreRandom;
     if (noteleport_level(state.youmonst, state)) {
-        note_unported('pline.c impossible');
+        await impossible(
+            'attempt to teleport hero to be near a pet on no-teleport level',
+            state, env);
         return;
     }
 

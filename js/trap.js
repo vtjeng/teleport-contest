@@ -324,7 +324,6 @@ import {
     ttyNorep, ttyPline, ttyUrgentPline,
 } from './tty_message.js';
 import { stumble_onto_mimic } from './uhitm.js';
-import { note_unported } from './unported.js';
 import { unpunish } from './read.js';
 import {
     unblock_point,
@@ -354,6 +353,7 @@ import {
     Teleport_control, Teleportation, Wwalking, Punished,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
+import { sync_impossible } from './source_steps.js';
 
 // C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
 // flag. Conduct and luck remain the separate player values initialized by
@@ -963,7 +963,8 @@ export function maketrap(x, y, typ, rawEnv = {}) {
             trap.teledest.x = (state.xstart ?? 0) + launchplace.x;
             trap.teledest.y = (state.ystart ?? 0) + launchplace.y;
             if (trap.teledest.x === x && trap.teledest.y === y)
-                note_unported('pline.c impossible');
+                sync_impossible(
+                    'making fixed-dest tele trap pointing to itself', state);
         }
         break;
     }
@@ -2175,7 +2176,7 @@ export function trapname(ttyp, override, state, random = coreRandom,
 export function immune_to_trap(mon, ttype, state = game) {
     if (!mon) {
         // C: impossible("immune_to_trap: null monster");
-        note_unported('pline.c impossible');
+        sync_impossible('immune_to_trap: null monster', state);
         return TRAP_NOT_IMMUNE;
     }
     const pm = mon.data;
@@ -2279,7 +2280,7 @@ export function immune_to_trap(mon, ttype, state = game) {
         return TRAP_CLEARLY_IMMUNE;
     default:
         // C: impossible("immune_to_trap: bad ttype %u", ttype);
-        note_unported('pline.c impossible');
+        sync_impossible(`immune_to_trap: bad ttype ${ttype}`, state);
         return TRAP_NOT_IMMUNE;
     }
 }

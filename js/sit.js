@@ -112,7 +112,6 @@ import {
     uteetering_at_seen_pit,
 } from './trap.js';
 import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
-import { note_unported } from './unported.js';
 import { burn_away_slime } from './timeout.js';
 import { canspotmon, shieldeff } from './display.js';
 import { ART_MAGICBANE, SPFX_INTEL, is_art, spec_ability } from './artifacts.js';
@@ -129,6 +128,7 @@ import {
     Shock_resistance, Slimed, Underwater,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
+import { impossible } from './pline.js';
 
 
 function Is_waterlevel(state) {
@@ -578,7 +578,7 @@ async function throne_sit_effect(state, rawEnv = {}) {
             break;
         }
         default:
-            note_unported('pline.c impossible');
+            await impossible('throne effect', state, rawEnv);
             break;
         }
     } else if (is_prince(state.youmonst?.data)
