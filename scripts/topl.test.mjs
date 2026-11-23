@@ -475,6 +475,47 @@ test('docorner skips an unexplored buffer glyph even when map memory is known',
             /const glyph = loc\.disp_glyph\?\.glyph \?\? GLYPH_UNEXPLORED_OFF/u);
     });
 
+test('docorner redraws the status once its repair reaches the status window',
+    async () => {
+        // wintty.c docorner() (3716-3721): `ymax >= wins[WIN_STATUS]->offy`
+        // sets disp.botlx and calls bot(), for a message-window caller as
+        // for a menu.
+        assert.match(WINTTY_C,
+            /if \(ymax >= \(int\) wins\[WIN_STATUS\]->offy\s*&& !ystart_between_menu_pages\) \{\s*\/\* we have wrecked the bottom line \*\/\s*disp\.botlx = TRUE;\s*bot\(\);/u);
+        const [segment] = wrappedStartupRecording.segments;
+        await runSegment(segment);
+        const state = game;
+        const display = state.nhDisplay;
+        // Two status lines on 24 rows: the status window starts on row 22.
+        const firstStatusRow = display.rows - 2;
+        const statusText = () => display.grid[firstStatusRow]
+            .map((cell) => cell.ch).join('').trimEnd();
+        const shown = statusText();
+        assert.notEqual(shown, '');
+
+        // ymax one short of the status window: neither botlx nor bot().
+        state.disp.botlx = false;
+        docorner(1, firstStatusRow - 1, 0, state);
+        assert.equal(state.disp.botlx, false);
+
+        // ymax equal to the window's first row clears no status row, but
+        // still runs bot(), which clears botlx when it has drawn.
+        state.disp.botlx = false;
+        docorner(1, firstStatusRow, 0, state);
+        assert.equal(state.disp.botlx, false);
+        assert.equal(statusText(), shown);
+
+        // While botl.c bot() is disabled the flag stays for the next bot().
+        state.gb.bot_disabled = true;
+        docorner(1, firstStatusRow, 0, state);
+        assert.equal(state.disp.botlx, true);
+        state.gb.bot_disabled = false;
+
+        // ymax past the first status row erases it; bot() draws it again.
+        docorner(1, firstStatusRow + 1, 0, state);
+        assert.equal(statusText(), shown);
+    });
+
 test('docorner leaves the cursor past the last map glyph it prints',
     async () => {
         // Any recording with a hero on a drawn map serves; this one is the

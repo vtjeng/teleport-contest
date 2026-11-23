@@ -7411,7 +7411,7 @@ function clipProjectedMessage(column, ymax, state) {
 // display.c row_refresh(). More can overwrite the top map rows with its
 // wrapped prompt. Once it is dismissed, C clears each physical row and
 // redraws from gg.gbuf, skipping GLYPH_UNEXPLORED unless a background frame
-// colour is active.
+// colour is active. A repair that reaches the status window ends in bot().
 export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
     const display = state.nhDisplay;
     if (!display?.grid || ystartBetweenMenuPages) return;
@@ -7516,6 +7516,15 @@ export function docorner(xmin, ymax, ystartBetweenMenuPages = 0, state = game) {
                 recordScreenOverlay(x - 1, screenRow, ch, color, attr);
             }
         }
+    }
+    // wintty.c:3716-3721: "we have wrecked the bottom line". ymax is tested
+    // after the clamp to the terminal's rows, and reaching the status
+    // window's first row is enough, although the loop stops one row short
+    // of it. bot() honours gb.bot_disabled itself.
+    if (lastRow >= firstStatusRow) {
+        state.disp ??= {};
+        state.disp.botlx = true;
+        bot_now();
     }
 }
 

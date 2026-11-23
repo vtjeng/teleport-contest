@@ -233,27 +233,24 @@ function clearRowFrom(display, firstColumn, row) {
 // 0..maxrow the window covered, so its length is docorner()'s ymax.
 export async function restoreCorner(state, display, repairColumn, snapshot) {
     if (state.level && state.u?.ux) {
+        // docorner() ends by calling bot() when ymax reaches WIN_STATUS,
+        // even when the half-open clear range ends exactly at its first row
+        // and therefore clears no status cells. It does not restore the
+        // status suffix the window covered.
         docorner(repairColumn + 1, snapshot.length, 0, state);
-    } else {
-        restoreRegion(display, repairColumn, snapshot);
+        return;
     }
+    restoreRegion(display, repairColumn, snapshot);
 
-    // C docorner() ends by calling bot() when ymax reaches WIN_STATUS, even
-    // when the half-open clear range ends exactly at its first row and
-    // therefore clears no status cells. It does not restore the status
-    // suffix the window covered: keep the cells left of the repair column
-    // and let bot() redraw the status only when its caller has not disabled
-    // bot updates.
-    // docorner() already cleared those rows and then reprinted any map row
-    // that lies over the status window (three status lines on 24 rows).
+    // Without a level the same repair is written out: clear the status rows
+    // from the repair column, keep the cells left of it, and let bot()
+    // redraw the status unless its caller has disabled bot updates.
     const firstStatusRow = display.rows - status_window_rows();
     if (snapshot.length < firstStatusRow) return;
-    if (!(state.level && state.u?.ux)) {
-        for (let row = Math.max(0, firstStatusRow); row < snapshot.length;
-            ++row) {
-            clearRowFrom(display, repairColumn, row);
-            tty_status_cl_end_screen_row(row, repairColumn, state);
-        }
+    for (let row = Math.max(0, firstStatusRow); row < snapshot.length;
+        ++row) {
+        clearRowFrom(display, repairColumn, row);
+        tty_status_cl_end_screen_row(row, repairColumn, state);
     }
     state.disp ??= {};
     state.disp.botlx = true;
