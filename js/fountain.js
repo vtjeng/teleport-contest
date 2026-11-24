@@ -57,7 +57,7 @@ import {
 import {
     Amonnam, hcolor, hliquid, a_monnam, oname, rndmonnam,
 } from './do_name.js';
-import { level_difficulty, dunlevs_in_dungeon, dunlev, surface }
+import { level_difficulty_steps, dunlevs_in_dungeon, dunlev, surface }
     from './dungeon.js';
 import { del_engr_at } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -109,7 +109,10 @@ import {
     displayPendingTtyMessageWindow, ttyPline,
 } from './tty_message.js';
 import { fruitname, makeplural } from './fruit.js';
-import { livelog_printf, verbalize, youSee, youFeel } from './pline.js';
+import {
+    impossible_printer, livelog_printf, verbalize, youSee, youFeel,
+} from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { fingers_or_gloves } from './do_wear.js';
 import { the, xnameFresh } from './objnam.js';
 import {
@@ -174,7 +177,12 @@ async function dowaterdemon(state = game, env = {}) {
 
             // C ref: fountain.c:78. On low levels the demon is grateful
             // and grants a wish. level_difficulty() adds depth adjustments.
-            if (random.rnd(100) > (80 + level_difficulty(state))) {
+            // The recorder's binary draws rnd(100) before it calls
+            // level_difficulty(), whose builds_up() report then prints
+            // before the wish.
+            const gratitude = random.rnd(100);
+            if (gratitude > (80 + await finish_steps(
+                level_difficulty_steps(state), impossible_printer(state)))) {
                 const pronounEnv = {
                     ...env,
                     state,

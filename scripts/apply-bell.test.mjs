@@ -30,7 +30,7 @@ test('use_bell preserves C branch order and its deferred common effects', () => 
     assert.match(jsUseBell,
         /consume_obj_charge\(obj, true,[\s\S]*if \(state\.u\.uswallow\)[\s\S]*else if \(obj\.cursed\)[\s\S]*else if \(invoking\)[\s\S]*else if \(obj\.blessed\)[\s\S]*else if \(await findit\(/u);
     assert.match(jsUseBell,
-        /const nymphSpecies = mkclass\(S_NYMPH, 0, \{ state, random \}\);[\s\S]*?const monster = await makemon_runtime\(\s*nymphSpecies,/u);
+        /const nymphSpecies = await finish_steps\(\s*mkclass_steps\(S_NYMPH, 0, \{ state, random \}\),\s*impossible_printer\(state\)\);[\s\S]*?const monster = await makemon_runtime\(\s*nymphSpecies,/u);
 
     // C defers both makeknown() and wake_nearby() until after the branch. The
     // promise owner must finish find/open feedback before those shared effects.

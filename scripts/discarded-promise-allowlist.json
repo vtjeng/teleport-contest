@@ -6,27 +6,15 @@
     },
     "js/ball.js | moveObject | place_object": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "js/ball.js move_bc() calls moveObject() only for the iron ball and its chain. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/ball.js | move_bc | place_object": {
       "count": 4,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "ball.c move_bc() puts back only the iron ball and its chain. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/ball.js | set_bc | place_object": {
       "count": 6,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/bones.js | fixuporacle | rloc_to": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/bones.js | give_to_nearby_mon | place_object": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/bones.js | purgeDefunctBonesMonsters | mongone": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The six calls place only the iron ball and its chain (ball.c placebc_core()). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/bones.js | resetobjs | curse": {
       "count": 4,
@@ -54,11 +42,11 @@
     },
     "js/do_wear.js | Shield_off | setworn": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "do_wear.c Shield_off() (733-756) takes off uarms, and include/artilist.h has no artifact shield. worn.c setworn() (73-145) waits only in set_artifact_intrinsic(), which js/worn.js setworn_steps() yields; its \"Setworn: mask\" impossible() goes to sync_impossible(), which queues the report."
     },
     "js/do_wear.js | Shirt_off | setworn": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "do_wear.c Shirt_off() (778-794) takes off uarmu, and include/artilist.h has no artifact shirt. worn.c setworn() (73-145) waits only in set_artifact_intrinsic(), which js/worn.js setworn_steps() yields; its \"Setworn: mask\" impossible() goes to sync_impossible(), which queues the report."
     },
     "js/dog.js | mon_catchup_elapsed_time | m_unleash": {
       "count": 1,
@@ -72,13 +60,9 @@
       "count": 1,
       "reason": "worn.c setworn() (93-107, 120-131) changes no property and calls no set_artifact_intrinsic() for W_SWAPWEP or W_QUIVER, so js/worn.js setworn_steps() yields nothing that prints or waits for this slot (addSlotEffects() returns first and the removal arm is skipped), and the call completes before it returns."
     },
-    "js/end.js | finishInUseInventory | useup": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/extralev.js | makerogueghost | curse": {
       "count": 6,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "extralev.c makerogueghost() (288-353) curses floor objects it has just made with mksobj_at(). mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/extralev.js | roguecorr | dodoor": {
       "count": 4,
@@ -86,7 +70,7 @@
     },
     "js/hack.js | movobj | place_object": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "hack.c movobj() (825-833) is called for a pushed boulder (moverock()) and for uchain (ball.c, trap.c float_down()). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/insight.js | status_enlightenment | youhiding": {
       "count": 1,
@@ -102,23 +86,15 @@
     },
     "js/invent.js | obfree | setnotworn": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Reached only after shk.c obfree() (1187-1275) reports \"obfree: deleting worn obj\" through impossible(), which sync_impossible() queues. obfree() is synchronous for its callers, so the artifact-intrinsic step setnotworn() could wait for (worn.c set_artifact_intrinsic()) is released on that impossible path only."
     },
     "js/invent.js | resetInventory | useupall": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "u_init_inventory_attrs() calls it at game start, before u_init.c gives the hero anything, so the inventory is empty and the loop makes no useupall() call. (C zeroes the inventory with the rest of its globals.)"
     },
     "js/light.js | del_light_source | finish_steps": {
       "count": 1,
       "reason": "del_light_source() is the synchronous form of del_light_source_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so finish_steps() returns synchronously. del_light_source_async() is the form for a caller that can wait; scripts/level-difficulty-steps.test.mjs lists the synchronous callers."
-    },
-    "js/makemon.js | unmakemon | discard_minvent": {
-      "count": 1,
-      "reason": "unmakemon() undoes a monster makemon() just made. makemon.c never sets MON_WEP, so this just-made monster wields nothing and its new objects are not unpaid: extract_from_minvent() has no mwepgone() light message or obj_no_longer_held() shop charge to wait for, and mhp = 0 skips update_mon_extrinsics(), so discard_minvent() returns synchronously."
-    },
-    "js/makemon.js | unmakemon | mongone": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
     },
     "js/makemon_create.js | finishMonsterInventoryAndStrategySteps | discard_minvent": {
       "count": 1,
@@ -126,15 +102,15 @@
     },
     "js/makemon_create.js | m_initinv_steps | add_to_container": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "makemon.c m_initinv() (589-833) puts a new housecat corpse in a new large box. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/makemon_create.js | m_initinv_steps | curse": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "makemon.c m_initinv() curses a tin whistle and a ring it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/makemon_create.js | m_initweap | curse": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "makemon.c m_initweap() (161-572) curses a mace it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/makemon_create.js | makemon_steps | hideunder": {
       "count": 2,
@@ -146,11 +122,11 @@
     },
     "js/makemon_create.js | makemon_steps | mon_adjust_speed": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "makemon.c:1345 calls mon_adjust_speed(mtmp, 2, 0). worn.c mon_adjust_speed() (488-564) clears give_msg for adjust 2, and js/worn.js mon_adjust_speed() returns at its `!giveMsg` test before its only await (the message), so its body completes before the call returns."
     },
     "js/makemon_create.js | mongets | curse": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "makemon.c mongets() (2181-2230) curses the object it has just made for a demon for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/mineralize.js | mineralize | mksobj_at": {
       "count": 1,
@@ -158,11 +134,11 @@
     },
     "js/mineralize.js | mineralize | place_object": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mklev.c mineralize() (1449-1541) places gold and gems it has just made (when add_to_buried() is not taken). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | create_trap | maketrap": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "sp_lev.c create_trap() makes the vibrating square here. js/trap.js maketrap() returns a Promise only from its STATUE_TRAP arm (mk_trap_statue()'s donor monster) and its pit and hole arms (unearth_objs()); VIBRATING_SQUARE takes neither."
     },
     "js/mklev.js | dig_corridor | mksobj_at": {
       "count": 1,
@@ -170,11 +146,11 @@
     },
     "js/mklev.js | fake_delphi | run_room_descriptor": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
     },
     "js/mklev.js | fill_ordinary_room_supply_chest | add_to_container": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mklev.c fill_ordinary_room() (939-1171) fills the supply chest with objects it has just made by type, none a crysknife. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | finishMonster | make_level_trap": {
       "count": 1,
@@ -182,7 +158,7 @@
     },
     "js/mklev.js | finishMonster | maketrap": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Runs only during level creation: C reaches fill_ordinary_room() only from mklev.c makelevel(), and this call makes a WEB under a giant spider (mklev.c:978). js/trap.js maketrap() returns a Promise only from its STATUE_TRAP, pit and hole arms."
     },
     "js/mklev.js | finishMonster | mkobj_at": {
       "count": 2,
@@ -198,11 +174,11 @@
     },
     "js/mklev.js | huge_room_with_another_room_inside | run_room_descriptor": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
     },
     "js/mklev.js | lspo_gas_cloud | create_gas_cloud": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with cloud size 1. js/region.js create_gas_cloud() is `async`, and its only await is the impossible() for a size above MAX_CLOUD_SIZE (region.c:1238), so with size 1 its whole body, which appends the region, runs before the call returns. The calling code reads that region from the list on the next line."
     },
     "js/mklev.js | map_cleanup | obj_extract_self": {
       "count": 1,
@@ -210,55 +186,39 @@
     },
     "js/mklev.js | nesting_rooms | run_room_descriptor": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
     },
     "js/mklev.js | room_in_a_room | run_room_descriptor": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
     },
     "js/mklev.js | twin_businesses | run_room_descriptor": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
     },
     "js/mklev.js | water_surrounded_vault_contents | add_to_container": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) The object is one the themed room has just made by type, not a crysknife. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | water_surrounded_vault_contents | lspo_monster": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) lspo_monster() returns a Promise only from makemon()'s runtime form."
     },
     "js/mklev.js | water_surrounded_vault_contents | lspo_object": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) lspo_object() returns a Promise only from a statue's or corpse's monster made by makemon()'s runtime form, or from placing a billed crysknife."
     },
     "js/mkmaze.js | mk_bubble | mv_bubble": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/mkmaze.js | populate_maze | makemon": {
-      "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/mkmaze.js | populate_maze | mkobj_at": {
-      "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
-    },
-    "js/mkmaze.js | populate_maze | mksobj_at": {
-      "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
-    },
-    "js/mkmaze.js | populate_maze | mktrap": {
-      "count": 1,
-      "reason": "Runs only during level creation (in_mklev), where makemon_by_context() takes the synchronous makemon(), so mktrap() returns synchronously. C reaches populate_maze() only from mkmaze.c makemaz() inside makelevel()."
+      "reason": "Called with ini TRUE on a new bubble, whose contents list is empty. mkmaze.c mv_bubble() (1952-2107) prints and waits only while it puts a bubble's contents (objects, monsters, the hero) back, and js/mkmaze.js mv_bubble() returns a Promise only from that pass (finishContents()), which needs a non-empty list."
     },
     "js/mkmaze.js | restore_waterlevel | mv_bubble": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with ini TRUE on a bubble that cloneBubble() has just restored with an empty contents list. js/mkmaze.js mv_bubble() returns a Promise only from finishContents(), the pass that puts a bubble's contents back, which needs a non-empty list."
     },
     "js/mkroom.js | finishCell | add_to_container": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mkroom.c fill_zoo() (276-452) fills a cockatrice nest's statue with objects from mkobj(RANDOM_CLASS), and objects.h gives the crysknife a generation probability of 0. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mkroom.js | finishCell | mkobj_at": {
       "count": 1,
@@ -270,11 +230,7 @@
     },
     "js/mkroom.js | finishZoo | add_to_container": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/mkroom.js | mkswamp | makemon": {
-      "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mkroom.c fill_zoo() (276-452) puts new gold in the court's new chest. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mkroom.js | mktemple | priestini": {
       "count": 1,
@@ -282,11 +238,11 @@
     },
     "js/mktrap.js | mktrap_victim | curse": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mklev.c mktrap_victim() (1815-1934) curses objects it has just made for a trap victim. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/mktrap.js | mktrap_victim | place_object": {
       "count": 3,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mklev.c mktrap_victim() places objects it has just made by type (a trap's ammunition, a victim's possessions and corpse), none a crysknife. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mon.js | apply_newcham_steps | newmonhp": {
       "count": 1,
@@ -294,7 +250,7 @@
     },
     "js/mon.js | apply_newcham_steps | place_object": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mon.c newcham() (5278-5535) drops only the boulders a former giant can no longer carry. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mon.js | m_detach | m_unleash": {
       "count": 1,
@@ -314,15 +270,15 @@
     },
     "js/monster_object.js | initializeStatue | add_to_container": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mkobj.c mksobj_init() (869-1175) puts a new spellbook in a new statue. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mplayer.js | mk_mplayer_armor | bless": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mplayer.c mk_mplayer_armor() (95-115) blesses armor it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/mplayer.js | mk_mplayer_armor | curse": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mplayer.c mk_mplayer_armor() (95-115) curses armor it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/obj.js | add_to_migration | finish_steps": {
       "count": 1,
@@ -330,19 +286,19 @@
     },
     "js/obj.js | initializeTin | blessorcurse": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mkobj.c mksobj_init() blesses or curses the tin it is making, which is still free and unlit. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/obj.js | mkbox_cnts | add_to_container": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mkobj.c mkbox_cnts() (304-384) fills a new box with objects from mkobj(), and objects.h gives the crysknife a generation probability of 0. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/obj.js | mksobj_init | blessorcurse": {
       "count": 13,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mkobj.c mksobj_init() blesses or curses the object it is making, which is still free; nothing is lit before mksobj_init() returns. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/obj.js | mksobj_init | curse": {
       "count": 6,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mkobj.c mksobj_init() curses the object it is making, which is still free; nothing is lit before mksobj_init() returns. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/objnam_readobjnam.js | readobjnam_typfnd_finish | obj_extract_self": {
       "count": 1,
@@ -350,47 +306,39 @@
     },
     "js/objnam_readobjnam.js | readobjnam_typfnd_finish | place_object": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "objnam.c readobjnam() (4910-5400) places a wished light source on the hero's square for begin_burn() and extracts it again; the branch takes only an object that ignitable() accepts, never a crysknife. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/options.js | applyOption | optfn_fruit": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "options.js parseNethackrc() reads the startup configuration into defaultResult(), whose go.opt_initial is true, and calls this handler with do_set, which returns a status code. Its Promise comes from the do_handler arm and from the prompts and config_error_add() plines of a parse with go.opt_initial false (the 'O' menu), which reach it through parseoptions(), not applyOption()."
     },
     "js/options.js | applyOption | optfn_menu_headings": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "options.js parseNethackrc() reads the startup configuration into defaultResult(), whose go.opt_initial is true, and calls this handler with do_set, which returns a status code. Its Promise comes from the do_handler arm and from the prompts and config_error_add() plines of a parse with go.opt_initial false (the 'O' menu), which reach it through parseoptions(), not applyOption()."
     },
     "js/options.js | applyOption | optfn_msg_window": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "options.js parseNethackrc() reads the startup configuration into defaultResult(), whose go.opt_initial is true, and calls this handler with do_set, which returns a status code. Its Promise comes from the do_handler arm and from the prompts and config_error_add() plines of a parse with go.opt_initial false (the 'O' menu), which reach it through parseoptions(), not applyOption()."
     },
     "js/options.js | applyOption | optfn_number_pad": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "options.js parseNethackrc() reads the startup configuration into defaultResult(), whose go.opt_initial is true, and calls this handler with do_set, which returns a status code. Its Promise comes from the do_handler arm and from the prompts and config_error_add() plines of a parse with go.opt_initial false (the 'O' menu), which reach it through parseoptions(), not applyOption()."
     },
     "js/options.js | applyOption | optfn_petattr": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "options.js parseNethackrc() reads the startup configuration into defaultResult(), whose go.opt_initial is true, and calls this handler with do_set, which returns a status code. Its Promise comes from the do_handler arm and from the prompts and config_error_add() plines of a parse with go.opt_initial false (the 'O' menu), which reach it through parseoptions(), not applyOption()."
     },
     "js/options.js | applyOption | optfn_pickup_types": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "options.js parseNethackrc() reads the startup configuration into defaultResult(), whose go.opt_initial is true, and calls this handler with do_set and a value, which returns a status code. Its Promise comes from the do_handler arm and from the prompts and config_error_add() plines of a parse with go.opt_initial false (the 'O' menu), which reach it through parseoptions(), not applyOption()."
     },
     "js/options.js | defaultResult | optfn_pickup_types": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "options.js parseNethackrc() reads the startup configuration into defaultResult(), whose go.opt_initial is true, and calls this handler with do_init, which returns a status code. Its Promise comes from the do_handler arm and from the prompts and config_error_add() plines of a parse with go.opt_initial false (the 'O' menu), which reach it through parseoptions(), not applyOption()."
     },
     "js/priest.js | finishPriest | curse": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/priest.js | mk_roamer | rloc": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/priest.js | priestini | rloc": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "priest.c priestini() (220-276) curses the robe the new priest wears, an object in a monster's inventory. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/read.js | unpunish | delobj": {
       "count": 1,
@@ -398,7 +346,7 @@
     },
     "js/read.js | unpunish | setworn": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "read.c unpunish() (3066-3077) clears the uchain and uball slots, and a chain or iron ball is never an artifact. worn.c setworn() (73-145) waits only in set_artifact_intrinsic(), which js/worn.js setworn_steps() yields; its \"Setworn: mask\" impossible() goes to sync_impossible(), which queues the report."
     },
     "js/restore.js | find_lev_obj | setworn": {
       "count": 1,
@@ -410,7 +358,7 @@
     },
     "js/room_features.js | mkgrave | curse": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "mklev.c mkgrave() (2353-2397) curses an object it has just made for the grave. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/room_features.js | mkgrave | mksobj_at": {
       "count": 1,
@@ -428,10 +376,6 @@
       "count": 1,
       "reason": "shk.c update_bill() (2171-2211) extracts paiditem only after checking where == OBJ_ONBILL. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
-    "js/shknam.js | finishStocking | mongone": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/shknam.js | makeShopItem | mkobj_at": {
       "count": 1,
       "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
@@ -440,13 +384,9 @@
       "count": 1,
       "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
-    "js/shknam.js | shkinit | rloc": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/sp_lev_object.js | applyBuc | curseSpecialObject": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "sp_lev.c create_object() (2193-2440) applies the curse state to the object it has just made, before its lit, name and container steps. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/sp_lev_object.js | applyObjectFields | oname": {
       "count": 1,
@@ -454,27 +394,19 @@
     },
     "js/sp_lev_object.js | blessorcurseSpecialObject | curseSpecialObject": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "sp_lev.c create_object() (2193-2440) applies the curse state to the object it has just made, before its lit, name and container steps. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/sp_lev_object.js | finishAccepted | add_to_container": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/sp_lev_object.js | finishAccepted | mongone": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "sp_lev.c create_object() (2193-2440) moves the inventory makemon() gave the statue's monster into the statue, and makemon.c m_initweap() and m_initinv() never give a crysknife. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/sp_lev_object.js | finishAccepted | obj_extract_self": {
       "count": 1,
       "reason": "sp_lev.c create_object() moves the statue's monster's minvent into the statue, so each object is OBJ_MINVENT. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
-    "js/sp_lev_object.js | finishMonster | mongone": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
     "js/steed.js | put_saddle_on_mon | update_mon_extrinsics": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "Called with silently FALSE, so js/worn.js update_mon_extrinsics() wraps an already finished result in Promise.resolve(). A saddle has no oc_oprop and blocks no property, so worn.c update_mon_extrinsics() (579-712) takes no arm; its dismount arm needs `on` false; and the monster's visibility cannot change, so there is no newsym()."
     },
     "js/themeroom_fill.js | fillBoulderRoom | createRoomTrap": {
       "count": 1,
@@ -506,11 +438,7 @@
     },
     "js/trap.js | makeRollingBoulderLaunch | place_object": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
-    },
-    "js/trap.js | transfer | mongone": {
-      "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "trap.c mkroll_launch() (3659-3692) places a boulder it has just made. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/trap.js | transfer | obj_extract_self": {
       "count": 1,
@@ -518,7 +446,7 @@
     },
     "js/trap_effects.js | force_launch_placement | place_object": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "trap.c force_launch_placement() (3244-3250) places launch_obj()'s object, and every launch_obj() caller launches a BOULDER (hack.c:612, trap.c:2672 and 2695). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/trap_effects.js | keep_saddle_with_steedcorpse | obj_extract_self": {
       "count": 1,
@@ -526,7 +454,7 @@
     },
     "js/trap_effects.js | keep_saddle_with_steedcorpse | place_object": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "trap.c keep_saddle_with_steedcorpse() (939-967) places the dead steed's saddle. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/tty_message.js | queuedVpline | vision_recalc": {
       "count": 1,
@@ -534,7 +462,7 @@
     },
     "js/u_init_inventory_use.js | initialArmor | setworn": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "u_init.c ini_inv_use_obj() (1254-1298) wears starting armor, and no role starts with an artifact. worn.c setworn() (73-145) waits only in set_artifact_intrinsic(), which js/worn.js setworn_steps() yields; its \"Setworn: mask\" impossible() goes to sync_impossible(), which queues the report."
     },
     "js/wield.js | uqwepgone | setuqwep": {
       "count": 1,
@@ -550,11 +478,11 @@
     },
     "js/worn.js | m_dowear_type_steps | curse": {
       "count": 1,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "worn.c m_dowear_type() (799-1002) curses a helm of opposite alignment or a dunce cap in a monster's inventory; this is the creation arm, and the runtime arm awaits curse(). mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
     },
     "js/worn.js | m_dowear_type_steps | update_mon_extrinsics": {
       "count": 2,
-      "reason": "Present when the check was added at b24326ad6; not yet audited."
+      "reason": "The creation arm passes silently TRUE, for which js/worn.js update_mon_extrinsics() returns its core's result. That is a Promise only for a FAST object, from the `async` mon_adjust_speed(), which with silent set returns at its `!giveMsg` test before its only await, so the speed change is complete when the call returns. The runtime arm (applyMonsterArmorRuntime()) awaits both calls."
     }
   }
 }

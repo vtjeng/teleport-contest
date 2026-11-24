@@ -46,7 +46,7 @@ const ALLOWED = {
         + 'program calls des.finalize_level().'],
     'js/mkmaze.js | populate_maze': [2,
         'mkmaze.c makemaz() -> populate_maze(), inside mklev.c makelevel().'],
-    'js/mkroom.js | mkswamp': [2,
+    'js/mkroom.js | mkswamp_steps': [2,
         'mkroom.c mkroom(SWAMP) -> mkswamp(), inside mklev.c makelevel().'],
 };
 

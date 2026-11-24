@@ -498,7 +498,7 @@ export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
 
     // Relocate any monster already at the chosen position.
     const blocker = m_at(px, py, state);
-    if (blocker) rloc(blocker, RLOC_NOMSG, env);
+    const moved = blocker ? rloc(blocker, RLOC_NOMSG, env) : null;
 
     // C priestini() after makemon(): the shrine record, peacefulness, the
     // spellbooks and the robe's curse state.
@@ -539,10 +539,16 @@ export function priestini(lvl, sroom, sx, sy, sanctum, env = {}) {
             }
         }
     };
-    const maybePriest = makemon_by_context(prim, px, py, MM_EPRI, env);
-    return maybePriest && typeof maybePriest.then === 'function'
-        ? maybePriest.then(finishPriest)
-        : finishPriest(maybePriest);
+    const makePriest = () => {
+        const maybePriest = makemon_by_context(prim, px, py, MM_EPRI, env);
+        return maybePriest && typeof maybePriest.then === 'function'
+            ? maybePriest.then(finishPriest)
+            : finishPriest(maybePriest);
+    };
+    // C finishes rloc() before makemon(); rloc() answers a promise when the
+    // relocation prints or waits.
+    return moved && typeof moved.then === 'function'
+        ? moved.then(makePriest) : makePriest();
 }
 
 // C ref: priest.c mk_roamer() (724-753).  Special-level descriptors with an
@@ -562,17 +568,22 @@ export function mk_roamer(
     // roamer; the later creation hooks must not change this decision.
     const coaligned = state.u?.ualign?.type === alignment;
     const blocker = m_at(x, y, state);
-    if (blocker) rloc(blocker, RLOC_NOMSG, { ...rawEnv, state });
+    const moved = blocker
+        ? rloc(blocker, RLOC_NOMSG, { ...rawEnv, state }) : null;
 
     // mk_roamer() is used both while constructing special levels and during
     // runtime events such as final_level().
-    const maybeRoamer = makemon_by_context(
+    const makeRoamer = () => makemon_by_context(
         ptr,
         x,
         y,
         MM_ADJACENTOK | MM_EMIN | MM_NOMSG,
         { ...rawEnv, state },
     );
+    // C finishes rloc() before makemon(); rloc() answers a promise when the
+    // relocation prints or waits.
+    const maybeRoamer = moved && typeof moved.then === 'function'
+        ? moved.then(makeRoamer) : makeRoamer();
     const finish = (roamer) => {
         if (!roamer) return null;
         const emin = roamer.mextra?.emin;

@@ -202,7 +202,7 @@ import {
     In_hell,
     single_level_branch,
     on_level,
-    level_difficulty,
+    level_difficulty_steps,
     u_on_newpos,
     ceiling,
     surface,
@@ -231,7 +231,9 @@ import {
 } from './hack.js';
 import { goodpos } from './teleport.js';
 import { ordin, push_front, sgn, upstart, lcase } from './hacklib.js';
-import { impossible, livelog_printf, youFeel, norep_printer } from './pline.js';
+import {
+    impossible, impossible_printer, livelog_printf, youFeel, norep_printer,
+} from './pline.js';
 import { messageAt } from './startup_a11y.js';
 import {
     stackobj,
@@ -352,7 +354,7 @@ import {
     Teleport_control, Teleportation, Wwalking, Punished,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
-import { sync_impossible } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 
 // C ref: trap.c sokoban_guilt() (7036-7055). Sokoban is the current-level
 // flag. Conduct and luck remain the separate player values initialized by
@@ -856,7 +858,8 @@ function mk_trap_statue(x, y, env) {
                     return addition.then(transfer);
             }
             statue.owt = weight(statue, donorEnv);
-            mongone(monster, donorEnv);
+            // maketrap() waits for a promise from the donor's removal.
+            return mongone(monster, donorEnv);
         };
         return transfer();
     };
@@ -2770,8 +2773,12 @@ async function disarm_box(box, force, confused, state = game) {
         const ch = acurr(state, A_DEX) + state.u.ulevel;
         let effective_ch = ch;
         if (state.urole?.mnum === PM_ROGUE) effective_ch *= 2;
+        // trap.c:5801-5802. level_difficulty() is rnd()'s argument, so C
+        // calls it, and prints builds_up()'s report, before the draw.
         if (!force && (confused || Fumbling(state.u)
-                       || rnd(75 + Math.trunc(level_difficulty(state) / 2))
+                       || rnd(75 + Math.trunc(await finish_steps(
+                           level_difficulty_steps(state),
+                           impossible_printer(state)) / 2))
                           > effective_ch)) {
             await chest_trap(box, FINGER, true, state);
             if (state.program_state?.gameover) return;
@@ -3008,8 +3015,11 @@ export async function untrap(force, rx, ry, container, state = game) {
             const ch = 15 + (state.urole?.mnum === PM_ROGUE
                 ? u.ulevel * 3 : u.ulevel);
             await exercise(A_DEX, true, state);
+            // trap.c:6073-6074, as in disarm_box() above.
             if (!force && (confused || Fumbling(state.u)
-                           || rnd(75 + Math.trunc(level_difficulty(state) / 2))
+                           || rnd(75 + Math.trunc(await finish_steps(
+                               level_difficulty_steps(state),
+                               impossible_printer(state)) / 2))
                               > ch)) {
                 await ttyPline('You set it off!', state);
                 await b_trapped('door', FINGER, state);
@@ -3489,7 +3499,8 @@ export async function activate_statue_trap(
 export async function b_trapped(item, bodypart, state = game, env = {}) {
     const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
-    const lvl = level_difficulty(state);
+    const lvl = await finish_steps(level_difficulty_steps(state),
+        impossible_printer(state));
     const dmg = random.rnd(5 + (lvl < 5 ? lvl : 2 + Math.trunc(lvl / 2)));
 
     // Soundeffect(se_kaboom, 80) is a sound-backend macro; it has no

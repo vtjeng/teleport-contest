@@ -75,7 +75,7 @@ import {
     ledger_no,
     ledger_to_dlev,
     ledger_to_dnum_async,
-    builds_up,
+    builds_up_steps,
     mapseen_room,
 } from './dungeon.js';
 import { newsym } from './display.js';
@@ -90,7 +90,7 @@ import {
     can_saddle, dismount_steed, put_saddle_on_mon,
 } from './steed.js';
 import { obfree } from './invent.js';
-import { mbirth_limit, rndmonst_adj, set_malign } from './makemon.js';
+import { mbirth_limit, rndmonst_adj_steps, set_malign } from './makemon.js';
 import { discard_minvent, makemon_runtime } from './makemon_create.js';
 import {
     dealloc_monst, healmon, mnearto, minliquid, mnexto,
@@ -237,7 +237,10 @@ export async function pick_familiar_pm(otmp, quietly = false, env = {}) {
     } else {
         const skill = spell_skilltype(SPE_CREATE_FAMILIAR, state);
         const max = 3 * P_SKILL(skill, state);
-        species = rndmonst_adj(0, max, normalized);
+        // dog.c:130. rndmonst_adj() prints level_difficulty()'s and its
+        // own impossible() reports before its draws.
+        species = await finish_steps(rndmonst_adj_steps(0, max, normalized),
+            impossible_printer(state));
         if (!species && !quietly)
             await (normalized.message ?? ttyPline)(
                 'There seems to be nothing available for a familiar.', state,
@@ -1224,7 +1227,10 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
             break;
         }
         if (state.iflags?.debug_fuzzer) {
-            const stairway = stairway_find_dir(!builds_up(u.uz, state), state);
+            // dog.c:803. builds_up()'s impossible() for a dungeon -1 level
+            // prints before the stairs are looked up.
+            const stairway = stairway_find_dir(!await finish_steps(
+                builds_up_steps(u.uz, state), impossible_printer(state)), state);
             if (stairway) {
                 xlocale = stairway.sx;
                 ylocale = stairway.sy;

@@ -207,7 +207,10 @@ import { cvt_sdoor_to_door } from './detect.js';
 import {
     cmap_to_glyph, feel_newsym, flush_screen, map_glyphinfo, newsym, tmp_at,
 } from './display.js';
-import { impossible, verbalize, youFeel, norep_printer } from './pline.js';
+import {
+    impossible, impossible_printer, verbalize, youFeel, norep_printer,
+} from './pline.js';
+import { finish_steps } from './source_steps.js';
 import { in_rooms } from './rooms.js';
 import { acurr, acurrstr, adjalign, exercise } from './attrib.js';
 import {
@@ -255,7 +258,7 @@ import {
 import { altar_wrath, altarmask_at, desecrate_altar } from './pray.js';
 import { angry_priest } from './priest.js';
 import { mk_tt_object } from './mkroom.js';
-import { mkclass } from './makemon.js';
+import { mkclass_steps } from './makemon.js';
 import {
     PM_ARCHEOLOGIST,
     PM_SAMURAI,
@@ -1680,7 +1683,8 @@ async function dig_up_grave(coordinate, rawEnv = {}) {
         const { makemon_runtime } = await import('./makemon_create.js');
         const { stop_occupation } = await import('./allmain.js');
         await makemon_runtime(
-            mkclass(S_ZOMBIE, 0, { state, random }),
+            await finish_steps(mkclass_steps(S_ZOMBIE, 0, { state, random }),
+                impossible_printer(state)),
             x,
             y,
             MM_NOMSG,
@@ -1714,7 +1718,8 @@ async function dig_up_grave(coordinate, rawEnv = {}) {
         const { makemon_runtime } = await import('./makemon_create.js');
         const { stop_occupation } = await import('./allmain.js');
         await makemon_runtime(
-            mkclass(S_MUMMY, 0, { state, random }),
+            await finish_steps(mkclass_steps(S_MUMMY, 0, { state, random }),
+                impossible_printer(state)),
             x,
             y,
             MM_NOMSG,

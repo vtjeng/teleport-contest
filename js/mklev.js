@@ -32,7 +32,7 @@ import {
     ROOM_INDEX,
 } from './dungeon.js';
 import {
-    antholemon,
+    antholemon_steps,
     do_mkroom,
     fill_zoo,
     has_dnstairs,
@@ -918,36 +918,38 @@ async function makelevel(specialLevelLoader = null) {
         const hasConfiguredShopType = configuredShopType !== undefined
             && configuredShopType !== null;
         if (g.wizard && hasConfiguredShopType) {
-            do_mkroom(SHOPBASE, g);
+            await do_mkroom(SHOPBASE, g);
         } else if (u_depth > 1 && u_depth < depth(g.medusa_level)
             && g.level.nroom >= room_threshold && rn2(u_depth) < 3) {
-            do_mkroom(SHOPBASE, g);
+            await do_mkroom(SHOPBASE, g);
         } else if (u_depth > 4 && !rn2(6)) {
-            do_mkroom(COURT, g);
+            await do_mkroom(COURT, g);
         } else if (u_depth > 5 && !rn2(8)
                    && !(g.mvitals[PM_LEPRECHAUN].mvflags & G_GONE)) {
-            do_mkroom(LEPREHALL, g);
+            await do_mkroom(LEPREHALL, g);
         } else if (u_depth > 6 && !rn2(7)) {
-            do_mkroom(ZOO, g);
+            await do_mkroom(ZOO, g);
         } else if (u_depth > 8 && !rn2(5)) {
-            do_mkroom(TEMPLE, g);
+            await do_mkroom(TEMPLE, g);
         } else if (u_depth > 9 && !rn2(5)
                    && !(g.mvitals[PM_KILLER_BEE].mvflags & G_GONE)) {
-            do_mkroom(BEEHIVE, g);
+            await do_mkroom(BEEHIVE, g);
         } else if (u_depth > 11 && !rn2(6)) {
-            do_mkroom(MORGUE, g);
-        } else if (u_depth > 12 && !rn2(8) && antholemon(g)) {
+            await do_mkroom(MORGUE, g);
+        } else if (u_depth > 12 && !rn2(8)
+                   && await finish_steps(antholemon_steps(g),
+                       impossible_printer(g))) {
             // C's antholemon() picks the ant species that fills the hole and
             // answers NON_PM when every candidate is gone.
-            do_mkroom(ANTHOLE, g);
+            await do_mkroom(ANTHOLE, g);
         } else if (u_depth > 14 && !rn2(4)
                    && !(g.mvitals[PM_SOLDIER].mvflags & G_GONE)) {
-            do_mkroom(BARRACKS, g);
+            await do_mkroom(BARRACKS, g);
         } else if (u_depth > 15 && !rn2(6)) {
-            do_mkroom(SWAMP, g);
+            await do_mkroom(SWAMP, g);
         } else if (u_depth > 16 && !rn2(8)
                    && !(g.mvitals[PM_COCKATRICE].mvflags & G_GONE)) {
-            do_mkroom(COCKNEST, g);
+            await do_mkroom(COCKNEST, g);
         }
     }
 
@@ -2223,7 +2225,7 @@ async function makemaz(proto, slev, state) {
             { state });
     }
     await place_branch(is_branchlev(), 0, 0, frame);
-    populate_maze(frame, state);
+    await populate_maze(frame, state);
 }
 
 // C ref: sp_lev.c lspo_map() halign/valign positioning. Translates

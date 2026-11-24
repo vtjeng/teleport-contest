@@ -139,7 +139,7 @@ import { game } from './gstate.js';
 import { can_carry } from './moncarry.js';
 import { dist2, distmin, sgn, strsubst } from './hacklib.js';
 import { makemon_runtime } from './makemon_create.js';
-import { grow_up, rndmonst, set_malign } from './makemon.js';
+import { grow_up, rndmonst_steps, set_malign } from './makemon.js';
 import { awaken_soldiers } from './music.js';
 import { m_next2u } from './mhitu.js';
 import { paralyze_monst } from './mhitm.js';
@@ -1336,7 +1336,7 @@ export function find_misc(monster, rawEnv = {}) {
 // for a monster: if it wears dragon scales or scale mail, become the
 // corresponding dragon; otherwise pick a random monster suitable for the
 // current level.
-export function muse_newcham_mon(mon, rawEnv = {}) {
+export async function muse_newcham_mon(mon, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const m_armr = which_armor(mon, W_ARM, state);
     if (m_armr) {
@@ -1345,7 +1345,9 @@ export function muse_newcham_mon(mon, rawEnv = {}) {
         if (Is_dragon_mail(m_armr))
             return Dragon_mail_to_pm(m_armr, state);
     }
-    return rndmonst(rawEnv);
+    // muse.c:2260. rndmonst() prints level_difficulty()'s and its own
+    // impossible() reports before its draws, and use_misc() can wait.
+    return finish_steps(rndmonst_steps(rawEnv), impossible_printer(state));
 }
 
 // C ref: muse.c mloot_container() (2264-2382). A monster loots items from
@@ -1602,7 +1604,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
         // MUSE_WAN_POLYMORPH
         if (!otmp) throw new Error('use_misc: no wand of polymorph');
         await mzapwand(mtmp, otmp, true, state);
-        const target = muse_newcham_mon(mtmp, { ...env, state });
+        const target = await muse_newcham_mon(mtmp, { ...env, state });
         await newcham(mtmp, target, {
             ...env,
             state,
@@ -1621,7 +1623,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
             await pline_mon(mtmp,
                 `${capitalizedMonsterName(mtmp, state)} suddenly mutates!`,
                 state);
-        const target = muse_newcham_mon(mtmp, { ...env, state });
+        const target = await muse_newcham_mon(mtmp, { ...env, state });
         await newcham(mtmp, target, {
             ...env,
             state,

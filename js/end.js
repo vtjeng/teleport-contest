@@ -112,7 +112,7 @@ import { mk_named_object } from './corpstat.js';
 import { bot, status_finish } from './display.js';
 import { schedule_goto } from './do.js';
 import { m_monnam, mon_nam, Monnam, pmname } from './do_name.js';
-import { adj_lev } from './makemon.js';
+import { adj_lev_steps } from './makemon.js';
 import { deepest_lev_reached } from './dungeon.js';
 import { game } from './gstate.js';
 import { make_grave } from './grave.js';
@@ -179,7 +179,7 @@ import {
     record_achievement,
     show_conduct,
 } from './insight.js';
-import { livelog_printf, youFeel } from './pline.js';
+import { impossible_printer, livelog_printf, youFeel } from './pline.js';
 import { select_menu } from './windows.js';
 import {
     displayTtyMenuTextWindow, displayTtyTextWindow,
@@ -225,7 +225,7 @@ import {
     Blind, Hallucination, Lifesaved, Sick,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
-import { sync_impossible } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 
 // C ref: end.c deaths[] (44-50), "the array of death". Its index is a
 // game_end_types value, so the rows are in include/hack.h:483-498 order.
@@ -994,14 +994,17 @@ async function disclose(how, taken, state) {
 // C ref: restore.c inven_inuse() (113-128), called by end.c's
 // done_object_cleanup(). Store the next link before useup() because consuming
 // the last item in a stack removes it from the inventory chain.
-function finishInUseInventory(state) {
+async function finishInUseInventory(state) {
     // useup()'s obfree() stops the timers and light source of an item still
     // in use, such as a lit potion of oil whose quaff killed the hero.
     const env = objectGenerationEnv({ state });
     for (let obj = state.invent; obj;) {
         const next = obj.nobj;
+        // invent.c useup() -> freeinv() can print and wait (an artifact's
+        // intrinsic, a loadstone's curse); C finishes it before the next
+        // object.
         if (obj.in_use)
-            useup(obj, env);
+            await useup(obj, env);
         obj = next;
     }
 }
@@ -1009,7 +1012,7 @@ function finishInUseInventory(state) {
 // C ref: end.c done_object_cleanup() (851-906). The C globals gt.thrownobj
 // and gk.kickedobj live at state.gt.thrownobj and state.gk.kickedobj.
 export async function done_object_cleanup(state) {
-    finishInUseInventory(state);
+    await finishInUseInventory(state);
 
     const ox0 = state.u.ux + state.u.dx;
     const oy0 = state.u.uy + state.u.dy;
@@ -1579,7 +1582,12 @@ async function really_done(how, state) {
         }
         if (state.schroedingers_cat) {
             const cat = state.mons?.[PM_HOUSECAT];
-            const catLevel = cat ? adj_lev(cat, state) : 1;
+            // end.c:1464. adj_lev() reaches level_difficulty(), whose
+            // builds_up() report prints before d(m_lev, 8).
+            const catLevel = cat
+                ? await finish_steps(adj_lev_steps(cat, state),
+                    impossible_printer(state))
+                : 1;
             state.u.urexp = nowrap_add(state.u.urexp, d(catLevel, 8));
             pets.push("Schroedinger's cat");
         }

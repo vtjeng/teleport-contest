@@ -46,7 +46,7 @@ import {
 } from './do_name.js';
 import { tamedog } from './dog.js';
 import {
-    level_difficulty, level_difficulty_steps, on_level,
+    level_difficulty_steps, on_level,
 } from './dungeon.js';
 import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { sgn } from './hacklib.js';
@@ -633,10 +633,16 @@ export function unmakemon(mon, mmflags, state = game) {
     /* uncreate any artifact that the monster was provided with; unlike
        mongone(), this doesn't protect special items like the Amulet
        by dropping them so caller should handle them when applicable */
-    discard_minvent(mon, true, { state });
-
-    mongone(mon, { state });
-    return null;
+    // nasty() waits for the result: mongone() answers a promise when the
+    // removal prints or waits (mon.c m_detach() -> mon_leaving_level()).
+    const afterDiscard = () => {
+        const gone = mongone(mon, { state });
+        return gone && typeof gone.then === 'function'
+            ? gone.then(() => null) : null;
+    };
+    const discarded = discard_minvent(mon, true, { state });
+    return discarded && typeof discarded.then === 'function'
+        ? discarded.then(afterDiscard) : afterDiscard();
 }
 
 // C ref: makemon.c mbirth_limit().
@@ -1016,20 +1022,37 @@ export function mkclass(classSymbol, special = 0, env = {}) {
     return mkclass_aligned(classSymbol, special, A_NONE, env);
 }
 
+export function* mkclass_steps(classSymbol, special = 0, env = {}) {
+    return yield* mkclass_aligned_steps(classSymbol, special, A_NONE, env);
+}
+
 // C ref: makemon.c mkclass_aligned(). `special` contains mons[].geno bits
 // exempted from normal rejection. G_IGNORE is a pseudo-flag: it disables the
 // G_GONE mvitals check, then is removed before the geno mask is applied.
 // `atyp` restricts selection to monsters whose alignment sign matches.
+// Its two impossible() reports, level_difficulty()'s and adj_lev()'s are
+// steps (js/source_steps.js); mkclass_aligned() is the synchronous form,
+// which queues them for the next message.
 export function mkclass_aligned(classSymbol, special = 0, atyp = A_NONE,
+    env = {}) {
+    return finish_steps(mkclass_aligned_steps(classSymbol, special, atyp, env),
+        sync_impossible, env.state ?? game);
+}
+
+export function* mkclass_aligned_steps(classSymbol, special = 0, atyp = A_NONE,
     env = {}) {
     const normalized = generationEnv(env);
     const { random, state } = normalized;
     if (typeof random.rnd !== 'function')
         throw new TypeError('mkclass random injection requires rnd');
+    // makemon.c:1890. C reads the difficulty before it checks the class, and
+    // halves it with an arithmetic shift, which rounds a negative difficulty
+    // (a dungeon -1 level) down.
+    const maxLevel = (yield* level_difficulty_steps(state)) >> 1;
     if (!Number.isInteger(classSymbol)
         || classSymbol < 1 || classSymbol >= MAXMCLASSES) {
         // C: impossible("mkclass called with bad class!");
-        sync_impossible('mkclass called with bad class!', state);
+        yield new ImpossibleCall('mkclass called with bad class!');
         return null;
     }
 
@@ -1037,7 +1060,6 @@ export function mkclass_aligned(classSymbol, special = 0, atyp = A_NONE,
     const mongen_order = state._mongen_order;
     const zeroFrequencyForEntireClass = state._mclass_maxf[classSymbol] === 0;
     const nums = new Array(SPECIAL_PM + 1).fill(0);
-    const maxLevel = Math.trunc(level_difficulty(state) / 2);
     const gehennom = inHell(state);
 
     // Find first entry in mongen_order where the class matches.
@@ -1047,8 +1069,8 @@ export function mkclass_aligned(classSymbol, special = 0, atyp = A_NONE,
     }
     if (first === SPECIAL_PM) {
         // C: impossible("mkclass found no class %d monsters", class);
-        sync_impossible(
-            `mkclass found no class ${classSymbol} monsters`, state);
+        yield new ImpossibleCall(
+            `mkclass found no class ${classSymbol} monsters`);
         return null;
     }
 
@@ -1086,7 +1108,7 @@ export function mkclass_aligned(classSymbol, special = 0, atyp = A_NONE,
             if (!k) k = zeroFrequencyForEntireClass ? 1 : 0;
             if (k > 0) {
                 nums[mongen_order[last]] = k + 1 - Number(
-                    adj_lev(state.mons[mongen_order[last]], state)
+                    (yield* adj_lev_steps(state.mons[mongen_order[last]], state))
                         > state.u.ulevel * 2,
                 );
                 num += nums[mongen_order[last]];

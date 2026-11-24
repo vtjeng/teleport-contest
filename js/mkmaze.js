@@ -1472,8 +1472,10 @@ export function create_maze(corrwid, wallthick, rmDeadends, frame, state) {
 
 // C ref: mkmaze.c populate_maze() (1095-1124).  Every placement call has a
 // discarded return in C, so a failed placement does not alter the remaining
-// random-call sequence.
-export function populate_maze(frame, state = game) {
+// random-call sequence. makemaz() waits for it: makemon() answers a Promise
+// when a new shapechanger's first newcham() waits (the wizard-mode
+// mon_polycontrol prompt), and C finishes each call before the next.
+export async function populate_maze(frame, state = game) {
     const env = objectGenerationEnv({
         state,
         random: coreRandom,
@@ -1484,25 +1486,25 @@ export function populate_maze(frame, state = game) {
     let count = rn1(8, 11);
     for (; count; --count) {
         const point = mazexy(null, frame, state);
-        mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS,
-                 point.x, point.y, true, env);
+        await mkobj_at(rn2(2) ? GEM_CLASS : RANDOM_CLASS,
+            point.x, point.y, true, env);
     }
     count = rn1(10, 2);
     for (; count; --count) {
         const point = mazexy(null, frame, state);
-        mksobj_at(BOULDER, point.x, point.y, true, false, env);
+        await mksobj_at(BOULDER, point.x, point.y, true, false, env);
     }
     count = rn2(3);
     for (; count; --count) {
         const point = mazexy(null, frame, state);
-        makemon(state.mons[PM_MINOTAUR], point.x, point.y, NO_MM_FLAGS,
-                { state, random: coreRandom, hooks: env.hooks });
+        await makemon(state.mons[PM_MINOTAUR], point.x, point.y, NO_MM_FLAGS,
+            { state, random: coreRandom, hooks: env.hooks });
     }
     count = rn1(5, 7);
     for (; count; --count) {
         const point = mazexy(null, frame, state);
-        makemon(null, point.x, point.y, NO_MM_FLAGS,
-                { state, random: coreRandom, hooks: env.hooks });
+        await makemon(null, point.x, point.y, NO_MM_FLAGS,
+            { state, random: coreRandom, hooks: env.hooks });
     }
     count = rn1(6, 7);
     for (; count; --count) {
@@ -1511,7 +1513,7 @@ export function populate_maze(frame, state = game) {
     }
     count = rn1(6, 7);
     for (; count; --count)
-        mktrap(0, MKTRAP_MAZEFLAG, null, null, env);
+        await mktrap(0, MKTRAP_MAZEFLAG, null, null, env);
 }
 
 // C ref: mkmaze.c mazexy() (1313-1350).  `coordinate` mirrors the output

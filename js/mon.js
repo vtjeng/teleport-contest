@@ -215,7 +215,7 @@ import {
     has_ceiling,
     In_W_tower_steps,
     ledger_no,
-    level_difficulty,
+    level_difficulty_steps,
     on_level,
     On_W_tower_level,
     surface,
@@ -3740,11 +3740,18 @@ async function m_respond_shrieker(monster, rawEnv = {}) {
             await stopOccupation({ ...rawEnv, state });
     }
     if (!random.rn2(10)) {
-        const strong = state.mons?.[PM_PURPLE_WORM]?.difficulty
-            > Math.trunc((level_difficulty(state) + state.u.ulevel) / 2);
-        const species = random.rn2(13)
-            ? null
-            : state.mons?.[strong ? PM_BABY_PURPLE_WORM : PM_PURPLE_WORM];
+        // mon.c:4098-4101. The conditional draws rn2(13) first, and only
+        // its purple worm arm calls monmax_difficulty_lev(), whose
+        // level_difficulty() can print builds_up()'s report.
+        let species = null;
+        if (!random.rn2(13)) {
+            const strong = state.mons?.[PM_PURPLE_WORM]?.difficulty
+                > Math.trunc((await finish_steps(
+                    level_difficulty_steps(state), impossible_printer(state))
+                    + state.u.ulevel) / 2);
+            species = state.mons?.[strong
+                ? PM_BABY_PURPLE_WORM : PM_PURPLE_WORM];
+        }
         const makeMonster = rawEnv.makemon ?? makemon_runtime;
         await makeMonster(species, 0, 0, 0, {
             ...rawEnv,
@@ -4183,8 +4190,15 @@ export function normal_shape(mon, state = game, rawEnv = {}) {
             mon.cham = NON_PM;
             // newcham() may uncancel a polymorphing monster; C overrides that.
             if (mcan) mon.mcan = 1;
-            redrawSquare(mon.mx, mon.my);
-            return finishWere();
+            // mon.c:4443. Every caller waits, so display.c newsym()'s
+            // impossible() reports print here, where C prints them: dog.c
+            // mon_arrive() reverts an arriving shapeshifter that is still at
+            // <0,0>, and newsym() reports that column.
+            const drawn = redrawSquare === newsym
+                ? newsym_async(mon.mx, mon.my, { state })
+                : redrawSquare(mon.mx, mon.my);
+            return drawn && typeof drawn.then === 'function'
+                ? drawn.then(finishWere) : finishWere();
         };
         if (pending && typeof pending.then === 'function')
             return pending.then(afterShape);

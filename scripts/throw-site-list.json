@@ -1440,7 +1440,7 @@
       "c": null,
       "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
     },
-    "js/makemon.js | mkclass_aligned | 'mkclass random injection requires rnd'": {
+    "js/makemon.js | mkclass_aligned_steps | 'mkclass random injection requires rnd'": {
       "count": 1,
       "class": "invariant",
       "c": null,
