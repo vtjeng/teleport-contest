@@ -31,7 +31,7 @@ export async function nhgetch(state = game) {
     if (state?.nhDisplay?.windowprocsHup) return KEY_ESC;
     // C has printed every line it raised before it reads a key (js/rng.js,
     // "Queued output").
-    if (state === game) checkQueuedOutput('key', 'nhgetch()');
+    if (state === game) checkQueuedOutput('key', 'a key read');
     // Fire the capture hook before reading the next key
     const hook = state._preNhgetchHook;
     if (hook) await hook();

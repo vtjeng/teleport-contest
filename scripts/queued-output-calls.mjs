@@ -38,7 +38,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import * as acorn from 'acorn';
+import { parse as acornParse } from 'acorn';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 export const PROJECT_ROOT = resolve(dirname(SCRIPT_PATH), '..');
@@ -185,7 +185,7 @@ export function buildGraph(sources) {
     const fns = [];
     const modules = new Map();
     for (const [file, text] of Object.entries(sources)) {
-        const ast = acorn.parse(text, {
+        const ast = acornParse(text, {
             ecmaVersion: 'latest', sourceType: 'module', locations: true, allowHashBang: true,
         });
         const module = { file, text, functions: new Map(), imports: new Map(),
@@ -389,6 +389,38 @@ function isFlush(statement) {
         && awaited.callee.name === 'emitQueuedNotices';
 }
 
+// The variable a statement stores `call` in: `const name = call` or
+// `name = call`.
+function assignedName(statement, call) {
+    if (statement.type === 'VariableDeclaration') {
+        const decl = statement.declarations.find((d) => d.init?.start === call.start
+            && d.init?.end === call.end);
+        return decl?.id.type === 'Identifier' ? decl.id.name : null;
+    }
+    const expr = statement.type === 'ExpressionStatement' ? statement.expression : null;
+    if (expr?.type === 'AssignmentExpression' && expr.left.type === 'Identifier'
+        && expr.right.start === call.start && expr.right.end === call.end)
+        return expr.left.name;
+    return null;
+}
+
+// True when `statement` awaits the variable `name` somewhere.
+function awaitsName(statement, name) {
+    if (!statement) return false;
+    let found = false;
+    const visit = (node) => {
+        if (found || FUNCTION_TYPES.has(node.type)) return;
+        if (node.type === 'AwaitExpression' && node.argument?.type === 'Identifier'
+            && node.argument.name === name) {
+            found = true;
+            return;
+        }
+        for (const child of children(node)) visit(child);
+    };
+    visit(statement);
+    return found;
+}
+
 // The statement list a statement sits in, if any.
 function siblings(statement, parent) {
     if (parent?.type === 'BlockStatement' || parent?.type === 'Program'
@@ -466,14 +498,14 @@ export function scanQueuedOutputCalls(sources) {
     // it.
     const byFile = new Map();
     for (const call of calls) {
-        if (call.form === 'flushed' || call.form === 'unawaited') continue;
+        if (call.form === 'flushed') continue;
         if (!byFile.has(call.file)) byFile.set(call.file, new Map());
         byFile.get(call.file).set(`${call.start}:${call.end}`, call);
     }
     const LOOPS = new Set(['ForStatement', 'ForInStatement', 'ForOfStatement',
         'WhileStatement', 'DoWhileStatement']);
     for (const [file, byOffset] of byFile) {
-        const ast = acorn.parse(sources[file], {
+        const ast = acornParse(sources[file], {
             ecmaVersion: 'latest', sourceType: 'module', locations: true, allowHashBang: true,
         });
         const stack = [];
@@ -502,7 +534,16 @@ export function scanQueuedOutputCalls(sources) {
                         call.statementEnd = ancestor.end;
                         call.container = ancestor.type;
                         call.inLoop = inLoop;
-                        if (!inLoop && isFlush(list[index + 1])) call.form = 'flushed';
+                        if (call.form === 'unawaited') {
+                            // `const result = draw(); ... await result ...;`
+                            // followed by the flush: the promise settles
+                            // before the print.
+                            const name = assignedName(ancestor, node);
+                            if (!inLoop && name && awaitsName(list[index + 1], name)
+                                && isFlush(list[index + 2])) call.form = 'flushed';
+                        } else if (!inLoop && isFlush(list[index + 1])) {
+                            call.form = 'flushed';
+                        }
                         break;
                     }
                 }

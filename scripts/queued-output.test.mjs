@@ -62,7 +62,7 @@ test('a draw made while the queue drains is recorded; a key read is not', () => 
     withQueue([], () => {
         game._emittingGlyphUpdateNotices = true;
         rn2(3);
-        checkQueuedOutput('key', 'nhgetch()');
+        checkQueuedOutput('key', 'a key read');
     });
     const found = queuedOutputViolations();
     assert.equal(found.count, 1);

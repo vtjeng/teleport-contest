@@ -1612,14 +1612,14 @@ test('shkcatch waits for mnearto before source speech and catch effects', () => 
     assert.ok(cSpeak < cBill && cBill < cCatch);
 
     const jsBody = sourceBody(JS_SHK, 'export async function shkcatch(');
-    const jsMove = jsBody.indexOf('if (await mnearto(shkp, x, y, true');
+    const jsMove = jsBody.indexOf('const moved = await mnearto(shkp, x, y, true');
     const jsVoice = jsBody.indexOf('set_voice(shkp, 0, 80, 0, state);', jsMove);
     const jsSpeak = jsBody.indexOf("await verbalize('Out of my way, scum!'", jsVoice);
     const jsBill = jsBody.indexOf('subfrombill(obj, shkp, state, rawEnv);', jsSpeak);
     const jsCatch = jsBody.indexOf('mpickobj(shkp, obj, { ...rawEnv, state });', jsBill);
     assert.ok(jsMove >= 0 && jsMove < jsVoice && jsVoice < jsSpeak);
     assert.ok(jsSpeak < jsBill && jsBill < jsCatch);
-    assert.match(jsBody, /\{\s*\.\.\.rawEnv,\s*state,\s*\}\) === 2/);
+    assert.match(jsBody, /\{\s*\.\.\.rawEnv,\s*state,\s*\}\);\s*if \(noticesQueued\(\)\) await emitQueuedNotices\(\);\s*if \(moved === 2/);
 });
 
 test('pay_for_damage outside first-slot buffer relocates keeper to its owned door', async () => {

@@ -2220,6 +2220,7 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
     const { state } = normalized;
     const drawn = redrawSquareWaiting(monster.mx, monster.my, normalized);
     if (drawn) await drawn;
+    if (noticesQueued()) await emitQueuedNotices();
     const appearance = runtimeAppearanceMessage(monster, mmflags, normalized);
     if (appearance) {
         await normalized.norepMessage(appearance, state, normalized);
@@ -2624,7 +2625,9 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
         runtimeContinuation,
         onImpossible: impossible_printer(env.state ?? game),
     });
-    const monster = await makemon(ptr, x, y, mmflags, normalized);
+    const maybeMonster = makemon(ptr, x, y, mmflags, normalized);
+    const monster = maybeMonster && typeof maybeMonster.then === 'function'
+        ? await maybeMonster : maybeMonster;
     if (noticesQueued()) await emitQueuedNotices();
     if (!monster) return null;
     // C's one makemon() tests in_mklev itself, so a runtime caller can

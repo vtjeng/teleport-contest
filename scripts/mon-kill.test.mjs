@@ -1,4 +1,5 @@
 import { takeQueuedReports } from './queued-reports.mjs';
+import { remember_topl } from '../js/topl.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
@@ -147,7 +148,7 @@ import {
 } from '../js/const.js';
 import { newedog } from '../js/dog.js';
 import { m_dowear } from '../js/worn.js';
-import { clearTtyMessageWindow } from '../js/tty_message.js';
+import { clearTtyMessageWindow, messageWindow } from '../js/tty_message.js';
 import { RIDE_COMMAND, loadRideDismountRecipe }
     from './run-ride-dismount.mjs';
 import { glyph_is_invisible, map_invisible } from '../js/display.js';
@@ -874,13 +875,17 @@ test('m_detach takes the monster off the map and drops what it carried',
         assert.deepEqual(env.lines, [], 'a dead monster drops in silence');
 
         // mon.c m_detach():2791-2797: a second detach is reported through
-        // impossible() and does not count the purge again.
+        // impossible() and does not count the purge again. C prints the
+        // report inside m_detach(), and the port prints it before m_detach()
+        // returns; each of impossible()'s three lines waits at --More--.
         game.unported = new Set();
+        for (let i = 0; i < 6; ++i) game.nhDisplay.pushKey(32); // spaces for --More--
         await m_detach(mon, mon.data, true, game, killEnv());
         assert.equal(game.iflags.purge_monsters, 1);
-        const reports = takeQueuedReports(game);
-        assert.equal(reports.length, 1);
-        assert.match(reports[0], /^m_detach: .+ is already detached\?$/u);
+        assert.deepEqual(takeQueuedReports(game), [], 'the report printed');
+        remember_topl(game);
+        assert.match(messageWindow(game).data.filter(Boolean).join('\n'),
+            /m_detach: .+ is already detached\?/u);
     });
 
 test('m_detach generically dismounts a steed after detaching its corpse',

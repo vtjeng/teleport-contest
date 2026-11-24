@@ -146,7 +146,7 @@ export function terminationViolations() {
 // them, so a replay shows the chain that broke the rule. The judge's
 // runSegment() only records them. Only the live game's queue counts: a
 // projected state's queue is discarded with the copy.
-const QUEUED_OUTPUT_KEPT = 20;
+const queuedOutputKept = 20;
 let _queuedOutput = { count: 0, kept: [] };
 
 export function resetQueuedOutput() {
@@ -170,7 +170,7 @@ export function checkQueuedOutput(kind, detail) {
         what = `${detail} with ${queued} queued`;
     }
     _queuedOutput.count += 1;
-    if (_queuedOutput.kept.length < QUEUED_OUTPUT_KEPT)
+    if (_queuedOutput.kept.length < queuedOutputKept)
         _queuedOutput.kept.push({ kind, detail: what });
 }
 

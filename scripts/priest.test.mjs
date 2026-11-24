@@ -377,5 +377,5 @@ test('move_special checks the hero room after a shopkeeper enters its shop', () 
     const jsEnd = PRIEST_JS_SOURCE.indexOf('// C ref: priest.c pri_move()', jsStart);
     const jsFunction = PRIEST_JS_SOURCE.slice(jsStart, jsEnd);
     assert.match(jsFunction,
-        /place_monster\(mtmp, nix, niy, state\);\s*redraw\(nix, niy\);\s*if \(mtmp\.isshk && !inHisShop\)[\s\S]*?await check_special_room\(false, state,/u);
+        /place_monster\(mtmp, nix, niy, state\);\s*redraw\(nix, niy\);\s*(?:if \(noticesQueued\(\)\) await emitQueuedNotices\(\);\s*)?if \(mtmp\.isshk && !inHisShop\)[\s\S]*?await check_special_room\(false, state,/u);
 });
