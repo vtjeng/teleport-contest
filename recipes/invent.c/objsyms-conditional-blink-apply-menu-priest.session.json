@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 56565,
+      "datetime": "20330707171700",
+      "nethackrc": "OPTIONS=name:Eadric,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:conditional,menu_headings:blink\n",
+      "moves": "a?\u001bi "
+    }
+  ],
+  "comment": "menu_objsyms:conditional and menu_headings:blink in the apply command's ? menu from invent.c getobj() and in the inventory."
+}

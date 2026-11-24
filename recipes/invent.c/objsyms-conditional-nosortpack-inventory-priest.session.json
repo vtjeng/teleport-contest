@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 67676,
+      "datetime": "20290808181800",
+      "nethackrc": "OPTIONS=name:Fenella,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!sortpack\n",
+      "moves": "i a?\u001b"
+    }
+  ],
+  "comment": "With !sortpack the menus have no class headings, so the default menu_objsyms:conditional shows the symbol in each entry, in the inventory and in apply's ? menu."
+}

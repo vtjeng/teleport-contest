@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 34343,
+      "datetime": "20310505151500",
+      "nethackrc": "OPTIONS=name:Cerys,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:both,menu_headings:red&inverse\n",
+      "moves": "DAa\n\u001b,>.\n          "
+    }
+  ],
+  "comment": "menu_objsyms:both and menu_headings:red&inverse. The Wizard drops everything with D A a (escape cuts the drop messages), then picks it all up from the pickup menu of pickup.c pickup()."
+}

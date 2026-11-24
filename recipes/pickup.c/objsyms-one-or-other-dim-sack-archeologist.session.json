@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 45454,
+      "datetime": "20280606161600",
+      "nethackrc": "OPTIONS=name:Desmond,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:one-or-other,menu_headings:dim\n",
+      "moves": "ahia\nd\n  "
+    }
+  ],
+  "comment": "menu_objsyms:one-or-other and menu_headings:dim in the container menus of pickup.c use_container()."
+}

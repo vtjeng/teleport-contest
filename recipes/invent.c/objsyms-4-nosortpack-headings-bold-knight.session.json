@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 20202,
+      "datetime": "20300101030300",
+      "nethackrc": "OPTIONS=name:Kay,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:4,!sortpack,menu_headings:bold\n",
+      "moves": "i Da\n\u001b"
+    }
+  ],
+  "comment": "menu_objsyms:4 (conditional) with !sortpack and menu_headings:bold: no class headings, so each entry shows its symbol."
+}

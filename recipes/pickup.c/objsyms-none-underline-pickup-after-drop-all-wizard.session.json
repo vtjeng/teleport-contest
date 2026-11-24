@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 30303,
+      "datetime": "20310202040400",
+      "nethackrc": "OPTIONS=name:Lorcan,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:none,menu_headings:underline\n",
+      "moves": "DAa\n\u001b,><\u001b"
+    }
+  ],
+  "comment": "menu_objsyms:none and menu_headings:underline in the pickup menu after the Wizard drops everything; > and < at the last page do nothing."
+}
