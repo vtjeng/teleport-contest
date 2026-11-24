@@ -1495,24 +1495,44 @@ test('js/ has no second port of a do_name.c naming function', () => {
         exported.filter((name) => !cNames.has(name)), ['rndmonnamDetails'],
     );
 
-    // No function elsewhere in js/ is only a call of one of the monster
-    // naming functions, with or without its first letter raised.
+    // No function elsewhere in js/ opens with a call of one of the monster
+    // naming functions, returned or saved, with or without its first letter
+    // raised, unless it carries the name of a C function, as uhitm.c
+    // dynamic_multi_reason() does.
+    const sourceDir = 'nethack-c/upstream/src';
+    const allCNames = new Set(readdirSync(sourceDir)
+        .filter((file) => file.endsWith('.c'))
+        .flatMap((file) => [...readFileSync(`${sourceDir}/${file}`, 'utf8')
+            .matchAll(/^([A-Za-z_][A-Za-z0-9_]*)\(/gmu)].map((match) => match[1])));
     const naming = 'x_monnam|l_monnam|mon_nam|noit_mon_nam|some_mon_nam|Monnam'
         + '|noit_Monnam|Some_Monnam|noname_monnam|m_monnam|y_monnam|YMonnam'
         + '|Adjmonnam|a_monnam|Amonnam|distant_monnam|mon_nam_too';
     const wrapper = new RegExp(
         '(?:function\\*? ([A-Za-z_$][A-Za-z0-9_$]*)\\([^)]*\\) \\{'
         + '|(?:const|let) ([A-Za-z_$][A-Za-z0-9_$]*) = (?:async )?\\([^)]*\\) =>(?: \\{)?)'
-        + `\\s*(?:return )?(?:upstart\\(|s_suffix\\()*(?:${naming})\\(`,
+        + `\\s*(?:(?:const|let) [A-Za-z_$]+ = |return )?(?:upstart\\(|s_suffix\\()*(?:${naming})\\(`,
         'gu',
     );
     const wrappers = [];
     for (const [file, source] of sources) {
         if (file === 'do_name.js') continue;
-        for (const match of source.matchAll(wrapper))
-            wrappers.push(`${file} ${match[1] ?? match[2]}`);
+        for (const match of source.matchAll(wrapper)) {
+            const name = match[1] ?? match[2];
+            if (!allCNames.has(name)) wrappers.push(`${file} ${name}`);
+        }
     }
     assert.deepEqual(wrappers, []);
+
+    // Callers of mcastu.c and muse.c functions put Monnam() and mon_nam() on
+    // an env as `monsterName` and `monnam` operations: five and two. C calls
+    // the functions directly. Lower a count when a provider is removed.
+    const providers = (key) => [...sources.values()].reduce(
+        (sum, source) => sum
+            + (source.match(new RegExp(`^\\s*${key}: \\(`, 'gmu'))?.length ?? 0),
+        0,
+    );
+    assert.equal(providers('monsterName'), 5);
+    assert.equal(providers('monnam'), 2);
 });
 
 // potion.c djinni_from_bottle() 2826 names the djinni with a_monnam(). The
