@@ -846,7 +846,7 @@
       "c": "src/dungeon.c:init_dungeons()",
       "reason": "Synchronous stand-in for end.c panic() used by the dungeon.lua loading and lookup code, whose C counterparts call panic()."
     },
-    "js/dungeon.js | print_mapseen | `print_mapseen: unknown dungeon ${dnum}`": {
+    "js/dungeon.js | print_mapseen_steps | `print_mapseen: unknown dungeon ${dnum}`": {
       "count": 1,
       "class": "guard",
       "c": "src/dungeon.c:print_mapseen()",
