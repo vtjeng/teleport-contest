@@ -120,7 +120,15 @@ async function main(args) {
         const stderr = (child.stderr || '')
             .replace(/^fatal: not a git repository[^\n]*\n?/m, '');
         if (stderr) process.stderr.write(stderr);
-        if (child.error || child.status !== 0) throw new Error('runner failed');
+        if (child.error || child.status !== 0) {
+            // Say why here: an error thrown from the clean-up below would
+            // otherwise replace this one.
+            const why = child.error?.code === 'ETIMEDOUT' ? 'timed out'
+                : child.error ? child.error.message
+                : child.signal ? `killed by ${child.signal}` : `exit status ${child.status}`;
+            console.error(`score-recordings: runner failed (${why})`);
+            throw new Error('runner failed');
+        }
         const totals = summarizeRecordings(parseRunnerBundle(child.stdout));
         for (const name of totals.failing) console.log(`  FAIL: ${name}`);
         console.log(formatSummary(totals));

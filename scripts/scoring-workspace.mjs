@@ -101,7 +101,9 @@ export function runScorer(targetRoot) {
         cwd: targetRoot,
         encoding: 'utf8',
         // Allow the scorer's normal per-session timeout across an entire suite.
-        timeout: 10 * 60 * 1000,
+        // A quarter of the recordings corpus takes about seven minutes on an
+        // idle five-core machine, so ten minutes ran out on a loaded runner.
+        timeout: 30 * 60 * 1000,
         maxBuffer: 64 * 1024 * 1024,
         env: {
             ...process.env,
@@ -286,7 +288,9 @@ export function removeScoringWorkspace(targetRoot) {
     if (!resolve(targetRoot).startsWith(expectedPrefix)) {
         throw new Error('refusing to remove an unexpected scoring path');
     }
-    rmSync(targetRoot, { recursive: true, force: true });
+    // A scorer killed by its timeout can leave workers writing here for a
+    // moment; retry instead of failing with ENOTEMPTY.
+    rmSync(targetRoot, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
