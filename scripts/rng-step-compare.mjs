@@ -33,24 +33,9 @@ const PROJECT_ROOT = resolve(SCRIPT_PATH, '..', '..');
 // reason the port still lags there. scripts/rng-step-compare.test.mjs pins
 // the count; scripts/score-recordings.mjs fails when a recording here comes
 // into step, so remove the entry and lower the count in the same commit.
-export const LAGGING_RECORDINGS = new Map([
-    ['allmain.c/mention-map-warning-notice-before-turn-end.session.json',
-        'display.c show_glyph() notice queued from synchronous code'],
-    ['display.c/mention-map-light-source-warning-notice.session.json',
-        'display.c show_glyph() notice queued from synchronous code'],
-    ['display.c/queued-notice-status-accessiblemsg.session.json',
-        'display.c show_glyph() notice queued from synchronous code'],
-    ['display.c/queued-notice-status-hilites.session.json',
-        'display.c show_glyph() notice queued from synchronous code'],
-    ['display.c/queued-notice-status-kill-on-fountain.session.json',
-        'display.c show_glyph() notice queued from synchronous code'],
-    ['display.c/queued-notice-status-nested-monster-notice.session.json',
-        'display.c show_glyph() notice queued from synchronous code'],
-    ['display.c/queued-notice-status-three-rows.session.json',
-        'display.c show_glyph() notice queued from synchronous code'],
-    ['shk.c/onbill-carried-out-eat-food.session.json',
-        'pline.c impossible() report queued from synchronous code'],
-]);
+// An entry is a path relative to recordings/ and a reason:
+//   ['mon.c/some-recipe.session.json', 'why the port cannot wait there'],
+export const LAGGING_RECORDINGS = new Map([]);
 
 // The judge's own test for a log entry that is a random-number call
 // (frozen/ps_test_runner.mjs isRngCall()), after its index prefix is removed.

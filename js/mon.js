@@ -4888,14 +4888,23 @@ export function m_detach(
         }
     };
 
-    const finishAfterLeaving = () => {
+    const afterLeaving = () => {
         mtmp.mhp = 0; /* "simplify some tests: force mhp to 0" */
         /* mon.c:2758-2762. This bookkeeping also applies when mongone()
            removes the Wizard alive, and precedes due-to-death effects. */
         if (mtmp.iswiz) wizdeadorgone(state, env.random);
-
+    };
+    const finishAfterLeaving = () => {
         if (due_to_death) {
             const finishDeathEffects = async () => {
+                // mon_leaving_level() ends in newsym(mx, my) (mon.c:2725),
+                // and display.c show_glyph() prints a mention_map notice
+                // inside it, waiting at its --More-- before
+                // wizdeadorgone()'s rn1() and the caller's later draws.
+                // Every caller with due_to_death waits, so the notice
+                // prints here; mongone()'s stays queued.
+                await emitGlyphUpdateNotices(state, { pline: ttyPline });
+                afterLeaving();
                 if (mtmp.data.msound === MS_NEMESIS) {
                     // mon.c:2769-2773. nemdead() displays and records the
                     // role's quest message before stinky_nemesis() reads its
@@ -4924,6 +4933,7 @@ export function m_detach(
             };
             return finishDeathEffects();
         }
+        afterLeaving();
         return finishDetach();
     };
     const leaving = mon_leaving_level(mtmp, state, env);

@@ -4119,14 +4119,22 @@ export function newsym(x, y) {
 }
 
 // newsym() for a caller that can wait, which awaits the result: it prints
-// wall_angle()'s impossible() where C's newsym() reaches it. env.redraw is
+// wall_angle()'s impossible() where C's newsym() reaches it, and then the
+// lines the draw queued (js/startup_a11y.js queueNoticeLine()): show_glyph()
+// prints its mention_map notice inside newsym(), and C waits at that line's
+// --More-- before the caller's next random-number call. env.redraw is
 // the newsym() a caller injected; any function but newsym itself draws
-// synchronously, as vision_recalc() treats it.
+// synchronously, as vision_recalc() treats it. The result is a promise only
+// when something printed.
 export function newsym_async(x, y, env = {}) {
     const state = env.state ?? game;
     const redraw = env.redraw ?? newsym;
-    if (redraw !== newsym) return redraw(x, y, state);
-    return finish_steps(newsym_steps(x, y), impossible_printer(state, env));
+    const drawn = redraw !== newsym ? redraw(x, y, state)
+        : finish_steps(newsym_steps(x, y), impossible_printer(state, env));
+    const printQueued = () => (state._glyphUpdateNotices?.length
+        ? emitGlyphUpdateNotices(state).then(() => undefined) : undefined);
+    return drawn && typeof drawn.then === 'function'
+        ? drawn.then(printQueued) : printQueued();
 }
 
 export function* newsym_steps(x, y) {

@@ -113,7 +113,7 @@ import {
     oname,
     rndghostname,
 } from './do_name.js';
-import { newsym } from './display.js';
+import { newsym, newsym_async } from './display.js';
 import {
     depth,
     In_hell,
@@ -631,6 +631,19 @@ export function redrawSquare(x, y, normalized) {
     } else if (normalized.state === game) {
         newsym(x, y);
     }
+}
+
+// redrawSquare() for a caller that can wait, which awaits or yields the
+// result: display.c show_glyph() prints its mention_map notice inside C's
+// newsym(), and makemon() goes on after that line's --More--
+// (js/display.js newsym_async()). The result is a promise only when
+// something printed.
+export function redrawSquareWaiting(x, y, normalized) {
+    if (typeof normalized.hooks?.newsym !== 'function'
+        && normalized.state === game)
+        return newsym_async(x, y, { state: game });
+    redrawSquare(x, y, normalized);
+    return undefined;
 }
 
 function runtimeAppearanceMessage(monster, mmflags, normalized) {
@@ -2201,7 +2214,8 @@ function* finishMonsterInventoryAndStrategySteps(
 
 async function finishRuntimeCreationTail(monster, mmflags, normalized) {
     const { state } = normalized;
-    redrawSquare(monster.mx, monster.my, normalized);
+    const drawn = redrawSquareWaiting(monster.mx, monster.my, normalized);
+    if (drawn) await drawn;
     const appearance = runtimeAppearanceMessage(monster, mmflags, normalized);
     if (appearance) {
         await normalized.norepMessage(appearance, state, normalized);
@@ -2472,7 +2486,12 @@ function* makemon_steps(ptr, x, y, mmflags, normalized) {
         // original byyou flag even after enexto() moved the monster away from
         // the hero's square. Preserve both source calls so displaced and
         // unseen heroes consume the same placement draw as C.
-        redrawSquare(monster.mx, monster.my, normalized);
+        // A caller that passes onImpossible accepts a promise
+        // (js/source_steps.js), so the notice newsym() raises prints here,
+        // before the inventory draws. Any other caller's stays queued.
+        if (normalized.onImpossible)
+            yield redrawSquareWaiting(monster.mx, monster.my, normalized);
+        else redrawSquare(monster.mx, monster.my, normalized);
         set_apparxy(monster, normalized);
     }
     // C ref: makemon.c:1397-1402. Demon princes who use the bribe sound

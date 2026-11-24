@@ -13,10 +13,11 @@ import { assertExceptionCount } from './exception-count.mjs';
 import { LAGGING_RECORDINGS, combineSegments, compareSegmentSteps } from './rng-step-compare.mjs';
 import { RECORDINGS_DIR, listRecordings } from './score-recordings.mjs';
 
-// The recordings that lagged when the check was added on 23 November 2026:
-// seven where display.c show_glyph() prints a notice from code the port
-// runs synchronously, and one where pline.c impossible() does.
-const LAGGING_COUNT = 8;
+// Eight recordings lagged when the check was added on 23 November 2026:
+// seven where display.c show_glyph() printed a notice from code the port
+// ran synchronously, and one where pline.c impossible() did. The same
+// branch brought all eight into step.
+const LAGGING_COUNT = 0;
 
 test('the list of lagging recordings holds existing recordings, each with a reason', () => {
     assertExceptionCount(LAGGING_RECORDINGS.size, LAGGING_COUNT, {
