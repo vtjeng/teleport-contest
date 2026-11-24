@@ -6,7 +6,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { analyse, columns, drawCalls, guardTests } from './column-zero-guard.mjs';
+import {
+    analyse, columns, drawCalls, guardTests, skipDeadConditionals,
+} from './column-zero-guard.mjs';
 
 // Functions whose counts differ, each compared with the C source by hand on
 // 23 November 2026. None adds or drops a guard on a drawing call.
@@ -35,8 +37,6 @@ const REVIEWED = new Map([
 // drops a column test. Remove an entry when the function is ported under its
 // C name. `node scripts/column-zero-guard.mjs --list` prints them.
 const REVIEWED_UNPORTED = new Map([
-    ['dig.c bury_monst', 'inside dig.c\'s `#if 0` block (2191-2283), which the scan does '
-        + 'not skip; nothing calls it'],
     ['display.c under_ground', 'its callers test u.uburied, which only bury_you() in the '
         + 'same `#if 0` block sets, so no game reaches it and js/ has no counterpart'],
     ['display.c newsym_force', 'newsym() plus dirty bookkeeping; its six callers\' JS '
@@ -63,8 +63,9 @@ test('each JS function tests a drawn column as often as its C function', () => {
     console.log(JSON.stringify({
         cDraws: result.cDraws, functions: result.functions, same: result.same,
     }));
-    // 626 drawing calls in 331 C functions when the scan last changed: 585
-    // that take a square and 41 that take an object, trap or engraving. A
+    // 625 drawing calls in 330 C functions when the scan last changed (it
+    // skips `#if 0` blocks since 24 November 2026, which dropped dig.c
+    // bury_monst()'s one call). A
     // large drop means the function or call patterns stopped matching and
     // the scan would pass without comparing; 550 and 300 leave room for a
     // changed C revision.
@@ -108,4 +109,28 @@ test('guardTests() counts comparisons with 0 or 1, truth tests and isok()', () =
     assert.equal(guardTests('if (isok(mtmp->mx, mtmp->my))', members), 1);
     // A comparison with another value, or of another member, is not a guard.
     assert.equal(guardTests('if (mtmp->mx == u.ux || mtmp->my == 0)', members), 0);
+});
+
+test('skipDeadConditionals() blanks what the compiler never sees', () => {
+    // A whole function inside `#if 0`, as dig.c bury_monst() (2191-2283) is:
+    // blanked, with its lines kept so that line numbers stay.
+    const wholeFunction = 'a();\n#if 0\nvoid\nf(void)\n{\n    newsym(x, y);\n}\n#endif\nb();';
+    assert.equal(skipDeadConditionals(wholeFunction), 'a();\n\n\n\n\n\n\n\nb();');
+    // A block inside a function body, as in dungeon.c level_difficulty()
+    // (2060), and its `#else` arm, which is compiled and keeps its #endif.
+    assert.equal(
+        skipDeadConditionals('{\n#if 0\n  x = 1;\n#else\n  x = 2;\n#endif\n}'),
+        '{\n\n\n\n  x = 2;\n#endif\n}');
+    // A nested conditional inside the dead arm: its `#else` and `#endif` do
+    // not end the outer `#if 0`.
+    assert.equal(
+        skipDeadConditionals('#if 0\n#ifdef A\nx;\n#else\ny;\n#endif\nz;\n#endif\nw;'),
+        '\n\n\n\n\n\n\n\nw;');
+    // The `#else` arm of `#if 1` is dead; any other conditional keeps both
+    // arms, since the scan does not evaluate conditions.
+    assert.equal(skipDeadConditionals('#if 1\nx;\n#else\ny;\n#endif'), '#if 1\nx;\n\n\n');
+    assert.equal(skipDeadConditionals('#ifdef A\nx;\n#else\ny;\n#endif'),
+        '#ifdef A\nx;\n#else\ny;\n#endif');
+    // `#if 0` followed by a comment, after stripComments() has blanked it.
+    assert.equal(skipDeadConditionals('#if 0   \nx;\n#endif\ny;'), '\n\n\ny;');
 });

@@ -9,6 +9,7 @@
 // or an engraving and draw at the square it records. Its guard tests are the places the function compares an expression
 // with the same last member name (`mx` for `mtmp->mx` and `mon.mx`) with 0 or
 // 1, tests it for truth, or passes it to isok(). Only the counts are compared.
+// C that an `#if 0` leaves out is not scanned (skipDeadConditionals()).
 //
 // Usage: node scripts/column-zero-guard.mjs [--list]
 // Prints the tally, and with --list every function whose guard counts
@@ -47,6 +48,43 @@ function stripComments(source) {
     return source
         .replace(/\/\*[\s\S]*?\*\//gu, (text) => text.replace(/[^\n]/gu, ' '))
         .replace(/\/\/[^\n]*/gu, '');
+}
+
+// Blanks, line by line, the C the compiler never sees: the body of an
+// `#if 0` up to its `#else`, `#elif` or `#endif`, and the `#else` arm of an
+// `#if 1`. Nested conditionals inside a blanked arm are tracked so that
+// their `#else` and `#endif` do not end it; every other conditional keeps
+// both arms, as before. Newlines stay, so line numbers do not move. Run it
+// after stripComments(), so that a directive inside a comment is gone and
+// one followed by a comment still reads `#if 0`.
+export function skipDeadConditionals(source) {
+    const lines = source.split('\n');
+    // One entry per open conditional: its constant condition ('0', '1' or
+    // null) and whether its current arm is blanked.
+    const open = [];
+    const dead = () => open.some((entry) => entry.dead);
+    for (let index = 0; index < lines.length; index++) {
+        const wasDead = dead();
+        const directive = lines[index].match(
+            /^\s*#\s*(if|ifdef|ifndef|elif|else|endif)\b(.*)$/u);
+        if (directive) {
+            const [, keyword, rest] = directive;
+            if (keyword.startsWith('if')) {
+                const constant = keyword === 'if' ? rest.trim() : null;
+                open.push({ constant, dead: constant === '0' });
+            } else if (keyword === 'endif') {
+                open.pop();
+            } else if (open.length) {
+                // The arm after `#if 0` is live (an #elif's condition is not
+                // evaluated); the #else after `#if 1` is not.
+                const top = open.at(-1);
+                top.dead = keyword === 'else' && top.constant === '1';
+                top.constant = null;
+            }
+        }
+        if (wasDead || dead()) lines[index] = '';
+    }
+    return lines.join('\n');
 }
 
 // Function definitions as NetHack writes them: the name at the start of a
@@ -137,7 +175,8 @@ export function analyse() {
         cDraws: 0, functions: 0, same: 0, differing: new Map(), unported: [],
     };
     for (const file of readdirSync(C_DIR).filter((n) => n.endsWith('.c')).sort()) {
-        const source = stripComments(readFileSync(join(C_DIR, file), 'utf8'));
+        const source = skipDeadConditionals(
+            stripComments(readFileSync(join(C_DIR, file), 'utf8')));
         for (const fn of cFunctions(source)) {
             // The port often draws through an injected alias, so the JS
             // function is tested for the C function's column names as well
