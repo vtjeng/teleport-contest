@@ -5,8 +5,8 @@
       "seed": 10246,
       "datetime": "20330707171700",
       "nethackrc": "OPTIONS=name:Benedikt,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none,msg_window:reversed\n",
-      "moves": "dedf:\u0010  "
+      "moves": "dedf: \u0010  "
     }
   ],
-  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. With msg_window:reversed, ^P lists the message history newest first (topl.c tty_doprev_message())."
+  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. After the look-here window on the stairs is dismissed, ^P with msg_window:reversed lists the message history newest first (topl.c tty_doprev_message())."
 }

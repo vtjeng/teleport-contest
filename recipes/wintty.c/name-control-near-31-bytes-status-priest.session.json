@@ -8,5 +8,5 @@
       "moves": "sss\u0018    #quit\ny "
     }
   ],
-  "comment": "A 30-byte name with 0x01 as its 28th byte, on the status row, in ^X and in the quit output; patch 006 nomux_putch() drops a byte below 32 (and a high byte, the char being signed) from the captured screen while the cursor still advances."
+  "comment": "A 30-byte name with 0x01 as its 28th byte. The status row shortens the name before that byte; ^X and the quit output show it, and patch 006 nomux_putch() drops a byte below 32 (and a high byte, the char being signed) from the captured screen while the cursor still advances."
 }

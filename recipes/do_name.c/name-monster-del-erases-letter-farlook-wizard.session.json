@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 82634,
+      "datetime": "20300214120000",
+      "nethackrc": "OPTIONS=name:Nimue,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:cat\n",
+      "moves": "#name\nm  m.XyzMög\n;m. "
+    }
+  ],
+  "comment": "The Wizard names a newt with #name, typing DEL and the high byte 0xf6 at the getlin() prompt. DEL is the recorder's erase character, so getline.c hooked_tty_getlin() erases one letter; the newt is \"called XyM g\" with a blank cell for 0xf6."
+}

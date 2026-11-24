@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10456,
+      "datetime": "20280911170000",
+      "nethackrc": "OPTIONS=name:Petrel,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:both,menu_headings:red&inverse\n",
+      "moves": "Da\n><>\u001b"
+    }
+  ],
+  "comment": "menu_objsyms:both and menu_headings:red&inverse in D's two-page drop menu, paged forward, back and forward again before escape."
+}

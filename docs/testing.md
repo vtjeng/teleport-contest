@@ -397,7 +397,7 @@ are the macOS ones:
 `trial-repeated-greeting` and `trial-simple-greeting-control`. The other
 119 are the regex recipes of the second host-parity sample, committed as
 `recipes/posixregex.c/re-*` with their macOS recordings; 75 of them differ
-between the hosts. The last two,
+between the hosts. Two later additions,
 `recipes/pline.c/tutorial-msgtype-stop-gnu-space-class-healer` and
 `tutorial-msgtype-stop-word-boundary-monk`, stop on the tutorial's
 pre-message only under glibc, which reads `\s` and `\b` as operators; the

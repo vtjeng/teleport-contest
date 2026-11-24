@@ -5,8 +5,8 @@
       "seed": 79135,
       "datetime": "20320214140000",
       "nethackrc": "OPTIONS=name:Lara,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
-      "moves": "ahia\ng\n  aho  "
+      "moves": "ahia\ng\n  aho.\n "
     }
   ],
-  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. Applying the empty sack runs pickup.c use_container(): its \"Do what with it?\" menu, the class menu, and \"Put in what?\"; a second apply takes the touchstone out."
+  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. Applying the empty sack runs pickup.c use_container(): its \"Do what with it?\" menu, the class menu, and \"Put in what?\"; a second apply takes the touchstone back out through \"Take out what?\"."
 }

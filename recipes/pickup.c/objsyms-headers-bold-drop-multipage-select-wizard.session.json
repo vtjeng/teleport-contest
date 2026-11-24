@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 93745,
+      "datetime": "20311008090000",
+      "nethackrc": "OPTIONS=name:Osric,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:headers,menu_headings:bold\n",
+      "moves": "Da\n>n<a\n  "
+    }
+  ],
+  "comment": "menu_objsyms:headers and menu_headings:bold in D's two-page drop menu: the Wizard selects the marker on page 2 and the staff on page 1, and drops both."
+}

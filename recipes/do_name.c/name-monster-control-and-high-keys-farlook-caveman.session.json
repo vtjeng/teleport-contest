@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 71523,
+      "datetime": "20290620100000",
+      "nethackrc": "OPTIONS=name:Grok,role:Caveman,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:dog\n",
+      "moves": "#name\nm  m.Ab\u0001céd\n;m. "
+    }
+  ],
+  "comment": "The Caveman renames his dog with #name, typing 0x01 and the high byte 0xe9 at the getlin() prompt. getline.c hooked_tty_getlin() rings the bell for 0x01 and keeps 0xe9, which patch 006 nomux_putch() leaves blank on the top line; farlooking the dog shows \"called Abc d\"."
+}
