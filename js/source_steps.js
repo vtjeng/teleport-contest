@@ -5,7 +5,12 @@
 // A step generator yields:
 // - a promise (or any thenable), for an operation that may wait; the rest of
 //   the body runs after it settles, with its value or its error;
-// - an ImpossibleCall, where C calls pline.c impossible().
+// - an ImpossibleCall, where C calls pline.c impossible();
+// - PRINT_QUEUED, after a synchronous draw that may have queued a line C
+//   prints inside the draw (display.c show_glyph()'s mention_map notice).
+//   A driver that can wait prints the queue there, as C does, before the
+//   generator goes on; one that cannot (sync_impossible) leaves the line
+//   queued for its nearest waiting caller (js/rng.js, "Queued output").
 //
 // impossible() prints three lines that can each stop at --More--, so C waits
 // for keys in the middle of the calling function. Whether the port can do
@@ -19,13 +24,25 @@
 // two: scripts/impossible-sites.test.mjs fails on a call without one, since a
 // report with no handler would be dropped.
 
-import { queueImpossibleNotice } from './startup_a11y.js';
+import { emitGlyphUpdateNotices, queueImpossibleNotice } from './startup_a11y.js';
+import { game } from './gstate.js';
 
 // The text of one impossible() call, yielded where C makes it.
 export class ImpossibleCall {
     constructor(text) {
         this.text = text;
     }
+}
+
+// A step that prints the lines a draw queued; see the header.
+export const PRINT_QUEUED = Object.freeze({ printQueued: true });
+
+// The waiting driver's answer to PRINT_QUEUED: the print, or nothing when
+// no line is queued, so a quiet draw stays synchronous.
+function printQueued() {
+    if (!game._glyphUpdateNotices?.length || game._emittingGlyphUpdateNotices)
+        return undefined;
+    return emitGlyphUpdateNotices(game);
 }
 
 // Run `steps` to its return value. Synchronous until a step yields a promise
@@ -38,9 +55,12 @@ export function finish_steps(steps, onImpossible, state) {
         for (;;) {
             const step = threw ? steps.throw(value) : steps.next(value);
             if (step.done) return step.value;
-            value = step.value instanceof ImpossibleCall
-                ? onImpossible(step.value.text, state)
-                : step.value;
+            if (step.value === PRINT_QUEUED)
+                value = onImpossible === sync_impossible ? undefined : printQueued();
+            else if (step.value instanceof ImpossibleCall)
+                value = onImpossible(step.value.text, state);
+            else
+                value = step.value;
             threw = false;
             if (value && typeof value.then === 'function') {
                 return Promise.resolve(value).then(

@@ -1,7 +1,7 @@
 import { queueVisionMonsterNotices } from './startup_a11y.js';
 import { emitQueuedNotices } from './tty_message.js';
 import { impossible_printer } from './pline.js';
-import { finish_steps, sync_impossible } from './source_steps.js';
+import { PRINT_QUEUED, finish_steps, sync_impossible } from './source_steps.js';
 import { panic } from './end.js';
 // vision.js — C ref: vision.c Algorithm C shadow-casting
 
@@ -858,8 +858,13 @@ export function vision_recalc(control = 0, env = {}) {
 function* recalc_steps(control, env) {
     const state = env.state ?? game;
     const redraw = env.redraw ?? newsym;
-    const draw = redraw === newsym ? newsym_steps : function* (x, y) {
-        redraw(x, y);
+    // display.c show_glyph() prints a mention_map notice inside newsym(),
+    // and C waits at its --More-- before the next square: a driver that can
+    // wait prints it there (js/source_steps.js PRINT_QUEUED).
+    const draw = function* (x, y) {
+        if (redraw === newsym) yield* newsym_steps(x, y);
+        else redraw(x, y);
+        if (state._glyphUpdateNotices?.length) yield PRINT_QUEUED;
     };
     const u = state.u;
     if (!u || !state.level) return;
