@@ -389,9 +389,9 @@ import {
 import { escapes } from '../js/options_escapes.js';
 import {
     _startupA11yInternals,
-    describeMonster,
     emitGlyphUpdateNotices,
 } from '../js/startup_a11y.js';
+import { look_at_monster } from '../js/pager.js';
 import {
     enableBrowserGlyphProjection,
 } from './browser-projection-test-support.mjs';
@@ -4846,13 +4846,13 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
         state,
     );
     assert.equal(
-        describeMonster(monster, { state }),
+        look_at_monster(monster, x, y, state),
         'tengu, mimicking something',
         'an explicit remembered non-object does not leak live mappearance',
     );
     location.remembered_glyph = { ch: ')' };
     assert.equal(
-        describeMonster(monster, { state }),
+        look_at_monster(monster, x, y, state),
         'tengu, mimicking something',
         'memory without a source glyph does not infer an object',
     );
@@ -4864,7 +4864,7 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
         dknown: false,
     }, state);
     assert.equal(
-        describeMonster(coinMonster, { state }),
+        look_at_monster(coinMonster, x, y, state),
         'tengu, mimicking gold pieces',
         'mhidden_description pluralizes a two-coin synthetic disguise',
     );
@@ -4878,7 +4878,7 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
         dknown: false,
     }, state);
     assert.equal(
-        describeMonster(potionMonster, { state }),
+        look_at_monster(potionMonster, x, y, state),
         'tengu, mimicking a brown potion',
         'an adjacent synthetic disguise is observed before simple naming',
     );
@@ -4886,7 +4886,7 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
     state.u.ux = 1;
     state.u.uy = 1;
     assert.equal(
-        describeMonster(potionMonster, { state }),
+        look_at_monster(potionMonster, x, y, state),
         'tengu, mimicking a brown potion',
         'the remembered disguise-known flag observes later distant fakes',
     );
@@ -4919,11 +4919,11 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
         ...overrides,
     });
     assert.match(
-        describeMonster(monster(PM_ROCK_PIERCER), { state }),
+        look_at_monster(monster(PM_ROCK_PIERCER), 7, 4, state),
         /, hiding on the ceiling$/u,
     );
     assert.match(
-        describeMonster(monster(PM_LURKER_ABOVE), { state }),
+        look_at_monster(monster(PM_LURKER_ABOVE), 7, 4, state),
         /, hiding on the ceiling$/u,
     );
 
@@ -4935,7 +4935,7 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
         oy: 4,
     };
     assert.match(
-        describeMonster(monster(PM_GARTER_SNAKE), { state }),
+        look_at_monster(monster(PM_GARTER_SNAKE), 7, 4, state),
         /, hiding under something$/u,
         'metadata-absent memory does not leak the live-object fallback',
     );
@@ -4943,7 +4943,7 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
     const location = state.level.at(7, 4);
     location.remembered_glyph = terrainGlyphAt(location, 7, 4, state);
     assert.match(
-        describeMonster(monster(PM_GARTER_SNAKE), { state }),
+        look_at_monster(monster(PM_GARTER_SNAKE), 7, 4, state),
         /, hiding under something$/u,
         'explicit remembered terrain suppresses the live-object fallback',
     );
@@ -4962,7 +4962,7 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
     state.level.objects[7][4] = potions;
     location.remembered_glyph = object_glyph_info(potions, state);
     assert.match(
-        describeMonster(monster(PM_GARTER_SNAKE), { state }),
+        look_at_monster(monster(PM_GARTER_SNAKE), 7, 4, state),
         /, hiding under potions of booze$/u,
         'simpleonames pluralizes the noun before a compound suffix',
     );
@@ -4981,7 +4981,7 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
     state.level.objects[7][4] = corpse;
     location.remembered_glyph = object_glyph_info(corpse, state);
     assert.match(
-        describeMonster(monster(PM_GARTER_SNAKE), { state }),
+        look_at_monster(monster(PM_GARTER_SNAKE), 7, 4, state),
         /, hiding under a corpse$/u,
         'minimal_xname suppresses the hidden corpse species',
     );
@@ -4997,7 +4997,7 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
     cloud.glyph_cmap = S_poisoncloud;
     add_region(cloud, state, { deferVisual: true });
     assert.match(
-        describeMonster(monster(PM_TENGU, { mundetected: false }), { state }),
+        look_at_monster(monster(PM_TENGU, { mundetected: false }), 7, 4, state),
         /, in a cloud of poison gas$/u,
     );
 });
@@ -5047,10 +5047,7 @@ test('fruit object descriptions preserve source articles and plural order', () =
         'candidate-side the is ignored while matching canonical Excalibur',
     );
     assert.match(
-        describeMonster(hider, {
-            state,
-            canSpotMonster: () => true,
-        }),
+        look_at_monster(hider, x, y, state),
         /, hiding under an eXcALiBuR$/u,
         'simpleonames supplies the source indefinite article',
     );
@@ -5062,10 +5059,7 @@ test('fruit object descriptions preserve source articles and plural order', () =
         'fake-artifact lookup ignores case and omits an indefinite article',
     );
     assert.match(
-        describeMonster(hider, {
-            state,
-            canSpotMonster: () => true,
-        }),
+        look_at_monster(hider, x, y, state),
         /, hiding under an eXcALiBuR$/u,
         'hidden simple naming still applies an() to case-varied Excalibur',
     );
@@ -5091,20 +5085,14 @@ test('fruit object descriptions preserve source articles and plural order', () =
         'full fake-artifact fruit forces its canonical definite article',
     );
     assert.match(
-        describeMonster(hider, {
-            state,
-            canSpotMonster: () => true,
-        }),
+        look_at_monster(hider, x, y, state),
         /, hiding under an Orb of Detection$/u,
         'hidden an() applies the source simpleonames result',
     );
 
     state.gf.ffruit.fname = 'the ordinary fruit';
     assert.match(
-        describeMonster(hider, {
-            state,
-            canSpotMonster: () => true,
-        }),
+        look_at_monster(hider, x, y, state),
         /, hiding under an ordinary fruit$/u,
         'mhidden_description adds the source indefinite article to simpleonames',
     );
@@ -5132,10 +5120,7 @@ test('fruit object descriptions preserve source articles and plural order', () =
     );
     location.remembered_glyph = object_glyph_info(fruit, state);
     assert.match(
-        describeMonster(hider, {
-            state,
-            canSpotMonster: () => true,
-        }),
+        look_at_monster(hider, x, y, state),
         /, hiding under blueberrieses$/u,
         'C simpleonames applies makeplural directly to the selected name',
     );
@@ -5148,10 +5133,7 @@ test('fruit object descriptions preserve source articles and plural order', () =
     );
     location.remembered_glyph = object_glyph_info(fruit, state);
     assert.match(
-        describeMonster(hider, {
-            state,
-            canSpotMonster: () => true,
-        }),
+        look_at_monster(hider, x, y, state),
         /, hiding under foo@s$/u,
     );
 });

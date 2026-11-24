@@ -2347,13 +2347,10 @@ async function use_pre_move_items(monster, env) {
 // first M_ATTK_HIT. Most of the time castmu() picks a directed spell and
 // returns at once.
 async function cast_undirected_spell(monster, env) {
-    const { state } = env;
     const attacks = monster.data?.mattk;
     if (!attacks) return false;
     const castEnv = {
         ...env,
-        monsterName: (mtmp) => Monnam(mtmp, state),
-        monnam: (mtmp) => mon_nam(mtmp, state, env),
         message: async (text, s) => { await ttyPline(text, s); },
     };
     for (const attack of attacks) {

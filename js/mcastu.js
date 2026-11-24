@@ -394,9 +394,7 @@ async function cursetxt(mtmp, undirected, env = {}) {
         }
         if (message) {
             await message(messageAt(
-                `${env.monsterName?.(mtmp)
-                    ?? Monnam(mtmp, state, env)
-                } points ${point_msg}.`,
+                `${Monnam(mtmp, state, env)} points ${point_msg}.`,
                 mtmp.mx, mtmp.my, state,
             ), state);
         }
@@ -408,9 +406,6 @@ async function cursetxt(mtmp, undirected, env = {}) {
         }
     }
 }
-
-// C mcastu.c uses Monnam() for caster announcements.  Callers may provide
-// monsterName, but the optional fallback must preserve its article semantics.
 
 // C ref: mondata.c cvt_adtyp_to_mseenres() -- already exported from
 // js/mondata.js, but we also need m_seenres() which is a simple macro.
@@ -483,8 +478,7 @@ export async function castmu(
         && !is_undirected_spell(spellnum)) {
         if (message) {
             const casterName = canseemon(mtmp, state)
-                ? (env.monsterName?.(mtmp)
-                    ?? Monnam(mtmp, state, env))
+                ? Monnam(mtmp, state, env)
                 : 'Something';
             await message(messageAt(`${casterName} casts a spell at thin air!`,
                 mtmp.mx, mtmp.my, state), state);
@@ -497,10 +491,7 @@ export async function castmu(
         /* fumbled attack */
         if (canseemon(mtmp, state) && !Deaf(state.u) && message) {
             await message(messageAt(
-                `The air crackles around ${
-                    env.monnam?.(mtmp)
-                    ?? mon_nam(mtmp, state, env)
-                }.`,
+                `The air crackles around ${mon_nam(mtmp, state, env)}.`,
                 mtmp.mx, mtmp.my, state,
             ), state);
         }
@@ -510,8 +501,7 @@ export async function castmu(
     if (canspotmon(mtmp, state) || !is_undirected_spell(spellnum)) {
         if (message) {
             const casterName = canspotmon(mtmp, state)
-                ? (env.monsterName?.(mtmp)
-                    ?? Monnam(mtmp, state, env))
+                ? Monnam(mtmp, state, env)
                 : 'Something';
             let target;
             if (is_undirected_spell(spellnum)) {
@@ -696,9 +686,7 @@ async function m_cure_self(mtmp, dmg, env = {}) {
     if (mtmp.mhp < mtmp.mhpmax) {
         if (canseemon(mtmp, state) && message) {
             await message(messageAt(
-                `${env.monsterName?.(mtmp)
-                    ?? Monnam(mtmp, state, env)
-                } looks better.`,
+                `${Monnam(mtmp, state, env)} looks better.`,
                 mtmp.mx, mtmp.my, state,
             ), state);
         }
@@ -1213,13 +1201,11 @@ async function mcast_disappear(mtmp, rawEnv = {}) {
     if (canseemon(mtmp, state)) {
         // C pline_mon() formats the source name with Monnam() and adds map
         // coordinates when accessiblemsg is enabled.
-        const monsterName = rawEnv.monsterName?.(mtmp)
-            ?? Monnam(mtmp, state, rawEnv);
         const verb = See_invisible(state.u)
             ? 'becomes transparent' : 'disappears';
         await message(
             messageAt(
-                `${monsterName} suddenly ${verb}!`,
+                `${Monnam(mtmp, state, rawEnv)} suddenly ${verb}!`,
                 mtmp.mx,
                 mtmp.my,
                 state,
@@ -1305,9 +1291,7 @@ export async function buzzmu(mtmp, mattk, rawEnv = {}) {
         nomul(0, state);
         if (canseemon(mtmp, state) && message) {
             await message(messageAt(
-                `${env.monsterName?.(mtmp)
-                    ?? Monnam(mtmp, state, env)
-                } zaps you with a ${
+                `${Monnam(mtmp, state, env)} zaps you with a ${
                     flash_str(BZ_OFS_AD(mattk.adtyp), false, state)
                 }!`,
                 mtmp.mx, mtmp.my, state,

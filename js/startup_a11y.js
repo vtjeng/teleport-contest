@@ -56,7 +56,6 @@ import {
     SINK,
     STAIRS,
     STONE,
-    STRAT_WAITMASK,
     THRONE,
     TREE,
     FIRE_RES,
@@ -69,9 +68,6 @@ import {
     LA_DOWN,
     OBJ_FREE,
     OBJ_FLOOR,
-    MHID_PREFIX,
-    MHID_ARTICLE,
-    MHID_REGION,
     URGENT_MESSAGE,
 } from './const.js';
 import { isok } from './cmd_isok.js';
@@ -88,11 +84,8 @@ import {
 import { is_drawbridge_wall } from './dbridge.js';
 import { tty_status_state } from './wintty.js';
 import { gather_locs_interesting } from './getpos.js';
-import { visible_region_at } from './region.js';
 import {
     Monnam,
-    coyotename,
-    distant_monnam,
     hliquid,
     x_monnam,
 } from './do_name.js';
@@ -105,8 +98,7 @@ import {
 import { m_at } from './monst.js';
 import { dealloc_obj, mkobj, mksobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { an, just_an } from './objnam.js';
-import { t_at } from './trap.js';
+import { just_an } from './objnam.js';
 import { observe_object } from './o_init.js';
 import { obj_stop_timers } from './timeout.js';
 import { locomotion, type_is_pname } from './mondata.js';
@@ -158,7 +150,6 @@ import {
     WEAPON_CLASS,
     WOOD,
 } from './objects.js';
-import { PM_COYOTE } from './monsters.js';
 import {
     S_air,
     S_altar,
@@ -942,68 +933,12 @@ export function hiddenObjectPhrase(object, state, { includeArticle = true } = {}
     return `${just_an(name)}${name}`;
 }
 
-// C ref: pager.c look_at_monster() and do_name.c distant_monnam(). The
-// optional species is the actual buffered monster glyph (including a
-// monster-shaped mimic appearance). pager.c always delegates the name to
-// distant_monnam(), including while hallucinating; that owner supplies the
-// source invisible, swallower, and gameover naming rules and consumes the
-// display RNG in the source order. env.state is required for full pager
-// semantics: hero status and equipment, visibility, terrain, regions, catalog
-// state, and display RNG all affect the result. Omitting it intentionally
-// exposes only the reduced naming behavior.
-export function describeMonster(monster, env = {}) {
-    const state = env.state;
-    const hallucinating = env.hallucinating
-        ?? (state ? Hallucination(state.u) : false);
-    const namedMonster = env.species
-        ? { ...monster, data: env.species }
-        : monster;
-    let text = !hallucinating
-        && namedMonster.data?.pmidx === PM_COYOTE
-            ? coyotename(namedMonster, [], state, env)
-        : distant_monnam(
-            namedMonster,
-            ARTICLE_NONE,
-            undefined,
-            state,
-            env,
-        );
-    if (!env.pagerBase) {
-        if (!hallucinating && monster.mtame) text = `tame ${text}`;
-        else if (!hallucinating && monster.mpeaceful)
-            text = `peaceful ${text}`;
-        if (monster.mfrozen)
-            text += ", can't move (paralyzed or sleeping or busy)";
-        else if (monster.msleeping) text += ', asleep';
-        else if (monster.mstrategy & STRAT_WAITMASK)
-            text += ', meditating';
-        if (monster.mleashed) text += ', leashed to you';
-        if (monster.mtrapped
-            && state
-            && cansee(monster.mx, monster.my, state)) {
-            const trap = t_at(monster.mx, monster.my, state);
-            const description = TRAP_DESCRIPTIONS[trap?.ttyp];
-            if (description
-                && ['bear trap', 'pit', 'spiked pit', 'web'].includes(
-                    description,
-                )) {
-                text += `, trapped in ${an(description)}`;
-                trap.tseen = true;
-            }
-        }
-        if (state
-            && (monster.mundetected
-                || (monster.m_ap_type & M_AP_TYPMASK)
-                || visible_region_at(monster.mx, monster.my, state))) {
-            text += mhidden_description(
-                monster, MHID_PREFIX | MHID_ARTICLE | MHID_REGION, state,
-            );
-        }
-    }
-    return text;
-}
-
-// C hack.c notice_mon(): canonical x_monnam argument bindings.
+// C ref: hack.c notice_mon() (1720-1727), the x_monnam() call that names the
+// monster. js/hack.js notice_mon() prints the line updateMonsterNotice()
+// builds; vision.c vision_recalc()'s notice_all_mons() reaches the same text
+// from queueVisionMonsterNotices(), which is synchronous and queues the line
+// instead of printing it, so the text is built here for both.
+// scripts/do-name.test.mjs pins these arguments to C's.
 function noticeMonsterName(monster, state) {
     const given = has_mgivenname(monster);
     const article = monster.mtame ? ARTICLE_YOUR
@@ -1580,7 +1515,6 @@ export function collectMonsterNoticeMessages(state, compare = null) {
 export const _startupA11yInternals = Object.freeze({
     compassDescription,
     coordinateDescription,
-    describeMonster,
     describeObject,
     terrainDescription,
     visibleSubjectAt,

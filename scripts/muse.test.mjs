@@ -1946,7 +1946,6 @@ test('use_offensive hurls the selected potion along the line to the hero',
     const env = {
         ...offensiveEnv(state),
         message: async (text) => { messages.push(text); },
-        monsterName: () => 'The gnome',
         throwMissile: async (...args) => { thrown.push(args); },
     };
 
@@ -1980,7 +1979,6 @@ test('use_offensive locates the hurl line at the thrower under accessiblemsg',
     const env = {
         ...offensiveEnv(state),
         message: async (text) => { messages.push(text); },
-        monsterName: () => 'The gnome',
         throwMissile: async () => {},
     };
 

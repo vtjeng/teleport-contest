@@ -1055,18 +1055,6 @@ test('castmu fumble names priests and minions through mon_nam', async () => {
     }
 });
 
-test('castmu fumble preserves the injected monnam provider', async () => {
-    const messages = [];
-    const result = await castmu(makeCaster({ m_lev: 2 }),
-        AD_SPEL_ATTACK, true, true, {
-            state: makeState(), random: scriptedRandom([0, 0]),
-            monnam: () => 'the injected curate',
-            message: (text) => messages.push(text),
-        });
-    assert.equal(result, M_ATTK_MISS);
-    assert.deepEqual(messages, ['The air crackles around the injected curate.']);
-});
-
 test('castmu fumble formatter follows C mon_nam at the same message point', () => {
     const c = readFileSync(new URL('../nethack-c/upstream/src/mcastu.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/mcastu.js', import.meta.url), 'utf8');
@@ -1077,7 +1065,7 @@ test('castmu fumble formatter follows C mon_nam at the same message point', () =
     assert.ok(cBody);
     assert.ok(jsBody);
     assert.match(cBody, /canseemon\(mtmp\) && !Deaf[\s\S]*set_msg_xy\(mtmp->mx, mtmp->my\)[\s\S]*mon_nam\(mtmp\)/u);
-    assert.match(jsBody, /canseemon\(mtmp, state\) && !Deaf\(state\.u\)[\s\S]*env\.monnam\?\.\(mtmp\)\s*\?\?\s*mon_nam\(mtmp, state, env\)/u);
+    assert.match(jsBody, /canseemon\(mtmp, state\) && !Deaf\(state\.u\)[\s\S]*\$\{mon_nam\(mtmp, state, env\)\}/u);
 });
 
 test('castmu fumble: the deaf roleplay option silences the crackle', async () => {
@@ -1237,22 +1225,29 @@ test('MCAST_CONFUSE_YOU uses raw Hallucination and resistance properties',
 
         // Raw intrinsic HHallucination with no resistance selects "trippier".
         const hallucinatedMessages = [];
+        const hallucinatedState = makeState({
+            disp: {},
+            u: {
+                ux: 4,
+                uy: 5,
+                uprops: {
+                    [CONFUSION]: { intrinsic: 2, extrinsic: 0 },
+                    [HALLUC]: { intrinsic: 5, extrinsic: 0 },
+                },
+            },
+        });
+        // A hallucinating hero sees the caster under a name rndmonnam()
+        // draws from the monster catalog.
+        monst_globals_init(hallucinatedState);
         await castmu(
             makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true,
             {
-                state: makeState({
-                    disp: {},
-                    u: {
-                        ux: 4,
-                        uy: 5,
-                        uprops: {
-                            [CONFUSION]: { intrinsic: 2, extrinsic: 0 },
-                            [HALLUC]: { intrinsic: 5, extrinsic: 0 },
-                        },
-                    },
-                }),
+                state: hallucinatedState,
                 random: scriptedRandom([2, 50]),
-                monsterName: () => 'The kobold shaman',
+                // That draw is on the display stream, which this state
+                // lacks. Draw 0 picks the first entry; only the last line is
+                // checked.
+                displayRandom: () => 0,
                 message: async (text) => hallucinatedMessages.push(text),
             },
         );
@@ -1328,7 +1323,6 @@ test('castmu: a blind telepath reads the name of the caster it senses', async ()
         {
             state, random: scriptedRandom([0, 50], 10),
             message: (m) => messages.push(m),
-            monsterName: () => 'The kobold shaman',
         },
     );
     assert.equal(messages[0], 'The kobold shaman casts a spell at you!');
@@ -1347,7 +1341,6 @@ test('castmu: an unsensed, unseen caster is "Something"', async () => {
         {
             state, random: scriptedRandom([0, 50], 10),
             message: (m) => messages.push(m),
-            monsterName: () => 'The kobold shaman',
         },
     );
     assert.equal(messages[0], 'Something casts a spell at you!');
@@ -1385,7 +1378,6 @@ test('psi_bolt: headache message, mdamageu called, resistance forgotten', async 
         {
             state, random,
             message: (m) => messages.push(m),
-            monsterName: (m) => 'The kobold shaman',
         },
     );
 
@@ -1412,7 +1404,6 @@ test('psi_bolt: ANTIMAGIC halves damage and tracks resistance', async () => {
     await castmu(makeCaster({ m_lev: 7 }), AD_SPEL_ATTACK, true, true, {
         state, random,
         message: (m) => messages.push(m),
-        monsterName: (m) => 'The kobold shaman',
     });
 
     assert.equal(damageAmount(), 4, 'ANTIMAGIC halves damage: (8+1)/2=4');
@@ -1437,7 +1428,6 @@ test('open_wounds: wound message for dmg in 6-10 range', async () => {
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
         state, random,
         message: (m) => messages.push(m),
-        monsterName: (m) => 'The kobold shaman',
     });
 
     assert.ok(messages.some(m => m === 'Wounds appear on your body!'),
@@ -1459,7 +1449,6 @@ test('open_wounds: ANTIMAGIC halves damage and tracks resistance', async () => {
     await castmu(makeCaster({ m_lev: 7 }), AD_CLRC_ATTACK, true, true, {
         state, random,
         message: (m) => messages.push(m),
-        monsterName: (m) => 'The kobold shaman',
     });
 
     assert.equal(damageAmount(), 4);
@@ -1636,7 +1625,6 @@ test('cure_self: heals monster and produces no hero damage', async () => {
         state,
         random,
         message: (m) => messages.push(m),
-        monsterName: (m) => 'The kobold shaman',
     });
 
     // healmon(mtmp, 9, 0): mhp=10+9=19, mhpmax stays 20
@@ -1659,7 +1647,6 @@ test('cure_self: is not chosen when the monster is at full health', async () => 
         state,
         random,
         message: (m) => messages.push(m),
-        monsterName: (m) => 'The kobold shaman',
     });
 
     assert.ok(!messages.some(m => m.includes('looks better')),
@@ -1803,7 +1790,6 @@ test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
         const result = await castmu(caster, AD_SPEL_ATTACK, false, false, {
             state,
             random,
-            monsterName: () => 'The Archon',
             message: async (text) => messages.push(text),
         });
 
@@ -1813,8 +1799,8 @@ test('MCAST_DISAPPEAR sets monster invisibility and remembers its marker',
         assert.equal(remembered.remembered_glyph?.glyph, GLYPH_INVISIBLE);
         assert.deepEqual(random.draws, ['rn2(20)', 'rn2(200)']);
         assert.deepEqual(messages, [
-            'The Archon casts a spell!',
-            'The Archon suddenly disappears!',
+            'The kobold shaman casts a spell!',
+            'The kobold shaman suddenly disappears!',
         ]);
         assert.deepEqual(gaps(), [], 'the spell records no gap');
     });
@@ -1834,14 +1820,13 @@ test('MCAST_DISAPPEAR uses the transparent wording with See_invisible',
         await castmu(caster, AD_SPEL_ATTACK, false, false, {
             state,
             random: scriptedRandom([4, 45]),
-            monsterName: () => 'The Archon',
             message: async (text) => messages.push(text),
         });
 
         assert.equal(caster.minvis, 1);
         assert.deepEqual(messages, [
-            'The Archon casts a spell!',
-            'The Archon suddenly becomes transparent!',
+            'The kobold shaman casts a spell!',
+            'The kobold shaman suddenly becomes transparent!',
         ]);
     });
 

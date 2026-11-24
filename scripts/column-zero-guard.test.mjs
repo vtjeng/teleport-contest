@@ -30,10 +30,33 @@ const REVIEWED = new Map([
 ]);
 
 // C functions that draw and have no JS function of the same name, so the
-// scan compares nothing for them. Lower the count when one is ported under
-// its C name. `node scripts/column-zero-guard.mjs --list` prints them. One,
-// mail.c md_rush(), has no port: js/ holds no mail daemon.
-const UNPORTED = 10;
+// scan compares nothing for them. Each was compared by hand with the JS code
+// that holds its drawing calls on 23 November 2026; none of those adds or
+// drops a column test. Remove an entry when the function is ported under its
+// C name. `node scripts/column-zero-guard.mjs --list` prints them.
+const REVIEWED_UNPORTED = new Map([
+    ['dig.c bury_monst', 'inside dig.c\'s `#if 0` block (2191-2283), which the scan does '
+        + 'not skip; nothing calls it'],
+    ['display.c under_ground', 'its callers test u.uburied, which only bury_you() in the '
+        + 'same `#if 0` block sets, so no game reaches it and js/ has no counterpart'],
+    ['display.c newsym_force', 'newsym() plus dirty bookkeeping; its six callers\' JS '
+        + 'counterparts (see_nearby_objects(), pickup(), the two sit.c throne arms, '
+        + 'zap.c bhito()\'s breaks() arm and getpos_sethilite()) call newsym() at the same '
+        + 'square under the same tests'],
+    ['engrave.c see_engraving', 'nothing in the C source calls it'],
+    ['engrave.c feel_engraving', 'nothing in the C source calls it'],
+    ['mail.c md_rush', 'js/ holds no mail daemon'],
+    ['nhlobj.c l_obj_placeobj', 'js/nhlua.js tutorial_turn() places the food ration at '
+        + 'the hero\'s square and calls newsym() there with no column test, as C does'],
+    ['selvar.c selection_force_newsyms', 'C\'s loop starts at column 1; '
+        + 'js/getpos.js getpos_getvalids_selection() also starts at 1, so the '
+        + 'getpos_sethilite() loop never reaches column 0'],
+    ['trap.c mkroll_launch', 'js/trap.js makeRollingBoulderLaunch() draws at the launch '
+        + 'square with no column test, as C does; isclearpath()\'s isok() is in '
+        + 'clearLaunchPath()'],
+    ['vault.c gd_pick_corridor_gold', 'the gold arm of js/vault.js gd_move() makes the '
+        + 'same draws with no column test, as C does'],
+]);
 
 test('each JS function tests a drawn column as often as its C function', () => {
     const result = analyse();
@@ -49,7 +72,9 @@ test('each JS function tests a drawn column as often as its C function', () => {
     assert.ok(result.functions >= 300, `only ${result.functions} C functions found`);
     assert.deepEqual([...result.differing.keys()].sort(), [...REVIEWED.keys()].sort(),
         'compare each new function with C, then fix it or add it to REVIEWED with the reason');
-    assert.equal(result.unported.length, UNPORTED, result.unported.join(', '));
+    assert.deepEqual([...result.unported].sort(), [...REVIEWED_UNPORTED.keys()].sort(),
+        'compare each new function with the JS code that draws for it, then fix it or add '
+        + 'it to REVIEWED_UNPORTED with the reason');
 });
 
 test('columns() takes the last member of each drawn column', () => {

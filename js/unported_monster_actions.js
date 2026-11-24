@@ -27,7 +27,6 @@ import {
     pet_ranged_attk,
 } from './dogmove.js';
 import { migrate_to_level } from './dog.js';
-import { Monnam } from './do_name.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
@@ -197,7 +196,7 @@ export async function moveSimplePet(monster, after, env) {
 // m_throw() calls its callees itself; each key here stays because another
 // reader on the same env takes it (grep -rn "<key>" js/), among them
 // js/mthrowu.js drop_throw()'s floor operations and js/muse.js
-// use_offensive()'s monsterName and throwMissile.
+// use_offensive()'s throwMissile.
 function monsterMissileEnv(monster, env) {
     return {
         canSeeMonster: (subject) => canseemon(subject, env.state),
@@ -219,11 +218,6 @@ function monsterMissileEnv(monster, env) {
         ),
         message: ttyPline,
         monsterAt: (x, y, state) => m_at(x, y, state),
-        monsterName: (subject) => Monnam(
-            subject,
-            env.state,
-            { displayRandom: env.displayRandom },
-        ),
         newsym,
         unblockPoint: (x, y, state) => {
             unblock_point(x, y, state);

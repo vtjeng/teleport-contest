@@ -1524,15 +1524,14 @@ test('js/ has no second port of a do_name.c naming function', () => {
     assert.deepEqual(wrappers, []);
 
     // Callers of mcastu.c and muse.c functions put Monnam() and mon_nam() on
-    // an env as `monsterName` and `monnam` operations: five and two. C calls
-    // the functions directly. Lower a count when a provider is removed.
-    const providers = (key) => [...sources.values()].reduce(
-        (sum, source) => sum
-            + (source.match(new RegExp(`^\\s*${key}: \\(`, 'gmu'))?.length ?? 0),
-        0,
+    // an env as `monsterName` and `monnam` operations, five and two of them,
+    // and nine places in js/mcastu.js and js/muse.js called the operation
+    // instead of the function C calls. No env carries a naming operation:
+    // neither key is set, read or destructured anywhere in js/.
+    const operation = /\.(?:monsterName|monnam)\b|\b(?:monsterName|monnam)\s*:|\{[^}]*\b(?:monsterName|monnam)\b[^}]*\}\s*=/u;
+    assert.deepEqual(
+        files.filter((file) => operation.test(sources.get(file))), [],
     );
-    assert.equal(providers('monsterName'), 5);
-    assert.equal(providers('monnam'), 2);
 });
 
 // potion.c djinni_from_bottle() 2826 names the djinni with a_monnam(). The
@@ -1546,4 +1545,19 @@ test('djinni_from_bottle names the djinni with a_monnam()', () => {
     assert.match(body,
         /In a cloud of smoke, \$\{a_monnam\(monster, \{ state \}\)\} emerges!/u);
     assert.doesNotMatch(body, /Amonnam\(|lcase\(/u);
+});
+
+// hack.c notice_mon() 1720-1727 names the monster it announces with one
+// x_monnam() call. js/hack.js notice_mon() prints the line that
+// js/startup_a11y.js builds, because vision.c vision_recalc()'s
+// notice_all_mons() reaches the same text from synchronous code there, which
+// queues the line instead of printing it. That helper, noticeMonsterName(), is
+// the only other place the call is made; this pins its arguments to C's.
+test('notice_mon names the monster with C\'s x_monnam() arguments', () => {
+    const body = portedFunctionBody('startup_a11y.js', 'noticeMonsterName');
+    assert.match(body, /const given = has_mgivenname\(monster\);/u);
+    assert.match(body, /monster\.mtame \? ARTICLE_YOUR\s*: !given && !type_is_pname\(monster\.data\) \? ARTICLE_A : ARTICLE_NONE;/u);
+    assert.match(body, /return x_monnam\(monster, article,\s*monster\.mpeaceful && !monster\.mtame \? 'peaceful' : null,\s*given \? SUPPRESS_SADDLE : 0, false, state,/u);
+    assert.match(portedFunctionBody('hack.js', 'notice_mon'),
+        /const line = collectMonsterNoticeMessage\(mtmp, state\);/u);
 });

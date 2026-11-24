@@ -37,6 +37,7 @@ import {
     HALLUC_RES,
     KILLED_BY,
     LEVITATION,
+    FEATURE_NOTICE_VER,
     MAXULEV,
     NHL_SB_SAFE, NHL_SB_DEBUGGING,
     PICK_ANY, PICK_NONE, PRIMARYSET,
@@ -78,7 +79,6 @@ import {
     getdir, levltyp, makemap_prepost, paranoid_query, y_n,
     yn_function, ynq,
 } from './cmd.js';
-import { get_feature_notice_ver } from './version.js';
 import { hurtle, mhurtle } from './dothrow.js';
 import { check_invent_gold, display_inventory } from './invent.js';
 import {
@@ -910,7 +910,7 @@ export async function wiz_panic(state = game) {
 // records the gap here instead of entering that mode.
 export async function wiz_fuzzer(state = game) {
     if (Number(state.flags.suppress_alert)
-        < Number(get_feature_notice_ver('3.7.0'))) {
+        < Number(FEATURE_NOTICE_VER(3, 7, 0))) {
         await ttyPline(
             'The fuzz tester will make NetHack execute random keypresses.',
             state,
