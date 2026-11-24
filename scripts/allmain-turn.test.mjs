@@ -71,6 +71,8 @@ import { schedule_goto } from '../js/do.js';
 import {
     flush_screen,
     remembered_glyph_presentation,
+    tty_map_cell_at,
+    glyph_buffer_at,
 } from '../js/display.js';
 import { doeat } from '../js/eat.js';
 import { make_engr_at } from '../js/engrave.js';
@@ -1891,12 +1893,12 @@ test('movement glyph notices precede later first-turn region messages',
 
         const targetLocation = game.level.at(target.x, target.y);
         Object.assign(targetLocation, {
-            disp_ch: null,
-            disp_glyph: null,
-            gnew: 0,
             remembered_glyph: null,
             seenv: 0,
         });
+        tty_map_cell_at(target.x, target.y).ch = null;
+        Object.assign(glyph_buffer_at(target.x, target.y),
+            { glyphinfo: null, gnew: 0 });
         game._glyphUpdateNotices = [];
         game.a11y = {
             ...game.a11y,
@@ -1956,7 +1958,7 @@ test('movement glyph notices precede later first-turn region messages',
             game.nhDisplay.grid[target.y + 1][target.x - 1].ch,
             'o',
         );
-        assert.equal(targetLocation.disp_ch, 'i');
+        assert.equal(tty_map_cell_at(target.x, target.y).ch, 'i');
         // C ref: display.c show_glyph() reaches pline_xy(), then topl.c
         // update_topl()/addtopl() leaves the cursor after the 20-byte
         // notice, not at the map cursor used by pline_xy().
@@ -1992,7 +1994,7 @@ test('movement glyph notices precede later first-turn region messages',
             game._pending_message,
             '(southeast): goblin.  You see a gas cloud dissipate.',
         );
-        assert.equal(targetLocation.disp_ch, 'i');
+        assert.equal(tty_map_cell_at(target.x, target.y).ch, 'i');
         assert.deepEqual(
             inputFrames.map(({ message, target: cell, cursor }) => ({
                 message,
@@ -2052,7 +2054,7 @@ test('blind first-turn search maps a discovered door by touch', async () => {
     // cls() must leave an untouched northwest cell out of pending disp_* state;
     // otherwise the temporary trap frame can repopulate it during flush.
     assert.equal(
-        game.level.at(game.u.ux - 1, game.u.uy - 1).disp_ch,
+        tty_map_cell_at(game.u.ux - 1, game.u.uy - 1).ch,
         null,
     );
     // This seed's successful rnl(7) converts the southeast SDOOR and
@@ -2063,7 +2065,7 @@ test('blind first-turn search maps a discovered door by touch', async () => {
     assert.equal(foundDoor.seenv & SV0, SV0);
     assert.equal(
         remembered_glyph_presentation(foundDoor.remembered_glyph, game).ch,
-        foundDoor.disp_ch,
+        tty_map_cell_at(game.u.ux + 1, game.u.uy + 1).ch,
     );
 });
 

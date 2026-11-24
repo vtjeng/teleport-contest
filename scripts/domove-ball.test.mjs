@@ -8,6 +8,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { remove_object, place_object } from '../js/obj.js';
 import { SCROLL_CLASS, SCR_PUNISHMENT } from '../js/objects.js';
 import { punish } from '../js/read.js';
+import { tty_map_cell_at } from '../js/display.js';
 
 const FIXTURE = {
     seed: 9945001,
@@ -82,7 +83,7 @@ test('domove_core moves the chain before drawing the hero', async () => {
     assert.deepEqual([game.u.ux, game.u.uy], [x + 1, y]);
     assert.equal(
         [x - 2, x - 1, x, x + 1]
-            .map((column) => game.level.at(column, y).disp_ch)
+            .map((column) => tty_map_cell_at(column, y).ch)
             .join(''),
         '0._@',
     );

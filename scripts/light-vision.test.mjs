@@ -4,7 +4,10 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import { ART_SUNSWORD } from '../js/artifacts.js';
-import { remembered_glyph_presentation } from '../js/display.js';
+import {
+    remembered_glyph_presentation,
+    tty_map_cell_at,
+} from '../js/display.js';
 import {
     BLINDED,
     CLOUD,
@@ -652,7 +655,7 @@ test('a floor candle projects the source circle into initial vision', () => {
     assert.equal(cansee(8, 7), true);
     assert.equal(cansee(12, 7), true);
     assert.equal(cansee(13, 7), false);
-    assert.equal(state.level.at(12, 7).disp_ch, '.');
+    assert.equal(tty_map_cell_at(12, 7, state).ch, '.');
 });
 
 test('monster light follows its owner and deletes by identity', () => {
@@ -724,7 +727,7 @@ test('a blocking wall stops candle light along clear_path', () => {
     );
     assert.equal(state.viz_array[5][7] & TEMP_LIT, 0);
     assert.equal(cansee(7, 5), false);
-    assert.equal(state.level.at(7, 5).disp_ch, ' ');
+    assert.equal(tty_map_cell_at(7, 5, state).ch, ' ');
 });
 
 test('a floor boulder blocks initial line of sight', () => {
@@ -1013,13 +1016,13 @@ test('becoming blind redraws cells which were previously in sight', () => {
     );
     // Model a transient visible overlay.  The blind transition must invoke
     // newsym() for the old IN_SIGHT cell and restore its remembered terrain.
-    location.disp_ch = 'X';
+    tty_map_cell_at(10, 7, state).ch = 'X';
     state.u.uprops[BLINDED].intrinsic = FROMOUTSIDE;
 
     vision_recalc(0);
 
     assert.equal(cansee(10, 7), false);
-    assert.equal(location.disp_ch, '.');
+    assert.equal(tty_map_cell_at(10, 7, state).ch, '.');
 });
 
 test('opaque walls and doors require light on their hero-facing side', () => {

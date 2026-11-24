@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { IRONBARS, ROOM } from '../js/const.js';
-import { cmap_to_glyph, newsym } from '../js/display.js';
+import { cmap_to_glyph, newsym, glyph_buffer_at } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -56,6 +56,6 @@ test('newsym draws a visible region over iron bars through _map_location',
     await newsym(7, 7, game);
     // Both symbols are '#' in the default symset, so compare glyphs.
     assert.notEqual(cmap_to_glyph(S_cloud, game), cmap_to_glyph(S_bars, game));
-    assert.equal(game.level.at(7, 7).disp_glyph?.glyph,
+    assert.equal(glyph_buffer_at(7, 7).glyphinfo?.glyph,
         cmap_to_glyph(S_cloud, game), 'S_cloud covers the bars glyph');
 });

@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import { tty_map_cell_at } from '../js/display.js';
 
 const names = ['wizard', 'ranger'];
 
@@ -38,7 +39,7 @@ export function runNewsymSuppressionMatrix() {
             });
             assert.equal(boundary, undefined);
             assert.equal(Boolean(game.in_mklev), false);
-            assert.equal(game.level.at(game.u.ux, game.u.uy).disp_ch, '@');
+            assert.equal(tty_map_cell_at(game.u.ux, game.u.uy).ch, '@');
             assert.ok(replay.getScreens().at(-1).includes('@'));
         },
     });

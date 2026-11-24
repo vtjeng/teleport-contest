@@ -51,6 +51,7 @@ import {
     WAN_OPENING,
     WAND_CLASS,
 } from '../js/objects.js';
+import { tty_map_cell_at } from '../js/display.js';
 
 const PICKLOCK_OCCUPATION_RECIPE = JSON.parse(readFileSync(new URL(
     '../recipes/lock.c/lock-pick-opens-trapped-chest-independent-a46.session.json',
@@ -142,7 +143,7 @@ test('a winning pull opens the door for every reader of the mask', async () => {
     game.vision_full_recalc = 0;
     // drawing.c defsyms: a closed door is S_vcdoor/S_hcdoor, '+' in either
     // orientation. This one sits in the room's west wall.
-    assert.equal(door.disp_ch, '+');
+    assert.equal(tty_map_cell_at(x, y).ch, '+');
 
     const result = await doopen_indir(
         x, y, game, scriptedPull(events, FOLDED_THRESHOLD - 1),
@@ -156,7 +157,7 @@ test('a winning pull opens the door for every reader of the mask', async () => {
     // is the whole visible result of the pull: S_vodoor, the open door in a
     // vertical wall, is '-'. Without it the square keeps drawing '+' while the
     // mask says the door is open, which changes every later screen.
-    assert.equal(door.disp_ch, '-');
+    assert.equal(tty_map_cell_at(x, y).ch, '-');
     // recalc_block_point() on a square the hero can currently see schedules
     // moveloop_core()'s vision_recalc(0).
     assert.equal(game.vision_full_recalc, 1);

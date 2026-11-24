@@ -64,6 +64,8 @@ import {
     obj_to_glyph,
     remembered_glyph_from_presentation,
     show_glyph_cell,
+    glyph_buffer_at,
+    tty_map_cell_at,
 } from '../js/display.js';
 import { reset_glyphmap } from '../js/display_glyphmap.js';
 import { GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
@@ -1324,11 +1326,11 @@ function directItsDeadEffects(target) {
     return {
         shared: adjacentRefusalEffects(target),
         transient: {
-            glyph: location.disp_glyph?.glyph ?? null,
-            ch: location.disp_ch,
-            color: location.disp_color,
-            attr: location.disp_attr,
-            gnew: location.gnew,
+            glyph: glyph_buffer_at(target.x, target.y).glyphinfo?.glyph ?? null,
+            ch: tty_map_cell_at(target.x, target.y).ch,
+            color: tty_map_cell_at(target.x, target.y).color,
+            attr: tty_map_cell_at(target.x, target.y).attr,
+            gnew: glyph_buffer_at(target.x, target.y).gnew,
         },
         heroProperties: {
             blind: game.u.uprops[BLINDED].intrinsic,
@@ -1396,7 +1398,7 @@ function suppliedItsDeadEffects(state, target) {
         pile,
         catalogName: [...state.mons[PM_NEWT].pmnames],
         rememberedGlyph: location.remembered_glyph?.glyph ?? null,
-        transientGlyph: location.disp_glyph?.glyph ?? null,
+        transientGlyph: glyph_buffer_at(target.x, target.y, state).glyphinfo?.glyph ?? null,
         pendingMessage: state._pending_message,
         ttyToplines: state._ttyToplines,
         previousMessage: state._ttyPreviousMessage,
@@ -1673,7 +1675,7 @@ test('secret terrain changes the map, vision, display, and turn result',
                 secretType === SDOOR ? D_CLOSED : 0, label);
             assert.equal(location.flags,
                 secretType === SDOOR ? D_CLOSED : 0, label);
-            assert.equal(location.disp_ch, symbol, label);
+            assert.equal(tty_map_cell_at(target.x, target.y).ch, symbol, label);
             assert.equal(game.vision_full_recalc, 1, label);
 
             // The next listen in the same hero sequence costs the turn. Only
@@ -2161,7 +2163,7 @@ test('its_dead maps only a blind mismatched corpse glyph', async () => {
     // clear_glyph_buffer() fills every in-bounds third-screen entry with
     // GLYPH_UNEXPLORED. The JS buffer represents the cleared record as null,
     // but glyph_at() still returns that logical number rather than undefined.
-    game.level.at(equal.x, equal.y).disp_glyph = null;
+    glyph_buffer_at(equal.x, equal.y).glyphinfo = null;
     assert.equal(
         glyph_at(equal.x, equal.y, game), GLYPH_UNEXPLORED_OFF,
     );
@@ -2227,20 +2229,20 @@ test('its_dead maps only a blind mismatched corpse glyph', async () => {
     const mapped = game.level.at(different.x, different.y);
     assert.equal(glyph_at(different.x, different.y, game), corpseGlyph.glyph);
     assert.equal(mapped.remembered_glyph.glyph, corpseGlyph.glyph);
-    assert.deepEqual(mapped.disp_glyph.a11ySubject, {
+    assert.deepEqual(glyph_buffer_at(different.x, different.y).glyphinfo.a11ySubject, {
         type: 'object', generic: false, otyp: CORPSE,
         oclass: hiddenCorpse.oclass, corpsenm: PM_NEWT,
     });
     assert.deepEqual(
         mapped.remembered_glyph.a11ySubject,
-        mapped.disp_glyph.a11ySubject,
+        glyph_buffer_at(different.x, different.y).glyphinfo.a11ySubject,
     );
     assert.equal(
-        mapped.disp_glyph.a11yIdentity,
+        glyph_buffer_at(different.x, different.y).glyphinfo.a11yIdentity,
         `object:corpse:${PM_NEWT}`,
     );
-    assert.ok(!Object.keys(mapped.disp_glyph).includes('glyph'));
-    assert.ok(!Object.keys(mapped.disp_glyph).includes('a11ySubject'));
+    assert.ok(!Object.keys(glyph_buffer_at(different.x, different.y).glyphinfo).includes('glyph'));
+    assert.ok(!Object.keys(glyph_buffer_at(different.x, different.y).glyphinfo).includes('a11ySubject'));
     assert.ok(!Object.keys(mapped.remembered_glyph).includes('a11ySubject'));
 });
 
@@ -2254,7 +2256,7 @@ test('map_object rejects foreign state before observation or display writes',
     potion.dknown = false;
     const location = game.level.at(target.x, target.y);
     const remembered = location.remembered_glyph;
-    const displayed = location.disp_glyph;
+    const displayed = glyph_buffer_at(target.x, target.y).glyphinfo;
 
     assert.throws(
         () => map_object(potion, true, { ...game }),
@@ -2265,7 +2267,7 @@ test('map_object rejects foreign state before observation or display writes',
     );
     assert.equal(potion.dknown, false);
     assert.equal(location.remembered_glyph, remembered);
-    assert.equal(location.disp_glyph, displayed);
+    assert.equal(glyph_buffer_at(target.x, target.y).glyphinfo, displayed);
 });
 
 test('blind its_dead keeps the ordinary plural grammar', async () => {

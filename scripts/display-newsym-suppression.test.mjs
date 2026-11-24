@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { COLNO, IN_SIGHT, ROOM, ROWNO } from '../js/const.js';
-import { cmap_to_glyph, newsym } from '../js/display.js';
+import { cmap_to_glyph, newsym, tty_map_cell_at } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { initialize_symbols_from_options, S_room } from '../js/symbols.js';
@@ -77,6 +77,6 @@ test('newsym still records and draws visible terrain after suppression ends', ()
     newsym(x, y);
     assert.equal(location.waslit, true);
     assert.deepEqual(location.remembered_glyph, { glyph: cmap_to_glyph(S_room, state) });
-    assert.equal(location.disp_ch, '.'); // defsyms S_room, ordinary lit floor.
+    assert.equal(tty_map_cell_at(x, y).ch, '.'); // defsyms S_room, ordinary lit floor.
     assert.deepEqual(getRngLog(), []); // Ordinary terrain redraw is not random.
 });

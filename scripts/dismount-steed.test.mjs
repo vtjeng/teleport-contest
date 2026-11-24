@@ -60,7 +60,12 @@ import {
 } from '../js/const.js';
 import { dirtocoord, xytodir } from '../js/cmd.js';
 import { set_wounded_legs } from '../js/do.js';
-import { see_monsters, statusConditionActive } from '../js/display.js';
+import {
+    see_monsters,
+    statusConditionActive,
+    glyph_buffer_at,
+    tty_map_cell_at,
+} from '../js/display.js';
 import {
     cant_squeeze_thru,
     invocation_message,
@@ -980,14 +985,16 @@ test('see_monsters repaints the monster list and skips the hero square',
     // flush behind it, so the buffer is where its newsym() calls land.
     const buffered = () => {
         const loc = state.level.at(state.u.ux, state.u.uy);
-        return { gnew: loc.gnew, ch: loc.disp_ch, color: loc.disp_color };
+        return { gnew: glyph_buffer_at(state.u.ux, state.u.uy, state).gnew, ch: tty_map_cell_at(state.u.ux, state.u.uy, state).ch, color: tty_map_cell_at(state.u.ux, state.u.uy, state).color };
     };
     // show_glyph() marks gnew only when the buffered glyph changes
     // (display.c:2031-2047), so the scribble replaces the buffered glyph too.
-    const scribble = () => Object.assign(
-        state.level.at(state.u.ux, state.u.uy),
-        { gnew: 0, disp_ch: '?', disp_color: 9, disp_glyph: null },
-    );
+    const scribble = () => {
+        Object.assign(glyph_buffer_at(state.u.ux, state.u.uy, state),
+            { gnew: 0, glyphinfo: null });
+        Object.assign(tty_map_cell_at(state.u.ux, state.u.uy, state),
+            { ch: '?', color: 9 });
+    };
     const SCRIBBLED = { gnew: 0, ch: '?', color: 9 };
 
     steed.meverseen = 0;

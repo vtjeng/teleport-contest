@@ -19,7 +19,7 @@ function fixture() {
     // every layer. ANTI_MAGIC provides a known trap under the object overlay.
     const cell = { typ: ROOM, seenv: SVALL,
         remembered_glyph: { glyph: cmap_to_glyph(S_room) },
-        disp_glyph: { glyph: objnum_to_glyph(DIAMOND) } };
+        _gbuf: { glyphinfo: { glyph: objnum_to_glyph(DIAMOND) } } };
     const state = { u: { ux: 10, uy: 10, uinwater: 0 },
         lastseentyp: { 10: { 10: ROOM } },
         level: { flags: { hero_memory: true }, regions: [],
@@ -37,7 +37,7 @@ test('terrain subsets preserve objects and uncover known traps in C order', () =
     assert.equal(glyph(TER_MAP | TER_TRP), trap);
     assert.equal(glyph(TER_MAP | TER_TRP | TER_OBJ), objnum_to_glyph(DIAMOND));
     // C treats invisible-monster markers as replaceable even with keep_objs.
-    cell.disp_glyph.glyph = GLYPH_INVISIBLE;
+    cell._gbuf.glyphinfo.glyph = GLYPH_INVISIBLE;
     assert.equal(glyph(TER_MAP | TER_TRP | TER_OBJ), trap);
     // Pool coverage suppresses the trap substitution unless underwater.
     cell.typ = POOL;
@@ -51,13 +51,13 @@ test('full projection restores seenv and normalizes C room/corridor glyphs', () 
     assert.equal(glyph(TER_MAP | TER_FULL), cmap_to_glyph(S_room));
     assert.equal(cell.seenv, 3);
     for (const [from, to] of [[S_darkroom, S_room], [S_litcorr, S_corr]]) {
-        cell.disp_glyph.glyph = cmap_to_glyph(from);
+        cell._gbuf.glyphinfo.glyph = cmap_to_glyph(from);
         assert.equal(glyph(TER_MAP | TER_OBJ), cmap_to_glyph(to));
     }
 });
 test('monster projection preserves or strips the live glyph per TER_MON', () => {
     const { cell, glyph } = fixture();
-    cell.disp_glyph.glyph = GLYPH_MON_MALE_OFF; // First ordinary monster glyph.
+    cell._gbuf.glyphinfo.glyph = GLYPH_MON_MALE_OFF; // First ordinary monster glyph.
     assert.equal(glyph(TER_MAP | TER_OBJ), cmap_to_glyph(S_room));
     assert.equal(glyph(TER_MAP | TER_OBJ | TER_MON), GLYPH_MON_MALE_OFF);
 });
@@ -67,7 +67,7 @@ test('visible region precedence matches C trap and unexplored arms', () => {
     region.visible = true;
     region.glyph = cmap_to_glyph(S_cloud);
     state.level.regions.push(region);
-    cell.disp_glyph.glyph = GLYPH_MON_MALE_OFF;
+    cell._gbuf.glyphinfo.glyph = GLYPH_MON_MALE_OFF;
     assert.equal(glyph(TER_MAP | TER_TRP), trap_to_glyph(state.level.traps[0], state));
     state.level.traps.length = 0;
     assert.equal(glyph(TER_MAP | TER_TRP), region.glyph);

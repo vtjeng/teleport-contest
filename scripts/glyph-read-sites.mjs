@@ -3,13 +3,14 @@
 //
 // C keeps levl[x][y].glyph, what the hero remembers, apart from
 // gg.gbuf[y][x].glyphinfo.glyph, what display.c last drew, which glyph_at()
-// returns. The port keeps them as `remembered_glyph` and `disp_glyph` on a
-// level location. A site is one function and one of the two kinds:
+// returns. The port keeps them as a level location's `remembered_glyph` and the
+// `glyphinfo` of js/display.js glyph_buffer_at()'s entry. A site is one
+// function and one of the two kinds:
 //
 //   remembered  C: levl[x][y].glyph, lev->glyph, door->glyph
 //               JS: remembered_glyph
 //   drawn       C: glyph_at(), _glyph_at(), a gbuf entry's glyphinfo.glyph
-//               JS: glyph_at, disp_glyph
+//               JS: glyph_at, .glyphinfo
 //
 // Reads and writes both count: either one names which of the two values the
 // function means. A reference to glyph_at without a call counts as well, so
@@ -44,7 +45,7 @@ const C_KINDS = {
 
 const JS_KINDS = {
     remembered: /\bremembered_glyph\b/g,
-    drawn: /\bglyph_at\b|\bdisp_glyph\b/g,
+    drawn: /\bglyph_at\b|\.glyphinfo\b/g,
 };
 
 // A C function starts with its name in column 0, the return type on the line

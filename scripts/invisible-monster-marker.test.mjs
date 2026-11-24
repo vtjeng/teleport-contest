@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { GLYPH_INVISIBLE, glyph_is_invisible } from '../js/display.js';
+import {
+    GLYPH_INVISIBLE,
+    glyph_is_invisible,
+    tty_map_cell_at,
+} from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { NO_COLOR } from '../js/terminal.js';
@@ -141,7 +145,7 @@ test('a remembered marker resolves to a plain I', async () => {
     const [x, y] = marked[0].split(',').map(Number);
     const location = game.level.at(x, y);
     assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
-    assert.equal(location.disp_ch, 'I');
-    assert.equal(location.disp_color, NO_COLOR);
-    assert.equal(location.disp_attr, 0);
+    assert.equal(tty_map_cell_at(x, y).ch, 'I');
+    assert.equal(tty_map_cell_at(x, y).color, NO_COLOR);
+    assert.equal(tty_map_cell_at(x, y).attr, 0);
 });

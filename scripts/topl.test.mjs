@@ -17,7 +17,7 @@ import { GLYPH_CMAP_STONE_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.
 import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
 import { ATR_NONE, CLR_RED, NO_COLOR } from '../js/terminal.js';
-import { docorner } from '../js/display.js';
+import { docorner, glyph_buffer_at, tty_map_cell_at } from '../js/display.js';
 import {
     addtopl,
     addtoplRows,
@@ -428,16 +428,16 @@ test('docorner skips an unexplored buffer glyph even when map memory is known',
         const state = game;
         const location = state.level.at(27, 0);
         location.remembered_glyph = { glyph: GLYPH_CMAP_STONE_OFF };
-        location.disp_glyph = {
+        glyph_buffer_at(27, 0, state).glyphinfo = {
             glyph: GLYPH_UNEXPLORED_OFF,
             ch: '#',
             color: NO_COLOR,
             dec: false,
         };
-        location.disp_ch = '#';
-        location.disp_color = NO_COLOR;
-        location.disp_decgfx = false;
-        location.disp_attr = 0;
+        tty_map_cell_at(27, 0, state).ch = '#';
+        tty_map_cell_at(27, 0, state).color = NO_COLOR;
+        tty_map_cell_at(27, 0, state).decgfx = false;
+        tty_map_cell_at(27, 0, state).attr = 0;
         // Seed the stale physical cell that docorner() must clear before its
         // source-ordered row_refresh() consults the live glyph number.
         state.nhDisplay.setCell(26, 1, '#', NO_COLOR, 0);
@@ -472,7 +472,7 @@ test('docorner skips an unexplored buffer glyph even when map memory is known',
         assert.match(DISPLAY_C,
             /if \(force \|\| glyph != GLYPH_UNEXPLORED\s*\|\| bkglyphinfo\.framecolor != NO_COLOR\)/u);
         assert.match(DISPLAY_JS,
-            /const glyph = loc\.disp_glyph\?\.glyph \?\? GLYPH_UNEXPLORED_OFF/u);
+            /const glyph = entry\.glyphinfo\?\.glyph \?\? GLYPH_UNEXPLORED_OFF/u);
     });
 
 test('docorner redraws the status once its repair reaches the status window',
@@ -535,7 +535,7 @@ test('docorner leaves the cursor past the last map glyph it prints',
         // not GLYPH_UNEXPLORED; lastX is the rightmost one on the hero's row.
         let lastX = 0;
         for (let x = 1; x < COLNO; ++x) {
-            const glyph = state.level.at(x, mapY)?.disp_glyph?.glyph
+            const glyph = glyph_buffer_at(x, mapY, state)?.glyphinfo?.glyph
                 ?? GLYPH_UNEXPLORED_OFF;
             if (glyph !== GLYPH_UNEXPLORED_OFF) lastX = x;
         }

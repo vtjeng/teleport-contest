@@ -24,6 +24,7 @@ import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { ttyMenuLayout } from '../js/tty_menu.js';
 import { optionsMenuRecipe } from './run-options-menu.mjs';
+import { glyph_buffer_at } from '../js/display.js';
 
 // The two recipes that page the simple menu without picking, so their
 // configurations are the ones every row literal below was recorded at. They
@@ -522,7 +523,7 @@ test('the pick loop toggles silently and the next menu speaks again',
 async function pickWithDirtySquare(name) {
     const state = await startSimpleGame(STOCK);
     clearTopline(state);
-    state.level.at(1, 0).gnew = 1;
+    glyph_buffer_at(1, 0, state).gnew = 1;
     await doset_simple(state, pickingHelpers([name]));
     return state;
 }
@@ -541,18 +542,18 @@ function statusRow(state) {
 test('only a pick that asked for a repaint flushes the map', async () => {
     const redrawn = await pickWithDirtySquare('hilite_pet');
     assert.equal(redrawn.iflags.wc_hilite_pet, true);
-    assert.equal(redrawn.level.at(1, 0).gnew, 0);
+    assert.equal(glyph_buffer_at(1, 0, redrawn).gnew, 0);
 
     const statused = await pickWithDirtySquare('time');
     assert.equal(statused.flags.time, true);
-    assert.equal(statused.level.at(1, 0).gnew, 1);
+    assert.equal(glyph_buffer_at(1, 0, statused).gnew, 1);
     // reset_needed_visuals() still spent disp.botl, so the turn counter the
     // option just switched on is on screen.
     assert.match(statusRow(statused), /T:1$/u);
 
     const quiet = await pickWithDirtySquare('autoopen');
     assert.equal(quiet.flags.autoopen, false);
-    assert.equal(quiet.level.at(1, 0).gnew, 1);
+    assert.equal(glyph_buffer_at(1, 0, quiet).gnew, 1);
     assert.doesNotMatch(statusRow(quiet), /T:/u);
 });
 

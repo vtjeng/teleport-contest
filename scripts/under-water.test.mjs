@@ -1,11 +1,20 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { BLINDED, ICE, LAVAPOOL, POOL, ROOM } from '../js/const.js';
+import {
+    BLINDED, COLNO, ICE, LAVAPOOL, POOL, ROOM, ROWNO,
+} from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
-import { cls, docrt, show_glyph_cell, under_water } from '../js/display.js';
+import {
+    cls,
+    docrt,
+    show_glyph_cell,
+    under_water,
+    glyph_buffer_at,
+    tty_map_cell_at,
+} from '../js/display.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -40,13 +49,13 @@ test('under_water full update clears distant transient cells and preserves memor
     setup();
     mark(20, 10); // Outside source's fixed radius one around (10,10).
     await under_water(1); // Source mode 1 calls cls before drawing.
-    assert.equal(game.level.at(20, 10).disp_glyph, null);
+    assert.equal(glyph_buffer_at(20, 10).glyphinfo, null);
     assert.deepEqual(game.level.at(20, 10).remembered_glyph, { glyph: 123 });
     // cls() left nul_gbuf in these cells, which already holds
     // GLYPH_UNEXPLORED, so display.c show_glyph() finds nothing to change and
     // the cell keeps no presentation of its own.
     for (const [x, y] of [[9, 9], [9, 10], [11, 11]])
-        assert.equal(game.level.at(x, y).disp_glyph?.glyph ?? GLYPH_UNEXPLORED_OFF,
+        assert.equal(glyph_buffer_at(x, y).glyphinfo?.glyph ?? GLYPH_UNEXPLORED_OFF,
             GLYPH_UNEXPLORED_OFF);
     assert.deepEqual(game._underWater, { x: 10, y: 10, dela: false });
 });
@@ -55,10 +64,10 @@ test('under_water delayed full update takes precedence over a second mode 2', as
     setup();
     mark(20, 10);
     await under_water(2); // First mode 2 sets dela and returns without drawing.
-    assert.equal(game.level.at(20, 10).disp_ch, '.');
+    assert.equal(tty_map_cell_at(20, 10).ch, '.');
     assert.deepEqual(game._underWater, { x: 0, y: 0, dela: true });
     await under_water(2); // The pending dela arm precedes the mode 2 arm in C.
-    assert.equal(game.level.at(20, 10).disp_glyph, null);
+    assert.equal(glyph_buffer_at(20, 10).glyphinfo, null);
     assert.deepEqual(game._underWater, { x: 10, y: 10, dela: false });
 });
 
@@ -71,20 +80,18 @@ test('limited update erases old square in y/x order then draws in x/y order', as
         [4, 6], [5, 6], [6, 6], [9, 9], [9, 10], [11, 11]])
         show_glyph_cell(x, y, { ch: '.', dec: false });
     const writes = [];
-    const at = game.level.at.bind(game.level);
-    game.level.at = (x, y) => {
-        const loc = at(x, y);
-        if (!Object.hasOwn(loc, '_tracked')) {
-            Object.defineProperty(loc, '_tracked', { value: true });
-            let glyph = loc.disp_glyph;
-            Object.defineProperty(loc, 'disp_glyph', {
+    for (let x = 1; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const entry = glyph_buffer_at(x, y);
+            let glyph = entry.glyphinfo;
+            Object.defineProperty(entry, 'glyphinfo', {
                 configurable: true,
+                enumerable: true,
                 get: () => glyph,
                 set: (value) => { glyph = value; writes.push([x, y]); },
             });
         }
-        return loc;
-    };
+    }
     await under_water(0);
     // display.c:1414-1418 erase is y outer/x inner; draw is x outer/y inner.
     assert.deepEqual(writes, [[4, 4], [5, 4], [6, 4], [4, 5], [5, 5], [6, 5],
@@ -104,7 +111,7 @@ test('swallowed, Water Plane and foreign-state paths leave live display untouche
     game.water_level = null;
     await under_water(1, { ...game, u: { ...game.u } });
     assert.equal(game._underWater, undefined, 'a foreign state never touches the live display');
-    assert.equal(game.level.at(20, 10).disp_ch, '.');
+    assert.equal(tty_map_cell_at(20, 10).ch, '.');
     await under_water(2);
     setup(); // New game resets source static position and pending flag.
     assert.equal(game._underWater, undefined);
@@ -114,7 +121,7 @@ test('docrt chooses underwater redraw before ordinary remembered-map redraw', as
     setup();
     mark(20, 10);
     await docrt();
-    assert.equal(game.level.at(20, 10).disp_glyph, null);
+    assert.equal(glyph_buffer_at(20, 10).glyphinfo, null);
     assert.equal(game.program_state.in_docrt, false);
     assert.equal(game.disp.botlx, true);
 });
@@ -149,7 +156,7 @@ test('source redraw key dispatches underwater docrt without taking time', async 
     // its source display_nhwindow message acknowledgment before the redraw.
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     await rhack(0x12, game); // cmd.c extcmdlist C('r') -> doredraw.
-    assert.equal(game.level.at(1, 0).disp_glyph, null);
+    assert.equal(glyph_buffer_at(1, 0).glyphinfo, null);
     assert.equal(game.context.move, 0, 'doredraw returns ECMD_OK');
     assert.equal(game.moves, moves);
     assert.equal(game.nhDisplay.inputQueueLength, 0);

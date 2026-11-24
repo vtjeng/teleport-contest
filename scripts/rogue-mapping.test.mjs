@@ -2,7 +2,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-import { cmap_to_glyph, magic_map_background } from '../js/display.js';
+import {
+    cmap_to_glyph,
+    magic_map_background,
+    tty_map_cell_at,
+} from '../js/display.js';
 import { GLYPH_NOTHING_OFF, GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
 import { IN_SIGHT, ROOM } from '../js/const.js';
 import { GameMap } from '../js/game.js';
@@ -46,7 +50,8 @@ function roomState({ rogue = true, visible = false, waslit = false,
     // waslit or the explicit IN_SIGHT bit suppresses it.
     const x = 7, y = 4;
     const loc = state.level.at(x, y);
-    Object.assign(loc, { typ: ROOM, lit: true, waslit, disp_ch: 'x' });
+    Object.assign(loc, { typ: ROOM, lit: true, waslit });
+    tty_map_cell_at(x, y, state).ch = 'x';
     state.viz_array = [];
     state.viz_array[y] = [];
     state.viz_array[y][x] = visible ? IN_SIGHT : 0;
@@ -67,7 +72,7 @@ for (const [name, options, expected] of [
         magic_map_background(x, y, false, state);
         assert.equal(loc.remembered_glyph.glyph,
             expected === null ? GLYPH_NOTHING_OFF : cmap_to_glyph(expected, state));
-        assert.equal(loc.disp_ch, 'x', 'show=false keeps the existing screen cell');
+        assert.equal(tty_map_cell_at(x, y, state).ch, 'x', 'show=false keeps the existing screen cell');
         assert.equal(lastseentyp_grid(state)[x][y], ROOM);
     });
 }
@@ -76,7 +81,7 @@ test('rogue mapping draws blank terrain while memory-disabled mapping does not s
     const { state, loc, x, y } = roomState({ memory: false });
     magic_map_background(x, y, true, state);
     assert.equal(loc.remembered_glyph, undefined);
-    assert.equal(loc.disp_ch, ' '); // sym.h S_stone's source map symbol.
+    assert.equal(tty_map_cell_at(x, y, state).ch, ' '); // sym.h S_stone's source map symbol.
     assert.equal(lastseentyp_grid(state)[x][y], ROOM);
 });
 

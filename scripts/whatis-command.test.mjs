@@ -78,6 +78,8 @@ import {
     map_glyphinfo,
     statue_to_glyph,
     trap_to_glyph,
+    glyph_buffer_at,
+    tty_map_cell_at,
 } from '../js/display.js';
 import {
     GLYPH_BODY_OFF,
@@ -536,7 +538,7 @@ function terrainDescriptionState(cmap, flags = 0) {
     // active room symbol before pager.c scans gs.showsyms[].
     state.gs.showsyms[S_darkroom] = state.gs.showsyms[S_room];
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? { flags, disp_glyph: { glyph: cmap_to_glyph(cmap, state) } }
+        ? { flags, _gbuf: { glyphinfo: { glyph: cmap_to_glyph(cmap, state) } } }
         : undefined);
     return state;
 }
@@ -676,7 +678,7 @@ function statueDescription() {
     });
     state.level.objects[3][4] = statue;
     state.level.at = (x, y) => x === 3 && y === 4
-        ? { disp_glyph: { glyph: statue_to_glyph(statue, state) } }
+        ? { _gbuf: { glyphinfo: { glyph: statue_to_glyph(statue, state) } } }
         : undefined;
     return describeLooked(state);
 }
@@ -711,7 +713,7 @@ test('quest-start downstairs is described as blocked before the quest', () => {
         killed_leader: false,
     } };
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? { disp_glyph: { glyph: cmap_to_glyph(S_dnstair, state) } }
+        ? { _gbuf: { glyphinfo: { glyph: cmap_to_glyph(S_dnstair, state) } } }
         : undefined);
     assert.deepEqual(describeLooked(state), {
         found: 1,
@@ -739,9 +741,8 @@ test('looked descriptions compare the raw tty byte behind DEC graphics', () => {
         ? {
             // display.c stores the rendered character separately from the
             // high-bit tty byte that pager.c uses for family matching.
-            disp_glyph: { glyph },
-            disp_ch: glyphInfo.ch,
-            disp_decgfx: glyphInfo.dec,
+            _gbuf: { glyphinfo: { glyph } },
+            _tty: { ch: glyphInfo.ch, decgfx: glyphInfo.dec },
         }
         : undefined);
     assert.deepEqual(describeLooked(state), {
@@ -770,7 +771,7 @@ test('blank stone retains matching monster and misc classes before refinement', 
     state.level.at = (x, y) => (x === 3 && y === 4
         ? {
             seenv: 0xff,
-            disp_glyph: { glyph: cmap_to_glyph(S_stone, state) },
+            _gbuf: { glyphinfo: { glyph: cmap_to_glyph(S_stone, state) } },
         }
         : undefined);
     assert.deepEqual(describeLooked(state), {
@@ -818,7 +819,7 @@ test('cloud ambiguity names air and non-air terrain', () => {
         parseNethackrc('OPTIONS=symset:DECgraphics\n'), state,
     );
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? { disp_glyph: { glyph: cmap_to_glyph(S_cloud, state) } }
+        ? { _gbuf: { glyphinfo: { glyph: cmap_to_glyph(S_cloud, state) } } }
         : undefined);
     assert.deepEqual(describeLooked(state), {
         found: 1,
@@ -877,7 +878,7 @@ test('visible dart traps refine the overloaded trap symbol', () => {
         parseNethackrc('OPTIONS=symset:DECgraphics\n'), state,
     );
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? { disp_glyph: { glyph: trap_to_glyph({ ttyp: DART_TRAP }) } }
+        ? { _gbuf: { glyphinfo: { glyph: trap_to_glyph({ ttyp: DART_TRAP }) } } }
         : undefined);
     assert.deepEqual(describeLooked(state), {
         found: 1,
@@ -1216,7 +1217,7 @@ test('trapped_chest_at scans each direct inventory owner only', () => {
     });
     const makeState = () => {
         const level = new GameMap();
-        level.at(x, y).disp_glyph = {
+        level.at(x, y)._gbuf.glyphinfo = {
             glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }),
         };
         return {
@@ -1295,19 +1296,19 @@ test('trap descriptions preserve synthetic trapped chest and door names', () => 
         // pager.c refines to "trapped door".
         level,
     };
-    location.disp_glyph = {
+    location._gbuf.glyphinfo = {
         glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }, state),
     };
     assert.equal(
         trap_description(TRAPPED_CHEST, x, y, state), 'trapped chest',
     );
-    location.disp_glyph.glyph = trap_to_glyph(
+    location._gbuf.glyphinfo.glyph = trap_to_glyph(
         { ttyp: TRAPPED_DOOR }, state,
     );
     assert.equal(
         trap_description(TRAPPED_DOOR, x, y, state), 'trapped door',
     );
-    location.disp_glyph.glyph = trap_to_glyph({ ttyp: ARROW_TRAP }, state);
+    location._gbuf.glyphinfo.glyph = trap_to_glyph({ ttyp: ARROW_TRAP }, state);
     assert.equal(
         trap_description(ARROW_TRAP, x, y, state), 'arrow trap',
     );
@@ -1362,10 +1363,10 @@ test('trap lists keep visible and obscured traps in map order', async () => {
     const installGlyph = (x, glyph) => {
         const presentation = map_glyphinfo(glyph, game);
         const location = game.level.at(x, y);
-        location.disp_glyph = { ...presentation, glyph };
-        location.disp_ch = presentation.ch;
-        location.disp_decgfx = presentation.dec;
-        location.disp_browser_ch = presentation.displayCh;
+        glyph_buffer_at(x, y).glyphinfo = { ...presentation, glyph };
+        tty_map_cell_at(x, y).ch = presentation.ch;
+        tty_map_cell_at(x, y).decgfx = presentation.dec;
+        tty_map_cell_at(x, y).browser_ch = presentation.displayCh;
     };
     installGlyph(visibleX, trap_to_glyph(visible, game));
     installGlyph(obscuredX, cmap_to_glyph(S_room, game));
@@ -1405,10 +1406,10 @@ test('trap lists format configured compass coordinates', async () => {
     const glyph = trap_to_glyph(trap, game);
     const presentation = map_glyphinfo(glyph, game);
     const location = game.level.at(x, y);
-    location.disp_glyph = { ...presentation, glyph };
-    location.disp_ch = presentation.ch;
-    location.disp_decgfx = presentation.dec;
-    location.disp_browser_ch = presentation.displayCh;
+    glyph_buffer_at(x, y).glyphinfo = { ...presentation, glyph };
+    tty_map_cell_at(x, y).ch = presentation.ch;
+    tty_map_cell_at(x, y).decgfx = presentation.dec;
+    tty_map_cell_at(x, y).browser_ch = presentation.displayCh;
 
     let rows;
     let glyphCharacter;
@@ -1439,12 +1440,12 @@ test('engraving lists use remembered grave terrain for obscured headstones',
         const y = game.u.uy;
         const location = game.level.at(x, y);
         const floor = map_glyphinfo(cmap_to_glyph(S_room, game), game);
-        location.disp_glyph = {
+        glyph_buffer_at(x, y).glyphinfo = {
             ...floor, glyph: cmap_to_glyph(S_room, game),
         };
-        location.disp_ch = floor.ch;
-        location.disp_decgfx = floor.dec;
-        location.disp_browser_ch = floor.displayCh;
+        tty_map_cell_at(x, y).ch = floor.ch;
+        tty_map_cell_at(x, y).decgfx = floor.dec;
+        tty_map_cell_at(x, y).browser_ch = floor.displayCh;
         // SVALL is 0xFF: C admits an engraving after any nonzero seenv bit;
         // the full mask avoids making this test about one viewing direction.
         location.seenv = 0xFF;
@@ -1617,7 +1618,7 @@ test('lookat covers non-cmap glyph arms and returns source side channels', () =>
     state.viz_array = Array.from({ length: 21 }, () => new Uint8Array(80));
     state.viz_array[4][3] = COULD_SEE | IN_SIGHT;
     state.level.at = (x, y) => x === 3 && y === 4
-        ? { disp_glyph: { glyph: GLYPH_MON_MALE_OFF + PM_SAMURAI } }
+        ? { _gbuf: { glyphinfo: { glyph: GLYPH_MON_MALE_OFF + PM_SAMURAI } } }
         : undefined;
     const monsterResult = lookat(3, 4, state);
     assert.equal(monsterResult.pm, state.mons[PM_SAMURAI]);
@@ -1633,21 +1634,21 @@ test('lookat covers non-cmap glyph arms and returns source side channels', () =>
     assert.equal(bearTrap.tseen, true);
 
     state.level.at = (x, y) => x === 3 && y === 4
-        ? { disp_glyph: { glyph: GLYPH_INVIS_OFF } }
+        ? { _gbuf: { glyphinfo: { glyph: GLYPH_INVIS_OFF } } }
         : undefined;
     assert.equal(
         lookat(3, 4, state).buf,
         'remembered, unseen, creature',
     );
     state.level.at = (x, y) => x === 3 && y === 4
-        ? { disp_glyph: { glyph: GLYPH_NOTHING_OFF } }
+        ? { _gbuf: { glyphinfo: { glyph: GLYPH_NOTHING_OFF } } }
         : undefined;
     assert.equal(lookat(3, 4, state).buf, 'dark part of a room');
     state.level.at = () => undefined;
     assert.equal(lookat(3, 4, state).buf, 'unexplored area');
 
     state.level.at = (x, y) => x === 3 && y === 4
-        ? { disp_glyph: { glyph: GLYPH_WARNING_OFF + 2 } }
+        ? { _gbuf: { glyphinfo: { glyph: GLYPH_WARNING_OFF + 2 } } }
         : undefined;
     assert.equal(
         lookat(3, 4, state).buf,
@@ -1742,11 +1743,11 @@ test('look_all includes the source invisible and warning descriptions', async ()
     // have no monster pointer, unlike live-monster descriptions.
     for (let y = 0; y < 21; ++y)
         for (let x = 1; x < 80; ++x)
-            game.level.at(x, y).disp_glyph = { glyph: NO_GLYPH };
+            glyph_buffer_at(x, y).glyphinfo = { glyph: NO_GLYPH };
     const x = game.u.ux, y = game.u.uy;
-    game.level.at(x, y).disp_glyph = { glyph: GLYPH_INVIS_OFF };
+    glyph_buffer_at(x, y).glyphinfo = { glyph: GLYPH_INVIS_OFF };
     // warnindx 1 is def_warnsyms' 'unknown creature causing you concern'.
-    game.level.at(x + 1, y).disp_glyph = { glyph: GLYPH_WARNING_OFF + 1 };
+    glyph_buffer_at(x + 1, y).glyphinfo = { glyph: GLYPH_WARNING_OFF + 1 };
     game.iflags.getpos_coords = GPCOORDS_COMPASS;
     let rows;
     game._preNhgetchHook = () => {
@@ -1769,10 +1770,10 @@ test('look_all hides an unsensed invisible hero and names your position', async 
     game.level.monlist = null;
     for (let y = 0; y < 21; ++y)
         for (let x = 1; x < 80; ++x)
-            game.level.at(x, y).disp_glyph = { glyph: NO_GLYPH };
+            glyph_buffer_at(x, y).glyphinfo = { glyph: NO_GLYPH };
     const x = game.u.ux, y = game.u.uy;
-    game.level.at(x, y).disp_glyph = { glyph: GLYPH_MON_MALE_OFF + game.u.umonnum };
-    game.level.at(x + 1, y).disp_glyph = { glyph: GLYPH_WARNING_OFF + 1 };
+    glyph_buffer_at(x, y).glyphinfo = { glyph: GLYPH_MON_MALE_OFF + game.u.umonnum };
+    glyph_buffer_at(x + 1, y).glyphinfo = { glyph: GLYPH_WARNING_OFF + 1 };
     // No blindness, see-invisible, telepathy or detection: Invisible is the
     // source reason that the hero cannot spot herself.
     game.u.uprops[INVIS] = { intrinsic: 1 };

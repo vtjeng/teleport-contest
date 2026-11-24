@@ -12,6 +12,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { DAGGER, FLINT, POT_HEALING } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import { glyph_buffer_at } from '../js/display.js';
 
 export const HALLUCINATION_REDRAW_CASES = [
     { name: 'hallucination-redraw-dagger', otyp: DAGGER },
@@ -41,7 +42,7 @@ export async function verifyHallucinationRedraw(segment, otyp) {
     assert.equal(object.oy, game.u.uy);
     assert.ok(game.viz_array[object.oy][object.ox] & IN_SIGHT);
     const location = game.level.at(object.ox, object.oy);
-    assert.equal(location.remembered_glyph.glyph, location.disp_glyph.glyph,
+    assert.equal(location.remembered_glyph.glyph, glyph_buffer_at(object.ox, object.oy).glyphinfo.glyph,
         'the restored visible object and its remembered glyph agree');
 }
 

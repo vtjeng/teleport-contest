@@ -5,7 +5,12 @@ import test from 'node:test';
 import {
     COLNO, LAST_PROP, PICK_ANY, PICK_ONE, PICK_NONE, ROOM, ROWNO,
 } from '../js/const.js';
-import { flush_screen, status_window_rows } from '../js/display.js';
+import {
+    flush_screen,
+    status_window_rows,
+    glyph_buffer_at,
+    tty_map_cell_at,
+} from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -1545,13 +1550,13 @@ test('getlin prompt flush writes a dirty blank glyph and preserves clean physica
     const y = state.u.uy;
     const dirty = state.level.at(x, y);
     // C print_glyph must erase even when the dirty glyph is blank. The flush
-    // prints the gbuf entry (disp_glyph), so the blank goes there too.
-    dirty.disp_glyph = { ...dirty.disp_glyph, ch: ' ' };
-    dirty.disp_ch = ' ';
-    dirty.gnew = 1;
+    // prints the gbuf entry (its glyphinfo), so the blank goes there too.
+    glyph_buffer_at(x, y, state).glyphinfo = { ...glyph_buffer_at(x, y, state).glyphinfo, ch: ' ' };
+    tty_map_cell_at(x, y, state).ch = ' ';
+    glyph_buffer_at(x, y, state).gnew = 1;
     state.nhDisplay.setCell(x - 1, y + 1, 'X', 2, 1);
     const clean = state.level.at(x + 1, y);
-    clean.gnew = 0;
+    glyph_buffer_at(x + 1, y, state).gnew = 0;
     state.nhDisplay.setCell(x, y + 1, 'M', 4, 2); // A physical menu cell over clean map.
     state.nhDisplay.inread = 2; // A nested read restores its caller's existing depth.
     state._preNhgetchHook = () => {
@@ -1560,7 +1565,7 @@ test('getlin prompt flush writes a dirty blank glyph and preserves clean physica
         assert.equal(state.nhDisplay.inread, 3);
     };
     assert.equal(await tty_getlin('Input:', state), '');
-    assert.equal(dirty.gnew, 0);
+    assert.equal(glyph_buffer_at(x, y, state).gnew, 0);
     assert.equal(state.nhDisplay.inread, 2);
 });
 

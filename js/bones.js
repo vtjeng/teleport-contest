@@ -48,7 +48,7 @@ import { isok } from './cmd_isok.js';
 import { christen_monst, free_oname } from './do_name.js';
 import { mk_named_object } from './corpstat.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { installLevel, newsym, SCREEN_BUFFER_FIELDS } from './display.js';
+import { installLevel, newsym, SCREEN_BUFFER_RECORDS } from './display.js';
 import { clear_bypasses, m_dowear } from './worn.js';
 import {
     In_hell,
@@ -275,14 +275,14 @@ export async function fix_ghostly_obj(obj, state = game) {
 }
 
 // C savelev() stores the level's persistent map fields, not the terminal's
-// glyph buffer.  SCREEN_BUFFER_FIELDS are the JS owner of that transient
+// glyph buffer.  SCREEN_BUFFER_RECORDS are the JS owner of that transient
 // buffer and screen; retaining them in a bones file would make a later
 // arrival repaint the deceased hero's old map before the new level redraws it.
 function cloneBonesLocation(location) {
     if (!location) return null;
     const clone = { ...location };
     delete clone.objects;
-    for (const field of SCREEN_BUFFER_FIELDS) delete clone[field];
+    for (const record of SCREEN_BUFFER_RECORDS) delete clone[record];
     return clone;
 }
 
@@ -1215,6 +1215,15 @@ async function restoreBonesLevel(bonesData, state) {
             ? column.map(cloneBonesLocation)
             : column,
     );
+    // A restored square has empty screen records until installLevel()
+    // copies the departing level's into it; column 0 keeps them empty.
+    for (const column of locations) {
+        if (!Array.isArray(column)) continue;
+        for (const location of column) {
+            if (!location) continue;
+            for (const record of SCREEN_BUFFER_RECORDS) location[record] = {};
+        }
+    }
 
     // Rebuild the level object from the snapshot.
     const level = {

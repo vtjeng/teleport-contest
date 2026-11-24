@@ -22,7 +22,12 @@ import { game, resetGame } from '../js/gstate.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
-import { tmp_at, tether_glyph, zapdir_to_glyph } from '../js/display.js';
+import {
+    tmp_at,
+    tether_glyph,
+    zapdir_to_glyph,
+    tty_map_cell_at,
+} from '../js/display.js';
 
 // A three-square corridor of floor at row 4, with the hero at its left end.
 // `sighted` lists the columns cansee() answers TRUE for; every other square
@@ -49,7 +54,7 @@ function litRow(sighted) {
 const MISSILE = { ch: '*', color: 0, dec: false, attr: 0 };
 
 function shown(state, x) {
-    return state.level.at(x, 4).disp_ch;
+    return tty_map_cell_at(x, 4, state).ch;
 }
 
 test('DISP_FLASH erases the previous square before drawing the next', async () => {
