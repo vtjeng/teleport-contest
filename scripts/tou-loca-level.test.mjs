@@ -46,7 +46,7 @@ test('Tou-loca operators and natural shop fill trace to their C callers', () => 
     assert.match(shknamC, /if \(\(sh = shkinit\(shp, sroom\)\) < 0\)/u);
     assert.match(specialLevelC, /fill_special_room\(struct mkroom \*croom\)[\s\S]*?stock_room\(croom->rtype - SHOPBASE, croom\)/u);
     assert.match(makeLevelC, /makelevel\(void\)[\s\S]*?fill_special_room\(&svr\.rooms\[i\]\)/u);
-    assert.match(shknamJs, /const occupant = m_at\(placement\.sx, placement\.sy, state\);\s*if \(occupant\) rloc\(occupant, RLOC_NOMSG, normalized\);/u);
+    assert.match(shknamJs, /const occupant = m_at\(placement\.sx, placement\.sy, state\);\s*const moved = occupant \? rloc\(occupant, RLOC_NOMSG, normalized\) : null;/u);
     assert.match(makeLevelJs, /const fillSpecialRooms = async \(\) => \{[\s\S]*?await fill_special_room\(g\.level\.rooms\[i\], env\)/u);
 });
 
