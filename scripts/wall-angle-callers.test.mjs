@@ -160,7 +160,7 @@ const ALLOWED = {
     'bury.js | * | newsym': 1,
     'detect.js | * | newsym': 10,
     'dig.js | * | newsym': 2,
-    'display.js | * | newsym': 10,
+    'display.js | * | newsym': 5,
     'do.js | * | newsym': 2,
     'hack.js | * | newsym': 2,
     'makemon_create.js | * | newsym': 2,

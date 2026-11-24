@@ -16,13 +16,13 @@ import { assertExceptionCount } from './exception-count.mjs';
 import { readJsSources, scanQueuedOutputCalls, unflushedCalls } from './queued-output-calls.mjs';
 
 // The display.js reason: js/display.js's own async draws (docrt(),
-// tmp_at(), swallowed(), under_water(), shieldeff(), flash_glyph_at())
-// waited for the screen-buffer work, which has landed, and are not
-// converted yet. A conversion prints lines these draws now leave queued, so
-// it changes output and needs its own recordings. They are known to draw
-// before the print: a replay of the corpus with mention_map forced on still
-// shows tmp_at()'s newsym() leaving a notice queued past a core draw, which
-// the run-time check (js/rng.js) records in any recording that reaches it.
+// swallowed(), under_water(), shieldeff(), flash_glyph_at()) waited for the
+// screen-buffer work, which has landed, and are not converted yet. A
+// conversion prints lines these draws now leave queued, so it changes output
+// and needs its own recordings. tmp_at() was converted after batch games
+// b11 g00166 and g00528 and b12 g00514 drew a core random number before its
+// newsym()'s notice; the run-time check (js/rng.js) records any of these
+// that does the same.
 const DISPLAY_REASON = 'js/display.js async draw; prints nothing yet, and printing changes output';
 
 // "<file> | <function> | <callee>": [count, reason].
@@ -34,8 +34,6 @@ const ALLOWED = {
     'js/display.js | shieldeff | show_glyph_cell': [1, DISPLAY_REASON],
     'js/display.js | swallowed | display_self': [1, DISPLAY_REASON],
     'js/display.js | swallowed | show_glyph_cell': [9, DISPLAY_REASON],
-    'js/display.js | tmp_at | newsym': [5, DISPLAY_REASON],
-    'js/display.js | tmp_at | show_glyph_cell': [3, DISPLAY_REASON],
     'js/display.js | under_water | newsym': [1, DISPLAY_REASON],
     'js/display.js | under_water | show_glyph_cell': [2, DISPLAY_REASON],
     'js/mon.js | hideunder | env.redraw ?? newsym': [1,
@@ -61,24 +59,26 @@ const ALLOWED = {
 // draw caller is seen, and a conversion lowers its file's count.
 const SYNC_CALLERS = {
     'js/apply.js': 1, 'js/artifacts.js': 1, 'js/attrib.js': 1, 'js/ball.js': 22,
-    'js/bury.js': 2, 'js/detect.js': 12, 'js/dig.js': 9, 'js/display.js': 45, 'js/do.js': 3,
+    'js/bury.js': 2, 'js/detect.js': 15, 'js/dig.js': 9, 'js/display.js': 45, 'js/do.js': 3,
     'js/dog.js': 2, 'js/dogmove.js': 1, 'js/eat.js': 2, 'js/engrave.js': 1,
     'js/extralev.js': 7, 'js/fountain.js': 1, 'js/hack.js': 3, 'js/invent.js': 3,
-    'js/light.js': 1, 'js/makemon.js': 2, 'js/makemon_create.js': 10, 'js/mhitm.js': 5,
+    'js/light.js': 1, 'js/makemon_create.js': 10, 'js/makemon.js': 2, 'js/mhitm.js': 5,
     'js/minion.js': 1, 'js/mklev.js': 43, 'js/mkmaze.js': 1, 'js/mkroom.js': 8,
     'js/mktrap.js': 1, 'js/mon.js': 52, 'js/monmove.js': 3, 'js/muse.js': 2,
-    'js/potion.js': 1, 'js/priest.js': 10, 'js/read.js': 1, 'js/region.js': 4,
-    'js/shk.js': 1, 'js/shknam.js': 15, 'js/sounds.js': 1, 'js/sp_lev_object.js': 22,
-    'js/steed.js': 1, 'js/teleport.js': 17, 'js/themeroom_fill.js': 34, 'js/trap.js': 8,
-    'js/trap_effects.js': 3, 'js/vault.js': 5, 'js/wizard.js': 2, 'js/worm.js': 18,
-    'js/worn.js': 7, 'js/zap.js': 2,
+    'js/potion.js': 1, 'js/priest.js': 10, 'js/read.js': 1, 'js/region.js': 4, 'js/shk.js': 1,
+    'js/shknam.js': 15, 'js/sounds.js': 1, 'js/sp_lev_object.js': 22, 'js/steed.js': 1,
+    'js/teleport.js': 17, 'js/themeroom_fill.js': 34, 'js/trap_effects.js': 3,
+    'js/trap.js': 8, 'js/vault.js': 5, 'js/wizard.js': 2, 'js/worm.js': 18, 'js/worn.js': 7,
+    'js/zap.js': 2,
 };
 
-// 30 listed calls under 14 entries (23 November 2026).
-const ALLOWED_PINS = { entries: 14, calls: 30 };
-// 397 calls; a printing form, which hands its print to the caller that
-// awaits it, is not counted (24 November 2026).
-const SYNC_CALLER_PIN = 397;
+// 22 listed calls under 12 entries (24 November 2026).
+const ALLOWED_PINS = { entries: 12, calls: 22 };
+// 400 calls; a printing form, which hands its print to the caller that
+// awaits it, is not counted. 397 until the scan stopped an object property
+// such as detect.js's `{ newsym: ... }` from shadowing an import, which hid
+// three synchronous draw callers in js/detect.js (24 November 2026).
+const SYNC_CALLER_PIN = 400;
 // Two-statement flushes left where no awaited call fits (24 November 2026):
 // draws inside a larger expression, such as a conditional between two draws
 // or a step generator that finish_steps() drives, and flushes after
@@ -199,7 +199,9 @@ test('the scan finds an unprinted draw and accepts the printing forms', () => {
             + '    const pending = maybe();\n'
             + '    if (pending) await pending;\n'
             + '    if (noticesQueued()) await emitQueuedNotices();\n'
-            + '}\n',
+            + '}\n'
+            // An object property named like the import must not shadow it.
+            + 'export const hooks = { newsym: (x, y) => x + y };\n',
     };
     const { calls, syncCallers, flushes } = scanQueuedOutputCalls(sources);
     assert.deepEqual(unflushedCalls(calls.filter((call) => call.file === 'js/a.js')),
