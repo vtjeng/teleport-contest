@@ -24,9 +24,11 @@ import { requireCompiler } from './recorder-headers.mjs';
 // paired on 15 November 2026. 282 since cmd.c dolookaround() 1361, the
 // "%s." line for each visible square, pairs with js/startup_a11y.js
 // collectLookaroundMessages(), whose comment now names its C function
-// (branch small-gaps, 23 November 2026).
+// (branch small-gaps, 23 November 2026). 281 since hack.c notice_mon()'s
+// You("%s %s.") pairs with js/hack.js notice_mon() (branch
+// small-leftovers-2, 24 November 2026).
 const UNPAIRED_STATUSES = ['no JS text', 'too little text', 'format not a literal', 'no JS function'];
-const UNPAIRED_CEILING = 282;
+const UNPAIRED_CEILING = 281;
 
 test('every paired JS message makes its C site\'s location choice', async () => {
     requireCompiler('the scan needs the C preprocessor');

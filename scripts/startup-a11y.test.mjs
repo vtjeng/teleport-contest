@@ -53,7 +53,8 @@ import {
     PM_NEWT,
     monst_globals_init,
 } from '../js/monsters.js';
-import { _startupA11yInternals, collectLookaroundMessages, collectMonsterMovementMessage, collectMonsterNoticeMessage, collectMonsterNoticeMessages } from '../js/startup_a11y.js';
+import { _startupA11yInternals, collectLookaroundMessages, collectMonsterMovementMessage } from '../js/startup_a11y.js';
+import { notice_all_mons, notice_mon } from '../js/hack.js';
 import { look_at_monster } from '../js/pager.js';
 import {
     cmap_to_glyph,
@@ -108,6 +109,28 @@ function reveal(state, x, y) {
                 : location.typ === SINK ? S_sink : S_stone;
     const glyph = cmap_to_glyph(cmap, state);
     if (Number.isInteger(glyph)) glyph_buffer_at(x, y, state).glyphinfo = { glyph };
+}
+
+// js/hack.js notice_all_mons(TRUE) with the mon_notices option on, as
+// vision.c vision_recalc() calls it once the option is set: the lines it
+// would print, in order.
+function noticeAllMons(state) {
+    const lines = [];
+    const saved = state.a11y.mon_notices;
+    state.a11y.mon_notices = true;
+    try {
+        notice_all_mons(true, state, { message: (line) => { lines.push(line); } });
+    } finally {
+        state.a11y.mon_notices = saved;
+    }
+    return lines;
+}
+
+// js/hack.js notice_mon(): the line it would print, or null.
+function noticeMon(monster, state) {
+    let printed = null;
+    notice_mon(monster, state, { message: (line) => { printed = line; } });
+    return printed;
 }
 
 test('monster sensing shares swallowed and underwater display gates', () => {
@@ -300,11 +323,11 @@ test('notice_all_mons sorts by distance and honors accessiblemsg', () => {
     reveal(state, nearPet.mx, nearPet.my);
     reveal(state, farGoblin.mx, farGoblin.my);
 
-    assert.deepEqual(collectMonsterNoticeMessages(state), [
+    assert.deepEqual(noticeAllMons(state), [
         '(northwest): You see your little dog.',
         '(4east): You see a peaceful goblin.',
     ]);
-    assert.deepEqual(collectMonsterNoticeMessages(state), []);
+    assert.deepEqual(noticeAllMons(state), []);
 });
 
 test('notice_all_mons distinguishes sight, infravision, and sensing', () => {
@@ -329,7 +352,7 @@ test('notice_all_mons distinguishes sight, infravision, and sensing', () => {
     const notice = (current) => {
         state.level.monlist = current;
         current.mspotted = false;
-        return collectMonsterNoticeMessages(state);
+        return noticeAllMons(state);
     };
 
     const ordinary = monster();
@@ -402,37 +425,37 @@ test('notice_mon updates one monster only while its option is active', () => {
     };
     reveal(state, subject.mx, subject.my);
 
-    assert.equal(collectMonsterNoticeMessage(subject, state), null);
+    assert.equal(noticeMon(subject, state), null);
     assert.equal(subject.mspotted, false);
 
     state.a11y.mon_notices = true;
     assert.equal(
-        collectMonsterNoticeMessage(subject, state),
+        noticeMon(subject, state),
         'You see a goblin.',
     );
     assert.equal(subject.mspotted, true);
-    assert.equal(collectMonsterNoticeMessage(subject, state), null);
+    assert.equal(noticeMon(subject, state), null);
 
     // hack.c notice_mon() does not announce or reset a dead monster while it
     // is still linked into fmon.
     subject.mhp = 0;
     subject.mspotted = false;
-    assert.equal(collectMonsterNoticeMessage(subject, state), null);
+    assert.equal(noticeMon(subject, state), null);
     assert.equal(subject.mspotted, false);
     subject.mspotted = true;
     state.level.monlist = subject;
-    assert.deepEqual(collectMonsterNoticeMessages(state), []);
+    assert.deepEqual(noticeAllMons(state), []);
     assert.equal(subject.mspotted, true);
     subject.mhp = 4;
     state.level.monlist = null;
 
     state.viz_array[subject.my][subject.mx] = 0;
-    assert.equal(collectMonsterNoticeMessage(subject, state), null);
+    assert.equal(noticeMon(subject, state), null);
     assert.equal(subject.mspotted, false);
 
     subject.mspotted = true;
     state.a11y.mon_notices = false;
-    assert.equal(collectMonsterNoticeMessage(subject, state), null);
+    assert.equal(noticeMon(subject, state), null);
     assert.equal(subject.mspotted, true);
 });
 
@@ -543,15 +566,15 @@ test('monster notices retain saddle adjectives except for given names', () => {
     reveal(state, 21, 10);
 
     state.level.monlist = pony();
-    assert.deepEqual(collectMonsterNoticeMessages(state), [
+    assert.deepEqual(noticeAllMons(state), [
         'You see your saddled pony.',
     ]);
     state.level.monlist = pony({ mextra: { mgivenname: 'Shadowfax' } });
-    assert.deepEqual(collectMonsterNoticeMessages(state), [
+    assert.deepEqual(noticeAllMons(state), [
         'You see Shadowfax.',
     ]);
     state.level.monlist = pony({ misc_worn_check: 0 });
-    assert.deepEqual(collectMonsterNoticeMessages(state), [
+    assert.deepEqual(noticeAllMons(state), [
         'You see your pony.',
     ]);
 });

@@ -404,6 +404,10 @@
       "count": 1,
       "reason": "sp_lev.c create_object() moves the statue's monster's minvent into the statue, so each object is OBJ_MINVENT. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
+    "js/startup_a11y.js | queueVisionMonsterNotices | notice_all_mons": {
+      "count": 1,
+      "reason": "js/hack.js notice_all_mons() is the synchronous form of notice_all_mons_steps(), whose steps yield only what notice_mon()'s env.message returns. This call's message queues the line (queueNoticeLine()) and returns nothing, so finish_steps() returns synchronously."
+    },
     "js/steed.js | put_saddle_on_mon | update_mon_extrinsics": {
       "count": 1,
       "reason": "Called with silently FALSE, so js/worn.js update_mon_extrinsics() wraps an already finished result in Promise.resolve(). A saddle has no oc_oprop and blocks no property, so worn.c update_mon_extrinsics() (579-712) takes no arm; its dismount arm needs `on` false; and the monster's visibility cannot change, so there is no newsym()."

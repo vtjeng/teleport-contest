@@ -424,7 +424,7 @@ import {
     visible_region_at,
 } from './region.js';
 import { CapitalMon } from './random_text.js';
-import { coreRandom, rn1, rn2, rnd } from './rng.js';
+import { coreRandom, rn1, rn2, rn2_on_display_rng, rnd } from './rng.js';
 import { maybe_adjust_hero_bubble, water_friction } from './mkmaze.js';
 import {
     is_db_wall,
@@ -469,8 +469,6 @@ import {
     subfrombill,
 } from './shk.js';
 import {
-    collectMonsterNoticeMessage,
-    collectMonsterNoticeMessages,
     emitGlyphUpdateNotices,
     messageAt,
     projectionNoticeFields,
@@ -541,7 +539,7 @@ import {
     recalc_block_point,
     vision_recalc_async,
 } from './vision.js';
-import { canspotmon, mon_visible, sensemon } from './display.js';
+import { canseemon, canspotmon, mon_visible, sensemon } from './display.js';
 import {
     Amphibious, BFlying, BLevitation, Blind, Breathless, Cold_resistance,
     Conflict, Confusion, Deaf, EFire_resistance, EFlying, ELevitation,
@@ -3169,11 +3167,41 @@ export async function is_valid_travelpt(x, y, state = game) {
     }
 }
 
-// C ref: hack.c notice_mon() (1708-1732). startup_a11y.js owns the exact
-// visibility and naming calculation; hack.c owns the option gate and emit.
-export async function notice_mon(mtmp, state = game, env = {}) {
-    const line = collectMonsterNoticeMessage(mtmp, state);
-    if (line) await (env.message ?? ttyPline)(line, state);
+// C ref: hack.c notice_mon() (1708-1732). The You() line goes through
+// env.message (ttyPline() by default), and the result is what that returns:
+// a promise for a print, nothing for vision.c vision_recalc()'s synchronous
+// notice_all_mons(), which queues the line (js/startup_a11y.js
+// queueVisionMonsterNotices()). scripts/do-name.test.mjs pins the
+// x_monnam() arguments to C's.
+export function notice_mon(mtmp, state = game, env = {}) {
+    if (!state.a11y?.mon_notices || state.a11y.mon_notices_blocked)
+        return undefined;
+    const spot = canspotmon(mtmp, state)
+        && !(is_hider(mtmp.data)
+            && (mtmp.mundetected
+                || M_AP_TYPE(mtmp) === M_AP_FURNITURE
+                || M_AP_TYPE(mtmp) === M_AP_OBJECT));
+
+    if (spot && !mtmp.mspotted && !(mtmp.mhp < 1)) {
+        mtmp.mspotted = true;
+        const given = has_mgivenname(mtmp);
+        const name = x_monnam(mtmp,
+            mtmp.mtame ? ARTICLE_YOUR
+                : !given && !type_is_pname(mtmp.data) ? ARTICLE_A
+                    : ARTICLE_NONE,
+            mtmp.mpeaceful && !mtmp.mtame ? 'peaceful' : null,
+            given ? SUPPRESS_SADDLE : 0, false, state, {
+                displayRandom: (bound) => rn2_on_display_rng(bound, state),
+            });
+        // set_msg_xy(mtmp->mx, mtmp->my) before the You() call.
+        const line = messageAt(
+            `You ${canseemon(mtmp, state) ? 'see' : 'notice'} ${name}.`,
+            mtmp.mx, mtmp.my, state);
+        return (env.message ?? ttyPline)(line, state);
+    } else if (!spot) {
+        mtmp.mspotted = false;
+    }
+    return undefined;
 }
 
 // C ref: hack.c notice_mons_cmp() (1735-1742).
@@ -5488,18 +5516,35 @@ export function notice_mon_on(state = game) {
 
 // C ref: hack.c notice_all_mons() (1744-1782). Announces every monster the
 // hero can now spot, nearest first, after a notice_mon_off()/notice_mon_on()
-// pair suspended the per-monster notices.
-// Every C and JS caller passes reset TRUE (allmain.c, do.c, teleport.c,
-// vision.c); FALSE would differ only when nothing is spottable, by leaving
-// each monster's mspotted alone instead of clearing it.
-export async function notice_all_mons(reset, state = game, env = {}) {
-    if (!state.a11y?.mon_notices || state.a11y?.mon_notices_blocked) return;
-    const message = env.message ?? ttyPline;
-    for (const line of collectMonsterNoticeMessages(
-        state,
-        (left, right) => notice_mons_cmp(left, right, state),
-    ))
-        await message(line, state);
+// pair suspended the per-monster notices. Each line goes through
+// notice_mon()'s env.message: allmain.c, do.c and teleport.c print it and
+// wait, and the result is a promise; vision.c vision_recalc() queues it
+// (js/startup_a11y.js queueVisionMonsterNotices()), and the call returns
+// synchronously.
+export function notice_all_mons(reset, state = game, env = {}) {
+    return finish_steps(notice_all_mons_steps(reset, state, env),
+        sync_impossible, state);
+}
+
+function* notice_all_mons_steps(reset, state, env) {
+    if (!state.a11y?.mon_notices || state.a11y.mon_notices_blocked) return;
+    let cnt = 0;
+    for (let mtmp = state.level?.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mhp < 1) continue;
+        if (canspotmon(mtmp, state)) cnt++;
+        else if (reset) mtmp.mspotted = false;
+    }
+    if (!cnt) return;
+
+    const arr = [];
+    for (let mtmp = state.level.monlist; mtmp; mtmp = mtmp.nmon) {
+        if (mtmp.mhp < 1) continue;
+        if (!canspotmon(mtmp, state)) mtmp.mspotted = false;
+        else if (arr.length < cnt) arr.push(mtmp);
+    }
+    // The patched C sorts stably (nethack-c/patches), as Array.sort does.
+    arr.sort((left, right) => notice_mons_cmp(left, right, state));
+    for (const mtmp of arr) yield notice_mon(mtmp, state, env);
 }
 
 // C ref: hack.c u_locomotion() (1817-1829). The hero's own movement verb.

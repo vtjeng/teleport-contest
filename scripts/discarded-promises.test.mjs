@@ -75,8 +75,12 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // reasons say why no await is reached. 121 and 173 since mkmaze.js
 // populate_maze() is `async` and mkroom.js mkswamp() is a step generator,
 // both awaited by mklev.js (same branch): makemon() answers a Promise when a
-// new shapechanger's first newcham() waits.
-const ALLOWLIST_PINS = { entries: 121, calls: 173 };
+// new shapechanger's first newcham() waits. 122 and 174 with
+// startup_a11y.js queueVisionMonsterNotices()'s notice_all_mons(), whose
+// queueing message keeps it synchronous, since hack.c notice_mon() and
+// notice_all_mons() moved to js/hack.js (branch small-leftovers-2,
+// 24 November 2026).
+const ALLOWLIST_PINS = { entries: 122, calls: 174 };
 
 // Callees that take an object out of a chain. A carried object goes through
 // invent.c freeinv(), whose impossible() reports and artifact intrinsic

@@ -87,14 +87,6 @@
     "js": "couldsee couldsee",
     "reason": "C's levl.seenv || (!Blind && couldsee()) is the helper travelSquareVisible(), called at each site."
   },
-  "hack.c notice_mon": {
-    "js": "",
-    "reason": "The logic is js/startup_a11y.js canNoticeMonster() and updateMonsterNotice(), with the same two predicates."
-  },
-  "hack.c notice_all_mons": {
-    "js": "",
-    "reason": "js/startup_a11y.js collectMonsterNoticeMessages() tests canspotmon() for each monster in one pass."
-  },
   "hack.c domove_core": {
     "js": "canspotmon canspotmon",
     "reason": "The mon_visible()/sensemon() run-stop test is the helper runStopsBeforeMonster()."

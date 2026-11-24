@@ -1,17 +1,13 @@
 // Accessibility notices for startup scans and turn-time glyph updates.
 // C refs: allmain.c:newgame(); cmd.c:dolookaround();
-// hack.c:notice_all_mons(); getpos.c:coord_desc(); display.c:show_glyph();
+// vision.c:vision_recalc()'s notice_all_mons() queue; getpos.c:coord_desc();
+// display.c:show_glyph();
 // pager.c:do_screen_description(), look_at_monster(), object_from_map().
 
 import { game } from './gstate.js';
 import {
     ALTAR,
     AIR,
-    ARTICLE_NONE,
-    ARTICLE_A,
-    ARTICLE_YOUR,
-    SUPPRESS_SADDLE,
-    has_mgivenname,
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_MASK,
@@ -45,7 +41,6 @@ import {
     LADDER,
     LAVAPOOL,
     LAVAWALL,
-    M_AP_FURNITURE,
     M_AP_F_DKNOWN,
     M_AP_OBJECT,
     M_AP_TYPMASK,
@@ -73,7 +68,7 @@ import {
 import { isok } from './cmd_isok.js';
 import { cansee } from './vision.js';
 import {
-    canseemon, canspotmon, flush_screen, glyph_is_monster, suppress_map_output,
+    canspotmon, flush_screen, glyph_is_monster, suppress_map_output,
 } from './display.js';
 import { GLYPH_NOTHING_OFF, GLYPH_UNEXPLORED_OFF } from './glyph_offsets.js';
 import {
@@ -87,7 +82,6 @@ import { gather_locs_interesting } from './getpos.js';
 import {
     Monnam,
     hliquid,
-    x_monnam,
 } from './do_name.js';
 import {
     fruit_from_indx,
@@ -95,13 +89,14 @@ import {
     matching_artifact_fruit,
     makesingular,
 } from './fruit.js';
+import { notice_all_mons } from './hack.js';
 import { m_at } from './monst.js';
 import { dealloc_obj, mkobj, mksobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { just_an } from './objnam.js';
 import { observe_object } from './o_init.js';
 import { obj_stop_timers } from './timeout.js';
-import { locomotion, type_is_pname } from './mondata.js';
+import { locomotion } from './mondata.js';
 import { rn2_on_display_rng } from './rng.js';
 import {
     glyph_at,
@@ -705,12 +700,15 @@ function takeNoticeGlyphFrame(state) {
 // C vision.c vision_recalc() ends with hack.c notice_all_mons(TRUE).
 // Capture its messages on the existing source-ordered TTY frame queue; the
 // async emitter drains it before later messages or monster movement.
+// Queueing returns nothing, so js/hack.js notice_all_mons() returns
+// synchronously here.
 export function queueVisionMonsterNotices(state) {
-    if (!state.a11y?.mon_notices || state.a11y.mon_notices_blocked) return;
-    for (const message of collectMonsterNoticeMessages(state)) {
-        queueNoticeLine(
-            { message, youBuf: NOTICE_MON_YOU_BUF }, state, { recalc: false });
-    }
+    notice_all_mons(true, state, {
+        message: (message) => {
+            queueNoticeLine(
+                { message, youBuf: NOTICE_MON_YOU_BUF }, state, { recalc: false });
+        },
+    });
 }
 
 // hack.c notice_mon() prints through You("%s %s.", ...), which leaves this
@@ -941,23 +939,6 @@ export function hiddenObjectPhrase(object, state, { includeArticle = true } = {}
     const name = simpleObjectName(object, state);
     if (!includeArticle || Math.trunc(object.quan ?? 1) !== 1) return name;
     return `${just_an(name)}${name}`;
-}
-
-// C ref: hack.c notice_mon() (1720-1727), the x_monnam() call that names the
-// monster. js/hack.js notice_mon() prints the line updateMonsterNotice()
-// builds; vision.c vision_recalc()'s notice_all_mons() reaches the same text
-// from queueVisionMonsterNotices(), which is synchronous and queues the line
-// instead of printing it, so the text is built here for both.
-// scripts/do-name.test.mjs pins these arguments to C's.
-function noticeMonsterName(monster, state) {
-    const given = has_mgivenname(monster);
-    const article = monster.mtame ? ARTICLE_YOUR
-        : !given && !type_is_pname(monster.data) ? ARTICLE_A : ARTICLE_NONE;
-    return x_monnam(monster, article,
-        monster.mpeaceful && !monster.mtame ? 'peaceful' : null,
-        given ? SUPPRESS_SADDLE : 0, false, state, {
-            displayRandom: bound => rn2_on_display_rng(bound, state),
-        });
 }
 
 export function furnitureDescription(symbol) {
@@ -1462,65 +1443,6 @@ export function collectMonsterMovementMessage(
         monster.my,
         state,
     );
-}
-
-function canNoticeMonster(monster, state) {
-    if (!canspotmon(monster, state)) return false;
-    const appearance = monster.m_ap_type & M_AP_TYPMASK;
-    const hider = Boolean(monster.data?.mflags1 & 0x00000100); // M1_HIDE
-    if (hider && (monster.mundetected
-        || appearance === M_AP_FURNITURE || appearance === M_AP_OBJECT)) {
-        return false;
-    }
-    return true;
-}
-
-function updateMonsterNotice(monster, state) {
-    const spot = canNoticeMonster(monster, state);
-    if (!spot) {
-        monster.mspotted = false;
-        return null;
-    }
-    if (monster.mspotted || monster.mhp < 1) return null;
-
-    monster.mspotted = true;
-    return messageAt(
-        `You ${canseemon(monster, state) ? 'see' : 'notice'} ${noticeMonsterName(monster, state)}.`,
-        monster.mx,
-        monster.my,
-        state,
-    );
-}
-
-// C ref: hack.c notice_mon(). postmov() calls this for one monster at a time;
-// unlike notice_all_mons(), the option gate belongs to this function.
-export function collectMonsterNoticeMessage(monster, state) {
-    if (!state.a11y?.mon_notices || state.a11y?.mon_notices_blocked)
-        return null;
-    return updateMonsterNotice(monster, state);
-}
-
-export function collectMonsterNoticeMessages(state, compare = null) {
-    const monsters = [];
-    for (let monster = state.level?.monlist; monster; monster = monster.nmon) {
-        if (monster.mhp < 1) continue;
-        if (canspotmon(monster, state)) monsters.push(monster);
-        else monster.mspotted = false;
-    }
-    monsters.sort(compare ?? ((left, right) => {
-        const ldx = left.mx - state.u.ux;
-        const ldy = left.my - state.u.uy;
-        const rdx = right.mx - state.u.ux;
-        const rdy = right.my - state.u.uy;
-        return ldx * ldx + ldy * ldy - (rdx * rdx + rdy * rdy);
-    }));
-
-    const messages = [];
-    for (const monster of monsters) {
-        const message = updateMonsterNotice(monster, state);
-        if (message) messages.push(message);
-    }
-    return messages;
 }
 
 export const _startupA11yInternals = Object.freeze({
