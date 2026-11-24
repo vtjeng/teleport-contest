@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 733836,
+      "datetime": "20270614093000",
+      "nethackrc": "OPTIONS=name:Bottler,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u0017potion of hallucination\nqf\u00178 smoky potions\n qg qg   "
+    }
+  ],
+  "comment": "potion.c djinni_from_bottle() (2815-2868) announces the djinni with a_monnam() (2826). The hero is hallucinating, so do_name.c x_monnam() takes the name from rndmonnam(), and when bogon_is_pname() says the bogus monster's name is a proper name it gets no article: \"In a cloud of smoke, Dudley emerges!\". The second smoky potion holds the djinni. The seed was found by replaying seeds 733100-733949 in the port until the hallucinated name had no article. The sibling recipe djinni-from-bottle-plain has a hero who is not hallucinating, \"a djinni\"."
+}

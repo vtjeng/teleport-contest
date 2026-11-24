@@ -1514,3 +1514,16 @@ test('js/ has no second port of a do_name.c naming function', () => {
     }
     assert.deepEqual(wrappers, []);
 });
+
+// potion.c djinni_from_bottle() 2826 names the djinni with a_monnam(). The
+// port called Amonnam() and lowered the first letter again, which is the same
+// text only while the name starts with an article: a hallucinated proper name
+// such as "Dudley" has none and came out as "dudley".
+// recordings/potion.c/djinni-from-bottle-hallucinated-proper-name replays
+// that case; this pins the call.
+test('djinni_from_bottle names the djinni with a_monnam()', () => {
+    const body = portedFunctionBody('potion.js', 'djinni_from_bottle');
+    assert.match(body,
+        /In a cloud of smoke, \$\{a_monnam\(monster, \{ state \}\)\} emerges!/u);
+    assert.doesNotMatch(body, /Amonnam\(|lcase\(/u);
+});

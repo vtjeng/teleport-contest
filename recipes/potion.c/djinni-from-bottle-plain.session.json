@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 915413,
+      "datetime": "20270614093000",
+      "nethackrc": "OPTIONS=name:Bottler,role:Samurai,race:human,gender:female,align:lawful,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "\u00176 smoky potions\nqfqf   "
+    }
+  ],
+  "comment": "potion.c djinni_from_bottle() (2815-2868) with a hero who is not hallucinating: a_monnam() (2826) gives \"a djinni\" and Monnam() (2827) \"The djinni\". The second smoky potion holds the djinni, which says \"You freed me!\" and stays as a peaceful monster. The sibling recipe djinni-from-bottle-hallucinated-proper-name covers a hallucinated name that takes no article."
+}
