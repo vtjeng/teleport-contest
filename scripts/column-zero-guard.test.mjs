@@ -51,9 +51,6 @@ const REVIEWED_UNPORTED = new Map([
     ['selvar.c selection_force_newsyms', 'C\'s loop starts at column 1; '
         + 'js/getpos.js getpos_getvalids_selection() also starts at 1, so the '
         + 'getpos_sethilite() loop never reaches column 0'],
-    ['trap.c mkroll_launch', 'js/trap.js makeRollingBoulderLaunch() draws at the launch '
-        + 'square with no column test, as C does; isclearpath()\'s isok() is in '
-        + 'clearLaunchPath()'],
     ['vault.c gd_pick_corridor_gold', 'the gold arm of js/vault.js gd_move() makes the '
         + 'same draws with no column test, as C does'],
 ]);

@@ -433,16 +433,16 @@ test('mkroll_launch redraws the launch square through the default capability', (
     assert.match(cFindLaunch,
         /linedup\(ttmp->tx, ttmp->ty, bcc\.x, bcc\.y, 1\)/u);
     const jsFindLaunchStart = JS_TRAP.indexOf(
-        'function explicitLaunchCoordinate(trap, env)',
+        'function find_random_launch_coord(ttmp, cc, env)',
     );
     const jsFindLaunchEnd = JS_TRAP.indexOf(
-        '\n}\n\n// trap.c:find_random_launch_coord()', jsFindLaunchStart,
+        '\n}\n\n// C ref: trap.c mkroll_launch()', jsFindLaunchStart,
     );
     assert.ok(jsFindLaunchStart >= 0 && jsFindLaunchEnd > jsFindLaunchStart);
     const jsFindLaunch = JS_TRAP.slice(jsFindLaunchStart, jsFindLaunchEnd);
     assert.match(JS_TRAP, /import \{ linedup \} from '\.\/mthrowu\.js';/u);
     assert.match(jsFindLaunch,
-        /linedup\(trap\.tx, trap\.ty, target\.x, target\.y, 1, \{\s*state: env\.state,/u);
+        /linedup\(ttmp\.tx, ttmp\.ty, bcc\.x, bcc\.y, 1, \{ state \}\)/u);
 
     const cLaunch = cFunction(
         C_TRAP,
@@ -458,17 +458,17 @@ test('mkroll_launch redraws the launch square through the default capability', (
         'C redraws after assigning the launch coordinate');
 
     const jsLaunchStart = JS_TRAP.indexOf(
-        'function makeRollingBoulderLaunch(trap, x, y, env)',
+        'function mkroll_launch(ttmp, x, y, otyp, ocount, env)',
     );
     const jsLaunchEnd = JS_TRAP.indexOf(
         '\n}\n\nconst DEFAULT_CAPABILITIES', jsLaunchStart,
     );
     assert.ok(jsLaunchStart >= 0 && jsLaunchEnd > jsLaunchStart);
     const jsLaunch = JS_TRAP.slice(jsLaunchStart, jsLaunchEnd);
-    const jsLaunchX = jsLaunch.indexOf('trap.launch.x = launch.x;');
-    const jsLaunchY = jsLaunch.indexOf('trap.launch.y = launch.y;', jsLaunchX);
+    const jsLaunchX = jsLaunch.indexOf('ttmp.launch.x = cc.x;');
+    const jsLaunchY = jsLaunch.indexOf('ttmp.launch.y = cc.y;', jsLaunchX);
     const jsRedraw = jsLaunch.indexOf(
-        "capability(env, 'newsym')(launch.x, launch.y, env);", jsLaunchY,
+        "capability(env, 'newsym')(ttmp.launch.x, ttmp.launch.y, env);", jsLaunchY,
     );
     assert.ok(jsLaunchX >= 0 && jsLaunchY > jsLaunchX && jsRedraw > jsLaunchY,
         'JavaScript redraws after assigning the launch coordinate');

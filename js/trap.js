@@ -182,7 +182,7 @@ import { obj_resists } from './bury.js';
 import { buried_ball, unearth_objs } from './dig.js';
 import {
     drawbridgeFlags, drawbridgeUnder, is_ice, is_lava, is_pool,
-    is_waterwall,
+    is_pool_or_lava, is_waterwall,
 } from './dbridge.js';
 import { getdir, xytodir, ynq } from './cmd.js';
 import {
@@ -451,9 +451,10 @@ function closedDoor(location) {
         && Boolean(mask & (D_CLOSED | D_LOCKED));
 }
 
-// C ref: trap.c:isclearpath().
-function clearLaunchPath(coordinate, distance, dx, dy, env) {
-    let { x, y } = coordinate;
+// C ref: trap.c isclearpath() (3694-3722). On success it moves `cc` to the
+// end of the path.
+function isclearpath(cc, distance, dx, dy, env) {
+    let { x, y } = cc;
     while (distance-- > 0) {
         x += dx;
         y += dy;
@@ -467,90 +468,89 @@ function clearLaunchPath(coordinate, distance, dx, dy, env) {
             return false;
         }
     }
-    coordinate.x = x;
-    coordinate.y = y;
+    cc.x = x;
+    cc.y = y;
     return true;
 }
 
-// C ref: trap.c:find_random_launch_coord() -> mthrowu.c:linedup(..., 1).
-function explicitLaunchCoordinate(trap, env) {
-    const offset = env.state.launchplace ?? { x: 0, y: 0 };
-    const target = {
-        x: trap.tx + offset.x,
-        y: trap.ty + offset.y,
-    };
-    if (!isok(target.x, target.y)
-        || !linedup(trap.tx, trap.ty, target.x, target.y, 1, {
-            state: env.state,
-        })) {
-        return null;
+// C ref: trap.c find_random_launch_coord() (3599-3656). Returns whether a
+// launch coordinate was found, with it in `cc`. A rolling boulder's path is
+// tested in both directions, because the boulder passes through the trigger
+// square and continues to the mirrored endpoint.
+function find_random_launch_coord(ttmp, cc, env) {
+    const { random, state } = env;
+    if (!ttmp || !cc || state.level.flags?.sokoban_rules) return false;
+
+    const { tx: x, ty: y } = ttmp;
+    const offset = state.launchplace ?? { x: 0, y: 0 };
+    const bcc = { x: ttmp.tx + offset.x, y: ttmp.ty + offset.y };
+    if (isok(bcc.x, bcc.y)
+        && linedup(ttmp.tx, ttmp.ty, bcc.x, bcc.y, 1, { state })) {
+        cc.x = bcc.x;
+        cc.y = bcc.y;
+        return true;
     }
-    return target;
-}
 
-// trap.c:find_random_launch_coord(). The path is tested in both directions
-// because a rolling boulder must pass through the trigger square and continue
-// to the mirrored endpoint.
-function findRandomLaunchCoordinate(trap, env) {
-    if (!trap || env.state.level.flags?.sokoban_rules) return null;
-    const explicit = explicitLaunchCoordinate(trap, env);
-    if (explicit) return explicit;
-
-    let distance = env.random.rn1(5, 4);
-    let direction = env.random.rn2(N_DIRS);
+    const rollingBoulder = ttmp.ttyp === ROLLING_BOULDER_TRAP;
+    const mindist = rollingBoulder ? 2 : 4;
+    let success = false;
+    let distance = random.rn1(5, 4); // 4..8 away
+    let tmp = random.rn2(N_DIRS); // the direction to try first
     let trycount = 0;
-    while (distance >= 2) {
-        const dx = xdir[direction];
-        const dy = ydir[direction];
-        const launch = { x: trap.tx, y: trap.ty };
-        const endpoint = env.state.level.at(
-            trap.tx + distance * dx,
-            trap.ty + distance * dy,
-        );
-        let success = endpoint
-            && !is_pool(
-                trap.tx + distance * dx,
-                trap.ty + distance * dy,
-                env.state,
-            )
-            && !is_lava(
-                trap.tx + distance * dx,
-                trap.ty + distance * dy,
-                env.state,
-            )
-            && clearLaunchPath(launch, distance, dx, dy, env);
-        const opposite = { x: trap.tx, y: trap.ty };
-        if (!clearLaunchPath(opposite, distance, -dx, -dy, env))
+    while (distance >= mindist) {
+        const dx = xdir[tmp];
+        const dy = ydir[tmp];
+        cc.x = x;
+        cc.y = y;
+        // Prevent the boulder from being placed on water.
+        if (rollingBoulder
+            && is_pool_or_lava(x + distance * dx, y + distance * dy, state))
             success = false;
-        if (success) return launch;
-        direction = (direction + 1) % N_DIRS;
-        if (++trycount % N_DIRS === 0) --distance;
+        else
+            success = isclearpath(cc, distance, dx, dy, env);
+        if (rollingBoulder) {
+            bcc.x = x;
+            bcc.y = y;
+            if (!isclearpath(bcc, distance, -dx, -dy, env)) success = false;
+        }
+        if (success) break;
+        if (++tmp > 7) tmp = 0;
+        if (++trycount % 8 === 0) --distance;
     }
-    return null;
+    return success;
 }
 
-// trap.c:mkroll_launch() rolling-boulder subset.
-function makeRollingBoulderLaunch(trap, x, y, env) {
-    const launch = findRandomLaunchCoordinate(trap, env) ?? { x, y };
-    if (launch.x !== x || launch.y !== y) {
-        // mkroll_launch() creates a boulder through mkobj.c's object
-        // lifecycle.  Carry the caller's hooks while supplying the
+// C ref: trap.c mkroll_launch() (3659-3692). maketrap() is its only caller,
+// for a rolling boulder trap, and discards its result of 1.
+function mkroll_launch(ttmp, x, y, otyp, ocount, env) {
+    const cc = { x: 0, y: 0 };
+    if (!find_random_launch_coord(ttmp, cc, env)) {
+        // Create the trap without any ammo, launch point at the trap.
+        cc.x = x;
+        cc.y = y;
+    } else {
+        // mkroll_launch() creates the object through mkobj.c's object
+        // lifecycle. Carry the caller's hooks while supplying the
         // block/extract hooks required by place_object()/stackobj().
         const objectEnv = objectGenerationEnv(env);
-        const boulder = mksobj(BOULDER, true, false, objectEnv);
-        boulder.quan = 1;
-        boulder.owt = weight(boulder, objectEnv);
-        place_object(boulder, launch.x, launch.y, objectEnv);
-        stackobj(boulder, objectEnv);
+        const otmp = mksobj(otyp, true, false, objectEnv);
+        otmp.quan = ocount;
+        otmp.owt = weight(otmp, objectEnv);
+        place_object(otmp, cc.x, cc.y, objectEnv);
+        stackobj(otmp, objectEnv);
     }
-    trap.launch.x = launch.x;
-    trap.launch.y = launch.y;
-    trap.launch2 = {
-        x: x - (launch.x - x),
-        y: y - (launch.y - y),
-    };
-    capability(env, 'newsym')(launch.x, launch.y, env);
-    return true;
+    ttmp.launch.x = cc.x;
+    ttmp.launch.y = cc.y;
+    if (ttmp.ttyp === ROLLING_BOULDER_TRAP) {
+        ttmp.launch2 = {
+            x: x - (cc.x - x),
+            y: y - (cc.y - y),
+        };
+    } else {
+        ttmp.launch_otyp = otyp;
+    }
+    capability(env, 'newsym')(ttmp.launch.x, ttmp.launch.y, env);
+    return 1;
 }
 
 const DEFAULT_CAPABILITIES = Object.freeze({
@@ -932,7 +932,7 @@ export function maketrap(x, y, typ, rawEnv = {}) {
         }
         break;
     case ROLLING_BOULDER_TRAP:
-        makeRollingBoulderLaunch(trap, x, y, env);
+        mkroll_launch(trap, x, y, BOULDER, 1, env);
         break;
     case PIT:
     case SPIKED_PIT:

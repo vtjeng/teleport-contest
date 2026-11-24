@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 266,
+    otherName: 265,
     unreachable: 174,
     noVisibleEffect: 213,
     unportedVisible: 2,
@@ -942,10 +942,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     // track.c
     'track.c save_track': ported('js/bones.js serializeBonesLevel'),
     'track.c rest_track': ported('js/bones.js restoreBonesLevel'),
-
-    // trap.c
-    'trap.c mkroll_launch': ported('js/trap.js makeRollingBoulderLaunch',
-        'only caller is the rolling boulder'),
 
     // utf8map.c
     'utf8map.c set_map_u': ported('js/glyphs.js apply_customizations',

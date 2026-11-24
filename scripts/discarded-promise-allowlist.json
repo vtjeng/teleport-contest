@@ -436,7 +436,7 @@
       "count": 1,
       "reason": "trap.c fill_pit() (4010-4021) extracts a boulder found by sobj_at(), an OBJ_FLOOR object. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
-    "js/trap.js | makeRollingBoulderLaunch | place_object": {
+    "js/trap.js | mkroll_launch | place_object": {
       "count": 1,
       "reason": "trap.c mkroll_launch() (3659-3692) places a boulder it has just made. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
