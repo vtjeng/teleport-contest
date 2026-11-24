@@ -55,11 +55,6 @@
           "check": "node scripts/generate-config-statements.mjs --check"
         },
         {
-          "path": "js/dat_files.js",
-          "generator": "scripts/generate-dat-files.mjs",
-          "check": "node scripts/generate-dat-files.mjs --check"
-        },
-        {
           "path": "js/optlist_data.js",
           "generator": "scripts/generate-options.mjs",
           "check": "node scripts/generate-options.mjs --check"
@@ -406,11 +401,6 @@
           "path": "js/help_data.js",
           "generator": "scripts/generate-help-data.mjs",
           "check": "node scripts/generate-help-data.mjs --check"
-        },
-        {
-          "path": "js/you_buf_messages_data.js",
-          "generator": "scripts/generate-you-buf-messages.mjs",
-          "check": "node --test scripts/you-buf-messages-generated.test.mjs"
         }
       ]
     },
@@ -472,18 +462,6 @@
         "js/timeout_property_data.js",
         "js/unported.js",
         "js/version.js"
-      ],
-      "generatedOutputs": [
-        {
-          "path": "js/decl.js",
-          "generator": "scripts/generate-instance-globals.mjs",
-          "check": "node scripts/generate-instance-globals.mjs --check"
-        },
-        {
-          "path": "js/lua_load_errors_data.js",
-          "generator": "scripts/generate-lua-load-errors.mjs",
-          "check": "node scripts/generate-lua-load-errors.mjs --check"
-        }
       ]
     },
     {
