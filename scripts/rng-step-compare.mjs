@@ -126,10 +126,10 @@ async function compareFile(file, runSegmentStrict, normalizeSession) {
     const { segments } = normalizeSession(JSON.parse(readFileSync(file, 'utf8')));
     const storage = memoryStorage();
     const results = [];
-    for (const segment of segments) {
-        const game = await runSegmentStrict({ seed: segment.seed, datetime: segment.datetime,
-            nethackrc: segment.nethackrc, moves: segment.moves, storage });
-        results.push(compareSegmentSteps(segment.steps, game.getRngSlices()));
+    for (const { steps, ...input } of segments) {
+        // The replay gets what the recording holds except its answers.
+        const game = await runSegmentStrict({ ...input, storage });
+        results.push(compareSegmentSteps(steps, game.getRngSlices()));
     }
     return combineSegments(results);
 }
