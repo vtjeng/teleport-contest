@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84471,
+      "datetime": "20300403180000",
+      "nethackrc": "OPTIONS=name:Zoë,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": "ll\u0018    #quit\ny "
+    }
+  ],
+  "comment": "The name holds a two-byte UTF-8 letter; patch 006 nomux_putch() drops a byte below 32 (and a high byte, the char being signed) from the captured screen while the cursor still advances, so the status row shows two blank cells where a terminal would show the letter."
+}

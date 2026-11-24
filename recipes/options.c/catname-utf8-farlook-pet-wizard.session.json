@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 38879,
+      "datetime": "20300808080800",
+      "nethackrc": "OPTIONS=name:Tamsa,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:cat,catname:Mìmì\n",
+      "moves": ";  m. "
+    }
+  ],
+  "comment": "catname holds two two-byte UTF-8 letters. bones.c sanitize_name() turns each byte with the eighth bit set into \"_\" because the tty has !wc_eight_bit_input, and farlooking the kitten shows \"called M__m__\"."
+}

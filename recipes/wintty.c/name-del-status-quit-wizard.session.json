@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61490,
+      "datetime": "20280707070700",
+      "nethackrc": "OPTIONS=name:Merlin,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": "ss\u0018    #quit\ny "
+    }
+  ],
+  "comment": "The name holds DEL (0x7f), which patch 006 nomux_putch() keeps, on the status row, in ^X and in the quit output."
+}

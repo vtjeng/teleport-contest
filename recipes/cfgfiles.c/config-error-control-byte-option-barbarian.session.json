@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61232,
+      "datetime": "20301003030000",
+      "nethackrc": "OPTIONS=name:Hrolf,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=frob\u0001nicate\n",
+      "moves": "\nll"
+    }
+  ],
+  "comment": "An unknown option whose name holds 0x01 reports a configuration error before the game starts. The error lines go out through raw_print(), and patch 006 nomux_raw_putch() drops the byte without advancing the column, so they show \"frobnicate\"; Return then starts the game."
+}

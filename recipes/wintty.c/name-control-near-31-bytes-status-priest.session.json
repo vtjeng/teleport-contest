@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 95536,
+      "datetime": "20271111111100",
+      "nethackrc": "OPTIONS=name:Aurelianusmaximilianuscorne\u0001lx,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": "sss\u0018    #quit\ny "
+    }
+  ],
+  "comment": "A 30-byte name with 0x01 as its 28th byte, on the status row, in ^X and in the quit output; patch 006 nomux_putch() drops a byte below 32 (and a high byte, the char being signed) from the captured screen while the cursor still advances."
+}

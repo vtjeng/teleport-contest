@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 32980,
+      "datetime": "20330815213000",
+      "nethackrc": "OPTIONS=name:Hal,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,fruit:ki\u0001wi\n",
+      "moves": "i dc:i "
+    }
+  ],
+  "comment": "fruit holds 0x01, which bones.c sanitize_name() turns into \".\"; the Tourist's two slime molds show as \"ki.wis\" in the inventory, when dropped, and at :."
+}

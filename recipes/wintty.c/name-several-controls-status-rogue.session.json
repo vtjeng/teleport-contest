@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73318,
+      "datetime": "20330512143000",
+      "nethackrc": "OPTIONS=name:\u0002Ra\u0007t\ts,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,statuslines:3\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": "hhkk\u0012\u0018    #quit\ny "
+    }
+  ],
+  "comment": "The name holds 0x02, 0x07 and a tab, with statuslines:3; ^R redraws the screen before ^X and the quit. patch 006 nomux_putch() drops a byte below 32 (and a high byte, the char being signed) from the captured screen while the cursor still advances."
+}

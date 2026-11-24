@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 50167,
+      "datetime": "20280505050500",
+      "nethackrc": "OPTIONS=name:Shen,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,fruit:ki\u0001wi\n",
+      "moves": "O>>>\u001b"
+    }
+  ],
+  "comment": "fruit holds 0x01; options.c optfn_fruit() runs bones.c sanitize_name(), and the O menu shows the fruit as \"ki.wi\"."
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 52203,
+      "datetime": "20310926220000",
+      "nethackrc": "OPTIONS=name:Ken\u001bji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,showexp,time\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": "jjj\u0018    #quit\ny "
+    }
+  ],
+  "comment": "The name holds ESC (0x1b) on the status row, in ^X and in the quit output; patch 006 nomux_putch() drops a byte below 32 (and a high byte, the char being signed) from the captured screen while the cursor still advances."
+}
