@@ -65,7 +65,9 @@ and admission gates.
   replay recorded play: the fixed development score over `sessions/` and
   `sessions/holdout/`, and the
   recordings corpus over `recordings/`, which fails when any recording stops
-  matching.
+  matching. That replay also compares each step's random-number calls with
+  the recording's (`scripts/rng-step-compare.mjs`); a recording that draws in
+  another step than C fails unless `LAGGING_RECORDINGS` pins it with a reason.
 - To run the default full validation on GitHub, push the committed candidate to an
   `integration-checkpoint/*` branch. Wait for the Checkpoint workflow to finish,
   then run `node scripts/fetch-hosted-checkpoint.mjs <run-id>` outside the
