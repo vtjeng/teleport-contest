@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 24680,
+      "datetime": "20300522150000",
+      "nethackrc": "OPTIONS=name:Isolde,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "/?newt\n    "
+    }
+  ],
+  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. / then ? asks \"Specify what?\", and pager.c checkfile() shows the data.base entry for \"newt\" in a text window."
+}

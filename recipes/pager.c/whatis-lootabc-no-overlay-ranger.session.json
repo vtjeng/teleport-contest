@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 54680,
+      "datetime": "20280612120000",
+      "nethackrc": "OPTIONS=name:Faolan,role:Ranger,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none,lootabc\n",
+      "moves": "/cjackal\n    "
+    }
+  ],
+  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. With lootabc, pager.c do_look() labels its choices a, b, c, so c is \"something else\" and checkfile() shows the data.base entry for \"jackal\"."
+}

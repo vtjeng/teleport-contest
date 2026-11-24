@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46802,
+      "datetime": "20280304200000",
+      "nethackrc": "OPTIONS=name:Lionel,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay\n",
+      "moves": "/m  /o  /M  "
+    }
+  ],
+  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. / m, / o and / M run pager.c look_all() for nearby monsters (the pony), nearby objects (none) and every monster shown."
+}

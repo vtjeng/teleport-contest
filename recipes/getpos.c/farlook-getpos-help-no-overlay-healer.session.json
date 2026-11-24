@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 57913,
+      "datetime": "20330119100000",
+      "nethackrc": "OPTIONS=name:Mirela,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": ";  ?  . "
+    }
+  ],
+  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. ; shows the farlook tip, then ? in getpos() shows getpos_help(), and . describes the hero."
+}

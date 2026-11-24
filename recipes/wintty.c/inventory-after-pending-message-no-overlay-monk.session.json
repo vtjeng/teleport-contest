@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43579,
+      "datetime": "20311107230000",
+      "nethackrc": "OPTIONS=name:Tenzin,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "dfi Da\n\u001b"
+    }
+  ],
+  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. The inventory menu opens while the drop message is still on the top line, then D shows the class menu and the drop menu."
+}

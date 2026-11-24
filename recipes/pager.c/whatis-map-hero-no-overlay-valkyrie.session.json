@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13579,
+      "datetime": "20290817113000",
+      "nethackrc": "OPTIONS=name:Thyra,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "//   .  "
+    }
+  ],
+  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. pager.c do_look() shows its \"What do you want to look at:\" menu, then / picks the hero with getpos() and checkfile() asks for more information."
+}

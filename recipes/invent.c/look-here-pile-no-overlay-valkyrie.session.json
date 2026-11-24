@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 68024,
+      "datetime": "20290916213000",
+      "nethackrc": "OPTIONS=name:Ingrid,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "dbdd:  i "
+    }
+  ],
+  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. The hero drops two objects on the up stairs, so : runs invent.c look_here() with the dungeon feature and the pile, then i opens the inventory."
+}

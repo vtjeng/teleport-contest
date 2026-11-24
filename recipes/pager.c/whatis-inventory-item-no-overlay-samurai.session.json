@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 35791,
+      "datetime": "20311206081000",
+      "nethackrc": "OPTIONS=name:Hanzo,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "/ia    "
+    }
+  ],
+  "comment": "With !menu_overlay, wintty.c tty_display_nhwindow() moves every menu to column 0 and clears the screen with term_clear_screen() before drawing it. / then i opens the inventory menu of invent.c display_inventory(); picking the katana shows its data.base entry."
+}
