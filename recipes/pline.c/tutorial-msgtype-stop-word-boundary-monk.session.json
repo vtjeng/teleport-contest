@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 32109,
+      "datetime": "20280911170000",
+      "nethackrc": "OPTIONS=name:Yuki,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"\\btutorial\\b\"\n",
+      "moves": " y    hhhy    "
+    }
+  ],
+  "comment": "MSGTYPE=stop \"\\btutorial\\b\": glibc reads \\b as a word boundary and stops on the tutorial pre-message; macOS TRE without REG_ENHANCED does not match it. The port follows macOS (js/regcomp.js), and this recording comes from the macOS recorder (.github/workflows/macos-recorder.yml); record it again there, not on Linux."
+}

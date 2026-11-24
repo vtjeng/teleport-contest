@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 38077,
+      "datetime": "20270304120000",
+      "nethackrc": "OPTIONS=name:Kenji,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=hide \"Entering the tutorial.\"\n",
+      "moves": " y   hhhy   "
+    }
+  ],
+  "comment": "MSGTYPE=hide \"Entering the tutorial.\" on the tutorial's pre-message: pline.c vpline() returns before putmesg() for MSGTYP_NOSHOW, so the level change shows no line of its own and the first engraving's lines follow."
+}

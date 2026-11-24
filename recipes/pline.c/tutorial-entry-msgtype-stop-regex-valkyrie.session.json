@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51920,
+      "datetime": "20291102200000",
+      "nethackrc": "OPTIONS=name:Hrafn,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,pettype:none,time\nMSGTYPE=stop \"Entering.*\"\n",
+      "moves": " y    hhhy    "
+    }
+  ],
+  "comment": "A dwarvish Valkyrie with the time option accepts the tutorial; MSGTYPE=stop \"Entering.*\" matches the pre-message of allmain.c maybe_do_tutorial() asks options.c ask_do_tutorial() and passes \"Entering the tutorial.\" to do.c schedule_goto() as the pre-message that deferred_goto() prints. pline.c vpline() looks the line up with msgtype_type() and, for MSGTYP_STOP, calls display_nhwindow(WIN_MESSAGE, TRUE) after putmesg(), before the level change."
+}

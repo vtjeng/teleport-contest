@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43210,
+      "datetime": "20290620100000",
+      "nethackrc": "OPTIONS=name:Grishna,role:Rogue,race:orc,gender:female,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"^Entering the tutorial\\.$\"\n",
+      "moves": " y    hhhy    "
+    }
+  ],
+  "comment": "MSGTYPE=stop \"^Entering the tutorial\\.$\" with both anchors and an escaped dot matches the tutorial pre-message on both hosts."
+}

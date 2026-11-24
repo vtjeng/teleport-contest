@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 81802,
+      "datetime": "20271231235900",
+      "nethackrc": "OPTIONS=name:Lin,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=hide \"Something is engraved here on the floor.\"\n",
+      "moves": " y   hhhy  l"
+    }
+  ],
+  "comment": "MSGTYPE=hide on \"Something is engraved here on the floor.\": pline.c vpline() returns before putmesg() for MSGTYP_NOSHOW, so each tutorial engraving shows only its \"You read:\" line."
+}

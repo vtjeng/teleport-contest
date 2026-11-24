@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 35561,
+      "datetime": "20300606060600",
+      "nethackrc": "OPTIONS=name:Ector,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=norep \"You read: .*\"\nMSGTYPE=norep \"Something is engraved here on the floor.\"\n",
+      "moves": " y   lh  lh  hhhy  "
+    }
+  ],
+  "comment": "MSGTYPE=norep on both lines of a tutorial engraving. The Knight steps off the first engraving and back twice; the two lines alternate, so each differs from gp.prevmsg and pline.c vpline() returns before putmesg() for MSGTYP_NOREP when the line equals gp.prevmsg never applies."
+}

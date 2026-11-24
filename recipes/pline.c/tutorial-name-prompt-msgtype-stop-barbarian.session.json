@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 58146,
+      "datetime": "20280808180000",
+      "nethackrc": "OPTIONS=role:Barbarian,race:orc,gender:female,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": "Urga\n y    hhhy    "
+    }
+  ],
+  "comment": "No name in the rc: the recorder passes -u \"\", so the game asks \"Who are you?\" before the welcome and the tutorial menu; MSGTYPE=stop then stops on \"Entering the tutorial.\"."
+}

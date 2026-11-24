@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 27755,
+      "datetime": "20280229141400",
+      "nethackrc": "OPTIONS=name:Galen,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!splash_screen,pettype:none\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": "   y    hhhy    "
+    }
+  ],
+  "comment": "With legacy on, the intro text comes before the welcome and the tutorial menu; MSGTYPE=stop \"Entering the tutorial.\" then stops on the tutorial's pre-message (allmain.c maybe_do_tutorial() asks options.c ask_do_tutorial() and passes \"Entering the tutorial.\" to do.c schedule_goto() as the pre-message that deferred_goto() prints)."
+}

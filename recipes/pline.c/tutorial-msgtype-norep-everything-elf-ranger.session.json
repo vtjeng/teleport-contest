@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10987,
+      "datetime": "20300214120000",
+      "nethackrc": "OPTIONS=name:Elowen,role:Ranger,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=norep \".*\"\n",
+      "moves": " y   lhlh  hhhy  "
+    }
+  ],
+  "comment": "MSGTYPE=norep \".*\" on every line; the Ranger steps off the first tutorial engraving and back, and the --More-- after \"Something is engraved\" takes the next two moves."
+}

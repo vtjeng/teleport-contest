@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73654,
+      "datetime": "20250113210000",
+      "nethackrc": "OPTIONS=name:Solveig,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"You are lucky!.*\"\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": "   y    hhhy    "
+    }
+  ],
+  "comment": "Two spaces in the tutorial menu make options.c ask_do_tutorial() redraw it with \"(Please choose 'y' or 'n'.)\" before y; MSGTYPE=stop \"Entering the tutorial.\" then stops on the pre-message."
+}

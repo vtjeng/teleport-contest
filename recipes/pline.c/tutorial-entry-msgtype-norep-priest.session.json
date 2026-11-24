@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90215,
+      "datetime": "20310718063000",
+      "nethackrc": "OPTIONS=name:Odo,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=norep \"Entering the tutorial.\"\n",
+      "moves": " y   hhhy   "
+    }
+  ],
+  "comment": "MSGTYPE=norep \"Entering the tutorial.\": the pre-message differs from gp.prevmsg (the welcome), so pline.c vpline() returns before putmesg() for MSGTYP_NOREP when the line equals gp.prevmsg does not apply and the line shows."
+}

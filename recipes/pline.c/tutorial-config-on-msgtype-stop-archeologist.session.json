@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44480,
+      "datetime": "20290909090909",
+      "nethackrc": "OPTIONS=name:Petra,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none,tutorial\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": "    hhhy    "
+    }
+  ],
+  "comment": "OPTIONS=tutorial sets opt_set_in_config[opt_tutorial], so options.c ask_do_tutorial() returns flags.tutorial without the menu and the tutorial starts at once; MSGTYPE=stop on \"Entering the tutorial.\" joins it to the new-moon line on the top line before the --More--."
+}

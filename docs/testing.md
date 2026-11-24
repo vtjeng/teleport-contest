@@ -386,7 +386,7 @@ differed on 10,422 patterns. The answers are in
 changes. The runner was macOS 26.7.2; the judge's macOS version is not
 known.
 
-`recipes.txt` lists 157 recipes. 38 are earlier recipes whose games
+`recipes.txt` lists 159 recipes. 38 are earlier recipes whose games
 compile a pattern from a config line or the options menu; 32 of them
 record alike on both hosts, and the committed recordings of the other six
 are the macOS ones:
@@ -397,7 +397,12 @@ are the macOS ones:
 `trial-repeated-greeting` and `trial-simple-greeting-control`. The other
 119 are the regex recipes of the second host-parity sample, committed as
 `recipes/posixregex.c/re-*` with their macOS recordings; 75 of them differ
-between the hosts. Record all of these again on macOS, not with a Linux
+between the hosts. The last two,
+`recipes/pline.c/tutorial-msgtype-stop-gnu-space-class-healer` and
+`tutorial-msgtype-stop-word-boundary-monk`, stop on the tutorial's
+pre-message only under glibc, which reads `\s` and `\b` as operators; the
+screens are the same on both hosts and the random-number calls fall in
+different steps. Record all of these again on macOS, not with a Linux
 recorder; each recipe's comment says so, and
 `scripts/posixregex-recordings.test.mjs` fails when any recording under
 `recordings/` shows glibc's `regerror()` text. A new recipe whose pattern

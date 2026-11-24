@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70411,
+      "datetime": "20280611091500",
+      "nethackrc": "OPTIONS=name:Brisa,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none,showexp\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": " y    hhhy    "
+    }
+  ],
+  "comment": "A Tourist accepts the startup tutorial with MSGTYPE=stop on \"Entering the tutorial.\". allmain.c maybe_do_tutorial() asks options.c ask_do_tutorial() and passes \"Entering the tutorial.\" to do.c schedule_goto() as the pre-message that deferred_goto() prints; pline.c vpline() looks the line up with msgtype_type() and, for MSGTYP_STOP, calls display_nhwindow(WIN_MESSAGE, TRUE) after putmesg(), so the --More-- comes before goto_level() and the old level and status ($ gold, Dlvl:1) stay under it. The hero then walks onto the second engraving."
+}

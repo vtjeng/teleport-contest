@@ -155,3 +155,5 @@ recipes/posixregex.c/re-typed-22.session.json
 recipes/posixregex.c/re-typed-23.session.json
 recipes/posixregex.c/re-typed-24.session.json
 recipes/posixregex.c/re-typed-25.session.json
+recipes/pline.c/tutorial-msgtype-stop-gnu-space-class-healer.session.json
+recipes/pline.c/tutorial-msgtype-stop-word-boundary-monk.session.json
