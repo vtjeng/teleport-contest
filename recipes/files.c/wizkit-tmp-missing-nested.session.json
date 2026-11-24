@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_wizkit_file() with WIZKIT=/tmp/quillkit/items.txt: /tmp holds no quillkit, so access() fails with ENOENT at that component and C raw_printf()s \"Access to /tmp/quillkit/items.txt denied (2).\"; the $HOME attempt fails with ENOENT, which is silent.",
+  "segments": [
+    {
+      "seed": 61120420,
+      "datetime": "20330214091500",
+      "nethackrc": "OPTIONS=name:Tmpkit,role:Rogue,race:orc,gender:male,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=/tmp/quillkit/items.txt\n",
+      "moves": "    i  "
+    }
+  ]
+}

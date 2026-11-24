@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_wizkit_file() with WIZKIT=/dev/null/kit: /dev/null is not a directory, so access() fails with ENOTDIR and C raw_printf()s \"Access to /dev/null/kit denied (20).\" and wait_synch()s; fopen(\"$HOME//dev/null/kit\") then fails with ENOENT, which is silent.",
+  "segments": [
+    {
+      "seed": 61120418,
+      "datetime": "20330212091500",
+      "nethackrc": "OPTIONS=name:Nulldir,role:Caveman,race:gnome,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=/dev/null/kit\n",
+      "moves": "    i  "
+    }
+  ]
+}

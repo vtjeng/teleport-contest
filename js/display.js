@@ -73,7 +73,7 @@ import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BOLT_LIM, INTRINSIC,
-    H_IBM, H_UTF8, PRIMARYSET, ROGUESET,
+    H_IBM, H_UTF8, ROGUESET,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF, NOT_HUNGRY, SICK_NONVOMITABLE, SICK_VOMITABLE, STR18, OBJ_FLOOR,
     BACKTRACK, DISP_ALL, DISP_ALWAYS, DISP_BEAM, DISP_CHANGE, DISP_END,
@@ -964,7 +964,7 @@ function glyphPresentation(symbol, color, state, customization = null) {
     // set is not UTF-8, a primary-set customization is still attached but
     // g_putch() prints the symbol's byte instead.
     const customCh = state.gs?.symset?.[
-        state.gc?.currentgraphics ?? PRIMARYSET
+        state.gc?.currentgraphics
     ]?.handling === H_UTF8 ? customization?.displayCh : undefined;
     const displayCh = customCh ?? symbol.displayCh;
     const result = {
@@ -2336,7 +2336,7 @@ function hasRogueColor(state) {
 // C ref: display.c cmap_to_roguecolor(). reset_glyphmap() calls it only
 // under has_rogue_color, for the cmap arms that have a Rogue colour.
 export function cmap_to_roguecolor(cmap, state = game) {
-    if (state.gs?.symset?.[state.gc?.currentgraphics ?? PRIMARYSET]?.nocolor)
+    if (state.gs?.symset?.[state.gc?.currentgraphics]?.nocolor)
         return NO_COLOR;
     if (cmap >= S_vwall && cmap <= S_hcdoor) return CLR_BROWN;
     if (cmap >= S_arrow_trap && cmap <= S_polymorph_trap) return CLR_MAGENTA;
@@ -2655,7 +2655,7 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
     // Symbol-set S_* Unicode belongs to the glyph before accessibility
     // replaces its base symbol. Concrete G_* customizations override it.
     const activeHandling = state.gs?.symset?.[
-        state.gc?.currentgraphics ?? PRIMARYSET
+        state.gc?.currentgraphics
     ]?.handling;
     const symbolUnicode = activeHandling === H_UTF8
         ? symbol.displayCh : undefined;

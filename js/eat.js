@@ -2815,7 +2815,7 @@ async function cpostfx(pm, state, env = {}) {
 // from hack.c:unmul after it clears ga.afternmv. Keep C's gc.corpsenm_digested
 // value in state.gc and reset it only after cpostfx has completed.
 export async function Finish_digestion(state = game, env = {}) {
-    const corpsenm = state.gc?.corpsenm_digested ?? NON_PM;
+    const corpsenm = state.gc.corpsenm_digested;
     if (corpsenm !== NON_PM) {
         await cpostfx(corpsenm, state, env);
         state.gc.corpsenm_digested = NON_PM;

@@ -2,7 +2,7 @@
 // C refs: utf8map.c free_all_glyphmap_u(), reset_customsymbols() and
 // mixed_to_utf8().
 
-import { BUFSZ, PRIMARYSET } from './const.js';
+import { BUFSZ } from './const.js';
 import { map_glyphinfo } from './display.js';
 import { game } from './gstate.js';
 import { utf8Text } from './hacklib.js';
@@ -26,7 +26,7 @@ export function free_all_glyphmap_u(state) {
 export function reset_customsymbols(state = game) {
     free_all_glyphmap_u(state);
     apply_customizations(
-        state.gc?.currentgraphics ?? PRIMARYSET,
+        state.gc?.currentgraphics,
         state,
         { symbols: true, colors: false },
     );

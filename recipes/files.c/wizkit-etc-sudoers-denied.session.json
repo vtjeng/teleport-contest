@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_wizkit_file() with WIZKIT=/etc/sudoers, which macOS and Linux keep at mode 0440 owned by root: access(\"/etc/sudoers\", 4) fails with EACCES for the recorder's user, so C raw_printf()s \"Access to /etc/sudoers denied (13).\"; fopen(\"$HOME//etc/sudoers\") fails with ENOENT, which is silent.",
+  "segments": [
+    {
+      "seed": 61120421,
+      "datetime": "20330215091500",
+      "nethackrc": "OPTIONS=name:Sudokit,role:Knight,race:human,gender:male,align:lawful,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=/etc/sudoers\n",
+      "moves": "    i  "
+    }
+  ]
+}

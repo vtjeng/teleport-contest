@@ -184,7 +184,6 @@ import {
     YMonnam,
     capitalizedMonsterName,
     mon_nam,
-    monsterCommonName,
 } from './do_name.js';
 import { dogfood } from './dogfood.js';
 import { is_digging, mdig_tunnel, watch_dig } from './dig.js';
@@ -806,7 +805,7 @@ async function mind_blast(mtmp, env = {}) {
             await wakeup(m2, false, { ...env, state, random, message });
             if (cansee(m2.mx, m2.my, state)) {
                 await message(
-                    `It locks on to ${monsterCommonName(m2, state, 0, nameEnv)}.`,
+                    `It locks on to ${mon_nam(m2, state, nameEnv)}.`,
                     state,
                     env,
                 );

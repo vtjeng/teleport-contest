@@ -205,7 +205,7 @@ test('disintegrate_mon uses C Monnam capitalization for its visible message', ()
     assert.match(jsSource.slice(jsStart, jsEnd),
         /Monnam\(mon, state, env\)\} is disintegrated!/u);
     assert.doesNotMatch(jsSource.slice(jsStart, jsEnd),
-        /monsterCommonName\(mon, state\)/u);
+        /\bmon_nam\(mon, state/u);
 });
 
 test('inventory resistance mapping matches its complete C source', () => {

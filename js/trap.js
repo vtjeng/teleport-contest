@@ -186,7 +186,7 @@ import {
 } from './dbridge.js';
 import { getdir, xytodir, ynq } from './cmd.js';
 import {
-    Monnam, capitalizedMonsterName, mon_nam, monsterCommonName, mon_pmname,
+    Monnam, capitalizedMonsterName, mon_nam, mon_pmname,
     noit_Monnam, y_monnam, YMonnam, rndcolor, hliquid, hcolor, rndmonnam,
     a_monnam, christen_monst, obj_pmname,
 } from './do_name.js';
@@ -2313,7 +2313,7 @@ export async function could_untrap(verbosely, check_floor, state = game) {
                || !state.youmonst?.data?.mmove) {
         buf = 'And just how do you expect to do that?';
     } else if (u.ustuck && sticks(state.youmonst?.data)) {
-        buf = `You'll have to let go of ${monsterCommonName(u.ustuck, state)} first.`;
+        buf = `You'll have to let go of ${mon_nam(u.ustuck, state)} first.`;
     } else if (u.ustuck
                || (welded(state.uwep, state) && bimanual(state.uwep, state))) {
         buf = `Your ${makeplural(body_part(HAND, state.youmonst))} seem to be too busy for that.`;
@@ -2582,7 +2582,7 @@ async function disarm_holdingtrap(ttmp, state = game) {
     const mtmp = m_at(ttmp.tx, ttmp.ty, state);
     if (mtmp) {
         mtmp.mtrapped = 0;
-        await ttyPline(`You extract ${monsterCommonName(mtmp, state)} from ${which} ${(ttmp.ttyp === BEAR_TRAP) ? 'bear trap' : 'web'}.`, state);
+        await ttyPline(`You extract ${mon_nam(mtmp, state)} from ${which} ${(ttmp.ttyp === BEAR_TRAP) ? 'bear trap' : 'web'}.`, state);
         await reward_untrap(ttmp, mtmp, state);
     } else if (ttmp.ttyp === BEAR_TRAP) {
         await ttyPline(`You disarm ${which} bear trap.`, state);
@@ -2703,7 +2703,7 @@ async function help_monster_out(mtmp, ttmp, state = game) {
     /* Will our hero succeed? */
     const uprob = untrap_prob(ttmp, state);
     if (uprob !== 0 && !helpless(mtmp)) {
-        await ttyPline(`You try to reach out your ${makeplural(body_part(ARM, state.youmonst))}, but ${monsterCommonName(mtmp, state)} backs away skeptically.`, state);
+        await ttyPline(`You try to reach out your ${makeplural(body_part(ARM, state.youmonst))}, but ${mon_nam(mtmp, state)} backs away skeptically.`, state);
         return 1;
     }
 
@@ -2724,7 +2724,7 @@ async function help_monster_out(mtmp, ttmp, state = game) {
     }
     /* need to do cockatrice check first if sleeping or paralyzed */
     if (uprob) {
-        await ttyPline(`You try to grab ${monsterCommonName(mtmp, state)}, but cannot get a firm grasp.`, state);
+        await ttyPline(`You try to grab ${mon_nam(mtmp, state)}, but cannot get a firm grasp.`, state);
         if (mtmp.msleeping) {
             mtmp.msleeping = 0;
             await ttyPline(`${capitalizedMonsterName(mtmp, state)} awakens.`, state);
@@ -2732,7 +2732,7 @@ async function help_monster_out(mtmp, ttmp, state = game) {
         return 1;
     }
 
-    await ttyPline(`You reach out your ${makeplural(body_part(ARM, state.youmonst))} and grab ${monsterCommonName(mtmp, state)}.`, state);
+    await ttyPline(`You reach out your ${makeplural(body_part(ARM, state.youmonst))} and grab ${mon_nam(mtmp, state)}.`, state);
 
     if (mtmp.msleeping) {
         mtmp.msleeping = 0;
@@ -2757,7 +2757,7 @@ async function help_monster_out(mtmp, ttmp, state = game) {
             return 1;
     }
 
-    await ttyPline(`You pull ${monsterCommonName(mtmp, state)} out of the pit.`, state);
+    await ttyPline(`You pull ${mon_nam(mtmp, state)} out of the pit.`, state);
     mtmp.mtrapped = 0;
     await reward_untrap(ttmp, mtmp, state);
     await fill_pit(mtmp.mx, mtmp.my, state);

@@ -163,7 +163,6 @@ import {
 import {
     Amonnam,
     capitalizedMonsterName,
-    monsterCommonName,
     mon_nam,
     x_monnam,
     Monnam,
@@ -618,7 +617,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
         if (!Deaf(state.u)) {
             await message(
                 messageAt(
-                    `A board beneath ${monsterCommonName(monster, state)}`
+                    `A board beneath ${mon_nam(monster, state)}`
                     + ` squeaks ${trapnote(trap, false)} loudly.`,
                     monster.mx,
                     monster.my,
@@ -1104,7 +1103,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
             await message(
                 messageAt(
                     'A trap door above'
-                    + ` ${monsterCommonName(mtmp, state)} opens, but nothing`
+                    + ` ${mon_nam(mtmp, state)} opens, but nothing`
                     + ' falls out!',
                     mtmp.mx,
                     mtmp.my,
@@ -1946,7 +1945,7 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
                 await (env.message ?? ttyPline)(
                     messageAt(
                         tt === TRAPDOOR
-                            ? `A trap door opens, but ${monsterCommonName(mtmp, state)}`
+                            ? `A trap door opens, but ${mon_nam(mtmp, state)}`
                                 + " doesn't fall through."
                             : `${capitalizedMonsterName(mtmp, state)}`
                                 + " doesn't fall through the hole.",

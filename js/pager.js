@@ -102,7 +102,6 @@ import {
     MHID_ALTMON,
     MHID_REGION,
     H_UTF8,
-    PRIMARYSET,
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import {
@@ -969,7 +968,7 @@ function lookedGlyphText(glyph, location, state) {
     // byte such as \x8f, whose low seven bits are a control byte that the
     // capture ignores; its code-page character is never in the message.
     const handling = state.gs?.symset?.[
-        state.gc?.currentgraphics ?? PRIMARYSET
+        state.gc?.currentgraphics
     ]?.handling;
     if (handling === H_UTF8 && info.displayCh)
         return { text: utf8Text(info.displayCh), cell: null };

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4410873,
+      "datetime": "20290304101530",
+      "nethackrc": "OPTIONS=name:Minder,role:Wizard,race:gnome,gender:male,align:neutral,playmode:debug\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": " \u0017blessed potion of see invisible\n  \u0017scroll of taming\n\u0017cursed potion of invisibility\nqfdp\u0007hostile gnome lord\nhsro s     "
+    }
+  ],
+  "comment": "muse.c you_aggravate() (2631-2653) names the drinker with noit_mon_nam() (do_name.c 1053-1060), which passes ARTICLE_YOUR, so a tame drinker is \"your gnome lord\". The hostile gnome lord picks up the dropped cursed potion of invisibility; the hero tames it with a scroll before its next move, and, because the hero sees invisible, find_misc() (muse.c 2205-2207) lets the now peaceful monster drink. The sibling recipe cursed-invisibility-potion-aggravates has a hostile drinker, \"the gnome lord\"."
+}

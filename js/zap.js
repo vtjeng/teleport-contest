@@ -54,7 +54,7 @@ import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
 import {
     bot, cmap_to_glyph, docrt, flush_screen, glyph_is_invisible, glyph_is_monster, glyph_at, map_glyphinfo, map_invisible, glyph_is_warning, newsym, knowninvisible, obj_to_glyph, shieldeff, tmp_at, unmap_invisible, unmap_object, zapdir_to_glyph, } from './display.js';
 import {
-    christen_monst, free_oname, hliquid, a_monnam, noit_Monnam, Monnam, mon_nam, monsterCommonName, mon_pmname, noname_monnam, rndmonnam, } from './do_name.js';
+    christen_monst, free_oname, hliquid, a_monnam, noit_Monnam, Monnam, mon_nam, mon_pmname, noname_monnam, rndmonnam, } from './do_name.js';
 import { get_mtraits } from './corpstat.js';
 import {
     cant_finish_meal, eaten_stat, fix_petrification, vegetarian,
@@ -1532,7 +1532,7 @@ export async function hit(str, mtmp, force, state = game, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     await message(
         `${The(str, state)} ${vtense(str, 'hit')} `
-        + `${verbosely ? monsterCommonName(mtmp, state, 0, rawEnv) : 'it'}${force}`,
+        + `${verbosely ? mon_nam(mtmp, state, rawEnv) : 'it'}${force}`,
         state,
         rawEnv,
     );
@@ -1546,7 +1546,7 @@ export async function miss(str, mtmp, state = game, env = {}) {
         + `${((cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
                || canspotmon(mtmp, state))
               && state.flags?.verbose)
-            ? monsterCommonName(mtmp, state, 0, env) : 'it'}.`,
+            ? mon_nam(mtmp, state, env) : 'it'}.`,
         state,
         env,
     );
@@ -2188,7 +2188,7 @@ export async function do_osshock(obj, state = game, random = coreRandom, rawEnv 
     state.go ??= {};
     state.gp ??= {};
     state.go.obj_zapped = true;
-    if (state.gp.poly_zapped == null || state.gp.poly_zapped < 0) {
+    if (state.gp.poly_zapped < 0) {
         const luck = Math.trunc(state.u?.uluck ?? 0)
             + Math.trunc(state.u?.moreluck ?? 0);
         for (let count = Math.trunc(obj.quan ?? 0); count; --count) {

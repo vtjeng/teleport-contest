@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_wizkit_file() with WIZKIT=/etc/quillkit, a name neither host installs under /etc: access() fails with ENOENT, so C raw_printf()s \"Access to /etc/quillkit denied (2).\" and wait_synch()s; fopen(\"$HOME//etc/quillkit\") fails with ENOENT too, which is silent.",
+  "segments": [
+    {
+      "seed": 61120419,
+      "datetime": "20330213091500",
+      "nethackrc": "OPTIONS=name:Etckit,role:Tourist,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=/etc/quillkit\n",
+      "moves": "    i  "
+    }
+  ]
+}

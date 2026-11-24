@@ -123,8 +123,8 @@ import {
     a_monnam,
     capitalizedMonsterName,
     hcolor,
-    monsterCommonName,
     mon_nam,
+    noit_mon_nam,
     monverbself,
     rndmonnam,
     x_monnam,
@@ -329,7 +329,7 @@ async function precheck(mon, obj, state, env = {}, selection = null) {
                         // C uses plain pline() here, unlike the djinni's
                         // pline_mon(), so accessiblemsg adds no location.
                         await ttyPline(
-                            `As ${monsterCommonName(mon, state)} opens `
+                            `As ${mon_nam(mon, state)} opens `
                             + `the bottle, an enormous `
                             + `${Hallucination(state.u)
                                 ? rndmonnam({
@@ -568,7 +568,7 @@ async function mreadmsg(mtmp, otmp, state, rawEnv = {}) {
     if (mtmp.mconf) /* (note: won't get if not seen and hero can't hear) */
         await message(
                 `Being confused, ${
-                vismon ? monsterCommonName(mtmp, state, 0, rawEnv) : mhe(mtmp, rawEnv)
+                vismon ? mon_nam(mtmp, state, rawEnv) : mhe(mtmp, rawEnv)
             } mispronounces the magic words...`,
             state,
             rawEnv,
@@ -769,7 +769,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
                     state);
             else
                 await ttyPline(
-                    `The tip of ${monsterCommonName(mtmp, state)}'s horn glows!`,
+                    `The tip of ${mon_nam(mtmp, state)}'s horn glows!`,
                     state);
         }
         if (!mtmp.mcansee) {
@@ -1044,7 +1044,7 @@ export async function use_defensive(mtmp, selection, state, env = {}) {
             && (dunlev(state.u?.uz) < dunlevs_in_dungeon(state.u?.uz, state) - 3)) {
             if (vismon)
                 await ttyPline(
-                    `As ${monsterCommonName(mtmp, state)} climbs the stairs, a mysterious force momentarily surrounds ${mhim(mtmp, { state })}...`,
+                    `As ${mon_nam(mtmp, state)} climbs the stairs, a mysterious force momentarily surrounds ${mhim(mtmp, { state })}...`,
                     state);
             await migrate_to_level(mtmp, ledger_no(state.u?.uz, state) + 1,
                 MIGR_RANDOM, null, { state });
@@ -1548,7 +1548,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
             await mquaffmsg(mtmp, otmp, state);
         }
         // format monster's name before altering its visibility
-        const nambuf = monsterCommonName(mtmp, state);
+        const nambuf = mon_nam(mtmp, state);
         mon_set_minvis(mtmp, Boolean(otmp.cursed), state);
         if (vismon && mtmp.minvis) { /* was seen, now invisible */
             // C prints both lines with plain pline(), so accessiblemsg
@@ -1772,7 +1772,7 @@ export async function use_misc(mtmp, selection, state, env = {}) {
 // hero awake.
 async function you_aggravate(mtmp, state) {
     await ttyPline(
-        `For some reason, ${s_suffix(monsterCommonName(mtmp, state, SUPPRESS_IT))} presence is known to you.`,
+        `For some reason, ${s_suffix(noit_mon_nam(mtmp, state))} presence is known to you.`,
         state);
     await cls();
     await cliparound(mtmp.mx, mtmp.my, state); // CLIPPING
@@ -1780,7 +1780,7 @@ async function you_aggravate(mtmp, state) {
     display_self(state);
     // C's You_feel() records no location.
     await ttyPline(
-        youFeel(`aggravated at ${monsterCommonName(mtmp, state, SUPPRESS_IT)}.`,
+        youFeel(`aggravated at ${noit_mon_nam(mtmp, state)}.`,
             state),
         state);
     await tty_display_nhwindow_map_blocking(state);
@@ -3070,7 +3070,7 @@ export async function mon_reflects(mon, str, state = game, rawEnv = {}) {
     const objectEnv = { ...rawEnv, state };
     const message = rawEnv.message ?? ttyPline;
     const reflectMessage = (kind) => formatReflectionMessage(str, [
-        s_suffix(monsterCommonName(mon, state, 0, rawEnv)),
+        s_suffix(mon_nam(mon, state, rawEnv)),
         kind,
     ]);
     let orefl = which_armor(mon, W_ARMS, state);
@@ -3244,7 +3244,7 @@ async function mon_consume_unstone(
     if (stoning && vis) {
         if (Hallucination(state.u))
             await ttyPline(
-                `What a pity - ${monsterCommonName(mon, state)} just ruined a future piece of art!`,
+                `What a pity - ${mon_nam(mon, state)} just ruined a future piece of art!`,
                 state);
         else
             await pline_mon(mon,

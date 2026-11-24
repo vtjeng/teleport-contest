@@ -31,6 +31,19 @@ import { CLR_BLACK, CLR_BRIGHT_BLUE, CLR_BRIGHT_CYAN, CLR_BRIGHT_MAGENTA, CLR_BR
 import { dungeon_at } from './dungeon_table.js';
 import { lcase } from './hacklib.js';
 
+// C ref: hack.h FEATURE_NOTICE_VER() (1504-1506). The recorder ABI uses a
+// 64-bit unsigned long. Cast each int before shifting, as the macro does;
+// shifting a negative patch after a signed JavaScript bitwise conversion would
+// produce a different value. It is here, not in js/version.js, because
+// js/cfgfiles.js reads it and must not import that module: version.js reaches
+// js/symbols.js through tty_message.js and display.js.
+export function FEATURE_NOTICE_VER(major, minor, patch) {
+    const packed = (BigInt.asUintN(64, BigInt(major)) << 24n)
+        | (BigInt.asUintN(64, BigInt(minor)) << 16n)
+        | (BigInt.asUintN(64, BigInt(patch)) << 8n);
+    return BigInt.asUintN(64, packed);
+}
+
 // C macro: SIZE(arr) = sizeof(arr)/sizeof(arr[0]) → JS: arr.length
 export function SIZE(arr) { return arr.length; }
 

@@ -13,9 +13,13 @@
 //   unsigned u.ucreamed
 //   (recipes/apply.c/use-cream-pie-ucreamed-256-low-byte-zero).
 //
-// This check fails when one of those sites stops calling schar(), and when
-// the number of schar() calls in js/ changes: add the C site above with the
-// new call, or remove its entry with the call.
+// C also narrows an int to a variable or result declared schar; SITES lists
+// those with their C lines.
+//
+// This check fails when one of those sites stops calling schar(), when the
+// number of schar() calls in js/ changes (add the C site above with the new
+// call, or remove its entry with the call), and when a file writes the
+// conversion out by hand as `(x << 24) >> 24`.
 
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -41,6 +45,24 @@ const SITES = {
         // sp_lev.c create_object():2231, `otmp->spe = (schar) o->spe`: not a
         // boolean, but the same narrowing of an int to schar.
         'obj.spe = schar(specification.spe);',
+    ],
+    'do_wear.js': [
+        // attrib.h:39-41 struct attribs holds each ABON() as schar.
+        // do_wear.c Helmet_on():458 and Helmet_off():538, cornuthaum:
+        // `ABON(A_CHA) += (Role_if(PM_WIZARD) ? 1 : -1)` and its reverse.
+        'abon[A_CHA] = schar((abon[A_CHA] ?? 0)\n            + (state.urole?.mnum === PM_WIZARD ? 1 : -1));',
+        'abon[A_CHA] = schar((abon[A_CHA] ?? 0)\n                + (state.urole?.mnum === PM_WIZARD ? -1 : 1));',
+        // do_wear.c adj_abon():3319, the parameter `schar delta`, and
+        // 3324, 3331 and 3332, `ABON(...) += (delta)`.
+        'delta = schar(delta);',
+        'abon[A_DEX] = schar((abon[A_DEX] ?? 0) + delta);',
+        'abon[A_INT] = schar((abon[A_INT] ?? 0) + delta);',
+        'abon[A_WIS] = schar((abon[A_WIS] ?? 0) + delta);',
+    ],
+    'dungeon.js': [
+        // dungeon.c depth():1430-1434 returns
+        // `(schar) (depth_start + lev->dlevel - 1)`.
+        'return schar(result);',
     ],
 };
 
@@ -85,6 +107,24 @@ test('the schar() call count matches the listed sites', () => {
         const text = readFileSync(new URL(name, JS_DIR), 'utf8');
         count += text.match(/(?<![\w.])schar\(/gu)?.length ?? 0;
     }
-    // Four: the calls in SITES.
+    // Eleven: the calls in SITES.
     assert.equal(count, Object.values(SITES).flat().length);
+});
+
+test('no file narrows to schar by hand', () => {
+    // `(x << 24) >> 24` is schar() written out; js/global.js holds the two
+    // functions that may spell it.
+    const byHand = /<<\s*24\s*\)*\s*>>\s*24/u;
+    const sites = [];
+    for (const name of readdirSync(JS_DIR)) {
+        if (!name.endsWith('.js') || name === 'global.js') continue;
+        readFileSync(new URL(name, JS_DIR), 'utf8').split('\n').forEach((line, index) => {
+            const code = line.replace(/\/\/.*$/u, '');
+            if (byHand.test(code)) sites.push(`${name}:${index + 1} ${code.trim()}`);
+        });
+    }
+    assert.deepEqual(sites, []);
+    // The pattern finds the conversion as the port wrote it before.
+    assert.ok(byHand.test('abon[A_DEX] = (((abon[A_DEX] ?? 0) + delta) << 24) >> 24;'));
+    assert.ok(byHand.test('return (result << 24) >> 24;'));
 });

@@ -674,6 +674,11 @@ function defaultResult() {
         // optfn_windowcolors(do_init), once per configuration-file pass.
         wcolors_opt: [0, 0, 0, 0],
         options_set_window_colors_flag: false,
+        // decl.c instance_globals_s: glyphs.c glyphrep_to_custom_map_entries()
+        // reads gs.symset_which_set, 0 until symbols.c writes it, while the
+        // configuration file is read. The symbol code adds gs.symset and
+        // gs.sym_customizations when it first needs them.
+        gs: { ...globals.gs },
         // decl.c zeros these option-transition flags. Symbol-set handlers set
         // all three during the configuration pass, before the first input.
         go: {
@@ -1103,8 +1108,7 @@ function ensureRoleoptvals(state) {
     return state.roleoptvals;
 }
 
-export function getoptstr(state, optidx, ophase = state.go?.opt_phase) {
-    const phase = ophase ?? RC_FILE_OPT;
+export function getoptstr(state, optidx, phase = state.go.opt_phase) {
     const values = ensureRoleoptvals(state)[roleoptIndex(optidx)];
     if (phase === NUM_OPT_PHASES) {
         for (let index = NUM_OPT_PHASES - 1; index >= 0; --index) {
@@ -1117,8 +1121,7 @@ export function getoptstr(state, optidx, ophase = state.go?.opt_phase) {
     return values[phase];
 }
 
-function saveoptstr(state, optidx, optstr, ophase = state.go?.opt_phase) {
-    const phase = ophase ?? RC_FILE_OPT;
+function saveoptstr(state, optidx, optstr, phase = state.go.opt_phase) {
     const values = ensureRoleoptvals(state)[roleoptIndex(optidx)];
     let value = String(optstr ?? '');
     const colon = value.indexOf(':');
@@ -1131,8 +1134,7 @@ function saveoptstr(state, optidx, optstr, ophase = state.go?.opt_phase) {
     values[phase] = value;
 }
 
-function unsaveoptstr(state, optidx, ophase = state.go?.opt_phase) {
-    const phase = ophase ?? RC_FILE_OPT;
+function unsaveoptstr(state, optidx, phase = state.go.opt_phase) {
     const values = ensureRoleoptvals(state)[roleoptIndex(optidx)];
     if (phase < 0 || phase >= NUM_OPT_PHASES)
         throw new Error(`invalid option phase ${phase}`);
@@ -7093,7 +7095,7 @@ export function initoptions_finish(parsedOptions = {}, state = game, env = {}) {
     finish_fruit_option(parsedOptions, state, env);
     finish_boulder_symbol(state);
     if (glyphid_cache_status(state)) free_glyphid_cache(state);
-    apply_customizations(state.gc?.currentgraphics ?? PRIMARYSET, state);
+    apply_customizations(state.gc.currentgraphics, state);
     reglyph_darkroom(state);
     reset_glyphmap(state);
     updateRestOnSpaceModel(
@@ -7391,7 +7393,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     // crash_urlmax to -1 and its handler always prints the signed decimal.
     crash_email: (state) => state.gc?.crash_email ?? '',
     crash_name: (state) => state.gc?.crash_name ?? '',
-    crash_urlmax: (state) => `${state.gc?.crash_urlmax ?? -1}`,
+    crash_urlmax: (state) => `${state.gc.crash_urlmax}`,
     DECgraphics: () => optfn_DECgraphics(
         null, GET_VAL, false, '', '',
     ),
@@ -8377,7 +8379,7 @@ const OPTION_SET_HANDLERS = Object.freeze({
         // parser context's unicodeNagged and colorNagged.  Outside a
         // configuration read, cfgfiles.c config_erradd() (1557-1563) prints
         // the message with pline() and calls wait_synch().
-        const set = state.gs?.symset_which_set ?? PRIMARYSET;
+        const set = state.gs.symset_which_set;
         if (!state.gs?.symset?.[set]?.name) {
             const inspected = inspect_glyphrep(value, state);
             const context = state.parserGlyphSetContext;

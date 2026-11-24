@@ -166,6 +166,7 @@ import {
 import { artifact_light, retouch_object } from './artifacts.js';
 import { obj_resists } from './bury.js';
 import { game } from './gstate.js';
+import { schar } from './global.js';
 import { set_bc } from './ball.js';
 import { nomul, spoteffects, unmul } from './hack.js';
 import { strsubst, truncateByteString } from './hacklib.js';
@@ -2163,8 +2164,8 @@ async function Helmet_on(state) {
         const abon = Array.isArray(state.u.abon)
             ? state.u.abon : (state.u.abon.a ??= []);
         // attrib.h stores ABON in schar; preserve its signed-byte assignment.
-        abon[A_CHA] = (((abon[A_CHA] ?? 0)
-            + (state.urole?.mnum === PM_WIZARD ? 1 : -1)) << 24) >> 24;
+        abon[A_CHA] = schar((abon[A_CHA] ?? 0)
+            + (state.urole?.mnum === PM_WIZARD ? 1 : -1));
         state.disp ??= {};
         state.disp.botl = true;
         discover_object(state.uarmh.otyp, true, true, true, state);
@@ -2283,8 +2284,8 @@ export async function Helmet_off(state = game, rawEnv = {}) {
             const abon = Array.isArray(state.u.abon)
                 ? state.u.abon : (state.u.abon.a ??= []);
             // The byte conversion reverses Helmet_on even across 127/-128.
-            abon[A_CHA] = (((abon[A_CHA] ?? 0)
-                + (state.urole?.mnum === PM_WIZARD ? -1 : 1)) << 24) >> 24;
+            abon[A_CHA] = schar((abon[A_CHA] ?? 0)
+                + (state.urole?.mnum === PM_WIZARD ? -1 : 1));
             state.disp ??= {};
             state.disp.botl = true;
         }
@@ -2323,7 +2324,7 @@ export async function Helmet_off(state = game, rawEnv = {}) {
 export function adj_abon(obj, delta, state = game, env = {}) {
     // C converts the parameter to schar before entering, and each ABON
     // assignment stores another schar (attrib.h struct attribs).
-    delta = (delta << 24) >> 24;
+    delta = schar(delta);
     if (state.uarmg && state.uarmg === obj
         && obj.otyp === GAUNTLETS_OF_DEXTERITY) {
         if (delta) {
@@ -2334,7 +2335,7 @@ export function adj_abon(obj, delta, state = game, env = {}) {
             state.u.abon ??= {};
             const abon = Array.isArray(state.u.abon)
                 ? state.u.abon : (state.u.abon.a ??= []);
-            abon[A_DEX] = (((abon[A_DEX] ?? 0) + delta) << 24) >> 24;
+            abon[A_DEX] = schar((abon[A_DEX] ?? 0) + delta);
         }
         state.disp ??= {};
         state.disp.botl = true;
@@ -2349,8 +2350,8 @@ export function adj_abon(obj, delta, state = game, env = {}) {
             state.u.abon ??= {};
             const abon = Array.isArray(state.u.abon)
                 ? state.u.abon : (state.u.abon.a ??= []);
-            abon[A_INT] = (((abon[A_INT] ?? 0) + delta) << 24) >> 24;
-            abon[A_WIS] = (((abon[A_WIS] ?? 0) + delta) << 24) >> 24;
+            abon[A_INT] = schar((abon[A_INT] ?? 0) + delta);
+            abon[A_WIS] = schar((abon[A_WIS] ?? 0) + delta);
         }
         state.disp ??= {};
         state.disp.botl = true;

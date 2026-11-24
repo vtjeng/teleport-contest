@@ -130,7 +130,9 @@ test('every js/ constant that names a C constant has its C value', async () => {
     // 2026) replaced the 65 glibc regex names with 73 Apple Libc TRE names
     // (110) and added REG_NOSUB and RE_DUP_MAX, whose macOS values differ
     // from the glibc header the check compiles, to KNOWN_MISMATCHES (5).
-    const PINS = { known: 5, uncompared: 91, portOnly: 110 };
+    // leftovers (23 November 2026) added EACCES, the errno access() gives
+    // files.c fopen_wizkit_file() for /etc/sudoers: 111.
+    const PINS = { known: 5, uncompared: 91, portOnly: 111 };
     assertExceptionCount(KNOWN_MISMATCHES.size, PINS.known, {
         what: 'KNOWN_MISMATCHES entries',
         pin: 'PINS.known in scripts/check-c-constants.test.mjs',

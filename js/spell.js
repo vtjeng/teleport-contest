@@ -1226,7 +1226,6 @@ const spl_sortchoices = [
 // temporary display order, independently of the persistent svs.spl_book.
 function spellSortState(state) {
     state.gs ??= {};
-    state.gs.spl_sortmode ??= SORTBY_LETTER;
     state.gs.spl_orderindx ??= null;
     return state.gs;
 }
@@ -1240,7 +1239,7 @@ export function spell_cmp(indx1, indx2, state = game,
     const obj1 = objectType(otyp1, state), obj2 = objectType(otyp2, state);
     const levl1 = obj1.oc_level, levl2 = obj2.oc_level;
     const skil1 = obj1.oc_skill, skil2 = obj2.oc_skill;
-    switch (state.gs?.spl_sortmode ?? SORTBY_LETTER) {
+    switch (state.gs.spl_sortmode) {
     case SORTBY_LETTER: return indx1 - indx2;
     case SORTBY_ALPHA: break;
     case SORTBY_LVL_LO:

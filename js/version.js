@@ -4,6 +4,7 @@ import {
     COPYRIGHT_BANNER_A,
     COPYRIGHT_BANNER_B,
     COPYRIGHT_BANNER_D,
+    FEATURE_NOTICE_VER,
 } from './const.js';
 import {
     bannerc_string,
@@ -29,17 +30,6 @@ const RECORDER_COPYRIGHT_BANNER_C = bannerc_string(RECORDER_BUILD_DATE);
 const LUA_VERSION = '5.4.8';
 const LUA_COPYRIGHT = 'Lua 5.4.8  Copyright (C) 1994-2025 Lua.org, PUC-Rio';
 
-// C ref: hack.h FEATURE_NOTICE_VER(). The recorder ABI uses a 64-bit
-// unsigned long. Cast each int before shifting, as the macro does; shifting a
-// negative patch after a signed JavaScript bitwise conversion would produce a
-// different value.
-function feature_notice_ver(major, minor, patch) {
-    const packed = (BigInt.asUintN(64, BigInt(major)) << 24n)
-        | (BigInt.asUintN(64, BigInt(minor)) << 16n)
-        | (BigInt.asUintN(64, BigInt(patch)) << 8n);
-    return BigInt.asUintN(64, packed);
-}
-
 // C ref: version.c get_feature_notice_ver(). Only the characters before the
 // second dot are validated. Empty major and minor components reach atoi(),
 // and the complete suffix after the second dot is patch's atoi() input.
@@ -62,7 +52,7 @@ export function get_feature_notice_ver(str) {
         }
     }
     if (secondDot < 0) return 0n;
-    return feature_notice_ver(
+    return FEATURE_NOTICE_VER(
         atoi(value.slice(0, firstDot)),
         atoi(value.slice(firstDot + 1, secondDot)),
         atoi(value.slice(secondDot + 1)),

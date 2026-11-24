@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "files.c fopen_wizkit_file() with WIZKIT=/etc: access() succeeds and fopen() opens the directory for reading, so nothing is reported; the first fgets() fails and read_wizkit() adds nothing. /etc is a directory on Linux and a symbolic link to one on macOS.",
+  "segments": [
+    {
+      "seed": 61120422,
+      "datetime": "20330216091500",
+      "nethackrc": "OPTIONS=name:Etcdir,role:Monk,race:human,gender:female,align:chaotic,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nWIZKIT=/etc\n",
+      "moves": "    i  "
+    }
+  ]
+}

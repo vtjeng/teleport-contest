@@ -263,7 +263,6 @@ import { messageAt } from './startup_a11y.js';
 import { obj_sheds_light } from './light.js';
 import {
     capitalizedMonsterName,
-    monsterCommonName,
     some_mon_nam,
     Monnam,
     mon_nam,
@@ -802,7 +801,7 @@ async function ucatchgem(gem, mon, rawEnv = {}) {
     /* won't catch rock or gray stone; catch (then drop) worthless glass */
     if (gem.otyp <= LAST_GLASS_GEM && is_unicorn(state.youmonst.data)) {
         const gem_xname = xnameFresh(gem, state);
-        const mon_s_name = s_suffix(monsterCommonName(mon, state));
+        const mon_s_name = s_suffix(mon_nam(mon, state));
 
         if (gem.otyp >= FIRST_GLASS_GEM) {
             const message = env.message ?? ttyPline;

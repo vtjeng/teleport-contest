@@ -989,36 +989,10 @@ function x_monnam_it(suppress, monster, state, env = {}) {
     return 'something';
 }
 
-// C ref: do_name.c mon_nam() (1041-1046) over x_monnam(), early
-// ordinary-monster subset. `suppress` carries only the flags a wrapper of
-// mon_nam() adds: noit_mon_nam() (1053-1060) passes SUPPRESS_IT, which is what
-// keeps alwaysVisibleMonsterName() below out of the do_it arm.
-//
-// A monster the hero cannot spot is named "it" before anything else is
-// considered. A given name suppresses the article. An unnamed visible monster
-// retains the saddle adjective unless blindness or hallucination prevents
-// recognition.
-//
-export function monsterCommonName(
-    monster,
-    state = game,
-    suppress = 0,
-    env = {},
-) {
-    const hasGivenName = has_mgivenname(monster);
-    return x_monnam(
-        monster,
-        ARTICLE_THE,
-        null,
-        suppress | (hasGivenName ? SUPPRESS_SADDLE : 0),
-        false,
-        state,
-        env,
-    );
-}
-
+// C ref: do_name.c Monnam() (1073-1080) under the port's older name; Monnam()
+// below is the same function.
 export function capitalizedMonsterName(monster, state = game, env = {}) {
-    const name = monsterCommonName(monster, state, 0, env);
+    const name = mon_nam(monster, state, env);
     return upstart(name);
 }
 
@@ -1262,10 +1236,8 @@ export function obj_pmname(obj, state = game) {
 }
 
 // C ref: do_name.c x_monnam() (826-1032). The wrappers below expose its
-// source callers' article and suppression combinations, while existing game
-// modules use monsterCommonName()/capitalizedMonsterName() for mon_nam() and
-// Monnam(). Every path shares this one formatter so its RNG and visibility
-// decisions stay aligned.
+// source callers' article and suppression combinations. Every path shares
+// this one formatter so its RNG and visibility decisions stay aligned.
 export function x_monnam(
     monster,
     article,
@@ -1523,7 +1495,7 @@ export function monsterPossessive(
 ) {
     const name = capitalized
         ? capitalizedMonsterName(monster, state, env)
-        : monsterCommonName(monster, state, 0, env);
+        : mon_nam(monster, state, env);
     return s_suffix(name);
 }
 

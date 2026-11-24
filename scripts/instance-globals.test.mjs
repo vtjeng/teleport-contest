@@ -335,38 +335,11 @@ test('every group member js/ names is declared in decl.h', () => {
 });
 
 // Reads that tell an absent generated member from one at its start value,
-// or give an absent one a default. None of them runs in a game, where the
-// member exists from process start; each serves a state a test built by hand
-// without js/gstate.js. Their defaults are the member's start value:
-// PRIMARYSET and SORTBY_LETTER are 0, NON_PM and -1 are decl.c's own, an
-// undefined cached_pickinv_win is taken for WIN_ERR, and RC_FILE_OPT is the
-// phase js/options.js defaultResult() sets before any option is read. The
-// exception is zap.js do_osshock(), which takes an absent gp.poly_zapped for
-// -1, "unset", where decl.c starts it at 0. A new entry needs a reason here.
-const ABSENT_MEMBER_READS = [
-    'display.js gc.currentgraphics different-default PRIMARYSET',
-    'display.js gc.currentgraphics different-default PRIMARYSET',
-    'display.js gc.currentgraphics different-default PRIMARYSET',
-    'eat.js gc.corpsenm_digested different-default NON_PM',
-    'glyphs.js gc.currentgraphics different-default PRIMARYSET',
-    'glyphs.js gs.symset_which_set different-default PRIMARYSET',
-    'invent.js gc.cached_pickinv_win different-null-compare !== undefined',
-    'invent.js gc.cached_pickinv_win different-null-compare === undefined',
-    'options.js gc.crash_urlmax different-default -1',
-    'options.js gc.currentgraphics different-default PRIMARYSET',
-    'options.js go.opt_phase different-default RC_FILE_OPT',
-    'options.js go.opt_phase different-default RC_FILE_OPT',
-    'options.js go.opt_phase different-default RC_FILE_OPT',
-    'options.js gs.symset_which_set different-default PRIMARYSET',
-    'pager.js gc.currentgraphics different-default PRIMARYSET',
-    'spell.js gs.spl_sortmode assign-default SORTBY_LETTER',
-    'spell.js gs.spl_sortmode different-default SORTBY_LETTER',
-    'symbols.js gc.currentgraphics different-default PRIMARYSET',
-    'tty_menu.js gc.currentgraphics different-default PRIMARYSET',
-    'tty_menu.js gc.currentgraphics different-default PRIMARYSET',
-    'utf8map.js gc.currentgraphics different-default PRIMARYSET',
-    'zap.js gp.poly_zapped different-null-compare == null',
-];
+// or give an absent one a default. The member exists from process start, so
+// such a read is dead in a game and hides a state a test built without
+// js/decl.js initial_instance_globals(). The list is empty; build the test's
+// state from that function instead of adding an entry.
+const ABSENT_MEMBER_READS = [];
 
 test('no code relies on a generated member being absent', () => {
     // delete, typeof, `in`, Object.hasOwn() and a comparison with undefined

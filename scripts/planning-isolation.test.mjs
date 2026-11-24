@@ -4,7 +4,7 @@ import test from 'node:test';
 
 import { COLNO, CORR, HALLUC, W_ARMH, P_DAGGER, P_QUARTERSTAFF, P_SKILLED, P_BASIC, ROWNO, ROOM } from '../js/const.js';
 import { drain_weapon_skill } from '../js/weapon.js';
-import { monsterCommonName } from '../js/do_name.js';
+import { mon_nam } from '../js/do_name.js';
 import { cloneIsaacContext } from '../js/rng.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -78,7 +78,7 @@ test('a hallucinated monster name draws from the display RNG', async () => {
     const before = cloneIsaacContext(game.displayCtx);
     // trap.c trapeffect_sqky_board() names the monster with mon_nam() and no
     // display-random hook.
-    monsterCommonName(kitten, game);
+    mon_nam(kitten, game);
     assert.notDeepEqual(game.displayCtx, before,
         'the name advances the display stream');
 });
