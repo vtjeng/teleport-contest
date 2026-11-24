@@ -83,8 +83,8 @@ test('the scan finds direct, grid, bound and conventionally named accesses', () 
 test('the scan accepts map memory, glyph records and other properties', () => {
     assert.deepEqual(locationGlyphFindings([
         'const g = state.level.at(x, y)?.remembered_glyph?.glyph;',
-        'const d = state.level.at(x, y).disp_glyph?.glyph;',
-        'const s = state.level.at(x, y).glyph_symidx;',
+        'const d = glyph_buffer_at(x, y, state).glyphinfo?.glyph;',
+        'const s = state.level.at(x, y).seenv;',
         // A property read off the location is not a location.
         'const typ = state.level.at(x, y)?.typ;',
         'if (typ.glyph) f();',

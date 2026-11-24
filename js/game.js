@@ -29,7 +29,6 @@ export function makeLocation() {
         seenv: 0,          // which angles the hero has seen this wall from
         horizontal: false, // is this a horizontal wall?
         edge: false,       // is this at the edge of the map?
-        glyph_symidx: -1,  // S_* symbol index
         // C ref: rm.h struct rm's `glyph`. js/display.js
         // remembered_glyph_from_presentation() builds it, and it holds
         // `{glyph}`: C's own levl[x][y].glyph number, unresolved, which

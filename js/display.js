@@ -7636,11 +7636,8 @@ function _applyScreenOverlay(display) {
 // all three grids on the game state (js/gstate.js), so a level change leaves
 // them as they were. A show_glyph() before that cls() -- an object rotting
 // away in goto_level()'s run_timers() -- then compares the new glyph with the
-// old level's, as C does. SCREEN_BUFFER_RECORDS names the per-location
-// records this replaced; installLevel(), swap_levl_entries() and the bones
-// clone and restore still handle them, which changes nothing the display
-// reads.
-export const SCREEN_BUFFER_RECORDS = Object.freeze(['_gbuf', '_tty', '_nomux']);
+// old level's, as C does. scripts/screen-buffer.test.mjs fails when a
+// location record holds anything but struct rm.
 
 // Each returns undefined off the map grid (x outside 0..COLNO-1, y outside
 // 0..ROWNO-1). js/gstate.js creates the grids with the game state.
@@ -7656,40 +7653,21 @@ export function nomux_cell_at(x, y, state = game) {
     return state.nomux_map[y]?.[x];
 }
 
+// goto_level(), getlev(), mklev() and dorecover() replace the level; the
+// display grids above stay as they are. scripts/install-level.test.mjs fails
+// when other code assigns the level.
 export function installLevel(level, state) {
-    const departing = state.level;
     state.level = level;
-    if (!departing?.at || !level?.at || departing === level) return;
-    for (let x = 1; x < COLNO; ++x) {
-        for (let y = 0; y < ROWNO; ++y) {
-            const from = departing.at(x, y);
-            const to = level.at(x, y);
-            if (!from || !to) continue;
-            for (const record of SCREEN_BUFFER_RECORDS)
-                to[record] = { ...from[record] };
-        }
-    }
 }
 
 // C ref: sp_lev.c flip_level() 827-829 and 848-850, `trm = levl[a];
 // levl[a] = levl[b]; levl[b] = trm`. Only struct rm moves: gg.gbuf and the
 // physical screen keep showing each coordinate's old cell until a newsym()
-// or docrt() reaches it, so SCREEN_BUFFER_RECORDS stay where they were.
-// scripts/levl-entry-swap.test.mjs fails when other code assigns a location.
+// or docrt() reaches it.
 export function swap_levl_entries(level, x1, y1, x2, y2) {
     const first = level.locations[x1][y1];
-    const second = level.locations[x2][y2];
-    level.locations[x1][y1] = second;
+    level.locations[x1][y1] = level.locations[x2][y2];
     level.locations[x2][y2] = first;
-    for (const record of SCREEN_BUFFER_RECORDS) {
-        const firstHas = Object.hasOwn(first, record);
-        const secondHas = Object.hasOwn(second, record);
-        const value = first[record];
-        if (secondHas) first[record] = second[record];
-        else delete first[record];
-        if (firstHas) second[record] = value;
-        else delete second[record];
-    }
 }
 
 // termcap.c cl_end() or cls() blanks the shadow terminal's cell, and with
