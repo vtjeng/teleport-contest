@@ -2902,7 +2902,12 @@ function apply_newcham(
     // impossible() (dungeon.c builds_up() on a level of dungeon -1, a missing
     // light source). A caller that can wait passes impossible_printer() as
     // env.onImpossible (makemon_runtime(), makemon_revival()), and the report
-    // prints where C prints it; any other queues it.
+    // prints where C prints it; any other queues it. The `async` callers that
+    // reach newcham() during play (newcham_distress(), vamp_shift(), zap.c
+    // bhitm() and others: 28 calls in 21 functions) pass none yet, and they
+    // do not print the notice queue after newcham()'s draws either, which
+    // scripts/queued-output-calls.mjs reports once this driver is a
+    // finish_steps() call.
     const onImpossible = normalized.onImpossible ?? sync_impossible;
     const advance = (value, failed = false) => {
         const step = failed ? steps.throw(value) : steps.next(value);

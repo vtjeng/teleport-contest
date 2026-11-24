@@ -103,15 +103,17 @@ const STEP_FORMS = new Set([
 // "<file> | <enclosing function> | <callee>": [count, reason]. Each reason
 // says why the call cannot wait, or why it never reports. A level of dungeon
 // -1 is reached in debug play by a wished magic portal (see
-// recordings/mkroom.c/mkundead-cursed-bell-dungeon-minus-one); every
-// such level recorded so far (that one, recordings/mklev.c/
-// niche-depth-dungeon-minus-one, recordings/weapon.c/
-// abon-polymorphed-hero-dungeon-minus-one and recordings/mon.c/
-// newcham-newmonhp-dungeon-minus-one) has one FILL_NONE room and no
-// corridor or door, and dungeon -1 has no themed rooms.
+// recordings/mkroom.c/mkundead-cursed-bell-dungeon-minus-one), and
+// dungeon -1 has no themed rooms. #wizmap on the levels of
+// recordings/weapon.c/abon-polymorphed-hero-dungeon-minus-one and
+// recordings/mon.c/newcham-newmonhp-dungeon-minus-one, in the port's
+// replay, whose screens match C's up to the arrival, shows about ten rooms
+// with no door, corridor, object or trap: the rooms are not filled
+// (FILL_NONE) and makecorridors() joins none of them. That is an
+// observation of two levels, not a proof for every jingle.
 const NO_FILL = 'level creation for a FILL_NORMAL room (mklev.c '
-    + 'fill_ordinary_room()), a maze or a level program; a dungeon -1 '
-    + 'level\'s one room is FILL_NONE, so it never runs there';
+    + 'fill_ordinary_room()), a maze or a level program; the dungeon -1 '
+    + 'levels seen have no filled room, so it does not run there';
 const LEVEL_PROGRAM = 'a level program\'s des.monster() body, which is '
     + 'synchronous; on a dungeon -1 level only #wizloadlua (wizcmds.c '
     + 'wiz_load_lua()) runs a level program. Converting it means making '
