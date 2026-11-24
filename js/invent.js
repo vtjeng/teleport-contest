@@ -3013,12 +3013,10 @@ export function find_unpaid(list, lastFound = null) {
 export function free_pickinv_cache(state = game, hooks = {}) {
     state.gc ??= {};
     const cached = state.gc.cached_pickinv_win;
-    if (cached !== undefined && cached !== WIN_ERR) {
+    if (cached !== WIN_ERR) {
         const destroy = hooks.destroyNhwindow ?? hooks.destroyWindow
             ?? state.hooks?.destroyNhwindow ?? state.hooks?.destroyWindow;
         if (typeof destroy === 'function') destroy(cached, state);
-        state.gc.cached_pickinv_win = WIN_ERR;
-    } else if (cached === undefined) {
         state.gc.cached_pickinv_win = WIN_ERR;
     }
     return state.gc.cached_pickinv_win;

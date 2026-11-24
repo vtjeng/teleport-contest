@@ -30,7 +30,7 @@ import {
     xwaitforspace,
 } from './tty_message.js';
 import {
-    BUFSZ, H_UNK, H_UTF8, PICK_ANY, PICK_NONE, PICK_ONE, PRIMARYSET,
+    BUFSZ, H_UNK, H_UTF8, PICK_ANY, PICK_NONE, PICK_ONE,
     WIN_CANCELLED,
 } from './const.js';
 import {
@@ -196,7 +196,7 @@ export function writeTextWindowLine(state, column, row, text, color, attr) {
 function textWindowGPutch(state) {
     return {
         handling: state.gs?.symset?.[
-            state.gc?.currentgraphics ?? PRIMARYSET
+            state.gc?.currentgraphics
         ]?.handling ?? H_UNK,
         eightBit: Boolean(state.iflags?.wc_eight_bit_input),
     };
@@ -947,7 +947,7 @@ async function dmore(state, display, row) {
 // cell of a control or high byte as cl_end() cleared it.
 export function ttyPutmixedLine(str, state = game) {
     const handling = state.gs?.symset?.[
-        state.gc?.currentgraphics ?? PRIMARYSET
+        state.gc?.currentgraphics
     ]?.handling;
     return {
         text: handling === H_UTF8

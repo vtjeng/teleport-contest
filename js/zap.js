@@ -2188,7 +2188,7 @@ export async function do_osshock(obj, state = game, random = coreRandom, rawEnv 
     state.go ??= {};
     state.gp ??= {};
     state.go.obj_zapped = true;
-    if (state.gp.poly_zapped == null || state.gp.poly_zapped < 0) {
+    if (state.gp.poly_zapped < 0) {
         const luck = Math.trunc(state.u?.uluck ?? 0)
             + Math.trunc(state.u?.moreluck ?? 0);
         for (let count = Math.trunc(obj.quan ?? 0); count; --count) {

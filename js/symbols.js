@@ -825,7 +825,7 @@ export function symbol_at(
 ) {
     if (!Number.isInteger(index) || index < 0 || index >= SYM_MAX)
         throw new RangeError(`symbol index ${index} is outside SYM_MAX`);
-    const activeSet = state.gc?.currentgraphics ?? PRIMARYSET;
+    const activeSet = state.gc?.currentgraphics;
     const handling = state.gs?.symset?.[activeSet]?.handling ?? H_UNK;
     const unicode = allowUnicode && handling === H_UTF8
         && state.iflags?.customsymbols !== false

@@ -431,7 +431,7 @@ export function glyphrep_to_custom_map_entries(raw, state, whichSet = null) {
     const nhcolor = parsedColor === -1
         ? 0 : parsedColor === 0 ? NH_BASIC_COLOR : parsedColor >>> 0;
     if (!unicodeCh && !nhcolor) return true;
-    const set = whichSet ?? state.gs?.symset_which_set ?? PRIMARYSET;
+    const set = whichSet ?? state.gs.symset_which_set;
     const name = state.gs?.symset?.[set]?.name ?? null;
     // options.c owns the one-time configuration diagnostic before replay.
     // Without a symset name, C's callback creates no customization record.
@@ -482,7 +482,7 @@ export function clear_all_glyphmap_colors(state) {
 export function reset_customcolors(state = game) {
     clear_all_glyphmap_colors(state);
     apply_customizations(
-        state.gc?.currentgraphics ?? PRIMARYSET,
+        state.gc?.currentgraphics,
         state,
         { symbols: false, colors: true },
     );
