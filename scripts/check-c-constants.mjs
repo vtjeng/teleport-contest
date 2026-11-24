@@ -222,7 +222,7 @@ export const PORT_ONLY = new Map([
     ...portOnly('the OR of C flags that are checked by their own names',
         ['CUSTOMPLINE_FLAGS', 'ORIGIN_MASK']),
     ['DONAME_BODY_CAPACITY', 'BUFSZ - PREFIX - 1; objnam.c\'s PREFIX is checked as PREFIX'],
-    ['FEATURE_NOTICE_3_7_0', 'the result of cfgfiles.c get_feature_notice_ver("3.7.0")'],
+    ['FEATURE_NOTICE_3_7_0', 'hack.h FEATURE_NOTICE_VER(3, 7, 0), as cfgfiles.c:178 writes it'],
     ['OVERWRITE_FILENAME_LIMIT', 'derived from the length of cfgfiles.c\'s prompt format'],
     ['SPACE_VISIBLE_ATTRS', 'the attributes frozen/screen-decode.mjs paints on a space'],
     ['STATUS_HP_BAR_WIDTH', 'the width of the hit-point bar that wintty.c draws over the'

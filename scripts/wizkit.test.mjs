@@ -58,9 +58,12 @@ test('read_wizkit notes a kit name whose bytes the port does not have', async ()
 test('read_wizkit reads a playground directory as an empty kit', async () => {
     // access() and fopen(name, "r") both succeed on a directory, and the
     // first fgets() fails, so parse_conf_file() hands proc_wizkit_line()
-    // nothing: "." is the playground and "save" its save directory. No state
-    // has a display, so a raw print would throw.
-    for (const wizkit of ['.', 'save', 'save/']) {
+    // nothing: "." is the playground and "save" its save directory. /etc and
+    // /tmp are directories on both hosts, and /dev/null opens and reads as
+    // end of file (recordings/files.c/wizkit-etc-directory and
+    // wizkit-dev-null print nothing in C). No state has a display, so a raw
+    // print would throw.
+    for (const wizkit of ['.', 'save', 'save/', '/etc', '/tmp/', '/dev/null']) {
         game.unported = new Set();
         const state = { wizard: true, wizkit };
         await read_wizkit(state);

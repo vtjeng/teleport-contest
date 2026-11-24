@@ -31,8 +31,8 @@ const REVIEWED = new Map([
 
 // C functions that draw and have no JS function of the same name, so the
 // scan compares nothing for them. Lower the count when one is ported under
-// its C name. Nine are written into their callers and were compared by
-// hand. The tenth, mail.c md_rush(), has no port: js/ holds no mail daemon.
+// its C name. `node scripts/column-zero-guard.mjs --list` prints them. One,
+// mail.c md_rush(), has no port: js/ holds no mail daemon.
 const UNPORTED = 10;
 
 test('each JS function tests a drawn column as often as its C function', () => {
