@@ -58,20 +58,25 @@ if (sessionArg && errorDir) {
     // frozen/session_loader.mjs normalizeSession() gives it, so the recorded
     // steps come from the same call. A session this cannot read gets an
     // `error` line instead of none, so the reader can tell a failed
-    // comparison from one that found nothing.
+    // comparison from one that found nothing. The reporter runs inside the
+    // window the runner times, so it only keeps the slices; reading the
+    // session and comparing wait until the worker exits.
     const stepLog = join(errorDir, `${session}.rng-steps.jsonl`);
     const { normalizeSession } = await import(
         pathToFileURL(resolve(dirname(runnerPath), 'session_loader.mjs')).href);
-    let recorded = null;
-    let segment = 0;
-    setRngSlicesReporter((slices) => {
-        const line = { segment: segment++ };
+    const played = [];
+    setRngSlicesReporter((slices) => { played.push(slices); });
+    process.on('exit', () => {
+        if (!played.length) return;
+        let recorded = [];
+        let failure = null;
         try {
-            recorded ??= normalizeSession(JSON.parse(readFileSync(sessionPath, 'utf8'))).segments;
-            Object.assign(line, compareSegmentSteps(recorded[line.segment]?.steps, slices));
+            recorded = normalizeSession(JSON.parse(readFileSync(sessionPath, 'utf8'))).segments;
         } catch (error) {
-            line.error = String(error?.message ?? error);
+            failure = String(error?.message ?? error);
         }
-        appendFileSync(stepLog, `${JSON.stringify(line)}\n`);
+        appendFileSync(stepLog, played.map((slices, segment) => `${JSON.stringify({ segment,
+            ...(failure ? { error: failure } : compareSegmentSteps(recorded[segment]?.steps, slices)),
+        })}\n`).join(''));
     });
 }

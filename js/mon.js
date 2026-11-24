@@ -4371,8 +4371,10 @@ function killRedraw(x, y, env) {
 }
 
 // killRedraw() for a caller that can wait: display.c newsym() can reach
-// wall_angle()'s impossible() for a seen wall, which then prints at C's
-// point (js/display.js newsym_async()). The result is a promise only then.
+// wall_angle()'s impossible() for a seen wall, and show_glyph() can print
+// a mention_map notice; both then print at C's point, before the caller's
+// next random-number call (js/display.js newsym_async()). The result is a
+// promise only then.
 function killRedrawAsync(x, y, env) {
     if (typeof env.hooks?.newsym === 'function') return killRedraw(x, y, env);
     const state = env.state ?? game;
@@ -4888,23 +4890,14 @@ export function m_detach(
         }
     };
 
-    const afterLeaving = () => {
+    const finishAfterLeaving = () => {
         mtmp.mhp = 0; /* "simplify some tests: force mhp to 0" */
         /* mon.c:2758-2762. This bookkeeping also applies when mongone()
            removes the Wizard alive, and precedes due-to-death effects. */
         if (mtmp.iswiz) wizdeadorgone(state, env.random);
-    };
-    const finishAfterLeaving = () => {
+
         if (due_to_death) {
             const finishDeathEffects = async () => {
-                // mon_leaving_level() ends in newsym(mx, my) (mon.c:2725),
-                // and display.c show_glyph() prints a mention_map notice
-                // inside it, waiting at its --More-- before
-                // wizdeadorgone()'s rn1() and the caller's later draws.
-                // Every caller with due_to_death waits, so the notice
-                // prints here; mongone()'s stays queued.
-                await emitGlyphUpdateNotices(state, { pline: ttyPline });
-                afterLeaving();
                 if (mtmp.data.msound === MS_NEMESIS) {
                     // mon.c:2769-2773. nemdead() displays and records the
                     // role's quest message before stinky_nemesis() reads its
@@ -4933,7 +4926,6 @@ export function m_detach(
             };
             return finishDeathEffects();
         }
-        afterLeaving();
         return finishDetach();
     };
     const leaving = mon_leaving_level(mtmp, state, env);

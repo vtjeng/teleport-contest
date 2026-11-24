@@ -4125,12 +4125,16 @@ export function newsym(x, y) {
 // --More-- before the caller's next random-number call. env.redraw is
 // the newsym() a caller injected; any function but newsym itself draws
 // synchronously, as vision_recalc() treats it. The result is a promise only
-// when something printed.
+// when something printed. env.queuedLines false leaves the queued lines for
+// the next message: see_monsters() asks for that, because some of its
+// callers are synchronous and drop its result, and a wait for a notice's
+// --More-- would detach the rest of its scan.
 export function newsym_async(x, y, env = {}) {
     const state = env.state ?? game;
     const redraw = env.redraw ?? newsym;
     const drawn = redraw !== newsym ? redraw(x, y, state)
         : finish_steps(newsym_steps(x, y), impossible_printer(state, env));
+    if (env.queuedLines === false) return drawn;
     const printQueued = () => (state._glyphUpdateNotices?.length
         ? emitGlyphUpdateNotices(state).then(() => undefined) : undefined);
     return drawn && typeof drawn.then === 'function'
@@ -4549,7 +4553,9 @@ export function see_monsters(state = game, env = {}) {
     // a seen wall whose mode wall_angle() cannot draw (one in a wall a
     // #wizloadlua program laid) raises that impossible() where C does; a
     // caller's own redraw draws synchronously.
-    const draw = (x, y) => newsym_async(x, y, { ...env, state, redraw: repaint });
+    const draw = (x, y) => newsym_async(x, y, {
+        ...env, state, redraw: repaint, queuedLines: false,
+    });
     const scan = (first) => {
         for (let mon = first; mon; mon = mon.nmon) {
             if (mon.mhp < 1) continue; /* DEADMONSTER() */

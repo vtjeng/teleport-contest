@@ -1039,11 +1039,7 @@ test('m_detach updates Wizard bookkeeping before either removal path',
         const jsEnd = MON_JS.indexOf('\nfunction monsterOnLevelChain', jsStart);
         const jsSource = MON_JS.slice(jsStart, jsEnd);
         assert.match(jsSource,
-            /const afterLeaving = \(\) => \{\s*mtmp\.mhp = 0;[\s\S]*if \(mtmp\.iswiz\) wizdeadorgone\(state, env\.random\);\s*\};/u);
-        // Both paths run it before anything else: the death path after the
-        // notice mon_leaving_level()'s newsym() raised has printed.
-        assert.match(jsSource,
-            /if \(due_to_death\) \{[\s\S]*await emitGlyphUpdateNotices\(state, \{ pline: ttyPline \}\);\s*afterLeaving\(\);\s*if \(mtmp\.data\.msound === MS_NEMESIS\)[\s\S]*return finishDeathEffects\(\);\s*\}\s*afterLeaving\(\);\s*return finishDetach\(\);/u);
+            /const finishAfterLeaving = \(\) => \{\s*mtmp\.mhp = 0;[\s\S]*if \(mtmp\.iswiz\) wizdeadorgone\(state, env\.random\);[\s\S]*if \(due_to_death\)/u);
 
         await hero();
         game.context.no_of_wizards = 1;
