@@ -8,5 +8,5 @@
       "moves": " y    hhhy    "
     }
   ],
-  "comment": "MSGTYPE=stop \"\\btutorial\\b\": glibc reads \\b as a word boundary and stops on the tutorial pre-message; macOS TRE without REG_ENHANCED does not match it. The port follows macOS (js/regcomp.js), and this recording comes from the macOS recorder (.github/workflows/macos-recorder.yml); record it again there, not on Linux."
+  "comment": "MSGTYPE=stop \"\\btutorial\\b\": glibc reads \\b as a word boundary and stops on the tutorial pre-message; macOS TRE without REG_ENHANCED does not match it. The port follows macOS (js/regcomp.js), and record this recipe on macOS (.github/workflows/macos-recorder.yml), not on Linux; this recording comes from the macOS recorder."
 }
