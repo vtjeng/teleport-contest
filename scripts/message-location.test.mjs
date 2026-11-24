@@ -28,7 +28,7 @@ import { requireCompiler } from './recorder-headers.mjs';
 // You("%s %s.") pairs with js/hack.js notice_mon() (branch
 // small-leftovers-2, 24 November 2026).
 const UNPAIRED_STATUSES = ['no JS text', 'too little text', 'format not a literal', 'no JS function'];
-const UNPAIRED_CEILING = 281;
+const UNPAIRED_CEILING = 280;
 
 test('every paired JS message makes its C site\'s location choice', async () => {
     requireCompiler('the scan needs the C preprocessor');
