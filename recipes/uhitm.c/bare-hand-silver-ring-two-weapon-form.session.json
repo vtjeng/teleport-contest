@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5130427,
+      "datetime": "20261124093000",
+      "nethackrc": "OPTIONS=name:Ringer,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " w-#wizwish\nsilver ring\nPol#polyself\ndwarf lord\n#wizgenesis\nhostile sleeping manes\nFy  "
+    }
+  ],
+  "comment": "Variation of bare-hand-silver-ring-one-weapon-form: a dwarf lord has two AT_WEAP attacks, so uhitm.c hmonas() sets gt.twohits to 1 and then 2. The first swing checks the right hand alone, which wears no ring, and hits; the second checks the left hand, whose silver ring sears the manes northwest of the hero."
+}

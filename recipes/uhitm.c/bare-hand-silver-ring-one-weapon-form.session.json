@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5130427,
+      "datetime": "20261124093000",
+      "nethackrc": "OPTIONS=name:Ringer,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,playmode:debug,pettype:none,!autopickup,!acoustics,!safe_wait\n",
+      "moves": " w-#wizwish\nsilver ring\nPol#polyself\ndwarf\n#wizgenesis\nhostile sleeping manes\nFh "
+    }
+  ],
+  "comment": "uhitm.c hmonas() advances gt.twohits only for a form with more than one AT_WEAP attack (5523-5524). A dwarf has one, so twohits stays 0 and hmon_hitmon_barehands() passes W_RINGR|W_RINGL to weapon.c special_dmgval(): the silver ring on the left hand sears the manes west of the hero. Seed and inputs chosen for this case."
+}

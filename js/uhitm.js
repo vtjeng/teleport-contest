@@ -1840,7 +1840,10 @@ export async function hmonas(mon, state = game, env = {}) {
             mon_maybe_unparalyze(mon, random);
             const dieRoll = random.rnd(20);
             dhit = rollNeeded > dieRoll || state.u.uswallow;
-            if (multiWeapon) state.twohits++;
+            // uhitm.c:5523-5524 counts the swings only for a form with
+            // more than one weapon attack; a lone one stays twohits 0, so
+            // hmon_hitmon_barehands() checks the rings on both hands.
+            if (multiWeapon > 1) state.twohits++;
             const hit = { value: dhit };
             const monsterSurvived = await known_hitum(
                 mon, weapon, hit, rollNeeded, armorPenalty, mattk, dieRoll,

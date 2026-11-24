@@ -1740,10 +1740,6 @@ test('the melee arm separates every guard a recording leaves undecided',
 // double-punch hero reaches this slice with it already nonzero.
 test('the bare-handed ring switch reads the hand that struck', async () => {
     await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
-    // The swings below reach worn.c which_armor() with a flag its switch does
-    // not hold, and impossible() prints "bad flag in which_armor" where it is
-    // raised; spaces answer its three --More-- prompts.
-    for (let i = 0; i < 12; ++i) game.nhDisplay.pushKey(32);
     const left = mksobj(RIN_ADORNMENT, true, false, { state: game });
     // A different ring type on the right hand, so that overriding one
     // material below leaves the two hands distinguishable.
@@ -1779,13 +1775,6 @@ test('the bare-handed ring switch reads the hand that struck', async () => {
                hitEnv({ rolls: [1, 1] }));
     assert.ok(secondSilver.mhp < 99);
 
-    // twohits 3, C's default arm: a polymorphed hero's third claw, which
-    // applies no ring at all.
-    game.twohits = 3;
-    const third = target(PM_HUMAN_WEREWOLF);
-    await hmon(third, null, HMON_MELEE, 10, game, hitEnv({ rolls: [1, 1] }));
-    assert.ok(third.mhp < 99);
-
     // The same three values with the silver ring on the right hand instead,
     // which is what separates uhitm.c:858's W_RINGR term from :859's W_RINGL.
     // weapon.c:409-419 checks the right ring only when the mask carries
@@ -1806,6 +1795,42 @@ test('the bare-handed ring switch reads the hand that struck', async () => {
     game.objects[left.otyp].oc_material = 0;
     game.uleft = null;
     game.uright = null;
+});
+
+// uhitm.c:858-860 passes special_dmgval() no flag at all when gt.twohits is
+// 3 or more and the hero wears no gloves, and weapon.c:391 then hands that 0
+// to worn.c which_armor(), whose switch reports "bad flag in which_armor".
+// No game reaches it: hitum() sets twohits to 0, 1 or 2 (uhitm.c:776, 800),
+// and hmonas() starts it at 0 (5449) and advances it only on a weapon swing
+// of a form with more than one AT_WEAP attack (5523-5524). A claw, touch or
+// spell reaches that swing only before any weapon attack has run
+// (weapon_used, 5543-5546 and 5800-5803), so a form's swings number its
+// AT_WEAP attacks plus at most one such attack before them. Every form in
+// include/monsters.h with two AT_WEAP attacks has them first and has no
+// third, so twohits never passes 2.
+test('no polymorphed form swings more than twice with its hands', () => {
+    assert.match(UHITM_SOURCE, /gt\.twohits = 0;\n\n    gs\.skipdrin = FALSE;/u);
+    assert.match(UHITM_SOURCE, /if \(multi_weap > 1\)\n\s*\+\+gt\.twohits;/u);
+    assert.match(UHITM_JS, /if \(multiWeapon > 1\) state\.twohits\+\+;/u);
+    const MONSTERS_HEADER = readFileSync(
+        new URL('../nethack-c/upstream/include/monsters.h', import.meta.url), 'utf8',
+    );
+    const forms = MONSTERS_HEADER.split(/\n    MON\(/u).slice(1);
+    // include/monsters.h has 394 MON() entries; a different count means
+    // the split above no longer finds each one.
+    assert.equal(forms.length, 394);
+    const multiWeapon = [];
+    for (const form of forms) {
+        const attacks = [...form.matchAll(/ATTK\((AT_\w+)/gu)].map((m) => m[1]);
+        const weapons = attacks.filter((type) => type === 'AT_WEAP').length;
+        if (weapons < 2) continue;
+        multiWeapon.push(form.match(/NAMS?\("([^"]+)"/u)[1]);
+        assert.deepEqual(attacks.slice(0, 2), ['AT_WEAP', 'AT_WEAP'], form.slice(0, 60));
+        assert.equal(weapons, 2, form.slice(0, 60));
+    }
+    // 43 forms have two weapon attacks, from the dwarf lord to the warrior
+    // in monsters.h order; a different count means the scan has changed.
+    assert.equal(multiWeapon.length, 43);
 });
 
 // uhitm.c:1613-1614. Either wielded weapon can split a pudding while
