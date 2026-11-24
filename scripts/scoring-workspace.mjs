@@ -87,7 +87,9 @@ function batchCount(sizes) {
 // violations runSegment() reports the same way, attached as
 // `terminationViolations`, and the js/youprop.js argument uses
 // (js/gstate.js recordArgumentMisuse()), which runSegment() records instead of
-// throwing, attached as `argumentMisuses`.
+// throwing, attached as `argumentMisuses`. It also compares each segment's
+// random-number calls with the recording step by step
+// (scripts/rng-step-compare.mjs), attached as `rngSteps`.
 const SEGMENT_ERROR_PRELOAD = join(dirname(SCRIPT_PATH), 'segment-error-preload.mjs');
 
 export function runScorer(targetRoot) {
@@ -125,6 +127,7 @@ export function withSegmentErrors(child, errorDir) {
     if (markerIndex < 0) return child;
     const bundle = parseRunnerBundle(child.stdout);
     const lines = [];
+    let compared = false;
     const readLog = (log) => readFileSync(log, 'utf8').trim().split('\n')
         .map(line => JSON.parse(line));
     for (const result of bundle.results) {
@@ -146,8 +149,16 @@ export function withSegmentErrors(child, errorDir) {
             const named = result.argumentMisuses.map(({ detail, count }) => `${detail} (${count}x)`);
             lines.push(`  ARGUMENT MISUSE: ${result.session} (${named.join('; ')})\n`);
         }
+        // The per-step comparison writes a line for every segment, in step
+        // or not, so it adds no stderr line: the caller decides what a
+        // difference means (scripts/score-recordings.mjs).
+        const stepLog = join(errorDir, `${result.session}.rng-steps.jsonl`);
+        if (existsSync(stepLog)) {
+            result.rngSteps = readLog(stepLog);
+            compared = true;
+        }
     }
-    if (!lines.length) return child;
+    if (!lines.length && !compared) return child;
     return {
         ...child,
         stdout: `${child.stdout.slice(0, markerIndex)}${RESULT_MARKER}\n${JSON.stringify(bundle)}\n`,
