@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "With altmeta, cmd.c parse() joins ESC and the next key into a meta key at the command prompt only; a menu (wintty.c process_menu_window()) reads ESC alone, so the key after it is a new command.",
+  "segments": [
+    {
+      "seed": 8820014,
+      "datetime": "20390214081500",
+      "nethackrc": "OPTIONS=name:Rasmus,role:Priest,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,altmeta\n",
+      "moves": " i\u001bs #enhance\n\u001bs"
+    }
+  ]
+}

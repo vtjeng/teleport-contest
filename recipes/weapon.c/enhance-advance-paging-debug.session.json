@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "weapon.c enhance_weapon_skill(): in debug mode \"Advance skills without practice?\" y, pick a skill twice; skill_advance()'s \"You are now ... skilled\" message is paged when the next menu opens (wintty.c tty_display_nhwindow() TOPLINE_NEED_MORE).",
+  "segments": [
+    {
+      "seed": 7703911,
+      "datetime": "20390214081500",
+      "nethackrc": "OPTIONS=name:Brisa,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " #enhance\nya ab \u001b s"
+    }
+  ]
+}

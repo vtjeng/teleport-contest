@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "mkobj.c place_object() calls do.c obj_no_longer_held() (mkobj.c:2330): dropping an erodeproof crysknife reverts it to a worm tooth unless rn2(10).",
+  "segments": [
+    {
+      "seed": 1209934,
+      "datetime": "20390214081500",
+      "nethackrc": "OPTIONS=name:Toma,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,playmode:debug\n",
+      "moves": " \u0017fixed crysknife\n df s"
+    }
+  ]
+}
