@@ -31,6 +31,9 @@ const ALLOWED = {
     'js/display.js | tmp_at | show_glyph_cell': [3, DISPLAY_REASON],
     'js/display.js | under_water | newsym': [1, DISPLAY_REASON],
     'js/display.js | under_water | show_glyph_cell': [2, DISPLAY_REASON],
+    'js/makemon_create.js | finishRuntimeCreationTail | redrawSquareWaiting': [1,
+        'redrawSquareWaiting() prints what its draw queued itself, and the '
+        + 'promise it answers then is awaited on the next line'],
     'js/mon.js | hideunder | env.redraw ?? newsym': [1,
         'hideunder() is `async` but synchronous callers drop its promise for '
         + 'the hero (scripts/discarded-promise-allowlist.json); a flush that '
@@ -67,8 +70,8 @@ const SYNC_CALLERS = {
     'js/worn.js': 7, 'js/zap.js': 2,
 };
 
-// 30 listed calls under 14 entries; 909 calls print (23 November 2026).
-const ALLOWED_PINS = { entries: 14, calls: 30 };
+// 31 listed calls under 15 entries; 908 calls print (23 November 2026).
+const ALLOWED_PINS = { entries: 15, calls: 31 };
 // 405 calls in 261 synchronous functions (23 November 2026).
 const SYNC_CALLER_PIN = 405;
 
@@ -101,7 +104,9 @@ test('the scan finds an unprinted draw and accepts the flush after it', () => {
     // A three-file stand-in: newsym() reaches queueGlyphUpdateNotice()
     // through show_glyph_cell(); a.js draws from async functions three ways.
     // The bare call and the one in an `if` test are unprinted; a flush after
-    // the `if` does not cover a draw in its test.
+    // the `if` does not cover a draw in its test. maybe() draws and answers
+    // a promise, so a flush before that promise settles would print beside
+    // the rest of the draw: early() is unprinted too.
     const sources = {
         'js/startup_a11y.js': 'export function queueGlyphUpdateNotice() {}\n',
         'js/display.js': "import { queueGlyphUpdateNotice } from './startup_a11y.js';\n"
@@ -117,10 +122,18 @@ test('the scan finds an unprinted draw and accepts the flush after it', () => {
             + '    if (newsym(1, 2)) rn2(3);\n'
             + '    if (noticesQueued()) await emitQueuedNotices();\n'
             + '}\n'
-            + 'export function sync() { newsym(3, 4); }\n',
+            + 'export function sync() { newsym(3, 4); }\n'
+            + 'export function maybe() { newsym(5, 6); return later(); }\n'
+            + 'async function later() {}\n'
+            + 'export async function early() {\n'
+            + '    const pending = maybe();\n'
+            + '    if (noticesQueued()) await emitQueuedNotices();\n'
+            + '    await pending;\n'
+            + '}\n',
     };
     const { calls, syncCallers } = scanQueuedOutputCalls(sources);
     assert.deepEqual(unflushedCalls(calls.filter((call) => call.file === 'js/a.js')),
-        { 'js/a.js | bare | newsym': 1, 'js/a.js | tested | newsym': 1 });
+        { 'js/a.js | bare | newsym': 1, 'js/a.js | early | maybe': 1,
+            'js/a.js | tested | newsym': 1 });
     assert.equal(syncCallers['js/a.js | sync'], 1);
 });

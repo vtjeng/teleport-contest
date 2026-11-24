@@ -653,7 +653,7 @@ export async function savebones(how, when, corpse, state) {
         // bones.c:458-479. The monster the hero becomes is made on the
         // hero's square without inventory and receives the possessions.
         state.in_mklev = true;
-        mtmp = makemon(state.mons[state.u.ugrave_arise], state.u.ux,
+        mtmp = await makemon(state.mons[state.u.ugrave_arise], state.u.ux,
             state.u.uy, NO_MINVENT, { state });
         if (noticesQueued()) await emitQueuedNotices();
         state.in_mklev = false;
@@ -684,7 +684,7 @@ export async function savebones(how, when, corpse, state) {
         // u.ugrave_arise < LEAVESTATUE: drop everything, create a ghost.
         await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
         state.in_mklev = true;
-        mtmp = makemon(state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NONAME, { state });
+        mtmp = await makemon(state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NONAME, { state });
         if (noticesQueued()) await emitQueuedNotices();
         state.in_mklev = false;
         if (!mtmp) return;

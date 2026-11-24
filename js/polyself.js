@@ -2276,7 +2276,7 @@ export async function dospinweb(state = game) {
         );
         return ECMD_TIME;
     }
-    ttmp = maketrap(x, y, WEB, { state });
+    ttmp = await maketrap(x, y, WEB, { state });
     if (noticesQueued()) await emitQueuedNotices();
     if (ttmp) {
         await ttyPline('You spin a web.', state);

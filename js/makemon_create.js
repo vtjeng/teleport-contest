@@ -2219,7 +2219,6 @@ function* finishMonsterInventoryAndStrategySteps(
 async function finishRuntimeCreationTail(monster, mmflags, normalized) {
     const { state } = normalized;
     const drawn = redrawSquareWaiting(monster.mx, monster.my, normalized);
-    if (noticesQueued()) await emitQueuedNotices();
     if (drawn) await drawn;
     const appearance = runtimeAppearanceMessage(monster, mmflags, normalized);
     if (appearance) {
@@ -2625,10 +2624,8 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
         runtimeContinuation,
         onImpossible: impossible_printer(env.state ?? game),
     });
-    const maybeMonster = makemon(ptr, x, y, mmflags, normalized);
+    const monster = await makemon(ptr, x, y, mmflags, normalized);
     if (noticesQueued()) await emitQueuedNotices();
-    const monster = maybeMonster && typeof maybeMonster.then === 'function'
-        ? await maybeMonster : maybeMonster;
     if (!monster) return null;
     // C's one makemon() tests in_mklev itself, so a runtime caller can
     // reach the level-creation form: teleport.c level_tele() 1326-1332 sets

@@ -79,6 +79,50 @@ function returned(fnNode) {
     return found;
 }
 
+// The functions that answer a promise on some path: `async` ones, and those
+// with a return of such a call, a `.then()` chain, or `new Promise`, to a
+// fixed point (scripts/discarded-promises.mjs uses the same test).
+function promisingFunctions(graph) {
+    const promising = new Set(graph.fns.filter((fn) => fn.async && fn.node));
+    const isPromise = (fn, expr) => {
+        if (!expr) return false;
+        switch (expr.type) {
+        case 'NewExpression':
+            return expr.callee.type === 'Identifier' && expr.callee.name === 'Promise';
+        case 'CallExpression': {
+            const { callee } = expr;
+            if (callee.type === 'MemberExpression' && !callee.computed
+                && ((callee.object.type === 'Identifier' && callee.object.name === 'Promise')
+                    || ['then', 'catch', 'finally'].includes(callee.property.name)))
+                return true;
+            const call = fn.calls.find((c) => c.node === expr);
+            return Boolean(call?.targets.some((to) => promising.has(to)));
+        }
+        case 'ChainExpression':
+            return isPromise(fn, expr.expression);
+        case 'ConditionalExpression':
+            return isPromise(fn, expr.consequent) || isPromise(fn, expr.alternate);
+        case 'LogicalExpression':
+            return isPromise(fn, expr.left) || isPromise(fn, expr.right);
+        case 'SequenceExpression':
+            return isPromise(fn, expr.expressions.at(-1));
+        default:
+            return false;
+        }
+    };
+    for (let changed = true; changed;) {
+        changed = false;
+        for (const fn of graph.fns) {
+            if (promising.has(fn) || !fn.node) continue;
+            if (returned(fn.node).some((expr) => isPromise(fn, expr))) {
+                promising.add(fn);
+                changed = true;
+            }
+        }
+    }
+    return promising;
+}
+
 function printingForms(graph) {
     const printing = new Set(graph.fns.filter((fn) => PRINTING_FORMS.has(fn.name)));
     for (let changed = true; changed;) {
@@ -360,14 +404,17 @@ function calleeText(callee, text) {
 // Every call an `async` function makes to a draw, as
 // { key, file, line, start, end, statement, form }, where form is
 // 'flushed' (the next statement is the flush, or the callee prints itself),
-// 'statement' (a whole statement with no flush after it) or 'expression'
-// (a call inside a larger expression or statement). `key` is
+// 'statement' (a whole statement with no flush after it), 'expression'
+// (a call inside a larger expression or statement) or 'unawaited' (a draw
+// that can answer a promise, not awaited where it is called; no flush makes
+// it right). `key` is
 // "<file> | <function> | <callee>". Also every synchronous function outside
 // the queue's machinery that calls a draw, as "<file> | <function>": count.
 export function scanQueuedOutputCalls(sources) {
     const graph = buildGraph(sources);
     const drawSet = draws(graph);
     const printing = printingForms(graph);
+    const promising = promisingFunctions(graph);
     const calls = [];
     const syncCallers = {};
     for (const fn of graph.fns) {
@@ -391,6 +438,12 @@ export function scanQueuedOutputCalls(sources) {
             const { parent, grand } = call;
             if (call.targets.every((to) => printing.has(to)) && parent?.type === 'AwaitExpression') {
                 form = 'flushed';
+            } else if (parent?.type !== 'AwaitExpression'
+                && call.targets.some((to) => drawSet.has(to) && promising.has(to))) {
+                // A draw that can answer a promise and is not awaited at
+                // once: a flush before the promise settles would print while
+                // the rest of the draw runs beside it.
+                form = 'unawaited';
             } else {
                 const awaitedStatement = parent?.type === 'AwaitExpression'
                     && grand?.type === 'ExpressionStatement';
@@ -413,7 +466,7 @@ export function scanQueuedOutputCalls(sources) {
     // it.
     const byFile = new Map();
     for (const call of calls) {
-        if (call.form === 'flushed') continue;
+        if (call.form === 'flushed' || call.form === 'unawaited') continue;
         if (!byFile.has(call.file)) byFile.set(call.file, new Map());
         byFile.get(call.file).set(`${call.start}:${call.end}`, call);
     }

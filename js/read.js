@@ -2744,10 +2744,8 @@ export async function do_class_genocide(state = game, env = {}) {
                         // Ordinary removal stays synchronous; releasing a
                         // swallowed hero must finish its redraw/cooldown before
                         // this loop counts the monster or visits the next one.
-                        const removal = mongone(monster, { ...env, state });
+                        await mongone(monster, { ...env, state });
                         if (noticesQueued()) await emitQueuedNotices();
-                        if (removal && typeof removal.then === 'function')
-                            await removal;
                         ++count;
                     }
                     monster = next;

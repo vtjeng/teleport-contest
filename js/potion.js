@@ -412,7 +412,7 @@ export async function mongrantswish(monster, state = game, env = {}) {
     const transient = env.transient ?? tmp_at;
     const grantWish = env.grantWish ?? makewish;
 
-    removeMonster(monster, { ...env, state, random: djinniRandom(env) });
+    await removeMonster(monster, { ...env, state, random: djinniRandom(env) });
     if (noticesQueued()) await emitQueuedNotices();
     await transient(DISP_ALWAYS, glyph, state);
     await transient(x, y, state);

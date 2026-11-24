@@ -3127,7 +3127,7 @@ async function maybe_spin_web(mtmp, env) {
                       - (3 * count_traps(WEB, state)));
 
         if (random.rn2(1000) < prob) {
-            const trap = maketrap(mtmp.mx, mtmp.my, WEB, { state });
+            const trap = await maketrap(mtmp.mx, mtmp.my, WEB, { state });
             if (noticesQueued()) await emitQueuedNotices();
             if (trap) {
                 mtmp.mspec_used = random.d(4, 4); /* 4..16 */

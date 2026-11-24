@@ -1305,7 +1305,7 @@ export async function stolen_booty(state = game) {
         random: coreRandom,
         hooks: objectGenerationEnv({ state }).hooks,
     };
-    let monster = makemon(state.mons[PM_ORC_CAPTAIN], 0, 0, MM_NONAME,
+    let monster = await makemon(state.mons[PM_ORC_CAPTAIN], 0, 0, MM_NONAME,
                           monsterEnv);
     if (noticesQueued()) await emitQueuedNotices();
     if (monster) {
@@ -1325,7 +1325,7 @@ export async function stolen_booty(state = game) {
     count = rn2(10) + 5;
     for (let i = 0; i < count; ++i) {
         const mtyp = rn2(PM_ORC_SHAMAN - PM_ORC + 1) + PM_ORC;
-        monster = makemon(state.mons[mtyp], 0, 0, MM_NONAME, monsterEnv);
+        monster = await makemon(state.mons[mtyp], 0, 0, MM_NONAME, monsterEnv);
         if (noticesQueued()) await emitQueuedNotices();
         if (monster) {
             shiny_orc_stuff(monster, state);

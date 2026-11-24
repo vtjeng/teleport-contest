@@ -612,7 +612,7 @@ export async function drag_ball(
         // skipToDrag() for this async caller: move_bc() can queue a
         // mention_map notice, which C prints before the drag goes on.
         const skipToDragPrinted = async () => {
-            const dragged = skipToDrag();
+            const dragged = await skipToDrag();
             if (noticesQueued()) await emitQueuedNotices();
             return dragged;
         };

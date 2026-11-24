@@ -2057,7 +2057,7 @@ export async function set_trap(state = game, env = {}) {
     if (--trapinfo.time_needed > 0) return 1;
 
     const ttyp = obj.otyp === LAND_MINE ? LANDMINE : BEAR_TRAP;
-    const trap = maketrap(state.u.ux, state.u.uy, ttyp, { ...env, state });
+    const trap = await maketrap(state.u.ux, state.u.uy, ttyp, { ...env, state });
     if (noticesQueued()) await emitQueuedNotices();
     if (trap) {
         trap.madeby_u = true;

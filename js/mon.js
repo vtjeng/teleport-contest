@@ -4949,7 +4949,7 @@ export function m_detach(
                 /* "release (drop onto map) all objects carried by mtmp; assumes that
                    mtmp->mx,my contains the appropriate location" */
                 await relobj(mtmp, 1, false, { ...env, state });
-                const detached = finishDetach();
+                const detached = await finishDetach();
                 if (noticesQueued()) await emitQueuedNotices();
                 return detached;
             };
@@ -6585,7 +6585,7 @@ export async function elemental_clog(mon, state = game, env = {}) {
         await mongone(target, { ...env, state });
         if (noticesQueued()) await emitQueuedNotices();
         // C intentionally relocates `mon`, not the monster just obliterated.
-        const moved = rloc_to(mon, mx, my, { ...env, state });
+        const moved = await rloc_to(mon, mx, my, { ...env, state });
         if (noticesQueued()) await emitQueuedNotices();
         return moved;
     } else if (!Is_astralevel(state.u?.uz, state)) {

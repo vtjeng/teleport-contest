@@ -6777,7 +6777,7 @@ export async function themerooms_generate(difficulty, rawEnv = {}) {
     // Local closure diagnostics observe the already-selected definition;
     // absent diagnostics, this optional chain has no runtime effect.
     game._themeroomSelectionCollector?.record('room', pick.id);
-    const made = dispatch_themeroom(pick, {
+    const made = await dispatch_themeroom(pick, {
         difficulty,
         random,
         themeroomFill: rawEnv.themeroomFill ?? themeroom_fill,

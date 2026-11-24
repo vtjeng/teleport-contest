@@ -2867,9 +2867,8 @@ async function kops_gone(silent, state, env) {
         const next = monster.nmon;
         if (monster.mhp > 0 && monster.data?.mlet === S_KOP) {
             if (canspotmon(monster, state)) ++visible;
-            const removal = mongone(monster, { ...env, state });
+            await mongone(monster, { ...env, state });
             if (noticesQueued()) await emitQueuedNotices();
-            if (removal && typeof removal.then === 'function') await removal;
         }
         monster = next;
     }
