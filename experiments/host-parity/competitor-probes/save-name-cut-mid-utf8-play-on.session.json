@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3390217,
+      "datetime": "20410305101500",
+      "nethackrc": "OPTIONS=name:Wanderingcartographerofthenor€,role:Priest,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  s Sy  s i\u001b:",
+      "comment": "As save-name-cut-mid-utf8-save-last, with keys after the save. If macOS refuses the save file the game goes on (dosave() docrt()); on Linux the game ends at the save and the recorder rejects the recipe."
+    }
+  ]
+}

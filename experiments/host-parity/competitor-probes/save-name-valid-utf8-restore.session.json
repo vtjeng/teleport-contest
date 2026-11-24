@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6650112,
+      "datetime": "20410307090000",
+      "nethackrc": "OPTIONS=name:Ἀθηνᾶ,role:Wizard,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  s Sy"
+    },
+    {
+      "seed": 6650113,
+      "datetime": "20410307091500",
+      "nethackrc": "OPTIONS=name:Ἀθηνᾶ,role:Wizard,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  s:"
+    }
+  ],
+  "comment": "Control for the cut-name recipes: a valid UTF-8 name with precomposed Greek letters saves and restores on both hosts."
+}

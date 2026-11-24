@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7120433,
+      "datetime": "20410305101500",
+      "nethackrc": "OPTIONS=name:Wanderingcartographerofthenor€,role:Priest,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  s Sy",
+      "comment": "save.c dosave0(): create_savefile() of save/<uid><plname> where plname, cut to 31 bytes by unixmain.c process_options(), ends with the first two bytes of a three-byte UTF-8 character. APFS refuses a name that is not UTF-8, so on macOS the save may fail with \"Cannot open save file.\" (save.c:128-132) and dosave() docrt()s; on Linux it saves. The save is the last key so the Linux recording can complete."
+    }
+  ]
+}
