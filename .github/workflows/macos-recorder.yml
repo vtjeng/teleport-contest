@@ -38,75 +38,12 @@ jobs:
             node --version
           } | tee macos-recordings/host.txt
 
-      - name: Record the sample
-        run: experiments/host-parity/record-sample.sh macos-recordings
-
-      # The key-binding probes (experiments/host-parity/README.md, "Key-binding
-      # probes") test which paths of cmd.c handler_rebind_keys_add() fail on
-      # macOS. They go into their own directory so the 500-recipe comparison
-      # is unchanged.
-      - name: Record the key-binding probes
-        run: experiments/host-parity/record-sample.sh macos-recordings/probes 5 experiments/host-parity/probes/*.session.json
-
-      # The committed recordings of the options-menu rebind recipes
-      # (recipes/cmd.c/*bind*-live) come from this step, because cmd.c
-      # handler_rebind_keys_add() fails on macOS where a Linux recorder
-      # binds the key (docs/testing.md, "The key-binding difference").
-      # Copy each one to recordings/cmd.c/ under the same name.
-      # scripts/bind-keys-live.test.mjs fails if one is recorded on Linux.
-      # The two parameter-path recipes after the glob bind on both hosts;
-      # they are recorded here only to compare with their Linux recordings.
-      - name: Record the options-menu rebind recipes
+      # Branch recorder/competitor-probes-3 only (throwaway).
+      - name: Record the competitor probes
         run: >-
-          experiments/host-parity/record-sample.sh macos-recordings/cmd.c 5
-          recipes/cmd.c/*bind*-live.session.json
-          recipes/cmd.c/toggle-bound-param-menu.session.json
-          recipes/cmd.c/bind-toggle-empty-param-reports-and-lists-null.session.json
-
-      # The second host-parity sample (experiments/host-parity/sample2/)
-      # probes options menus, help screens, dates, regex, colour parsing and
-      # one-byte keys. It runs last because record-sample.sh fails the step
-      # when any recipe fails, which would skip the steps after it, and it
-      # runs even when an earlier recording step failed.
-      - name: Record the second sample
-        if: always()
-        run: experiments/host-parity/record-sample.sh macos-recordings/sample2 4 experiments/host-parity/sample2/recipes/*.session.json
-
-      # NetHack's regex patterns (MENUCOLOR, MSGTYPE, AUTOPICKUP_EXCEPTION)
-      # go to the C library's regcomp() through sys/share/posixregex.c, and
-      # js/regcomp.js ports macOS's (docs/testing.md, "The regex
-      # difference"). The oracle asks this host's regcomp(), regexec() and
-      # regerror() every case in experiments/host-parity/regex-oracle/;
-      # recipes.txt there lists the committed recipes whose games compile a
-      # pattern, and the recordings of those that differ between the hosts
-      # are committed from this step's output.
-      - name: Ask the regex oracle
-        if: always()
-        run: node experiments/host-parity/regex-oracle/run-oracle.mjs macos-recordings/regex-oracle
-      - name: Record the regex recipes
-        if: always()
-        run: >-
-          experiments/host-parity/record-sample.sh macos-recordings/regex 4
-          $(cat experiments/host-parity/regex-oracle/recipes.txt)
-
-      # The patched NetHack sorts through hacklib.c nh_deterministic_qsort(),
-      # which calls the C library's qsort(). The sorted result is the same
-      # on every host, but the order of the comparator calls is the
-      # library's, and invent.c sortloot_cmp() marks objects encountered as
-      # it compares them, so the discoveries list follows that order
-      # (docs/testing.md, "The qsort() call order"). js/qsort.js ports
-      # macOS's qsort(). The oracle logs this host's comparator calls for
-      # every case in experiments/host-parity/qsort-oracle/; recipes.txt
-      # there lists the committed recipes whose discoveries depend on the
-      # call order, and their committed recordings come from this step.
-      - name: Ask the qsort oracle
-        if: always()
-        run: experiments/host-parity/qsort-oracle/run-oracle.sh macos-recordings/qsort-oracle
-      - name: Record the sort-order recipes
-        if: always()
-        run: >-
-          experiments/host-parity/record-sample.sh macos-recordings/sortloot 2
-          $(cat experiments/host-parity/qsort-oracle/recipes.txt)
+          experiments/host-parity/record-sample.sh macos-recordings/competitor-probes 2
+          recipes/topten.c/name-ending-a0-byte-score-list.session.json
+          recipes/topten.c/config-error-high-bytes-then-score-list.session.json
 
       - name: Upload recordings
         if: always()
