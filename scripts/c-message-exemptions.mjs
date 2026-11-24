@@ -129,9 +129,6 @@ export const C_MESSAGE_EXEMPTIONS = Object.freeze([
     entry('src/restore.c', 'trickery', 'Strange, this map is not as I remember it.', TRICKERY),
     entry('src/restore.c', 'trickery', 'Somebody is trying some trickery here...', TRICKERY),
     entry('src/restore.c', 'trickery', 'This game is void.', TRICKERY),
-    entry('src/save.c', 'dosave0', 'Cannot open save file.',
-        'create_savefile() failed because the save directory is missing or not '
-        + 'writable, an installation fault'),
     entry('src/save.c', 'tricked_fileremoved', 'Probably someone removed it.',
         'a level file the game wrote is gone when it reopens it; only another process '
         + 'deleting it does that'),

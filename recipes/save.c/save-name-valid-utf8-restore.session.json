@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Control for the save-name-cut recipes: a player name of precomposed Greek letters is valid UTF-8, so the save is created on macOS as on Linux and the next segment restores it. The status line drops the name's high bytes (patch 006 nomux_putch()). Recorded on macOS (recorder/competitor-probes).",
+  "segments": [
+    {
+      "seed": 6650112,
+      "datetime": "20410307090000",
+      "nethackrc": "OPTIONS=name:Ἀθηνᾶ,role:Wizard,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  s Sy"
+    },
+    {
+      "seed": 6650113,
+      "datetime": "20410307091500",
+      "nethackrc": "OPTIONS=name:Ἀθηνᾶ,role:Wizard,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  s:"
+    }
+  ]
+}

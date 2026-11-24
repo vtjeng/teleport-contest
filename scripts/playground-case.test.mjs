@@ -15,8 +15,9 @@ import { fileURLToPath } from 'node:url';
 
 import { DAT_LUA_FILES } from '../js/dat_files.js';
 import {
-    fileNameFold, playgroundDeleteFile, playgroundReadFile,
+    fileNameFold, playgroundCanCreate, playgroundDeleteFile, playgroundReadFile,
     playgroundWriteFile, resolvePlaygroundPath, resolveRecorderHomePath,
+    savefile_creatable, set_savefile_name,
 } from '../js/files.js';
 import { game } from '../js/gstate.js';
 import { InMemoryStorage, setStorageForTesting, vfsListFiles } from '../js/storage.js';
@@ -93,6 +94,28 @@ test('names with bytes above 0x7f fold as APFS folds UTF-8', () => {
     // A code unit above 0xff is not one of C's bytes; it is compared exactly
     // rather than truncated to a byte ("\u0143" would become 0x43, "C").
     assert.deepEqual(resolvePlaygroundPath('\u0143astle.lua'), { kind: 'absent', errno: 2 });
+});
+
+test('APFS creates only names that are UTF-8', () => {
+    // macOS recorder run 45507166983 (recorder/competitor-probes): the name
+    // "Wanderingcartographerofthenor" + EURO SIGN is 32 bytes, unixmain.c
+    // process_options() keeps 31, so plname ends E2 82, and #save printed
+    // "Cannot open save file." where Linux saved
+    // (recordings/save.c/save-name-cut-mid-utf8-save-last).
+    const state = { plname: 'Wanderingcartographerofthenor\xe2\x82' };
+    set_savefile_name(state);
+    assert.equal(savefile_creatable(state), false);
+    // The same name with its third byte, and the Greek control name of
+    // recordings/save.c/save-name-valid-utf8-restore, save on both hosts.
+    state.plname = 'Wanderingcartographerofthenor\xe2\x82\xac';
+    set_savefile_name(state);
+    assert.equal(savefile_creatable(state), true);
+    assert.equal(playgroundCanCreate(utf8Bytes('save/0\u1f08\u03b8\u03b7\u03bd\u1fb6')), true);
+    // ASCII, a lone continuation byte, an overlong form and a surrogate.
+    assert.equal(playgroundCanCreate('save/0Agent'), true);
+    assert.equal(playgroundCanCreate('save/0\x80'), false);
+    assert.equal(playgroundCanCreate('save/0\xc0\xaf'), false);
+    assert.equal(playgroundCanCreate('save/0\xed\xa0\x80'), false);
 });
 
 test('stored playground files open and keep their name under any case', () => {

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "Start-up config errors on rc lines holding two-byte characters are raw-printed (cfgfiles.c config_erradd()), so patch 006 enters raw mode before the game starts; the quit then reaches the score list, whose raw rows follow the same byte-column capture and UTF-8 decode.",
+  "segments": [
+    {
+      "seed": 8150227,
+      "datetime": "20380922174500",
+      "nethackrc": "OPTIONS=name:Žofie,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\nOPTIONS=fruit:šťáva,žádná_volba\nMENUCOLOR=\"ř\"=nebarva\n",
+      "moves": "\n #quit\ny "
+    }
+  ]
+}

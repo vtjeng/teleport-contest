@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "pager.c dowhatdoes(): `static boolean once` prints the \"Ask about '&' or '?'\" hint once per process, so the restoring process prints it again.",
+  "segments": [
+    {
+      "seed": 6011245,
+      "datetime": "20390214081500",
+      "nethackrc": "OPTIONS=name:Odalys,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+      "moves": " &s &s Sy"
+    },
+    {
+      "seed": 6011246,
+      "datetime": "20390214090000",
+      "nethackrc": "OPTIONS=name:Odalys,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+      "moves": " &s &s"
+    }
+  ]
+}

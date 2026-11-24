@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "Segment 0 saves under a player name cut inside a UTF-8 character (see save-name-cut-mid-utf8-save-last); on macOS the save fails and the end of input then hangs up, whose save fails too. Segment 1 starts with the same name, and unixmain.c restore_saved_game() finds no file, so a new game begins (a Linux recorder restores instead). Recorded on macOS (recorder/competitor-probes).",
+  "segments": [
+    {
+      "seed": 5540981,
+      "datetime": "20410306201000",
+      "nethackrc": "OPTIONS=name:Wanderingcartographerofthenor€,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  s Sy"
+    },
+    {
+      "seed": 5540982,
+      "datetime": "20410306203000",
+      "nethackrc": "OPTIONS=name:Wanderingcartographerofthenor€,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  s:"
+    }
+  ]
+}

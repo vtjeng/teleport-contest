@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "The player name and the fruit end in \"à\" (C3 A0). The recorder finds the name with JavaScript trim() on the decoded text, which leaves \"à\" alone, and passes its UTF-8 bytes with -u, so plname keeps the trailing A0 byte; the welcome and goodbye lines and the status line drop every high byte (patch 006 nomux_putch()). The quit reaches the score list, raw output the recorder decodes as UTF-8, where topten.c NAMSZ (10 bytes) keeps \"Niccolò L\".",
+  "segments": [
+    {
+      "seed": 3070561,
+      "datetime": "20380922174500",
+      "nethackrc": "OPTIONS=name:Niccolò Lucà,role:Tourist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o,fruit:crêpe frità\n",
+      "moves": " #quit\ny "
+    }
+  ]
+}
