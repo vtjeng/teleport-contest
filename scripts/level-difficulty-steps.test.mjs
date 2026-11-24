@@ -50,6 +50,16 @@ const SYNC_FORMS = new Set([
     'squadmon',
     'antholemon',
     'del_light_source',
+    'abon',
+    'dprince',
+    'dlord',
+    'llord',
+    'lminion',
+    'ndemon',
+    'print_mapseen',
+    'dosdoor',
+    'dodoor',
+    'makecorridors',
 ]);
 
 // Step generators: each must be driven by its caller.
@@ -69,6 +79,19 @@ const STEP_FORMS = new Set([
     'mk_zoo_thronemon_steps',
     'mkswamp_steps',
     'fill_ordinary_room_steps',
+    'choose_stairs_steps',
+    'abon_steps',
+    'dprince_steps',
+    'dlord_steps',
+    'llord_steps',
+    'lminion_steps',
+    'ndemon_steps',
+    'print_mapseen_steps',
+    'traverse_mapseenchn_steps',
+    'dosdoor_steps',
+    'dodoor_steps',
+    'join_steps',
+    'makecorridors_steps',
     'fill_zoo_steps',
     'm_initinv_steps',
     'makemon_steps',
@@ -77,61 +100,70 @@ const STEP_FORMS = new Set([
     'del_light_source_steps',
 ]);
 
-// "<file> | <enclosing function> | <callee>": [count, reason]. Level
-// creation: a dungeon -1 level is built by makelevel()'s plain-room arm,
-// whose rooms keep FILL_NONE and get no doors, so its callers below run only
-// if a stale five-note jingle makes depth_start large (special rooms).
-const LEVEL_CREATION = 'level creation; a plain dungeon -1 level never '
-    + 'reaches it. makelevel() is async, so its chain could drive the steps, '
-    + 'but the functions between are synchronous and no recording reaches it';
-const LEVEL_PROGRAM = 'a level program or themed room; dungeon -1 has '
-    + 'neither (its levels come from makelevel()\'s plain-room arm)';
-const OBJECT_CREATION = 'mksobj()/mkobj() and their callers are synchronous; '
-    + 'C reaches it at -1 through a wished box, statue or gold';
+// "<file> | <enclosing function> | <callee>": [count, reason]. Each reason
+// says why the call cannot wait, or why it never reports. A level of dungeon
+// -1 is reached in debug play by a wished magic portal (see
+// recordings/mkroom.c/mkundead-cursed-bell-dungeon-minus-one); every
+// such level recorded so far (that one, recordings/mklev.c/
+// niche-depth-dungeon-minus-one, recordings/weapon.c/
+// abon-polymorphed-hero-dungeon-minus-one and recordings/mon.c/
+// newcham-newmonhp-dungeon-minus-one) has one FILL_NONE room and no
+// corridor or door, and dungeon -1 has no themed rooms.
+const NO_FILL = 'level creation for a FILL_NORMAL room (mklev.c '
+    + 'fill_ordinary_room()), a maze or a level program; a dungeon -1 '
+    + 'level\'s one room is FILL_NONE, so it never runs there';
+const LEVEL_PROGRAM = 'a level program\'s des.monster() body, which is '
+    + 'synchronous; on a dungeon -1 level only #wizloadlua (wizcmds.c '
+    + 'wiz_load_lua()) runs a level program. Converting it means making '
+    + 'sp_lev.c create_monster() a step generator';
+const OBJECT_CREATION = 'mksobj() and mkobj() are synchronous (89 and 35 '
+    + 'calls in js/, with 54 mksobj_at() and 13 mkobj_at()); C reaches it '
+    + 'on a dungeon -1 level through a wished statue, box or gold, and the '
+    + 'port prints the report at the next message. Converting it means '
+    + 'step generators for object creation';
 const ALLOWED = {
-    'dungeon.js | print_mapseen | builds_up': [1,
-        'the #overview menu is built synchronously'],
-    'wizard.js | choose_stairs | builds_up': [1,
-        'monster strategy (covetous monsters) is synchronous'],
     'makemon.js | rndmonst | rndmonst_adj': [1,
-        'the synchronous form of rndmonst_steps()'],
+        'the synchronous form of rndmonst_steps(); no game code calls it'],
     'makemon.js | mkclass | mkclass_aligned': [1,
-        'the synchronous form of mkclass_steps()'],
+        'the synchronous form of mkclass_steps(); its game callers are '
+            + 'listed below'],
     'makemon.js | qt_montype | mkclass': [1,
         'runs only in the quest dungeon, where builds_up() finds the branch'],
-    'minion.js | lminion | mkclass': [1,
-        'the minion selectors lminion() and llord() are synchronous'],
-    'minion.js | ndemon | mkclass_aligned': [1,
-        'the minion selector ndemon() is synchronous'],
     'makemon.js | rndmonnum_adj | rndmonst_adj': [1,
-        'object initialization (statue, figurine, corpse) is synchronous'],
-    'mon.js | apply_newcham_steps | newmonhp': [1,
-        'newcham() callers do not all accept a promise'],
-    'weapon.js | abon | adj_lev': [1,
-        'the to-hit calculation is synchronous'],
-    'mklev.js | dispatch_themeroom | level_difficulty': [1, LEVEL_CREATION],
-    'mklev.js | dosdoor_steps | level_difficulty': [3, LEVEL_CREATION],
-    'mklev.js | dosdoor_steps | mkclass': [1, LEVEL_CREATION],
-    'mklev.js | makeniche | mkclass': [1,
-        `${LEVEL_CREATION}; mk_knox_portal()'s and makeniche()'s callers `
-            + 'are synchronous'],
-    'mklev.js | createSpecialLevelApi | mkclass': [1, LEVEL_PROGRAM],
-    'mklev.js | mausoleum | mkclass': [1, LEVEL_PROGRAM],
-    'quest_levels.js | oracle | mkclass': [1, LEVEL_PROGRAM],
-    'themeroom_fill.js | createMonsterBody | mkclass': [1, LEVEL_PROGRAM],
-    'shknam.js | mkshobj_at | mkclass': [1,
-        'a shop is stocked only on a level with doors, which a dungeon -1 '
-            + 'level never has'],
+        `a statue, figurine or corpse species from mksobj(); ${OBJECT_CREATION}`],
+    'mklev.js | dispatch_themeroom | level_difficulty': [1,
+        'themed rooms come only from mklev.c makerooms() for a dungeon with '
+            + 'a themerms file; dungeon -1 has none'],
     'mklev.js | makerooms | level_difficulty': [1,
         'called only when the dungeon has Lua themed rooms; dungeon -1 has none'],
-    'mktrap.js | mktrap_steps | level_difficulty': [1, LEVEL_CREATION],
-    'mktrap.js | mktrap_victim | level_difficulty': [1, LEVEL_CREATION],
-    'mktrap.js | traptype_rnd | level_difficulty': [1, LEVEL_CREATION],
-    'room_features.js | mkgrave | level_difficulty': [1, LEVEL_CREATION],
+    'extralev.js | roguecorr | dodoor': [4,
+        'extralev.c roguecorr() runs only on the Rogue level, in the main '
+            + 'dungeon, where builds_up() finds the branch'],
+    'mklev.js | dodoor | dosdoor': [1,
+        'the synchronous form, for roguecorr() above; mklev.c join() drives '
+            + 'dodoor_steps()'],
+    'mklev.js | create_corridor | makecorridors': [1,
+        'a level program\'s des.corridor() with a random source (sp_lev.c '
+            + 'create_corridor()), which is synchronous; on a dungeon -1 level '
+            + 'only #wizloadlua runs a level program'],
+    'mklev.js | createSpecialLevelApi | mkclass': [1, LEVEL_PROGRAM],
+    'mklev.js | mausoleum | mkclass': [1,
+        'the themerms.lua "Mausoleum" room, made only by mklev.c makerooms() '
+            + 'for a dungeon with a themerms file; dungeon -1 has none'],
+    'quest_levels.js | oracle | mkclass': [1,
+        `oracle.lua's centaurs; ${LEVEL_PROGRAM}`],
+    'themeroom_fill.js | createMonsterBody | mkclass': [1, LEVEL_PROGRAM],
+    'shknam.js | mkshobj_at | mkclass': [1,
+        'a shop is stocked only for a room with one door (mkroom.c '
+            + 'mkshop()); a dungeon -1 level has no door'],
+    'mktrap.js | mktrap_steps | level_difficulty': [1, NO_FILL],
+    'mktrap.js | mktrap_victim | level_difficulty': [1, NO_FILL],
+    'mktrap.js | traptype_rnd | level_difficulty': [1, NO_FILL],
+    'room_features.js | mkgrave | level_difficulty': [1, NO_FILL],
     'monster_object.js | initializeStatue | level_difficulty': [1, OBJECT_CREATION],
     'obj.js | mkbox_cnts | level_difficulty': [1, OBJECT_CREATION],
     'obj.js | mkgold | level_difficulty': [1,
-        `${OBJECT_CREATION}; only mkgold(0, ...) reads it`],
+        `only mkgold(0, ...) reads it; ${OBJECT_CREATION}`],
     // light.c del_light_source()'s impossible() reports. Each of these
     // deletes a source that its owner's creation made, so no recording
     // reaches the report on these paths.
@@ -144,8 +176,7 @@ const ALLOWED = {
     'mon.js | m_detach | del_light_source': [1,
         'm_detach() is synchronous for mongone(), which has 30 calls'],
     'themeroom_fill.js | createMonsterBody | del_light_source': [1,
-        'a themed room\'s shapechanger is made during level creation, '
-            + 'which is synchronous'],
+        `a level program's or themed room's shapechanger; ${LEVEL_PROGRAM}`],
 };
 
 // Entries and calls in ALLOWED, pinned both ways (scripts/exception-count.mjs).
@@ -163,8 +194,14 @@ const ALLOWED = {
 // 32 and 34 since mkroom.c mkswamp() is a step generator that makelevel()
 // waits for (same branch). 31 and 33 since mklev.c fill_ordinary_room() is
 // a step generator that makelevel() waits for (branch small-leftovers-2,
-// 24 November 2026).
-const ALLOWED_PINS = { entries: 31, calls: 33 };
+// 24 November 2026). 25 and 28 on the same branch: 9 entries holding 11
+// calls went, since every caller of wizard.c choose_stairs(), weapon.c
+// abon(), the minion.c selectors, dungeon.c print_mapseen() and
+// mklev.c makeniche()'s and join()'s dosdoor() waits, and mon.c newcham()
+// prints newmonhp()'s report through its caller's onImpossible; 3 entries
+// holding 6 calls came in, the synchronous callers of dosdoor(), dodoor()
+// and makecorridors(), which this check did not follow before.
+const ALLOWED_PINS = { entries: 25, calls: 28 };
 
 const FUNCTION_TYPES = new Set([
     'FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression',

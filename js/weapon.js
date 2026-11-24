@@ -75,7 +75,7 @@ import { dist2, s_suffix } from './hacklib.js';
 import {
     hands_obj, obj_extract_self, stackobj, update_inventory,
 } from './invent.js';
-import { adj_lev } from './makemon.js';
+import { adj_lev_steps } from './makemon.js';
 import { m_carrying } from './mon.js';
 import { Monnam, mon_nam } from './do_name.js';
 import {
@@ -265,7 +265,7 @@ import { canseemon, canspotmon, newsym } from './display.js';
 import { bypass_obj } from './worn.js';
 import { pline_mon } from './pline.js';
 import { panic } from './end.js';
-import { sync_impossible } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 import { impossible } from './pline.js';
 
 const MR_STONE = 0x80;
@@ -1013,12 +1013,22 @@ export function mwepgone(monster, env = {}) {
 //
 // ACURR(A_STR) is the 3..125 encoding, which is what STR18() indexes, so this
 // reads acurr() rather than acurrstr().
+//
+// makemon.c adj_lev() reaches dungeon.c level_difficulty(), whose builds_up()
+// reports a level of dungeon -1 through impossible(). Both game callers,
+// uhitm.c find_roll_to_hit() and dig.c dig(), can wait, so they drive
+// abon_steps() with impossible_printer() and the report prints where C
+// prints it. abon() is the synchronous form, for tests.
 export function abon(state = game) {
+    return finish_steps(abon_steps(state), sync_impossible, state);
+}
+
+export function* abon_steps(state = game) {
     const str = acurr(state, A_STR);
     const dex = acurr(state, A_DEX);
 
     if (Upolyd(state.u))
-        return adj_lev(state.mons[state.u.umonnum], state) - 3;
+        return (yield* adj_lev_steps(state.mons[state.u.umonnum], state)) - 3;
 
     let sbon;
 

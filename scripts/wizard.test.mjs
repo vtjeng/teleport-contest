@@ -15,9 +15,10 @@ import {
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { finish_steps, sync_impossible } from '../js/source_steps.js';
 import { AT_MAGC, PM_WIZARD_OF_YENDOR } from '../js/monsters.js';
 import {
-    choose_stairs,
+    choose_stairs_steps,
     amulet,
     aggravate,
     clonewiz,
@@ -420,7 +421,8 @@ test('choose_stairs prefers a regular stair in the requested direction', () => {
         tolev: { dnum: 0, dlevel: 2 },
         next: null,
     };
-    assert.deepEqual(choose_stairs(false, state), { x: 3, y: 4 });
+    assert.deepEqual(finish_steps(choose_stairs_steps(false, state), sync_impossible, state),
+        { x: 3, y: 4 });
 });
 
 test('tactics keeps STRAT_NONE harassment order and relocation flags', async () => {

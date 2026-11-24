@@ -68,7 +68,7 @@ import {
     dmonsfree,
     set_mimic_sym,
 } from './makemon_create.js';
-import { mkclass, rndmonnum } from './makemon.js';
+import { mkclass, mkclass_steps, rndmonnum } from './makemon.js';
 import { mineralize } from './mineralize.js';
 import { make_grave } from './grave.js';
 import {
@@ -202,6 +202,8 @@ import { is_pool } from './dbridge.js';
 import { nh_delay_output } from './hack.js';
 import {
     displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
     printQueued,
     ttyPline,
 } from './tty_message.js';
@@ -874,7 +876,7 @@ async function makelevel(specialLevelLoader = null) {
     let room_threshold = branchp ? 4 : 3;
 
     if (!rogue) {
-        await makecorridors();
+        await finish_steps(makecorridors_steps(), impossible_printer(g));
         await make_niches();
         await mklev_sanity_check(g);
     }
@@ -7369,6 +7371,10 @@ function dig_corridor(org, dest, npoints_out, nxcor, ftyp, btyp) {
 // outside level creation through sp_lev.c create_corridor() ->
 // makecorridors() -> join() -> dodoor(), where makemon() takes its runtime
 // form. dosdoor() then returns a Promise.
+// C ref: mklev.c dosdoor(). level_difficulty()'s builds_up() reports a level
+// of dungeon -1 through impossible(); makeniche() waits and drives
+// dosdoor_steps() with impossible_printer(), and this synchronous form, for
+// the other callers, queues the report.
 function dosdoor(x, y, aroom, type) {
     return finish_steps(dosdoor_steps(x, y, aroom, type), sync_impossible, game);
 }
@@ -7386,7 +7392,7 @@ function* dosdoor_steps(x, y, aroom, type) {
             else if (!rn2(6)) loc.flags = D_LOCKED;
             else loc.flags = D_CLOSED;
             if (loc.flags !== D_ISOPEN && !shdoor
-                && level_difficulty() >= 5 && !rn2(25))
+                && (yield* level_difficulty_steps(game)) >= 5 && !rn2(25))
                 loc.flags |= D_TRAPPED;
         } else {
             loc.flags = shdoor ? D_ISOPEN : D_NODOOR;
@@ -7396,12 +7402,13 @@ function* dosdoor_steps(x, y, aroom, type) {
         if (Is_rogue_level(game.u?.uz))
             loc.flags = D_NODOOR;
         if (loc.flags & D_TRAPPED) {
-            if (level_difficulty() >= 9 && !rn2(5)
+            if ((yield* level_difficulty_steps(game)) >= 9 && !rn2(5)
                 && !([PM_SMALL_MIMIC, PM_LARGE_MIMIC, PM_GIANT_MIMIC]
                     .every(pm => game.mvitals[pm].mvflags & G_GONE))) {
                 loc.flags = D_NODOOR;
                 const mimic = yield makemon_by_context(
-                    mkclass(S_MIMIC, 0), x, y, NO_MM_FLAGS, { state: game },
+                    yield* mkclass_steps(S_MIMIC, 0, { state: game }),
+                    x, y, NO_MM_FLAGS, { state: game },
                 );
                 if (mimic) set_mimic_sym(mimic, { state: game });
             }
@@ -7409,15 +7416,21 @@ function* dosdoor_steps(x, y, aroom, type) {
     } else {
         if (shdoor || !rn2(5)) loc.flags = D_LOCKED;
         else loc.flags = D_CLOSED;
-        if (!shdoor && level_difficulty() >= 4 && !rn2(20))
+        if (!shdoor && (yield* level_difficulty_steps(game)) >= 4 && !rn2(20))
             loc.flags |= D_TRAPPED;
     }
     add_door(x, y, aroom);
 }
 
 // C ref: mklev.c dodoor(). Returns dosdoor()'s Promise when it waits.
+// join() reaches it through dodoor_steps(); this synchronous form is
+// extralev.c roguecorr()'s, on the Rogue level.
 function dodoor(x, y, aroom) {
     return dosdoor(x, y, aroom, maybe_sdoor(8) ? SDOOR : DOOR);
+}
+
+function* dodoor_steps(x, y, aroom) {
+    return yield* dosdoor_steps(x, y, aroom, maybe_sdoor(8) ? SDOOR : DOOR);
 }
 
 function add_door(x, y, aroom) {
@@ -7713,15 +7726,18 @@ function* join_steps(a, b, nxcor) {
     const ftyp = CORR;
     const dig_result = dig_corridor(org, dest, npoints, nxcor, ftyp, STONE);
     if ((npoints.v > 0) && (okdoor(xx, yy) || !nxcor))
-        yield dodoor(xx, yy, croom);
+        yield* dodoor_steps(xx, yy, croom);
     if (!dig_result) return;
     if (okdoor(tt.x, tt.y) || !nxcor)
-        yield dodoor(tt.x, tt.y, troom);
+        yield* dodoor_steps(tt.x, tt.y, troom);
     if (g.smeq[a] < g.smeq[b]) g.smeq[b] = g.smeq[a];
     else g.smeq[a] = g.smeq[b];
 }
 
-// C ref: mklev.c makecorridors(). Synchronous during level creation; a
+// C ref: mklev.c makecorridors(). makelevel() drives makecorridors_steps()
+// with impossible_printer(), so dosdoor()'s level_difficulty() report for a
+// level of dungeon -1 prints where C prints it. Synchronous during level
+// creation; a
 // Promise when a door's mimic waits for makemon()'s runtime form (dosdoor()).
 function makecorridors() {
     return finish_steps(makecorridors_steps(), sync_impossible, game);
@@ -7960,17 +7976,24 @@ export async function makeniche(trap_type) {
                     }
                 }
             }
-            await printQueued(dosdoor(xx, yy, aroom, SDOOR));
+            await finish_steps(dosdoor_steps(xx, yy, aroom, SDOOR),
+                impossible_printer(g));
+            if (noticesQueued()) await emitQueuedNotices();
         } else {
             rm.typ = CORR;
             if (rn2(7)) {
-                await printQueued(dosdoor(xx, yy, aroom, rn2(5) ? SDOOR : DOOR));
+                await finish_steps(
+                    dosdoor_steps(xx, yy, aroom, rn2(5) ? SDOOR : DOOR),
+                    impossible_printer(g));
+                if (noticesQueued()) await emitQueuedNotices();
             } else {
                 const loc = g.level.at(xx, yy);
                 if (!rn2(5) && loc && IS_WALL(loc.typ)) {
                     set_levltyp(xx, yy, IRONBARS, { state: g });
                     if (rn2(3)) {
-                        const species = mkclass(S_HUMAN, 0);
+                        const species = await finish_steps(
+                            mkclass_steps(S_HUMAN, 0, { state: g }),
+                            impossible_printer(g));
                         mkcorpstat(
                             CORPSE,
                             null,

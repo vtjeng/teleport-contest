@@ -278,7 +278,9 @@ import { makemon_runtime } from './makemon_create.js';
 import { enexto } from './teleport.js';
 import { m_next2u } from './mhitu.js';
 import { body_part, mbodypart, poly_gender } from './polyself.js';
-import { impossible, livelog_printf, verbalize, youHear, youFeel } from './pline.js';
+import {
+    impossible, impossible_printer, livelog_printf, verbalize, youHear, youFeel,
+} from './pline.js';
 import { growl, set_voice, yelp } from './sounds.js';
 import { is_izchak, saleable, shkname, Shknam } from './shknam.js';
 import {
@@ -288,7 +290,7 @@ import {
 } from './tty_message.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import { note_unported } from './unported.js';
-import { sync_impossible } from './source_steps.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 import {
     findgold, mdrop_special_objs, mpickobj, remove_worn_item,
 } from './steal.js';
@@ -303,7 +305,7 @@ import { cansee } from './vision.js';
 import { add_menu_heading, select_menu } from './windows.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
-import { choose_stairs } from './wizard.js';
+import { choose_stairs_steps } from './wizard.js';
 import { setnotworn } from './worn.js';
 import {
     Blind, Conflict, Deaf, Displaced, EDetect_monsters, ETelepat, Fast,
@@ -570,7 +572,8 @@ async function call_kops(
     }
     if (nokops) return;
 
-    const { x: sx, y: sy } = choose_stairs(true, state);
+    const { x: sx, y: sy } = await finish_steps(
+        choose_stairs_steps(true, state), impossible_printer(state));
 
     if (nearshop) {
         if (state.flags?.verbose)

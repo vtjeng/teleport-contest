@@ -83,7 +83,9 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // step generator that waits for its monster, web and traps, and
 // water_surrounded_vault_contents() waits for its vampire lord (same
 // branch): either can be a new shapechanger whose first newcham() prompts.
-const ALLOWLIST_PINS = { entries: 119, calls: 171 };
+// 118 and 170 since mon.js apply_newcham_steps() yields newmonhp_steps()
+// (same branch).
+const ALLOWLIST_PINS = { entries: 118, calls: 170 };
 
 // Callees that take an object out of a chain. A carried object goes through
 // invent.c freeinv(), whose impossible() reports and artifact intrinsic

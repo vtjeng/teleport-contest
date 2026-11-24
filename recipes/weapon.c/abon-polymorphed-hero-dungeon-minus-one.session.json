@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "weapon.c abon() for a polymorphed hero on a level of dungeon -1: uhitm.c find_roll_to_hit() calls abon(), whose makemon.c adj_lev() reaches dungeon.c level_difficulty(), and builds_up() finds no branch for dungeon -1 and calls impossible() before the to-hit roll. A debug-mode Valkyrie improvises on a wished wooden flute, wishes for a magic portal, which keeps maketrap()'s dst of {-1, -1}, and steps back onto it, arriving on a level of dungeon -1 (as recipes/mkroom.c/mkundead-cursed-bell-dungeon-minus-one does). She waits out the stun, turns into a dwarf with #polyself, makes a newt with ^G and fights it (F k). The seed, date and character were chosen independently; the seed is the first tried.",
+  "segments": [
+    {
+      "seed": 5350000,
+      "datetime": "20410317143000",
+      "nethackrc": "OPTIONS=name:Gerda,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup\n",
+      "moves": "\u001b\u001b#wizwish\nwooden flute\naeyh\u0017magic portal\nlh         ssssssssss          #polyself\ndwarf\n       \u0007newt\n   Fk         "
+    }
+  ]
+}

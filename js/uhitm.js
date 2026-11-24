@@ -534,7 +534,7 @@ import {
 } from './invent.js';
 import { clone_mon, grow_up } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { ndemon } from './minion.js';
+import { ndemon_steps } from './minion.js';
 import {
     an,
     bare_artifactname,
@@ -618,7 +618,7 @@ import { messageAt } from './startup_a11y.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import { losespells } from './spell.js';
 import {
-    abon,
+    abon_steps,
     dbon,
     dmgval,
     dry_a_towel,
@@ -1322,7 +1322,8 @@ export async function find_roll_to_hit(
 
     // you.h: Luck is the sum of u.uluck and u.moreluck.
     const luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
-    let tmp = 1 + abon(state) + find_mac(mtmp, state) + u.uhitinc
+    let tmp = 1 + await finish_steps(abon_steps(state), impossible_printer(state))
+        + find_mac(mtmp, state) + u.uhitinc
         + (sgn(luck) * Math.trunc((Math.abs(luck) + 2) / 3))
         + (Upolyd(u) ? state.youmonst.data.mlevel : u.ulevel);
 
@@ -7750,7 +7751,8 @@ async function demonpet(state, rawEnv = {}) {
 
     await message('Some hell-p has arrived!', state);
     const demon = !random.rn2(6)
-        ? ndemon(state.u.ualign.type, state, random)
+        ? await finish_steps(ndemon_steps(state.u.ualign.type, state, random),
+            impossible_printer(state))
         : NON_PM;
     const species = demon !== NON_PM
         ? state.mons[demon]

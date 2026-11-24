@@ -299,7 +299,7 @@ import { killed, mon_offmap, wake_nearby, xkilled } from './mon.js';
 import { monflee, monfleeMessage } from './monmove.js';
 import { set_malign } from './makemon.js';
 import { makemon_runtime } from './makemon_create.js';
-import { dlord, summon_minion } from './minion.js';
+import { dlord_steps, summon_minion } from './minion.js';
 import { cmap_to_type } from './mkroom.js';
 import { resist, revive } from './zap.js';
 import { ureflects } from './muse.js';
@@ -819,7 +819,8 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
             demonlessMessage = 'blood coagulates';
         }
 
-        const pm = dlord(altaralign, state);
+        const pm = await finish_steps(dlord_steps(altaralign, state),
+            impossible_printer(state));
         const demon = pm !== NON_PM
             ? await makemon_runtime(
                 state.mons[pm],

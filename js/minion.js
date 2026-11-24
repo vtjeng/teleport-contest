@@ -30,7 +30,7 @@ import { stop_occupation } from './allmain.js';
 import { money_cnt, currency } from './invent.js';
 import { makemon_runtime, mongets } from './makemon_create.js';
 import { mongone_async } from './mon.js';
-import { mkclass, mkclass_aligned, set_malign } from './makemon.js';
+import { mkclass_aligned_steps, mkclass_steps, set_malign } from './makemon.js';
 import {
     is_demon,
     is_dlord,
@@ -70,7 +70,8 @@ import {
 import { bless, mksobj } from './obj.js';
 import { mpickobj } from './steal.js';
 import { Blind, Conflict, Deaf } from './youprop.js';
-import { impossible } from './pline.js';
+import { impossible, impossible_printer } from './pline.js';
+import { finish_steps, sync_impossible } from './source_steps.js';
 
 function guardianRandom(state, rawEnv = {}) {
     return rawEnv.random ?? state.random ?? coreRandom;
@@ -188,7 +189,7 @@ export async function summon_minion(alignment, talk, state = game, rawEnv = {}) 
     let mnum;
     switch (alignment) {
     case A_LAWFUL:
-        mnum = lminion(state, random);
+        mnum = await finish_steps(lminion_steps(state, random), impossible_printer(state));
         break;
     case A_NEUTRAL: {
         // minion.c:11-14 deliberately preserves this order, independent of
@@ -200,11 +201,11 @@ export async function summon_minion(alignment, talk, state = game, rawEnv = {}) 
     }
     case A_CHAOTIC:
     case A_NONE:
-        mnum = ndemon(alignment, state, random);
+        mnum = await finish_steps(ndemon_steps(alignment, state, random), impossible_printer(state));
         break;
     default:
         await impossible('unaligned player?', state, rawEnv);
-        mnum = ndemon(A_NONE, state, random);
+        mnum = await finish_steps(ndemon_steps(A_NONE, state, random), impossible_printer(state));
         break;
     }
     if (mnum === M.NON_PM) return;
@@ -422,9 +423,20 @@ export function free_emin(monster) {
     monster.isminion = false;
 }
 
+// The minion selectors below reach makemon.c mkclass() or mkclass_aligned(),
+// whose dungeon.c level_difficulty() reports a level of dungeon -1 through
+// builds_up()'s impossible(). Every game caller can wait, so it drives the
+// `*_steps` form with impossible_printer() and the report prints where C
+// prints it. The forms under the C names run the steps with
+// sync_impossible(), for tests.
+
 // C ref: minion.c dprince() (391-402).  The fallback is deliberately the
 // source's approximate lower rank rather than a second selection strategy.
 export function dprince(atyp = A_NONE, state = game, random = coreRandom) {
+    return finish_steps(dprince_steps(atyp, state, random), sync_impossible, state);
+}
+
+export function* dprince_steps(atyp = A_NONE, state = game, random = coreRandom) {
     const endgame = state.u?.uz && state.astral_level
         && state.u.uz.dnum === state.astral_level.dnum;
     for (let tries = endgame ? 0 : 20; tries > 0; --tries) {
@@ -437,11 +449,15 @@ export function dprince(atyp = A_NONE, state = game, random = coreRandom) {
             && (atyp === A_NONE
                 || sgn(species.maligntyp) === sgn(atyp))) return pm;
     }
-    return dlord(atyp, state, random);
+    return yield* dlord_steps(atyp, state, random);
 }
 
 // C ref: minion.c dlord() (405-416).
 export function dlord(atyp = A_NONE, state = game, random = coreRandom) {
+    return finish_steps(dlord_steps(atyp, state, random), sync_impossible, state);
+}
+
+export function* dlord_steps(atyp = A_NONE, state = game, random = coreRandom) {
     const endgame = state.u?.uz && state.astral_level
         && state.u.uz.dnum === state.astral_level.dnum;
     for (let tries = endgame ? 0 : 20; tries > 0; --tries) {
@@ -454,19 +470,27 @@ export function dlord(atyp = A_NONE, state = game, random = coreRandom) {
             && (atyp === A_NONE
                 || sgn(species.maligntyp) === sgn(atyp))) return pm;
     }
-    return ndemon(atyp, state, random);
+    return yield* ndemon_steps(atyp, state, random);
 }
 
 // C ref: minion.c llord() (420-426).
 export function llord(state = game, random = coreRandom) {
+    return finish_steps(llord_steps(state, random), sync_impossible, state);
+}
+
+export function* llord_steps(state = game, random = coreRandom) {
     return (state.mvitals[M.PM_ARCHON].mvflags & G_GONE)
-        ? lminion(state, random) : M.PM_ARCHON;
+        ? yield* lminion_steps(state, random) : M.PM_ARCHON;
 }
 
 // C ref: minion.c lminion() (429-441).
 export function lminion(state = game, random = coreRandom) {
+    return finish_steps(lminion_steps(state, random), sync_impossible, state);
+}
+
+export function* lminion_steps(state = game, random = coreRandom) {
     for (let tries = 0; tries < 20; ++tries) {
-        const species = mkclass(M.S_ANGEL, 0, { state, random });
+        const species = yield* mkclass_steps(M.S_ANGEL, 0, { state, random });
         if (species && !is_lord(species)) return species.pmidx;
     }
     return M.NON_PM;
@@ -476,7 +500,12 @@ export function lminion(state = game, random = coreRandom) {
 // and runtime summons, so keep it in the minion owner rather than duplicating
 // the selector in mkroom.js.
 export function ndemon(atyp = A_NONE, state = game, random = coreRandom) {
-    const species = mkclass_aligned(M.S_DEMON, 0, atyp, { state, random });
+    return finish_steps(ndemon_steps(atyp, state, random), sync_impossible, state);
+}
+
+export function* ndemon_steps(atyp = A_NONE, state = game, random = coreRandom) {
+    const species = yield* mkclass_aligned_steps(
+        M.S_DEMON, 0, atyp, { state, random });
     return species && is_ndemon(species) ? species.pmidx : M.NON_PM;
 }
 
@@ -538,29 +567,30 @@ export async function msummon(mon = null, rawEnv = {}) {
     let count = 0;
 
     if (is_dprince(ptr) || ptr.pmidx === M.PM_WIZARD_OF_YENDOR) {
-        dtype = !random.rn2(20) ? dprince(atyp, state, random)
-            : !random.rn2(4) ? dlord(atyp, state, random)
-                : ndemon(atyp, state, random);
+        dtype = !random.rn2(20) ? await finish_steps(dprince_steps(atyp, state, random), impossible_printer(state))
+            : !random.rn2(4) ? await finish_steps(dlord_steps(atyp, state, random), impossible_printer(state))
+                : await finish_steps(ndemon_steps(atyp, state, random), impossible_printer(state));
         count = dtype !== M.NON_PM && !random.rn2(4)
             && is_ndemon(state.mons[dtype]) ? 2 : 1;
     } else if (is_dlord(ptr)) {
-        dtype = !random.rn2(50) ? dprince(atyp, state, random)
-            : !random.rn2(20) ? dlord(atyp, state, random)
-                : ndemon(atyp, state, random);
+        dtype = !random.rn2(50) ? await finish_steps(dprince_steps(atyp, state, random), impossible_printer(state))
+            : !random.rn2(20) ? await finish_steps(dlord_steps(atyp, state, random), impossible_printer(state))
+                : await finish_steps(ndemon_steps(atyp, state, random), impossible_printer(state));
         count = dtype !== M.NON_PM && !random.rn2(4)
             && is_ndemon(state.mons[dtype]) ? 2 : 1;
     } else if (ptr.pmidx === M.PM_BONE_DEVIL) {
         dtype = M.PM_SKELETON;
         count = 1;
     } else if (is_ndemon(ptr)) {
-        dtype = !random.rn2(20) ? dlord(atyp, state, random)
-            : !random.rn2(6) ? ndemon(atyp, state, random)
+        dtype = !random.rn2(20) ? await finish_steps(dlord_steps(atyp, state, random), impossible_printer(state))
+            : !random.rn2(6) ? await finish_steps(ndemon_steps(atyp, state, random), impossible_printer(state))
                 : ptr.pmidx;
         count = 1;
     } else if (isLawfulMinion(mon)) {
-        dtype = is_lord(ptr) && !random.rn2(20) ? llord(state, random)
+        dtype = is_lord(ptr) && !random.rn2(20)
+            ? await finish_steps(llord_steps(state, random), impossible_printer(state))
             : (is_lord(ptr) || !random.rn2(6))
-                ? lminion(state, random) : ptr.pmidx;
+                ? await finish_steps(lminion_steps(state, random), impossible_printer(state)) : ptr.pmidx;
         count = dtype !== M.NON_PM && !random.rn2(4)
             && !is_lord(state.mons[dtype]) ? 2 : 1;
     } else if (ptr.pmidx === M.PM_ANGEL) {
@@ -574,7 +604,7 @@ export async function msummon(mon = null, rawEnv = {}) {
                 ];
                 dtype = elementals[random.rn2(elementals.length)];
             } else if (atyp === A_CHAOTIC || atyp === A_NONE) {
-                dtype = ndemon(atyp, state, random);
+                dtype = await finish_steps(ndemon_steps(atyp, state, random), impossible_printer(state));
             }
         } else {
             dtype = M.PM_ANGEL;
@@ -588,7 +618,7 @@ export async function msummon(mon = null, rawEnv = {}) {
     if (!species) return 0;
     if (count > 1 && (species.geno & M.G_UNIQ)) count = 1;
     if (state.mvitals[dtype].mvflags & G_GONE) {
-        dtype = ndemon(atyp, state, random);
+        dtype = await finish_steps(ndemon_steps(atyp, state, random), impossible_printer(state));
         if (dtype === M.NON_PM) return 0;
     }
 

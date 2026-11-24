@@ -232,10 +232,6 @@
       "count": 3,
       "reason": "mklev.c mktrap_victim() places objects it has just made by type (a trap's ammunition, a victim's possessions and corpse), none a crysknife. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
-    "js/mon.js | apply_newcham_steps | newmonhp": {
-      "count": 1,
-      "reason": "newmonhp() is the synchronous form of newmonhp_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so it returns synchronously. scripts/level-difficulty-steps.test.mjs lists this call."
-    },
     "js/mon.js | apply_newcham_steps | place_object": {
       "count": 1,
       "reason": "mon.c newcham() (5278-5535) drops only the boulders a former giant can no longer carry. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."

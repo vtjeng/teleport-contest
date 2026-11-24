@@ -85,8 +85,10 @@ const SYNC_CALLER_PIN = 393;
 // Two-statement flushes left where no awaited call fits (24 November 2026):
 // draws inside a larger expression, such as a conditional between two draws
 // or a step generator that finish_steps() drives, and flushes after
-// statements that draw nothing the scan resolves.
-const TWO_STATEMENT_PIN = 20;
+// statements that draw nothing the scan resolves. 22 since mklev.c
+// makeniche() drives dosdoor_steps() for its two doors (branch
+// small-leftovers-2).
+const TWO_STATEMENT_PIN = 22;
 
 const sources = readJsSources();
 const scan = scanQueuedOutputCalls(sources);

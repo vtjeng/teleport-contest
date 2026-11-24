@@ -253,7 +253,7 @@ import {
 } from './tty_message.js';
 import { wield_tool, welded } from './wield.js';
 import { Can_dig_down, ceiling, depth, dunlevs_in_dungeon, get_level, ledger_no, on_level, surface } from './dungeon.js';
-import { abon, dbon, dmgval, setmnotwielded } from './weapon.js';
+import { abon_steps, dbon, dmgval, setmnotwielded } from './weapon.js';
 import {
     corpse_xname, otense, simpleonames, the, xnameFresh, yname, yobjnam, Yobjnam2,
 } from './objnam.js';
@@ -672,7 +672,9 @@ export async function dig(state = game, rawEnv = {}) {
     }
 
     digging.effort = Math.trunc(digging.effort ?? 0)
-        + 10 + random.rn2(5) + abon(state) + Math.trunc(weapon.spe ?? 0)
+        + 10 + random.rn2(5)
+        + await finish_steps(abon_steps(state), impossible_printer(state))
+        + Math.trunc(weapon.spe ?? 0)
         - greatest_erosion(weapon) + Math.trunc(u.udaminc ?? 0);
     if (state.urace?.mnum === PM_DWARF) digging.effort *= 2;
 

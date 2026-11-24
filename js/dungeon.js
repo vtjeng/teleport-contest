@@ -118,7 +118,7 @@ import {
     printQueued,
     ttyPline,
 } from './tty_message.js';
-import { impossible } from './pline.js';
+import { impossible, impossible_printer } from './pline.js';
 // js/windows.js does not import from this file, so there is no cycle.
 import { add_menu_heading, getlin, select_menu } from './windows.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
@@ -2055,10 +2055,16 @@ export async function show_overview(why, reason = 0, state = game) {
     const win = { items: [] };
     const lastdun = { value: -1 };
 
-    if (in_endgame_level(state.u?.uz, state))
-        traverse_mapseenchn(1, win, why, reason, lastdun, state);
-    if (why > 0 || !in_endgame_level(state.u?.uz, state))
-        traverse_mapseenchn(0, win, why, reason, lastdun, state);
+    if (in_endgame_level(state.u?.uz, state)) {
+        await finish_steps(
+            traverse_mapseenchn_steps(1, win, why, reason, lastdun, state),
+            impossible_printer(state));
+    }
+    if (why > 0 || !in_endgame_level(state.u?.uz, state)) {
+        await finish_steps(
+            traverse_mapseenchn_steps(0, win, why, reason, lastdun, state),
+            impossible_printer(state));
+    }
 
     state._captureMenuItems?.(win.items);
     const selected = await select_menu(state, {
@@ -2078,8 +2084,10 @@ export async function show_overview(why, reason = 0, state = game) {
 
 // C ref: dungeon.c traverse_mapseenchn() (3344-3363). `lastdun` is an
 // out-parameter in C; the object wrapper preserves that update between the
-// endgame and ordinary-dungeon traversals.
-export function traverse_mapseenchn(
+// endgame and ordinary-dungeon traversals. A step generator, because
+// print_mapseen()'s builds_up() reports a dungeon -1 level through
+// impossible(), which show_overview() prints where C prints it.
+export function* traverse_mapseenchn_steps(
     viewendgame, win, why, reason, lastdun, state = game,
 ) {
     const marker = typeof lastdun === 'object' ? lastdun : { value: lastdun };
@@ -2088,7 +2096,7 @@ export function traverse_mapseenchn(
             continue;
         if (why !== 0 || interest_mapseen(mptr, state)) {
             const showheader = mptr.lev.dnum !== marker.value;
-            print_mapseen(win, mptr, why, reason, showheader, state);
+            yield* print_mapseen_steps(win, mptr, why, reason, showheader, state);
             marker.value = mptr.lev.dnum;
         }
     }
@@ -2160,7 +2168,17 @@ function appendInterest(items, feature) {
 // C ref: dungeon.c print_mapseen() (3516-3734). All display-only rows are
 // collected as menu lines; level rows carry a value only for the m-prefixed
 // selectable overview, which matches C's zeroany handling for other modes.
+// print_mapseen() is the synchronous form, for tests; show_overview() drives
+// print_mapseen_steps() through traverse_mapseenchn_steps().
 export function print_mapseen(
+    win, mptr, final, how, printdun, state = game,
+) {
+    return finish_steps(
+        print_mapseen_steps(win, mptr, final, how, printdun, state),
+        sync_impossible, state);
+}
+
+export function* print_mapseen_steps(
     win, mptr, final, how, printdun, state = game,
 ) {
     const items = menu_items(win);
@@ -2177,7 +2195,7 @@ export function print_mapseen(
         const reached = Math.trunc(dungeon.dunlev_ureached ?? 0);
         if (reached === dungeon.entry_lev || in_endgame_level(mptr.lev, state)) {
             header = `${dungeon.dname}:`;
-        } else if (builds_up(mptr.lev, state)) {
+        } else if (yield* builds_up_steps(mptr.lev, state)) {
             header = `${dungeon.dname}: levels ${depthstart
                 + dungeon.entry_lev - 1} up to ${depthstart + reached - 1}`;
         } else {

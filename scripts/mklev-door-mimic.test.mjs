@@ -26,5 +26,5 @@ test('C species-availability guard and source-order mimic disguise are retained'
     assert.match(js,/every\(pm => game\.mvitals\[pm\]\.mvflags & G_GONE\)/u);
     // dosdoor() makes the mimic through makemon_by_context(), which picks the
     // level-creation or runtime makemon() by in_mklev as C's makemon() does.
-    assert.match(js,/yield makemon_by_context\(\s*mkclass\(S_MIMIC, 0\), x, y, NO_MM_FLAGS, \{ state: game \},\s*\);\s*if \(mimic\) set_mimic_sym/u);
+    assert.match(js,/yield makemon_by_context\(\s*yield\* mkclass_steps\(S_MIMIC, 0, \{ state: game \}\),\s*x, y, NO_MM_FLAGS, \{ state: game \},\s*\);\s*if \(mimic\) set_mimic_sym/u);
 });

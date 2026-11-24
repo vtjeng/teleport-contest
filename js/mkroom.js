@@ -88,7 +88,7 @@ import { enexto } from './teleport.js';
 import { revive } from './zap.js';
 import { mkclass_steps, set_malign } from './makemon.js';
 import { m_at } from './monst.js';
-import { ndemon } from './minion.js';
+import { ndemon_steps } from './minion.js';
 import {
     PM_ARCHEOLOGIST,
     PM_BUGBEAR,
@@ -757,7 +757,7 @@ export function* morguemon_steps(state = game, random = coreRandom) {
                 && state.u.uz.dnum === state.astral_level?.dnum)) {
             return yield* mkclass_steps(S_DEMON, 0, { state, random });
         }
-        const ndemonResult = ndemon(A_NONE, state, random);
+        const ndemonResult = yield* ndemon_steps(A_NONE, state, random);
         if (ndemonResult !== NON_PM) return state.mons[ndemonResult];
     }
 

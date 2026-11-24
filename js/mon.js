@@ -263,7 +263,7 @@ import {
     is_home_elemental,
     mbirth_limit,
     mkclass_poly,
-    newmonhp,
+    newmonhp_steps,
 } from './makemon.js';
 import {
     discard_minvent,
@@ -599,7 +599,7 @@ import {
     impossible, impossible_printer, livelog_printf, pline_mon, youFeel, youSee,
     norep_printer,
 } from './pline.js';
-import { finish_steps } from './source_steps.js';
+import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { SHTYPES } from './shtypes_data.js';
 import {
     clear_dknown,
@@ -2898,16 +2898,25 @@ function apply_newcham(
         ncflags,
         capturedNames,
     );
+    // makemon.c newmonhp() and light.c del_light_source() can report through
+    // impossible() (dungeon.c builds_up() on a level of dungeon -1, a missing
+    // light source). A caller that can wait passes impossible_printer() as
+    // env.onImpossible (makemon_runtime(), makemon_revival()), and the report
+    // prints where C prints it; any other queues it.
+    const onImpossible = normalized.onImpossible ?? sync_impossible;
     const advance = (value, failed = false) => {
         const step = failed ? steps.throw(value) : steps.next(value);
         if (step.done) return step.value;
-        if (step.value && typeof step.value.then === 'function') {
-            return Promise.resolve(step.value).then(
-                (result) => advance(result),
+        const result = step.value instanceof ImpossibleCall
+            ? onImpossible(step.value.text, normalized.state)
+            : step.value;
+        if (result && typeof result.then === 'function') {
+            return Promise.resolve(result).then(
+                (settled) => advance(settled),
                 (error) => advance(error, true),
             );
         }
-        return advance(step.value);
+        return advance(result);
     };
     return advance(undefined);
 }
@@ -2962,7 +2971,7 @@ function* apply_newcham_steps(
 
     const hpn = monster.mhp;
     const hpd = monster.mhpmax;
-    newmonhp(monster, target.pmidx, normalized);
+    yield* newmonhp_steps(monster, target.pmidx, normalized);
     monster.mhp = Math.trunc(hpn * monster.mhp / hpd);
     if (monster.mhp < 0 || monster.mhp > monster.mhpmax)
         monster.mhp = monster.mhpmax;

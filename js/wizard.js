@@ -31,7 +31,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { Monnam, hcolor } from './do_name.js';
-import { In_W_tower_steps, In_hell, builds_up } from './dungeon.js';
+import { In_W_tower_steps, In_hell, builds_up_steps } from './dungeon.js';
 import { game } from './gstate.js';
 import { set_malign, unmakemon } from './makemon.js';
 import {
@@ -792,9 +792,14 @@ export function strategy(monster, state = game, rawEnv = {}) {
 // C ref: wizard.c choose_stairs() (329-364).  C leaves its output pair
 // unchanged when no stairway exists; returning the pair makes that behavior
 // explicit and avoids mutating a caller's temporary coordinate object.
-export function choose_stairs(dir, state = game) {
+// dungeon.c builds_up() reports a level of dungeon -1 through impossible(),
+// and both callers, tactics() and shk.c call_kops(), can wait, so each
+// drives these steps with impossible_printer() and the report prints where
+// C prints it.
+export function* choose_stairs_steps(dir, state = game) {
     const result = { x: 0, y: 0 };
-    const stdir = builds_up(state.u?.uz, state) ? Boolean(dir) : !dir;
+    const stdir = (yield* builds_up_steps(state.u?.uz, state))
+        ? Boolean(dir) : !dir;
     let stair = stairway_find_type_dir(false, stdir, state);
     if (!stair) stair = stairway_find_type_dir(true, stdir, state);
     if (!stair) {
@@ -869,10 +874,10 @@ export async function tactics(monster, rawEnv = {}) {
             const { expels } = await import('./mhitu.js');
             await expels(monster, { ...rawEnv, state, expulsionMessage: true });
         }
-        ({ x: sx, y: sy } = choose_stairs(
+        ({ x: sx, y: sy } = await finish_steps(choose_stairs_steps(
             (monster.m_id ?? 0) % 2,
             state,
-        ));
+        ), impossible_printer(state)));
         monster.mavenge = true;
         if (await finish_steps(In_W_tower_steps(mx, my, state.u.uz, state),
             impossible_printer(state))
