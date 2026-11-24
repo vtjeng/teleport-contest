@@ -196,6 +196,7 @@ import { newMonster, place_monster } from '../js/monst.js';
 import { PM_SHOPKEEPER } from '../js/monsters.js';
 import { aligns } from '../js/roles.js';
 import { windowsUp } from './test-fixtures/windows-up.mjs';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const DOTHROW_C = readFileSync(
     new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url), 'utf8',
@@ -990,7 +991,7 @@ function arena({
     uhpmax = 12,
 } = {}) {
     initRng(ARENA_SEED);
-    const state = { gb: initialGb() };
+    const state = withScreenBuffers({ gb: initialGb() });
     state.level = new GameMap();
     for (let x = 1; x <= last; x++) state.level.at(x, 4).typ = ROOM;
     state.u = {

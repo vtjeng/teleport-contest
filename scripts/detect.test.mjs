@@ -281,7 +281,7 @@ test('detect.c object-chain searches preserve class, material, and Schrödinger 
 test('detect.c check_map_spot preserves the stale-gold map exception', () => {
     const x = 2;
     const y = 3;
-    const location = { _gbuf: { glyphinfo: { glyph: objnum_to_glyph(3) } } };
+    const location = {};
     const objects = Array.from({ length: 5 }, () => ({}));
     objects[3] = { oc_class: TOOL_CLASS, oc_material: GOLD };
     objects[4] = { oc_material: IRON };
@@ -292,14 +292,16 @@ test('detect.c check_map_spot preserves the stale-gold map exception', () => {
             levelObjects[x] = [];
             levelObjects[x][y] = floorObject;
         }
-        return {
+        const state = withScreenBuffers({
             objects,
             level: {
                 objects: levelObjects,
                 monsters: [],
                 at: () => location,
             },
-        };
+        });
+        glyph_buffer_at(x, y, state).glyphinfo = { glyph: objnum_to_glyph(3) };
+        return state;
     }
 
     assert.equal(check_map_spot(x, y, TOOL_CLASS, 0, spotState()), true);
@@ -2586,6 +2588,7 @@ import { trapped_chest_at, trapped_door_at } from '../js/detect.js';
 import { TRAPPED_CHEST, TRAPPED_DOOR, D_ISOPEN, HALLUC_RES } from '../js/const.js';
 import { initRng, enableRngLog, getRngLog, rn2 } from '../js/rng.js';
 import { GameMap } from '../js/game.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 test('trapped glyph predicates preserve C core RNG gates and short circuits', () => {
     assert.match(DETECT_C, /ttyp != TRAPPED_CHEST \|\| \(Hallucination && rn2\(20\)\)/u);
@@ -2596,7 +2599,7 @@ test('trapped glyph predicates preserve C core RNG gates and short circuits', ()
             initRng(seed);
             const expectedGate = rn2(20);
             initRng(seed); enableRngLog();
-            const state = { level: new GameMap(), u: { ux: 10, uy: 10, uprops: [] } };
+            const state = withScreenBuffers({ level: new GameMap(), u: { ux: 10, uy: 10, uprops: [] } });
             // youprop.h Hallucination tests intrinsic timeout and ignores blocked.
             state.u.uprops[HALLUC] = { intrinsic: 10, blocked: 1 };
             const cell = state.level.at(10, 10);
@@ -2622,7 +2625,7 @@ test('trapped glyph predicates preserve C core RNG gates and short circuits', ()
 });
 
 test('trapped chest checks floor then hero, steed and monster direct inventory chains', () => {
-    const state = { level: new GameMap(), u: { ux: 10, uy: 10, uprops: [] }, invent: null };
+    const state = withScreenBuffers({ level: new GameMap(), u: { ux: 10, uy: 10, uprops: [] }, invent: null });
     glyph_buffer_at(10, 10, state).glyphinfo = { glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }, state) };
     const box = { otyp: LARGE_BOX, otrapped: false, nexthere: null, nobj: null };
     // Floor identity needs a box, whereas held boxes must actually be trapped.

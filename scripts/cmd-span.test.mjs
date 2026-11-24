@@ -97,6 +97,8 @@ import { initialExtcmdFlags } from '../js/cmd_autocomplete.js';
 import { remove_achievement } from '../js/insight.js';
 import { toggle_bool_option } from '../js/options.js';
 import { selection_new } from '../js/themerooms.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
+import { glyph_buffer_at } from '../js/display.js';
 
 test('panic retains its source wizard row and typed/direct no-time dispatch', async () => {
     const source = readFileSync('nethack-c/upstream/src/cmd.c', 'utf8');
@@ -426,15 +428,10 @@ test('lookaround room flood predicates reject source wall and secret terrain', (
 
 test('u_have_seen_whole_selection treats only selected unseen squares as hidden', () => {
     const selection = selection_new().set(2, 2).set(3, 2);
-    const state = {
-        level: {
-            at: (x, y) => ({
-                _gbuf: { glyphinfo: x === 2 && y === 2 ? { glyph: 1 } : undefined },
-            }),
-        },
-    };
+    const state = withScreenBuffers({ level: { at: () => ({}) } });
+    glyph_buffer_at(2, 2, state).glyphinfo = { glyph: 1 };
     assert.equal(u_have_seen_whole_selection(selection, state), false);
-    state.level.at = () => ({ _gbuf: { glyphinfo: { glyph: 1 } } });
+    glyph_buffer_at(3, 2, state).glyphinfo = { glyph: 1 };
     assert.equal(u_have_seen_whole_selection(selection, state), true);
 });
 

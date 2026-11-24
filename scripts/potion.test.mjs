@@ -116,6 +116,8 @@ import {
     verifyBoozeSegment, verifyHealingSegment,
 } from './run-quaff-confusion.mjs';
 import { setWinStop } from './test-fixtures/win-stop.mjs';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
+import { glyph_buffer_at } from '../js/display.js';
 
 test('make_blinded silently extends an existing timed blindness', async () => {
     const state = {
@@ -4163,7 +4165,8 @@ test('mongrantswish cleans up after makewish sequentially, as potion.c does', as
 
     // A stand-in djinni square: (7, 4) is an arbitrary map position and 1234
     // an arbitrary non-zero glyph; mongrantswish only reads the gbuf entry there.
-    const state = { level: { at: (x, y) => (x === 7 && y === 4 ? { _gbuf: { glyphinfo: 1234 } } : null) } };
+    const state = withScreenBuffers({ level: { at: (x, y) => (x === 7 && y === 4 ? {} : null) } });
+    glyph_buffer_at(7, 4, state).glyphinfo = 1234;
     const monster = { mx: 7, my: 4 };
     const calls = [];
     const env = {

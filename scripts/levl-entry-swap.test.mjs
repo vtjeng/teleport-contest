@@ -13,8 +13,11 @@ import test from 'node:test';
 import { readdirSync, readFileSync } from 'node:fs';
 
 import { CORR, ROOM } from '../js/const.js';
-import { SCREEN_BUFFER_RECORDS, swap_levl_entries } from '../js/display.js';
+import {
+    installLevel, SCREEN_BUFFER_RECORDS, swap_levl_entries, tty_map_cell_at,
+} from '../js/display.js';
 import { GameMap, makeLocation } from '../js/game.js';
+import { resetGame } from '../js/gstate.js';
 import { assertExceptionCount } from './exception-count.mjs';
 
 // rm.h struct rm, by the name each field has on a JS location record:
@@ -94,39 +97,26 @@ test('every new location field is struct rm or screen state', () => {
 });
 
 test('swap_levl_entries() moves struct rm and leaves the screen', () => {
-    const level = new GameMap();
+    const state = resetGame();
+    installLevel(new GameMap(), state);
     // Two squares of one column, as flip_level()'s vertical pass swaps them;
     // the coordinates are arbitrary interior squares.
-    const top = level.at(10, 3);
-    const bottom = level.at(10, 17);
+    const top = state.level.at(10, 3);
+    const bottom = state.level.at(10, 17);
     // Any two distinct terrain types would do. The remembered glyph numbers
     // are arbitrary and only need to differ.
     top.typ = ROOM;
     top.remembered_glyph = { glyph: 2401 };
     bottom.typ = CORR;
     bottom.remembered_glyph = { glyph: 2402 };
-    // The screen shows '.' at the top square and '#' at the bottom one; only
-    // the top square has been flushed, so only it has a shadow-cell ch.
-    top._tty.ch = '.';
-    top._nomux.ch = '.';
-    bottom._tty.ch = '#';
+    // The screen shows '.' at the top square and '#' at the bottom one.
+    tty_map_cell_at(10, 3).ch = '.';
+    tty_map_cell_at(10, 17).ch = '#';
 
-    swap_levl_entries(level, 10, 3, 10, 17);
+    swap_levl_entries(state.level, 10, 3, 10, 17);
 
-    assert.equal(level.at(10, 3).typ, CORR);
-    assert.deepEqual(level.at(10, 3).remembered_glyph, { glyph: 2402 });
-    assert.equal(level.at(10, 17).typ, ROOM);
-    assert.deepEqual(level.at(10, 17).remembered_glyph, { glyph: 2401 });
-    assert.equal(level.at(10, 3)._tty.ch, '.');
-    assert.equal(level.at(10, 3)._nomux.ch, '.');
-    assert.equal(level.at(10, 17)._tty.ch, '#');
-    assert.equal(Object.hasOwn(level.at(10, 17)._nomux, 'ch'), false);
-
-    // flip_level() with both bits set can swap a square back; the second
-    // swap must restore the original records exactly.
-    swap_levl_entries(level, 10, 3, 10, 17);
-    assert.equal(level.at(10, 3), top);
-    assert.equal(level.at(10, 17), bottom);
-    assert.equal(top._tty.ch, '.');
-    assert.equal(bottom._tty.ch, '#');
+    assert.equal(state.level.at(10, 3), bottom);
+    assert.equal(state.level.at(10, 17), top);
+    assert.equal(tty_map_cell_at(10, 3).ch, '.');
+    assert.equal(tty_map_cell_at(10, 17).ch, '#');
 });

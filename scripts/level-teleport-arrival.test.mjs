@@ -105,6 +105,7 @@ import {
     verifyLevelTeleportArrival,
 } from './run-level-teleport-arrival.mjs';
 import { lastseentyp_grid } from '../js/dungeon.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 // The code under test takes a complete random set; these fixtures script
 // only its rn2().
@@ -229,7 +230,7 @@ test('Rogue level arrival switches symbols and waits for its source message',
     });
 
 function placementState() {
-    return {
+    return withScreenBuffers({
         level: new GameMap(),
         flags: {},
         iflags: {},
@@ -254,7 +255,7 @@ function placementState() {
         wiz2_level: { dnum: 9, dlevel: 2 },
         wiz3_level: { dnum: 9, dlevel: 3 },
         exclusion_zones: null,
-    };
+    });
 }
 
 test('bad_location admits exactly room, air, and maze corridors', () => {

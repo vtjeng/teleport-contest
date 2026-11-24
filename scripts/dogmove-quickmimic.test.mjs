@@ -76,6 +76,7 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 function transientGlyph(glyph, ch) {
     const presentation = {
@@ -94,11 +95,7 @@ function quickState(visible = true) {
     const level = new GameMap();
     level.at(5, 5).typ = ROOM;
     level.at(5, 5).remembered_glyph = { glyph: 101 };
-    level.at(5, 5)._gbuf.glyphinfo = transientGlyph(
-        GLYPH_PET_MALE_OFF + PM_LITTLE_DOG,
-        'd',
-    );
-    const state = {
+    const state = withScreenBuffers({
         context: { mon_moving: false },
         flags: {},
         invent: null,
@@ -117,7 +114,11 @@ function quickState(visible = true) {
             uy: 5,
         },
         viz_array: Array.from({ length: 21 }, () => Array(80).fill(0)),
-    };
+    });
+    glyph_buffer_at(5, 5, state).glyphinfo = transientGlyph(
+        GLYPH_PET_MALE_OFF + PM_LITTLE_DOG,
+        'd',
+    );
     if (visible) state.viz_array[5][5] = COULD_SEE | IN_SIGHT;
     monst_globals_init(state);
     objects_globals_init(state);

@@ -398,6 +398,7 @@ import {
     enableBrowserGlyphProjection,
 } from './browser-projection-test-support.mjs';
 import { lastseentyp_grid } from '../js/dungeon.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const C_DISPLAY_SOURCE = readFileSync(
     'nethack-c/upstream/src/display.c',
@@ -891,7 +892,7 @@ test('stairs use rm direction and reveal only traversed branch symbols', () => {
 });
 
 test('terrain conversion covers source backgrounds omitted by the old switch', () => {
-    const state = {
+    const state = withScreenBuffers({
         level: { flags: { arboreal: false } },
         u: { uz: { dnum: 0, dlevel: 1 } },
         stairs: {
@@ -901,7 +902,7 @@ test('terrain conversion covers source backgrounds omitted by the old switch', (
             u_traversed: false,
             next: null,
         },
-    };
+    });
     // Distinct test symbols make direction and drawbridge orientation
     // observable even though the default pairs share '<', '>', '.', or '#'.
     initialize_symbols_from_options(parseNethackrc(
@@ -3760,7 +3761,7 @@ test('map_trap paints on show and remembers only under hero memory', () => {
         unshown.location.remembered_glyph,
         remembered_glyph_from_presentation(unshown.glyph),
     );
-    assert.equal(unshown.entry.glyphinfo, undefined);
+    assert.equal(unshown.entry.glyphinfo, null);
     assert.equal(unshown.entry.gnew, 0);
 
     // Without hero memory the paint still happens and the square keeps

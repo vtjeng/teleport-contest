@@ -16,9 +16,10 @@ import { mhidden_description } from '../js/startup_a11y.js';
 import { M2_NEUTER } from '../js/monsters.js';
 import { S_fountain, S_hwall, S_stone, S_vwall } from '../js/symbols.js';
 import { readJsSources } from './discarded-promises.mjs';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 test('object-shaped mimic with unexplored memory falls back to something', () => {
-    const state = {
+    const state = withScreenBuffers({
         u: { ux: 10, uy: 10 },
         level: {
             flags: { hero_memory: true },
@@ -28,7 +29,7 @@ test('object-shaped mimic with unexplored memory falls back to something', () =>
             },
             monsters: [],
         },
-    };
+    });
     const mimic = {
         mx: 12,
         my: 10,
@@ -44,10 +45,10 @@ test('object-shaped mimic with unexplored memory falls back to something', () =>
 
 
 test('furniture hidden descriptions append the article exactly once', () => {
-    const state = {
+    const state = withScreenBuffers({
         u: { ux: 10, uy: 10 },
         level: { at: () => undefined, regions: [] },
-    };
+    });
     const mimic = {
         mx: 10,
         my: 10,
@@ -73,10 +74,10 @@ test('furniture hidden descriptions append the article exactly once', () => {
 // S_hwall or S_vwall, both explained as "wall"; S_stone is defsym.h's first
 // entry, "stone", the other end of the table.
 test('wall- and stone-shaped mimics use the defsyms explanation', () => {
-    const state = {
+    const state = withScreenBuffers({
         u: { ux: 10, uy: 10 },
         level: { at: () => undefined, regions: [] },
-    };
+    });
     const cases = [
         [S_vwall, 'a wall'],
         [S_hwall, 'a wall'],
@@ -98,11 +99,11 @@ test('alternate-monster articles follow pager prefix gating', () => {
         mflags2: 0,
         pmnames: ['male gnome', 'female gnome', 'neutral gnome'],
     };
-    const state = {
+    const state = withScreenBuffers({
         u: { ux: 10, uy: 10 },
         level: { at: () => undefined, regions: [] },
         mons: [alternate],
-    };
+    });
     const mimic = {
         // C pager.c uses monst.h Mgender (female ? FEMALE : MALE), even
         // though mondata.c gender() would answer NEUTRAL for this species.
@@ -134,10 +135,10 @@ test('alternate-monster articles follow pager prefix gating', () => {
 // reads "closed door" with no prefix or article.  S_vwall stands in for any
 // furniture appearance: "That wall is really ..." is the C wording.
 test('MHID_ALTMON alone gives a bare furniture name', () => {
-    const state = {
+    const state = withScreenBuffers({
         u: { ux: 10, uy: 10 },
         level: { at: () => undefined, regions: [] },
-    };
+    });
     const mimic = {
         mx: 10, my: 10, m_ap_type: M_AP_FURNITURE, mappearance: S_vwall,
     };

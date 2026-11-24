@@ -4,8 +4,10 @@
 import { initial_instance_globals, initial_state_held_globals } from './decl.js';
 import { zero_flag, zero_instance_flags } from './flag.js';
 import { zero_sinfo } from './program_state.js';
+import { NO_COLOR } from './terminal.js';
 
 function initialGameState() {
+    const globals = initial_instance_globals();
     return {
         // C decl.c decl_globals_init() copies g_init_a ... g_init_z into
         // ga ... gz once per process and saves none of them, so each segment,
@@ -16,7 +18,16 @@ function initialGameState() {
         // port keeps in these groups; scripts/instance-globals.test.mjs
         // fails when js/ replaces a group, tests whether such a member
         // exists, or gives a missing one another default.
-        ...initial_instance_globals(),
+        ...globals,
+        // C decl.c starts gg.gbuf[][] zeroed once per process; js/display.js
+        // glyph_buffer_at() owns it. No level holds it, so a level change
+        // leaves it alone until docrt()'s cls().
+        gg: { ...globals.gg, gbuf: initialGbuf() },
+        // The tty map window's cells on the terminal and patch 006's shadow
+        // copy of them, js/display.js tty_map_cell_at() and nomux_cell_at().
+        // A new process starts with a blank terminal.
+        tty_map_cells: initialTtyMapCells(),
+        nomux_map: initialNomuxMap(),
         // The scalar members the port reads directly off the state, such as
         // state.multi for gm.multi and state.hero_seq for gh.hero_seq, from
         // the same initializers: gi.item_action_in_progress FALSE, gt.twohits
@@ -87,6 +98,46 @@ function initialGameState() {
 // built by hand take their gb from here as well.
 export function initialGb() {
     return { ...initial_instance_globals().gb, bhitpos: { x: 0, y: 0 } };
+}
+
+// The three per-square display grids, indexed [y][x] like C's
+// gg.gbuf[ROWNO][COLNO]. js/const.js, which imports this file, defines both;
+// scripts/check-c-constants.test.mjs checks these copies against the C values.
+const ROWNO = 21;
+const COLNO = 80;
+
+function mapGrid(makeCell) {
+    return Array.from({ length: ROWNO },
+        () => Array.from({ length: COLNO }, makeCell));
+}
+
+// display.c gbuf_entry. A null glyphinfo is nul_gbuf, which C's
+// clear_glyph_buffer() copies in: GLYPH_UNEXPLORED drawn as a blank.
+export function initialGbuf() {
+    return mapGrid(() => ({ gnew: 0, glyphinfo: null }));
+}
+
+export function initialTtyMapCells() {
+    return mapGrid(() => ({
+        ch: ' ',
+        color: NO_COLOR,
+        decgfx: false,
+        attr: 0,
+        browser_ch: null,
+        browser_color: null,
+        browser_attr: null,
+    }));
+}
+
+// `ch` stays undefined until the first flush, cls() or docorner() reaches
+// the cell; js/display.js show_glyph_cell() tells that from a blank (null).
+export function initialNomuxMap() {
+    return mapGrid(() => ({
+        ch: undefined,
+        color: NO_COLOR,
+        decgfx: false,
+        attr: 0,
+    }));
 }
 
 export let game = initialGameState();

@@ -157,16 +157,13 @@ test('new-game preamble resets starting inventory before staircase decor',
             uz: { dnum: 0, dlevel: 1 },
             uhave: { amulet: false },
         });
-        // Each square carries the screen records js/game.js makeLocation()
-        // gives a location.
-        const square = () => ({ typ: 0, _gbuf: {}, _tty: {}, _nomux: {} });
         const locations = Array.from({ length: 3 }, () =>
-            Array.from({ length: 3 }, square));
+            Array.from({ length: 3 }, () => ({ typ: 0 })));
         locations[1][1].typ = STAIRS;
         state.level = {
             locations,
             objects: Array.from({ length: 3 }, () => Array(3).fill(null)),
-            at(x, y) { return this.locations[x]?.[y] ?? square(); },
+            at(x, y) { return this.locations[x]?.[y] ?? { typ: 0 }; },
         };
         state.stairs = {
             sx: 1,
