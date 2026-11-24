@@ -1,6 +1,6 @@
 {
   "version": 5,
-  "comment": "Record this recipe on macOS (.github/workflows/macos-recorder.yml), not on Linux: APFS refuses the save file name the cut leaves, and a Linux file system accepts it. Segment 0 saves under a player name cut inside a UTF-8 character (see save-name-cut-mid-utf8-save-last); on macOS the save fails and the end of input then hangs up, whose save fails too. Segment 1 starts with the same name, and unixmain.c restore_saved_game() finds no file, so a new game begins (a Linux recorder restores instead). Recorded on macOS (recorder/competitor-probes).",
+  "comment": "Only macOS can make this recording, so record this recipe on macOS (.github/workflows/macos-recorder.yml), not on Linux: APFS refuses the save file name the cut leaves, and a Linux file system accepts it. Segment 0 saves under a player name cut inside a UTF-8 character (see save-name-cut-mid-utf8-save-last); on macOS the save fails and the end of input then hangs up, whose save fails too. Segment 1 starts with the same name, and unixmain.c restore_saved_game() finds no file, so a new game begins (a Linux recorder restores instead). Recorded on macOS (recorder/competitor-probes).",
   "segments": [
     {
       "seed": 5540981,
