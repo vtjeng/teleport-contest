@@ -44,7 +44,7 @@ import { makeplural, makesingular } from './fruit.js';
 import {
     canspotmon,
     canseemon,
-    map_invisible,
+    map_invisible_async,
     map_invisible_memory_only,
     shieldeff,
     tp_sensemon,
@@ -105,8 +105,7 @@ import {
 } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import {
@@ -1218,15 +1217,13 @@ async function mcast_disappear(mtmp, rawEnv = {}) {
         );
     }
 
-    mon_set_minvis(mtmp, false, state, rawEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(mon_set_minvis(mtmp, false, state, rawEnv));
 
     // map_invisible() paints the global game, so a foreign state (such as a
     // test's hand-built state) keeps only its memory write.
     if (cansee(mtmp.mx, mtmp.my, state) && !canspotmon(mtmp, state)) {
-        if (state === game) map_invisible(mtmp.mx, mtmp.my, state);
+        if (state === game) await map_invisible_async(mtmp.mx, mtmp.my, state);
         else map_invisible_memory_only(mtmp.mx, mtmp.my, state);
-        if (noticesQueued()) await emitQueuedNotices();
     }
 }
 

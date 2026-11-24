@@ -95,6 +95,7 @@ import {
     glyph_to_mon,
     feel_location,
     map_invisible,
+    map_invisible_async,
     warning_of,
     glyph_to_cmap,
     glyph_to_obj,
@@ -104,6 +105,7 @@ import {
     magic_map_background_steps,
     map_trap,
     map_object,
+    map_object_async,
     newsym,
     newsym_steps,
     object_glyph_info,
@@ -112,10 +114,10 @@ import {
     trap_glyph_info,
     trap_to_glyph,
     unmap_object,
-    unmap_invisible,
+    unmap_invisible_async,
     xy_set_wall_state,
     flush_screen,
-    see_monsters,
+    see_monsters_async,
     GLYPH_INVISIBLE,
     mon_to_glyph,
     flash_glyph_at,
@@ -219,6 +221,7 @@ import {
     displayPendingTtyMessageWindow,
     emitQueuedNotices,
     noticesQueued,
+    printQueued,
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
@@ -521,10 +524,9 @@ function clear_stale_map(oclass, material, state = game) {
 export async function gold_detect(scroll, state = game) {
     const floorObjects = state.level?.objlist ?? null;
     const monsters = state.level?.monlist ?? null;
-    const stale = clear_stale_map(
+    const stale = await printQueued(clear_stale_map(
         COIN_CLASS, scroll.blessed ? GOLD : 0, state,
-    );
-    if (noticesQueued()) await emitQueuedNotices();
+    ));
     state.gk ??= {};
     state.gk.known = stale;
     let goldUnderHero = false;
@@ -622,8 +624,7 @@ export async function gold_detect(scroll, state = game) {
                 temp.ox = obj.ox;
                 temp.oy = obj.oy;
             }
-            map_object(temp, 1, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await map_object_async(temp, 1, state);
         } else {
             temp = o_in(obj, COIN_CLASS, state);
             if (temp) {
@@ -631,8 +632,7 @@ export async function gold_detect(scroll, state = game) {
                     temp.ox = obj.ox;
                     temp.oy = obj.oy;
                 }
-                map_object(temp, 1, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await map_object_async(temp, 1, state);
             }
         }
         if (temp && u_at(temp.ox, temp.oy, state)) goldUnderHero = true;
@@ -649,24 +649,21 @@ export async function gold_detect(scroll, state = game) {
                 ox: monster.mx,
                 oy: monster.my,
             });
-            map_object(temp, 1, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await map_object_async(temp, 1, state);
         } else {
             for (let obj = monster.minvent; obj; obj = obj.nobj) {
                 temp = scroll.blessed ? o_material(obj, GOLD, state) : null;
                 if (temp) {
                     temp.ox = monster.mx;
                     temp.oy = monster.my;
-                    map_object(temp, 1, state);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await map_object_async(temp, 1, state);
                     break;
                 }
                 temp = o_in(obj, COIN_CLASS, state);
                 if (temp) {
                     temp.ox = monster.mx;
                     temp.oy = monster.my;
-                    map_object(temp, 1, state);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await map_object_async(temp, 1, state);
                     break;
                 }
             }
@@ -693,8 +690,7 @@ export async function food_detect(scroll, state = game) {
         || Boolean(scroll?.cursed);
     const objectClass = confused ? POTION_CLASS : FOOD_CLASS;
     const description = confused ? 'something' : 'food';
-    const stale = clear_stale_map(objectClass, 0, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    const stale = await printQueued(clear_stale_map(objectClass, 0, state));
     if (state.u.usteed) {
         state.u.usteed.mx = state.u.ux;
         state.u.usteed.my = state.u.uy;
@@ -774,8 +770,7 @@ export async function food_detect(scroll, state = game) {
             temp.ox = obj.ox;
             temp.oy = obj.oy;
         }
-        map_object(temp, 1, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await map_object_async(temp, 1, state);
     }
     for (let monster = state.level?.monlist ?? null;
         monster; monster = monster.nmon) {
@@ -785,8 +780,7 @@ export async function food_detect(scroll, state = game) {
             if (!temp) continue;
             temp.ox = monster.mx;
             temp.oy = monster.my;
-            map_object(temp, 1, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await map_object_async(temp, 1, state);
             break;
         }
     }
@@ -908,10 +902,9 @@ export async function object_detect(detector = null, objectClass = 0,
         }
     }
 
-    const staleMap = clear_stale_map(
+    const staleMap = await printQueued(clear_stale_map(
         !oclass ? MAXOCLASSES + 1 : oclass, 0, state,
-    );
-    if (noticesQueued()) await emitQueuedNotices();
+    ));
 
     if (!staleMap && !count) {
         if (!countHere) {
@@ -934,8 +927,7 @@ export async function object_detect(detector = null, objectClass = 0,
             match.ox = obj.ox;
             match.oy = obj.oy;
         }
-        map_object(oclass ? match : obj, 1, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await map_object_async(oclass ? match : obj, 1, state);
     }
 
     for (let x = 1; x < COLNO; ++x) {
@@ -950,8 +942,7 @@ export async function object_detect(detector = null, objectClass = 0,
                     match.ox = obj.ox;
                     match.oy = obj.oy;
                 }
-                map_object(match, 1, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await map_object_async(match, 1, state);
                 break;
             }
         }
@@ -966,8 +957,7 @@ export async function object_detect(detector = null, objectClass = 0,
             if (!match) continue;
             match.ox = monster.mx;
             match.oy = monster.my;
-            map_object(match, 1, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await map_object_async(match, 1, state);
             break;
         }
         if (detector?.cursed && M_AP_TYPE(monster) === M_AP_OBJECT
@@ -976,7 +966,7 @@ export async function object_detect(detector = null, objectClass = 0,
             // temp = cg.zeroobj: the class stays zero, so a gem or spellbook
             // disguise, which obj_is_generic() takes by type, draws
             // generic_obj_to_glyph()'s class-zero glyph.
-            map_object(newObject({
+            await map_object_async(newObject({
                 otyp: monster.mappearance,
                 quan: 1,
                 ox: monster.mx,
@@ -984,16 +974,14 @@ export async function object_detect(detector = null, objectClass = 0,
                 corpsenm: has_mcorpsenm(monster)
                     ? MCORPSENM(monster) : PM_TENGU,
             }), 1, state);
-            if (noticesQueued()) await emitQueuedNotices();
         } else if (findgold(monster.minvent)
             && (!oclass || oclass === COIN_CLASS)) {
-            map_object(newObject({ /* gold = cg.zeroobj */
+            await map_object_async(newObject({ /* gold = cg.zeroobj */
                 otyp: GOLD_PIECE,
                 quan: rnd(10),
                 ox: monster.mx,
                 oy: monster.my,
             }), 1, state);
-            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 
@@ -1054,8 +1042,7 @@ export async function monster_detect(
         if (!mclass || monster.data?.mlet === mclass
             || (monster.data?.pmidx === PM_LONG_WORM
                 && mclass === S_WORM_TAIL)) {
-            map_monst(monster, true, state, env);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(map_monst(monster, true, state, env));
         }
         if (otmp?.cursed && helpless(monster)) {
             monster.msleeping = 0;
@@ -1064,8 +1051,7 @@ export async function monster_detect(
             woken = true;
         }
     }
-    if (!swallowed) showSelf(state);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (!swallowed) await printQueued(showSelf(state));
     await message('You sense the presence of monsters.', state);
     if (woken) await message('Monsters sense the presence of you.', state);
 
@@ -1147,8 +1133,7 @@ async function detect_obj_traps(objlist, showThem, how, ft = null, state = game)
             if (ft) await flash_glyph_at(x, y, trapglyph, FOUND_FLASH_COUNT, state);
             if (showThem) {
                 const dummyTrap = { tx: x, ty: y, ttyp: TRAPPED_CHEST };
-                show_sense_trap(dummyTrap, x, y, how, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await printQueued(show_sense_trap(dummyTrap, x, y, how, state));
             }
             if (ft) {
                 foundone(x, y, trapglyph, state);
@@ -1177,17 +1162,15 @@ async function display_trap_map(cursedSource, state = game) {
     }
     await detect_obj_traps(state.invent, true, cursedSource, null, state);
     for (const trap of state.level?.traps ?? []) {
-        show_sense_trap(trap, 0, 0, cursedSource, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(show_sense_trap(trap, 0, 0, cursedSource, state));
     }
 
     for (let index = 0; index < (state.level?.doorindex ?? 0); ++index) {
         const door = state.level.doors[index];
         if (state.level.at(door.x, door.y).typ === SDOOR) continue;
         if (state.level.at(door.x, door.y).flags & D_TRAPPED) {
-            show_sense_trap({ tx: door.x, ty: door.y, ttyp: TRAPPED_DOOR },
-                door.x, door.y, cursedSource, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(show_sense_trap({ tx: door.x, ty: door.y, ttyp: TRAPPED_DOOR },
+                door.x, door.y, cursedSource, state));
         }
     }
 
@@ -1287,11 +1270,9 @@ async function furniture_detect(state = game) {
             } else if (symbol >= S_upstair && symbol <= S_fountain) {
                 ++found;
                 if (monster && M_AP_TYPE(monster) === M_AP_FURNITURE)
-                    monSeemimic(monster, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                    await printQueued(monSeemimic(monster, state));
                 if (!monster || !canspotmon(monster, state))
-                    map_invisible(x, y, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                    await map_invisible_async(x, y, state);
             }
             if (glyph_at(x, y, state) !== glyph) ++revealed;
         }
@@ -1599,8 +1580,7 @@ export async function reveal_terrain(whichSubset, state = game) {
             const glyph = await finish_steps(reveal_terrain_getglyph_steps(
                 x, y, swallowed, defaultGlyph, whichSubset, state,
             ), printer);
-            show_glyph_cell(x, y, terrainGlyphInfo(glyph, state));
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(show_glyph_cell(x, y, terrainGlyphInfo(glyph, state)));
         }
     }
     await flush_screen(1);
@@ -1762,8 +1742,7 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
             const object = state.level.objects?.[x]?.[y] ?? null;
             if (object) {
                 if (extended) observe_object(object, state);
-                map_object(object, true, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await map_object_async(object, true, state);
                 const newGlyph = glyph_at(x, y, state);
                 if (newGlyph !== oldGlyph && coversObjects(x, y, state))
                     objectDetected = true;
@@ -1776,11 +1755,9 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
                 if ((unconstrained || !state.level.flags.hero_memory)
                     && !extended && (x !== ux || y !== uy)
                     && !glyph_is_monster(oldGlyph)) {
-                    map_invisible(x, y, state);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await map_invisible_async(x, y, state);
                 } else {
-                    map_monst(monster, false, state, env);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await printQueued(map_monst(monster, false, state, env));
                 }
                 const newGlyph = glyph_at(x, y, state);
                 if (extended && newGlyph !== oldGlyph
@@ -1824,13 +1801,11 @@ export async function do_vicinity_map(sobj, state = game, env = {}) {
                 && glyph_to_mon(glyph) !== PM_LONG_WORM_TAIL) {
                 const monster = m_at(x, y, state);
                 if (!monster || !canspotmon(monster, state))
-                    map_invisible(x, y, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                    await map_invisible_async(x, y, state);
             }
         }
     }
-    await see_monsters(state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await see_monsters_async(state);
     if (refresh) await docrt();
 }
 
@@ -1922,11 +1897,9 @@ async function defaultRevealFoundTrap(trap, env) {
     // C ref: detect.c find_trap() calls map_trap(trap, 1), not merely
     // show_glyph().  The discovered trap must survive the following docrt(),
     // including when WIN_STOP suppresses the message's --More-- wait.
-    map_trap(trap, 1, env.state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(map_trap(trap, 1, env.state));
     // display.h display_self(): a visible steed is drawn in the hero's place.
-    display_self(env.state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(display_self(env.state));
 }
 
 async function defaultWaitFoundTrap(env) {
@@ -2173,8 +2146,7 @@ async function mfind0(monster, via_warning, env) {
 
 /** C ref: detect.c warnreveal() (2107-2119). */
 export async function warnreveal(rawEnv = {}) {
-    const env = normalizeSearchEnv(rawEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+    const env = await printQueued(normalizeSearchEnv(rawEnv));
     const { state } = env;
     for (let x = state.u.ux - 1; x <= state.u.ux + 1; ++x) {
         for (let y = state.u.uy - 1; y <= state.u.uy + 1; ++y) {
@@ -2322,8 +2294,7 @@ export async function findone(x, y, found, state) {
             x, y, trap_to_glyph(trap, state), FOUND_FLASH_COUNT, state,
         );
         trap.tseen = true;
-        sense_trap(trap, x, y, false, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(sense_trap(trap, x, y, false, state));
         foundone(x, y, trap_to_glyph(trap, state), state);
         found.num_traps++;
     }
@@ -2332,8 +2303,7 @@ export async function findone(x, y, found, state) {
         const dummyTrap = { ttyp: TRAPPED_DOOR, tx: x, ty: y, tseen: true };
         const glyph = trap_to_glyph(dummyTrap, state);
         await flash_glyph_at(x, y, glyph, FOUND_FLASH_COUNT, state);
-        sense_trap(dummyTrap, x, y, false, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(sense_trap(dummyTrap, x, y, false, state));
         foundone(x, y, glyph, state);
         found.num_traps++;
     }
@@ -2356,8 +2326,7 @@ export async function findone(x, y, found, state) {
                 x, y, mon_to_glyph(monster, state, displayRandom),
                 FOUND_FLASH_COUNT, state,
             );
-            monSeemimic(monster, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(monSeemimic(monster, state));
             found.num_mons++;
         } else if (monster.mundetected
             && (is_hider(monster.data) || hides_under(monster.data)
@@ -2376,16 +2345,14 @@ export async function findone(x, y, found, state) {
                 await flash_glyph_at(
                     x, y, GLYPH_INVISIBLE, FOUND_FLASH_COUNT, state,
                 );
-                map_invisible(x, y, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await map_invisible_async(x, y, state);
                 found.num_invis++;
             }
         } else {
             found.num_kept_invis++;
         }
     } else {
-        const unmapped = unmap_invisible(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        const unmapped = await unmap_invisible_async(x, y, state);
         if (unmapped) {
             await flash_glyph_at(
                 x, y, GLYPH_INVISIBLE, FOUND_FLASH_COUNT, state,
@@ -2605,8 +2572,7 @@ async function findTrap(trap, env) {
 // C ref: detect.c find_trap() (1935-1964). The discovery sequence is shared
 // by explicit searching and callers such as dokick.c:really_kick_object().
 export async function find_trap(trap, rawEnv = {}) {
-    const env = normalizeSearchEnv(rawEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+    const env = await printQueued(normalizeSearchEnv(rawEnv));
     await findTrap(trap, env);
 }
 
@@ -2631,8 +2597,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
         );
     }
 
-    const env = normalizeSearchEnv(rawEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+    const env = await printQueued(normalizeSearchEnv(rawEnv));
     const { state } = env;
     const { u } = state;
     if (!u || !state.level?.at) {
@@ -2700,8 +2665,7 @@ export async function dosearch0(aflag, rawEnv = {}) {
                 // feel_location() has already handled the tactile display.
                 if (explicit && !monster
                     && !Blind(u)) {
-                    unmap_invisible(x, y, state);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await unmap_invisible_async(x, y, state);
                 }
                 const trap = t_at(x, y, state);
                 if (!trap || trap.tseen || env.random.rnl(8)) continue;

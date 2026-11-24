@@ -26,7 +26,7 @@ import { s_suffix, upstart } from './hacklib.js';
 import { losehp } from './hack.js';
 import { makeplural } from './fruit.js';
 import {
-    delobj,
+    delobj_async,
     useup,
     useupf,
 } from './invent.js';
@@ -71,8 +71,6 @@ import {
     WAND_CLASS,
 } from './objects.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
     ttyPline,
 } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
@@ -162,8 +160,7 @@ async function removeObjectQuantity(obj, quantity, env) {
         obj.owt = weight(obj, lifecycleEnv);
         return;
     }
-    await delobj(obj, lifecycleEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+    await delobj_async(obj, lifecycleEnv);
 }
 
 // C ref: zap.c burn_floor_objects() (4617-4628). Both names are xname(),

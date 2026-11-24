@@ -126,8 +126,7 @@ import {
     t_at,
 } from './trap.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
@@ -139,7 +138,7 @@ import {
     unblock_point,
     vision_recalc_async,
 } from './vision.js';
-import { cmap_to_glyph, newsym } from './display.js';
+import { cmap_to_glyph, newsym, newsym_async } from './display.js';
 import { S_air, S_cloud, S_water } from './symbols.js';
 import {
     M2_ORC,
@@ -152,7 +151,7 @@ import {
 import { christen_monst, christen_orc, new_oname, rndorcname } from './do_name.js';
 import { fruitadd } from './fruit.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { rloc } from './teleport.js';
+import { rloc_async } from './teleport.js';
 import { remove_worm } from './worm.js';
 import { onscary, set_apparxy } from './monmove.js';
 import {
@@ -398,9 +397,8 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                 // holder can make its JS release asynchronous; finish the
                 // relocation and the zero-result fallback before moving on to
                 // the next saved bubble content or collision effect.
-                const moved = await mnearto(contents.list, contents.x, contents.y,
-                    true, RLOC_NOMSG, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                const moved = await printQueued(mnearto(contents.list, contents.x, contents.y,
+                    true, RLOC_NOMSG, state));
                 if (!moved) await elemental_clog(contents.list, state);
                 break;
             }
@@ -409,8 +407,7 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                 const oldx = state.u.ux;
                 const oldy = state.u.uy;
                 await u_on_newpos(contents.x, contents.y, state);
-                newsym(oldx, oldy);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(oldx, oldy);
                 if (occupying)
                     await mnexto(occupying, RLOC_NOMSG, { state });
                 break;
@@ -516,8 +513,7 @@ export async function movebubbles(state = game, random = rn2) {
     let bcpin = 0;
 
     if (waterLevel) {
-        if (state.uball) bcpin = unplacebc_and_covet_placebc(state);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (state.uball) bcpin = await printQueued(unplacebc_and_covet_placebc(state));
         state.hero_bubble = null;
         // C collects using the previous direction, before toggling it for
         // movement below. The first overlapping bubble owns each monster or
@@ -552,11 +548,9 @@ export async function movebubbles(state = game, random = rn2) {
                     const monster = m_at(x, y, state);
                     if (monster) {
                         push_front(bubble.cons, { x, y, what: 'monster', list: monster });
-                        if (monster.wormno) remove_worm(monster, { state });
+                        if (monster.wormno) await printQueued(remove_worm(monster, { state }));
                         else remove_monster(x, y, state);
-                        if (noticesQueued()) await emitQueuedNotices();
-                        newsym(x, y);
-                        if (noticesQueued()) await emitQueuedNotices();
+                        await newsym_async(x, y);
                         monster.mx = monster.my = 0;
                         monster.mstate = (monster.mstate ?? 0) | MON_BUBBLEMOVE;
                     }
@@ -902,8 +896,7 @@ async function put_lregion_here(
             if (!oneshot) return false;
             if (!options.preflightOnly) {
                 // mkmaze.c:449-450, rloc() and then mon.c m_into_limbo().
-                const moved = await rloc(mtmp, RLOC_NOMSG, { state });
-                if (noticesQueued()) await emitQueuedNotices();
+                const moved = await rloc_async(mtmp, RLOC_NOMSG, { state });
                 if (!moved) await m_into_limbo(mtmp, state);
             }
         }
@@ -926,8 +919,7 @@ async function put_lregion_here(
     case LR_PORTAL: {
         // C ref: mkmaze.c:450-454 mkportal(). A portal is a magic portal
         // trap whose destination is the level region's resolved d_level.
-        if (lev) mkportal(x, y, lev.dnum, lev.dlevel, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (lev) await printQueued(mkportal(x, y, lev.dnum, lev.dlevel, state));
         break;
     }
     case LR_DOWNSTAIR:
@@ -1029,14 +1021,13 @@ export async function baalz_fixup(state = game) {
         state.level.at(x, y + 1).typ = HWALL;
         const monster = m_at(x, y, state);
         if (monster) {
-            await rloc(monster, RLOC_ERR | RLOC_NOMSG, {
+            await rloc_async(monster, RLOC_ERR | RLOC_NOMSG, {
                 state,
                 newsym,
                 onscary: (nx, ny, mon, env) =>
                     onscary(nx, ny, mon, env.state),
                 setApparxy: set_apparxy,
             });
-            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 
@@ -1052,14 +1043,13 @@ export async function baalz_fixup(state = game) {
         state.level.at(x, y - 1).typ = HWALL;
         const monster = m_at(x, y, state);
         if (monster) {
-            await rloc(monster, RLOC_ERR | RLOC_NOMSG, {
+            await rloc_async(monster, RLOC_ERR | RLOC_NOMSG, {
                 state,
                 newsym,
                 onscary: (nx, ny, mon, env) =>
                     onscary(nx, ny, mon, env.state),
                 setApparxy: set_apparxy,
             });
-            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 
@@ -1305,9 +1295,8 @@ export async function stolen_booty(state = game) {
         random: coreRandom,
         hooks: objectGenerationEnv({ state }).hooks,
     };
-    let monster = await makemon(state.mons[PM_ORC_CAPTAIN], 0, 0, MM_NONAME,
-                          monsterEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+    let monster = await printQueued(makemon(state.mons[PM_ORC_CAPTAIN], 0, 0, MM_NONAME,
+                          monsterEnv));
     if (monster) {
         monster = christen_monst(monster, upstart(gang), { state });
         monster.mpeaceful = false;
@@ -1325,8 +1314,7 @@ export async function stolen_booty(state = game) {
     count = rn2(10) + 5;
     for (let i = 0; i < count; ++i) {
         const mtyp = rn2(PM_ORC_SHAMAN - PM_ORC + 1) + PM_ORC;
-        monster = await makemon(state.mons[mtyp], 0, 0, MM_NONAME, monsterEnv);
-        if (noticesQueued()) await emitQueuedNotices();
+        monster = await printQueued(makemon(state.mons[mtyp], 0, 0, MM_NONAME, monsterEnv));
         if (monster) {
             shiny_orc_stuff(monster, state);
             await migrate_orc(monster, 0, state);
@@ -1513,16 +1501,14 @@ export async function populate_maze(frame, state = game) {
     count = rn2(3);
     for (; count; --count) {
         const point = mazexy(null, frame, state);
-        await makemon(state.mons[PM_MINOTAUR], point.x, point.y, NO_MM_FLAGS,
-            { state, random: coreRandom, hooks: env.hooks });
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(makemon(state.mons[PM_MINOTAUR], point.x, point.y, NO_MM_FLAGS,
+            { state, random: coreRandom, hooks: env.hooks }));
     }
     count = rn1(5, 7);
     for (; count; --count) {
         const point = mazexy(null, frame, state);
-        await makemon(null, point.x, point.y, NO_MM_FLAGS,
-            { state, random: coreRandom, hooks: env.hooks });
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(makemon(null, point.x, point.y, NO_MM_FLAGS,
+            { state, random: coreRandom, hooks: env.hooks }));
     }
     count = rn1(6, 7);
     for (; count; --count) {
@@ -1531,8 +1517,7 @@ export async function populate_maze(frame, state = game) {
     }
     count = rn1(6, 7);
     for (; count; --count) {
-        await mktrap(0, MKTRAP_MAZEFLAG, null, null, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(mktrap(0, MKTRAP_MAZEFLAG, null, null, env));
     }
 }
 

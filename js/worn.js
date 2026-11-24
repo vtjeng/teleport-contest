@@ -163,8 +163,7 @@ import {
 } from './objects.js';
 import { learnwand } from './zap.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { messageAt } from './startup_a11y.js';
@@ -860,10 +859,9 @@ async function applyMonsterArmorRuntime(
     monster.mfrozen = delay;
     if (monster.mfrozen) monster.mcanmove = false;
     if (old) {
-        await update_mon_extrinsics(monster, old, false, {
+        await printQueued(update_mon_extrinsics(monster, old, false, {
             ...env, state, silent,
-        });
-        if (noticesQueued()) await emitQueuedNotices();
+        }));
         old.owornmask = oldMask;
         if (old.lamplit && artifact_light(old)) {
             end_burn(old, false, objectGenerationEnv({ ...env, state }));
@@ -906,10 +904,9 @@ async function applyMonsterArmorRuntime(
             }
         }
     }
-    await update_mon_extrinsics(monster, best, true, {
+    await printQueued(update_mon_extrinsics(monster, best, true, {
         ...env, state, silent,
-    });
-    if (noticesQueued()) await emitQueuedNotices();
+    }));
     if (!silent && sawMonster !== canseemon(monster, state)) {
         if (monster.minvis && !See_invisible(state.u)) {
             const message = env.message ?? ttyPline;
@@ -1137,8 +1134,7 @@ async function m_lose_armor(monster, obj, polyspot, rawEnv = {}) {
     const placement = place_object(obj, monster.mx, monster.my, env);
     if (placement && typeof placement.then === 'function') await placement;
     if (polyspot) bypass_obj(obj, state);
-    redraw(monster.mx, monster.my, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(monster.mx, monster.my, state));
 }
 
 export function bimanual(obj, state = game) {

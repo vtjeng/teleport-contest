@@ -48,7 +48,7 @@ import { isok } from './cmd_isok.js';
 import { christen_monst, free_oname } from './do_name.js';
 import { mk_named_object } from './corpstat.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { installLevel, newsym } from './display.js';
+import { installLevel, newsym_async } from './display.js';
 import { clear_bypasses, m_dowear } from './worn.js';
 import {
     In_hell,
@@ -85,9 +85,9 @@ import {
 } from './mondata.js';
 import { m_at } from './monst.js';
 import {
-    is_Vlad, iter_mons_async, m_carrying, mongone, restore_cham,
+    is_Vlad, iter_mons_async, m_carrying, mongone_async, restore_cham,
 } from './mon.js';
-import { enexto, rloc_to } from './teleport.js';
+import { enexto, rloc_to_async } from './teleport.js';
 import { restpriest } from './priest.js';
 import { restshk, set_residency } from './shk.js';
 import { can_carry } from './moncarry.js';
@@ -163,14 +163,13 @@ import {
 } from './monsters.js';
 import { peace_minded, propagate, set_malign } from './makemon.js';
 import { coreRandom, rn2 } from './rng.js';
-import { cant_revive, unpunish } from './read.js';
+import { cant_revive, unpunish_async } from './read.js';
 import { fix_shop_damage } from './shk.js';
 import { delete_bonesfile, open_bonesfile, write_bonesfile } from './files_bones.js';
 import { roles, races, genders, aligns } from './roles.js';
 import { initrack } from './track.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { dungeon_at } from './dungeon_table.js';
@@ -538,8 +537,7 @@ async function fixuporacle(oracle, state) {
         const cy = Math.trunc((room.ly + room.hy) / 2);
         const cc = enexto(cx, cy, oracle.data, { state });
         if (cc) {
-            await rloc_to(oracle, cc.x, cc.y, { state });
-            if (noticesQueued()) await emitQueuedNotices();
+            await rloc_to_async(oracle, cc.x, cc.y, { state });
             o_ridx = roomAt(oracle.mx, oracle.my);
         }
     }
@@ -557,8 +555,7 @@ async function remove_mon_from_bones(mtmp, state) {
         || mptr.msound === MS_NEMESIS || mptr.msound === MS_LEADER
         || is_Vlad(mtmp)
         || (mptr === state.mons[PM_ORACLE] && !await fixuporacle(mtmp, state)))
-        await mongone(mtmp, { state });
-    if (noticesQueued()) await emitQueuedNotices();
+        await mongone_async(mtmp, { state });
 }
 
 // C ref: bones.c newebones() (818-829). Creates an ebones structure on a
@@ -619,8 +616,7 @@ export async function savebones(how, when, corpse, state) {
     unleash_all(state);
 
     // C: if (Punished) unpunish(); Punished is uball != null.
-    if (state.uball) unpunish(state);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (state.uball) await unpunish_async(state);
 
     // C ref: bones.c:441-444. Dismount before the dead monsters are
     // discarded; DISMOUNT_BONES moves the steed off the hero's square to
@@ -651,9 +647,8 @@ export async function savebones(how, when, corpse, state) {
         // bones.c:458-479. The monster the hero becomes is made on the
         // hero's square without inventory and receives the possessions.
         state.in_mklev = true;
-        mtmp = await makemon(state.mons[state.u.ugrave_arise], state.u.ux,
-            state.u.uy, NO_MINVENT, { state });
-        if (noticesQueued()) await emitQueuedNotices();
+        mtmp = await printQueued(makemon(state.mons[state.u.ugrave_arise], state.u.ux,
+            state.u.uy, NO_MINVENT, { state }));
         state.in_mklev = false;
         if (!mtmp) { /* arise-type might have been genocided */
             await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
@@ -662,8 +657,7 @@ export async function savebones(how, when, corpse, state) {
         }
         give_u_to_m_resistances(mtmp, state);
         mtmp = christen_monst(mtmp, state.plname, { state });
-        newsym(state.u.ux, state.u.uy);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(state.u.ux, state.u.uy);
         await drop_upon_death(mtmp, null, state.u.ux, state.u.uy, state);
         if (mtmp.data.mlet === S_MUMMY
             && !m_carrying(mtmp, MUMMY_WRAPPING, state))
@@ -682,8 +676,7 @@ export async function savebones(how, when, corpse, state) {
         // u.ugrave_arise < LEAVESTATUE: drop everything, create a ghost.
         await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
         state.in_mklev = true;
-        mtmp = await makemon(state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NONAME, { state });
-        if (noticesQueued()) await emitQueuedNotices();
+        mtmp = await printQueued(makemon(state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NONAME, { state }));
         state.in_mklev = false;
         if (!mtmp) return;
         mtmp = christen_monst(mtmp, state.plname, { state });
@@ -1121,8 +1114,7 @@ async function purgeDefunctBonesMonsters(state) {
         if (has_mgivenname(mtmp))
             mtmp.mextra.mgivenname = sanitize_name(mtmp.mextra.mgivenname, state);
         if (mtmp.mhpmax === DEFUNCT_MONSTER) {
-            await mongone(mtmp, { state });
-            if (noticesQueued()) await emitQueuedNotices();
+            await mongone_async(mtmp, { state });
         } else {
             // C resets named-artifact bookkeeping only for survivors.
             resetobjs(mtmp.minvent, true, state);
@@ -1154,8 +1146,7 @@ export async function ghostly_getlev_monsters(state) {
                 : peace_minded(mtmp.data, { state });
         }
         set_malign(mtmp, state);
-        await restore_cham(mtmp, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(restore_cham(mtmp, state));
         hide_monst(mtmp, state);
     }
 }

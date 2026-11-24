@@ -131,8 +131,7 @@ import { make_confused } from './potion.js';
 import { coreRandom, rn1, rn2 } from './rng.js';
 import { aligns } from './roles.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { summon_furies } from './makemon.js';
@@ -580,8 +579,7 @@ export async function adjabil(oldlevel, newlevel, state = game, env = {}) {
             }
         }
         if (prevabil !== property.intrinsic) /* it changed */
-            await postadjabil(entry.ability, state, env);
-        if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(postadjabil(entry.ability, state, env));
         ++index;
     }
 

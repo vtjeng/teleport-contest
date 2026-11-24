@@ -52,6 +52,7 @@ import {
     cls,
     map_object,
     newsym,
+    newsym_async,
     remembered_glyph_from_presentation,
 } from './display.js';
 import { freeinv } from './invent.js';
@@ -93,6 +94,7 @@ import { note_unported } from './unported.js';
 import {
     emitQueuedNotices,
     noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { impossible, youFeel } from './pline.js';
@@ -231,8 +233,7 @@ async function placebc_core(state, rawEnv = {}) {
     const glyph = memoryGlyph(state.u.ux, state.u.uy, state);
     state.u.bglyph = glyph;
     state.u.cglyph = glyph;
-    redraw(state.u.ux, state.u.uy, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(state.u.ux, state.u.uy, state));
     state.bcrestriction = 0;
 }
 
@@ -301,6 +302,12 @@ export function unplacebc(state = game) {
         return;
     }
     unplacebc_core(state);
+}
+
+// ball.c unplacebc() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function unplacebc_async(...args) {
+    return printQueued(unplacebc(...args));
 }
 
 // C hack.h enum bcargs and ball.c check_restriction()/covet wrappers.
@@ -539,6 +546,12 @@ export function move_bc(before, control, ballx, bally, chainx, chainy, state = g
     if (onFloor) newsym(ballx, bally);
 }
 
+// ball.c move_bc() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function move_bc_async(...args) {
+    return printQueued(move_bc(...args));
+}
+
 function chainRock(x, y, state) {
     const location = state.level.at(x, y);
     return IS_OBSTRUCTED(location.typ)
@@ -572,9 +585,7 @@ export async function drag_ball(
     setPointer(causeDelay, false);
 
     if (dist2(x, y, chain.ox, chain.oy) <= 2) {
-        move_bc(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally),
-            pointerValue(chainx), pointerValue(chainy), state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await move_bc_async(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally), pointerValue(chainx), pointerValue(chainy), state);
         return true;
     }
 
@@ -582,9 +593,7 @@ export async function drag_ball(
         const oldChainX = chain.ox;
         const oldChainY = chain.oy;
         setPointer(bcControl, BC_CHAIN);
-        move_bc(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally),
-            pointerValue(chainx), pointerValue(chainy), state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await move_bc_async(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally), pointerValue(chainx), pointerValue(chainy), state);
         if (carried(ball)) {
             if (distmin(x, y, chain.ox, chain.oy) > 1) {
                 setPointer(chainx, state.u.ux);
@@ -613,8 +622,7 @@ export async function drag_ball(
         // skipToDrag() for this async caller: move_bc() can queue a
         // mention_map notice, which C prints before the drag goes on.
         const skipToDragPrinted = async () => {
-            const dragged = await skipToDrag();
-            if (noticesQueued()) await emitQueuedNotices();
+            const dragged = await printQueued(skipToDrag());
             return dragged;
         };
 
@@ -770,28 +778,21 @@ async function dragBallTail(
             if (!m_at(chain.ox, chain.oy, state)) {
                 state.u.ux = chain.ox;
                 state.u.uy = chain.oy;
-                newsym(state.u.ux0, state.u.uy0);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(state.u.ux0, state.u.uy0);
             }
             nomul(0, state);
             setPointer(bcControl, BC_BALL);
-            move_bc(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally),
-                pointerValue(chainx), pointerValue(chainy), state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await move_bc_async(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally), pointerValue(chainx), pointerValue(chainy), state);
             setPointer(ballx, chain.ox);
             setPointer(bally, chain.oy);
-            move_bc(0, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally),
-                pointerValue(chainx), pointerValue(chainy), state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await move_bc_async(0, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally), pointerValue(chainx), pointerValue(chainy), state);
             await spoteffects(true, state);
             return false;
         }
     }
 
     setPointer(bcControl, BC_BALL | BC_CHAIN);
-    move_bc(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally),
-        pointerValue(chainx), pointerValue(chainy), state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await move_bc_async(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally), pointerValue(chainx), pointerValue(chainy), state);
     if (dist2(x, y, state.u.ux, state.u.uy) > 2) {
         setPointer(ballx, x);
         setPointer(bally, y);
@@ -895,11 +896,9 @@ export async function drop_ball(x, y, state = game) {
         u.bc_felt = 0;
         u.cglyph = u.bc_order ? u.bglyph : memoryGlyph(u.ux, u.uy, state);
     }
-    movobj(state.uchain, u.ux, u.uy, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(movobj(state.uchain, u.ux, u.uy, state));
     if (Blind(state.u)) u.bc_order = bc_order(state);
-    newsym(u.ux0, u.uy0, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(u.ux0, u.uy0);
     if (u.ux0 !== u.ux || u.uy0 !== u.uy)
         await spoteffects(true, state);
 }

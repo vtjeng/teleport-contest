@@ -20,7 +20,7 @@ import {
 } from './const.js';
 import { ART_DEMONBANE, ART_EXCALIBUR, is_art } from './artifacts.js';
 import { Amonnam, Monnam, mon_nam, x_monnam } from './do_name.js';
-import { flush_screen, map_invisible, newsym } from './display.js';
+import { flush_screen, map_invisible, newsym, newsym_async } from './display.js';
 import { In_hell } from './dungeon.js';
 import { Hear_again, is_fainted, reset_faint } from './eat.js';
 import { game } from './gstate.js';
@@ -29,7 +29,7 @@ import { nomul, unmul } from './hack.js';
 import { stop_occupation } from './allmain.js';
 import { money_cnt, currency } from './invent.js';
 import { makemon_runtime, mongets } from './makemon_create.js';
-import { mongone } from './mon.js';
+import { mongone_async } from './mon.js';
 import { mkclass, mkclass_aligned, set_malign } from './makemon.js';
 import {
     is_demon,
@@ -47,7 +47,7 @@ import { acurr } from './attrib.js';
 import { getlin } from './windows.js';
 import { coreRandom } from './rng.js';
 import { show_transient_light, transient_light_cleanup } from './light.js';
-import { rloc, tele_restrict } from './teleport.js';
+import { rloc_async, tele_restrict } from './teleport.js';
 import { vision_recalc_async } from './vision.js';
 import { livelog_printf, verbalize, youFeel } from './pline.js';
 import { align_gname } from './pray.js';
@@ -55,6 +55,7 @@ import { set_voice } from './sounds.js';
 import {
     emitQueuedNotices,
     noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
@@ -96,16 +97,14 @@ export async function lose_guardian_angel(mon, state = game, rawEnv = {}) {
                 );
             }
         }
-        await mongone(mon, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await mongone_async(mon, env);
     }
     for (let i = random.rn1(3, 2); i > 0; --i) {
         const at = enexto(state.u.ux, state.u.uy,
             state.mons[M.PM_ANGEL], env);
         if (at)
-            await mk_roamer(state.mons[M.PM_ANGEL], state.u.ualign.type,
-                at.x, at.y, false, env);
-        if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(mk_roamer(state.mons[M.PM_ANGEL], state.u.ualign.type,
+                at.x, at.y, false, env));
     }
 }
 
@@ -142,8 +141,7 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
                 angel.mtame = 10;
                 state.u.uconduct.pets++;
             }
-            newsym(angel.mx, angel.my, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(angel.mx, angel.my);
             await message(Blind(state.u)
                 ? youFeel('the presence of a friendly angel near you.', state)
                 : 'An angel appears near you.', state);
@@ -253,8 +251,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         mtmp.mpeaceful = 0;
         mtmp.mtame = 0;
         set_malign(mtmp, state);
-        redraw(mtmp.mx, mtmp.my, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(mtmp.mx, mtmp.my, state));
         return 0;
     }
 
@@ -276,8 +273,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
             await message(`${Amonnam(mtmp, { state })} appears before you.`, state);
             mtmp.mstrategy &= ~STRAT_APPEARMSG;
         }
-        redraw(mtmp.mx, mtmp.my, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(mtmp.mx, mtmp.my, state));
     }
 
     if (state.youmonst?.data?.mlet === M.S_DEMON) {
@@ -290,8 +286,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
             await message(`${Amonnam(mtmp, { state })} says something.`, state);
         }
         if (!await tele_restrict(mtmp, state, env))
-            await rloc(mtmp, RLOC_MSG, { ...env, state, random });
-        if (noticesQueued()) await emitQueuedNotices();
+            await rloc_async(mtmp, RLOC_MSG, { ...env, state, random });
         return 1;
     }
 
@@ -347,8 +342,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         `bribed ${x_monnam(mtmp, ARTICLE_A, null, EXACT_NAME, false, state)} with ${offer} ${offer === 1 ? 'zorkmid' : 'zorkmids'} for safe passage`,
         state,
     );
-    await mongone(mtmp, { state });
-    if (noticesQueued()) await emitQueuedNotices();
+    await mongone_async(mtmp, { state });
     return 1;
 }
 

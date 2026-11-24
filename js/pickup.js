@@ -143,7 +143,7 @@ import {
     pick_lock,
     u_have_forceable_weapon,
 } from './lock.js';
-import { bot, flush_screen, newsym, obj_to_glyph } from './display.js';
+import { bot, flush_screen, newsym, newsym_async, obj_to_glyph } from './display.js';
 import { hliquid } from './do_name.js';
 import { ceiling, surface, surface_typ, lastseentyp_grid } from './dungeon.js';
 import { doaltarobj, dropCommandEnv, dropx, dropy, revive_corpse, trycall } from './do.js';
@@ -272,8 +272,7 @@ import {
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyNorep,
     ttyPline,
     ttyUrgentPline,
@@ -1406,8 +1405,7 @@ export async function pick_obj(otmp, state = game, env = {}, plan = null) {
     let robshop = !state.u.uswallow && otmp !== state.uball
         && costly_spot(ox, oy, state);
     await obj_extract_self(otmp, env);
-    if (fromfloor) (env.redraw ?? newsym)(ox, oy, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (fromfloor) await printQueued((env.redraw ?? newsym)(ox, oy, state));
     if (robshop) {
         const savedShops = state.u.ushops;
         const shop = in_rooms(ox, oy, SHOPBASE, state)[0];
@@ -1717,8 +1715,7 @@ export async function pickup(what, state = game) {
             await hideunder(state.youmonst, { state });
         // newsym_force is newsym() plus dirty bookkeeping; the display owner
         // treats the ordinary redraw as the complete effect here.
-        if (n_picked) newsym(u.ux, u.uy);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (n_picked) await newsym_async(u.ux, u.uy);
         if (autopickup) await check_here(n_picked > 0, state);
     }
     state.gp.pickup_encumbrance = 0;

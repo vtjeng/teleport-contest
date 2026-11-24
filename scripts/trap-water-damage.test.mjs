@@ -645,7 +645,7 @@ test('drown preserves emergency disrobe drop order',
         assert.match(cDrown,
             /if \(u\.usteed\) \{\s*dismount_steed\(DISMOUNT_GENERIC\);\s*if \(!is_pool\(u\.ux, u\.uy\)\)\s*return TRUE;/u);
         assert.match(jsTrap,
-            /export async function drown\(state = game\) \{[\s\S]*?feel_newsym\(u\.ux, u\.uy, state\);/u);
+            /export async function drown\(state = game\) \{[\s\S]*?await feel_newsym_async\(u\.ux, u\.uy, state\);/u);
         assert.doesNotMatch(jsTrap,
             /note_unported\('display\.c feel_newsym'\)/u);
         assert.match(jsTrap,
@@ -685,9 +685,9 @@ test('drown moves a punished ball and chain before setting underwater state',
         assert.match(cPlacebcCore,
             /flooreffects\(uchain, u\.ux, u\.uy, ""\);[\s\S]*?flooreffects\(uball, u\.ux, u\.uy, ""\);/u);
         assert.match(jsTrap,
-            /if \(Punished\(state\)\) \{\s*\/\/ trap\.c:drown[\s\S]*?unplacebc\(state\);\s*(?:if \(noticesQueued\(\)\) await emitQueuedNotices\(\);\s*)?await placebc\(state\);\s*\}/u);
+            /if \(Punished\(state\)\) \{\s*\/\/ trap\.c:drown[\s\S]*?await unplacebc_async\(state\);\s*await placebc\(state\);\s*\}/u);
         assert.doesNotMatch(jsTrap,
             /note_unported\('ball\.c (?:unplacebc|placebc)'\)/u);
         assert.match(jsTrap,
-            /import \{ drag_ball, move_bc, placebc, unplacebc \} from '\.\/ball\.js';/u);
+            /import \{ drag_ball, move_bc_async, placebc, unplacebc_async \} from '\.\/ball\.js';/u);
     });

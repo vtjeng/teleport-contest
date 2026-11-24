@@ -166,25 +166,24 @@ import {
 import { find_ac } from './u_init_inventory_attrs.js';
 import { max_rank_sz } from './u_init.js';
 import {
-    bot, newsym, rank_of, see_monsters, set_mimic_blocking, status_initialize,
+    bot, newsym, newsym_async, rank_of, see_monsters_async, set_mimic_blocking, status_initialize,
 } from './display.js';
 import { encumber_msg } from './pickup.js';
 import { useup, update_inventory } from './invent.js';
 import { dropx, canletgo } from './do.js';
 import { getlin } from './windows.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
 import { youhiding } from './insight.js';
 import { impossible, livelog_printf, youFeel } from './pline.js';
 import {
-    deltrap, instapetrify, maketrap, reset_utrap, set_utrap, selftouch, t_at,
+    deltrap, instapetrify, maketrap_async, reset_utrap, set_utrap, selftouch, t_at,
     unconscious,
 } from './trap.js';
-import { dotrap, feeltrap } from './trap_effects.js';
+import { dotrap, feeltrap_async } from './trap_effects.js';
 import {
     make_blinded, make_glib, make_sick, make_slimed, make_stoned,
     set_itimeout,
@@ -270,7 +269,7 @@ import {
     setmangry, wakeup,
 } from './mon.js';
 import { were_beastie, were_summon } from './were.js';
-import { unpunish } from './read.js';
+import { unpunish_async } from './read.js';
 import { learn_egg_type } from './timeout.js';
 import { canseemon, canspotmon } from './display.js';
 import {
@@ -1057,8 +1056,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
         set_itimeout(u.uprops[BLINDED], 1);
         await make_blinded(0, true, state, env);
     }
-    redraw(u.ux, u.uy, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(u.ux, u.uy, state));
 
     // C polyself.c:907-910. Learn both this form's egg and its ordinary
     // offspring type after the redraw; the forced-ordinary call skips RNG.
@@ -1158,8 +1156,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     if (amorphous(newForm) || is_whirly(newForm) || unsolid(newForm)) {
         if (state.uball) {
             await message('You slip out of the iron chain.', state, env);
-            await unpunish(state, env);
-            if (noticesQueued()) await emitQueuedNotices();
+            await unpunish_async(state, env);
         } else if (u.utrap && u.utraptype === TT_BURIEDBALL) {
             await message('You slip free of the buried ball and chain.',
                 state, env);
@@ -1186,8 +1183,7 @@ export async function polymon(mntmp, state = game, rawEnv = {}) {
     state.disp ??= {};
     state.disp.botl = true;
     state.vision_full_recalc = 1;
-    await see_monsters(state, { ...rawEnv, redraw });
-    if (noticesQueued()) await emitQueuedNotices();
+    await see_monsters_async(state, { ...rawEnv, redraw });
     await encumber_msg(state, { message });
 
     await retouch_equipment(2, state, env); // polyself.c:polymon
@@ -1292,8 +1288,7 @@ async function polyman(fmt, arg, state, rawEnv = {}) {
         state.youmonst.mappearance = 0;
     }
 
-    redraw(u.ux, u.uy, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(u.ux, u.uy, state));
 
     await message(fmt.replace('%s', arg), state, rawEnv);
     /* check whether player foolishly genocided self while poly'd */
@@ -1331,8 +1326,7 @@ async function polyman(fmt, arg, state, rawEnv = {}) {
     if (!Levitation(state.u) && !u.ustuck && is_pool_or_lava(u.ux, u.uy, state))
         await spoteffects(true, state);
 
-    await see_monsters(state, { ...rawEnv, redraw });
-    if (noticesQueued()) await emitQueuedNotices();
+    await see_monsters_async(state, { ...rawEnv, redraw });
 }
 
 // ---------- change_sex --------------------------------------------------
@@ -1542,8 +1536,7 @@ export async function newman(state = game, env = {}) {
 
     state.disp ??= {};
     state.disp.botl = true;
-    await see_monsters(state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await see_monsters_async(state);
     await encumber_msg(state);
 
     await retouch_equipment(2, state, env); // polyself.c:newman
@@ -2127,8 +2120,7 @@ export async function doremove(state = game) {
         await ttyPline('You are not chained to anything!', state);
         return ECMD_OK;
     }
-    unpunish(state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await unpunish_async(state);
     return ECMD_TIME;
 }
 
@@ -2215,14 +2207,12 @@ export async function dospinweb(state = game) {
             deltrap(ttmp, state);
             const { bury_objs } = await import('./dig.js');
             await bury_objs(x, y, state);
-            newsym(x, y);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(x, y);
             return ECMD_TIME;
         case SQKY_BOARD:
             await ttyPline('The squeaky board is muffled.', state);
             deltrap(ttmp, state);
-            newsym(x, y);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(x, y);
             return ECMD_TIME;
         case TELEP_TRAP:
         case LEVEL_TELEP:
@@ -2240,14 +2230,12 @@ export async function dospinweb(state = game) {
                 state,
             );
             deltrap(ttmp, state);
-            newsym(x, y);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(x, y);
             return ECMD_TIME;
         case ROLLING_BOULDER_TRAP:
             await ttyPline('You spin a web, jamming the trigger.', state);
             deltrap(ttmp, state);
-            newsym(x, y);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(x, y);
             return ECMD_TIME;
         case ARROW_TRAP:
         case DART_TRAP:
@@ -2276,13 +2264,11 @@ export async function dospinweb(state = game) {
         );
         return ECMD_TIME;
     }
-    ttmp = await maketrap(x, y, WEB, { state });
-    if (noticesQueued()) await emitQueuedNotices();
+    ttmp = await maketrap_async(x, y, WEB, { state });
     if (ttmp) {
         await ttyPline('You spin a web.', state);
         ttmp.madeby_u = 1;
-        feeltrap(ttmp, { state, redraw: newsym });
-        if (noticesQueued()) await emitQueuedNotices();
+        await feeltrap_async(ttmp, { state, redraw: newsym });
         if (in_rooms(x, y, SHOPBASE, state).length)
             add_damage(x, y, SHOP_WEB_COST, state);
     }
@@ -2510,8 +2496,7 @@ export async function dohide(state = game) {
             || (ismimic && M_AP_TYPE(state.youmonst) !== M_AP_NOTHING)) {
             u.uundetected = 0;
             state.youmonst.m_ap_type = M_AP_NOTHING;
-            newsym(u.ux, u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(u.ux, u.uy);
         }
         return ECMD_OK;
     }
@@ -2598,8 +2583,7 @@ export async function dohide(state = game) {
     } else {
         u.uundetected = 1;
     }
-    newsym(u.ux, u.uy);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(u.ux, u.uy);
     await youhiding(false, 0, state);
     return ECMD_TIME;
 }
@@ -2618,8 +2602,7 @@ export async function dopoly(state = game) {
                 + `${an(pmname(state.youmonst.data, Ugender(state)))}.`,
                 state,
             );
-            newsym(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(state.u.ux, state.u.uy);
         }
     }
     return ECMD_TIME;

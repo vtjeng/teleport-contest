@@ -190,8 +190,7 @@ import {
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     tty_message_menu,
     ttyPline,
 } from './tty_message.js';
@@ -375,7 +374,7 @@ import { artitouch } from './quest.js';
 import { sync_impossible } from './source_steps.js';
 import { projectionNoticeFields } from './startup_a11y.js';
 import { panic } from './end.js';
-import { unpunish } from './read.js';
+import { unpunish_async } from './read.js';
 import { record_achievement } from './insight.js';
 import { bypass_objlist, nxt_unbypassed_loot, setnotworn, setuqwep, setworn } from './worn.js';
 import {
@@ -3374,6 +3373,12 @@ export function delobj(obj, env = {}) {
     return delobj_core(obj, false, env);
 }
 
+// invent.c delobj() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function delobj_async(...args) {
+    return printQueued(delobj(...args));
+}
+
 // C ref: invent.c delallobj() (1405-1426).  Deleting the ball can rewrite the
 // punishment chain, so the next floor link is read only after unpunish(), just
 // as in C.  A drawbridge leaves the chain itself behind while deleting every
@@ -3388,13 +3393,11 @@ export async function delallobj(x, y, env = {}) {
             if (typeof normalized.hooks.unpunish === 'function')
                 normalized.hooks.unpunish(normalized);
             else
-                unpunish(state, normalized);
-            if (noticesQueued()) await emitQueuedNotices();
+                await unpunish_async(state, normalized);
         }
         const next = obj.nexthere;
         if (obj !== state.uchain)
-            await delobj(obj, normalized);
-        if (noticesQueued()) await emitQueuedNotices();
+            await delobj_async(obj, normalized);
         obj = next;
     }
 }
@@ -3455,8 +3458,7 @@ export async function useupf(obj, numused, env = {}) {
         else
             await stolen_value(otmp, otmp.ox, otmp.oy, false, false, state);
     }
-    await delobj(otmp, normalized);
-    if (noticesQueued()) await emitQueuedNotices();
+    await delobj_async(otmp, normalized);
     if (at_u && state.u.uundetected && hides_under(state.youmonst?.data))
         await hideunder(state.youmonst, { ...normalized, state });
 }

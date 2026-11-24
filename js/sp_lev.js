@@ -12,11 +12,10 @@ import {
 } from './display.js';
 import { get_level_extends } from './mkmaze.js';
 import { fix_wall_spines } from './mklev.js';
-import { placebc, unplacebc } from './ball.js';
+import { placebc, unplacebc_async } from './ball.js';
 import { vision_reset } from './vision.js';
 import { coreRandom } from './rng.js';
 import { flip_worm_segs_horizontal, flip_worm_segs_vertical } from './worm.js';
-import { noticesQueued, emitQueuedNotices } from './tty_message.js';
 
 // C ref: sp_lev.c flip_dbridge_horizontal(). A drawbridge facing west now
 // faces east, and the reverse.
@@ -170,8 +169,7 @@ export async function flip_level(flp, extras = false, state = game) {
             === inFlipArea(state.uchain.ox, state.uchain.oy)
             && inFlipArea(state.uball.ox, state.uball.oy)
                 === inFlipArea(state.u.ux, state.u.uy);
-        if (!ballFlipArea) unplacebc(state);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (!ballFlipArea) await unplacebc_async(state);
     }
 
     // C ref: sp_lev.c:587-592. Stairs and ladders.

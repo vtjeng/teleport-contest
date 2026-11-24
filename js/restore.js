@@ -101,7 +101,7 @@ import { copyright_banner_line } from './version.js';
 import { tty_putmsghistory } from './topl.js';
 import { set_playmode } from './jsmain.js';
 import { sync_impossible } from './source_steps.js';
-import { noticesQueued, emitQueuedNotices } from './tty_message.js';
+import { printQueued } from './tty_message.js';
 
 // C ref: restore.c restore_msghistory(). The callback buffers messages in
 // order, then the null terminator asks the window port to restore the ring.
@@ -440,8 +440,7 @@ export async function dorestore(state = game) {
     // C ref: restore.c getlev():1225 rest_regions(). The game state and the
     // regions were saved on the same turn, so only regions whose time had
     // already run out are discarded.
-    rest_regions(snapshot.moves, state, restoredRegionVisuals(state));
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(rest_regions(snapshot.moves, state, restoredRegionVisuals(state)));
     // C ref: restore.c getlev():1113 rest_stairs(), which dorecover() reaches
     // through getlev() for the hero's level.
     rest_stairs(snapshot.stairs, state);
@@ -703,8 +702,7 @@ export async function dorestore(state = game) {
             // restore.c:1197 discards hideunder()'s result.
             await hideunder(mtmp, { state });
         }
-        await restore_cham(mtmp, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(restore_cham(mtmp, state));
     }
 
     // C ref: restore.c getlev():1224 restdamage(), after the monster loop.
@@ -1198,13 +1196,11 @@ export async function getlev(ledger, state = game) {
 
         // C ref: restore.c:1212-1213. Non-ghostly elapsed-time catch-up.
         if (elapsed > 0) {
-            mon_catchup_elapsed_time(mtmp, elapsed, { state });
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(mon_catchup_elapsed_time(mtmp, elapsed, { state }));
         }
 
         // C ref: restore.c:1217. Update shape-changers.
-        await restore_cham(mtmp, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(restore_cham(mtmp, state));
 
         // C ref: restore.c:1219-1220. Give hiders a chance to hide.
         if (elapsed > 0 && elapsed > rnd(10)) {
@@ -1218,9 +1214,8 @@ export async function getlev(ledger, state = game) {
     // C ref: restore.c getlev():1225 rest_regions(), after restdamage() and
     // before rest_bubbles(). savelev() wrote the region timestamp from the
     // same svm.moves it saved as omoves.
-    rest_regions(snapshot.omoves ?? state.moves, state,
-        restoredRegionVisuals(state));
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(rest_regions(snapshot.omoves ?? state.moves, state,
+        restoredRegionVisuals(state)));
 
     if (snapshot.waterlevel) restore_waterlevel(snapshot.waterlevel, state);
     // C ref: restore.c getlev():1227 load_exclusions(), after rest_bubbles().

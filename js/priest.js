@@ -115,8 +115,7 @@ import { incr_itimeout } from './potion.js';
 import { impossible_printer, livelog_printf, verbalize, youFeel } from './pline.js';
 import { mpickobj } from './steal.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 
@@ -714,8 +713,7 @@ export async function move_special(
             return 0;
         remove_monster(omx, omy, state);
         place_monster(mtmp, nix, niy, state);
-        redraw(nix, niy);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(nix, niy));
         if (mtmp.isshk && !inHisShop) {
             const { inhishop } = await import('./shk.js');
             if (inhishop(mtmp, state)) {

@@ -435,19 +435,41 @@ export async function emitQueuedNotices(state = game) {
 // True while a line waits in the notice queue and no drain is printing it.
 // C prints display.c show_glyph()'s notice inside the draw that raises it
 // and waits at its --More-- before the caller goes on, so an `async` caller
-// of a synchronous draw prints the queue right after the call:
+// of a synchronous draw prints the queue right after the call. It awaits the
+// draw's form that prints, named after the C function with an `_async`
+// suffix and defined beside it (`await newsym_async(x, y)`,
+// `await seetrap_async(trap)`), or, for a draw without one, passes the
+// draw's result through printQueued():
+//
+//     await printQueued(rloc_engr(ep));
+//
+// js/rng.js, "Queued output", says why the line must print before the next
+// draw or key; scripts/queued-output-calls.test.mjs checks that every such
+// call prints, and says where the two-statement form below remains.
+export function noticesQueued(state = game) {
+    return Boolean(state._glyphUpdateNotices?.length)
+        && !state._emittingGlyphUpdateNotices;
+}
+
+// The result of a synchronous draw, once the lines it queued have printed:
+// a promise only when the draw answered one or a line waited. A result that
+// is a promise settles first, so the print follows the whole draw. Every
+// `_async` form of a draw is this call around the synchronous one.
+//
+// `await` waits a turn even for a quiet draw, while the two-statement form
 //
 //     newsym(x, y);
 //     if (noticesQueued()) await emitQueuedNotices();
 //
-// The test keeps a quiet draw synchronous: no await, so a caller that does
-// not wait for this function's promise still sees the rest of the body run
-// first, as before. js/rng.js, "Queued output", says why the line must print
-// before the next draw or key; scripts/queued-output-calls.test.mjs checks
-// that every such call is followed by the flush.
-export function noticesQueued(state = game) {
-    return Boolean(state._glyphUpdateNotices?.length)
-        && !state._emittingGlyphUpdateNotices;
+// runs on without one. A function whose promise a synchronous caller drops
+// (scripts/discarded-promise-allowlist.json) runs the rest of its body
+// after that caller instead of before it at such a wait, so it keeps the
+// two-statement form.
+export function printQueued(result) {
+    const print = (value) => (noticesQueued()
+        ? emitQueuedNotices().then(() => value) : value);
+    return result && typeof result.then === 'function'
+        ? result.then(print) : print(result);
 }
 
 // C refs: pline.c vpline(), Norep(); win/tty/topl.c update_topl(). Messages

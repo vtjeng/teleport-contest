@@ -9,14 +9,21 @@
 // (js/startup_a11y.js queueGlyphUpdateNotice()); js/rng.js, "Queued output",
 // says why the line must print before the next core random-number draw or key
 // read. A caller that can wait therefore prints the queue right after each
-// synchronous call that can queue a notice:
+// synchronous call that can queue a notice. It awaits the draw's form that
+// prints, named after the C function with an `_async` suffix
+// (`await newsym_async(x, y)`), or passes the draw's result through
+// js/tty_message.js printQueued() (`await printQueued(rloc_engr(ep))`).
+// The older two-statement form
 //
 //     newsym(x, y);
 //     if (noticesQueued()) await emitQueuedNotices();
 //
-// or calls a form that prints itself, such as `await newsym_async(x, y)`.
-// The flush awaits only when a line is queued, so a quiet draw stays
-// synchronous.
+// still prints, but only where neither fits: after a statement whose value
+// is not the draw itself, such as a draw inside a larger expression or a
+// step generator that finish_steps() drives. A statement whose value is one
+// draw (`draw();`, `await draw();`, `const v = draw();`, or a brace-less
+// `if` arm of these) followed by the flush is listed as foldable, and the
+// test fails on it.
 //
 // "Can queue a notice" is derived, not listed: a synchronous function is a
 // draw when a chain of synchronous calls leads from it to
@@ -62,9 +69,17 @@ const QUEUE_FILES = new Set(['js/startup_a11y.js', 'js/tty_message.js']);
 // Synchronous forms that print the lines their draw queued before they
 // return (each returns a promise only then), so an awaited call needs no
 // flush after it. A function whose every return is a call of one of these,
-// such as monmove.js postmov()'s `draw = (x, y) => newsym_async(...)`,
-// prints too (printingForms()).
-export const PRINTING_FORMS = new Set(['newsym_async', 'killRedrawAsync', 'redrawSquareWaiting']);
+// such as monmove.js postmov()'s `draw = (x, y) => newsym_async(...)` or
+// each `<draw>_async()` form, `return printQueued(<draw>(...args))`, prints
+// too (printingForms()).
+export const PRINTING_FORMS = new Set([
+    'printQueued', 'newsym_async', 'killRedrawAsync', 'redrawSquareWaiting',
+]);
+
+// The printing forms that take a draw's result rather than its arguments:
+// `await printQueued(draw(...))` prints after the draw, and waits for it
+// first when it answers a promise.
+const RESULT_PRINTERS = new Set(['printQueued']);
 
 // Each `return` argument of a function record's node, or an arrow's body.
 function returned(fnNode) {
@@ -434,14 +449,18 @@ function calleeText(callee, text) {
 }
 
 // Every call an `async` function makes to a draw, as
-// { key, file, line, start, end, statement, form }, where form is
-// 'flushed' (the next statement is the flush, or the callee prints itself),
+// { key, file, line, start, end, statement, form, via, fn }, where form is
+// 'flushed' (the callee prints itself, its value passes awaited through
+// printQueued(), or the next statement is the flush),
 // 'statement' (a whole statement with no flush after it), 'expression'
 // (a call inside a larger expression or statement) or 'unawaited' (a draw
 // that can answer a promise, not awaited where it is called; no flush makes
-// it right). `key` is
-// "<file> | <function> | <callee>". Also every synchronous function outside
-// the queue's machinery that calls a draw, as "<file> | <function>": count.
+// it right). `via` says how a flushed call prints: 'printing form' (an
+// awaited `_async` form), 'printQueued' or 'statement' (the two-statement
+// form). `key` is "<file> | <function> | <callee>". Also every synchronous
+// function outside the queue's machinery that calls a draw, other than a
+// printing form, as "<file> | <function>": count; every two-statement
+// flush (twoStatementFlushes()); and the call graph.
 export function scanQueuedOutputCalls(sources) {
     const graph = buildGraph(sources);
     const drawSet = draws(graph);
@@ -459,17 +478,31 @@ export function scanQueuedOutputCalls(sources) {
             const inner = call.inner;
             const where = inner?.name ?? fn.name;
             if (!inner?.async) {
-                if (!inner?.generator) {
+                // A printing form returns the print's promise to its caller,
+                // which awaits it, so it leaves nothing queued.
+                const printer = printing.has(fn) && fn.node === inner?.node;
+                if (!inner?.generator && !printer) {
                     const key = `${fn.file} | ${where}`;
                     syncCallers[key] = (syncCallers[key] ?? 0) + 1;
                 }
                 continue;
             }
             let form;
+            let via = null;
             let statement = null;
             const { parent, grand } = call;
+            // The call a draw's value is the first argument of; an optional
+            // call (`env.redraw?.(x, y)`) is that value inside its chain.
+            const value = parent?.type === 'ChainExpression' ? parent : call.node;
+            const printerCall = fn.calls.find((c) => c.node.arguments[0] === value);
             if (call.targets.every((to) => printing.has(to)) && parent?.type === 'AwaitExpression') {
                 form = 'flushed';
+                via = 'printing form';
+            } else if (printerCall && printerCall.targets.length
+                && printerCall.targets.every((to) => RESULT_PRINTERS.has(to.name) && printing.has(to))
+                && printerCall.parent?.type === 'AwaitExpression') {
+                form = 'flushed';
+                via = 'printQueued';
             } else if (parent?.type !== 'AwaitExpression'
                 && call.targets.some((to) => drawSet.has(to) && promising.has(to))) {
                 // A draw that can answer a promise and is not awaited at
@@ -485,7 +518,7 @@ export function scanQueuedOutputCalls(sources) {
             }
             calls.push({ key: `${fn.file} | ${where} | ${callee}`, file: fn.file,
                 line: call.node.loc.start.line, start: call.node.start, end: call.node.end,
-                statement, form, fn: inner });
+                statement, form, via, fn: inner });
         }
     }
     // Where each call sits: the nearest statement around it, inside the
@@ -540,9 +573,13 @@ export function scanQueuedOutputCalls(sources) {
                             // before the print.
                             const name = assignedName(ancestor, node);
                             if (!inLoop && name && awaitsName(list[index + 1], name)
-                                && isFlush(list[index + 2])) call.form = 'flushed';
+                                && isFlush(list[index + 2])) {
+                                call.form = 'flushed';
+                                call.via = 'statement';
+                            }
                         } else if (!inLoop && isFlush(list[index + 1])) {
                             call.form = 'flushed';
+                            call.via = 'statement';
                         }
                         break;
                     }
@@ -554,7 +591,68 @@ export function scanQueuedOutputCalls(sources) {
         };
         visit(ast);
     }
-    return { calls, syncCallers, drawSet };
+    return { calls, syncCallers, drawSet, graph, flushes: twoStatementFlushes(sources, calls) };
+}
+
+// The statement a foldable two-statement flush follows has one draw as its
+// value: `draw();`, `await draw();`, `const v = draw();`, `v = draw();`
+// (optionally awaited, and `hook?.()` as well), or a brace-less `if` whose test draws nothing and
+// whose drawing arms are each one of these.
+function foldableValue(statement, drawsIn) {
+    let value = null;
+    if (statement.type === 'ExpressionStatement') {
+        value = statement.expression;
+        if (value.type === 'AssignmentExpression' && value.operator === '=') value = value.right;
+    } else if (statement.type === 'VariableDeclaration' && statement.declarations.length === 1) {
+        value = statement.declarations[0].init;
+    }
+    if (value?.type === 'AwaitExpression') value = value.argument;
+    if (value?.type === 'ChainExpression') value = value.expression;
+    if (value?.type !== 'CallExpression') return false;
+    const inside = drawsIn(statement);
+    return inside.length === 1 && inside[0].start === value.start && inside[0].end === value.end;
+}
+
+function foldable(statement, drawsIn) {
+    if (statement?.type !== 'IfStatement') return Boolean(statement) && foldableValue(statement, drawsIn);
+    if (drawsIn(statement.test).length) return false;
+    let drawing = 0;
+    for (const arm of [statement.consequent, statement.alternate]) {
+        if (!arm || !drawsIn(arm).length) continue;
+        if (!foldable(arm, drawsIn)) return false;
+        drawing++;
+    }
+    return drawing > 0;
+}
+
+// Every two-statement flush in js/, as { file, line, foldable }: foldable
+// when the statement before it could be written as one awaited printing
+// call instead (scanQueuedOutputCalls() callers fail on those).
+function twoStatementFlushes(sources, calls) {
+    const byFile = new Map();
+    for (const call of calls) {
+        if (!byFile.has(call.file)) byFile.set(call.file, []);
+        byFile.get(call.file).push(call);
+    }
+    const found = [];
+    for (const [file, text] of Object.entries(sources)) {
+        if (QUEUE_FILES.has(file) || !text.includes('emitQueuedNotices')) continue;
+        const ast = acornParse(text, {
+            ecmaVersion: 'latest', sourceType: 'module', locations: true, allowHashBang: true,
+        });
+        const fileCalls = byFile.get(file) ?? [];
+        const drawsIn = (node) => fileCalls.filter((c) => c.start >= node.start && c.end <= node.end);
+        const visit = (node, parent) => {
+            const list = siblings(node, parent);
+            if (list && isFlush(node)) {
+                found.push({ file, line: node.loc.start.line,
+                    foldable: foldable(list[list.indexOf(node) - 1], drawsIn) });
+            }
+            for (const child of children(node)) visit(child, node);
+        };
+        visit(ast, null);
+    }
+    return found;
 }
 
 export function listJsFiles(root = PROJECT_ROOT) {

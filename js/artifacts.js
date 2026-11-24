@@ -215,8 +215,6 @@ import { aligns } from './roles.js';
 import { coreRandom, d, rn2, rnd, rn2_on_display_rng, rnz } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
     ttyPline,
 } from './tty_message.js';
 import { dismount_steed } from './steed.js';
@@ -237,8 +235,8 @@ import { cansee, couldsee } from './vision.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { do_blinding_ray } from './apply.js';
 import {
-    canspotmon, glyph_at, glyph_is_trap, map_invisible,
-    map_invisible_memory_only, newsym, shieldeff,
+    canspotmon, glyph_at, glyph_is_trap, map_invisible_async,
+    map_invisible_memory_only, newsym, newsym_async, shieldeff,
     see_monsters,
 } from './display.js';
 import { invocation_pos, losehp, nomul, spoteffects } from './hack.js';
@@ -1795,9 +1793,8 @@ export async function Mb_hit(
         // map_invisible() paints the global game, so a foreign state (such
         // as a test's hand-built state) keeps only its memory write.
         if (attack_indx === MB_INDEX_PROBE && !canspotmon(mdef, state)) {
-            if (state === game) map_invisible(mdef.mx, mdef.my, state);
+            if (state === game) await map_invisible_async(mdef.mx, mdef.my, state);
             else map_invisible_memory_only(mdef.mx, mdef.my, state);
-            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 
@@ -2751,8 +2748,7 @@ async function arti_invoke(obj, state = game) {
             await nothing_special(obj, state);
             return ECMD_TIME;
         }
-        newsym(state.u.ux, state.u.uy);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(state.u.ux, state.u.uy);
         if (on)
             await ttyPline(
                 `Your body takes on a ${Hallucination(state.u) ? 'normal' : 'strange'} transparency...`,

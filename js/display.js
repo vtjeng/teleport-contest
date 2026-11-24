@@ -68,6 +68,7 @@ import {
     clearTtyMessageWindow,
     dismissPendingTtyMessage,
     messageWindow,
+    printQueued,
 } from './tty_message.js';
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
@@ -3769,6 +3770,12 @@ export function map_object(obj, show, state = game) {
     if (show) show_glyph_cell(x, y, mapped.shown);
 }
 
+// display.c map_object() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function map_object_async(...args) {
+    return printQueued(map_object(...args));
+}
+
 // C ref: display.c feel_newsym(). Used where the hero knows what happened to a
 // square whether or not she can see it, such as the door she has just pulled
 // open in lock.c doopen_indir(). The blind arm delegates the complete
@@ -3782,6 +3789,12 @@ export function map_object(obj, show, state = game) {
 export function feel_newsym(x, y, state = game) {
     if (Blind(state.u)) feel_location(x, y, state);
     else newsym(x, y);
+}
+
+// display.c feel_newsym() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function feel_newsym_async(...args) {
+    return printQueued(feel_newsym(...args));
 }
 
 // C refs: engrave.h engraving_to_defsym()/spot_shows_engravings();
@@ -3856,6 +3869,12 @@ export function map_invisible(x, y, state = game) {
     show_glyph_cell(x, y, map_glyphinfo(GLYPH_INVISIBLE, state));
 }
 
+// display.c map_invisible() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function map_invisible_async(...args) {
+    return printQueued(map_invisible(...args));
+}
+
 // C ref: display.c map_invisible()'s levl[].glyph write alone, for a state
 // other than the game, such as a unit test's hand-built state. The C call
 // also paints the window, which belongs to the game, so this skips that half.
@@ -3892,6 +3911,12 @@ export function unmap_invisible(x, y, state = game, redraw = newsym) {
     unmap_object(x, y, state);
     redraw(x, y);
     return true;
+}
+
+// display.c unmap_invisible() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function unmap_invisible_async(...args) {
+    return printQueued(unmap_invisible(...args));
 }
 
 function floorLayersCovered(loc, state) {
@@ -4608,6 +4633,12 @@ export function see_monsters(state = game, env = {}) {
         return finish();
     };
     return scan(state.level?.monlist ?? null);
+}
+
+// display.c see_monsters() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function see_monsters_async(...args) {
+    return printQueued(see_monsters(...args));
 }
 
 // C ref: display.c newsym() (928-936). A column-0 square is misuse rather

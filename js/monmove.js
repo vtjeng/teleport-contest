@@ -204,10 +204,10 @@ import { sengr_at, wipe_engr_at } from './engrave.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { dist2, distmin } from './hacklib.js';
-import { delobj, money_cnt, sobj_at } from './invent.js';
+import { delobj_async, money_cnt, sobj_at } from './invent.js';
 import { picking_lock } from './lock.js';
 import { grow_up, set_malign } from './makemon.js';
-import { m_in_air, mongone, newcham } from './mon.js';
+import { m_in_air, mongone_async, newcham } from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
 import { m_next2u, ranged_attk_available } from './mhitu.js';
 import {
@@ -447,7 +447,7 @@ import { S_poisoncloud } from './symbols.js';
 import { gettrack, hastrack } from './track.js';
 import {
     count_traps,
-    maketrap,
+    maketrap_async,
     t_at,
     unconscious,
 } from './trap.js';
@@ -464,8 +464,7 @@ import {
 } from './teleport.js';
 import {
     displayPendingTtyMessageWindow,
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { gd_move } from './vault.js';
@@ -777,14 +776,12 @@ async function mind_blast(mtmp, env = {}) {
                blast, so do the same for hiding poly'd hero */
             if (state.u.uundetected) {
                 state.u.uundetected = 0;
-                newsym(state.u.ux, state.u.uy);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(state.u.ux, state.u.uy);
             } else if ((state.youmonst?.m_ap_type ?? M_AP_NOTHING) !== M_AP_NOTHING
                        && (state.youmonst?.m_ap_type ?? M_AP_NOTHING) !== M_AP_MONSTER) {
                 state.youmonst.m_ap_type = M_AP_NOTHING;
                 state.youmonst.mappearance = 0;
-                newsym(state.u.ux, state.u.uy);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(state.u.ux, state.u.uy);
             }
             const source = m_sen ? 'telepathy'
                 : blind_telepat ? 'latent telepathy'
@@ -1939,8 +1936,7 @@ export async function bee_eat_jelly(mon, obj, env = {}) {
                 env,
             );
         }
-        await delobj(obj, objectEnv);
-        if (noticesQueued()) await emitQueuedNotices();
+        await delobj_async(obj, objectEnv);
 
         if (mon.m_lev < (state.mons?.[PM_QUEEN_BEE]?.mlevel ?? 0) - 1)
             mon.m_lev = (state.mons?.[PM_QUEEN_BEE]?.mlevel ?? 0) - 1;
@@ -2431,8 +2427,7 @@ export async function dochug(monster, rawEnv = {}) {
     }
     questStatCheck(monster, state);
     if (!monster.mcanmove || (monster.mstrategy & STRAT_WAITMASK)) {
-        if (hallucinating()) redraw(monster.mx, monster.my);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (hallucinating()) await printQueued(redraw(monster.mx, monster.my));
         // C ref: monmove.c:720-722, "give the leaders a chance to speak".
         if (monster.mcanmove && (monster.mstrategy & STRAT_CLOSE)
             && !monster.msleeping
@@ -2443,8 +2438,7 @@ export async function dochug(monster, rawEnv = {}) {
     }
     if (monster.msleeping
         && !await disturbMonster(monster, env)) {
-        if (hallucinating()) redraw(monster.mx, monster.my);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (hallucinating()) await printQueued(redraw(monster.mx, monster.my));
         return 0;
     }
 
@@ -2467,7 +2461,7 @@ export async function dochug(monster, rawEnv = {}) {
             // C ref: teleport.c rloc() and rloc_to_core().  rloc() returns
             // FALSE when no destination exists, and leppie_stash() follows
             // only after a successful relocation, in the same order as C.
-            const relocation = await relocateRandomMonster(monster, RLOC_MSG, {
+            const relocation = await printQueued(relocateRandomMonster(monster, RLOC_MSG, {
                 ...env,
                 newsym: rawEnv.newsym ?? newsym,
                 onscary: rawEnv.onscary
@@ -2483,8 +2477,7 @@ export async function dochug(monster, rawEnv = {}) {
                         relocationEnv,
                     )),
                 message: rawEnv.message ?? ttyPline,
-            });
-            if (noticesQueued()) await emitQueuedNotices();
+            }));
             if (relocation)
                 await leppie_stash(monster, {
                     ...env,
@@ -2558,8 +2551,7 @@ export async function dochug(monster, rawEnv = {}) {
                 const restrictTeleport = rawEnv.teleRestrict ?? tele_restrict;
                 if (!await restrictTeleport(monster, state, env)) {
                     // C discards rloc()'s result in this direct caller.
-                    await relocateRandomMonster(monster, RLOC_MSG, env);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await printQueued(relocateRandomMonster(monster, RLOC_MSG, env));
                 }
             } else {
                 monster.minvis = 0;
@@ -2692,8 +2684,7 @@ export async function dochug(monster, rawEnv = {}) {
             // vault.c parkguard() put at <0,0> must not reach the redraw.
             if (monster.isgd && (monster.mhp < 1 || monster.mx === 0))
                 return 1; /* behave as if it died */
-            if (hallucinating()) redraw(monster.mx, monster.my);
-            if (noticesQueued()) await emitQueuedNotices();
+            if (hallucinating()) await printQueued(redraw(monster.mx, monster.my));
         }
     }
 
@@ -3124,8 +3115,7 @@ async function maybe_spin_web(mtmp, env) {
                       - (3 * count_traps(WEB, state)));
 
         if (random.rn2(1000) < prob) {
-            const trap = await maketrap(mtmp.mx, mtmp.my, WEB, { state });
-            if (noticesQueued()) await emitQueuedNotices();
+            const trap = await maketrap_async(mtmp.mx, mtmp.my, WEB, { state });
             if (trap) {
                 mtmp.mspec_used = random.d(4, 4); /* 4..16 */
                 if (cansee(mtmp.mx, mtmp.my, state)) {
@@ -3557,8 +3547,7 @@ export async function postmov(
             if (monster.minvis) {
                 await draw(monster.mx, monster.my);
                 if (monster.wormno)
-                    see_wsegs(monster, { ...env, redraw });
-                if (noticesQueued()) await emitQueuedNotices();
+                    await printQueued(see_wsegs(monster, { ...env, redraw }));
             }
         }
         // C ref: monmove.c:1690, maybe_spin_web(). The five conjuncts
@@ -3667,8 +3656,7 @@ export async function m_move(monster, rawEnv = {}) {
         // Trap_Effect_Finished.  A monster is killed by a trap it walks onto,
         // through postmov()'s mintrap() call, not by one already holding it.
         if (trapResult === Trap_Killed_Mon) {
-            redraw(monster.mx, monster.my);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(monster.mx, monster.my));
             return MMOVE_DIED; /* it died */
         }
         if (trapResult === Trap_Caught_Mon)
@@ -3676,8 +3664,7 @@ export async function m_move(monster, rawEnv = {}) {
     }
     if (monster.meating) {
         --monster.meating;
-        if (monster.meating <= 0) finishEating(monster, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (monster.meating <= 0) await printQueued(finishEating(monster, env));
         return MMOVE_DONE;
     }
     // C ref: monmove.c:1750-1753. A concealing species already lying under
@@ -3805,7 +3792,7 @@ export async function m_move(monster, rawEnv = {}) {
         }
         // mongone() redraws the vacated square through its creation hooks.
         const redraw = rawEnv.redraw ?? rawEnv.hooks?.newsym ?? newsym;
-        await mongone(monster, {
+        await mongone_async(monster, {
             ...env,
             state,
             hooks: {
@@ -3813,7 +3800,6 @@ export async function m_move(monster, rawEnv = {}) {
                 newsym: redraw,
             },
         });
-        if (noticesQueued()) await emitQueuedNotices();
         return MMOVE_DIED;
     }
 
@@ -4092,8 +4078,7 @@ export async function m_move(monster, rawEnv = {}) {
                 return MMOVE_MOVED;
             }
         }
-        if (monster.wormno) worm_nomove(monster, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (monster.wormno) await printQueued(worm_nomove(monster, env));
         return postMonsterMove(
             monster,
             oldX,
@@ -4168,8 +4153,7 @@ export async function m_move(monster, rawEnv = {}) {
     // C ref: monmove.c:2058. Reconnect the moved head to its tail after the
     // movement message, before the concealment update and movement tracking.
     if (monster.wormno)
-        worm_move(monster, env);
-    if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(worm_move(monster, env));
     // C ref: monmove.c:2060. A concealed hider that leaves its object pile
     // is revealed before movement tracking and postmov()'s re-hide roll.
     // C calls maybe_unhide_at() for every move.  Its only stateful arms are
@@ -4270,8 +4254,7 @@ export async function dissolve_bars(x, y, state = game, rawEnv = {}) {
             ? ROOM
             : CORR;
     loc.flags = 0; /* doormask = D_NODOOR */
-    redraw(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(x, y, state));
     if (x === state.u.ux && y === state.u.uy) /* u_at(x, y) */
         await switch_terrain(state);
 }

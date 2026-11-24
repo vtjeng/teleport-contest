@@ -52,7 +52,7 @@ import {
 } from './artifacts.js';
 import { monster_detect } from './detect.js';
 import {
-    bot, newsym, glyph_at, glyph_is_cmap, glyph_to_cmap,
+    bot, newsym, newsym_async, glyph_at, glyph_is_cmap, glyph_to_cmap,
 } from './display.js';
 import {
     Amonnam, hcolor, hliquid, a_monnam, oname, rndmonnam,
@@ -67,7 +67,7 @@ import { in_town, losehp } from './hack.js';
 import { distmin } from './hacklib.js';
 import {
     update_inventory,
-    delobj,
+    delobj_async,
     hands_obj,
     money_cnt,
     obfree,
@@ -107,8 +107,7 @@ import { t_at, delfloortrap } from './trap.js';
 import { water_damage, water_damage_chain } from './trap_water_damage.js';
 import {
     displayPendingTtyMessageWindow,
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { fruitname, makeplural } from './fruit.js';
@@ -388,8 +387,7 @@ async function gush(x, y, argument, state = game, env = {}) {
         };
         await minliq(mtmp, liquidEnv);
     } else {
-        newsym(x, y);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(x, y);
     }
 }
 
@@ -442,8 +440,7 @@ async function dofindgem(state = game, env = {}) {
         { random, state },
     );
     SET_FOUNTAIN_LOOTED(state.u.ux, state.u.uy, state);
-    newsym(state.u.ux, state.u.uy);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(state.u.ux, state.u.uy);
     await exercise(A_WIS, true, state, random, {
         encumberMessage: env.encumberMessage,
     });
@@ -560,8 +557,7 @@ export async function dryup(x, y, isyou, state = game, env = {}) {
         state.level.at(x, y).horizontal = 0; // blessedftn
 
         // C ref: fountain.c:235. newsym() so the tile updates.
-        redraw(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(x, y, state));
 
         // C ref: fountain.c:236-237. Town guards get angry.
         if (isyou && in_town(x, y, state)) {
@@ -799,8 +795,7 @@ export async function drinkfountain(state = game, env = {}) {
                 await message('But it disappears.', state);
             }
             state.u.uprops[SEE_INVIS].intrinsic |= FROMOUTSIDE;
-            newsym(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(state.u.ux, state.u.uy);
             await exercise(A_WIS, true, state, random, {
                 encumberMessage: env.encumberMessage,
             });
@@ -963,8 +958,7 @@ export async function dipfountain(obj, state = game, env = {}) {
         update_inventory({ ...env, state });
         set_levltyp(state.u.ux, state.u.uy, ROOM, { ...env, state });
         state.level.at(state.u.ux, state.u.uy).flags = 0;
-        newsym(state.u.ux, state.u.uy);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(state.u.ux, state.u.uy);
         if (in_town(state.u.ux, state.u.uy, state)) {
             const { angry_guards } = await import('./mon.js');
             await angry_guards(false, { ...env, state });
@@ -1056,8 +1050,7 @@ export async function dipfountain(obj, state = game, env = {}) {
                     coin_loss = Math.min(coin_loss, Math.trunc(otmp.quan));
                     otmp.quan -= coin_loss;
                     loss -= coin_loss * denomination;
-                    if (!otmp.quan) await delobj(otmp, { state });
-                    if (noticesQueued()) await emitQueuedNotices();
+                    if (!otmp.quan) await delobj_async(otmp, { state });
                 }
                 otmp = nextobj;
             }
@@ -1085,8 +1078,7 @@ export async function dipfountain(obj, state = game, env = {}) {
         await exercise(A_WIS, true, state, random, {
             encumberMessage: env.encumberMessage,
         });
-        newsym(state.u.ux, state.u.uy);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(state.u.ux, state.u.uy);
         break;
     }
     default:
@@ -1146,8 +1138,7 @@ export async function breaksink(x, y, state = game, env = {}) {
     location.flags = 0;
     location.horizontal = 0;
     SET_FOUNTAIN_LOOTED(x, y, state);
-    newsym(x, y);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(x, y);
 }
 
 // C ref: fountain.c dipsink() (716-801). `S_LRING` shares the sink's
@@ -1277,8 +1268,7 @@ export async function sink_backs_up(x, y, state = game, env = {}) {
         if (!blind)
         await message(youSee('a ring shining in its midst.', state), state);
         await mkobj_at(RING_CLASS, x, y, true, { ...env, state, random });
-        newsym(x, y);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(x, y);
         await exercise(A_DEX, true, state, random, {
             encumberMessage: env.encumberMessage,
         });
@@ -1364,8 +1354,7 @@ export async function drinksink(state = game, env = {}) {
             location.flags |= S_LRING;
             await exercise(A_WIS, true, state, random,
                 { encumberMessage: env.encumberMessage });
-            newsym(x, y);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(x, y);
         } else {
             await message(`Some dirty ${hliquid('water', liquidEnv)} backs up in the drain.`, state);
         }

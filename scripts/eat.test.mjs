@@ -1179,14 +1179,14 @@ test('eatmdone releases only its message and resets any active disguise', async 
 test('eatmdone and cpostfx preserve buffer, redraw, and blocking-map order', () => {
     assert.match(EAT_C, /eatmdone\(void\)[\s\S]*gn\.nomovemsg == ge\.eatmbuf[\s\S]*ge\.eatmbuf = 0;[\s\S]*if \(U_AP_TYPE\)[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*newsym\(u\.ux, u\.uy\);[\s\S]*return 0;/u);
     assert.match(EAT_JS, /export function eatmdone[\s\S]*state\.nomovemsg === state\.eatmbuf[\s\S]*state\.eatmbuf = null;[\s\S]*m_ap_type = M_AP_NOTHING;[\s\S]*env\.redraw \?\? newsym[\s\S]*return 0;/u);
-    assert.match(EAT_JS, /if \(state\.eatmbuf\) eatmdone\(state\);/u);
+    assert.match(EAT_JS, /if \(state\.eatmbuf\) await printQueued\(eatmdone\(state\)\);/u);
     assert.match(EAT_JS, /state\.afternmv = eatmdone;/u);
     assert.doesNotMatch(EAT_JS, /note_unported\('eat\.c eatmdone'\)/u);
     assert.match(EAT_C, /case PM_SMALL_MIMIC:[\s\S]*?newsym\(u\.ux, u\.uy\);\s*curs_on_u\(\);[\s\S]*?display_nhwindow\(WIN_MAP, TRUE\);/u,
         'cpostfx flushes the changed mimic glyph before its blocking map display');
     assert.match(EAT_C, /case PM_SMALL_MIMIC:[\s\S]*?if \(u\.usteed\)\s*dismount_steed\(DISMOUNT_FELL\);/u,
         'cpostfx dismounts a rider before applying the gold-pile mimic state');
-    assert.match(EAT_JS, /case PM_SMALL_MIMIC:[\s\S]*?newsym\(state\.u\.ux, state\.u\.uy\);\s*(?:if \(noticesQueued\(\)\) await emitQueuedNotices\(\);\s*)?await curs_on_u\(state\);\s*await tty_display_nhwindow_map_blocking\(state\);/u,
+    assert.match(EAT_JS, /case PM_SMALL_MIMIC:[\s\S]*?await newsym_async\(state\.u\.ux, state\.u\.uy\);\s*await curs_on_u\(state\);\s*await tty_display_nhwindow_map_blocking\(state\);/u,
         'the JS adapter makes the blocking map display after flushing the map');
     assert.match(EAT_JS, /if \(state\.u\.usteed\)\s*\{\s*const \{ dismount_steed \} = await import\('\.\/steed\.js'\);\s*await dismount_steed\(DISMOUNT_FELL, state\);\s*\}/u,
         'the completed mimic-corpse branch awaits the source dismount caller');

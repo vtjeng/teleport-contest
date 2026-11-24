@@ -218,7 +218,7 @@ test('level_tele_trap preserves the whole C effect order in both callers', () =>
     assert.match(cLevelTeleTrap,
         /VIASITTING \| FORCETRAP[\s\S]*Antimagic && !intentional[\s\S]*In_endgame\(&u\.uz\)[\s\S]*deltrap\(trap\)[\s\S]*level_tele\(\)[\s\S]*Hallucination \|\| Teleport_control[\s\S]*make_confused\(\(HConfusion & TIMEOUT\) \+ 3L, FALSE\)/u);
     assert.match(jsTrapEffect,
-        /if \(mtmp === state\.youmonst\)[\s\S]*seetrap\(trap, env\);\s*(?:if \(noticesQueued\(\)\) await emitQueuedNotices\(\);\s*)?await level_tele_trap\(trap, trflags, state, env\);/u);
+        /if \(mtmp === state\.youmonst\)[\s\S]*await seetrap_async\(trap, env\);\s*await level_tele_trap\(trap, trflags, state, env\);/u);
     assert.match(jsLevelTeleTrap,
         /VIASITTING \| FORCETRAP[\s\S]*Antimagic_prop\(state\)[\s\S]*inEndgame\(state\)[\s\S]*deltrap\(trap, state\)[\s\S]*await level_tele\(state\)[\s\S]*Teleport_control\(state\.u\)[\s\S]*make_confused\(\(confusion & TIMEOUT\) \+ 3, false, state, env\)/u);
 });
@@ -616,7 +616,7 @@ test('mtele_trap uses the canonical RLOC_MSG relocation caller', () => {
     assert.match(cTrap,
         /rloc_to_core\(mtmp, trap->teledest\.x, trap->teledest\.y,\s*RLOC_MSG\)/u);
     assert.match(jsTrap,
-        /await rloc_to_flag\([\s\S]*?destinationX,[\s\S]*?destinationY,\s*RLOC_MSG,\s*env,\s*\)/u);
+        /await printQueued\(rloc_to_flag\([\s\S]*?destinationX,[\s\S]*?destinationY,\s*RLOC_MSG,\s*env,\s*\)\)/u);
     assert.doesNotMatch(jsTrap, /relocateToFixedDestination/u);
 });
 

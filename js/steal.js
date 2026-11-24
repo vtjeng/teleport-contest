@@ -127,8 +127,7 @@ import { is_quest_artifact } from './questpgr.js';
 import { costly_spot, find_objowner, shop_keeper, subfrombill } from './shk.js';
 import { messageAt } from './startup_a11y.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
@@ -153,8 +152,8 @@ import {
 } from './monmove.js';
 import { stop_occupation } from './allmain.js';
 import { mwepgone } from './weapon.js';
-import { rloc, rloco, tele_restrict } from './teleport.js';
-import { unpunish } from './read.js';
+import { rloc, rloc_async, rloco, tele_restrict } from './teleport.js';
+import { unpunish_async } from './read.js';
 import { canseemon, canspotmon } from './display.js';
 import { ART_ORB_OF_DETECTION, touch_artifact } from './artifacts.js';
 import { body_part, mbodypart } from './polyself.js';
@@ -396,8 +395,7 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
 
         if (obj.owornmask & (W_BALL | W_CHAIN)) {
             if (unchain_ball)
-                unpunish(state, env);
-            if (noticesQueued()) await emitQueuedNotices();
+                await unpunish_async(state, env);
         } else if (obj.owornmask) {
             await setnotworn(obj, setwornEnv(state, env));
         }
@@ -494,7 +492,7 @@ async function stealarm(state = game, rawEnv = {}) {
                     });
                     if (!(await tele_restrict(monster, state, rawEnv))) {
                         const random = rawEnv.random ?? coreRandom;
-                        await rloc(monster, RLOC_MSG, {
+                        await rloc_async(monster, RLOC_MSG, {
                             ...rawEnv,
                             state,
                             random,
@@ -504,7 +502,6 @@ async function stealarm(state = game, rawEnv = {}) {
                             setApparxy: set_apparxy,
                             message: rawEnv.message ?? ttyPline,
                         });
-                        if (noticesQueued()) await emitQueuedNotices();
                     }
                     break;
                 }
@@ -988,8 +985,7 @@ export async function stealamulet(mtmp, rawEnv = {}) {
     await message(`${Some_Monnam(mtmp, state, nameEnv)} steals ${objectName}!`, state);
     if (can_teleport(mtmp.data)
         && !await tele_restrict(mtmp, state, rawEnv)) {
-        await rloc(mtmp, RLOC_MSG, { ...rawEnv, state, random });
-        if (noticesQueued()) await emitQueuedNotices();
+        await rloc_async(mtmp, RLOC_MSG, { ...rawEnv, state, random });
     }
     await encumber_msg(state, { message });
 }
@@ -1093,12 +1089,11 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
     // floor.  It passes silently=TRUE, so speed changes update state without
     // adding the visible adjustment message at this source point.
     if (!(mon.mhp < 1) /* !DEADMONSTER() */ && unwornmask)
-        await update_mon_extrinsics(mon, obj, false, {
+        await printQueued(update_mon_extrinsics(mon, obj, false, {
             ...env,
             state,
             silent: true,
-        });
-    if (noticesQueued()) await emitQueuedNotices();
+        }));
 }
 
 // C ref: steal.c maybe_absorb_item() (772-810). A revealed mimic can absorb
@@ -1305,8 +1300,7 @@ export async function stealgold(mtmp, rawEnv = {}) {
         || !random.rn2(5))) {
         await obj_extract_self(floorGold, inventoryEnv);
         add_to_minv(mtmp, floorGold, inventoryEnv);
-        redraw(state.u.ux, state.u.uy, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(state.u.ux, state.u.uy, state));
 
         let whose;
         let what;
@@ -1331,11 +1325,10 @@ export async function stealgold(mtmp, rawEnv = {}) {
         );
         if (!heroGold || !random.rn2(5)) {
             if (!await teleRestrict(mtmp, state, env)) {
-                await relocate(mtmp, RLOC_MSG, {
+                await printQueued(relocate(mtmp, RLOC_MSG, {
                     ...inventoryEnv,
                     newsym: redraw,
-                });
-                if (noticesQueued()) await emitQueuedNotices();
+                }));
             }
             await flee(mtmp, 0, false, false, inventoryEnv);
         }
@@ -1354,11 +1347,10 @@ export async function stealgold(mtmp, rawEnv = {}) {
         add_to_minv(mtmp, heroGold, inventoryEnv);
         await message('Your purse feels lighter.', state, env);
         if (!await teleRestrict(mtmp, state, env)) {
-            await relocate(mtmp, RLOC_MSG, {
+            await printQueued(relocate(mtmp, RLOC_MSG, {
                 ...inventoryEnv,
                 newsym: redraw,
-            });
-            if (noticesQueued()) await emitQueuedNotices();
+            }));
         }
         await flee(mtmp, 0, false, false, inventoryEnv);
         state.disp ??= {};

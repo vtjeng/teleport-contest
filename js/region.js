@@ -53,8 +53,7 @@ import { make_blinded, set_itimeout } from './potion.js';
 import { body_part } from './polyself.js';
 import { coreRandom, d as roll_d } from './rng.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { cansee, block_point, does_block, unblock_point } from './vision.js';
@@ -575,8 +574,7 @@ export async function run_regions(rawEnv = {}) {
             if (env.state.program_state?.gameover) return regions.length;
         }
         if (shouldRemove)
-            remove_region(region, env.state, env);
-        if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(remove_region(region, env.state, env));
     }
 
     for (let index = 0; index < regions.length; ++index) {
@@ -921,8 +919,7 @@ export async function region_safety(state = game, rawEnv = {}) {
             );
         }
     } else if (removable) {
-        remove_region(removable, state, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(remove_region(removable, state, env));
         await env.message(
             'The gas cloud enveloping you dissipates.', state, env,
         );
@@ -980,11 +977,10 @@ async function makeGasCloud(cloud, damage, insideCloud, env) {
     cloud.arg = damage;
     cloud.visible = true;
     cloud.glyph_cmap = damage ? S_poisoncloud : S_cloud;
-    add_region(cloud, state, {
+    await printQueued(add_region(cloud, state, {
         ...env,
         deferVisual: Boolean(state.in_mklev),
-    });
-    if (noticesQueued()) await emitQueuedNotices();
+    }));
 
     if (!state.in_mklev && !insideCloud && heroInsideGasCloud(state)) {
         await env.message(

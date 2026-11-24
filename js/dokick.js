@@ -110,8 +110,8 @@ import {
     has_oname,
     In_mines,
 } from './const.js';
-import { feel_location, feel_newsym, glyph_at, glyph_is_invisible,
-    map_glyphinfo, map_invisible, newsym, show_glyph_cell, unmap_invisible,
+import { feel_location, feel_newsym_async, glyph_at, glyph_is_invisible,
+    map_glyphinfo, map_invisible_async, newsym, newsym_async, show_glyph_cell, unmap_invisible_async,
 } from './display.js';
 import {
     flooreffects, legs_in_no_shape,
@@ -122,7 +122,7 @@ import { Is_botlevel, dunlev, dunlevs_in_dungeon, on_level, surface } from './du
 import { breaktest, breaks, hero_breaks, impact_disturbs_zombies, thitmonst, hurtle, digests } from './dothrow.js';
 import { game } from './gstate.js';
 import { sgn, upstart } from './hacklib.js';
-import { add_to_minv, currency, delobj, money_cnt, obj_extract_self, obfree, stackobj, stackobjRuntime, useup, sobj_at } from './invent.js';
+import { add_to_minv, currency, delobj_async, money_cnt, obj_extract_self, obfree, stackobj, stackobjRuntime, useup, sobj_at } from './invent.js';
 import {
     in_town, inv_weight, losehp, near_capacity, overexertion, weight_cap,
 } from './hack.js';
@@ -136,7 +136,7 @@ import {
     closed_door, monflee, mon_yells, set_apparxy, youHear,
 } from './monmove.js';
 import {
-    killed, maybe_mnexto, maybe_unhide_at, seemimic, setmangry,
+    killed, maybe_mnexto, maybe_unhide_at, seemimic_async, setmangry,
     angry_guards, get_iter_mons_async, wake_nearby, wake_nearto, wakeup,
 } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
@@ -193,8 +193,7 @@ import { m_in_out_region } from './region.js';
 import { mintrap } from './trap_effects.js';
 import {
     displayPendingTtyMessageWindow,
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import {
@@ -302,8 +301,7 @@ export async function kickdmg(mon, clumsy, state = game) {
         return;
     }
 
-    if (M_AP_TYPE(mon)) seemimic(mon, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (M_AP_TYPE(mon)) await seemimic_async(mon, state);
     await check_caitiff(mon, state, env);
 
     if (mon.mtame) {
@@ -337,11 +335,9 @@ export async function kickdmg(mon, clumsy, state = game) {
                 const oldX = mon.mx;
                 const oldY = mon.my;
                 remove_monster(oldX, oldY, state);
-                newsym(oldX, oldY);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(oldX, oldY);
                 place_monster(mon, mdx, mdy, state);
-                newsym(mdx, mdy);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(mdx, mdy);
                 set_apparxy(mon, env);
                 if (await mintrap(mon, NO_TRAP_FLAGS, env)
                     === Trap_Killed_Mon)
@@ -399,12 +395,10 @@ export async function kick_monster(mon, x, y, state = game) {
 
     if (mon.mundetected
         || (M_AP_TYPE(mon) && M_AP_TYPE(mon) !== M_AP_MONSTER)) {
-        if (M_AP_TYPE(mon)) seemimic(mon, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (M_AP_TYPE(mon)) await seemimic_async(mon, state);
         mon.mundetected = 0;
-        if (!canspotmon(mon, state)) map_invisible(x, y, state);
-        else newsym(x, y);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (!canspotmon(mon, state)) await map_invisible_async(x, y, state);
+        else await newsym_async(x, y);
         await ttyPline(
             `There is ${canspotmon(mon, state) ? a_monnam(mon, { state })
                 : 'something hidden'} here.`,
@@ -496,8 +490,7 @@ export async function kick_monster(mon, x, y, state = game) {
         }
         await maybe_mnexto(mon, state, env);
         if (mon.mx !== x || mon.my !== y) {
-            unmap_invisible(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await unmap_invisible_async(x, y, state);
             const movement = can_teleport(mon.data) && !noteleport_level(mon, state)
                 ? 'teleports'
                 : is_floater(mon.data) ? 'floats'
@@ -534,8 +527,7 @@ export async function ghitm(monster, gold, state = game, rawEnv = {}) {
         const wasSleeping = monster.msleeping;
         const value = gold.quan * objectType(gold, state).oc_cost;
         monster.msleeping = 0;
-        finish_meating(monster, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(finish_meating(monster, env));
         if (!monster.isgd && !random.rn2(4))
             await setmangry(monster, true, env);
         if (cansee(monster.mx, monster.my, state))
@@ -686,8 +678,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
         await message(Blind(state.u) ? 'It comes loose.'
             : `${The(distant_name(object(), xname, state), state)} ${otense(object(), 'come', state)} loose.`, state, env);
         await obj_extract_self(object(), env);
-        redraw(x, y);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(x, y));
         if (costly && (!costly_spot(u.ux, u.uy, state)
             || !u.urooms.includes(in_rooms(x, y, SHOPBASE, state)[0]))) {
             if (!object().no_charge) await addtobill(object(), false, false, false, state, env);
@@ -699,8 +690,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
                 await placement;
             impact_disturbs_zombies(object(), true, state);
             stackobj(object(), env);
-            redraw(u.ux, u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(u.ux, u.uy));
         }
         return 1;
     }
@@ -737,8 +727,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
                 const messages = ['scatter the coins', 'knock coins all over the place', 'send coins flying in all directions'];
                 await message(`You ${messages[random.rn2(messages.length)]}!`, state, env);
                 await scatter(x, y, random.rnd(3), SCATTER_VIS_EFFECTS | SCATTER_MAY_HIT, object(), state, env);
-                redraw(x, y);
-                if (noticesQueued()) await emitQueuedNotices();
+                await printQueued(redraw(x, y));
                 return 1;
             }
             if (object().quan > 300) {
@@ -751,8 +740,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
         await message(`Whee!  ${Doname2(object(), state)} ${otense(object(), 'slide', state)} across the ${surface(x, y, state)}.`, state, env);
     await obj_extract_self(object(), env);
     await snuff_candle(object(), env);
-    redraw(x, y);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(x, y));
     const ref = { obj: object() };
     const monster = await bhit(u.dx, u.dy, range, KICKED_WEAPON, null, null, ref, state, random, env);
     if (!object()) return 1;
@@ -782,8 +770,7 @@ export async function really_kick_object(x, y, state = game, rawEnv = {}) {
     if (placement && typeof placement.then === 'function') await placement;
     impact_disturbs_zombies(object(), true, state);
     stackobj(object(), env);
-    redraw(object().ox, object().oy);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(object().ox, object().oy));
     return 1;
 }
 
@@ -800,8 +787,7 @@ async function kick_dumb(x, y, state) {
     // all. Getting that wrong changes the stream rather than the message.
     if (martial(state) || acurr(state, A_DEX) >= 16 || rn2(3)) {
         await ttyPline('You kick at empty space.', state);
-        if (Blind(state.u)) feel_location(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (Blind(state.u)) await printQueued(feel_location(x, y, state));
     } else {
         await ttyPline('Dumb move!  You strain a muscle.', state);
         await exercise(A_STR, false, state, coreRandom,
@@ -870,8 +856,7 @@ async function kick_ouch(x, y, kickobjnam, state) {
     await exercise(A_STR, false, state, coreRandom,
                    { encumberMessage: encumber_msg });
     if (isok(x, y)) {
-        if (Blind(state.u)) feel_location(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (Blind(state.u)) await printQueued(feel_location(x, y, state));
         if (is_drawbridge_wall(x, y, state) >= 0) {
             await ttyPline('The drawbridge is unaffected.', state);
             const position = { x, y };
@@ -925,8 +910,7 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
                 { encumberMessage: encumber_msg });
             maploc.flags = D_BROKEN;
         }
-        feel_newsym(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await feel_newsym_async(x, y, state);
         recalc_block_point(x, y, state);
         if (shopdoor) {
             add_damage(x, y, SHOP_DOOR_COST, state);
@@ -943,8 +927,7 @@ export async function kick_door(x, y, avrg_attrib, state = game) {
             }, state);
         }
     } else {
-        if (Blind(state.u)) feel_location(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (Blind(state.u)) await printQueued(feel_location(x, y, state));
         await exercise(A_STR, true, state, coreRandom,
             { encumberMessage: encumber_msg });
         await ttyPline(`${Deaf(state.u) || !rn2(3) ? 'Thwack' : 'Whammm'}!!`, state);
@@ -988,8 +971,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
             } else if (mask !== D_NODOOR && !(mask & D_LOCKED)) {
                 maploc.flags = D_ISOPEN;
             }
-            feel_newsym(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await feel_newsym_async(x, y, state);
             if (maploc.flags === D_ISOPEN || maploc.flags === D_NODOOR)
                 unblock_point(x, y, state);
         } else {
@@ -1002,8 +984,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
             await ttyPline('Crash!  You kick open a secret passage!', state);
             await exercise(A_DEX, true, state, random);
             maploc.typ = CORR;
-            feel_newsym(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await feel_newsym_async(x, y, state);
             unblock_point(x, y, state);
         } else {
             await kick_ouch(x, y, '', state);
@@ -1024,8 +1005,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
                 await ttyPline('CRASH!  You destroy it.', state);
             } else {
                 await ttyPline('CRASH!  You destroy the throne.', state);
-                newsym(x, y, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(x, y);
             }
             await exercise(A_DEX, true, state, random);
             return ECMD_TIME;
@@ -1047,8 +1027,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
                     : 'You kick loose some ornamental coins and gems!',
                 state,
             );
-            if (!Blind(state.u)) newsym(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            if (!Blind(state.u)) await newsym_async(x, y);
             maploc.flags = T_LOOTED;
             return ECMD_TIME;
         }
@@ -1126,8 +1105,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
             await ttyPline('Crack!  Something broke!', state);
         } else {
             await ttyPline('The headstone topples over and breaks!', state);
-            newsym(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(x, y);
         }
         return ECMD_TIME;
     }
@@ -1169,8 +1147,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
             }
             await exercise(A_DEX, true, state, random);
             await exercise(A_WIS, true, state, random);
-            newsym(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(x, y);
             maploc.flags |= TREE_LOOTED;
             return ECMD_TIME;
         } else if (!(maploc.flags & TREE_SWARM)) {
@@ -1213,8 +1190,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
             }
             await makemon_runtime(state.mons[PM_BLACK_PUDDING], x, y, MM_NOMSG, { state });
             await exercise(A_DEX, true, state, random);
-            newsym(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(x, y);
             maploc.flags |= S_LPUDDING;
             return ECMD_TIME;
         } else if (!(maploc.flags & S_LDWASHER) && !rn2(3)
@@ -1222,8 +1198,7 @@ export async function kick_nondoor(x, y, avrg_attrib, state = game) {
             await ttyPline(`${Blind(state.u) ? 'Something' : 'The dish washer'} returns!`, state);
             const sex = gend === 1 || (gend === 2 && rn2(2)) ? MM_MALE : MM_FEMALE;
             if (await makemon_runtime(state.mons[PM_AMOROUS_DEMON], x, y,
-                MM_NOMSG | sex, { state })) newsym(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+                MM_NOMSG | sex, { state })) await newsym_async(x, y);
             maploc.flags |= S_LDWASHER;
             await exercise(A_DEX, true, state, random);
             return ECMD_TIME;
@@ -1403,14 +1378,12 @@ export async function dokick(state = game) {
             // only clears at the death square. show_glyph(x, y, oldglyph)
             // redraws what was shown before; levl[x][y].glyph keeps the 'I'.
             if (glyph !== oldGlyph && glyph_is_invisible(glyph))
-                show_glyph_cell(x, y, map_glyphinfo(oldGlyph, state));
-            if (noticesQueued()) await emitQueuedNotices();
+                await printQueued(show_glyph_cell(x, y, map_glyphinfo(oldGlyph, state)));
         } else if (!canspotmon(mtmp, state)
                    && mtmp.mx === x && mtmp.my === y
                    && !glyph_is_invisible(glyph)
                    && !engulfing_u(mtmp, state)) {
-            map_invisible(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await map_invisible_async(x, y, state);
         }
 
         // dokick.c:1428-1439. C uses integer division for both range steps;
@@ -1426,8 +1399,7 @@ export async function dokick(state = game) {
         return ECMD_TIME;
     }
 
-    unmap_invisible(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await unmap_invisible_async(x, y, state);
     // C's XOR also splashes when an underwater hero kicks dry land.
     if ((is_pool(x, y, state) || maploc.typ === LAVAWALL)
         !== Boolean(u.uinwater)) {
@@ -1749,8 +1721,7 @@ export async function ship_object(obj, x, y, shop_floor_obj, env = {}) {
     if (obj.otyp === BOULDER) obj.otrapped = 0;
     if (impact) {
         await impact_drop(obj, x, y, 0, env);
-        newsym(x, y);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(x, y);
     }
     return true;
 }
@@ -1835,8 +1806,7 @@ export async function obj_delivery(near_hero, rawEnv = {}) {
                 } else if (breaktest(otmp, env)) {
                     // dokick.c assumes this broke before arrival and omits
                     // the ordinary broken-object message.
-                    await delobj(otmp, env);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await delobj_async(otmp, env);
                     otmp = otmp2;
                     continue;
                 }
@@ -1847,8 +1817,7 @@ export async function obj_delivery(near_hero, rawEnv = {}) {
             if (!noscatter) {
                 await scatter(nx, ny, random.rnd(2), 0, otmp, state, env);
             } else {
-                newsym(nx, ny, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(nx, ny);
             }
         } else {
             // rloco() reads the source coordinates unless they are reset for
@@ -1857,8 +1826,7 @@ export async function obj_delivery(near_hero, rawEnv = {}) {
             otmp.oy = 0;
             if (await rloco(otmp, env) && !nobreak
                 && breaktest(otmp, env)) {
-                await delobj(otmp, env);
-                if (noticesQueued()) await emitQueuedNotices();
+                await delobj_async(otmp, env);
             }
         }
         otmp = otmp2;

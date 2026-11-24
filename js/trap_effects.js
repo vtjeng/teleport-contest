@@ -134,12 +134,12 @@ import {
 import { zero_dig_info } from './context.js';
 import { isok } from './cmd_isok.js';
 import { stop_occupation } from './allmain.js';
-import { ballfall, placebc, unplacebc } from './ball.js';
+import { ballfall, placebc, unplacebc_async } from './ball.js';
 import {
     acurr, adjattrib, exercise, minuhpmax, poisoned, setuhpmax,
 } from './attrib.js';
 import {
-    map_trap, newsym, obj_to_glyph, shieldeff, tmp_at,
+    map_trap, newsym, newsym_async, obj_to_glyph, shieldeff, tmp_at,
 } from './display.js';
 import { flooreffects, set_wounded_legs } from './do.js';
 import { down_gate, ship_object } from './dokick.js';
@@ -373,8 +373,7 @@ import {
 } from './teleport.js';
 import { fracture_rock, poly_obj, resist } from './zap.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { burnarmor } from './trap_erode_obj.js';
@@ -500,6 +499,12 @@ export function seetrap(trap, env = {}) {
     }
 }
 
+// trap.c seetrap() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function seetrap_async(...args) {
+    return printQueued(seetrap(...args));
+}
+
 // C ref: trap.c feeltrap() (3587-3594). The hero learns a trap by standing in
 // it rather than by seeing it, so unlike seetrap() this repaints even when the
 // trap was already known. map_trap() writes the trap's own glyph and newsym()
@@ -513,6 +518,12 @@ export function feeltrap(trap, env = {}) {
     trap.tseen = true;
     map_trap(trap, 1, env.state);
     redraw(trap.tx, trap.ty);
+}
+
+// trap.c feeltrap() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function feeltrap_async(...args) {
+    return printQueued(feeltrap(...args));
 }
 
 // C ref: trap.c mu_maybe_destroy_web() (972-1014).
@@ -541,8 +552,7 @@ export async function mu_maybe_destroy_web(monster, domsg, trap, env) {
             }
         }
         deltrap(trap, state);
-        (env.redraw ?? newsym)(trap.tx, trap.ty);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued((env.redraw ?? newsym)(trap.tx, trap.ty));
         return true;
     }
     if (domsg) {
@@ -554,8 +564,7 @@ export async function mu_maybe_destroy_web(monster, domsg, trap, env) {
                 + ` flows through ${article} spider web.`,
                 monster.mx, monster.my, state,
             ), state, env);
-            seetrap(trap, env);
-            if (noticesQueued()) await emitQueuedNotices();
+            await seetrap_async(trap, env);
         }
     }
     return true;
@@ -587,8 +596,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
     if (monster === state.youmonst) {
         if ((Levitation(state.u) || Flying(state.u)) && !forcetrap) {
             if (!Blind(state.u)) {
-                seetrap(trap, env);
-                if (noticesQueued()) await emitQueuedNotices();
+                await seetrap_async(trap, env);
                 await message(
                     Hallucination(state.u)
                         ? 'You notice a crease in the linoleum.'
@@ -600,8 +608,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
             return Trap_Effect_Finished;
         }
 
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         if (Deaf(state.u)) {
             await message('A board beneath you vibrates.', state, env);
         } else {
@@ -633,8 +640,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
                 state,
                 env,
             );
-            seetrap(trap, env);
-            if (noticesQueued()) await emitQueuedNotices();
+            await seetrap_async(trap, env);
         } else if (!mindless(monster.data)) {
             await message(
                 messageAt(
@@ -707,13 +713,11 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
             const heard = plineYouHear('a loud click!', state);
             if (heard !== null) await message(heard, state, env);
             deltrap(trap, state);
-            newsym(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(state.u.ux, state.u.uy);
             return Trap_Is_Gone;
         }
         trap.once = true;
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         await message('An arrow shoots out at you!', state, env);
         const otmp = t_missile(ARROW, trap, actionEnv);
         const damage = dmgval(otmp, state.youmonst, state, { random });
@@ -739,8 +743,7 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
                 await placement;
             if (!Blind(state.u)) observe_object(otmp, state);
             stackobj(otmp, objectEnv);
-            newsym(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(state.u.ux, state.u.uy);
         }
         return Trap_Effect_Finished;
     }
@@ -762,15 +765,13 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
             );
         }
         deltrap(trap, state);
-        (env.redraw ?? newsym)(mtmp.mx, mtmp.my, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued((env.redraw ?? newsym)(mtmp.mx, mtmp.my, state));
         return Trap_Is_Gone;
     }
 
     trap.once = true;
     const otmp = t_missile(ARROW, trap, actionEnv);
-    if (inSight) seetrap(trap, env);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (inSight) await seetrap_async(trap, env);
     const trapKilled = await thitm(8, mtmp, otmp, 0, false, actionEnv);
     return trapKilled ? Trap_Killed_Mon
         : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
@@ -858,8 +859,7 @@ export async function thitm(tlev, mon, obj, d_override, nocorpse, env) {
                 await monkilled(mon, '', nocorpse ? -AD_RBRE : AD_PHYS,
                                 state, env);
                 if (mon.mhp < 1) { /* DEADMONSTER() */
-                    redraw(xx, yy);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await printQueued(redraw(xx, yy));
                     trapkilled = true;
                 }
             }
@@ -912,13 +912,11 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
             const heard = plineYouHear('a soft click.', state);
             if (heard !== null) await message(heard, state, env);
             deltrap(trap, state);
-            newsym(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(state.u.ux, state.u.uy);
             return Trap_Is_Gone;
         }
         trap.once = true;
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         await message('A little dart shoots out at you!', state);
         const otmp = t_missile(DART, trap, { ...env, objectEnv });
         if (!random.rn2(6)) otmp.opoisoned = true;
@@ -965,8 +963,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
             if (!Blind(state.u))
                 observe_object(otmp, state);
             stackobj(otmp, { state });
-            newsym(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(state.u.ux, state.u.uy);
         }
         return Trap_Effect_Finished;
     }
@@ -991,8 +988,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
             );
         }
         deltrap(trap, state);
-        redraw(mtmp.mx, mtmp.my);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(mtmp.mx, mtmp.my));
         return Trap_Is_Gone;
     }
     // C writes 1 into a bitfield; js/trap.js resetTrap() keeps once as a
@@ -1000,8 +996,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
     trap.once = true;
     const otmp = t_missile(DART, trap, { ...env, objectEnv });
     if (!random.rn2(6)) otmp.opoisoned = true;
-    if (inSight) seetrap(trap, env);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (inSight) await seetrap_async(trap, env);
     const trapkilled = await thitm(
         7,
         mtmp,
@@ -1038,8 +1033,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
                 env,
             );
             deltrap(trap, state);
-            redraw(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(state.u.ux, state.u.uy));
             return Trap_Effect_Finished;
         }
 
@@ -1047,8 +1041,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
         // mkobj.c initialization sequence.
         let damage = random.d(2, 6);
         trap.once = true;
-        feeltrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await feeltrap_async(trap, env);
         const otmp = t_missile(ROCK, trap, { ...env, objectEnv });
         const placement = place_object(otmp, state.u.ux, state.u.uy, objectEnv);
         if (placement && typeof placement.then === 'function') await placement;
@@ -1092,8 +1085,7 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
         }
         if (!Blind(state.u)) observe_object(otmp, state);
         stackobj(otmp, objectEnv);
-        redraw(state.u.ux, state.u.uy);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(state.u.ux, state.u.uy));
 
         if (!harmless) {
             await losehp(
@@ -1136,16 +1128,14 @@ async function trapeffect_rocktrap(mtmp, trap, _trflags, env) {
             );
         }
         deltrap(trap, state);
-        redraw(mtmp.mx, mtmp.my);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(mtmp.mx, mtmp.my));
         return Trap_Is_Gone;
     }
     // C writes 1 into a bitfield; js/trap.js resetTrap() keeps once as a
     // boolean, and this is the same value in one representation.
     trap.once = true;
     const otmp = t_missile(ROCK, trap, { ...env, objectEnv });
-    if (in_sight) seetrap(trap, env);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (in_sight) await seetrap_async(trap, env);
     const trapkilled = await thitm(
         0,
         mtmp,
@@ -1204,8 +1194,7 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
                     state,
                     env,
                 );
-                seetrap(trap, env);
-                if (noticesQueued()) await emitQueuedNotices();
+                await seetrap_async(trap, env);
             } else if (mptr === state.mons[PM_OWLBEAR]
                        || mptr === state.mons[PM_BUGBEAR]) {
                 // Soundeffect() is a tty-sound hook and writes nothing to the
@@ -1227,8 +1216,7 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
                     state,
                     env,
                 );
-                seetrap(trap, env);
-                if (noticesQueued()) await emitQueuedNotices();
+                await seetrap_async(trap, env);
             }
         }
         if (mtmp.mtrapped && !wearing_iron_shoes(mtmp, state)) {
@@ -1250,8 +1238,7 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
 
     if ((Levitation(state.u) || Flying(state.u)) && !forcetrap)
         return Trap_Effect_Finished;
-    feeltrap(trap, env);
-    if (noticesQueued()) await emitQueuedNotices();
+    await feeltrap_async(trap, env);
     const you = state.youmonst.data;
     if (amorphous(you) || is_whirly(you) || unsolid(you)) {
         await message(
@@ -1323,8 +1310,7 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
     const message = env.message ?? ttyPline;
 
     if (mtmp === state.youmonst) {
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         if (HSleep_resistance(state.u) || ESleep_resistance(state.u)
             || breathless(state.youmonst.data)) {
             await message('You are enveloped in a cloud of gas!', state, env);
@@ -1355,8 +1341,7 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
                 state,
                 env,
             );
-            seetrap(trap, env);
-            if (noticesQueued()) await emitQueuedNotices();
+            await seetrap_async(trap, env);
         }
     }
     return Trap_Effect_Finished;
@@ -1508,8 +1493,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
             || (Flying(state.u) && !plunged && !viasitting)))
             return Trap_Effect_Finished;
 
-        feeltrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await feeltrap_async(trap, env);
         if (!sokoban && is_clinger(state.youmonst.data) && !plunged) {
             if (alreadyKnown) {
                 await message(
@@ -1636,8 +1620,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                     return Trap_Effect_Finished;
             }
             if (Punished(state) && !carried(state.uball)) {
-                unplacebc(state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await unplacebc_async(state);
                 await ballfall(state, env);
                 // A final death is NORETURN in C. Life-saving and a refused
                 // debug death leave gameover clear and continue normally.
@@ -1672,8 +1655,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
         if (forcetrap && !sokoban) {
             /* openfallingtrap; not inescapable here */
             if (in_sight) {
-                seetrap(trap, env);
-                if (noticesQueued()) await emitQueuedNotices();
+                await seetrap_async(trap, env);
                 await message(
                     messageAt(
                         `${Monnam(mtmp, state, env)} doesn't fall`
@@ -1711,8 +1693,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
         if (mptr === state.mons[PM_PIT_VIPER]
             || mptr === state.mons[PM_PIT_FIEND])
             await message("How pitiful.  Isn't that the pits?", state, env);
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
     }
     await mselftouch(mtmp, 'Falling, ', false, env);
     let relevantSpikes = trap.ttyp === SPIKED_PIT;
@@ -1829,11 +1810,10 @@ async function domagictrap(env) {
             // the true arm clears it before redraw.
             state.u.uprops[INVIS].intrinsic = HInvis(state.u)
                 ? 0 : HInvis(state.u) | FROMOUTSIDE;
-            (env.redraw ?? newsym)(
+            await printQueued((env.redraw ?? newsym)(
                 state.u.ux,
                 state.u.uy,
-            );
-            if (noticesQueued()) await emitQueuedNotices();
+            ));
             break;
         case 12: /* a flash of fire */
             await dofiretrap(null, env);
@@ -1938,8 +1918,7 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
 
     if (mtmp === state.youmonst) {
         if (!Can_fall_thru(state.u?.uz, state)) {
-            seetrap(trap, env); // normally done in fall_through
-            if (noticesQueued()) await emitQueuedNotices();
+            await seetrap_async(trap, env); // normally done in fall_through
             await impossible(
                 `dotrap: ${trapname(trap.ttyp, true, state)}s cannot exist`
                     + ' on this level.',
@@ -1976,8 +1955,7 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
     if (tooLargeOrAirborne) {
         if (forceTrap && !state.level?.flags?.sokoban_rules) {
             if (inSight) {
-                seetrap(trap, env);
-                if (noticesQueued()) await emitQueuedNotices();
+                await seetrap_async(trap, env);
                 await (env.message ?? ttyPline)(
                     messageAt(
                         tt === TRAPDOOR
@@ -2008,8 +1986,7 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
                     state,
                     env,
                 );
-                seetrap(trap, env);
-                if (noticesQueued()) await emitQueuedNotices();
+                await seetrap_async(trap, env);
             }
         } else {
             return Trap_Effect_Finished;
@@ -2026,8 +2003,7 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
 async function trapeffect_telep_trap(mtmp, trap, _trflags, env) {
     const { state } = env;
     if (mtmp === state.youmonst) {
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         await tele_trap(trap, state);
         return Trap_Effect_Finished;
     }
@@ -2047,8 +2023,7 @@ async function trapeffect_telep_trap(mtmp, trap, _trflags, env) {
 async function trapeffect_level_telep(mtmp, trap, trflags, env) {
     const { state } = env;
     if (mtmp === state.youmonst) {
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         await level_tele_trap(trap, trflags, state, env);
         return Trap_Effect_Finished;
     }
@@ -2073,8 +2048,7 @@ async function trapeffect_level_telep(mtmp, trap, trflags, env) {
 async function trapeffect_magic_portal(mtmp, trap, trflags, env) {
     const { state } = env;
     if (mtmp === state.youmonst) {
-        feeltrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await feeltrap_async(trap, env);
         await domagicportal(trap, state);
         return Trap_Effect_Finished;
     }
@@ -2215,8 +2189,7 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
     const message = env.message ?? ttyPline;
 
     if (mtmp === state.youmonst) {
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         await dofiretrap(null, env);
         return Trap_Effect_Finished;
     }
@@ -2328,8 +2301,7 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
     if (mtmp.mhp < 1) trapkilled = true;
     if (seeIt) {
         const currentTrap = t_at(tx, ty, state);
-        if (currentTrap) seetrap(currentTrap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (currentTrap) await seetrap_async(currentTrap, env);
     }
 
     return trapkilled ? Trap_Killed_Mon
@@ -2346,12 +2318,10 @@ async function trapeffect_magic_trap(mtmp, trap, _trflags, env) {
     const { state } = env;
     const random = env.random;
     if (mtmp === state.youmonst) {
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         if (!random.rn2(30)) {
             deltrap(trap, state);
-            (env.redraw ?? newsym)(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued((env.redraw ?? newsym)(state.u.ux, state.u.uy));
             const message = env.message ?? ttyPline;
             await message('You are caught in a magical explosion!', state, env);
             await losehp(
@@ -2395,8 +2365,7 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
         if (wearing_iron_shoes(mtmp, state)) {
             const shoes = which_armor(mtmp, W_ARMF, state);
             if (shoes.spe > 0) {
-                seetrap(trap, env);
-                if (noticesQueued()) await emitQueuedNotices();
+                await seetrap_async(trap, env);
                 await message(
                     `A lethargic aura surrounds ${yname(shoes, state)}.`,
                     state,
@@ -2409,8 +2378,7 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
             }
         }
 
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         if (antimagicTrapHero(state)) {
             let damage = random.rnd(4);
             const hp = Upolyd(state.u) ? state.u.mh : state.u.uhp;
@@ -2490,8 +2458,7 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
                 || attacktype(species, AT_BREA))) {
             mtmp.mspec_used = (mtmp.mspec_used ?? 0) + random.d(2, 6);
             if (inSight) {
-                seetrap(trap, env);
-                if (noticesQueued()) await emitQueuedNotices();
+                await seetrap_async(trap, env);
                 await message(
                     messageAt(
                         `${Monnam(mtmp, state)} seems lethargic.`,
@@ -2518,8 +2485,7 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
         }
         if (passes_walls(species)) damage = Math.trunc((damage + 3) / 4);
 
-        if (inSight) seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (inSight) await seetrap_async(trap, env);
         mtmp.mhp -= damage;
         if (mtmp.mhp < 1) {
             await monkilled(
@@ -2531,8 +2497,7 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
             );
         }
         if (mtmp.mhp < 1) {
-            if (seeIt) env.redraw(trap.tx, trap.ty);
-            if (noticesQueued()) await emitQueuedNotices();
+            if (seeIt) await printQueued(env.redraw(trap.tx, trap.ty));
             return Trap_Killed_Mon;
         }
     }
@@ -2621,8 +2586,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
         singleobj = await splitobj(otmp, 1, objectEnv);
         await obj_extract_self(singleobj, objectEnv);
     }
-    redraw(x1, y1);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(x1, y1));
     const digging = state.context?.digging;
     if ((otyp === BOULDER || otyp === STATUE)
         && digging?.pos?.x === singleobj.ox
@@ -2836,8 +2800,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                             hooks: objectHooks,
                             scatterOps: { newsym: env.newsym ?? redraw },
                         });
-                    if (cansee(x, y, state)) redraw(x, y);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    if (cansee(x, y, state)) await printQueued(redraw(x, y));
                     used_up = true;
                     launch_drop_spot(null, 0, 0, state);
                     break;
@@ -2871,8 +2834,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                         singleobj.oy = destination.dlevel;
                         singleobj.owornmask = MIGR_RANDOM;
                     }
-                    seetrap(t, { ...env, redraw });
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await seetrap_async(t, { ...env, redraw });
                     used_up = true;
                     launch_drop_spot(null, 0, 0, state);
                     break;
@@ -2987,8 +2949,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
         singleobj.otrapped = 0;
         const placement = place_object(singleobj, x2, y2, objectEnv);
         if (placement && typeof placement.then === 'function') await placement;
-        redraw(x2, y2);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(x2, y2));
         return 1;
     }
     return 2;
@@ -3005,8 +2966,7 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
     if (monster === state.youmonst) {
         let style = ROLL | (trap.tseen ? LAUNCH_KNOWN : 0);
 
-        feeltrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await feeltrap_async(trap, env);
         await message(`${!Deaf(state.u) ? 'Click!  ' : ''
             }You trigger a rolling boulder trap!`, state);
         if (!await launch_obj(BOULDER, trap.launch.x, trap.launch.y,
@@ -3026,8 +2986,7 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
             const style = ROLL | (inSight ? 0 : LAUNCH_UNSEEN);
             let trapkilled = false;
 
-            redraw(monster.mx, monster.my);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(monster.mx, monster.my));
             if (inSight) {
                 await message(
                     messageAt(
@@ -3084,8 +3043,7 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
         const steedArticle = steed && has_mgivenname(steed)
             && !Hallucination(state.u) ? ARTICLE_NONE : ARTICLE_THE;
 
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         if (viasitting) {
             verbbuf = 'trigger';
         } else if (steed) {
@@ -3119,8 +3077,7 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
             // C explicitly discards steedintrap() and polyself()'s results.
             await steedintrap(trap, null, env);
             deltrap(trap, state);
-            newsym(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(state.u.ux, state.u.uy);
             await message(plineYouFeel('a change coming over you.', state), state, env);
             await polyself(POLY_NOFLAGS, state);
         }
@@ -3146,12 +3103,11 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
         if (shoes) {
             mtmp.misc_worn_check |= W_ARMF;
             shoes.owornmask = W_ARMF;
-            await update_mon_extrinsics(mtmp, shoes, true, {
+            await printQueued(update_mon_extrinsics(mtmp, shoes, true, {
                 ...env,
                 state,
                 silent: true,
-            });
-            if (noticesQueued()) await emitQueuedNotices();
+            }));
         }
     } else if (resists_magm(mtmp, state)) {
         // shieldeff_mon() keeps the non-display source effect and names its
@@ -3159,8 +3115,7 @@ async function trapeffect_poly_trap(mtmp, trap, trflags, env) {
         await shieldeff_mon(mtmp, { ...env, state });
     } else if (!await resist(mtmp, WAND_CLASS, 0, NOTELL, state, random)) {
         await newcham(mtmp, null, { ...env, ncflags: NC_SHOW_MSG });
-        if (inSight) seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (inSight) await seetrap_async(trap, env);
     }
     return Trap_Effect_Finished;
 }
@@ -3179,8 +3134,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
         const steedArticle = steed && has_mgivenname(steed) && !Hallucination(state.u)
             ? ARTICLE_NONE : ARTICLE_THE;
 
-        feeltrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await feeltrap_async(trap, env);
         if (await mu_maybe_destroy_web(monster, webmsgok, trap, env))
             return Trap_Effect_Finished;
         if (webmaker(monster.data)) {
@@ -3229,8 +3183,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
             if (webmsgok)
                 await message(`You tear through ${article} web!`, state, env);
             deltrap(trap, state);
-            redraw(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(state.u.ux, state.u.uy));
         }
         set_utrap(tim, TT_WEB, state);
         return Trap_Effect_Finished;
@@ -3267,8 +3220,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
                 + ` is caught in ${article} spider web.`,
                 monster.mx, monster.my, state,
             ), state, env);
-            seetrap(trap, env);
-            if (noticesQueued()) await emitQueuedNotices();
+            await seetrap_async(trap, env);
         }
         monster.mtrapped = !tearWeb;
         break;
@@ -3295,8 +3247,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
                 monster.mx, monster.my, state,
             ), state, env);
         deltrap(trap, state);
-        redraw(monster.mx, monster.my);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(monster.mx, monster.my));
     } else if (forcetrap && !monster.mtrapped) {
         if (inSight) {
             await message(messageAt(
@@ -3304,8 +3255,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
                 + ` avoids ${article} spider web!`,
                 monster.mx, monster.my, state,
             ), state, env);
-            seetrap(trap, env);
-            if (noticesQueued()) await emitQueuedNotices();
+            await seetrap_async(trap, env);
         }
     }
     return monster.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
@@ -3346,8 +3296,7 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
         );
 
     if (hero) {
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         // Unlike monsters, traps cannot aim their rust attacks at the hero;
         // every case therefore uses the selected object, even when it is
         // absent or not rust-prone.
@@ -3432,8 +3381,7 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
     const inSight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     const mptr = mtmp.data;
     let trapkilled = false;
-    if (inSight) seetrap(trap, env);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (inSight) await seetrap_async(trap, env);
 
     switch (random.rn2(5)) {
     case 0: {
@@ -3611,11 +3559,10 @@ export async function blow_up_landmine(trap, rawEnv = {}) {
             } else {
                 remaining.ttyp = PIT;
                 remaining.madeby_u = false;
-                seetrap(remaining, {
+                await seetrap_async(remaining, {
                     ...env,
                     redraw: env.redraw ?? newsym,
                 });
-                if (noticesQueued()) await emitQueuedNotices();
             }
         }
     }
@@ -3686,8 +3633,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
         if ((Levitation(state.u) || Flying(state.u)) && !forcetrap) {
             if (!alreadySeen && random.rn2(3))
                 return Trap_Effect_Finished;
-            feeltrap(trap, env);
-            if (noticesQueued()) await emitQueuedNotices();
+            await feeltrap_async(trap, env);
             await message(
                 `${alreadySeen ? 'There is' : 'You discover'} `
                     + `${trap.madeby_u ? 'the trigger of your mine' : 'a trigger'}`
@@ -3712,8 +3658,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
             // global shared by concurrent game instances.
             if (state.trapRecursiveMine)
                 return Trap_Effect_Finished;
-            feeltrap(trap, env);
-            if (noticesQueued()) await emitQueuedNotices();
+            await feeltrap_async(trap, env);
             await message(
                 `KAABLAMM!!!  You triggered ${a_your[
                     Number(Boolean(trap.madeby_u))
@@ -3758,8 +3703,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
                 saddle,
                 state,
             );
-        newsym(state.u.ux, state.u.uy, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(state.u.ux, state.u.uy);
         const nextTrap = t_at(state.u.ux, state.u.uy, state);
         if (nextTrap)
             await dotrap(nextTrap, RECURSIVETRAP, state);
@@ -3787,14 +3731,12 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
                 state,
                 env,
             );
-            seetrap(trap, env);
-            if (noticesQueued()) await emitQueuedNotices();
+            await seetrap_async(trap, env);
         }
         if (random.rn2(3))
             return Trap_Effect_Finished;
         if (inSight) {
-            (env.redraw ?? newsym)(mtmp.mx, mtmp.my);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued((env.redraw ?? newsym)(mtmp.mx, mtmp.my));
             await message(
                 // C uses pline_The(), which leaves the message unpositioned;
                 // this differs from the preceding pline_mon() line.
@@ -3804,8 +3746,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
             );
         }
     } else if (inSight) {
-        (env.redraw ?? newsym)(mtmp.mx, mtmp.my);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued((env.redraw ?? newsym)(mtmp.mx, mtmp.my));
         await message(
             messageAt(
                 `${Deaf(state.u) ? '' : 'KAABLAMM!!!  '}`
@@ -3862,16 +3803,14 @@ async function trapeffect_vibrating_square(mtmp, trap, _trflags, env) {
     const message = env.message ?? ttyPline;
 
     if (mtmp === state.youmonst) {
-        feeltrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await feeltrap_async(trap, env);
         return Trap_Effect_Finished;
     }
 
     const inSight = canseemon(mtmp, state) || mtmp === state.u?.usteed;
     const seeIt = cansee(mtmp.mx, mtmp.my, state);
     if (seeIt && !Blind(state.u)) {
-        seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seetrap_async(trap, env);
         if (inSight) {
             const monName = mon_nam(mtmp, state, env);
             const { m_in_air } = await import('./mon.js');
@@ -4091,8 +4030,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
         if (!trap.tseen && cansee(monster.mx, monster.my, state)
             && canseemon(monster, state)
             && (is_pit(tt) || tt === BEAR_TRAP || tt === HOLE || tt === WEB))
-            seetrap(trap, env);
-        if (noticesQueued()) await emitQueuedNotices();
+            await seetrap_async(trap, env);
 
         if (!random.rn2(40) || (is_pit(tt)
             && m_easy_escape_pit(monster, state))) {

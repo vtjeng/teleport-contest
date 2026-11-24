@@ -1464,9 +1464,9 @@ test('direct dropx owns no floor-reach gate and dropz maps blind levitation afte
     const js = readFileSync('js/do.js', 'utf8');
     const preflight = js.slice(js.indexOf('export function preflight_dropx'), js.indexOf('function consumeDropAdmission'));
     assert.ok(!preflight.includes('!can_reach_floor'));
-    // The map is display.c map_object(), called directly or through the
-    // optional mapObject hook that falls back to it.
-    assert.match(js, /await stackobjRuntime\(obj, normalized\);\s*if \(Blind\(normalized\.state\.u\) && Levitation\(normalized\.state\.u\)\) \{[^}]*(?:\(normalized\.hooks\.mapObject \?\? map_object\)|map_object)\(obj, 0, normalized\.state\);\s*(?:if \(noticesQueued\(\)\) await emitQueuedNotices\(\);\s*)?\}\s*newsym\(normalized\.state\.u\.ux, normalized\.state\.u\.uy\);/);
+    // The map is display.c map_object(), through its printing form, and
+    // the newsym() after it likewise.
+    assert.match(js, /await stackobjRuntime\(obj, normalized\);\s*if \(Blind\(normalized\.state\.u\) && Levitation\(normalized\.state\.u\)\) \{[^}]*await map_object_async\(obj, 0, normalized\.state\);\s*\}\s*await newsym_async\(normalized\.state\.u\.ux, normalized\.state\.u\.uy\);/);
 });
 
 // dokick.c ship_object() and do.c flooreffects()'s boulder and pit-edge or

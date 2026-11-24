@@ -139,8 +139,9 @@ export function terminationViolations() {
 // queueNoticeLine()), which keeps the map and status rows of that moment and
 // prints over them at the next drain. That gives C's screens, and C's order,
 // only while nothing C does after the line has happened yet: the waiting
-// caller nearest the queueing call must drain the queue (newsym_async(),
-// tty_message.js emitQueuedNotices()) before the game draws a core random
+// caller nearest the queueing call must drain the queue (a draw's `_async`
+// form such as newsym_async(), or tty_message.js printQueued() and
+// emitQueuedNotices()) before the game draws a core random
 // number or reads a key. Each draw or key read with a line still queued is
 // recorded here; runSegment() reports them and runSegmentStrict() fails on
 // them, so a replay shows the chain that broke the rule. The judge's

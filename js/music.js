@@ -16,7 +16,7 @@ import {
     close_drawbridge, find_drawbridge, is_drawbridge_wall, open_drawbridge,
 } from './dbridge.js';
 import { cvt_sdoor_to_door } from './detect.js';
-import { newsym } from './display.js';
+import { newsym, newsym_async } from './display.js';
 import { fillholetyp, liquid_flow } from './dig.js';
 import { flooreffects } from './do.js';
 import { game } from './gstate.js';
@@ -32,7 +32,7 @@ import { monflee, monfleeMessage, onscary, youHear } from './monmove.js';
 import { Amonnam, a_monnam, Monnam, mon_nam, x_monnam } from './do_name.js';
 import { tamedog } from './dog.js';
 import { m_at } from './monst.js';
-import { seemimic, wakeup, xkilled } from './mon.js';
+import { seemimic_async, wakeup, xkilled } from './mon.js';
 import { discover_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { an, the, thesimpleoname, Tobjnam, xnameFresh, yname, Yname2 } from './objnam.js';
@@ -49,15 +49,13 @@ import { altarmask_at, desecrate_altar } from './pray.js';
 import { in_rooms } from './rooms.js';
 import { add_damage } from './shk.js';
 import { set_levltyp } from './terrain.js';
-import {
-    maketrap, reset_utrap, set_utrap,
+import { maketrap_async, reset_utrap, set_utrap,
     selftouch, t_at,
 } from './trap.js';
 import { mselftouch } from './trap_effects.js';
 import { sleep_monst, slept_monst } from './mhitm.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
@@ -205,8 +203,7 @@ export async function charm_snakes(distance, state = game, env = {}) {
             mon.mstrategy &= ~STRAT_WAITMASK;
             const couldSeeMonster = canSeeMonster(mon);
             mon.mundetected = false;
-            redraw(mon.mx, mon.my, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(mon.mx, mon.my, state));
             if (canSeeMonster(mon)) {
                 if (!couldSeeMonster) {
                     await message(
@@ -256,8 +253,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
     const random = env.random ?? coreRandom;
     const message = env.message ?? ttyPline;
 
-    const chasm = await maketrap(x, y, PIT, { ...env, random });
-    if (noticesQueued()) await emitQueuedNotices();
+    const chasm = await maketrap_async(x, y, PIT, { ...env, random });
     if (!chasm) return; // C maketrap() refuses a portal at this location.
     chasm.tseen = 1;
 
@@ -354,8 +350,7 @@ export async function do_pit(x, y, tuPit, state = game, rawEnv = {}) {
             }
         }
     } else {
-        newsym(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(x, y);
     }
 }
 
@@ -382,8 +377,7 @@ export async function do_earthquake(force, state = game, rawEnv = {}) {
                 await wakeup(mtmp, true, { ...env, random });
                 if (mtmp.mundetected) {
                     mtmp.mundetected = false;
-                    newsym(x, y, state);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await newsym_async(x, y);
                     if (ceiling_hider(mtmp.data)) {
                         if (cansee(x, y, state)) {
                             await message(`${Amonnam(mtmp, { ...env, state })} is shaken loose from the ceiling!`, state);
@@ -396,12 +390,11 @@ export async function do_earthquake(force, state = game, rawEnv = {}) {
                 }
                 const appearance = M_AP_TYPE(mtmp);
                 if (appearance !== M_AP_NOTHING && appearance !== M_AP_MONSTER) {
-                    seemimic(mtmp, state, {
+                    await seemimic_async(mtmp, state, {
                         ...env,
                         newsym,
                         unblockPoint: (mx, my) => unblock_point(mx, my, state),
                     });
-                    if (noticesQueued()) await emitQueuedNotices();
                 }
             }
 
@@ -462,8 +455,7 @@ export async function do_earthquake(force, state = game, rawEnv = {}) {
                 }
                 location.flags = D_NODOOR;
                 recalc_block_point(x, y, state);
-                newsym(x, y, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(x, y);
                 if (cansee(x, y, state)) await message('The door collapses.', state);
                 if (in_rooms(x, y, SHOPBASE, state).length)
                     add_damage(x, y, 0, state);

@@ -69,7 +69,7 @@ import { read_tribute } from './files.js';
 import { makeplural } from './fruit.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { shieldeff, cmap_to_glyph, map_glyphinfo, tmp_at, canspotmon, zapdir_to_glyph, map_invisible } from './display.js';
+import { shieldeff, cmap_to_glyph, map_glyphinfo, tmp_at, canspotmon, zapdir_to_glyph, map_invisible_async } from './display.js';
 import { check_capacity, invocation_pos, losehp, nomul, nh_delay_output } from './hack.js';
 import { encumber_msg } from './pickup.js';
 import { dist2, distmin, isqrt, sgn, strncmpi } from './hacklib.js';
@@ -157,8 +157,6 @@ import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { aggravate_steps } from './wizard.js';
 import {
     displayPendingTtyMessageWindow,
-    emitQueuedNotices,
-    noticesQueued,
     ttyPline,
 } from './tty_message.js';
 import {
@@ -2010,8 +2008,7 @@ export async function cast_chain_lightning(state = game, env = {}) {
                         await (env.message ?? ttyPline)(
                             `You shock ${mon_nam(mon, state)}${exclam(dmg)}`, state);
                         if (!canseemon(mon, state) && !state.gn.notonhead)
-                            map_invisible(zap.x, zap.y, state);
-                        if (noticesQueued()) await emitQueuedNotices();
+                            await map_invisible_async(zap.x, zap.y, state);
                     }
                 } else if (canseemon(mon, state)) {
                     await (env.message ?? ttyPline)(`${Monnam(mon, state)} resists.`, state);

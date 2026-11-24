@@ -214,7 +214,7 @@ import { schedule_goto } from './do.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { check_leash, number_leashed, unleash_all } from './apply.js';
 import { done } from './end.js';
-import { feel_newsym, rank_of, map_invisible, under_water,
+import { feel_newsym_async, rank_of, map_invisible_async, under_water,
 } from './display.js';
 import { can_reach_floor } from './engrave.js';
 import { more_experienced, newexplevel } from './exper.js';
@@ -245,7 +245,7 @@ import {
     delete_contents,
     add_to_container,
     nxtobj,
-    delobj,
+    delobj_async,
     obj_extract_self,
     sobj_at,
 } from './invent.js';
@@ -256,7 +256,7 @@ import { rndmonnum_adj, set_malign } from './makemon.js';
 import { makemon_by_context } from './makemon_create.js';
 import {
     killed, mongone, mon_to_stone, monstone, set_ustuck, vamp_stone,
-    wake_nearby, wakeup, seemimic, xkilled,
+    wake_nearby, wakeup, seemimic_async, xkilled,
 } from './mon.js';
 import {
     amorphous, amphibious, attacktype, breathless, can_teleport, flaming,
@@ -278,7 +278,7 @@ import {
 } from './monsters.js';
 import { m_at } from './monst.js';
 import { discover_object, observe_object } from './o_init.js';
-import { drag_ball, move_bc, placebc, unplacebc } from './ball.js';
+import { drag_ball, move_bc_async, placebc, unplacebc_async } from './ball.js';
 import {
     mksobj,
     carried,
@@ -318,19 +318,20 @@ import { set_levltyp } from './terrain.js';
 import { burn_away_slime, spot_stop_timers } from './timeout.js';
 import { is_fainted, reset_faint } from './eat.js';
 import {
-    dofiretrap, dotrap, feeltrap, mintrap, m_easy_escape_pit,
+    dofiretrap, dotrap, feeltrap_async, mintrap, m_easy_escape_pit,
 } from './trap_effects.js';
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
     emitQueuedNotices,
     noticesQueued,
+    printQueued,
     ttyNorep,
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
 import { stumble_onto_mimic } from './uhitm.js';
-import { unpunish } from './read.js';
+import { unpunish_async } from './read.js';
 import {
     unblock_point,
     recalc_block_point,
@@ -340,7 +341,7 @@ import {
 } from './vision.js';
 import { welded, uwepgone, uswapwepgone } from './wield.js';
 import { bimanual, mon_adjust_speed } from './worn.js';
-import { newsym, bot, shieldeff } from './display.js';
+import { newsym, newsym_async, bot, shieldeff } from './display.js';
 import { m_next2u } from './mhitu.js';
 import { linedup } from './mthrowu.js';
 import { destroy_items } from './zap_destroy_items.js';
@@ -666,8 +667,7 @@ export async function fall_through(td, ftflags, state = game) {
 
     if (td) {
         trap = t_at(u.ux, u.uy, state);
-        await feeltrap(trap, { state, redraw: newsym });
-        if (noticesQueued()) await emitQueuedNotices();
+        await feeltrap_async(trap, { state, redraw: newsym });
         if (!state.level?.flags?.sokoban_rules && !plunged) {
             await ttyPline(
                 trap.ttyp === TRAPDOOR
@@ -981,6 +981,12 @@ export function maketrap(x, y, typ, rawEnv = {}) {
     }
 
     return linkTrap();
+}
+
+// trap.c maketrap() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function maketrap_async(...args) {
+    return printQueued(maketrap(...args));
 }
 
 // C ref: trap.c deltrap() (6529-6548). Unlinks a trap from the level's trap
@@ -1314,8 +1320,7 @@ export async function drown(state = game) {
     const amphibiousHero = heroAmphibious(state);
     let inpoolOk = false;
 
-    feel_newsym(u.ux, u.uy, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await feel_newsym_async(u.ux, u.uy, state);
     if (u.uinwater && is_pool(u.ux - u.dx, u.uy - u.dy, state)
         && (swimming || amphibiousHero || breathlessHero)) {
         if (!rn2(5)) inpoolOk = true;
@@ -1376,8 +1381,7 @@ export async function drown(state = game) {
         if (Punished(state)) {
             // trap.c:drown unplaces and replaces the ball and chain before
             // putting the hero underwater; placebc can run pool flooreffects.
-            unplacebc(state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await unplacebc_async(state);
             await placebc(state);
         }
         await vision_recalc_async(2, { state });
@@ -1488,8 +1492,7 @@ export async function lava_effects(state = game) {
         return false;
     }
 
-    feel_newsym(u.ux, u.uy, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await feel_newsym_async(u.ux, u.uy, state);
     await burn_away_slime(state);
     if (likes_lava(state.youmonst?.data)) return false;
 
@@ -2005,10 +2008,8 @@ export async function float_down(hmask, emask, state = game) {
         u.ux = state.uball.ox;
         u.uy = state.uball.oy;
         // C ref: trap.c float_down() relocates uchain with hack.c movobj().
-        movobj(state.uchain, u.ux, u.uy, state);
-        if (noticesQueued()) await emitQueuedNotices();
-        newsym(u.ux0, u.uy0, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(movobj(state.uchain, u.ux, u.uy, state));
+        await newsym_async(u.ux0, u.uy0);
         state.vision_full_recalc = 1;
     }
 
@@ -2410,8 +2411,7 @@ export async function cnv_trap_obj(otyp, cnt, ttmp, bury_it, state = game, rawEn
         }
         stackobj(otmp, env);
     }
-    (env.newsym ?? newsym)(ttmp.tx, ttmp.ty, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued((env.newsym ?? newsym)(ttmp.tx, ttmp.ty, state));
     if (state.u.utrap && state.u.ux === ttmp.tx && state.u.uy === ttmp.ty)
         await reset_utrap(true, state);
     const mtmp = m_at(ttmp.tx, ttmp.ty, state);
@@ -2458,14 +2458,12 @@ async function move_into_trap(ttmp, state = game) {
         u.uy0 = u.uy;
         await u_on_newpos(x, y, state);
         u.umoved = true;
-        newsym(u.ux0, u.uy0);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(u.ux0, u.uy0);
         await vision_recalc_async(1, { state });
         // C ref: trap.c move_into_trap():5413, before move_bc() and spoteffects().
         await check_leash(u.ux0, u.uy0, { state });
         if (Punished(state))
-            move_bc(0, bc.value, bx.value, by.value, cx.value, cy.value, state);
-        if (noticesQueued()) await emitQueuedNotices();
+            await move_bc_async(0, bc.value, bx.value, by.value, cx.value, cy.value, state);
         ttmp.tseen = 0; /* hack for check_here() */
         state.iflags ??= {};
         state.iflags.failing_untrap = (state.iflags.failing_untrap ?? 0) + 1;
@@ -2623,8 +2621,7 @@ async function disarm_holdingtrap(ttmp, state = game) {
         }
         deltrap(ttmp, state);
     }
-    newsym(state.u.ux + state.u.dx, state.u.uy + state.u.dy);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(state.u.ux + state.u.dx, state.u.uy + state.u.dy);
     return 1;
 }
 
@@ -2672,8 +2669,7 @@ async function disarm_squeaky_board(ttmp, state = game) {
     }
     await ttyPline('You repair the squeaky board.', state);
     deltrap(ttmp, state);
-    newsym(state.u.ux + state.u.dx, state.u.uy + state.u.dy);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(state.u.ux + state.u.dx, state.u.uy + state.u.dy);
     more_experienced(1, 5, state);
     await newexplevel(state, { message: ttyPline });
     return 1;
@@ -3043,8 +3039,7 @@ export async function untrap(force, rx, ry, container, state = game) {
                 if (state.program_state?.gameover) return 1;
                 loc.flags = D_NODOOR;
                 unblock_point(x, y, state);
-                newsym(x, y);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(x, y);
                 if (in_rooms(x, y, SHOPBASE, state).length > 0) {
                     add_damage(x, y, 0, state);
                 }
@@ -3380,10 +3375,9 @@ export async function animate_statue(
         monster = christen_monst(monster, ONAME(statue), objectEnv);
     }
     if (M_AP_TYPE(monster))
-        seemimic(monster, state, objectEnv);
+        await seemimic_async(monster, state, objectEnv);
     else
         monster.mundetected = false;
-    if (noticesQueued()) await emitQueuedNotices();
     monster.msleeping = 0;
     if (cause === ANIMATE_NORMAL || cause === ANIMATE_SHATTER) {
         monster.mtame = 0;
@@ -3431,8 +3425,7 @@ export async function animate_statue(
             x, y, state,
         ), state);
         if (!spotted && Blind(state.u))
-            map_invisible(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+            await map_invisible_async(x, y, state);
         const { stop_occupation } = await import('./allmain.js');
         await stop_occupation(state, { message });
     }
@@ -3465,8 +3458,7 @@ export async function animate_statue(
     await m_dowear(monster, true, objectEnv);
     if (statue.owornmask)
         await remove_worn_item(statue, true, state, objectEnv);
-    await delobj(statue, objectEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+    await delobj_async(statue, objectEnv);
 
     if (atHero && Upolyd(state.u)
         && hides_under(state.youmonst?.data)
@@ -3512,8 +3504,7 @@ export async function activate_statue_trap(
         if (monster || failReason.value !== AS_MON_IS_UNIQUE) break;
         statue = nxtobj(statue, STATUE, true);
     }
-    feel_newsym(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await feel_newsym_async(x, y, state);
     return monster;
 }
 
@@ -3616,8 +3607,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                 && ((state.uchain.ox === ox && state.uchain.oy === oy)
                     || (state.uball.where === OBJ_FLOOR
                         && state.uball.ox === ox && state.uball.oy === oy))) {
-                unpunish(state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await unpunish_async(state);
             }
 
             // Destroy everything at the spot.
@@ -3634,8 +3624,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                         Boolean(keeper.mpeaceful), true, state);
                 if (otmp === obj)
                     chestgone = true;
-                await delobj(otmp, objectEnv);
-                if (noticesQueued()) await emitQueuedNotices();
+                await delobj_async(otmp, objectEnv);
                 otmp = next;
             }
             await wake_nearby({ state });

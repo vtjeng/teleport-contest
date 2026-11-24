@@ -155,7 +155,7 @@ import {
 } from './attrib.js';
 import { paranoid_query, y_n, yn_function } from './cmd.js';
 import { eaten_stat, floorfood } from './eat.js';
-import { newsym, shieldeff, xlev_to_rank } from './display.js';
+import { newsym, newsym_async, shieldeff, xlev_to_rank } from './display.js';
 import { dropCommandEnv, dropy, heal_legs } from './do.js';
 import {
     disintegrate_arm,
@@ -284,8 +284,6 @@ import {
 import { safe_teleds } from './teleport.js';
 import {
     displayPendingTtyMessageWindow,
-    emitQueuedNotices,
-    noticesQueued,
     ttyPline,
 } from './tty_message.js';
 import { set_voice } from './sounds.js';
@@ -317,7 +315,7 @@ import { welded } from './wield.js';
 import { bimanual, setnotworn, which_armor } from './worn.js';
 import { encumber_msg, rider_corpse_revival } from './pickup.js';
 import { init_uhunger } from './u_init.js';
-import { see_monsters } from './display.js';
+import { see_monsters_async } from './display.js';
 import {
     carrying,
     feel_cockatrice,
@@ -340,7 +338,7 @@ import {
     gloves_simple_name, otense, vtense, yname, Yobjnam2,
     simpleonames, xname,
 } from './objnam.js';
-import { punish, unpunish } from './read.js';
+import { punish, unpunish_async } from './read.js';
 import { canseemon } from './display.js';
 import { is_pool_or_lava } from './dbridge.js';
 import {
@@ -800,8 +798,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
             `The altar is stained with ${state.urace.adj} blood.`, state,
         );
         state.level.at(u.ux, u.uy).flags = AM_CHAOTIC;
-        newsym(u.ux, u.uy, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(u.ux, u.uy);
         await angry_priest(state);
     } else {
         let demonlessMessage;
@@ -813,8 +810,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
             const altar = state.level.at(u.ux, u.uy);
             altar.typ = ROOM;
             altar.flags = 0;
-            newsym(u.ux, u.uy, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(u.ux, u.uy);
             await angry_priest(state);
             demonlessMessage = 'cloud dissipates';
         } else {
@@ -974,8 +970,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
         const shrine = Boolean(altar.flags & AM_SHRINE);
         altar.flags = Align2amask(u.ualign.type)
             | (shrine ? AM_SHRINE : 0);
-        newsym(u.ux, u.uy);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(u.ux, u.uy);
         if (!Blind(state.u)) {
             const color = u.ualign.type === A_LAWFUL
                 ? 'white' : u.ualign.type ? 'black' : 'gray';
@@ -1563,8 +1558,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
         if (state.u.utrap && state.u.utraptype === TT_BURIEDBALL)
             await buried_ball_to_freedom(state);
         else
-            unpunish(state);
-        if (noticesQueued()) await emitQueuedNotices();
+            await unpunish_async(state);
         break;
     case TROUBLE_FUMBLING:
         if (Cursed_obj(state.uarmg, GAUNTLETS_OF_FUMBLING)) {
@@ -2165,8 +2159,7 @@ export async function give_spell(state = game, env = {}) {
         await bless(otmp, { ...env, state, random });
         await at_your_feet(upstart(ansimpleoname(otmp, state)), state);
         await place_object(otmp, state.u.ux, state.u.uy, { ...env, state, random });
-        newsym(state.u.ux, state.u.uy);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(state.u.ux, state.u.uy);
     }
 }
 
@@ -2625,8 +2618,7 @@ export async function pleased(g_align, state = game) {
                 ?? grant(HStealth, STEALTH, 'Stealth');
             if (gift) {
                 await ttyPline(`"and thus I grant thee the gift of ${gift}!"`, state);
-                if (gift === 'Telepathy' && Blind(state.u)) await see_monsters(state);
-                if (noticesQueued()) await emitQueuedNotices();
+                if (gift === 'Telepathy' && Blind(state.u)) await see_monsters_async(state);
             } else {
                 if (!(HProtection(u) & INTRINSIC)) {
                     u.uprops[PROTECTION].intrinsic |= FROMOUTSIDE;

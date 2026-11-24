@@ -76,7 +76,7 @@ test('load_special awaits fixup before premapping and leaves room filling to cal
     const jsFinish = jsApi.slice(jsApi.indexOf('async finish() {'),
         jsApi.indexOf('// C ref: sp_lev.c lspo_map(), array form.'));
     const jsFixup = jsFinish.indexOf('await finishFixupSpecial(state);');
-    const jsPremap = jsFinish.indexOf('premap_detect(state);', jsFixup);
+    const jsPremap = jsFinish.indexOf('await printQueued(premap_detect(state));', jsFixup);
     assert.ok(jsFixup >= 0 && jsPremap > jsFixup);
     assert.equal(jsFinish.includes('fill_special_room('), false);
 
@@ -96,7 +96,7 @@ test('mv_bubble waits for mnearto before its zero-result clog and next contents'
         assert.ok(cMove >= 0 && cMove < cClog && cClog < cNext);
 
         const jsBody = sourceBody(JS_MKMAZE, 'export function mv_bubble(');
-        const jsMove = jsBody.indexOf('const moved = await mnearto(');
+        const jsMove = jsBody.indexOf('const moved = await printQueued(mnearto(');
         const jsClog = jsBody.indexOf(
             'if (!moved) await elemental_clog(contents.list, state);', jsMove,
         );

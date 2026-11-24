@@ -245,8 +245,7 @@ import { handle_tip } from './hack.js';
 import { select_menu, ttyMenuColorAttribute } from './windows.js';
 import { youFeel } from './pline.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { menuTitleStyle } from './tty_menu.js';
@@ -1295,8 +1294,7 @@ export function possibly_unwield(monster, polyspot = false, env = {}) {
                         state,
                         { ...env, message },
                     );
-                    (env.newsym ?? newsym)(monster.mx, monster.my, state);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await printQueued((env.newsym ?? newsym)(monster.mx, monster.my, state));
                 }
                 await obj_extract_self(weapon, { ...env, state });
                 const { flooreffects } = await import('./do.js');

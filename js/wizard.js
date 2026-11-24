@@ -80,8 +80,7 @@ import { distant_name, donameFresh, Tobjnam } from './objnam.js';
 import { add_to_minv, obj_extract_self } from './invent.js';
 import { mksobj } from './obj.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { coreRandom, rn1, rn2 } from './rng.js';
@@ -283,8 +282,7 @@ export async function clonewiz(state = game, rawEnv = {}) {
     const redraw = rawEnv.redraw ?? rawEnv.redrawSquare
         ?? (state === game ? newsym : null);
     if (typeof redraw === 'function')
-        await redraw(monster.mx, monster.my, state, rawEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(monster.mx, monster.my, state, rawEnv));
     return monster;
 }
 
@@ -392,8 +390,7 @@ async function resurrectMigratingWizard(state, rawEnv) {
         const next = monster.nmon;
         const elapsed = state.moves - monster.mlstmv;
         if (monster.iswiz && !mon_has_amulet(monster) && elapsed > 0) {
-            catchUp(monster, elapsed);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(catchUp(monster, elapsed));
             const boundedElapsed = Math.min(elapsed, LARGEST_INT - 1);
             const recoveryTime = Math.trunc(boundedElapsed / 50);
             if (monster.msleeping && random.rn2(recoveryTime + 1))

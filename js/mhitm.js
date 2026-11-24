@@ -106,6 +106,7 @@ import {
     zombie_maker,
     zombie_form,
     seemimic,
+    seemimic_async,
 } from './mon.js';
 import {
     is_elf,
@@ -223,8 +224,7 @@ import { mon_explodes } from './explode.js';
 import { drain_item, resist } from './zap.js';
 import { snuff_lit } from './apply_splash_lit.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
@@ -233,7 +233,7 @@ import { split_mon } from './potion.js';
 import { messageAt } from './startup_a11y.js';
 import { polyself } from './polyself.js';
 import { you_unwere, you_were } from './were.js';
-import { goodpos, rloc, tele, tele_restrict } from './teleport.js';
+import { goodpos, rloc_async, tele, tele_restrict } from './teleport.js';
 import { t_at } from './trap.js';
 import { mintrap } from './trap_effects.js';
 import { acid_damage, erode_obj } from './trap_erode_obj.js';
@@ -300,8 +300,7 @@ export async function sleep_monst(mtmp, amount, how, env = {}) {
         && mtmp.data?.mlet === S_MIMIC
         && (M_AP_TYPE(mtmp) === M_AP_FURNITURE
             || M_AP_TYPE(mtmp) === M_AP_OBJECT)) {
-        seemimic(mtmp, state, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seemimic_async(mtmp, state, env);
     }
     let resisted = Resists_Elem(mtmp, SLEEP_RES, state)
         || defended(mtmp, AD_SLEE, state);
@@ -313,8 +312,7 @@ export async function sleep_monst(mtmp, amount, how, env = {}) {
         return false;
     }
     if (!mtmp.mcanmove) return false;
-    finish_meating(mtmp, { state, redraw: env.redraw });
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(finish_meating(mtmp, { state, redraw: env.redraw }));
     amount += mtmp.mfrozen ?? 0;
     if (amount > 0) {
         mtmp.mcanmove = false;
@@ -446,8 +444,7 @@ async function missmm(magr, mdef, mattk, env) {
     const { state } = env;
     const message = env.message ?? ttyPline;
 
-    pre_mm_attack(magr, mdef, env);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(pre_mm_attack(magr, mdef, env));
 
     if (state.gv.vis) {
         // C names use canonical sensing; the combat visibility seam is not
@@ -601,12 +598,10 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
 
     if (mdef.mundetected) mdef.mundetected = 0;
     if (M_AP_TYPE(mdef) && M_AP_TYPE(mdef) !== M_AP_MONSTER)
-        seemimic(mdef, state, operationEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+        await seemimic_async(mdef, state, operationEnv);
     mdef.msleeping = 0;
     mdef.mstrategy = (mdef.mstrategy ?? 0) & ~STRAT_WAITMASK;
-    finish_meating(mdef, operationEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(finish_meating(mdef, operationEnv));
 
     state.gv ??= {};
     state.gv.vis = canspotmon(magr, state) && canspotmon(mdef, state);
@@ -651,16 +646,14 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
 
     remove_monster(fx, fy, state);
     if (mdef.wormno) {
-        remove_worm(mdef, operationEnv);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(remove_worm(mdef, operationEnv));
     } else {
         remove_monster(tx, ty, state);
     }
     place_monster(magr, tx, ty, state);
     place_monster(mdef, fx, fy, state);
     if (mdef.wormno) {
-        await place_worm_tail_randomly_async(mdef, fx, fy, operationEnv);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(place_worm_tail_randomly_async(mdef, fx, fy, operationEnv));
     }
     update_monster_region(magr, state);
     update_monster_region(mdef, state);
@@ -677,10 +670,8 @@ export async function mdisplacem(magr, mdef, quietly = false, rawEnv = {}) {
             rawEnv,
         );
     }
-    redraw(fx, fy, state);
-    if (noticesQueued()) await emitQueuedNotices();
-    redraw(tx, ty, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(fx, fy, state));
+    await printQueued(redraw(tx, ty, state));
     await flush(0, state);
     return M_ATTK_HIT;
 }
@@ -731,8 +722,7 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
     /* mundetected monsters become un-hidden if they are attacked */
     if (mdef.mundetected) {
         mdef.mundetected = 0;
-        (env.redraw ?? newsym)(mdef.mx, mdef.my);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued((env.redraw ?? newsym)(mdef.mx, mdef.my));
         if (canseemon(mdef, state) && !sensemon(mdef, state)) {
             const message = env.message ?? ttyPline;
             if (Unaware(state)) {
@@ -1201,10 +1191,8 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
     remove_monster(dx, dy, state);
     remove_monster(ax, ay, state);
     place_monster(magr, dx, dy, state);
-    redraw(ax, ay, state);
-    if (noticesQueued()) await emitQueuedNotices();
-    redraw(dx, dy, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(ax, ay, state));
+    await printQueued(redraw(dx, dy, state));
     state.gm.mswallower = magr;
     let status = await mdamagem(magr, mdef, mattk, null, 0, env);
     state.gm.mswallower = null;
@@ -1215,16 +1203,14 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
         if (!goodpos(dx, dy, magr, MM_IGNOREWATER, env)) {
             if (m_at(dx, dy, state) === magr) {
                 remove_monster(dx, dy, state);
-                redraw(dx, dy, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await printQueued(redraw(dx, dy, state));
             }
             dx = ax;
             dy = ay;
         }
         if (m_at(dx, dy, state) !== magr) {
             place_monster(magr, dx, dy, state);
-            redraw(dx, dy, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(dx, dy, state));
         }
         if (await minliquid(magr, env)
             || (t_at(dx, dy, state)
@@ -1232,8 +1218,7 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
             status |= M_ATTK_AGR_DIED;
     } else if (status & M_ATTK_AGR_DIED) {
         place_monster(mdef, dx, dy, state);
-        redraw(dx, dy, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(dx, dy, state));
     } else {
         if (cansee(dx, dy, state)) {
             await message(`${Monnam(mdef, state, nameEnv)} is `
@@ -1243,10 +1228,8 @@ export async function gulpmm(magr, mdef, mattk, rawEnv = {}) {
         remove_monster(dx, dy, state);
         place_monster(magr, ax, ay, state);
         place_monster(mdef, dx, dy, state);
-        redraw(ax, ay, state);
-        if (noticesQueued()) await emitQueuedNotices();
-        redraw(dx, dy, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(ax, ay, state));
+        await printQueued(redraw(dx, dy, state));
     }
     return status;
 }
@@ -1263,8 +1246,7 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
     const silverhit = weaponhit && mwep
         && objectType(mwep, state).oc_material === SILVER;
 
-    pre_mm_attack(magr, mdef, env);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(pre_mm_attack(magr, mdef, env));
 
     const compat = !magr.mcan ? could_seduce(magr, mdef, mattk, env) : 0;
     if (!compat && await shade_miss(magr, mdef, mwep, false, state.gv.vis,
@@ -1407,8 +1389,7 @@ async function gazemm(magr, mdef, mattk, env) {
 
     if (mdef.data?.mlet === S_MIMIC
         && M_AP_TYPE(mdef) !== M_AP_NOTHING) {
-        seemimic(mdef, state, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await seemimic_async(mdef, state, env);
     }
     mdef.mundetected = 0;
 
@@ -1698,8 +1679,7 @@ export async function mon_poly(magr, mdef, damage, state = game, rawEnv = {}) {
             if (can_teleport(magr.data)) {
                 if (magr === state.youmonst) await tele(state, env);
                 else if (!await tele_restrict(magr, state, env))
-                    await rloc(magr, RLOC_MSG, env);
-                if (noticesQueued()) await emitQueuedNotices();
+                    await rloc_async(magr, RLOC_MSG, env);
             }
         } else if (state.gv?.vis && state.flags.verbose) {
             await message('Nothing happens.', state);

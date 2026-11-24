@@ -128,7 +128,7 @@ import { stop_occupation } from './allmain.js';
 import { confdir } from './cmd.js';
 import { artifact_light } from './artifacts.js';
 import { acurr, adjattrib, exercise, stone_luck } from './attrib.js';
-import { canseemon, newsym, see_monsters, set_mimic_blocking, vobj_at } from './display.js';
+import { canseemon, newsym, see_monsters_async, set_mimic_blocking, vobj_at } from './display.js';
 import {
     a_monnam, hcolor, m_monnam, Monnam, rndmonnam, x_monnam,
 } from './do_name.js';
@@ -220,8 +220,7 @@ import { coreRandom,
     createCoreRandom, rn1, rn2, rn2_on_display_rng, rnd,
 } from './rng.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
@@ -538,8 +537,7 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
         }
     }
 
-    if (redraw) (env.newsym ?? newsym)(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (redraw) await printQueued((env.newsym ?? newsym)(x, y, state));
 }
 
 // C ref: timeout.c timeout_funcs[] (1978-1990), "Table of timeout functions,
@@ -834,8 +832,7 @@ async function slime_dialogue(state = game, env = {}) {
     if (timeout === 1) {
         state.youmonst.m_ap_type = M_AP_MONSTER;
         state.youmonst.mappearance = PM_GREEN_SLIME;
-        (env.newsym ?? newsym)(u.ux, u.uy, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued((env.newsym ?? newsym)(u.ux, u.uy, state));
     }
 
     if ((timeout % 2) !== 0 && index >= 0 && index < slimeTexts.length) {
@@ -1345,8 +1342,7 @@ async function decrement_property_timeouts(state, env) {
             if (!Deaf(state.u)) await stop_occupation(state, occupationEnv);
             break;
         case INVIS:
-            (env.newsym ?? newsym)(u.ux, u.uy, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued((env.newsym ?? newsym)(u.ux, u.uy, state));
             if (!Invis(state.u) && !BInvis(state.u)
                 && !Blind(state.u)) {
                 await message(!See_invisible(state.u)
@@ -1357,11 +1353,9 @@ async function decrement_property_timeouts(state, env) {
             break;
         case SEE_INVIS:
             set_mimic_blocking(state);
-            await see_monsters(state, { ...env,
+            await see_monsters_async(state, { ...env,
                 redraw: env.redraw ?? env.newsym });
-            if (noticesQueued()) await emitQueuedNotices();
-            (env.newsym ?? newsym)(u.ux, u.uy, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued((env.newsym ?? newsym)(u.ux, u.uy, state));
             await stop_occupation(state, occupationEnv);
             break;
         case WOUNDED_LEGS:
@@ -1488,17 +1482,15 @@ async function decrement_property_timeouts(state, env) {
                 await deferred_decor(false, state);
             break;
         case DETECT_MONSTERS:
-            await see_monsters(state, { ...env,
+            await see_monsters_async(state, { ...env,
                 redraw: env.redraw ?? env.newsym });
-            if (noticesQueued()) await emitQueuedNotices();
             break;
         case GLIB:
             make_glib(0, state, env);
             break;
         case PROT_FROM_SHAPE_CHANGERS:
             if (!Protection_from_shape_changers(state.u))
-                restartcham(state, { ...env, state });
-            if (noticesQueued()) await emitQueuedNotices();
+                await printQueued(restartcham(state, { ...env, state }));
             break;
         }
         if (state.program_state?.gameover) return;
@@ -2378,8 +2370,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
             `burn_object: unexpected obj ${xname(obj, state)}`, state, rawEnv);
         break;
     }
-    if (needNewsym) (env.newsym ?? newsym)(location.x, location.y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (needNewsym) await printQueued((env.newsym ?? newsym)(location.x, location.y, state));
     if (needInvupdate) update_inventory(env);
 }
 

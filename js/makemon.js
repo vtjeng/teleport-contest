@@ -36,7 +36,7 @@ import {
     nothing_seems_to_happen,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { canseemon, canspotmon, newsym } from './display.js';
+import { canseemon, canspotmon, newsym, newsym_async } from './display.js';
 import {
     christen_monst,
     Mgender,
@@ -146,8 +146,7 @@ import {
 import { MAXMCLASSES } from './symbols.js';
 import { enexto } from './teleport.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
@@ -438,8 +437,7 @@ export async function grow_up(mtmp, victim, env = {}) {
         set_mon_data(mtmp, ptr, state);
         if (mtmp.cham === oldtype && is_shapeshifter(ptr))
             mtmp.cham = newtype;
-        newsym(mtmp.mx, mtmp.my);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(mtmp.mx, mtmp.my);
         lev_limit = mtmp.m_lev; /* never undo an evolution's increment */
         mtmp.female = Boolean(fem);
         if (mtmp.mleashed) update_inventory({ state });
@@ -611,8 +609,7 @@ export async function clone_mon(mon, x, y, state = game, rawEnv = {}) {
         }
     }
     set_malign(m2, state);
-    redraw(m2.mx, m2.my, state); /* display the new monster */
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(m2.mx, m2.my, state)); /* display the new monster */
 
     return m2;
 }

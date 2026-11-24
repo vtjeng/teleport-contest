@@ -11,7 +11,7 @@ import {
 import { isok } from './cmd_isok.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { canseemon, canspotmon, newsym } from './display.js';
+import { canseemon, canspotmon, newsym, newsym_async } from './display.js';
 import { hliquid, Monnam, mon_nam } from './do_name.js';
 import { flooreffects } from './do.js';
 import { done } from './end.js';
@@ -42,8 +42,6 @@ import {
 import { mksobj_at } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
     ttyPline,
 } from './tty_message.js';
 import { vtense } from './objnam.js';
@@ -310,10 +308,8 @@ export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
         if (state.program_state?.gameover) return;
     }
 
-    newsym(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
-    newsym(x2, y2, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(x, y);
+    await newsym_async(x2, y2);
     if (!does_block(x2, y2, wall, state)) unblock_point(x2, y2, state);
     await vision_recalc_async(0, {
         ...env,
@@ -619,10 +615,8 @@ export async function close_drawbridge(x, y, state = game, env = {}) {
     if (secondTrap) deltrap(secondTrap, state);
     del_engr_at(x, y, state);
     del_engr_at(x2, y2, state);
-    newsym(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
-    newsym(x2, y2, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(x, y);
+    await newsym_async(x2, y2);
     block_point(x2, y2, state);
     nokiller(state);
 }
@@ -663,10 +657,8 @@ export async function open_drawbridge(x, y, state = game, env = {}) {
         if (trap) deltrap(trap, state);
         del_engr_at(tx, ty, state);
     }
-    newsym(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
-    newsym(x2, y2, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(x, y);
+    await newsym_async(x2, y2);
     unblock_point(x2, y2, state);
     if (on_level(state.u.uz, state.stronghold_level)) {
         state.u.uevent ??= {};

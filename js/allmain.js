@@ -107,7 +107,7 @@ import {
     bot,
     flush_screen,
     newsym,
-    see_monsters,
+    see_monsters_async,
     see_objects,
     see_traps,
     swallowed,
@@ -118,8 +118,7 @@ import {
 import { reset_glyphmap } from './display_glyphmap.js';
 import {
     displayPendingTtyMessageWindow,
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyNorep,
     ttyPline,
     ttyUrgentPline,
@@ -1118,12 +1117,9 @@ async function moveloop_core_body() {
     // the stale pre-hallucination DEC/Unicode stomach on the terminal.
     if (!g.context?.mv || blind) {
         if (hallucinating) {
-            await see_monsters(g);
-            if (noticesQueued()) await emitQueuedNotices();
-            see_objects(g);
-            if (noticesQueued()) await emitQueuedNotices();
-            see_traps(g);
-            if (noticesQueued()) await emitQueuedNotices();
+            await see_monsters_async(g);
+            await printQueued(see_objects(g));
+            await printQueued(see_traps(g));
             if (g.u.uswallow) await swallowed(false, g);
         } else if (ETelepat(g.u)
             || Warning(g.u)
@@ -1133,8 +1129,7 @@ async function moveloop_core_body() {
             ))) {
             // allmain.c:462-467. These sensing modes need only the monster
             // overlay; objects and traps retain their ordinary memory.
-            await see_monsters(g);
-            if (noticesQueued()) await emitQueuedNotices();
+            await see_monsters_async(g);
         }
         // C ref: allmain.c:470-471. Recalculate after the sensing layers,
         // hallucinating or not: see_monsters() draws with the vision the

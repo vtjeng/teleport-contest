@@ -185,8 +185,9 @@ import {
     glyph_at,
     glyph_is_invisible,
     glyph_is_monster,
-    map_invisible,
+    map_invisible_async,
     newsym,
+    newsym_async,
     obj_to_glyph,
     tmp_at,
 } from './display.js';
@@ -219,7 +220,7 @@ import {
     addinv,
     addinv_before,
     add_to_minv,
-    delobj,
+    delobj_async,
     freeinv,
     fully_identify_obj,
     getobj,
@@ -431,8 +432,7 @@ import {
     trapname,
 } from './trap.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyNorep,
     ttyPline,
 } from './tty_message.js';
@@ -446,9 +446,9 @@ import {
 import { bhit, boomhit, hit, miss } from './zap.js';
 import { hmon, passive_obj } from './uhitm.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { minliquid, seemimic, setmangry, wake_nearto, wakeup } from './mon.js';
+import { minliquid, seemimic_async, setmangry, wake_nearto, wakeup } from './mon.js';
 import { mpickobj, mpickobjRuntime, remove_worn_item } from './steal.js';
-import { goodpos, rloc, tele_restrict } from './teleport.js';
+import { goodpos, rloc_async, tele_restrict } from './teleport.js';
 import { is_quest_artifact } from './questpgr.js';
 import { finish_quest } from './quest.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -473,7 +473,7 @@ import {
 } from './shk.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { dotrap, mintrap } from './trap_effects.js';
-import { move_bc, drag_ball, drop_ball } from './ball.js';
+import { move_bc_async, drag_ball, drop_ball } from './ball.js';
 import { cutworm } from './worm.js';
 import { snuff_candle } from './apply_splash_lit.js';
 import { make_blinded, potionbreathe, potionhit } from './potion.js';
@@ -683,17 +683,14 @@ export async function mhurtle_step(arg, x, y) {
             const oldX = monster.mx;
             const oldY = monster.my;
             remove_monster(oldX, oldY, state);
-            redraw(oldX, oldY);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(oldX, oldY));
             place_monster(monster, x, y, state);
-            redraw(monster.mx, monster.my);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(monster.mx, monster.my));
         } else {
             state.u.ux0 = state.u.ux;
             state.u.uy0 = state.u.uy;
             await u_on_newpos(x, y, state);
-            redraw(state.u.ux0, state.u.uy0);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(state.u.ux0, state.u.uy0));
             await vision_recalc_async(0, { state });
         }
         await flush_screen(1);
@@ -727,16 +724,14 @@ export async function mhurtle_step(arg, x, y) {
             await minstapetrify(
                 monster, !state.context?.mon_moving, state, env,
             );
-            redraw(monster.mx, monster.my);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(monster.mx, monster.my));
         }
         if (touch_petrifies(monster.data)
             && !which_armor(otherMonster, W_ARMU | W_ARM | W_ARMC, state)) {
             await minstapetrify(
                 otherMonster, !state.context?.mon_moving, state, env,
             );
-            redraw(otherMonster.mx, otherMonster.my);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(otherMonster.mx, otherMonster.my));
         }
     } else if (u_at(x, y, state)) {
         await message(
@@ -752,8 +747,7 @@ export async function mhurtle_step(arg, x, y) {
         if (Upolyd(state.u) && touch_petrifies(state.youmonst.data)
             && !which_armor(monster, W_ARMU | W_ARM | W_ARMC, state)) {
             await minstapetrify(monster, true, state, env);
-            redraw(monster.mx, monster.my);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(monster.mx, monster.my));
         }
         if (touch_petrifies(monster.data)
             && !(state.uarmu || state.uarm || state.uarmc)) {
@@ -770,8 +764,7 @@ export async function mhurtle_step(arg, x, y) {
             );
             state.killer.name = `being hit by ${name}`;
             await instapetrify(state.killer.name, state, env);
-            redraw(state.u.ux, state.u.uy);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(state.u.ux, state.u.uy));
         }
     }
     return false;
@@ -805,11 +798,9 @@ export async function mhurtle(monster, dx, dy, range, rawEnv = {}) {
 
     if (monster.mundetected) {
         monster.mundetected = 0;
-        newsym(monster.mx, monster.my);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(monster.mx, monster.my);
     }
-    if (M_AP_TYPE(monster)) seemimic(monster, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (M_AP_TYPE(monster)) await seemimic_async(monster, state);
 
     const source = { x: monster.mx, y: monster.my };
     const destination = {
@@ -942,8 +933,7 @@ export async function hurtle_step(arg, x, y) {
         }
         await wakeup(mon, false, { state, random, message });
         if (!canspotmon(mon, state))
-            map_invisible(mon.mx, mon.my, state);
-        if (noticesQueued()) await emitQueuedNotices();
+            await map_invisible_async(mon.mx, mon.my, state);
         await setmangry(mon, false, { state, random, message });
         if (touch_petrifies(mon.data) && !state.uarmu && !state.uarm
             && !state.uarmc) {
@@ -984,9 +974,7 @@ export async function hurtle_step(arg, x, y) {
             x, y, control, ballx, bally, chainx, chainy, causeDelay,
             true, state,
         )) {
-            move_bc(0, control.value, ballx.value, bally.value,
-                chainx.value, chainy.value, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await move_bc_async(0, control.value, ballx.value, bally.value, chainx.value, chainy.value, state);
         }
     }
 
@@ -995,8 +983,7 @@ export async function hurtle_step(arg, x, y) {
     // dungeon.c:u_on_newpos() observes nearby objects before its generic-glyph
     // newsym_force() redraw.
     await u_on_newpos(x, y, state);
-    redraw(oldX, oldY);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(oldX, oldY));
     await vision_recalc_async(1, { state, redraw });
     await flush(1);
     if (ltyp !== state.level.at(oldX, oldY).typ)
@@ -1721,8 +1708,7 @@ export async function breakobj(
             }
         }
     }
-    if (!fracture) await delobj(obj, objectEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (!fracture) await delobj_async(obj, objectEnv);
     if (explosion) {
         await explode(x, y, -11, (random.d ?? d)(3, 6), 0, EXPL_FIERY, state,
             { ...objectEnv, random, message });
@@ -2524,14 +2510,13 @@ async function gem_accept(mon, obj, state = game, rawEnv = {}) {
     if (!(await tele_restrict(mon, state, { ...env, message }))) {
         // rloc() returns a Promise when RLOC_MSG prints "vanishes!"; finish
         // that message before throw_obj()'s encumber_msg() can print.
-        await rloc(mon, RLOC_MSG, {
+        await rloc_async(mon, RLOC_MSG, {
             ...env,
             state,
             message,
             random: env.random,
             canSeeMonster: (target) => canseemon(target, state),
         });
-        if (noticesQueued()) await emitQueuedNotices();
     }
     return ret;
 }
@@ -2743,8 +2728,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                 await setuwep(obj, { state });
                 set_twoweap(twoweap, state);
                 if (cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
-                    newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);
-                if (noticesQueued()) await emitQueuedNotices();
+                    await newsym_async(state.gb.bhitpos.x, state.gb.bhitpos.y);
             } else {
                 const damageRoll = rn2(2);
                 if (!damageRoll) {
@@ -2864,8 +2848,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     stackobj(obj, { state });
     if (obj === state.uball)
         await drop_ball(bx, by, state);
-    if (cansee(bx, by, state)) newsym(bx, by);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (cansee(bx, by, state)) await newsym_async(bx, by);
     if (obj_sheds_light(obj, state)) state.vision_full_recalc = 1;
     throwit_return(false, state);
 }
@@ -3156,8 +3139,7 @@ export async function thitmonst(mon, obj, state = game, rawEnv = {}) {
                     // C consumes the cockatrice corpse after the swallowed
                     // target is petrified. delobj() is implemented here and
                     // must own the object lifecycle (including obj_resists).
-                    await delobj(obj, { state });
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await delobj_async(obj, { state });
                     return 1;
                 }
             }
@@ -3374,7 +3356,6 @@ async function throw_gold(obj, state = game) {
     if (u.ushops?.[0])
         await sellobj(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, state);
     stackobj(obj, { state });
-    newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(state.gb.bhitpos.x, state.gb.bhitpos.y);
     return ECMD_TIME;
 }

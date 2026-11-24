@@ -169,7 +169,7 @@ import {
     set_occupation,
     xytodir,
 } from './cmd.js';
-import { currency, delobj, obfree, obj_extract_self, sobj_at, stackobj, stackobjRuntime, update_inventory } from './invent.js';
+import { currency, delobj_async, obfree, obj_extract_self, sobj_at, stackobj, stackobjRuntime, update_inventory } from './invent.js';
 import { bury_an_obj } from './bury.js';
 import { punish } from './read.js';
 import { stop_timer } from './timeout.js';
@@ -205,7 +205,7 @@ import {
 } from './objects.js';
 import { cvt_sdoor_to_door } from './detect.js';
 import {
-    cmap_to_glyph, feel_newsym, flush_screen, map_glyphinfo, newsym, tmp_at,
+    cmap_to_glyph, feel_newsym, feel_newsym_async, flush_screen, map_glyphinfo, newsym, newsym_async, tmp_at,
 } from './display.js';
 import {
     impossible, impossible_printer, verbalize, youFeel, norep_printer,
@@ -233,7 +233,7 @@ import {
     conjoined_pits,
     cnv_trap_obj,
     deltrap,
-    maketrap,
+    maketrap_async,
     reset_utrap,
     set_utrap,
     t_at,
@@ -242,14 +242,13 @@ import {
     uteetering_at_seen_pit,
     uescaped_shaft,
 } from './trap.js';
-import { feeltrap, seetrap } from './trap_effects.js';
+import { feeltrap_async, seetrap_async } from './trap_effects.js';
 import { bimanual } from './worn.js';
 import { On_stairs, stairway_at } from './stairs.js';
 import { dist2, s_suffix } from './hacklib.js';
 import {
     displayPendingTtyMessageWindow,
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { wield_tool, welded } from './wield.js';
@@ -384,12 +383,11 @@ export async function mkcavepos(
         const monster = m_at(x, y, state);
         if (monster && !passes_walls(monster.data)) {
             const relocate = rawEnv.relocateMonster ?? rloc;
-            await relocate(monster, RLOC_NOMSG, {
+            await printQueued(relocate(monster, RLOC_NOMSG, {
                 ...rawEnv,
                 state,
                 random: rawEnv.random ?? coreRandom,
-            });
-            if (noticesQueued()) await emitQueuedNotices();
+            }));
         }
     } else if (location.typ === ROOM) {
         return;
@@ -408,8 +406,7 @@ export async function mkcavepos(
     if (dist >= 3)
         await impossible(`mkcavepos called with dist ${dist}`, state, rawEnv);
     const feelNewsym = rawEnv.feelNewsym ?? feel_newsym;
-    feelNewsym(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(feelNewsym(x, y, state));
 }
 
 // C ref: dig.c mkcavearea() (88-128). Its display window is a forced TTY
@@ -467,8 +464,7 @@ export async function mkcavearea(
         const center = state.level.at(ux, uy);
         center.typ = ROOM;
         if (waslit) center.waslit = true;
-        newsym(ux, uy);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(ux, uy);
     }
 
     state.vision_full_recalc = 1;
@@ -846,8 +842,7 @@ export async function dig(state = game, rawEnv = {}) {
         }
 
         if (!does_block(x, y, location, state)) unblock_point(x, y, state);
-        feel_newsym(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await feel_newsym_async(x, y, state);
         if (digtext && !digging.quiet)
             await message(digtext, state, rawEnv);
         if (damageText) await pay_for_damage(damageText, false, state, rawEnv);
@@ -885,8 +880,7 @@ export async function dig(state = game, rawEnv = {}) {
             location.flags = D_NODOOR;
             await b_trapped('door', NO_PART, state, { ...rawEnv, random, message });
             recalc_block_point(x, y, state);
-            newsym(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await newsym_async(x, y);
         }
         finishDigging(digging, state);
         return 0;
@@ -1128,8 +1122,7 @@ export async function use_pick_axe2(obj, state = game, env = {}) {
                 if (!trap.tseen) {
                     const { newsym } = await import('./display.js');
                     const { seetrap } = await import('./trap_effects.js');
-                    seetrap(trap, { redraw: newsym });
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await seetrap_async(trap, { redraw: newsym });
                     await message('There is a spider web there!', state);
                 }
                 await message(`${Yobjnam2(obj, 'become', state)} entangled in the web.`, state);
@@ -1370,15 +1363,14 @@ export async function liquid_flow(
     // unearth_objs completes punishment restoration before liquid damage.
     const redraw = rawEnv.newsym ?? rawEnv.redraw
         ?? newsym;
-    await unearth_objs(x, y, {
+    await printQueued(unearth_objs(x, y, {
         ...env,
         hooks: {
             ...(rawEnv.hooks ?? {}),
             newsym: rawEnv.hooks?.newsym
                 ?? ((rx, ry, hookEnv) => redraw(rx, ry, state, hookEnv)),
         },
-    });
-    if (noticesQueued()) await emitQueuedNotices();
+    }));
 
     if (fillmsg) {
         const liquid = hliquid(typ === LAVAPOOL ? 'lava' : 'water', {
@@ -1534,16 +1526,14 @@ export async function digactualhole(
     const shopdoor = IS_DOOR(oldType)
         && in_rooms(x, y, SHOPBASE, state).length > 0;
     const oldObjects = state.level.objects?.[x]?.[y] ?? null;
-    const trap = await maketrap(x, y, trapType, env);
-    if (noticesQueued()) await emitQueuedNotices();
+    const trap = await maketrap_async(x, y, trapType, env);
     if (!trap) return;
     const newObjects = state.level.objects?.[x]?.[y] ?? null;
     trap.madeby_u = herosFault;
     trap.tseen = false;
     const trapEnv = { state, redraw: newsym };
-    if (cansee(x, y, state)) seetrap(trap, trapEnv);
-    else if (madebyU) feeltrap(trap, trapEnv);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (cansee(x, y, state)) await seetrap_async(trap, trapEnv);
+    else if (madebyU) await feeltrap_async(trap, trapEnv);
 
     const name = trapname(trapType, true, state, random);
     const inThrough = trapType === HOLE ? 'through' : 'in';
@@ -1763,8 +1753,7 @@ async function dig_up_grave(coordinate, rawEnv = {}) {
     location.flags = 0;
     location.disturbed = 0;
     del_engr_at(x, y, state);
-    newsym(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await newsym_async(x, y);
 }
 
 // C ref: dig.c dighole() (885-1022). Its Boolean is consumed by dig(), so all
@@ -1803,8 +1792,7 @@ export async function dighole(
             { ...rawEnv, random, message },
         );
         await deltrap(trap, state);
-        newsym(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await newsym_async(x, y);
     } else if (is_pool_or_lava(x, y, state)) {
         const liquid = is_lava(x, y, state) ? 'lava' : 'water';
         await message(`The ${hliquid(liquid, { ...rawEnv, state })} sloshes furiously for a moment, then subsides.`, state, rawEnv);
@@ -1834,8 +1822,7 @@ export async function dighole(
             await wake_nearby(false, { ...rawEnv, state });
             await delfloortrap(trap, state);
         }
-        await delobj(boulder, { ...rawEnv, state });
-        if (noticesQueued()) await emitQueuedNotices();
+        await delobj_async(boulder, { ...rawEnv, state });
     } else if (IS_GRAVE(oldType)) {
         await digactualhole(x, y, state.youmonst, PIT, state, rawEnv);
         await dig_up_grave(coordinate, { ...rawEnv, state, random, message });
@@ -1968,8 +1955,7 @@ export async function zap_dig(
                     xnameFresh(rock, state);
                     stackobj(rock, objectGenerationEnv({ state, random }));
                 }
-                newsym(u.ux, u.uy, state);
-                if (noticesQueued()) await emitQueuedNotices();
+                await newsym_async(u.ux, u.uy);
             } else {
                 await watch_dig(null, u.ux, u.uy, true, { state });
                 await dighole(false, true, null, { state, random });
@@ -2243,8 +2229,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
         const trapped = Boolean(rm_doormask(location) & D_TRAPPED);
         setTerrain(location, DOOR, trapped ? D_NODOOR : D_BROKEN);
         recalcBlockPoint(x, y, state);
-        redraw(x, y);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(x, y));
         if (trapped) {
             // mb_trapped() owns the door-trap explosion and monster death.
             // No development witness reaches this arm yet.
@@ -2257,8 +2242,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
                 message,
                 redraw,
             })) {
-                redraw(x, y);
-                if (noticesQueued()) await emitQueuedNotices();
+                await printQueued(redraw(x, y));
                 return true;
             }
         } else if (state.flags?.verbose
@@ -2272,8 +2256,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
     if (location.typ === SCORR) {
         setTerrain(location, CORR, 0);
         unblockPoint(x, y, state);
-        redraw(x, y);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(x, y));
         await draft_message(false, { ...rawEnv, state, message });
         return false;
     }
@@ -2320,8 +2303,7 @@ export async function mdig_tunnel(monster, rawEnv = {}) {
             );
         }
     }
-    redraw(x, y);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(x, y));
     if (!sobj_at(BOULDER, x, y, state))
         unblockPoint(x, y, state);
     return false;
@@ -2345,8 +2327,7 @@ export async function bury_objs(x, y, state = game, rawEnv = {}) {
         obj = result.next;
     }
     del_engr_at(x, y, state);
-    redraw(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(x, y, state));
     maybe_unhide_at(x, y, state, env);
     if (costly && loss) {
         await (env.message ?? ttyPline)(
@@ -2450,8 +2431,7 @@ export async function rot_corpse(arg, timeout, rawEnv = {}) {
             && hides_under(state.youmonst.data)) {
             await hideunder(state.youmonst, { ...env, state });
         }
-        env.hooks.newsym(x, y, env);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(env.hooks.newsym(x, y, env));
     } else if (inInvent) {
         update_inventory(env);
     }
@@ -2495,8 +2475,7 @@ export async function buried_ball_to_punishment(state = game, rawEnv = {}) {
     await punish(ball, state, rawEnv);
     await reset_utrap(false, state);
     del_engr_at(cc.x, cc.y, state);
-    (rawEnv.redraw ?? newsym)(cc.x, cc.y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued((rawEnv.redraw ?? newsym)(cc.x, cc.y, state));
 }
 
 // C ref: dig.c buried_ball_to_freedom() (1958-1979). The finder may move
@@ -2514,8 +2493,7 @@ export async function buried_ball_to_freedom(state = game, rawEnv = {}) {
     await reset_utrap(true, state);
     del_engr_at(cc.x, cc.y, state);
     const redraw = rawEnv.newsym ?? rawEnv.redraw ?? newsym;
-    redraw(cc.x, cc.y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(cc.x, cc.y, state));
 }
 
 // C ref: dig.c unearth_objs() (2086-2116). Ordinary generation stays

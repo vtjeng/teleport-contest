@@ -187,7 +187,7 @@ import {
     newsym_async,
     newsymOffMapImpossible,
     newsymReportsOffMap,
-    see_monsters,
+    see_monsters_async,
     shieldeff,
     swallowed,
     unmap_object,
@@ -241,7 +241,7 @@ import { dist2, online2, ordin, s_suffix, upstart, lcase } from './hacklib.js';
 import {
     add_to_container,
     add_to_minv,
-    delobj,
+    delobj_async,
     nxtobj,
     obj_extract_self,
     stackobj,
@@ -706,7 +706,7 @@ import {
     goodpos,
     noteleport_level,
     rloc,
-    rloc_to,
+    rloc_to_async,
     rloc_to_flag,
     tele_restrict,
 } from './teleport.js';
@@ -716,13 +716,12 @@ import {
 } from './trap.js';
 import {
     displayPendingTtyMessageWindow,
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { fmt_ptr } from './alloc.js';
 import { panic } from './end.js';
-import { unpunish } from './read.js';
+import { unpunish_async } from './read.js';
 import {
     aggravate_steps,
     mon_has_amulet,
@@ -1581,15 +1580,12 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
         await meatbox(mtmp, otmp, { ...rawEnv, state });
     if (otmp === state.uball) {
         const objectEnv = objectGenerationEnv({ ...rawEnv, state });
-        unpunish(state, objectEnv);
-        if (noticesQueued()) await emitQueuedNotices();
-        await delobj(otmp, objectEnv);
-        if (noticesQueued()) await emitQueuedNotices();
+        await unpunish_async(state, objectEnv);
+        await delobj_async(otmp, objectEnv);
         return;
     }
     if (otmp === state.uchain) {
-        unpunish(state, objectGenerationEnv({ ...rawEnv, state }));
-        if (noticesQueued()) await emitQueuedNotices();
+        await unpunish_async(state, objectGenerationEnv({ ...rawEnv, state }));
         return;
     }
 
@@ -1616,8 +1612,7 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
     const heal = ofood && otmp.corpsenm === PM_NURSE;
     const eyes = otmp.otyp === CARROT;
     const mstone = Boolean(foodSpecies) && flesh_petrifies(foodSpecies);
-    await delobj(otmp, objectGenerationEnv({ ...rawEnv, state })); /* munch */
-    if (noticesQueued()) await emitQueuedNotices();
+    await delobj_async(otmp, objectGenerationEnv({ ...rawEnv, state })); /* munch */
 
     if (poly || slimer) {
         await newcham(mtmp, slimer ? state.mons[PM_GREEN_SLIME] : null, {
@@ -1746,8 +1741,7 @@ export async function meatmetal(mtmp, rawEnv = {}) {
                 ...objectGenerationEnv({ ...rawEnv, state, random }),
             });
         }
-        redraw(mtmp.mx, mtmp.my, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(mtmp.mx, mtmp.my, state));
         return 1;
     }
     return 0;
@@ -1775,8 +1769,7 @@ export async function meatobj(mtmp, rawEnv = {}) {
             const ox = obj.ox;
             const oy = obj.oy;
             const revived = await revive_corpse(obj, state, rawEnv);
-            redraw(ox, oy, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(ox, oy, state));
             if (!revived) {
                 obj = nextObj;
                 continue;
@@ -1841,8 +1834,7 @@ export async function meatobj(mtmp, rawEnv = {}) {
             await m_consume_obj(mtmp, obj, { ...rawEnv, state });
             if (mtmp.data !== original) return mtmp.data ? 1 : 2;
         }
-        if (mtmp.minvis) redraw(mtmp.mx, mtmp.my, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (mtmp.minvis) await printQueued(redraw(mtmp.mx, mtmp.my, state));
         obj = nextObj;
     }
     if (engulfed && state.flags?.verbose) {
@@ -1878,8 +1870,7 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
                 && !Resists_Elem(mtmp, STONE_RES, state))) continue;
         if (is_rider(species)) {
             const revived = await revive_corpse(obj, state, rawEnv);
-            redraw(x, y, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(x, y, state));
             if (!revived) continue;
             break;
         }
@@ -1903,8 +1894,7 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
         }
         await m_consume_obj(mtmp, obj, { ...rawEnv, state });
         if (mtmp.data !== original) return mtmp.data ? 1 : 2;
-        if (mtmp.minvis) redraw(x, y, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        if (mtmp.minvis) await printQueued(redraw(x, y, state));
         return 1;
     }
     return 0;
@@ -1958,8 +1948,7 @@ export async function mon_givit(mtmp, ptr, rawEnv = {}) {
     if (ptr === state.mons?.[PM_STALKER]) {
         if (!mtmp.perminvis || mtmp.invis_blkd) {
             const oldName = Monnam(mtmp, state, { displayRandom: rawEnv.displayRandom });
-            mon_set_minvis(mtmp, false, state, rawEnv);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(mon_set_minvis(mtmp, false, state, rawEnv));
             if (visible) {
                 const text = !canspotmon(mtmp, state)
                     ? `${oldName} vanishes.`
@@ -2090,8 +2079,7 @@ export async function mpickstuff(monster, obj, carryamt, rawEnv = {}) {
     await mpickobjRuntime(monster, taken, objectEnv);
     // let them try to equip it on the next turn
     check_gear_next_turn(monster);
-    redraw(monster.mx, monster.my, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(redraw(monster.mx, monster.my, state));
     return true;
 }
 
@@ -3535,8 +3523,7 @@ export async function decide_to_shapeshift(monster, rawEnv = {}) {
         && (monster.mstrategy & STRAT_WAITFORU)) {
         return false;
     }
-    const shapeEnv = newchamDistressEnv(normalized);
-    if (noticesQueued()) await emitQueuedNotices();
+    const shapeEnv = await printQueued(newchamDistressEnv(normalized));
     preflight_newcham_distress(monster, shapeEnv);
     let target = null;
     let change = false;
@@ -3591,14 +3578,13 @@ export async function decide_to_shapeshift(monster, rawEnv = {}) {
             { ...shapeEnv, state },
         );
         if (destination) {
-            await rloc_to(monster, destination.x, destination.y, {
+            await rloc_to_async(monster, destination.x, destination.y, {
                 ...shapeEnv,
                 state,
                 // Teleport reads newsym, while shape upkeep owns redrawSquare.
                 // Keep a door escape on that same map owner.
                 newsym: (x, y) => shapeRedraw(x, y, shapeEnv),
             });
-            if (noticesQueued()) await emitQueuedNotices();
         }
     }
     if (!change) return false;
@@ -4030,23 +4016,20 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
         // C ref: mon.c:4339-4343. Mimics come out of hiding, but a disguised
         // Wizard (M_AP_MONSTER) keeps his disguise.
         if (((monster.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_MONSTER) {
-            seemimic(monster, state, {});
-            if (noticesQueued()) await emitQueuedNotices();
+            await seemimic_async(monster, state, {});
         }
     } else if (state.context?.forcefight && !state.context?.mon_moving
                && monster.mundetected) {
         monster.mundetected = 0;
-        newsym(monster.mx, monster.my, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(newsym(monster.mx, monster.my, state));
     }
     // End the meal in this state; a state other than the live game must not
     // repaint the live map.
-    finish_meating(monster, {
+    await printQueued(finish_meating(monster, {
         ...rawEnv,
         redraw: rawEnv.redraw
             ?? (state === game ? newsym : () => {}),
-    });
-    if (noticesQueued()) await emitQueuedNotices();
+    }));
     if (via_attack) {
         const was_peaceful = monster.mpeaceful;
 
@@ -4155,6 +4138,12 @@ export function seemimic(mtmp, state = game, env = {}) {
     (env.newsym ?? newsym)(mtmp.mx, mtmp.my);
 }
 
+// mon.c seemimic() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function seemimic_async(...args) {
+    return printQueued(seemimic(...args));
+}
+
 // C ref: mon.c normal_shape() (4434-4464). Revert a chameleon or vampire to
 // its recorded natural form, turn a werecreature back into human form, and
 // reveal a mimic. A Promise is returned whenever the shared transition crosses
@@ -4224,8 +4213,7 @@ export async function rescham(state = game, rawEnv = {}) {
     const monsters = [];
     iter_mons((monster) => monsters.push(monster), state);
     for (const monster of monsters) {
-        await normal_shape(monster, state, rawEnv);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(normal_shape(monster, state, rawEnv));
     }
 }
 
@@ -4339,8 +4327,7 @@ export async function m_calcdistress(monster, rawEnv = {}) {
         if (await minLiquid(monster, { ...rawEnv, state })) return;
     }
 
-    mon_regen(monster, false, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(mon_regen(monster, false, state));
 
     // C calls were_change() after shapechanging; a new were form therefore
     // reaches the lycanthropy check in the same callback.
@@ -4415,8 +4402,7 @@ async function corpseRedraw(x, y, env) {
         await newsymOffMapImpossible(x, y, env.state ?? game, env);
         return;
     }
-    killRedraw(x, y, env);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(killRedraw(x, y, env));
 }
 
 // C ref: mon.c zombie_maker() (362-380). "return True if mon is capable of
@@ -4548,8 +4534,7 @@ export function unstuck(mtmp, state = game, env = {}) {
                 const monsterOverlay = {
                     ...env, ...(redraw ? { redraw } : {}),
                 };
-                await see_monsters(state, monsterOverlay);
-                if (noticesQueued()) await emitQueuedNotices();
+                await see_monsters_async(state, monsterOverlay);
             } finally {
                 state.program_state.in_docrt = outerInDocrt;
             }
@@ -4585,8 +4570,7 @@ async function relmon(mon, state = game) {
     if (!state.level?.monlist)
         await panic('relmon: no fmon available.', state);
 
-    await mon_leaving_level(mon, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(mon_leaving_level(mon, state));
     let previous = null;
     let current = state.level?.monlist ?? null;
     while (current && current !== mon) {
@@ -4949,8 +4933,7 @@ export function m_detach(
                 /* "release (drop onto map) all objects carried by mtmp; assumes that
                    mtmp->mx,my contains the appropriate location" */
                 await relobj(mtmp, 1, false, { ...env, state });
-                const detached = await finishDetach();
-                if (noticesQueued()) await emitQueuedNotices();
+                const detached = await printQueued(finishDetach());
                 return detached;
             };
             return finishDeathEffects();
@@ -5032,6 +5015,12 @@ export function mongone(monster, env = {}) {
         if (!dispose) return;
         return releaseAndFinish();
     });
+}
+
+// mon.c mongone() for a caller that can wait: the draw, then the lines it
+// queued (js/tty_message.js printQueued()).
+export function mongone_async(...args) {
+    return printQueued(mongone(...args));
 }
 
 // C ref: mon.c mlifesaver() (2825-2836). "find the worn amulet of life saving
@@ -5236,8 +5225,7 @@ export async function vamprises(mtmp, state = game, env = {}) {
             }
         }
     }
-    if (state === game) newsym(x, y);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (state === game) await printQueued(newsym(x, y));
     return true;
 }
 
@@ -5439,14 +5427,12 @@ export async function mondead(mtmp, state = game, env = {}) {
     if (glyph_is_invisible(
         state.level.at(mtmp.mx, mtmp.my).remembered_glyph?.glyph,
     )) {
-        unmap_object(mtmp.mx, mtmp.my, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(unmap_object(mtmp.mx, mtmp.my, state));
     }
 
     /* "remove 'mtmp' from play; it will stay on the fmon list until end of
        current move, then dmonsfree() will get rid of it". */
-    await m_detach(mtmp, mptr, true, state, env);
-    if (noticesQueued()) await emitQueuedNotices();
+    await printQueued(m_detach(mtmp, mptr, true, state, env));
 }
 
 // C ref: mon.c LEVEL_SPECIFIC_NOCORPSE() (44-47), the macro xkilled() tests at
@@ -5927,13 +5913,11 @@ export async function monstone(mdef, state = game, env = {}) {
 
     stackobj(statue, objectEnv);
     if (glyph_is_invisible(state.level.at(x, y).remembered_glyph?.glyph))
-        unmap_object(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(unmap_object(x, y, state));
     // A state other than the live game gets a no-op redraw; the live state
     // keeps the ordinary newsym owner.
     const redraw = env.redraw ?? (state === game ? newsym : () => {});
-    if (cansee(x, y, state)) redraw(x, y, state);
-    if (noticesQueued()) await emitQueuedNotices();
+    if (cansee(x, y, state)) await printQueued(redraw(x, y, state));
     if (engulfing_u(mdef, state)) wasinside = true;
     await mondead(mdef, state, env);
     if (wasinside && monsterDigests(mdef.data)) {
@@ -6194,8 +6178,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                     /* "don't drop newly created permafood from kills, unless
                         the monster collects food; it creates too much
                         nutrition in the late game" */
-                    await delobj(otmp, dropEnv);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await delobj_async(otmp, dropEnv);
                 } else if (mdat.msize < MZ_MEDIUM /* MZ_HUMAN */
                            && otyp !== FIGURINE
                            /* "oc_big is also oc_bimanual and oc_bulky" */
@@ -6205,8 +6188,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                         artifact_exists(otmp, safe_oname(otmp), false,
                                         ONAME_NO_FLAGS, state);
                     }
-                    await delobj(otmp, dropEnv);
-                    if (noticesQueued()) await emitQueuedNotices();
+                    await delobj_async(otmp, dropEnv);
                 } else if (!await flooreffects(otmp, x, y, nomsg ? '' : 'fall',
                                          dropEnv)) {
                     const placement = place_object(otmp, x, y, dropEnv);
@@ -6256,8 +6238,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
             mtmp = museum;
         }
         /* "monster is gone, corpse or other object might now be visible" */
-        killRedraw(x, y, { ...env, state });
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(killRedraw(x, y, { ...env, state }));
     }
 
     /* cleanup: "Punish bad behavior." */
@@ -6275,8 +6256,7 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
         change_luck(-2, state);
         await message('You murderer!', state);
         if (Blind(state.u) && !Blind_telepat(state.u))
-            await see_monsters(state, { ...env });
-        if (noticesQueued()) await emitQueuedNotices();
+            await see_monsters_async(state, { ...env });
     }
     if ((mtmp.mpeaceful && !random.rn2(2)) || mtmp.mtame)
         change_luck(-1, state);
@@ -6420,8 +6400,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
             if (amorphous(mtmp.data) && closed_door(x, y, state)) {
                 const newXY = enexto(x, y, state.mons[mndx], { state });
                 if (newXY)
-                    await rloc_to(mtmp, newXY.x, newXY.y, { ...env, state });
-                if (noticesQueued()) await emitQueuedNotices();
+                    await rloc_to_async(mtmp, newXY.x, newXY.y, { ...env, state });
             }
             if (canspotmon(mtmp, state)) {
                 await message(
@@ -6446,8 +6425,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
                     env,
                 );
             }
-            redraw(mtmp.mx, mtmp.my, state);
-            if (noticesQueued()) await emitQueuedNotices();
+            await printQueued(redraw(mtmp.mx, mtmp.my, state));
             return false;
         }
     } else if (ismnum(mtmp.cham)
@@ -6460,8 +6438,7 @@ export async function vamp_stone(mtmp, state = game, env = {}) {
         await newcham(mtmp, state.mons[mtmp.cham], {
             ...env, state, ncflags: NC_SHOW_MSG,
         });
-        redraw(mtmp.mx, mtmp.my, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(redraw(mtmp.mx, mtmp.my, state));
         return false;
     }
     return true;
@@ -6582,11 +6559,9 @@ export async function elemental_clog(mon, state = game, env = {}) {
         const mx = target.mx;
         const my = target.my;
         target.mstate = (target.mstate ?? 0) | MON_OBLITERATE;
-        await mongone(target, { ...env, state });
-        if (noticesQueued()) await emitQueuedNotices();
+        await mongone_async(target, { ...env, state });
         // C intentionally relocates `mon`, not the monster just obliterated.
-        const moved = await rloc_to(mon, mx, my, { ...env, state });
-        if (noticesQueued()) await emitQueuedNotices();
+        const moved = await rloc_to_async(mon, mx, my, { ...env, state });
         return moved;
     } else if (!Is_astralevel(state.u?.uz, state)) {
         const destination = {
@@ -6644,14 +6619,13 @@ export async function mnexto(mtmp, rlocflags = 0, rawEnv = {}) {
         }
     }
 
-    await rloc_to_flag(
+    await printQueued(rloc_to_flag(
         mtmp,
         coordinate.x,
         coordinate.y,
         rlocflags,
         env,
-    );
-    if (noticesQueued()) await emitQueuedNotices();
+    ));
     return;
 }
 
@@ -6675,8 +6649,7 @@ export async function maybe_mnexto(mtmp, state = game, env = {}) {
             && (diagok
                 || coordinate.x === mtmp.mx
                 || coordinate.y === mtmp.my)) {
-            await rloc_to(mtmp, coordinate.x, coordinate.y, { ...env, state });
-            if (noticesQueued()) await emitQueuedNotices();
+            await rloc_to_async(mtmp, coordinate.x, coordinate.y, { ...env, state });
             return;
         }
     } while (--tryct > 0);
@@ -7325,6 +7298,5 @@ export async function flash_mon(mtmp, state = game, env = {}) {
     // newsym() is a live-game display owner. Another state still restores
     // its temporary vision byte, but must not repaint the live game on return.
     if (state === game)
-        newsym(mx, my);
-    if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(newsym(mx, my));
 }

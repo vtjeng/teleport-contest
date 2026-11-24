@@ -115,8 +115,7 @@ import {
 import { inhishop, shop_keeper } from './shk.js';
 import { findpriest, inhistemple } from './priest.js';
 import {
-    emitQueuedNotices,
-    noticesQueued,
+    printQueued,
     ttyPline,
 } from './tty_message.js';
 import { impossible } from './pline.js';
@@ -1283,8 +1282,7 @@ export async function u_on_newpos(
         // square's map memory; while hallucinating, an object there draws
         // its random glyph from the display RNG here, before the arrival
         // docrt() draws it again.
-        map_location(x, y, false, state);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(map_location(x, y, false, state));
         state.iflags ??= {};
         state.iflags.terrain_typ = MAX_TYPE;
     } else if (!Blind(state.u)
@@ -1292,8 +1290,7 @@ export async function u_on_newpos(
         && !hero.uswallow) {
         // still on same level; might have come close enough to
         // generic object(s) to redisplay them as specific objects
-        seeNearbyObjects(state, seeNearbyObjectsOptions);
-        if (noticesQueued()) await emitQueuedNotices();
+        await printQueued(seeNearbyObjects(state, seeNearbyObjectsOptions));
     }
     const line = earth_sense(state);
     if (!line) return;

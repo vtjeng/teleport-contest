@@ -63,8 +63,8 @@ test('rloc_engr exhausts exactly 200 source attempts without changing or redrawi
 test('both direct source callers run rloc_engr at their source boundary', async () => {
     const engraving = await readFile(new URL('../js/engrave.js', import.meta.url), 'utf8');
     const zap = await readFile(new URL('../js/zap.js', import.meta.url), 'utf8');
-    assert.match(engraving, /if \(de\.teleengr\) \{\s*rloc_engr\(de\.oep, state, env\);\s*(?:if \(noticesQueued\(\)\) await emitQueuedNotices\(\);\s*)?de\.oep\.eread = false;\s*de\.oep\.erevealed = false;/u);
-    assert.match(zap, /case WAN_TELEPORTATION:\s*case SPE_TELEPORT_AWAY:\s*rloc_engr\(engraving, state,/u);
+    assert.match(engraving, /if \(de\.teleengr\) \{\s*await printQueued\(rloc_engr\(de\.oep, state, env\)\);\s*de\.oep\.eread = false;\s*de\.oep\.erevealed = false;/u);
+    assert.match(zap, /case WAN_TELEPORTATION:\s*case SPE_TELEPORT_AWAY:\s*await printQueued\(rloc_engr\(engraving, state,/u);
 });
 
 test('downward wand and spell teleportation preserve C headstone protection', async () => {
