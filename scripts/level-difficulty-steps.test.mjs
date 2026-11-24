@@ -67,6 +67,7 @@ const STEP_FORMS = new Set([
     'squadmon_steps',
     'antholemon_steps',
     'mk_zoo_thronemon_steps',
+    'mkswamp_steps',
     'fill_zoo_steps',
     'm_initinv_steps',
     'makemon_steps',
@@ -80,7 +81,8 @@ const STEP_FORMS = new Set([
 // whose rooms keep FILL_NONE and get no doors, so its callers below run only
 // if a stale five-note jingle makes depth_start large (special rooms).
 const LEVEL_CREATION = 'level creation; a plain dungeon -1 level never '
-    + 'reaches it, and makelevel() and its callees are synchronous';
+    + 'reaches it. makelevel() is async, so its chain could drive the steps, '
+    + 'but the functions between are synchronous and no recording reaches it';
 const LEVEL_PROGRAM = 'a level program or themed room; dungeon -1 has '
     + 'neither (its levels come from makelevel()\'s plain-room arm)';
 const OBJECT_CREATION = 'mksobj()/mkobj() and their callers are synchronous; '
@@ -116,7 +118,6 @@ const ALLOWED = {
     'mklev.js | mausoleum | mkclass': [1, LEVEL_PROGRAM],
     'quest_levels.js | oracle | mkclass': [1, LEVEL_PROGRAM],
     'themeroom_fill.js | createMonsterBody | mkclass': [1, LEVEL_PROGRAM],
-    'mkroom.js | mkswamp | mkclass': [1, LEVEL_CREATION],
     'shknam.js | mkshobj_at | mkclass': [1,
         'a shop is stocked only on a level with doors, which a dungeon -1 '
             + 'level never has'],
@@ -159,7 +160,9 @@ const ALLOWED = {
 // fill_zoo() and its species pickers are step generators that
 // fill_special_room() waits for; 12 came in, the synchronous callers of
 // mkclass() and mkclass_aligned(), which this check did not follow before.
-const ALLOWED_PINS = { entries: 33, calls: 35 };
+// 32 and 34 since mkroom.c mkswamp() is a step generator that makelevel()
+// waits for (same branch).
+const ALLOWED_PINS = { entries: 32, calls: 34 };
 
 const FUNCTION_TYPES = new Set([
     'FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression',

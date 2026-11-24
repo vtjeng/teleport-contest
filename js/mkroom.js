@@ -86,7 +86,7 @@ import {
 } from './makemon_create.js';
 import { enexto } from './teleport.js';
 import { revive } from './zap.js';
-import { mkclass, mkclass_steps, set_malign } from './makemon.js';
+import { mkclass_steps, set_malign } from './makemon.js';
 import { m_at } from './monst.js';
 import { ndemon } from './minion.js';
 import {
@@ -409,7 +409,16 @@ export function has_upstairs(sroom, state = game) {
 // C ref: mkroom.c mkswamp() (530-574). Select up to five ordinary rooms,
 // mark each eligible room as a swamp, then place pools and swamp monsters in
 // source x-major/y-minor order.
+//
+// A step generator (js/source_steps.js): makelevel() waits for do_mkroom(),
+// so mkclass()'s impossible() reports print where C prints them, and a
+// makemon() that waits (a new shapechanger's first newcham() under the
+// wizard-mode mon_polycontrol prompt) finishes before the next square.
 function mkswamp(state, random) {
+    return finish_steps(mkswamp_steps(state, random), impossible_printer(state));
+}
+
+function* mkswamp_steps(state, random) {
     let eelct = 0;
     for (let attempt = 0; attempt < 5; ++attempt) {
         const roomIndex = random.rn2(state.level.nroom);
@@ -442,13 +451,14 @@ function mkswamp(state, random) {
                                 : state.mons[PM_ELECTRIC_EEL];
                         // C discards makemon()'s return and increments eelct
                         // even when creation finds no usable monster.
-                        makemon(species, sx, sy, 0, { state, random });
+                        yield makemon(species, sx, sy, 0, { state, random });
                         ++eelct;
                     }
                 } else if (!random.rn2(4)) {
-                    const species = mkclass(S_FUNGUS, 0, { state, random });
+                    const species = yield* mkclass_steps(
+                        S_FUNGUS, 0, { state, random });
                     // C discards makemon()'s return on this branch as well.
-                    makemon(species, sx, sy, 0, { state, random });
+                    yield makemon(species, sx, sy, 0, { state, random });
                 }
             }
         }
@@ -565,9 +575,9 @@ function mkshop(state, random) {
             return;
         }
         if (shopChar === '}') {
-            // mkroom.c:142 returns after the source discards mkswamp()'s result.
-            mkswamp(state, random);
-            return;
+            // mkroom.c:142. do_mkroom() hands mkswamp()'s Promise, if it
+            // returns one, to makelevel().
+            return mkswamp(state, random);
         }
         for (let index = 0; index < SHTYPES.length; ++index) {
             const shop = SHTYPES[index];
@@ -1126,10 +1136,8 @@ function mktemple(state, random) {
 // C ref: mkroom.c do_mkroom(). mklev.c makelevel() calls it at most once per
 // level, with the type its depth selects.
 export function do_mkroom(roomtype, state = game, random = coreRandom) {
-    if (roomtype >= SHOPBASE) {
-        mkshop(state, random);
-        return;
-    }
+    if (roomtype >= SHOPBASE)
+        return mkshop(state, random);
     if (roomtype === TEMPLE) {
         mktemple(state, random);
         return;
@@ -1141,10 +1149,8 @@ export function do_mkroom(roomtype, state = game, random = coreRandom) {
         mkzoo(roomtype, state, random);
         return;
     }
-    if (roomtype === SWAMP) {
-        mkswamp(state, random);
-        return;
-    }
+    if (roomtype === SWAMP)
+        return mkswamp(state, random);
     // C's impossible() result is discarded by do_mkroom().
     sync_impossible(`Tried to make a room of type ${roomtype}.`, state);
 }

@@ -72,8 +72,11 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // already waits. A replay of 4,810 recordings with every listed call wrapped
 // found a Promise returned only by the `async` callees hideunder(),
 // mon_adjust_speed() and update_mon_extrinsics()'s Promise.resolve(), whose
-// reasons say why no await is reached.
-const ALLOWLIST_PINS = { entries: 126, calls: 180 };
+// reasons say why no await is reached. 121 and 173 since mkmaze.js
+// populate_maze() is `async` and mkroom.js mkswamp() is a step generator,
+// both awaited by mklev.js (same branch): makemon() answers a Promise when a
+// new shapechanger's first newcham() waits.
+const ALLOWLIST_PINS = { entries: 121, calls: 173 };
 
 // Callees that take an object out of a chain. A carried object goes through
 // invent.c freeinv(), whose impossible() reports and artifact intrinsic

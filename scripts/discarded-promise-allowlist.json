@@ -146,7 +146,7 @@
     },
     "js/mklev.js | fake_delphi | run_room_descriptor": {
       "count": 1,
-      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
     },
     "js/mklev.js | fill_ordinary_room_supply_chest | add_to_container": {
       "count": 2,
@@ -174,7 +174,7 @@
     },
     "js/mklev.js | huge_room_with_another_room_inside | run_room_descriptor": {
       "count": 1,
-      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
     },
     "js/mklev.js | lspo_gas_cloud | create_gas_cloud": {
       "count": 1,
@@ -186,47 +186,31 @@
     },
     "js/mklev.js | nesting_rooms | run_room_descriptor": {
       "count": 2,
-      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
     },
     "js/mklev.js | room_in_a_room | run_room_descriptor": {
       "count": 1,
-      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
     },
     "js/mklev.js | twin_businesses | run_room_descriptor": {
       "count": 2,
-      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) run_room_descriptor() returns a Promise only when its contents callback does, and this callback only nests room descriptors and creates monsters, objects and traps through those synchronous forms."
     },
     "js/mklev.js | water_surrounded_vault_contents | add_to_container": {
       "count": 1,
-      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. The object is one the themed room has just made by type, not a crysknife. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) The object is one the themed room has just made by type, not a crysknife. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | water_surrounded_vault_contents | lspo_monster": {
       "count": 1,
-      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. lspo_monster() returns a Promise only from makemon()'s runtime form."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) lspo_monster() returns a Promise only from makemon()'s runtime form."
     },
     "js/mklev.js | water_surrounded_vault_contents | lspo_object": {
       "count": 1,
-      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. lspo_object() returns a Promise only from a statue's or corpse's monster made by makemon()'s runtime form, or from placing a billed crysknife."
+      "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(), where makemon_by_context() takes the synchronous makemon() and mktrap() returns synchronously. (makemon() itself waits there only for a new shapechanger's first newcham() under the wizard-mode mon_polycontrol option, which prompts; no recording sets it during level creation.) lspo_object() returns a Promise only from a statue's or corpse's monster made by makemon()'s runtime form, or from placing a billed crysknife."
     },
     "js/mkmaze.js | mk_bubble | mv_bubble": {
       "count": 1,
       "reason": "Called with ini TRUE on a new bubble, whose contents list is empty. mkmaze.c mv_bubble() (1952-2107) prints and waits only while it puts a bubble's contents (objects, monsters, the hero) back, and js/mkmaze.js mv_bubble() returns a Promise only from that pass (finishContents()), which needs a non-empty list."
-    },
-    "js/mkmaze.js | populate_maze | makemon": {
-      "count": 2,
-      "reason": "Runs only during level creation (mkmaze.c populate_maze() from makemaz() inside makelevel()), where in_mklev is set: makemon_create.js makemon_steps() yields a Promise only from a handler that prints (this call passes sync_impossible, which queues) or from its runtime tail, which level creation skips, so makemon() returns the monster."
-    },
-    "js/mkmaze.js | populate_maze | mkobj_at": {
-      "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
-    },
-    "js/mkmaze.js | populate_maze | mksobj_at": {
-      "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
-    },
-    "js/mkmaze.js | populate_maze | mktrap": {
-      "count": 1,
-      "reason": "Runs only during level creation (in_mklev), where makemon_by_context() takes the synchronous makemon(), so mktrap() returns synchronously. C reaches populate_maze() only from mkmaze.c makemaz() inside makelevel()."
     },
     "js/mkmaze.js | restore_waterlevel | mv_bubble": {
       "count": 1,
@@ -247,10 +231,6 @@
     "js/mkroom.js | finishZoo | add_to_container": {
       "count": 1,
       "reason": "mkroom.c fill_zoo() (276-452) puts new gold in the court's new chest. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
-    },
-    "js/mkroom.js | mkswamp | makemon": {
-      "count": 2,
-      "reason": "Runs only during level creation (mkroom.c mkswamp() from do_mkroom() inside makelevel()), where in_mklev is set: makemon_create.js makemon_steps() yields a Promise only from a handler that prints (this call passes sync_impossible, which queues) or from its runtime tail, which level creation skips, so makemon() returns the monster."
     },
     "js/mkroom.js | mktemple | priestini": {
       "count": 1,
