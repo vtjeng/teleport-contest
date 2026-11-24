@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "save.c dosave0() (126-133): create_savefile() creat()s save/<uid><plname>. The name \"Wanderingcartographerofthenor\" + EURO SIGN is 32 bytes and unixmain.c process_options() keeps 31, so plname ends with the first two bytes of the euro sign. APFS refuses to create a name that is not UTF-8, so on macOS, the judge's host, the save fails: \"Saving...  Cannot open save file.--More--\", and dosave() docrt()s. Linux saves and prints \"Be seeing you...\". The save is the last key, so the game differs from the Linux one on that screen only. Recorded on macOS (recorder/competitor-probes). Seed, clock and name chosen independently.",
+  "segments": [
+    {
+      "seed": 7120433,
+      "datetime": "20410305101500",
+      "nethackrc": "OPTIONS=name:Wanderingcartographerofthenor€,role:Priest,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  s Sy"
+    }
+  ]
+}
