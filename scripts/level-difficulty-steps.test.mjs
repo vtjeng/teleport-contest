@@ -68,6 +68,7 @@ const STEP_FORMS = new Set([
     'antholemon_steps',
     'mk_zoo_thronemon_steps',
     'mkswamp_steps',
+    'fill_ordinary_room_steps',
     'fill_zoo_steps',
     'm_initinv_steps',
     'makemon_steps',
@@ -121,7 +122,6 @@ const ALLOWED = {
     'shknam.js | mkshobj_at | mkclass': [1,
         'a shop is stocked only on a level with doors, which a dungeon -1 '
             + 'level never has'],
-    'mklev.js | fill_ordinary_room | level_difficulty': [1, LEVEL_CREATION],
     'mklev.js | makerooms | level_difficulty': [1,
         'called only when the dungeon has Lua themed rooms; dungeon -1 has none'],
     'mktrap.js | mktrap_steps | level_difficulty': [1, LEVEL_CREATION],
@@ -161,8 +161,10 @@ const ALLOWED = {
 // fill_special_room() waits for; 12 came in, the synchronous callers of
 // mkclass() and mkclass_aligned(), which this check did not follow before.
 // 32 and 34 since mkroom.c mkswamp() is a step generator that makelevel()
-// waits for (same branch).
-const ALLOWED_PINS = { entries: 32, calls: 34 };
+// waits for (same branch). 31 and 33 since mklev.c fill_ordinary_room() is
+// a step generator that makelevel() waits for (branch small-leftovers-2,
+// 24 November 2026).
+const ALLOWED_PINS = { entries: 31, calls: 33 };
 
 const FUNCTION_TYPES = new Set([
     'FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression',

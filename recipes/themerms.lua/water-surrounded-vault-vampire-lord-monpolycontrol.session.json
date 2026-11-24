@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "themerms.lua \"Water-surrounded vault\": des.monster(nasty_undead[1], 2, 2) picks the vampire lord, a shapechanger, so makemon()'s first newcham() asks mon.c wiz_force_cham_form()'s \"Change the vampire lady @ <x,y> into what?\" under the wizard-mode monpolycontrol option, and C makes the vault's des.exclusion() and the rest of the level after the answer (ESC). A debug-mode Valkyrie level-teleports to dlvl 12 and rebuilds it with #wizmakemap; the second rebuild makes the vault. The seed came from a JavaScript search over seeds 5330000-5330059 for this site; the date, character and inputs were chosen independently.",
+  "segments": [
+    {
+      "seed": 5330008,
+      "datetime": "20410317143000",
+      "nethackrc": "OPTIONS=name:Gerda,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,pettype:none\nOPTIONS=!legacy,!tutorial,!splash_screen,!autopickup,monpolycontrol\n",
+      "moves": "\u001b\u001b\u001612\n\u001b\u001b\u001b#wizmakemap\n\u001b\u001b\u001b#wizmakemap\n\u001b\u001b\u001bs"
+    }
+  ]
+}

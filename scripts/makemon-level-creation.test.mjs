@@ -36,8 +36,7 @@ const ALLOWED = {
     'js/extralev.js | makerogueghost': [1,
         'mklev.c makelevel() is extralev.c makerogueghost()\'s only caller, '
         + 'on the Rogue level.'],
-    // fillRoom is fill_ordinary_room()'s body for one room.
-    'js/mklev.js | fillRoom': [1,
+    'js/mklev.js | fill_ordinary_room_steps': [1,
         'mklev.c makelevel() is fill_ordinary_room()\'s only caller.'],
     'js/mkmaze.js | stolen_booty': [2,
         'mkmaze.c fixup_special() -> stolen_booty(); fixup_special() runs from '

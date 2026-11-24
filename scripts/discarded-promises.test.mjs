@@ -79,8 +79,11 @@ const ALLOWLIST = JSON.parse(readFileSync(
 // startup_a11y.js queueVisionMonsterNotices()'s notice_all_mons(), whose
 // queueing message keeps it synchronous, since hack.c notice_mon() and
 // notice_all_mons() moved to js/hack.js (branch small-leftovers-2,
-// 24 November 2026).
-const ALLOWLIST_PINS = { entries: 122, calls: 174 };
+// 24 November 2026). 119 and 171 since mklev.js fill_ordinary_room() is a
+// step generator that waits for its monster, web and traps, and
+// water_surrounded_vault_contents() waits for its vampire lord (same
+// branch): either can be a new shapechanger whose first newcham() prompts.
+const ALLOWLIST_PINS = { entries: 119, calls: 171 };
 
 // Callees that take an object out of a chain. A carried object goes through
 // invent.c freeinv(), whose impossible() reports and artifact intrinsic

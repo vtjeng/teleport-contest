@@ -63,7 +63,7 @@ const SYNC_CALLERS = {
     'js/dog.js': 2, 'js/dogmove.js': 1, 'js/eat.js': 2, 'js/engrave.js': 1,
     'js/extralev.js': 7, 'js/fountain.js': 1, 'js/hack.js': 3, 'js/invent.js': 3,
     'js/light.js': 1, 'js/makemon_create.js': 10, 'js/makemon.js': 2, 'js/mhitm.js': 5,
-    'js/minion.js': 1, 'js/mklev.js': 43, 'js/mkmaze.js': 1, 'js/mkroom.js': 8,
+    'js/minion.js': 1, 'js/mklev.js': 36, 'js/mkmaze.js': 1, 'js/mkroom.js': 8,
     'js/mktrap.js': 1, 'js/mon.js': 52, 'js/monmove.js': 3, 'js/muse.js': 2,
     'js/potion.js': 1, 'js/priest.js': 10, 'js/read.js': 1, 'js/region.js': 4, 'js/shk.js': 1,
     'js/shknam.js': 15, 'js/sounds.js': 1, 'js/sp_lev_object.js': 22, 'js/steed.js': 1,
@@ -77,8 +77,11 @@ const ALLOWED_PINS = { entries: 12, calls: 22 };
 // 400 calls; a printing form, which hands its print to the caller that
 // awaits it, is not counted. 397 until the scan stopped an object property
 // such as detect.js's `{ newsym: ... }` from shadowing an import, which hid
-// three synchronous draw callers in js/detect.js (24 November 2026).
-const SYNC_CALLER_PIN = 400;
+// three synchronous draw callers in js/detect.js (24 November 2026). 393
+// since mklev.c fill_ordinary_room() is a step generator (branch
+// small-leftovers-2): its seven draws run during level creation, where
+// display.c suppress_map_output() keeps show_glyph() from raising a notice.
+const SYNC_CALLER_PIN = 393;
 // Two-statement flushes left where no awaited call fits (24 November 2026):
 // draws inside a larger expression, such as a conditional between two draws
 // or a step generator that finish_steps() drives, and flushes after

@@ -27,6 +27,7 @@ import {
     init_mapseen,
     insert_branch,
     level_difficulty,
+    level_difficulty_steps,
     mapseen_room,
     on_level,
     ROOM_INDEX,
@@ -6641,7 +6642,10 @@ function water_surrounded_vault_contents(
     }
 
     shuffle_core_values(nastyUndead, context.random);
-    lspo_monster(
+    // A vampire lord is a shapechanger, so makemon()'s first newcham() can
+    // prompt under the wizard-mode mon_polycontrol option; C makes the
+    // exclusion after the answer. lspo_monster() answers a Promise then.
+    const creation = lspo_monster(
         [{
             id: nastyUndead[0],
             coord: [2, 2],
@@ -6653,11 +6657,15 @@ function water_surrounded_vault_contents(
         null,
         creationEnvironment,
     );
-    lspo_exclusion(
-        [{ type: 'teleport', region: [2, 2, 3, 3] }],
-        creationEnvironment,
-    );
-    return true;
+    const finish = () => {
+        lspo_exclusion(
+            [{ type: 'teleport', region: [2, 2, 3, 3] }],
+            creationEnvironment,
+        );
+        return true;
+    };
+    return creation && typeof creation.then === 'function'
+        ? creation.then(finish) : finish();
 }
 
 function dispatch_map_action(definition, context) {
@@ -8383,33 +8391,60 @@ export function fill_ordinary_room_supply_chest(position, env) {
     return chest;
 }
 
-// C ref: mklev.c fill_ordinary_room().
+// C ref: mklev.c fill_ordinary_room(). makelevel() waits for it: the room's
+// monster, or the donor monster of a random statue trap (trap.c
+// mk_trap_statue()), can be a new shapechanger whose first newcham()
+// prompts under the wizard-mode mon_polycontrol option, and C fills the
+// rest of the room after the answer. Its impossible() reports, and
+// dungeon.c builds_up()'s through level_difficulty(), print where C prints
+// them.
 export function fill_ordinary_room(croom, bonusItems) {
+    return finish_steps(fill_ordinary_room_steps(croom, bonusItems),
+        impossible_printer(game), game);
+}
+
+function* fill_ordinary_room_steps(croom, bonusItems) {
     const state = game;
     if (!croom || (croom.rtype !== OROOM && croom.rtype !== THEMEROOM))
         return;
 
+    // The subrooms are filled first, so that an outer room left unfilled
+    // does not block a filled inner one.
     const subrooms = croom.sbrooms ?? [];
     const subroomCount = croom.nsubrooms ?? subrooms.length;
-    const fillRoom = () => {
-        if (croom.needfill !== FILL_NORMAL) return;
+    for (let index = 0; index < subroomCount; ++index) {
+        const subroom = subrooms[index];
+        if (!subroom) {
+            yield new ImpossibleCall('fill_ordinary_room: Null subroom');
+            return;
+        }
+        yield* fill_ordinary_room_steps(subroom, false);
+    }
 
-        const env = levelObjectEnv({
-            hooks: { bydoor, somexyspace },
-        });
-        const position = { x: 0, y: 0 };
-        let tryCount = 0;
+    if (croom.needfill !== FILL_NORMAL) return;
 
-        const finishMonster = (monster) => {
-            if (monster?.data === state.mons[PM_GIANT_SPIDER]
-                && !occupied(position.x, position.y, state)) {
-                maketrap(position.x, position.y, WEB, env);
-            }
+    const env = levelObjectEnv({
+        hooks: { bydoor, somexyspace },
+    });
+    const position = { x: 0, y: 0 };
+    let tryCount = 0;
 
-    let chance = 8 - Math.trunc(level_difficulty(state) / 6);
+    // A sleeping monster, and a web under a giant spider.
+    if ((state.u.uhave.amulet || !rn2(3))
+        && somexyspace(croom, position, { state })) {
+        const monster = yield makemon(
+            null, position.x, position.y, MM_NOGRP, env);
+        if (monster?.data === state.mons[PM_GIANT_SPIDER]
+            && !occupied(position.x, position.y, state)) {
+            yield maketrap(position.x, position.y, WEB, env);
+        }
+    }
+
+    // Traps and mimics.
+    let chance = 8 - Math.trunc((yield* level_difficulty_steps(state)) / 6);
     if (chance <= 1) chance = 2;
     while (!rn2(chance) && ++tryCount < 1000) {
-        make_level_trap(0, MKTRAP_NOFLAGS, croom, null, env);
+        yield make_level_trap(0, MKTRAP_NOFLAGS, croom, null, env);
     }
 
     if (!rn2(3) && somexyspace(croom, position, { state }))
@@ -8505,8 +8540,7 @@ export function fill_ordinary_room(croom, bonusItems) {
         tryCount = 0;
         while (!rn2(5)) {
             if (++tryCount > 100) {
-                // C: impossible("trycnt overflow4");
-                sync_impossible('trycnt overflow4', state);
+                yield new ImpossibleCall('trycnt overflow4');
                 break;
             }
             if (somexyspace(croom, position, { state })) {
@@ -8520,33 +8554,6 @@ export function fill_ordinary_room(croom, bonusItems) {
             }
         }
     }
-            return true;
-        };
-
-        const maybeMonster = (state.u.uhave.amulet || !rn2(3))
-            && somexyspace(croom, position, { state })
-            ? makemon(null, position.x, position.y, MM_NOGRP, env)
-            : null;
-        return maybeMonster && typeof maybeMonster.then === 'function'
-            ? maybeMonster.then(finishMonster) : finishMonster(maybeMonster);
-    };
-
-    const finishSubrooms = (index) => {
-        for (let current = index; current < subroomCount; ++current) {
-            const subroom = subrooms[current];
-            if (!subroom) {
-                // C: impossible("fill_ordinary_room: Null subroom");
-                sync_impossible('fill_ordinary_room: Null subroom', state);
-                return;
-            }
-            const maybeChild = fill_ordinary_room(subroom, false);
-            if (maybeChild && typeof maybeChild.then === 'function') {
-                return maybeChild.then(() => finishSubrooms(current + 1));
-            }
-        }
-        return fillRoom();
-    };
-    return finishSubrooms(0);
 }
 
 // ============================================================

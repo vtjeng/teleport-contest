@@ -54,11 +54,15 @@ const LSPO_UNAWAITED = {
         'themerms.lua "Mausoleum" contents: mklev.c makerooms() -> '
         + 'themerooms_generate() runs inside makelevel(); the result is '
         + 'chained when it is a Promise.'],
-    'js/mklev.js | water_surrounded_vault_contents': [4,
+    'js/mklev.js | water_surrounded_vault_contents': [3,
         'themerms.lua "Water-surrounded vault" contents: mklev.c makerooms() '
         + '-> themerooms_generate() runs inside makelevel(), so '
-        + 'lspo_object() and lspo_monster() return synchronously; '
-        + 'lspo_exclusion() is always synchronous.'],
+        + 'lspo_object() returns synchronously for the four chests; the '
+        + 'vampire lord\'s lspo_monster() result is chained when it is a '
+        + 'Promise.'],
+    'js/mklev.js | finish': [1,
+        'themerms.lua "Water-surrounded vault": lspo_exclusion() is always '
+        + 'synchronous; it runs once the vault\'s monster is made.'],
     'js/mklev.js | dispatch_map_action': [1,
         'lspo_map() is synchronous: it places a map fragment and returns '
         + 'its origin.'],
