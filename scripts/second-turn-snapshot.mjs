@@ -132,6 +132,10 @@ export function completeSecondTurnSnapshot(state, replay) {
             ),
             emittingGlyphNotices:
                 state._emittingGlyphUpdateNotices ?? false,
+            // The terminal's map cells and patch 006's shadow of them; the
+            // glyph buffer is gg.gbuf below.
+            ttyMapCells: structuredClone(state.tty_map_cells),
+            nomuxMap: structuredClone(state.nomux_map),
         },
         flags: structuredClone(state.flags),
         gg: structuredClone(state.gg),

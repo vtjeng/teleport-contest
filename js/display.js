@@ -7614,7 +7614,7 @@ function _applyScreenOverlay(display) {
 //
 // - glyph_buffer_at(): display.c's gg.gbuf[y][x], a gbuf_entry. `gnew` is its
 //   dirty bit and `glyphinfo` the glyph_info show_glyph() buffered; an entry
-//   whose glyphinfo is null or undefined holds nul_gbuf.
+//   whose glyphinfo is null holds nul_gbuf.
 // - tty_map_cell_at(): the terminal cell wintty.c tty_print_glyph() prints
 //   from that entry. `ch`, `color`, `decgfx` and `attr` are its g_putch()
 //   form, which recorder patch 006 captures; `browser_ch`, `browser_color`
@@ -7633,24 +7633,27 @@ function _applyScreenOverlay(display) {
 // C keeps one glyph buffer, gg.gbuf, and one physical screen, and neither
 // belongs to a level: when goto_level() or #wizmakemap replaces the level,
 // both still hold the old level's cells until docrt()'s cls(). The port keeps
-// them on each location record (_gbuf, _tty and _nomux), so installLevel()
-// carries them from the departing level object to the arriving one. A
-// show_glyph() before that cls() -- an object rotting away in goto_level()'s
-// run_timers() -- then compares the new glyph with the old level's, as C
-// does. scripts/install-level.test.mjs fails when other code assigns the
-// level.
+// all three grids on the game state (js/gstate.js), so a level change leaves
+// them as they were. A show_glyph() before that cls() -- an object rotting
+// away in goto_level()'s run_timers() -- then compares the new glyph with the
+// old level's, as C does. SCREEN_BUFFER_RECORDS names the per-location
+// records this replaced; installLevel(), swap_levl_entries() and the bones
+// clone and restore still handle them, which changes nothing the display
+// reads.
 export const SCREEN_BUFFER_RECORDS = Object.freeze(['_gbuf', '_tty', '_nomux']);
 
+// Each returns undefined off the map grid (x outside 0..COLNO-1, y outside
+// 0..ROWNO-1). js/gstate.js creates the grids with the game state.
 export function glyph_buffer_at(x, y, state = game) {
-    return state.level?.at?.(x, y)?._gbuf;
+    return state.gg.gbuf[y]?.[x];
 }
 
 export function tty_map_cell_at(x, y, state = game) {
-    return state.level?.at?.(x, y)?._tty;
+    return state.tty_map_cells[y]?.[x];
 }
 
 export function nomux_cell_at(x, y, state = game) {
-    return state.level?.at?.(x, y)?._nomux;
+    return state.nomux_map[y]?.[x];
 }
 
 export function installLevel(level, state) {

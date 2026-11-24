@@ -28,6 +28,8 @@ import { place_monster } from '../js/monst.js';
 import { initRng } from '../js/rng.js';
 import { mpickobj } from '../js/steal.js';
 import { expectTerminated } from './expect-terminated.mjs';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
+import { glyph_buffer_at } from '../js/display.js';
 
 const { Amulet_on } = _doWearInternals;
 
@@ -91,7 +93,7 @@ test('find_poleable_mon returns the sole in-range monster location', () => {
     const ux = 20;
     const uy = 10;
     const cells = Array.from({ length: COLNO }, () =>
-        Array.from({ length: ROWNO }, () => ({ _gbuf: { glyphinfo: null } })));
+        Array.from({ length: ROWNO }, () => ({})));
     const monsters = Array.from({ length: COLNO }, () =>
         Array(ROWNO).fill(null));
     const state = {
@@ -105,8 +107,9 @@ test('find_poleable_mon returns the sole in-range monster location', () => {
         viz_array: Array.from({ length: ROWNO }, () =>
             new Uint8Array(COLNO).fill(IN_SIGHT)),
     };
+    withScreenBuffers(state);
     const target = { x: ux + 2, y: uy };
-    cells[target.x][target.y]._gbuf.glyphinfo = { glyph: GLYPH_MON_MALE_OFF };
+    glyph_buffer_at(target.x, target.y, state).glyphinfo = { glyph: GLYPH_MON_MALE_OFF };
     monsters[target.x][target.y] = { mtame: false, mpeaceful: false };
     const pos = { x: ux, y: uy };
 
@@ -114,7 +117,7 @@ test('find_poleable_mon returns the sole in-range monster location', () => {
     assert.deepEqual(pos, target);
 
     const second = { x: ux, y: uy + 2 };
-    cells[second.x][second.y]._gbuf.glyphinfo = { glyph: GLYPH_MON_MALE_OFF };
+    glyph_buffer_at(second.x, second.y, state).glyphinfo = { glyph: GLYPH_MON_MALE_OFF };
     monsters[second.x][second.y] = { mtame: false, mpeaceful: false };
     const unchanged = { x: ux, y: uy };
     assert.equal(find_poleable_mon(unchanged, state), false);

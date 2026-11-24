@@ -2,7 +2,6 @@
 // C ref: rm.h struct rm, dungeon.h, you.h
 
 import { COLNO, MAX_NUM_WORMS, ROWNO, STONE } from './const.js';
-import { NO_COLOR } from './terminal.js';
 
 // C ref: rm.h `#define doormask flags`. C keeps one door mask per square,
 // in struct rm's `flags`, and so does makeLocation(): there is no separate
@@ -30,19 +29,6 @@ export function makeLocation() {
         seenv: 0,          // which angles the hero has seen this wall from
         horizontal: false, // is this a horizontal wall?
         edge: false,       // is this at the edge of the map?
-        // The square's gbuf entry, terminal cell and patch 006 shadow cell;
-        // js/display.js glyph_buffer_at() describes them.
-        _gbuf: { gnew: 0 },
-        _tty: {
-            ch: ' ',
-            color: NO_COLOR,
-            decgfx: false,
-            attr: 0,
-            browser_ch: null,
-            browser_color: null,
-            browser_attr: null,
-        },
-        _nomux: {},
         glyph_symidx: -1,  // S_* symbol index
         // C ref: rm.h struct rm's `glyph`. js/display.js
         // remembered_glyph_from_presentation() builds it, and it holds

@@ -74,6 +74,7 @@ import {
 } from '../js/monsters.js';
 import { windowsUp } from './test-fixtures/windows-up.mjs';
 import { glyph_buffer_at } from '../js/display.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const SOUNDS_C = readFileSync(
     new URL('../nethack-c/upstream/src/sounds.c', import.meta.url), 'utf8',
@@ -86,11 +87,11 @@ const SEFFECTS_H = readFileSync(
 function minimalState() {
     const uprops = [];
     uprops[INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    return {
+    return withScreenBuffers({
         flags: {},
         level: new GameMap(),
         u: { ux: 4, uy: 5, dx: 0, dy: 0, dz: 0, uprops },
-    };
+    });
 }
 
 test('cry_sound pins every sounds.c switch result without drawing', () => {

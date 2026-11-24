@@ -51,6 +51,7 @@ import {
     S_vodoor,
     S_water,
 } from '../js/symbols.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const C_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/getpos.c', import.meta.url), 'utf8',
@@ -60,13 +61,13 @@ const SELVAR_SOURCE = readFileSync(
 );
 
 function initializedState() {
-    const state = {
+    const state = withScreenBuffers({
         u: { ux: 5, uy: 5, dx: 1, dy: 0 },
         iflags: { getloc_filter: GFILTER_NONE },
         level: new GameMap(),
         inv_pos: null,
         dungeons: {},
-    };
+    });
     for (let x = 1; x < 80; ++x) {
         for (let y = 0; y < 21; ++y) {
             const location = state.level.at(x, y);
@@ -78,7 +79,7 @@ function initializedState() {
 }
 
 test('cmp_coord_distu preserves C distance and y/x tie order', () => {
-    const state = { u: { ux: 5, uy: 5 } };
+    const state = withScreenBuffers({ u: { ux: 5, uy: 5 } });
     const coordinates = [
         { x: 7, y: 5 },
         { x: 3, y: 5 },
@@ -153,7 +154,7 @@ test('coord_desc formats every source coordinate mode', () => {
     assert.match(source, /case GPCOORDS_COMPASS:/);
     assert.match(source, /case GPCOORDS_MAP:/);
     assert.match(source, /case GPCOORDS_SCREEN:/);
-    const state = { u: { ux: 5, uy: 5 }, iflags: {} };
+    const state = withScreenBuffers({ u: { ux: 5, uy: 5 }, iflags: {} });
     state.iflags.getpos_coords = GPCOORDS_NONE;
     assert.equal(coord_desc(7, 5, state), '');
     state.iflags.getpos_coords = GPCOORDS_COMPASS;
@@ -268,7 +269,7 @@ test('getpos source defines the twelve location-cycle bindings and wrap', () => 
 // pager.c:look_all selects MAP while the option remains NONE. The explicit
 // argument must affect formatting alone, without changing canonical options.
 test('coord_desc accepts the caller source mode without mutating options', () => {
-    const state = { u: { ux: 5, uy: 5 }, iflags: { getpos_coords: GPCOORDS_NONE } };
+    const state = withScreenBuffers({ u: { ux: 5, uy: 5 }, iflags: { getpos_coords: GPCOORDS_NONE } });
     // Source MAP prints the supplied map coordinates, independent of hero.
     assert.equal(coord_desc(7, 5, state, GPCOORDS_MAP), '<7,5>');
     assert.equal(state.iflags.getpos_coords, GPCOORDS_NONE);
