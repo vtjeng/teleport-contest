@@ -16,10 +16,9 @@
 // decision and a line in the section.
 //
 // The rule cannot find an exception list whose check pins its size some
-// other way, such as scripts/not-ported-by-design.mjs,
-// scripts/c-message-exemptions.mjs and scripts/impossible-sites.test.mjs.
-// The section names those by hand, and the check confirms that every path it
-// names exists.
+// other way. NAMED_BY_HAND lists the ones known on 24 November 2026; the
+// section must name them too. A list added later in that form is found by
+// nothing here.
 //
 // The section also states counts taken from the pins and from scans of js/.
 // countPhrases() builds each statement from the current files, and the check
@@ -119,6 +118,16 @@ export function callsAssertExceptionCount(source) {
     visit(parse(source, { ecmaVersion: 'latest', sourceType: 'module' }));
     return found;
 }
+
+// Exception lists the pin-file rule cannot find, which the section must
+// name all the same.
+export const NAMED_BY_HAND = Object.freeze([
+    'scripts/c-message-exemptions.mjs',
+    'scripts/column-zero-guard.test.mjs',
+    'scripts/impossible-sites.test.mjs',
+    'scripts/not-ported-by-design.mjs',
+    'scripts/note-unported-stale.test.mjs',
+]);
 
 // Every pin file directly under `scriptsDir`, as 'scripts/<name>', sorted.
 export function findPinFiles(scriptsDir = join(PROJECT_ROOT, 'scripts')) {

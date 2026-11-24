@@ -1,5 +1,6 @@
-// docs/testing.md, "Deliberate gaps", names every pin file under scripts/,
-// every path it names exists, and it states the current counts.
+// docs/testing.md, "Deliberate gaps", names every pin file under scripts/
+// and every list in NAMED_BY_HAND, every path it names exists, and it states
+// the current counts.
 // scripts/deliberate-gaps.mjs defines a pin file, classifies each one and
 // builds the count statements.
 
@@ -10,7 +11,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 import {
-    DOC_PATH, GAP_LISTS, NOT_GAP_LISTS, PROJECT_ROOT, callsAssertExceptionCount,
+    DOC_PATH, GAP_LISTS, NAMED_BY_HAND, NOT_GAP_LISTS, PROJECT_ROOT, callsAssertExceptionCount,
     classificationProblems, countPhrases, existsInRepository, findPinFiles, gapSection,
     sectionPaths, sectionProblems,
 } from './deliberate-gaps.mjs';
@@ -34,10 +35,11 @@ test('every pin file is classified as a gap list or not', () => {
     });
 });
 
-test('the section names every pin file and states every count', () => {
+test('the section names every pin file and hand-named list, and states every count', () => {
     const section = gapSection(readFileSync(join(PROJECT_ROOT, DOC_PATH), 'utf8'));
     const problems = sectionProblems(section, {
-        pinFiles, phrases: countPhrases(), exists: existsInRepository,
+        pinFiles: [...pinFiles, ...NAMED_BY_HAND], phrases: countPhrases(),
+        exists: existsInRepository,
     });
     assert.deepEqual(problems, [],
         `update "Deliberate gaps" in ${DOC_PATH}; node scripts/deliberate-gaps.mjs prints the counts`);
