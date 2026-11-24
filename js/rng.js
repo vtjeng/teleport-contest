@@ -145,8 +145,7 @@ export function terminationViolations() {
 // recorded here; runSegment() reports them and runSegmentStrict() fails on
 // them, so a replay shows the chain that broke the rule. The judge's
 // runSegment() only records them. Only the live game's queue counts: a
-// projected state's queue is discarded with the copy, and a drain in
-// progress prints the lines it took off the queue first.
+// projected state's queue is discarded with the copy.
 const QUEUED_OUTPUT_KEPT = 20;
 let _queuedOutput = { count: 0, kept: [] };
 
@@ -155,12 +154,24 @@ export function resetQueuedOutput() {
 }
 
 // Called with the event about to happen; records it when a line is queued.
+// A core draw while a drain prints is recorded too: the lines being printed
+// draw none (vpline()'s vision recalculation and status flush do not), so
+// such a draw comes from a chain some caller detached from the one that
+// waits at the line's --More--. A key read there is the --More-- itself.
 export function checkQueuedOutput(kind, detail) {
-    const queued = game._glyphUpdateNotices?.length;
-    if (!queued || game._emittingGlyphUpdateNotices) return;
+    const queued = game._glyphUpdateNotices?.length ?? 0;
+    const draining = Boolean(game._emittingGlyphUpdateNotices);
+    let what;
+    if (draining) {
+        if (kind !== 'rng') return;
+        what = `${detail} during a drain`;
+    } else {
+        if (!queued) return;
+        what = `${detail} with ${queued} queued`;
+    }
     _queuedOutput.count += 1;
     if (_queuedOutput.kept.length < QUEUED_OUTPUT_KEPT)
-        _queuedOutput.kept.push({ kind, detail: `${detail} with ${queued} queued` });
+        _queuedOutput.kept.push({ kind, detail: what });
 }
 
 // { count, kept }: how many events found a line queued, and the first few.

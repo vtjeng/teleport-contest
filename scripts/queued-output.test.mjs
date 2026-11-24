@@ -11,8 +11,9 @@ import test from 'node:test';
 
 import { game } from '../js/gstate.js';
 import {
-    enableRngLog, initRng, queuedOutputViolations, resetQueuedOutput, rn2, rnd,
+    checkQueuedOutput, enableRngLog, initRng, queuedOutputViolations, resetQueuedOutput, rn2, rnd,
 } from '../js/rng.js';
+import { noticesQueued } from '../js/tty_message.js';
 
 function withQueue(notices, body) {
     const saved = {
@@ -50,18 +51,23 @@ test('a core draw with a line queued is recorded', () => {
     resetQueuedOutput();
 });
 
-test('a draw made while the queue drains is not recorded', () => {
+test('a draw made while the queue drains is recorded; a key read is not', () => {
     // emitGlyphUpdateNotices() takes the lines off the queue before it
-    // prints them; a draw inside a printed line's vision recalculation is
-    // part of that line, so a drain in progress suppresses the check.
+    // prints them, and the printed lines draw no core random number, so a
+    // draw then comes from a chain running beside the drain. The key read is
+    // the line's own --More--.
     initRng(7);
     enableRngLog();
     resetQueuedOutput();
-    withQueue([{ message: 'later', impossible: true }], () => {
+    withQueue([], () => {
         game._emittingGlyphUpdateNotices = true;
         rn2(3);
+        checkQueuedOutput('key', 'nhgetch()');
     });
-    assert.equal(queuedOutputViolations().count, 0);
+    const found = queuedOutputViolations();
+    assert.equal(found.count, 1);
+    assert.match(found.kept[0].detail, /^rn2\(3\)=\d+ during a drain$/u);
+    resetQueuedOutput();
 });
 
 test('only the first 20 violations are kept, but all are counted', () => {
@@ -76,4 +82,15 @@ test('only the first 20 violations are kept, but all are counted', () => {
     assert.equal(found.count, 25);
     assert.equal(found.kept.length, 20);
     resetQueuedOutput();
+});
+
+test('noticesQueued() is true only for a queued line outside a drain', () => {
+    // The flush after a synchronous draw awaits only when this is true.
+    withQueue([], () => assert.equal(noticesQueued(), false));
+    withQueue(undefined, () => assert.equal(noticesQueued(), false));
+    withQueue([{ message: 'A sink.' }], () => {
+        assert.equal(noticesQueued(), true);
+        game._emittingGlyphUpdateNotices = true;
+        assert.equal(noticesQueued(), false);
+    });
 });
