@@ -11,7 +11,9 @@
       "seed": 730462,
       "datetime": "20290817064500",
       "nethackrc": "OPTIONS=role:Priest,race:elf,gender:male,align:chaotic\nOPTIONS=!autopickup,!legacy,!tutorial,pettype:none\nOPTIONS=menu_headlines\n",
-      "moves": "\r:el\r"
+      "moves": "\r:el\r",
+      "terminalSignal": "SIGABRT",
+      "terminalInputKey": "\r"
     },
     {
       "seed": 730463,
