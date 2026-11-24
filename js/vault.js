@@ -91,7 +91,11 @@ import { um_dist } from './apply.js';
 import { enexto, rloc, tele } from './teleport.js';
 import { spot_stop_timers } from './timeout.js';
 import { t_at, deltrap } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import {
     block_point, cansee, couldsee, m_canseeu, recalc_block_point, unblock_point,
 } from './vision.js';
@@ -286,9 +290,9 @@ async function clear_fcorr(grd, forceshow, state, env) {
                     const { yelp } = await import('./sounds.js');
                     await yelp(mtmp, state, env.random);
                 }
-                if (!await rloc(mtmp, RLOC_MSG, { ...env, state })) {
-                    await m_into_limbo(mtmp, state, env);
-                }
+                const moved = await rloc(mtmp, RLOC_MSG, { ...env, state });
+                if (noticesQueued()) await emitQueuedNotices();
+                if (!moved) await m_into_limbo(mtmp, state, env);
             }
         }
 
@@ -304,6 +308,7 @@ async function clear_fcorr(grd, forceshow, state, env) {
         }
         del_engr_at(fcx, fcy, state);
         map_location(fcx, fcy, 1, state);
+        if (noticesQueued()) await emitQueuedNotices();
         recalc_block_point(fcx, fcy, state);
         state.vision_full_recalc = 1;
         egrd.fcbeg++;
@@ -326,6 +331,7 @@ async function restfakecorr(grd, state, env) {
     if (await clear_fcorr(grd, false, state, env)) {
         grd.isgd = 0; // dmonsfree() should delete this mon
         await mongone(grd, { state });
+        if (noticesQueued()) await emitQueuedNotices();
     }
 }
 
@@ -362,6 +368,7 @@ export async function grddead(grd, state = game, rawEnv = {}) {
         await relobj(grd, 0, false, env);
         grd.mhp = 0;
         parkguard(grd, state);
+        if (noticesQueued()) await emitQueuedNotices();
         dispose = await clear_fcorr(grd, true, state, env);
     }
 
@@ -375,12 +382,14 @@ async function move_gold(gold, vroom, state, env) {
     const objectEnv = objectGenerationEnv({ ...env, state });
     remove_object(gold, objectEnv);
     newsym(gold.ox, gold.oy, state);
+    if (noticesQueued()) await emitQueuedNotices();
     const room = mapseen_room(vroom, state);
     const nx = room.lx + env.random.rn2(2);
     const ny = room.ly + env.random.rn2(2);
     await place_object(gold, nx, ny, objectEnv);
     stackobj(gold, objectEnv);
     newsym(nx, ny, state);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: vault.c wallify_vault() (645-731). Restore the vault walls after the
@@ -415,9 +424,9 @@ async function wallify_vault(grd, state, env) {
                         const { yelp } = await import('./sounds.js');
                         await yelp(mon, state, env.random);
                     }
-                    if (!(await rloc(mon, RLOC_MSG, { state }))) {
-                        await m_into_limbo(mon, state, env);
-                    }
+                    const moved = await rloc(mon, RLOC_MSG, { state });
+                    if (noticesQueued()) await emitQueuedNotices();
+                    if (!moved) await m_into_limbo(mon, state, env);
                 }
                 // Gold at wall position: move into vault
                 const gold = g_at(x, y, state);
@@ -461,6 +470,7 @@ async function wallify_vault(grd, state, env) {
                 const saved = viz?.[y]?.[x] ?? 0;
                 if (viz?.[y]) viz[y][x] = IN_SIGHT | COULD_SEE;
                 newsym(x, y);
+                if (noticesQueued()) await emitQueuedNotices();
                 if (viz?.[y]) viz[y][x] = saved;
                 block_point(x, y, state);
                 fixed = true;
@@ -499,8 +509,9 @@ async function gd_mv_monaway(grd, nx, ny, state, env) {
         if (!Deaf(state.u)) {
             await env.message('"Out of my way, scum!"', state, env);
         }
-        if (!(await rloc(mtmp, RLOC_ERR | RLOC_MSG, { state }))
-            || m_at(nx, ny, state)) {
+        const moved = await rloc(mtmp, RLOC_ERR | RLOC_MSG, { state });
+        if (noticesQueued()) await emitQueuedNotices();
+        if (!moved || m_at(nx, ny, state)) {
             await m_into_limbo(mtmp, state, env);
         }
         recalc_block_point(nx, ny, state);
@@ -515,6 +526,7 @@ async function gd_move_cleanup(grd, semi_dead, disappear_msg_seen, state, env) {
     const y = grd.my;
     const see_guard = canspotmon(grd, state);
     parkguard(grd, state);
+    if (noticesQueued()) await emitQueuedNotices();
     await wallify_vault(grd, state, env);
     await restfakecorr(grd, state, env);
     if (!semi_dead && (in_fcorridor(grd, state.u.ux, state.u.uy)
@@ -581,6 +593,7 @@ export async function gd_move(grd, env = {}) {
             && (grd_in_vault || (in_fcorridor(grd, grd.mx, grd.my)
                 && !in_fcorridor(grd, state.u.ux, state.u.uy)))) {
             await rloc(grd, RLOC_MSG, { ...env, state });
+            if (noticesQueued()) await emitQueuedNotices();
             await wallify_vault(grd, state, gdEnv);
             if (!in_fcorridor(grd, grd.mx, grd.my))
                 await clear_fcorr(grd, true, state, gdEnv);
@@ -650,6 +663,7 @@ export async function gd_move(grd, env = {}) {
                 recalc_block_point(m, n, state);
                 del_engr_at(m, n, state);
                 newsym(m, n);
+                if (noticesQueued()) await emitQueuedNotices();
                 return -1;
             }
             // Don't count warnings when hero is fainted or paralyzed
@@ -668,12 +682,14 @@ export async function gd_move(grd, env = {}) {
                 const m = grd.mx;
                 const n = grd.my;
                 await rloc(grd, RLOC_MSG, { ...env, state });
+                if (noticesQueued()) await emitQueuedNotices();
                 const entry = state.level.at(m, n);
                 entry.typ = egrd.fakecorr[0].ftyp;
                 entry.flags = egrd.fakecorr[0].flags;
                 recalc_block_point(m, n, state);
                 del_engr_at(m, n, state);
                 newsym(m, n);
+                if (noticesQueued()) await emitQueuedNotices();
                 grd.mpeaceful = 0;
                 await gd_letknow(grd, state, gdEnv);
                 return -1;
@@ -779,8 +795,10 @@ export async function gd_move(grd, env = {}) {
                 if (bestDistance < guardDistance) {
                     remove_monster(guardX, guardY, state);
                     newsym(guardX, guardY, state);
+                    if (noticesQueued()) await emitQueuedNotices();
                     place_monster(grd, bestX, bestY, state);
                     newsym(grd.mx, grd.my, state);
+                    if (noticesQueued()) await emitQueuedNotices();
                 }
             }
             const gold = g_at(goldX, goldY, state);
@@ -788,16 +806,20 @@ export async function gd_move(grd, env = {}) {
             await obj_extract_self(gold, objectEnv);
             add_to_minv(grd, gold, objectEnv);
             newsym(goldX, goldY, state);
+            if (noticesQueued()) await emitQueuedNotices();
         } else if (goldX === guardX && goldY === guardY) {
             mpickgold(grd, { ...env, state });
+            if (noticesQueued()) await emitQueuedNotices();
         } else {
             await gd_mv_monaway(grd, goldX, goldY, state, gdEnv);
             if (see_it) {
                 remove_monster(grd.mx, grd.my, state);
                 newsym(grd.mx, grd.my, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 place_monster(grd, goldX, goldY, state);
             }
             mpickgold(grd, { ...env, state });
+            if (noticesQueued()) await emitQueuedNotices();
         }
         if (see_it) {
             await message(
@@ -808,8 +830,10 @@ export async function gd_move(grd, env = {}) {
         if (grd.mx !== guardX || grd.my !== guardY) {
             remove_monster(grd.mx, grd.my, state);
             newsym(grd.mx, grd.my, state);
+            if (noticesQueued()) await emitQueuedNotices();
             place_monster(grd, guardX, guardY, state);
             newsym(guardX, guardY, state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         if (!grd.mpeaceful) return -1;
         egrd.warncnt = 5;
@@ -949,6 +973,7 @@ async function gd_move_proceed(
     unblock_point(nx, ny, state);
     if (cansee(nx, ny, state))
         newsym(nx, ny);
+    if (noticesQueued()) await emitQueuedNotices();
 
     if ((nx !== ggx || ny !== ggy) || (grd.mx !== ggx || grd.my !== ggy)) {
         if (egrd.fcend >= FCSIZ) {
@@ -987,10 +1012,12 @@ async function gd_move_proceed(
         // Gold here (likely from mineralize()); pick it up now so the guard
         // doesn't later think the hero dropped it.
         mpickgold(grd, { ...env, state });
+        if (noticesQueued()) await emitQueuedNotices();
         if (canspotmon(grd, state))
             await env.message(`${Monnam(grd, state)} picks up some gold.`, state, env);
     } else {
         newsym(grd.mx, grd.my);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     await restfakecorr(grd, state, env);
     return 1;
@@ -1060,6 +1087,7 @@ export async function invault(state, env = {}) {
     }
 
     let guard = findgd(state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (guard) return;
 
     // No guard yet — create one.
@@ -1166,9 +1194,11 @@ export async function invault(state, env = {}) {
         // newsym() paints the global game; a hand-built state has no
         // display to repaint.
         if (state === game) newsym(guard.mx, guard.my);
+        if (noticesQueued()) await emitQueuedNotices();
     } else {
         await message('Someone else has entered the Vault.');
         map_invisible(guard.mx, guard.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     if (u.uswallow) {
@@ -1180,6 +1210,7 @@ export async function invault(state, env = {}) {
             await message('The other presence vanishes.');
         }
         await mongone(guard, { state, random });
+        if (noticesQueued()) await emitQueuedNotices();
         return;
     }
     const uApType = state.youmonst?.m_ap_type ?? 0;
@@ -1194,6 +1225,7 @@ export async function invault(state, env = {}) {
         }
         await message(`Puzzled, ${mhe(guard, { state, random, canSpotMonster: canspotmon })} turns around and leaves.`);
         await mongone(guard, { state, random });
+        if (noticesQueued()) await emitQueuedNotices();
         return;
     }
     if (Strangled(state.u) || is_silent(state.youmonst?.data ?? u.umonster)
@@ -1208,6 +1240,7 @@ export async function invault(state, env = {}) {
             );
         }
         await mongone(guard, { state, random });
+        if (noticesQueued()) await emitQueuedNotices();
         return;
     }
 
@@ -1248,6 +1281,7 @@ export async function invault(state, env = {}) {
                 );
             }
             await mongone(guard, { state });
+            if (noticesQueued()) await emitQueuedNotices();
             return;
         }
         const guardEnv = { ...env, state, random, message };
@@ -1347,6 +1381,7 @@ export async function invault(state, env = {}) {
 // C ref: vault.c paygd() (1204-1247), called before end.c disclosure.
 export async function paygd(silently, state = game, rawEnv = {}) {
     const grd = findgd(state);
+    if (noticesQueued()) await emitQueuedNotices();
     const umoney = money_cnt(state.invent);
 
     if (!umoney || !grd) return;
@@ -1362,6 +1397,7 @@ export async function paygd(silently, state = game, rawEnv = {}) {
     } else {
         if (grd.mpeaceful) {
             await mongone(grd, env);
+            if (noticesQueued()) await emitQueuedNotices();
             return;
         }
         await mnexto(grd, RLOC_NOMSG, env);
@@ -1381,6 +1417,7 @@ export async function paygd(silently, state = game, rawEnv = {}) {
         }
     }
     await mongone(grd, env);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: vault.c hidden_gold(). `even_if_unknown` false counts only gold in

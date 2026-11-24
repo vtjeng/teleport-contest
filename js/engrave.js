@@ -89,7 +89,11 @@ import {
     Blind, Confusion, Deaf, Flying, Hallucination, Levitation, Stunned,
 } from './youprop.js';
 import { random_engraving } from './random_engraving.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -802,6 +806,7 @@ export async function engrave(state = game, env = {}) {
     if (end < remainingLength && !truncate) {
         context.nextc = bytesText(remaining.slice(end));
         if (neweng) env.redraw?.(context.pos.x, context.pos.y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         return 1;
     }
 
@@ -814,6 +819,7 @@ export async function engrave(state = game, env = {}) {
     context.nextc = null;
     context.stylus = null;
     if (neweng) env.redraw?.(context.pos.x, context.pos.y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     return 0;
 }
 
@@ -938,6 +944,7 @@ export async function doengrave(state = game, env = {}) {
     }
     if (de.teleengr) {
         rloc_engr(de.oep, state, env);
+        if (noticesQueued()) await emitQueuedNotices();
         de.oep.eread = false;
         de.oep.erevealed = false;
         de.disprefresh = true;
@@ -981,6 +988,7 @@ export async function doengrave(state = game, env = {}) {
         }
         de.ret = env.ECMD_TIME ?? ECMD_TIME;
         if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
+        if (noticesQueued()) await emitQueuedNotices();
         return de.ret;
     }
 
@@ -996,6 +1004,7 @@ export async function doengrave(state = game, env = {}) {
             if (choice === 'q') {
                 await say(Never_mind);
                 if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 return de.ret;
             }
         }
@@ -1021,6 +1030,7 @@ export async function doengrave(state = game, env = {}) {
                 await say(`You cannot wipe out the message that is ${verb} the ${surface(state.u.ux, state.u.uy, state)} here.`);
                 de.ret = env.ECMD_TIME ?? ECMD_TIME;
                 if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 return de.ret;
             } else if (de.type !== de.oep.engr_type || choice === 'n') {
                 if (!Blind(state.u) || can_reach_floor(true, state))
@@ -1031,6 +1041,7 @@ export async function doengrave(state = game, env = {}) {
             await say('There is no room to add anything else here.');
             de.ret = env.ECMD_TIME ?? ECMD_TIME;
             if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             return de.ret;
         }
     }
@@ -1059,6 +1070,7 @@ export async function doengrave(state = game, env = {}) {
             await say(Never_mind);
         }
         if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
+        if (noticesQueued()) await emitQueuedNotices();
         return de.ret;
     }
 
@@ -1106,6 +1118,7 @@ export async function doengrave(state = game, env = {}) {
         if (!Blind(state.u)) await say(`Your ${vision_clears}`);
     }
     if (de.disprefresh) env.redraw?.(state.u.ux, state.u.uy, state);
+    if (noticesQueued()) await emitQueuedNotices();
     return de.ret;
 }
 

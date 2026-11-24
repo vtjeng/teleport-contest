@@ -198,7 +198,11 @@ import {
 // other's exports only inside function bodies.
 
 // ttyPline is used by object diagnostics and naming paths.
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 // add_to_migration() calls maybe_reset_pick() for containers. lock.js imports
 // from this file; both sides use the other's exports only inside function
 // bodies.
@@ -2289,6 +2293,7 @@ export async function shrink_glob(obj, expire_time, env = {}) {
         if (seeit) {
             if (typeof env.newsym === 'function')
                 env.newsym(ox, oy, env);
+            if (noticesQueued()) await emitQueuedNotices();
             let fadeName = globnambuf;
             if ((ox !== (state.u?.ux ?? -1) || oy !== (state.u?.uy ?? -1))
                 && fadeName.startsWith('The '))
@@ -4058,6 +4063,7 @@ export async function obj_meld(otmp1, otmp2, state = game, env = {}) {
                 if (cansee(ox, oy, state)) {
                     if (typeof env.newsym === 'function')
                         env.newsym(ox, oy, env);
+                    if (noticesQueued()) await emitQueuedNotices();
                 }
                 /* a hides-under monster might be hiding under the glob
                    that went away; if there's nothing else there to hide

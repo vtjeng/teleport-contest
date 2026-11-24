@@ -90,7 +90,10 @@ import { atoi, dist2, encodeUtf8Text, textBytes, mungspaces, strncmpi, upstart, 
 import { encumber_msg } from './pickup.js';
 import { level_tele } from './teleport.js';
 import {
-    displayPendingTtyMessageWindow, emitQueuedNotices, ttyPline,
+    displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
 } from './tty_message.js';
 import { impossible, impossible_printer } from './pline.js';
 import { finish_steps } from './source_steps.js';
@@ -160,6 +163,7 @@ async function makemap_unmakemon(monster, migratory, state) {
     }
 
     await mongone(monster, { state });
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 export async function makemap_remove_mons(state = game) {
@@ -403,11 +407,13 @@ export async function wiz_map(state = game) {
         for (const trap of state.level.traps) {
             trap.tseen = 1;
             map_trap(trap, true, state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         for (let engraving = state.head_engr;
             engraving;
             engraving = engraving.nxt_engr) {
             map_engraving(engraving, true, state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         await do_mapping(state);
         notice_mon_on(state);
@@ -783,6 +789,7 @@ export async function wiz_flip_level(state = game, env = {}) {
             else await flip_level(mask, true, state);
             if (env.redraw) await env.redraw(state);
             else await docrt();
+            if (noticesQueued()) await emitQueuedNotices();
         } else {
             await (env.message ?? ttyPline)('Never mind.', state);
         }
@@ -964,9 +971,11 @@ export async function wiz_smell(state = game, env = {}) {
             if (!await usmellmon(species, { ...env, state, message }))
                 await message(`${isYou ? 'You seem' : 'That monster seems'} to not give off any smell.`, state, env);
             if (!glyph_is_monster(glyph)) map_invisible(cc.x, cc.y, state);
+            if (noticesQueued()) await emitQueuedNotices();
         } else {
             await message("You don't smell any monster there.", state, env);
             if (glyph_is_invisible(glyph)) unmap_invisible(cc.x, cc.y, state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 }
@@ -1029,6 +1038,7 @@ export async function wiz_kill(state = game, env = {}) {
             mtmp = m_at(cc.x, cc.y, state);
         }
         unmap_invisible(cc.x, cc.y, state);
+        if (noticesQueued()) await emitQueuedNotices();
 
         if (mtmp) {
             const tame = Boolean(mtmp.mtame);
@@ -1463,6 +1473,7 @@ export async function wiz_custom(state = game, env = {}) {
     await (env.menu ?? select_menu)(state, { title, how: PICK_NONE, items, cancelValue: null });
     if (glyphid_cache_status(state)) free_glyphid_cache(state);
     await (env.redraw ?? docrt)(state);
+    if (noticesQueued()) await emitQueuedNotices();
     return ECMD_OK;
 }
 

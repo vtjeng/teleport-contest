@@ -276,7 +276,12 @@ import {
     MUMMY_WRAPPING,
     SPBOOK_CLASS,
 } from './objects.js';
-import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { impossible, impossible_printer, livelog_printf, youFeel } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import {
@@ -408,6 +413,7 @@ export async function mongrantswish(monster, state = game, env = {}) {
     const grantWish = env.grantWish ?? makewish;
 
     removeMonster(monster, { ...env, state, random: djinniRandom(env) });
+    if (noticesQueued()) await emitQueuedNotices();
     await transient(DISP_ALWAYS, glyph, state);
     await transient(x, y, state);
     await grantWish(state);
@@ -481,6 +487,7 @@ export async function djinni_from_bottle(obj, state = game, env = {}) {
             monster,
             { ...env, state, random },
         );
+        if (noticesQueued()) await emitQueuedNotices();
         monster = null;
         break;
     default:
@@ -766,6 +773,7 @@ export async function make_blinded(xtime, talk, state = game, env = {}) {
             );
         }
         if (state.uball) set_bc(0, state, env);
+        if (noticesQueued()) await emitQueuedNotices();
     } else if (!old && xtime) {
         if (talk) {
             if (!haseyes(state.youmonst?.data) || permaBlind) {
@@ -907,6 +915,7 @@ export async function make_hallucinated(
     // potion.c calls the void eat.c:eatmupdate() helper when hallucination
     // ends; its message and appearance update precedes the display rebuild.
     if (!Hallucination(state.u)) eatmupdate(state, { redraw });
+    if (noticesQueued()) await emitQueuedNotices();
 
     if (state.u.uswallow) {
         await swallow(false, state, env);
@@ -915,7 +924,9 @@ export async function make_hallucinated(
         // message, so each newsym() sees the new Hallucination property.
         await seeMonsters(state, env);
         seeObjects(state, { redraw });
+        if (noticesQueued()) await emitQueuedNotices();
         seeTraps(state, { redraw });
+        if (noticesQueued()) await emitQueuedNotices();
     }
     update_inventory({ ...env, state });
     state.disp.botl = true;
@@ -1456,6 +1467,7 @@ async function peffect_invisibility(otmp, state = game, env = {}) {
         );
     }
     newsym(state.u.ux, state.u.uy);
+    if (noticesQueued()) await emitQueuedNotices();
 
     if (otmp.cursed) {
         await ttyPline(
@@ -1529,7 +1541,9 @@ async function peffect_see_invisible(otmp, state = game, env = {}) {
         incr_itimeout(state.u.uprops[SEE_INVIS], random.rn1(100, 750));
     set_mimic_blocking(state);
     await see_monsters(state, { ...env, message });
+    if (noticesQueued()) await emitQueuedNotices();
     newsym(state.u.ux, state.u.uy);
+    if (noticesQueued()) await emitQueuedNotices();
     if (msg && !Blind(state.u)) {
         await message(
             'You can see through yourself, but you are visible!', state);
@@ -1864,7 +1878,9 @@ async function peffect_monster_detection(otmp, state = game) {
                 if (state.level.at(x, y).remembered_glyph?.glyph
                     === GLYPH_INVISIBLE) {
                     unmap_object(x, y, state);
+                    if (noticesQueued()) await emitQueuedNotices();
                     newsym(x, y);
+                    if (noticesQueued()) await emitQueuedNotices();
                 }
                 if (m_at(x, y, state))
                     state.gp.potion_unkn = 0;
@@ -1874,6 +1890,7 @@ async function peffect_monster_detection(otmp, state = game) {
         // C falls through for swallowed or underwater heroes.
         if (!state.u.uswallow && !state.u.uinwater) {
             await see_monsters(state);
+            if (noticesQueued()) await emitQueuedNotices();
             if (state.gp.potion_unkn)
                 await ttyPline(youFeel('lonely.', state), state);
             return 0;
@@ -2222,6 +2239,7 @@ export async function toggle_blindness(state = game, env = {}) {
     // Infravision = (HInfravision || EInfravision).
     if (Blind_telepat(hero) || Infravision(hero) || Stinging)
         await see_monsters(state, { ...env, redraw });
+    if (noticesQueued()) await emitQueuedNotices();
 
     // C ref: potion.c:359-360. Sting_effects(-1) resets the Sting glow/quiver
     // message to match the new blindness state. Its result is discarded; the
@@ -2533,9 +2551,11 @@ export async function potionhit(mon, obj, how, rawEnv = {}) {
             const cursedPotion = Boolean(obj.cursed);
             angermon = Boolean(mon.minvis && cursedPotion);
             mon_set_minvis(mon, cursedPotion, state);
+            if (noticesQueued()) await emitQueuedNotices();
             if (sawit && !canspotmon(mon, state)) {
                 if (cansee(mon.mx, mon.my, state))
                     map_invisible(mon.mx, mon.my, state);
+                if (noticesQueued()) await emitQueuedNotices();
             } else if (sawit && cursedPotion) {
                 await message(`${Monnam(mon, state, env)} briefly seems to be transparent.`, state);
             } else if (!sawit && canspotmon(mon, state)) {

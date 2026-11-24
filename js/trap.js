@@ -321,8 +321,13 @@ import {
     dofiretrap, dotrap, feeltrap, mintrap, m_easy_escape_pit,
 } from './trap_effects.js';
 import {
-    clearTtyMessageWindow, displayPendingTtyMessageWindow,
-    ttyNorep, ttyPline, ttyUrgentPline,
+    clearTtyMessageWindow,
+    displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
+    ttyNorep,
+    ttyPline,
+    ttyUrgentPline,
 } from './tty_message.js';
 import { stumble_onto_mimic } from './uhitm.js';
 import { unpunish } from './read.js';
@@ -662,6 +667,7 @@ export async function fall_through(td, ftflags, state = game) {
     if (td) {
         trap = t_at(u.ux, u.uy, state);
         await feeltrap(trap, { state, redraw: newsym });
+        if (noticesQueued()) await emitQueuedNotices();
         if (!state.level?.flags?.sokoban_rules && !plunged) {
             await ttyPline(
                 trap.ttyp === TRAPDOOR
@@ -1309,6 +1315,7 @@ export async function drown(state = game) {
     let inpoolOk = false;
 
     feel_newsym(u.ux, u.uy, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (u.uinwater && is_pool(u.ux - u.dx, u.uy - u.dy, state)
         && (swimming || amphibiousHero || breathlessHero)) {
         if (!rn2(5)) inpoolOk = true;
@@ -1370,6 +1377,7 @@ export async function drown(state = game) {
             // trap.c:drown unplaces and replaces the ball and chain before
             // putting the hero underwater; placebc can run pool flooreffects.
             unplacebc(state);
+            if (noticesQueued()) await emitQueuedNotices();
             await placebc(state);
         }
         await vision_recalc_async(2, { state });
@@ -1481,6 +1489,7 @@ export async function lava_effects(state = game) {
     }
 
     feel_newsym(u.ux, u.uy, state);
+    if (noticesQueued()) await emitQueuedNotices();
     await burn_away_slime(state);
     if (likes_lava(state.youmonst?.data)) return false;
 
@@ -1997,7 +2006,9 @@ export async function float_down(hmask, emask, state = game) {
         u.uy = state.uball.oy;
         // C ref: trap.c float_down() relocates uchain with hack.c movobj().
         movobj(state.uchain, u.ux, u.uy, state);
+        if (noticesQueued()) await emitQueuedNotices();
         newsym(u.ux0, u.uy0, state);
+        if (noticesQueued()) await emitQueuedNotices();
         state.vision_full_recalc = 1;
     }
 
@@ -2400,6 +2411,7 @@ export async function cnv_trap_obj(otyp, cnt, ttmp, bury_it, state = game, rawEn
         stackobj(otmp, env);
     }
     (env.newsym ?? newsym)(ttmp.tx, ttmp.ty, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (state.u.utrap && state.u.ux === ttmp.tx && state.u.uy === ttmp.ty)
         await reset_utrap(true, state);
     const mtmp = m_at(ttmp.tx, ttmp.ty, state);
@@ -2447,11 +2459,13 @@ async function move_into_trap(ttmp, state = game) {
         await u_on_newpos(x, y, state);
         u.umoved = true;
         newsym(u.ux0, u.uy0);
+        if (noticesQueued()) await emitQueuedNotices();
         await vision_recalc_async(1, { state });
         // C ref: trap.c move_into_trap():5413, before move_bc() and spoteffects().
         await check_leash(u.ux0, u.uy0, { state });
         if (Punished(state))
             move_bc(0, bc.value, bx.value, by.value, cx.value, cy.value, state);
+        if (noticesQueued()) await emitQueuedNotices();
         ttmp.tseen = 0; /* hack for check_here() */
         state.iflags ??= {};
         state.iflags.failing_untrap = (state.iflags.failing_untrap ?? 0) + 1;
@@ -2535,6 +2549,7 @@ async function try_disarm(ttmp, force_failure, state = game) {
                             await dismount_steed(DISMOUNT_FELL, state);
                         }
                     }
+                    if (noticesQueued()) await emitQueuedNotices();
                     if (mtmp.mtrapped)
                         await ttyPline(`${Monnam(mtmp, state)} remains entangled.`, state);
                 }
@@ -2609,6 +2624,7 @@ async function disarm_holdingtrap(ttmp, state = game) {
         deltrap(ttmp, state);
     }
     newsym(state.u.ux + state.u.dx, state.u.uy + state.u.dy);
+    if (noticesQueued()) await emitQueuedNotices();
     return 1;
 }
 
@@ -2657,6 +2673,7 @@ async function disarm_squeaky_board(ttmp, state = game) {
     await ttyPline('You repair the squeaky board.', state);
     deltrap(ttmp, state);
     newsym(state.u.ux + state.u.dx, state.u.uy + state.u.dy);
+    if (noticesQueued()) await emitQueuedNotices();
     more_experienced(1, 5, state);
     await newexplevel(state, { message: ttyPline });
     return 1;
@@ -3027,6 +3044,7 @@ export async function untrap(force, rx, ry, container, state = game) {
                 loc.flags = D_NODOOR;
                 unblock_point(x, y, state);
                 newsym(x, y);
+                if (noticesQueued()) await emitQueuedNotices();
                 if (in_rooms(x, y, SHOPBASE, state).length > 0) {
                     add_damage(x, y, 0, state);
                 }
@@ -3365,6 +3383,7 @@ export async function animate_statue(
         seemimic(monster, state, objectEnv);
     else
         monster.mundetected = false;
+    if (noticesQueued()) await emitQueuedNotices();
     monster.msleeping = 0;
     if (cause === ANIMATE_NORMAL || cause === ANIMATE_SHATTER) {
         monster.mtame = 0;
@@ -3413,6 +3432,7 @@ export async function animate_statue(
         ), state);
         if (!spotted && Blind(state.u))
             map_invisible(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         const { stop_occupation } = await import('./allmain.js');
         await stop_occupation(state, { message });
     }
@@ -3446,6 +3466,7 @@ export async function animate_statue(
     if (statue.owornmask)
         await remove_worn_item(statue, true, state, objectEnv);
     await delobj(statue, objectEnv);
+    if (noticesQueued()) await emitQueuedNotices();
 
     if (atHero && Upolyd(state.u)
         && hides_under(state.youmonst?.data)
@@ -3492,6 +3513,7 @@ export async function activate_statue_trap(
         statue = nxtobj(statue, STATUE, true);
     }
     feel_newsym(x, y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     return monster;
 }
 
@@ -3595,6 +3617,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                     || (state.uball.where === OBJ_FLOOR
                         && state.uball.ox === ox && state.uball.oy === oy))) {
                 unpunish(state);
+                if (noticesQueued()) await emitQueuedNotices();
             }
 
             // Destroy everything at the spot.
@@ -3612,6 +3635,7 @@ export async function chest_trap(obj, bodypart, disarm, state = game) {
                 if (otmp === obj)
                     chestgone = true;
                 await delobj(otmp, objectEnv);
+                if (noticesQueued()) await emitQueuedNotices();
                 otmp = next;
             }
             await wake_nearby({ state });

@@ -114,7 +114,11 @@ import { currency, money_cnt } from './invent.js';
 import { incr_itimeout } from './potion.js';
 import { impossible_printer, livelog_printf, verbalize, youFeel } from './pline.js';
 import { mpickobj } from './steal.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 
 import { rloc } from './teleport.js';
 import { which_armor } from './worn.js';
@@ -711,6 +715,7 @@ export async function move_special(
         remove_monster(omx, omy, state);
         place_monster(mtmp, nix, niy, state);
         redraw(nix, niy);
+        if (noticesQueued()) await emitQueuedNotices();
         if (mtmp.isshk && !inHisShop) {
             const { inhishop } = await import('./shk.js');
             if (inhishop(mtmp, state)) {

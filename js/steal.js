@@ -126,7 +126,12 @@ import { obj_resists } from './bury.js';
 import { is_quest_artifact } from './questpgr.js';
 import { costly_spot, find_objowner, shop_keeper, subfrombill } from './shk.js';
 import { messageAt } from './startup_a11y.js';
-import { ttyPline, ttyUrgentPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+    ttyUrgentPline,
+} from './tty_message.js';
 import { cansee } from './vision.js';
 import {
     minstapetrify, openholdingtrap, unconscious,
@@ -392,6 +397,7 @@ export async function remove_worn_item(obj, unchain_ball, state = game, env = {}
         if (obj.owornmask & (W_BALL | W_CHAIN)) {
             if (unchain_ball)
                 unpunish(state, env);
+            if (noticesQueued()) await emitQueuedNotices();
         } else if (obj.owornmask) {
             await setnotworn(obj, setwornEnv(state, env));
         }
@@ -498,6 +504,7 @@ async function stealarm(state = game, rawEnv = {}) {
                             setApparxy: set_apparxy,
                             message: rawEnv.message ?? ttyPline,
                         });
+                        if (noticesQueued()) await emitQueuedNotices();
                     }
                     break;
                 }
@@ -982,6 +989,7 @@ export async function stealamulet(mtmp, rawEnv = {}) {
     if (can_teleport(mtmp.data)
         && !await tele_restrict(mtmp, state, rawEnv)) {
         await rloc(mtmp, RLOC_MSG, { ...rawEnv, state, random });
+        if (noticesQueued()) await emitQueuedNotices();
     }
     await encumber_msg(state, { message });
 }
@@ -1090,6 +1098,7 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
             state,
             silent: true,
         });
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: steal.c maybe_absorb_item() (772-810). A revealed mimic can absorb
@@ -1297,6 +1306,7 @@ export async function stealgold(mtmp, rawEnv = {}) {
         await obj_extract_self(floorGold, inventoryEnv);
         add_to_minv(mtmp, floorGold, inventoryEnv);
         redraw(state.u.ux, state.u.uy, state);
+        if (noticesQueued()) await emitQueuedNotices();
 
         let whose;
         let what;
@@ -1325,6 +1335,7 @@ export async function stealgold(mtmp, rawEnv = {}) {
                     ...inventoryEnv,
                     newsym: redraw,
                 });
+                if (noticesQueued()) await emitQueuedNotices();
             }
             await flee(mtmp, 0, false, false, inventoryEnv);
         }
@@ -1347,6 +1358,7 @@ export async function stealgold(mtmp, rawEnv = {}) {
                 ...inventoryEnv,
                 newsym: redraw,
             });
+            if (noticesQueued()) await emitQueuedNotices();
         }
         await flee(mtmp, 0, false, false, inventoryEnv);
         state.disp ??= {};

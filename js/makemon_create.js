@@ -495,7 +495,11 @@ import { newegd } from './vault.js';
 import { coreRandom } from './rng.js';
 import { enexto_core, goodpos, noteleport_level } from './teleport.js';
 import { mhidden_description, messageAt } from './startup_a11y.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { impossible_printer, norep_printer } from './pline.js';
 import { block_point, cansee, does_block } from './vision.js';
 import { get_shop_item } from './shknam.js';
@@ -2215,6 +2219,7 @@ function* finishMonsterInventoryAndStrategySteps(
 async function finishRuntimeCreationTail(monster, mmflags, normalized) {
     const { state } = normalized;
     const drawn = redrawSquareWaiting(monster.mx, monster.my, normalized);
+    if (noticesQueued()) await emitQueuedNotices();
     if (drawn) await drawn;
     const appearance = runtimeAppearanceMessage(monster, mmflags, normalized);
     if (appearance) {
@@ -2621,6 +2626,7 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
         onImpossible: impossible_printer(env.state ?? game),
     });
     const maybeMonster = makemon(ptr, x, y, mmflags, normalized);
+    if (noticesQueued()) await emitQueuedNotices();
     const monster = maybeMonster && typeof maybeMonster.then === 'function'
         ? await maybeMonster : maybeMonster;
     if (!monster) return null;
@@ -2664,6 +2670,7 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
         mmflags,
         normalized,
     ), normalized.onImpossible ?? sync_impossible, normalized.state);
+    if (noticesQueued()) await emitQueuedNotices();
     await finishRuntimeCreationTail(monster, mmflags, normalized);
     return monster;
 }

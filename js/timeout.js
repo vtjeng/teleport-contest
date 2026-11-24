@@ -219,7 +219,12 @@ import { cry_sound, set_voice } from './sounds.js';
 import { coreRandom,
     createCoreRandom, rn1, rn2, rn2_on_display_rng, rnd,
 } from './rng.js';
-import { ttyPline, ttyUrgentPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+    ttyUrgentPline,
+} from './tty_message.js';
 import {
     Acid_resistance, BInvis, Blind, Breathless, Confusion, Deaf, Displaced,
     EFumbling, ELevitation, EPasses_walls, Fast, Fire_resistance, Flying,
@@ -534,6 +539,7 @@ export async function hatch_egg(egg, timeout, rawEnv = {}) {
     }
 
     if (redraw) (env.newsym ?? newsym)(x, y, state);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: timeout.c timeout_funcs[] (1978-1990), "Table of timeout functions,
@@ -829,6 +835,7 @@ async function slime_dialogue(state = game, env = {}) {
         state.youmonst.m_ap_type = M_AP_MONSTER;
         state.youmonst.mappearance = PM_GREEN_SLIME;
         (env.newsym ?? newsym)(u.ux, u.uy, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     if ((timeout % 2) !== 0 && index >= 0 && index < slimeTexts.length) {
@@ -1339,6 +1346,7 @@ async function decrement_property_timeouts(state, env) {
             break;
         case INVIS:
             (env.newsym ?? newsym)(u.ux, u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             if (!Invis(state.u) && !BInvis(state.u)
                 && !Blind(state.u)) {
                 await message(!See_invisible(state.u)
@@ -1351,7 +1359,9 @@ async function decrement_property_timeouts(state, env) {
             set_mimic_blocking(state);
             await see_monsters(state, { ...env,
                 redraw: env.redraw ?? env.newsym });
+            if (noticesQueued()) await emitQueuedNotices();
             (env.newsym ?? newsym)(u.ux, u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await stop_occupation(state, occupationEnv);
             break;
         case WOUNDED_LEGS:
@@ -1480,6 +1490,7 @@ async function decrement_property_timeouts(state, env) {
         case DETECT_MONSTERS:
             await see_monsters(state, { ...env,
                 redraw: env.redraw ?? env.newsym });
+            if (noticesQueued()) await emitQueuedNotices();
             break;
         case GLIB:
             make_glib(0, state, env);
@@ -1487,6 +1498,7 @@ async function decrement_property_timeouts(state, env) {
         case PROT_FROM_SHAPE_CHANGERS:
             if (!Protection_from_shape_changers(state.u))
                 restartcham(state, { ...env, state });
+            if (noticesQueued()) await emitQueuedNotices();
             break;
         }
         if (state.program_state?.gameover) return;
@@ -2367,6 +2379,7 @@ export async function burn_object(obj, timeout, rawEnv = {}) {
         break;
     }
     if (needNewsym) (env.newsym ?? newsym)(location.x, location.y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (needInvupdate) update_inventory(env);
 }
 

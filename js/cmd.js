@@ -369,6 +369,8 @@ import { aggravate_steps } from './wizard.js';
 import { dotalk } from './sounds.js';
 import {
     clearTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
     ttyCustomPline,
     ttyNorep,
     ttyPline,
@@ -2702,6 +2704,7 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
         if (Punished(state)) {
             await ballrelease(false, state);
             unplacebc(state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         maybe_reset_pick(null, state);
         if (on_level(state.context.digging?.level, state.u.uz))
@@ -2742,6 +2745,7 @@ export async function makemap_prepost(pre, wiztower = false, state = game) {
     initrack(state);
     if (Punished(state)) {
         unplacebc(state);
+        if (noticesQueued()) await emitQueuedNotices();
         await placebc(state);
     }
     await docrt();

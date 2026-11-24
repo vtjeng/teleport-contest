@@ -284,6 +284,8 @@ import {
 import { safe_teleds } from './teleport.js';
 import {
     displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
     ttyPline,
 } from './tty_message.js';
 import { set_voice } from './sounds.js';
@@ -799,6 +801,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
         );
         state.level.at(u.ux, u.uy).flags = AM_CHAOTIC;
         newsym(u.ux, u.uy, state);
+        if (noticesQueued()) await emitQueuedNotices();
         await angry_priest(state);
     } else {
         let demonlessMessage;
@@ -811,6 +814,7 @@ async function sacrifice_your_race(otmp, highaltar, altaralign, state) {
             altar.typ = ROOM;
             altar.flags = 0;
             newsym(u.ux, u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await angry_priest(state);
             demonlessMessage = 'cloud dissipates';
         } else {
@@ -971,6 +975,7 @@ async function offer_different_alignment_altar(otmp, altaralign, state) {
         altar.flags = Align2amask(u.ualign.type)
             | (shrine ? AM_SHRINE : 0);
         newsym(u.ux, u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
         if (!Blind(state.u)) {
             const color = u.ualign.type === A_LAWFUL
                 ? 'white' : u.ualign.type ? 'black' : 'gray';
@@ -1559,6 +1564,7 @@ export async function fix_worst_trouble(trouble, state = game, env = {}) {
             await buried_ball_to_freedom(state);
         else
             unpunish(state);
+        if (noticesQueued()) await emitQueuedNotices();
         break;
     case TROUBLE_FUMBLING:
         if (Cursed_obj(state.uarmg, GAUNTLETS_OF_FUMBLING)) {
@@ -2160,6 +2166,7 @@ export async function give_spell(state = game, env = {}) {
         await at_your_feet(upstart(ansimpleoname(otmp, state)), state);
         await place_object(otmp, state.u.ux, state.u.uy, { ...env, state, random });
         newsym(state.u.ux, state.u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 }
 
@@ -2619,6 +2626,7 @@ export async function pleased(g_align, state = game) {
             if (gift) {
                 await ttyPline(`"and thus I grant thee the gift of ${gift}!"`, state);
                 if (gift === 'Telepathy' && Blind(state.u)) await see_monsters(state);
+                if (noticesQueued()) await emitQueuedNotices();
             } else {
                 if (!(HProtection(u) & INTRINSIC)) {
                     u.uprops[PROTECTION].intrinsic |= FROMOUTSIDE;

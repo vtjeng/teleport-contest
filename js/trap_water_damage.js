@@ -70,7 +70,11 @@ import {
 } from './objects.js';
 import { erode_obj } from './trap_erode_obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { cansee, couldsee } from './vision.js';
 import { destroy_strings } from './zap_destroy_items.js';
 import { youSee } from './pline.js';
@@ -146,6 +150,7 @@ export async function pot_acid_damage(obj, inInvent, described, rawEnv = {}) {
     const { setnotworn } = await import('./worn.js');
     await setnotworn(obj, { ...rawEnv, state });
     await delobj(obj, { ...rawEnv, state });
+    if (noticesQueued()) await emitQueuedNotices();
     if (inInvent) await lazyUpdateInventory({ ...rawEnv, state });
 }
 
@@ -269,6 +274,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
         const { setnotworn } = await import('./worn.js');
         if (obj.owornmask) await setnotworn(obj, { ...rawEnv, state });
         await delobj(obj, { ...rawEnv, state });
+        if (noticesQueued()) await emitQueuedNotices();
         return true;
     }
 
@@ -294,6 +300,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
         const { setnotworn } = await import('./worn.js');
         if (obj.owornmask) await setnotworn(obj, { ...rawEnv, state });
         await delobj(obj, { ...rawEnv, state });
+        if (noticesQueued()) await emitQueuedNotices();
         return true;
     }
     if (obj.oclass === POTION_CLASS) {
@@ -305,6 +312,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
         const { setnotworn } = await import('./worn.js');
         if (obj.owornmask) await setnotworn(obj, { ...rawEnv, state });
         await delobj(obj, { ...rawEnv, state });
+        if (noticesQueued()) await emitQueuedNotices();
         return true;
     }
 
@@ -368,6 +376,7 @@ export async function lava_damage(obj, x, y, rawEnv = {}) {
             await useupall(obj, { ...rawEnv, state });
         } else {
             await delobj(obj, { ...rawEnv, state });
+            if (noticesQueued()) await emitQueuedNotices();
         }
         return true;
     }

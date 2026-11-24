@@ -390,7 +390,12 @@ import {
 import { coreRandom, rnd } from './rng.js';
 import { remove_worn_item } from './steal.js';
 import { impossible, youFeel } from './pline.js';
-import { ttyPline, ttyUrgentPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+    ttyUrgentPline,
+} from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { empty_handed, setuwep, welded } from './wield.js';
 import { weapon_descr } from './weapon.js';
@@ -940,15 +945,18 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
         break;
     case RIN_WARNING:
         await see_monsters(state, { ...env, redraw: env.redraw });
+        if (noticesQueued()) await emitQueuedNotices();
         break;
     case RIN_SEE_INVISIBLE: {
         set_mimic_blocking(state);
         await see_monsters(state, env);
+        if (noticesQueued()) await emitQueuedNotices();
         const invisible = Invis(state.u);
         if (invisible && !maskedOldprop
             && !HSee_invisible(state.u)
             && !Blind(state.u)) {
             env.redraw(state.u.ux, state.u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await env.message(
                 'Suddenly you are transparent, but there!', state, env,
             );
@@ -961,6 +969,7 @@ export async function Ring_on(obj, state = game, rawEnv = {}) {
             && !BInvis(state.u) && !Blind(state.u)) {
             learnring(obj, true, state);
             env.redraw(state.u.ux, state.u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await self_invis_message(state, env);
         }
         break;
@@ -1051,6 +1060,7 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
         break;
     case RIN_WARNING:
         await see_monsters(state, env);
+        if (noticesQueued()) await emitQueuedNotices();
         break;
     case RIN_SEE_INVISIBLE: {
         const canSeeInvisible = See_invisible(state.u);
@@ -1058,9 +1068,11 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
         if (!canSeeInvisible) {
             set_mimic_blocking(state);
             await see_monsters(state, env);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         if (invisible && !canSeeInvisible && !Blind(state.u)) {
             env.redraw(state.u.ux, state.u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await env.message('Suddenly you cannot see yourself.', state);
             learnring(obj, true, state);
         }
@@ -1074,6 +1086,7 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
         if (!invisible && !blockedInvisibility && !Blind(state.u)) {
             const canSeeInvisible = See_invisible(state.u);
             env.redraw(state.u.ux, state.u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await env.message(
                 `Your body seems to unfade${canSeeInvisible
                     ? ' completely.' : '...'}`,
@@ -1120,6 +1133,7 @@ async function Ring_off_or_gone(obj, gone, state = game, rawEnv = {}) {
            2nd ring of this type (or via #wizintrinsic) */
         if (!Protection_from_shape_changers(state.u))
             restartcham(state);
+        if (noticesQueued()) await emitQueuedNotices();
         break;
     }
 }
@@ -1187,6 +1201,7 @@ async function Amulet_on(obj, state = game) {
         on_msg_done = true;
         if (new_sex !== orig_sex) {
             newsym(state.u.ux, state.u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             state.disp.botl = true;
             await ttyPline(`You are suddenly very ${state.flags.female
                 ? 'feminine' : 'masculine'}!`, state);
@@ -1282,6 +1297,7 @@ export async function Amulet_off(state = game, env = {}) {
         await off_msg(amul, state, message);
         earlyOffMessage = true;
         await see_monsters(state, env);
+        if (noticesQueued()) await emitQueuedNotices();
         break;
     case AMULET_OF_LIFE_SAVING:
     case AMULET_VERSUS_POISON:
@@ -1405,6 +1421,7 @@ async function Blindf_on(obj, state = game, rawEnv = {}) {
         if (state.flags.verbose)
             await env.message("You can't see any more.", state);
         if (state.uball) set_bc(0, state, env);
+        if (noticesQueued()) await emitQueuedNotices();
     } else if (already_blind && !Blind(state.u)) {
         changed = true;
         if (state.u.uroleplay.blind) {
@@ -1443,6 +1460,7 @@ export async function Blindf_off(otmp, state = game, rawEnv = {}) {
             changed = true;
             await env.message("You can't see anything now!", state);
             if (state.uball) set_bc(0, state, env);
+            if (noticesQueued()) await emitQueuedNotices();
         }
     } else if (was_blind) {
         if (!await gulp_blnd_check(state, env)) {
@@ -1555,6 +1573,7 @@ async function dragon_armor_handling(
         }
         // C calls see_monsters() unconditionally for both put-on and take-off
         await see_monsters(state, { ...env, redraw });
+        if (noticesQueued()) await emitQueuedNotices();
         break;
     case GOLD_DRAGON_SCALES:
     case GOLD_DRAGON_SCALE_MAIL:
@@ -2015,6 +2034,7 @@ async function Cloak_on(state, rawEnv = {}) {
             || EInvis(state.u))
             && !Blind(state.u)) {
             env.redraw(state.u.ux, state.u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await env.message(
                 `You can ${HSee_invisible(state.u) || ESee_invisible(state.u)
                     ? 'no longer see through yourself' : 'see yourself'}!`,
@@ -2028,6 +2048,7 @@ async function Cloak_on(state, rawEnv = {}) {
             && !Blind(state.u)) {
             discover_object(otyp, true, true, true, state, env);
             env.redraw(state.u.ux, state.u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await env.message(
                 `Suddenly you can${HSee_invisible(state.u)
                     || ESee_invisible(state.u) ? ' see through' : 'not see'} yourself.`,
@@ -2153,6 +2174,7 @@ async function Helmet_on(state) {
         break;
     case HELM_OF_CAUTION:
         await see_monsters(state);
+        if (noticesQueued()) await emitQueuedNotices();
         break;
     case HELM_OF_BRILLIANCE:
         adj_abon(state.uarmh, state.uarmh.spe, state);
@@ -2296,6 +2318,7 @@ export async function Helmet_off(state = game, rawEnv = {}) {
         // reaching the common setworn() below.
         await setworn(null, W_ARMH, setwornEnv(state));
         await see_monsters(state, wearOperationEnv(rawEnv));
+        if (noticesQueued()) await emitQueuedNotices();
         takeoffContext(state).cancelled_don = false;
         return 0;
     case HELM_OF_BRILLIANCE:

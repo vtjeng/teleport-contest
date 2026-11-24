@@ -31,6 +31,7 @@ import { m_at } from './monst.js';
 import { goodpos, rloc } from './teleport.js';
 import { impossible, verbalize } from './pline.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { noticesQueued, emitQueuedNotices } from './tty_message.js';
 
 const developers = Object.freeze([
     'Alex', 'Dave', 'Dean', 'Derek', 'Eric', 'Izchak', 'Janet', 'Jessie', 'Ken', 'Kevin', 'Michael', 'Mike', 'Pasi', 'Pat', 'Patric', 'Paul', 'Sean', 'Steve', 'Timo', 'Warwick',
@@ -132,12 +133,14 @@ export async function mk_mplayer(species, x, y, special = false, rawEnv = {}) {
     if (blocker) {
         const relocateMonster = rawEnv.relocateMonster ?? rloc;
         await relocateMonster(blocker, RLOC_ERR | RLOC_NOMSG, env);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     if (!In_endgame(state.u?.uz, state)) special = false;
     const monster = await makemon_by_context(
         species, x, y, special ? MM_NOMSG : NO_MM_FLAGS, env,
     );
+    if (noticesQueued()) await emitQueuedNotices();
     if (!monster) return null;
 
     monster.m_lev = special ? random.rn1(16, 15) : random.rnd(16);

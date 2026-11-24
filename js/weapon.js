@@ -244,7 +244,11 @@ import { y_n } from './cmd.js';
 import { handle_tip } from './hack.js';
 import { select_menu, ttyMenuColorAttribute } from './windows.js';
 import { youFeel } from './pline.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { cansee, couldsee } from './vision.js';
 import { mwelded } from './wield.js';
@@ -1292,6 +1296,7 @@ export function possibly_unwield(monster, polyspot = false, env = {}) {
                         { ...env, message },
                     );
                     (env.newsym ?? newsym)(monster.mx, monster.my, state);
+                    if (noticesQueued()) await emitQueuedNotices();
                 }
                 await obj_extract_self(weapon, { ...env, state });
                 const { flooreffects } = await import('./do.js');

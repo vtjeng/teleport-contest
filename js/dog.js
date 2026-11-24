@@ -166,7 +166,11 @@ import { vision_recalc_async } from './vision.js';
 import { mon_wield_item } from './weapon.js';
 import { mon_has_amulet } from './wizard.js';
 import { growl, yelp } from './sounds.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { experience, more_experienced, newexplevel } from './exper.js';
 import { cansee } from './vision.js';
 import { free_emin } from './minion.js';
@@ -316,6 +320,7 @@ export async function make_familiar(otmp, x, y, quietly = false, env = {}) {
     monster.msleeping = 0;
     set_malign(monster, state);
     newsym(monster.mx, monster.my, state);
+    if (noticesQueued()) await emitQueuedNotices();
 
     // C discards mon_wield_item()'s result but keeps its weapon changes.
     if (monster.mtame && attacktype(monster.data, AT_WEAP)) {
@@ -583,7 +588,9 @@ export async function tamedog(
         );
     }
     newsym(monster.mx, monster.my, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (monster.wormno) redraw_worm(monster, normalized);
+    if (noticesQueued()) await emitQueuedNotices();
     if (attacktype(monster.data, AT_WEAP)) {
         monster.weapon_check = NEED_HTH_WEAPON;
         await mon_wield_item(monster, normalized);
@@ -778,6 +785,7 @@ export async function makedog(env = {}) {
         state.context.startingpet_mid = monster.m_id;
         if (!state.u?.uroleplay?.pauper && pettype === PM_PONY)
             put_saddle_on_mon(null, monster, normalized);
+        if (noticesQueued()) await emitQueuedNotices();
         setMonsterObservationPosition(
             monster,
             { x: monster.mx, y: monster.my },
@@ -872,6 +880,7 @@ async function relmon(monster, listName, state, env) {
         ? { ...env, hooks: { ...env.hooks, newsym: env.newsym } }
         : env;
     await mon_leaving_level(monster, state, leavingEnv);
+    if (noticesQueued()) await emitQueuedNotices();
     const previous = levelMonsterPredecessor(monster, state);
 
     if (previous) previous.nmon = monster.nmon;
@@ -922,6 +931,7 @@ export async function keepdogs(pets_only, rawEnv = {}) {
             if (!mtmp.mtame) continue; /* reject non-pets */
             mtmp.mtrapped = false;
             finish_meating(mtmp, env);
+            if (noticesQueued()) await emitQueuedNotices();
             mtmp.msleeping = false;
             mtmp.mfrozen = 0;
             mtmp.mcanmove = true;
@@ -987,6 +997,7 @@ export async function keepdogs(pets_only, rawEnv = {}) {
             }
 
             const num_segs = mon_leave(mtmp, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await relmon(mtmp, 'mydogs', state, env);
             mtmp.mx = 0; /* mx == 0 implies migrating */
             mtmp.my = 0;
@@ -1151,12 +1162,14 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
     };
     mon_track_clear(monster);
     await restore_cham(monster, state, env);
+    if (noticesQueued()) await emitQueuedNotices();
 
     if (monster === u.usteed) return;
     if (when === MON_ARRIVE_WITH_YOU) {
         if (!m_at(u.ux, u.uy, state)
             && !random.rn2(monster.mtame ? 10 : monster.mpeaceful ? 5 : 2)) {
             await rloc_to(monster, u.ux, u.uy, env);
+            if (noticesQueued()) await emitQueuedNotices();
         } else {
             await mnexto(monster, RLOC_NOMSG, env);
         }
@@ -1169,6 +1182,7 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
     if (monster.mlstmv < state.moves - 1) {
         const elapsed = state.moves - 1 - monster.mlstmv;
         mon_catchup_elapsed_time(monster, elapsed, env);
+        if (noticesQueued()) await emitQueuedNotices();
         wander = Math.min(elapsed, 8);
     }
 
@@ -1292,6 +1306,7 @@ export async function mon_arrive(monster, when, rawEnv = {}) {
     const placed = xlocale
         ? await mnearto(monster, xlocale, ylocale, false, RLOC_NOMSG, env)
         : await rloc(monster, RLOC_NOMSG, env);
+    if (noticesQueued()) await emitQueuedNotices();
     if (!placed) {
         if (!whenIsWizard) {
             await relmon(monster, 'failed_arrivals', state, env);
@@ -1416,6 +1431,7 @@ export async function migrate_to_level(
     const oldY = monster.my;
 
     const num_segs = mon_leave(monster, state);
+    if (noticesQueued()) await emitQueuedNotices();
     await relmon(monster, 'migrating_mons', state, env);
     monster.mstate |= MON_MIGRATING;
 
@@ -1516,6 +1532,7 @@ export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
     const message = env.message ?? ttyPline;
     const redraw = env.redraw ?? newsym;
     finish_meating(mtmp, { ...env, redraw });
+    if (noticesQueued()) await emitQueuedNotices();
     if (!mtmp.mtame) return;
     const edog = !mtmp.isminion ? EDOG(mtmp) : null;
 
@@ -1548,6 +1565,7 @@ export async function wary_dog(mtmp, was_dead, rawEnv = {}) {
                 + `${mtmp.mpeaceful ? 'is no longer tame' : 'has become feral'}.`,
             mtmp.mx, mtmp.my, state), state);
         redraw(mtmp.mx, mtmp.my);
+        if (noticesQueued()) await emitQueuedNotices();
         if (mtmp.mleashed)
             await m_unleash(mtmp, true, { ...env, state });
         if (mtmp === state.u.usteed)
@@ -1607,7 +1625,9 @@ export async function abuse_dog(mtmp, state = game, random = coreRandom) {
 
         if (!mtmp.mtame) {
             newsym(mtmp.mx, mtmp.my);
+            if (noticesQueued()) await emitQueuedNotices();
             if (mtmp.wormno) redraw_worm(mtmp, { state });
+            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 }

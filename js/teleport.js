@@ -232,7 +232,12 @@ import { mintrap, seetrap } from './trap_effects.js';
 import { somexyspace } from './mklev.js';
 import { search_special } from './mkroom.js';
 import { settrack } from './track.js';
-import { displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
+import {
+    displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { findgd, uleftvault, vault_occupied } from './vault.js';
 import { couldsee, vision_recalc_async } from './vision.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
@@ -526,8 +531,9 @@ export async function u_teleport_mon(monster, giveFeedback, rawEnv = {}) {
                 rawEnv,
             );
         await unstuck(monster, state, { ...rawEnv, random });
-        if (!await rloc(monster, RLOC_MSG, { ...rawEnv, state, random }))
-            await m_into_limbo(monster, state, { ...rawEnv, random });
+        const moved = await rloc(monster, RLOC_MSG, { ...rawEnv, state, random });
+        if (noticesQueued()) await emitQueuedNotices();
+        if (!moved) await m_into_limbo(monster, state, { ...rawEnv, random });
         return true;
     }
     if ((is_rider(monster.data) || control_teleport(monster.data))
@@ -545,12 +551,13 @@ export async function u_teleport_mon(monster, giveFeedback, rawEnv = {}) {
                 destination.y,
                 { ...rawEnv, state, random },
             );
+            if (noticesQueued()) await emitQueuedNotices();
             return true;
         }
     }
-    if (!await rloc(monster, RLOC_MSG, { ...rawEnv, state, random }))
-        return false;
-    return true;
+    const moved = await rloc(monster, RLOC_MSG, { ...rawEnv, state, random });
+    if (noticesQueued()) await emitQueuedNotices();
+    return Boolean(moved);
 }
 
 function currentDungeonIsHellish(state) {
@@ -630,9 +637,11 @@ async function mvault_tele(monster, env) {
     if (croom && somexyspace(croom, c, env)
         && goodpos(c.x, c.y, monster, NO_MM_FLAGS, env)) {
         await rloc_to(monster, c.x, c.y, env);
+        if (noticesQueued()) await emitQueuedNotices();
         return;
     }
     await rloc(monster, RLOC_NONE, env);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: teleport.c mtele_trap() (1962-2001).
@@ -665,9 +674,11 @@ export async function mtele_trap(
                 RLOC_MSG,
                 env,
             );
+            if (noticesQueued()) await emitQueuedNotices();
         }
     } else {
         await rloc(monster, 0, env);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     if (inSight) {
@@ -680,6 +691,7 @@ export async function mtele_trap(
         // trap.c seetrap() redraws through env.redraw; mintrap(), the only
         // caller's route here, defaults it to newsym().
         seetrap(trap, env);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 }
 
@@ -745,6 +757,7 @@ export async function mlevel_tele_trap(
                     state,
                 ), state);
                 seetrap(trap, env);
+                if (noticesQueued()) await emitQueuedNotices();
             }
             return 'finished';
         }
@@ -821,6 +834,7 @@ export async function mlevel_tele_trap(
             state,
         ), state);
         seetrap(trap, env);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     if (is_xport(trapType) && !control_teleport(monster.data))
         monster.mconf = 1;
@@ -1639,6 +1653,7 @@ export async function dotele(breakTheRules = false, state = game, rawEnv = {}) {
                 } else {
                     deltrap(trap, state);
                     newsym(state.u.ux, state.u.uy);
+                    if (noticesQueued()) await emitQueuedNotices();
                 }
             }
             if (trap)
@@ -1751,6 +1766,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
     const vault_guard = vault_occupied(u.urooms, state)
         ? findgd(state)
         : null;
+    if (noticesQueued()) await emitQueuedNotices();
     if (u.utraptype === TT_BURIEDBALL) {
         await buried_ball_to_punishment(state);
     }
@@ -1772,6 +1788,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
             ball_still_in_range = true;
         } else if (!allow_drag) {
             unplacebc(state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 
@@ -1832,6 +1849,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
                 chainy.value,
                 state,
             );
+            if (noticesQueued()) await emitQueuedNotices();
         } else {
             // drag_ball() can trigger a magic trap that removes punishment.
             // Refresh the predicate before deciding whether placebc() below
@@ -1839,6 +1857,7 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
             ball_active = Boolean(state.uball)
                 && state.uball.where !== OBJ_FREE;
             if (ball_active) unplacebc(state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 
@@ -1856,7 +1875,9 @@ export async function teleds(nux, nuy, teleds_flags, state = game, rawEnv = {}) 
      *  vision recalculation because the hero is now in a new location.
      */
     redraw(u.ux0, u.uy0, state);
+    if (noticesQueued()) await emitQueuedNotices();
     await see_monsters(state, { ...env, redraw });
+    if (noticesQueued()) await emitQueuedNotices();
     state.vision_full_recalc = 1;
     nomul(0, state);
     notice_mon_off(state);
@@ -1967,6 +1988,7 @@ export async function tele_trap(trap, state = game) {
         } else if (trap.once) {
             deltrap(trap, state);
             newsym(state.u.ux, state.u.uy); /* get rid of trap symbol */
+            if (noticesQueued()) await emitQueuedNotices();
             await vault_tele(state);
         } else if (isok(trap.teledest.x, trap.teledest.y)) {
             let mtmp = m_at(trap.teledest.x, trap.teledest.y, state);
@@ -1980,6 +2002,7 @@ export async function tele_trap(trap, state = game) {
                     await ttyPline('You shudder for a moment.', state);
                 } else {
                     await rloc_to(mtmp, cc.x, cc.y, { state });
+                    if (noticesQueued()) await emitQueuedNotices();
                     mtmp = null; /* no longer a monster at dest */
                 }
             }
@@ -2028,6 +2051,7 @@ export async function level_tele_trap(
         env.redraw(state.u.ux, state.u.uy);
     else
         newsym(state.u.ux, state.u.uy);
+    if (noticesQueued()) await emitQueuedNotices();
     await level_tele(state);
 
     const hallucination = Hallucination(state.u);
@@ -2516,6 +2540,7 @@ export async function rloco(obj, rawEnv = {}) {
     const { flooreffects } = await import('./do.js');
     if (await flooreffects(obj, tx, ty, 'fall', env)) {
         if (!(otx === 0 && oty === 0)) redraw(otx, oty);
+        if (noticesQueued()) await emitQueuedNotices();
         return false;
     }
     if (otx === 0 && oty === 0) {
@@ -2549,9 +2574,11 @@ export async function rloco(obj, rawEnv = {}) {
             }
         }
         redraw(otx, oty);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     const placement = place_object(obj, tx, ty, env);
     if (placement && typeof placement.then === 'function') await placement;
     redraw(tx, ty);
+    if (noticesQueued()) await emitQueuedNotices();
     return true;
 }

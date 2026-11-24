@@ -255,7 +255,11 @@ import { dropy, flooreffects } from './do.js';
 import { makeplural } from './fruit.js';
 import { body_part, mbodypart, polymon } from './polyself.js';
 import { passive_obj, shade_miss } from './uhitm.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { impossible, impossible_printer, pline_mon, youHear } from './pline.js';
 import { finish_steps } from './source_steps.js';
 import { messageAt } from './startup_a11y.js';
@@ -512,6 +516,7 @@ export async function drop_throw(obj, ohit, x, y, rawEnv = {}) {
     if (!broken) broken = Boolean(ohit && shouldMulch(obj, env));
     if (broken) {
         await delobj(obj, env);
+        if (noticesQueued()) await emitQueuedNotices();
     } else {
         if (down_gate(x, y, state) !== -1)
             broken = await ship_object(obj, x, y, false, env);
@@ -640,6 +645,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
     } else if (otmp.oclass === POTION_CLASS) {
         if (ismimic)
             seemimic(mtmp, state, env);
+        if (noticesQueued()) await emitQueuedNotices();
         mtmp.msleeping = 0;
         /* probably thrown by a monster rather than 'other', but the
            distinction only matters when hitting the hero */
@@ -657,6 +663,7 @@ export async function ohitmon(mtmp, otmp, range, verbose, rawEnv = {}) {
 
         if (ismimic)
             seemimic(mtmp, state, env);
+        if (noticesQueued()) await emitQueuedNotices();
         mtmp.msleeping = 0;
         // C mthrowu.c:383 Soundeffect(se_splat_egg, 35): empty macro with no sound library (include/sndprocs.h:193-197, 272).
         if (vis) {
@@ -1242,6 +1249,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
             }
             if (cansee(x, y, state))
                 redraw(x, y, state);
+            if (noticesQueued()) await emitQueuedNotices();
         } else {
             /* Weapon return fumbled. */
             dmg = random.rn2(2);
@@ -1308,6 +1316,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
                 if (await flooreffects(otmp, x, y, 'drop', env)) {
                     if (cansee(x, y, state))
                         redraw(x, y, state);
+                    if (noticesQueued()) await emitQueuedNotices();
                     return;
                 }
                 const placement = place_object(otmp, x, y, env);
@@ -1329,6 +1338,7 @@ export async function return_from_mtoss(magr, otmp, tethered_weapon, state = gam
     }
     if (cansee(x, y, state))
         redraw(x, y, state);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: mthrowu.c thrwmm() (968-1012). Monster throws item at another

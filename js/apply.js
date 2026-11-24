@@ -524,7 +524,11 @@ import {
     trapname,
 } from './trap.js';
 import { dotrap, feeltrap, mintrap } from './trap_effects.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { cansee, couldsee, howmonseen, recalc_block_point, unblock_point, vision_recalc_async } from './vision.js';
 import { bimanual, is_pole, mon_adjust_speed, setnotworn } from './worn.js';
 import { dowrite } from './write.js';
@@ -926,6 +930,7 @@ async function whipattack(monster, rx, ry, proficient, state, env) {
                 );
                 if (!spotItNow) map_invisible(rx, ry, state);
                 else newsym(rx, ry, state);
+                if (noticesQueued()) await emitQueuedNotices();
             }
         } else {
             object = monster.mw ?? null;
@@ -1112,6 +1117,7 @@ export async function use_pole(obj, autohit, state = game) {
         }
     } else {
         unmap_invisible(target.x, target.y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         if (glyph_to_obj(glyph) === BOULDER
             && sobj_at(BOULDER, target.x, target.y, state)) {
             await ttyPline('Thump!  Your blow bounces harmlessly off the boulder.', state);
@@ -1260,6 +1266,7 @@ async function use_leash(obj, state = game, env = {}) {
     if (!monster) {
         await ttyPline('There is no creature there.', state);
         unmap_invisible(cc.x, cc.y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         return ECMD_TIME;
     }
 
@@ -1277,6 +1284,7 @@ async function use_leash_core(obj, monster, cc, spotmon, state, env = {}) {
             `You fail to ${obj.leashmon ? 'un' : ''}leash something.`, state,
         );
         map_invisible(cc.x, cc.y, state);
+        if (noticesQueued()) await emitQueuedNotices();
     } else if (!monster.mtame) {
         await ttyPline(
             `${Monnam(monster, state, env)} ${!obj.leashmon ? 'cannot be' : 'is not'} leashed!`,
@@ -1544,6 +1552,7 @@ export async function use_grapple(obj, state = game, env = {}) {
             // apply.c discards pickup_object()'s result.
             await pickup_object(object, 1, false, { ...env, state, random });
             newsym(cc.x, cc.y, state);
+            if (noticesQueued()) await emitQueuedNotices();
             return ECMD_TIME;
         }
         break;
@@ -1579,6 +1588,7 @@ export async function use_grapple(obj, state = game, env = {}) {
                 // apply.c discards rloc_to()'s return; its ordinary monster
                 // relocation path is already available to this caller.
                 await rloc_to(monster, cc.x, cc.y, { ...env, state, random });
+                if (noticesQueued()) await emitQueuedNotices();
                 return ECMD_TIME;
             }
             if ((!bigmonst(monster.data) && !strongmonst(monster.data))
@@ -1891,6 +1901,7 @@ async function use_cream_pie(obj, state = game, rawEnv = {}) {
     await costly_alteration(obj, COST_SPLAT, env);
     await obj_extract_self(obj, env);
     await delobj(obj, env);
+    if (noticesQueued()) await emitQueuedNotices();
     return ECMD_OK;
 }
 
@@ -2047,12 +2058,14 @@ export async function set_trap(state = game, env = {}) {
 
     const ttyp = obj.otyp === LAND_MINE ? LANDMINE : BEAR_TRAP;
     const trap = maketrap(state.u.ux, state.u.uy, ttyp, { ...env, state });
+    if (noticesQueued()) await emitQueuedNotices();
     if (trap) {
         trap.madeby_u = true;
         feeltrap(trap, {
             state,
             redraw: newsym,
         });
+        if (noticesQueued()) await emitQueuedNotices();
         if (in_rooms(state.u.ux, state.u.uy, SHOPBASE, state).length)
             add_damage(state.u.ux, state.u.uy, 0, state);
         if (!trapinfo.force_bungle) {
@@ -2478,6 +2491,7 @@ export async function its_dead(rx, ry, state = game, response = null) {
         let reviver = false;
         if (Blind(state.u) && visglyph !== corpseglyph.glyph)
             map_object(corpse, true, state);
+        if (noticesQueued()) await emitQueuedNotices();
         if (state.urole?.mnum === PM_HEALER) {
             // apply.c:265-274. This only detects a pending revival; it neither
             // runs nor changes the timer. Walk the square's nexthere chain,
@@ -2660,6 +2674,7 @@ async function use_stethoscope(obj, state = game) {
                 await ttyPline(`There is ${mnm} hidden there.`, state);
             mtmp.mundetected = 0;
             newsym(mtmp.mx, mtmp.my);
+            if (noticesQueued()) await emitQueuedNotices();
         } else if (mtmp.mappearance) {
             let what = 'thing';
             let use_plural = false;
@@ -2693,6 +2708,7 @@ async function use_stethoscope(obj, state = game) {
                 break;
             }
             seemimic(mtmp, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await ttyPline(
                 `${use_plural ? 'Those' : 'That'} ${what} `
                 + `${use_plural ? 'are' : 'is'} really ${mnm}.`,
@@ -2705,9 +2721,12 @@ async function use_stethoscope(obj, state = game) {
         await mstatusline(mtmp, state);
         if (!canspotmon(mtmp, state))
             map_invisible(rx, ry, state);
+        if (noticesQueued()) await emitQueuedNotices();
         return res;
     }
-    if (unmap_invisible(rx, ry, state))
+    const unmapped = unmap_invisible(rx, ry, state);
+    if (noticesQueued()) await emitQueuedNotices();
+    if (unmapped)
         await ttyPline('The invisible monster must have moved.', state);
 
     const lev = state.level.at(rx, ry);
@@ -2721,6 +2740,7 @@ async function use_stethoscope(obj, state = game) {
         cvt_sdoor_to_door(lev, state); /* ->typ = DOOR */
         recalc_block_point(rx, ry, state);
         feel_newsym(rx, ry, state);
+        if (noticesQueued()) await emitQueuedNotices();
         return res;
     }
     if (lev.typ === SCORR) {
@@ -2732,6 +2752,7 @@ async function use_stethoscope(obj, state = game) {
         lev.flags = 0;
         unblock_point(rx, ry, state);
         feel_newsym(rx, ry, state);
+        if (noticesQueued()) await emitQueuedNotices();
         return res;
     }
 
@@ -3752,6 +3773,7 @@ export async function fig_transform(figurine, timeout, rawEnv = {}) {
         obfree(figurine, null, env);
     }
     if (redraw) newsym(location.x, location.y, state);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: apply.c figurine_location_checks() (2511-2541). Read-only location
@@ -3833,6 +3855,7 @@ export async function use_figurine(objp, state = game, rawEnv = {}) {
     stop_timer(FIG_TRANSFORM, obj, state, env);
     await useup(obj, env);
     if (Blind(state.u)) map_invisible(x, y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     objp.obj = null;
     return ECMD_TIME;
 }
@@ -3922,6 +3945,7 @@ export async function use_bell(objp, state = game, rawEnv = {}) {
             let result = 0;
             if (state.uchain) {
                 unpunish(state, { ...rawEnv, random });
+                if (noticesQueued()) await emitQueuedNotices();
                 result = 1;
             } else if (state.u.utrap
                 && state.u.utraptype === TT_BURIEDBALL) {
@@ -4235,6 +4259,7 @@ export async function use_mirror(obj, state = game, env = {}) {
                 onscary: (x, y, mon) => onscary(x, y, mon, state),
                 setApparxy: set_apparxy,
             });
+            if (noticesQueued()) await emitQueuedNotices();
         }
     } else if (!is_unicorn(mtmp.data) && !humanoid(mtmp.data)
         && !is_demon(mtmp.data)
@@ -4435,6 +4460,7 @@ export async function use_whistle(obj, state = game, env = {}) {
         ...env, state, random: env.random ?? coreRandom,
     });
     if (obj.cursed) vault_summon_gd(state);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 export async function use_magic_whistle(obj, state = game, env = {}) {
@@ -4498,6 +4524,7 @@ export async function magic_whistled(obj, state = game, env = {}) {
             const oldSeen = canspotmon(monster, state);
             let monsterName = oldSeen ? y_monnam(monster, state, env) : '';
             if (M_AP_TYPE(monster)) seemimic(monster, state, env);
+            if (noticesQueued()) await emitQueuedNotices();
             const oldX = monster.mx;
             const oldY = monster.my;
             await mnexto(monster, alreadyDiscovered ? RLOC_NONE : RLOC_MSG, {
@@ -4508,6 +4535,7 @@ export async function magic_whistled(obj, state = game, env = {}) {
                 if (monster.mundetected) {
                     monster.mundetected = false;
                     newsym(monster.mx, monster.my);
+                    if (noticesQueued()) await emitQueuedNotices();
                 }
                 state.iflags.last_msg = PLNMSG_enum;
                 const result = await mintrap(monster, NO_TRAP_FLAGS, {
@@ -4584,6 +4612,7 @@ async function discard_broken_wand(state = game, rawEnv = {}) {
     const obj = state.current_wand;
     state.current_wand = null;
     if (obj) await delobj(obj, { ...rawEnv, state });
+    if (noticesQueued()) await emitQueuedNotices();
     nomul(0, state);
 }
 

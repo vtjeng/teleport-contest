@@ -190,7 +190,11 @@ import { breaks } from './dothrow.js';
 import { mon_pmname, Monnam, rndmonnam } from './do_name.js';
 import { done } from './end.js';
 import { encumber_msg } from './pickup.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { unpunish as removePunishment } from './read.js';
 import { S_expl_tl } from './symbols.js';
@@ -505,8 +509,10 @@ export async function explode(
 
             if (monster && cansee(xx, yy, state) && !canspotmon(monster, state)) {
                 map_invisible(xx, yy, state);
+                if (noticesQueued()) await emitQueuedNotices();
             } else if (!monster) {
                 unmap_invisible(xx, yy, state, newsym);
+                if (noticesQueued()) await emitQueuedNotices();
             }
             if (cansee(xx, yy, state)) visible = true;
             if (mask & (EXPL_MON | EXPL_HERO)) anyShield = true;
@@ -534,6 +540,7 @@ export async function explode(
                         if (!(masks[i][j] & (EXPL_MON | EXPL_HERO))) continue;
                         show_glyph_cell(x + i - 1, y + j - 1,
                             map_glyphinfo(cmap_to_glyph(shield, state), state));
+                        if (noticesQueued()) await emitQueuedNotices();
                     }
                 }
                 await curs_on_u(state);
@@ -544,6 +551,7 @@ export async function explode(
                     if (!(masks[i][j] & (EXPL_MON | EXPL_HERO))) continue;
                     show_glyph_cell(x + i - 1, y + j - 1,
                         explosion_to_glyph(expltype, explosion[i][j], state));
+                    if (noticesQueued()) await emitQueuedNotices();
                 }
             }
         } else {
@@ -593,6 +601,7 @@ export async function explode(
                     await engulfer_explosion_msg(adtyp, olet, state, env);
                 } else if (cansee(xx, yy, state)) {
                     if (monster.m_ap_type) seemimic(monster, state);
+                    if (noticesQueued()) await emitQueuedNotices();
                     await messageLine(`${Monnam(monster, state, env)} is caught in the ${str}!`,
                         state, env);
                 }
@@ -1041,6 +1050,7 @@ export async function scatter(
                 await unpunish(state.uchain, state.uball, env);
             else
                 removePunishment(state, env);
+            if (noticesQueued()) await emitQueuedNotices();
             if (wasChain) continue;
         }
 
@@ -1102,6 +1112,7 @@ export async function scatter(
                 await placeObject(scattered, sx, sy);
             }
             await redraw(sx, sy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             usedUp = true;
         } else if ((scflags & SCATTER_MAY_DESTROY)
             && (!random.rn2(10)
@@ -1223,8 +1234,10 @@ export async function scatter(
             }
         }
         await redraw(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     await redraw(sx, sy, state);
+    if (noticesQueued()) await emitQueuedNotices();
 
     const sourceMonster = getMonster(sx, sy);
     if (getHero(sx, sy) && state.u?.uundetected

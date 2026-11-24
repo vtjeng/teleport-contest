@@ -214,7 +214,11 @@ import { fuzzymatch, lcase, s_suffix, upstart } from './hacklib.js';
 import { aligns } from './roles.js';
 import { coreRandom, d, rn2, rnd, rn2_on_display_rng, rnz } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { dismount_steed } from './steed.js';
 import { livelog_printf } from './pline.js';
 import { freeinv, getobj, hold_another_object, nxtobj, obj_extract_self, obfree, update_inventory } from './invent.js';
@@ -1793,6 +1797,7 @@ export async function Mb_hit(
         if (attack_indx === MB_INDEX_PROBE && !canspotmon(mdef, state)) {
             if (state === game) map_invisible(mdef.mx, mdef.my, state);
             else map_invisible_memory_only(mdef.mx, mdef.my, state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 
@@ -2747,6 +2752,7 @@ async function arti_invoke(obj, state = game) {
             return ECMD_TIME;
         }
         newsym(state.u.ux, state.u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
         if (on)
             await ttyPline(
                 `Your body takes on a ${Hallucination(state.u) ? 'normal' : 'strange'} transparency...`,

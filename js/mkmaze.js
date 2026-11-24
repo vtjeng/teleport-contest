@@ -125,7 +125,12 @@ import {
     maketrap,
     t_at,
 } from './trap.js';
-import { ttyNorep, ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyNorep,
+    ttyPline,
+} from './tty_message.js';
 import { impossible, impossible_printer } from './pline.js';
 import {
     block_point,
@@ -395,6 +400,7 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                 // the next saved bubble content or collision effect.
                 const moved = await mnearto(contents.list, contents.x, contents.y,
                     true, RLOC_NOMSG, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 if (!moved) await elemental_clog(contents.list, state);
                 break;
             }
@@ -404,6 +410,7 @@ export function mv_bubble(bubble, dx, dy, initial, state = game,
                 const oldy = state.u.uy;
                 await u_on_newpos(contents.x, contents.y, state);
                 newsym(oldx, oldy);
+                if (noticesQueued()) await emitQueuedNotices();
                 if (occupying)
                     await mnexto(occupying, RLOC_NOMSG, { state });
                 break;
@@ -510,6 +517,7 @@ export async function movebubbles(state = game, random = rn2) {
 
     if (waterLevel) {
         if (state.uball) bcpin = unplacebc_and_covet_placebc(state);
+        if (noticesQueued()) await emitQueuedNotices();
         state.hero_bubble = null;
         // C collects using the previous direction, before toggling it for
         // movement below. The first overlapping bubble owns each monster or
@@ -546,7 +554,9 @@ export async function movebubbles(state = game, random = rn2) {
                         push_front(bubble.cons, { x, y, what: 'monster', list: monster });
                         if (monster.wormno) remove_worm(monster, { state });
                         else remove_monster(x, y, state);
+                        if (noticesQueued()) await emitQueuedNotices();
                         newsym(x, y);
+                        if (noticesQueued()) await emitQueuedNotices();
                         monster.mx = monster.my = 0;
                         monster.mstate = (monster.mstate ?? 0) | MON_BUBBLEMOVE;
                     }
@@ -892,8 +902,9 @@ async function put_lregion_here(
             if (!oneshot) return false;
             if (!options.preflightOnly) {
                 // mkmaze.c:449-450, rloc() and then mon.c m_into_limbo().
-                if (!await rloc(mtmp, RLOC_NOMSG, { state }))
-                    await m_into_limbo(mtmp, state);
+                const moved = await rloc(mtmp, RLOC_NOMSG, { state });
+                if (noticesQueued()) await emitQueuedNotices();
+                if (!moved) await m_into_limbo(mtmp, state);
             }
         }
         if (options.preflightOnly) {
@@ -916,6 +927,7 @@ async function put_lregion_here(
         // C ref: mkmaze.c:450-454 mkportal(). A portal is a magic portal
         // trap whose destination is the level region's resolved d_level.
         if (lev) mkportal(x, y, lev.dnum, lev.dlevel, state);
+        if (noticesQueued()) await emitQueuedNotices();
         break;
     }
     case LR_DOWNSTAIR:
@@ -1024,6 +1036,7 @@ export async function baalz_fixup(state = game) {
                     onscary(nx, ny, mon, env.state),
                 setApparxy: set_apparxy,
             });
+            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 
@@ -1046,6 +1059,7 @@ export async function baalz_fixup(state = game) {
                     onscary(nx, ny, mon, env.state),
                 setApparxy: set_apparxy,
             });
+            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 
@@ -1293,6 +1307,7 @@ export async function stolen_booty(state = game) {
     };
     let monster = makemon(state.mons[PM_ORC_CAPTAIN], 0, 0, MM_NONAME,
                           monsterEnv);
+    if (noticesQueued()) await emitQueuedNotices();
     if (monster) {
         monster = christen_monst(monster, upstart(gang), { state });
         monster.mpeaceful = false;
@@ -1311,6 +1326,7 @@ export async function stolen_booty(state = game) {
     for (let i = 0; i < count; ++i) {
         const mtyp = rn2(PM_ORC_SHAMAN - PM_ORC + 1) + PM_ORC;
         monster = makemon(state.mons[mtyp], 0, 0, MM_NONAME, monsterEnv);
+        if (noticesQueued()) await emitQueuedNotices();
         if (monster) {
             shiny_orc_stuff(monster, state);
             await migrate_orc(monster, 0, state);
@@ -1499,12 +1515,14 @@ export async function populate_maze(frame, state = game) {
         const point = mazexy(null, frame, state);
         await makemon(state.mons[PM_MINOTAUR], point.x, point.y, NO_MM_FLAGS,
             { state, random: coreRandom, hooks: env.hooks });
+        if (noticesQueued()) await emitQueuedNotices();
     }
     count = rn1(5, 7);
     for (; count; --count) {
         const point = mazexy(null, frame, state);
         await makemon(null, point.x, point.y, NO_MM_FLAGS,
             { state, random: coreRandom, hooks: env.hooks });
+        if (noticesQueued()) await emitQueuedNotices();
     }
     count = rn1(6, 7);
     for (; count; --count) {
@@ -1512,8 +1530,10 @@ export async function populate_maze(frame, state = game) {
         mkgold(0, point.x, point.y, env);
     }
     count = rn1(6, 7);
-    for (; count; --count)
+    for (; count; --count) {
         await mktrap(0, MKTRAP_MAZEFLAG, null, null, env);
+        if (noticesQueued()) await emitQueuedNotices();
+    }
 }
 
 // C ref: mkmaze.c mazexy() (1313-1350).  `coordinate` mirrors the output

@@ -202,7 +202,11 @@ import { fall_asleep } from './timeout.js';
 import {
     b_trapped, deltrap, float_up, reset_utrap, selftouch, t_at,
 } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { tty_display_nhwindow_map_blocking } from './wintty.js';
 import { remove_worn_item } from './steal.js';
 import { costly_spot, sellobj_state } from './shk.js';
@@ -2449,6 +2453,7 @@ async function givit(type, ptr, state, env = {}) {
             );
             addOutside();
             if (Blind(state.u)) await see_monsters(state, { ...env });
+            if (noticesQueued()) await emitQueuedNotices();
         }
         break;
     case ACID_RES:
@@ -2568,6 +2573,7 @@ async function cpostfx(pm, state, env = {}) {
 
     // C discards the result while releasing a stale mimic message.
     if (state.eatmbuf) eatmdone(state);
+    if (noticesQueued()) await emitQueuedNotices();
 
     switch (pm) {
     case PM_WRAITH:
@@ -2606,6 +2612,7 @@ async function cpostfx(pm, state, env = {}) {
             state.u.uprops[SEE_INVIS].intrinsic |= FROMOUTSIDE;
         }
         newsym(state.u.ux, state.u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
         // C falls through to the shared yellow-light/giant-bat stun arm.
         await make_stunned(
             (HStun(state.u) & TIMEOUT) + 30,
@@ -2685,6 +2692,7 @@ async function cpostfx(pm, state, env = {}) {
             // TRUE) waits at --More-- whenever the top line holds text, even
             // text that an earlier key already acknowledged.
             newsym(state.u.ux, state.u.uy);
+            if (noticesQueued()) await emitQueuedNotices();
             await curs_on_u(state);
             await tty_display_nhwindow_map_blocking(state);
         }
@@ -3847,6 +3855,7 @@ async function eataccessory(otmp, state, env) {
         case RIN_SEE_INVISIBLE: {
             set_mimic_blocking(state);
             await see_monsters(state, { ...env });
+            if (noticesQueued()) await emitQueuedNotices();
             const invisible = Boolean(
                 Invis(state.u),
             );
@@ -3854,6 +3863,7 @@ async function eataccessory(otmp, state, env) {
                 && !perceives(state.youmonst.data)
                 && !Blind(state.u)) {
                 newsym(state.u.ux, state.u.uy, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 await message('Suddenly you can see yourself.', state);
                 discover_object(typ, true, true, true, state);
             }
@@ -3868,6 +3878,7 @@ async function eataccessory(otmp, state, env) {
             if (!oldprop && !EInvis(state.u) && !BInvis(state.u)
                 && !seeInvis && !Blind(state.u)) {
                 newsym(state.u.ux, state.u.uy, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 await message(
                     `Your body takes on a ${Hallucination(state.u)
                         ? 'normal' : 'strange'} transparency...`,
@@ -3997,6 +4008,7 @@ async function eatspecial(state, env) {
         else
             await useupf(otmp, otmp.quan, env);
         vault_gd_watching(GD_EATGOLD, state);
+        if (noticesQueued()) await emitQueuedNotices();
         return;
     }
 
@@ -4056,8 +4068,10 @@ async function eatspecial(state, env) {
 
     if (otmp === state.uball)
         unpunish(state, env);
+    if (noticesQueued()) await emitQueuedNotices();
     if (otmp === state.uchain) {
         unpunish(state, env);
+        if (noticesQueued()) await emitQueuedNotices();
     } else if (carried(otmp)) {
         await useup(otmp, env);
     } else {

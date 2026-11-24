@@ -162,7 +162,11 @@ import {
     SPEED_BOOTS,
 } from './objects.js';
 import { learnwand } from './zap.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { messageAt } from './startup_a11y.js';
 import { cansee, vision_recalc_async, vision_recalc_steps } from './vision.js';
 import { arti_light_description } from './light.js';
@@ -859,6 +863,7 @@ async function applyMonsterArmorRuntime(
         await update_mon_extrinsics(monster, old, false, {
             ...env, state, silent,
         });
+        if (noticesQueued()) await emitQueuedNotices();
         old.owornmask = oldMask;
         if (old.lamplit && artifact_light(old)) {
             end_burn(old, false, objectGenerationEnv({ ...env, state }));
@@ -904,6 +909,7 @@ async function applyMonsterArmorRuntime(
     await update_mon_extrinsics(monster, best, true, {
         ...env, state, silent,
     });
+    if (noticesQueued()) await emitQueuedNotices();
     if (!silent && sawMonster !== canseemon(monster, state)) {
         if (monster.minvis && !See_invisible(state.u)) {
             const message = env.message ?? ttyPline;
@@ -1132,6 +1138,7 @@ async function m_lose_armor(monster, obj, polyspot, rawEnv = {}) {
     if (placement && typeof placement.then === 'function') await placement;
     if (polyspot) bypass_obj(obj, state);
     redraw(monster.mx, monster.my, state);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 export function bimanual(obj, state = game) {
