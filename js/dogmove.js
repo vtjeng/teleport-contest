@@ -186,7 +186,11 @@ import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { S_sink } from './symbols.js';
 import { mpickobj, relobj } from './steal.js';
 import { gettrack } from './track.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { tty_display_nhwindow_map_blocking } from './wintty.js';
 import {
     t_at,
@@ -532,7 +536,9 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
     const redraw = rawEnv.redraw ?? newsym;
     if (x !== mtmp.mx || y !== mtmp.my) {
         redraw(x, y);
+        if (noticesQueued()) await emitQueuedNotices();
         redraw(mtmp.mx, mtmp.my);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     // dogmove.c:252-256. Killer-bee jelly has its own complete owner and
@@ -714,6 +720,7 @@ export async function quickmimic(mtmp, rawEnv = {}) {
 
         const redraw = rawEnv.redraw ?? newsym;
         redraw(mtmp.mx, mtmp.my);
+        if (noticesQueued()) await emitQueuedNotices();
         const message = rawEnv.message ?? ttyPline;
         if (wasLeashed
             && (appearanceType !== M_AP_MONSTER
@@ -873,6 +880,7 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
         }
         await obj_extract_self(taken, objectEnv);
         redraw(monster.mx, monster.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
         mpickobj(monster, taken, objectEnv);
         if (attacktype(monster.data, AT_WEAP)
             && monster.weapon_check === NEED_WEAPON) {
@@ -1356,6 +1364,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
         remove_monster(monster.mx, monster.my, state);
         place_monster(monster, cc.x, cc.y, state);
         (env.redraw ?? newsym)(cc.x, cc.y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         set_apparxy(monster, env);
     };
 

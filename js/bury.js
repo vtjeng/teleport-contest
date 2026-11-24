@@ -38,7 +38,11 @@ import { objectGenerationEnv } from './object_generation.js';
 import { maybe_unhide_at } from './mon.js';
 import { newsym } from './display.js';
 import { set_utrap } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import {
     end_burn,
     start_timer,
@@ -147,6 +151,7 @@ export async function bury_an_obj(obj, rawEnv = {}) {
 
     if (obj === punishedObject(state, 'uball')) {
         unpunish(state, env);
+        if (noticesQueued()) await emitQueuedNotices();
         set_utrap(random.rn1(50, 20), TT_BURIEDBALL, state);
         await (env.message ?? ttyPline)('The iron ball gets buried!', state, env);
     }

@@ -168,7 +168,11 @@ import { fix_shop_damage } from './shk.js';
 import { delete_bonesfile, open_bonesfile, write_bonesfile } from './files_bones.js';
 import { roles, races, genders, aligns } from './roles.js';
 import { initrack } from './track.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { dungeon_at } from './dungeon_table.js';
 
 export function no_bones_level(level, state) {
@@ -537,6 +541,7 @@ async function fixuporacle(oracle, state) {
         const cc = enexto(cx, cy, oracle.data, { state });
         if (cc) {
             await rloc_to(oracle, cc.x, cc.y, { state });
+            if (noticesQueued()) await emitQueuedNotices();
             o_ridx = roomAt(oracle.mx, oracle.my);
         }
     }
@@ -555,6 +560,7 @@ async function remove_mon_from_bones(mtmp, state) {
         || is_Vlad(mtmp)
         || (mptr === state.mons[PM_ORACLE] && !await fixuporacle(mtmp, state)))
         await mongone(mtmp, { state });
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: bones.c newebones() (818-829). Creates an ebones structure on a
@@ -616,6 +622,7 @@ export async function savebones(how, when, corpse, state) {
 
     // C: if (Punished) unpunish(); Punished is uball != null.
     if (state.uball) unpunish(state);
+    if (noticesQueued()) await emitQueuedNotices();
 
     // C ref: bones.c:441-444. Dismount before the dead monsters are
     // discarded; DISMOUNT_BONES moves the steed off the hero's square to
@@ -646,8 +653,9 @@ export async function savebones(how, when, corpse, state) {
         // bones.c:458-479. The monster the hero becomes is made on the
         // hero's square without inventory and receives the possessions.
         state.in_mklev = true;
-        mtmp = makemon(state.mons[state.u.ugrave_arise], state.u.ux,
+        mtmp = await makemon(state.mons[state.u.ugrave_arise], state.u.ux,
             state.u.uy, NO_MINVENT, { state });
+        if (noticesQueued()) await emitQueuedNotices();
         state.in_mklev = false;
         if (!mtmp) { /* arise-type might have been genocided */
             await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
@@ -657,6 +665,7 @@ export async function savebones(how, when, corpse, state) {
         give_u_to_m_resistances(mtmp, state);
         mtmp = christen_monst(mtmp, state.plname, { state });
         newsym(state.u.ux, state.u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
         await drop_upon_death(mtmp, null, state.u.ux, state.u.uy, state);
         if (mtmp.data.mlet === S_MUMMY
             && !m_carrying(mtmp, MUMMY_WRAPPING, state))
@@ -675,7 +684,8 @@ export async function savebones(how, when, corpse, state) {
         // u.ugrave_arise < LEAVESTATUE: drop everything, create a ghost.
         await drop_upon_death(null, null, state.u.ux, state.u.uy, state);
         state.in_mklev = true;
-        mtmp = makemon(state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NONAME, { state });
+        mtmp = await makemon(state.mons[PM_GHOST], state.u.ux, state.u.uy, MM_NONAME, { state });
+        if (noticesQueued()) await emitQueuedNotices();
         state.in_mklev = false;
         if (!mtmp) return;
         mtmp = christen_monst(mtmp, state.plname, { state });
@@ -1114,6 +1124,7 @@ async function purgeDefunctBonesMonsters(state) {
             mtmp.mextra.mgivenname = sanitize_name(mtmp.mextra.mgivenname, state);
         if (mtmp.mhpmax === DEFUNCT_MONSTER) {
             await mongone(mtmp, { state });
+            if (noticesQueued()) await emitQueuedNotices();
         } else {
             // C resets named-artifact bookkeeping only for survivors.
             resetobjs(mtmp.minvent, true, state);
@@ -1146,6 +1157,7 @@ export async function ghostly_getlev_monsters(state) {
         }
         set_malign(mtmp, state);
         await restore_cham(mtmp, state);
+        if (noticesQueued()) await emitQueuedNotices();
         hide_monst(mtmp, state);
     }
 }

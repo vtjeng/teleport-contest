@@ -257,6 +257,8 @@ import {
 import { drain_en } from './trap_effects.js';
 import {
     displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
@@ -991,6 +993,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                     onscary(x, y, mtmp, normalized.state),
                 setApparxy: set_apparxy,
             });
+            if (noticesQueued()) await emitQueuedNotices();
         }
         return 1;
     }
@@ -1169,6 +1172,7 @@ export async function doseduce(mon, state = game, rawEnv = {}) {
                 onscary(x, y, mtmp, normalized.state),
             setApparxy: set_apparxy,
         });
+        if (noticesQueued()) await emitQueuedNotices();
     }
     return 1;
 }
@@ -1297,6 +1301,7 @@ async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const spotted = spotMonster(mtmp, state);
     if (!spotted)
         markInvisible(mtmp.mx, mtmp.my);
+    if (noticesQueued()) await emitQueuedNotices();
     // C calls pline_mon() with Monnam() even when the hero can see an
     // invisible monster. x_monnam() supplies the invisible adjective in that
     // case; the unspotted path instead names the attacker "It".
@@ -1609,6 +1614,7 @@ export async function mattacku(monster, rawEnv = {}) {
     if (u.uundetected && !range2 && foundyou && !u.uswallow) {
         if (!(env.canSpotMonster ?? canspotmon)(monster, state))
             markInvisible(monster.mx, monster.my);
+        if (noticesQueued()) await emitQueuedNotices();
         u.uundetected = 0;
         if (is_hider(state.youmonst.data) && u.umonnum !== M.PM_TRAPPER) {
             await message(`You fall from the ${ceiling(u.ux, u.uy, state)}!`, state, env);
@@ -1619,6 +1625,7 @@ export async function mattacku(monster, rawEnv = {}) {
                 && !is_pool(u.ux, u.uy, state))) {
                 place_monster(monster, monster.mx, monster.my, state);
                 redraw(u.ux, u.uy, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 await message(messageAt(
                     `${Monnam(monster, state, env)} draws back as you drop!`,
                     monster.mx, monster.my, state,
@@ -1626,9 +1633,11 @@ export async function mattacku(monster, rawEnv = {}) {
                 return false;
             }
             redraw(monster.mx, monster.my, state);
+            if (noticesQueued()) await emitQueuedNotices();
             place_monster(monster, u.ux, u.uy, state);
             if (monster.wormno) {
                 worm_move(monster, env);
+                if (noticesQueued()) await emitQueuedNotices();
                 // C's retry tests occupancy after worm_move relocates the tail.
                 if (state.level.monsters[cc.x]?.[cc.y]) {
                     const retry = enexto(u.ux, u.uy, state.youmonst.data, env);
@@ -1639,6 +1648,7 @@ export async function mattacku(monster, rawEnv = {}) {
             await teleds(cc.x, cc.y, TELEDS_ALLOW_DRAG, state, env);
             set_apparxy(monster, env);
             redraw(u.ux, u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             if (state.youmonst.data.mlet !== M.S_PIERCER) return false;
             const helmet = which_armor(monster, W_ARMH, state);
             if (hard_helmet(helmet, state)) {
@@ -1674,6 +1684,7 @@ export async function mattacku(monster, rawEnv = {}) {
                 }
             }
             redraw(u.ux, u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         return false;
     }
@@ -1684,6 +1695,7 @@ export async function mattacku(monster, rawEnv = {}) {
             const sticky = sticks(state.youmonst.data);
             if (!(env.canSpotMonster ?? canspotmon)(monster, state))
                 markInvisible(monster.mx, monster.my);
+            if (noticesQueued()) await emitQueuedNotices();
             await message(sticky && !initial.youseeit
                 ? 'It gets stuck on you.'
                 : `Wait, ${m_monnam(monster, state, env)}!  That's a ${pmname(state.youmonst.data, Ugender(state))} named ${state.plname}!`, state, env);
@@ -1691,11 +1703,13 @@ export async function mattacku(monster, rawEnv = {}) {
             state.youmonst.m_ap_type = M_AP_NOTHING;
             state.youmonst.mappearance = 0;
             redraw(u.ux, u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             return false;
         }
         if (M_AP_TYPE(state.youmonst) === M_AP_OBJECT) {
             if (!(env.canSpotMonster ?? canspotmon)(monster, state))
                 markInvisible(monster.mx, monster.my);
+            if (noticesQueued()) await emitQueuedNotices();
             await message(!initial.youseeit
                 ? `Something ${likes_gold(mdat) && state.youmonst.mappearance === GOLD_PIECE ? 'tries to pick you up' : 'disturbs you'}!`
                 : `Wait, ${m_monnam(monster, state, env)}!  That ${mimic_obj_name(state.youmonst, state)} is really ${an(pmname(state.mons[u.umonnum], Ugender(state)))} named ${state.plname}!`, state, env);
@@ -1727,6 +1741,7 @@ export async function mattacku(monster, rawEnv = {}) {
         && cansee(monster.mx, monster.my, state)) {
         monster.minvis = false;
         redraw(monster.mx, monster.my);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     /* when not cancelled and not in current form due to shapechange, many
@@ -2079,6 +2094,7 @@ export async function expels(mtmp, rawEnv = {}) {
     // The relocation core has already painted the monster's old and new
     // squares; repeating the destination paint changes the TTY trace.
     redraw(state.u.ux, state.u.uy);
+    if (noticesQueued()) await emitQueuedNotices();
     // mhitu.c:302-304. um_dist() is Chebyshev distance, and the message is
     // emitted only when mnexto() had to leave the monster beyond a neighboring
     // square (for example through a controlled relocation seam).
@@ -2191,6 +2207,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
 
         if (Punished(state)) {
             unplacebc(state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
 
         // C evaluates Monnam() for the urgent engulfing line before it shuts
@@ -2204,6 +2221,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         place_monster(mtmp, u.ux, u.uy, state);
         set_ustuck(mtmp, state);
         redraw(mtmp.mx, mtmp.my);
+        if (noticesQueued()) await emitQueuedNotices();
 
         if (u.usteed) {
             const steedName = mon_nam(u.usteed, state, rawEnv);
@@ -2598,6 +2616,7 @@ async function hitmu(mtmp, mattk, env) {
     // same regardless.
     if (!spotMonster(mtmp, state))
         markInvisible(mtmp.mx, mtmp.my);
+    if (noticesQueued()) await emitQueuedNotices();
 
     /*  If the monster is undetected & hits you, you should know where
      *  the attack came from.
@@ -2625,6 +2644,7 @@ async function hitmu(mtmp, mattk, env) {
             }
             // C repaints even when there is no object beneath the attacker.
             env.redraw(mtmp.mx, mtmp.my);
+            if (noticesQueued()) await emitQueuedNotices();
         }
     }
 

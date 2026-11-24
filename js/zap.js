@@ -242,6 +242,8 @@ import {
 } from './timeout.js';
 import {
     displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
@@ -523,7 +525,9 @@ export function montraits(obj, cc, adjacentok = false, rawEnv = {}) {
         }
         await replmon(resolvedDummy, saved, state);
         newsym(saved.mx, saved.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
         await restore_cham(saved, state, env);
+        if (noticesQueued()) await emitQueuedNotices();
         return saved;
     };
     return dummy && typeof dummy.then === 'function'
@@ -652,6 +656,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
         monster = await makemon_revival(
             state.mons[substitution.mtype], x, y, mmflags, env,
         );
+        if (noticesQueued()) await emitQueuedNotices();
         if (monster) {
             if (corpse.oextra?.omid) free_omid(corpse);
             if (corpse.oextra?.omonst) free_omonst(corpse);
@@ -664,6 +669,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
         }
     } else if (corpse.oextra?.omonst) {
         monster = await montraits(corpse, { x, y }, false, env);
+        if (noticesQueued()) await emitQueuedNotices();
         if (monster?.mtame && !monster.isminion) {
             const { wary_dog } = await import('./dog.js');
             await wary_dog(monster, true, env);
@@ -676,14 +682,17 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
             mmflags | MM_NOCOUNTBIRTH,
             env,
         );
+        if (noticesQueued()) await emitQueuedNotices();
     }
     if (!monster) return null;
 
     if (monster.mundetected) {
         monster.mundetected = false;
         newsym(monster.mx, monster.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     if (M_AP_TYPE(monster)) seemimic(monster, state);
+    if (noticesQueued()) await emitQueuedNotices();
 
     const oneOf = corpse.quan > 1;
     if (oneOf)
@@ -778,6 +787,7 @@ export async function revive(corpse, byHero = false, rawEnv = {}) {
         break;
     case OBJ_FLOOR:
         await delobj_core(corpse, true, objectEnv);
+        if (noticesQueued()) await emitQueuedNotices();
         break;
     case OBJ_MINVENT:
         await m_useup(corpse.ocarry, corpse, objectEnv);
@@ -1305,6 +1315,7 @@ export async function zapyourself(obj, ordinary, state = game) {
         if (msg) {
             learn_it = true;
             newsym(state.u.ux, state.u.uy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await self_invis_message(state);
         }
         break;
@@ -1418,6 +1429,7 @@ export async function zapyourself(obj, ordinary, state = game) {
         if (state.uball) {
             learn_it = true;
             unpunish(state, env);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         // C evaluates u.utrap before openholdingtrap() can clear it.
         const wasTrapped = Boolean(state.u.utrap);
@@ -2215,6 +2227,7 @@ export async function do_osshock(obj, state = game, random = coreRandom, rawEnv 
             await stolen_value(obj, obj.ox, obj.oy, false, false, state);
     }
     await delobj_core(obj, false, zapObjectEnv(state, random, rawEnv));
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: zap.c polyuse() (1505-1544).  The object successor is captured
@@ -2243,6 +2256,7 @@ export async function polyuse(objhdr, material, minwt, state = game,
                     ? Math.max(0, minwt - Math.trunc(current.quan)) : 0;
                 await delobj_core(current, false,
                     zapObjectEnv(state, random, rawEnv));
+                if (noticesQueued()) await emitQueuedNotices();
             }
         }
         current = next;
@@ -2368,6 +2382,7 @@ export async function poly_obj(obj, id, state = game,
         do {
             if (replacement)
                 await delobj_core(replacement, false, env);
+            if (noticesQueued()) await emitQueuedNotices();
             replacement = mkobj(obj.oclass, false, env);
         } while (--tries > 0
                  && Boolean(objectType(replacement, state).oc_magic)
@@ -2628,6 +2643,7 @@ export async function poly_obj(obj, id, state = game,
         }
     }
     await delobj_core(obj, false, env);
+    if (noticesQueued()) await emitQueuedNotices();
     return replacement;
 }
 
@@ -2709,6 +2725,7 @@ export async function stone_to_flesh_obj(obj, state = game,
                     if (obj.timed) obj_stop_timers(obj, state, env);
                     if (carried(obj)) await useup(obj, env);
                     else await delobj(obj, env);
+                    if (noticesQueued()) await emitQueuedNotices();
                     if (cansee(monster.mx, monster.my, state)) {
                         await ttyPline(
                             `The figurine ${golemXform
@@ -2784,6 +2801,7 @@ export async function stone_to_flesh_obj(obj, state = game,
         );
     }
     newsym(ox, oy, state);
+    if (noticesQueued()) await emitQueuedNotices();
     return result;
 }
 
@@ -2841,6 +2859,7 @@ export async function fracture_rock(obj, state = game, random = coreRandom, rawE
             await vision_recalc_async(0, { ...objectEnv, redraw });
         }
         if (cansee(ox, oy, state)) redraw(ox, oy, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 }
 
@@ -3107,6 +3126,7 @@ export async function bhito(obj, wand, state = game,
     } else if (obj === state.uchain) {
         if (wand.otyp === WAN_OPENING || wand.otyp === SPE_KNOCK) {
             unpunish(state, { ...rawEnv, random });
+            if (noticesQueued()) await emitQueuedNotices();
             learn_it = true;
         } else {
             res = 0;
@@ -3143,6 +3163,7 @@ export async function bhito(obj, wand, state = game,
                 );
                 if (replacement)
                     redraw(replacement.ox, replacement.oy, state);
+                if (noticesQueued()) await emitQueuedNotices();
             }
             break;
         }
@@ -3224,6 +3245,7 @@ export async function bhito(obj, wand, state = game,
                     : await hero_breaks(obj, ox, oy, 0, breakEnv);
                 if (!broken) maybelearnit = false;
                 else redraw(ox, oy, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 res = 0;
             }
             if (maybelearnit) learn_it = true;
@@ -3232,6 +3254,7 @@ export async function bhito(obj, wand, state = game,
         case SPE_CANCELLATION:
             await cancel_item(obj, state, rawEnv);
             redraw(obj.ox, obj.oy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             break;
         case SPE_DRAIN_LIFE: {
             const drained = drain_item(obj, true, state, { ...rawEnv, random });
@@ -3413,6 +3436,7 @@ export async function bhitm(monster, wand, state = game,
         if (!Blind(state.u)) learn_it = true;
     } else if (otyp === WAN_CANCELLATION || otyp === SPE_CANCELLATION) {
         if (disguised_mimic) seemimic(monster, state);
+        if (noticesQueued()) await emitQueuedNotices();
         // C explicitly discards cancel_monst()'s Boolean result.
         await cancel_monst(monster, wand, true, true, false, state);
     } else if (otyp === WAN_SPEED_MONSTER) {
@@ -3420,6 +3444,7 @@ export async function bhitm(monster, wand, state = game,
             monster, wand.oclass, 0, NOTELL, state, random, rawEnv,
         )) {
             if (disguised_mimic) seemimic(monster, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await mon_adjust_speed(
                 monster, 1, wand, state, { ...rawEnv, random },
             );
@@ -3463,6 +3488,7 @@ export async function bhitm(monster, wand, state = game,
         }
     } else if (otyp === WAN_TELEPORTATION || otyp === SPE_TELEPORT_AWAY) {
         if (disguised_mimic) seemimic(monster, state);
+        if (noticesQueued()) await emitQueuedNotices();
         reveal_invis = !await u_teleport_mon(monster, true, {
             ...bhitmRelocationEnv(state, random, rawEnv),
         });
@@ -3471,9 +3497,11 @@ export async function bhitm(monster, wand, state = game,
         const oldInvis = Boolean(monster.minvis);
         const couldSee = canseemon(monster, state);
         if (disguised_mimic) seemimic(monster, state);
+        if (noticesQueued()) await emitQueuedNotices();
         // C names the mimic after revealing it, but before changing minvis.
         const name = Monnam(monster, state, rawEnv);
         mon_set_minvis(monster, false, state);
+        if (noticesQueued()) await emitQueuedNotices();
         if (!oldInvis && knowninvisible(monster, state)) {
             await ttyPline(name + ' turns transparent!', state, rawEnv);
             reveal_invis = true;
@@ -3515,6 +3543,7 @@ export async function bhitm(monster, wand, state = game,
                             await import('./makemon_create.js');
                         set_mimic_sym(monster, { state });
                         newsym(monster.mx, monster.my, state);
+                        if (noticesQueued()) await emitQueuedNotices();
                     } else {
                         await mimic_hit_msg(monster, otyp, {
                             ...rawEnv, state,
@@ -3593,6 +3622,7 @@ export async function bhitm(monster, wand, state = game,
         }
     } else if (otyp === SPE_DRAIN_LIFE) {
         if (disguised_mimic) seemimic(monster, state);
+        if (noticesQueued()) await emitQueuedNotices();
         let damage = monhp_per_lvl(monster, { state });
         if (state.urole?.mnum === PM_KNIGHT
             && state.u?.uhave?.questart)
@@ -3629,11 +3659,13 @@ export async function bhitm(monster, wand, state = game,
         if (resists_magm(monster, state)) {
             if (disguised_mimic && !disguised_as_mon(monster))
                 seemimic(monster, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await shieldeff(monster.mx, monster.my, state);
             await ttyPline('Boing!', state, rawEnv);
         } else if (state.u?.uswallow
             || random.rnd(20) < 10 + find_mac(monster, state)) {
             if (disguised_mimic) seemimic(monster, state);
+            if (noticesQueued()) await emitQueuedNotices();
             let damage = random.d(2, 12);
             if (state.urole?.mnum === PM_KNIGHT
                 && state.u?.uhave?.questart)
@@ -3656,6 +3688,7 @@ export async function bhitm(monster, wand, state = game,
         if (!await resist(monster, wand.oclass, 0, NOTELL,
             state, random, rawEnv)) {
             if (disguised_mimic) seemimic(monster, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await mon_adjust_speed(monster, -1, wand, state, {
                 ...rawEnv,
                 random,
@@ -3843,6 +3876,7 @@ export async function bhitm(monster, wand, state = game,
         && cansee(state.gb.bhitpos.x, state.gb.bhitpos.y, state)
         && !canspotmon(monster, state))
         map_invisible(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (learn_it) learnwand(wand, state, { random });
     return ret;
 }
@@ -3930,6 +3964,7 @@ export async function maybe_explode_trap(
         if (cansee(x, y, state)) {
             trap.tseen = true;
             newsym(x, y, state);
+            if (noticesQueued()) await emitQueuedNotices();
             learnIt.value = true;
         }
     } else if (is_magical_trap(trap.ttyp)) {
@@ -3946,6 +3981,7 @@ export async function maybe_explode_trap(
         );
         deltrap(trap, state);
         newsym(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         if (seeIt) learnIt.value = true;
     }
 }
@@ -3968,6 +4004,7 @@ export async function zap_map(
         const oldGlyph = glyph_at(x, y, state);
         await finish_steps(show_map_spot_steps(x, y, false, state, random),
             impossible_printer(state));
+        if (noticesQueued()) await emitQueuedNotices();
         if (oldType !== lastseentyp_grid(state)[x]?.[y]
             || oldGlyph !== glyph_at(x, y, state)) {
             learnIt = true;
@@ -3979,6 +4016,7 @@ export async function zap_map(
             cvt_sdoor_to_door(location, state);
             recalc_block_point(x, y, state);
             newsym(x, y);
+            if (noticesQueued()) await emitQueuedNotices();
             if (cansee(x, y, state)) {
                 await ttyPline('Probing reveals a secret door.', state, rawEnv);
                 learnIt = true;
@@ -3994,6 +4032,7 @@ export async function zap_map(
             location.typ = CORR;
             unblock_point(x, y, state);
             newsym(x, y);
+            if (noticesQueued()) await emitQueuedNotices();
             await ttyPline('Probing exposes a secret corridor.', state, rawEnv);
             learnIt = true;
         } else if (type === ICE || IS_FURNITURE(type)) {
@@ -4008,6 +4047,7 @@ export async function zap_map(
             const hallucinatory = Hallucination(state.u);
             trap.tseen = 1;
             newsym(x, y);
+            if (noticesQueued()) await emitQueuedNotices();
             if (!alreadySeen || hallucinatory) {
                 const name = trapname(trap.ttyp, false, state, random);
                 const useThe = !hallucinatory
@@ -4091,6 +4131,7 @@ export async function zap_map(
     case WAN_TELEPORTATION:
     case SPE_TELEPORT_AWAY:
         rloc_engr(engraving, state, { ...rawEnv, random });
+        if (noticesQueued()) await emitQueuedNotices();
         break;
     case WAN_CANCELLATION:
     case SPE_CANCELLATION:
@@ -4256,6 +4297,7 @@ export async function bhit(
                 );
                 ttmp.tseen = true;
                 newsym(x, y);
+                if (noticesQueued()) await emitQueuedNotices();
             }
             if (wasReturning) state.iflags.returning_missile = null;
             break;
@@ -4373,6 +4415,7 @@ export async function bhit(
                 if (!tetheredWeapon) await tmp_at(DISP_END, 0, state);
                 if (cansee(x, y, state) && !canspotmon(mtmp, state))
                     map_invisible(x, y, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 await bhitTransientLightCleanup(
                     weapon, tetheredWeapon, state, random, rawEnv,
                 );
@@ -4384,7 +4427,9 @@ export async function bhit(
             // C zap.c:4039-4043 clears a remembered invisible marker when
             // probing confirms that the square no longer contains a monster.
             unmap_object(x, y, state);
+            if (noticesQueued()) await emitQueuedNotices();
             newsym(x, y, state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
 
         if (fhito) {
@@ -4435,7 +4480,9 @@ export async function bhit(
             && glyph_is_invisible(state.level.at(x, y).remembered_glyph?.glyph)
             && cansee(x, y, state)) {
             unmap_object(x, y, state);
+            if (noticesQueued()) await emitQueuedNotices();
             newsym(x, y);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         if (!zapped && !invisBeam) {
             await tmp_at(x, y, state);
@@ -4999,6 +5046,7 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
         await vision_recalc_async(1, { ...env, state, redraw });
     }
     redraw(x, y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (canSee(x, y) || u_at(x, y, state)) {
         await norepMessage(msg ?? 'The ice crackles and melts.', state, env);
     }
@@ -5023,6 +5071,7 @@ export async function melt_ice(x, y, msg = null, state = game, rawEnv = {}) {
         } while (is_pool(x, y, state)
             && (boulder = sobj_at(BOULDER, x, y, state)));
         redraw(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     if (u_at(x, y, state)) {
@@ -5133,6 +5182,7 @@ export async function zap_over_floor(
             // its boolean result is discarded by zap_over_floor() in C.
             await delfloortrap(t, state);
             if (seeIt) redrawAt(x, y, state);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         if (is_ice(x, y, state)) {
             await melt_ice(x, y, null, state, env);
@@ -5178,6 +5228,7 @@ export async function zap_over_floor(
                 lev.typ = ROOM;
                 lev.flags = 0;
                 evaporatedTrap = await maketrap(x, y, PIT, env);
+                if (noticesQueued()) await emitQueuedNotices();
                 if (seeIt) msgtxt = 'The water evaporates.';
             }
             if (msgtxt && !messageGiven)
@@ -5192,6 +5243,7 @@ export async function zap_over_floor(
                 if (mon && is_swimmer(mon.data) && mon.mundetected)
                     mon.mundetected = false;
                 redrawAt(x, y, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 if (evaporatedTrap && u_at(x, y, state)) {
                     await dotrap(evaporatedTrap, NO_TRAP_FLAGS, state);
                 } else if (evaporatedTrap && mon) {
@@ -5281,6 +5333,7 @@ export async function zap_over_floor(
                                 : `The ${liquid('water')} freezes.`, state, env,
                     );
                     redrawAt(x, y, state);
+                    if (noticesQueued()) await emitQueuedNotices();
                 } else if (!lava) {
                     const heard = youHear('a crackling sound.', state);
                     if (heard) await message(heard, state, env);
@@ -5315,6 +5368,7 @@ export async function zap_over_floor(
                     if (mon && is_swimmer(mon.data) && mon.mundetected) {
                         mon.mundetected = false;
                         redrawAt(x, y, state);
+                        if (noticesQueued()) await emitQueuedNotices();
                     }
                 }
                 if (!lava) {
@@ -5401,6 +5455,7 @@ export async function zap_over_floor(
         cvt_sdoor_to_door(lev, state);
         recalc_block_point(x, y, state);
         redrawAt(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         if (seeIt) {
             await message(
                 `${yourzap ? 'Your' : 'The'} ${zapverb} reveals a secret door.`,
@@ -5477,6 +5532,7 @@ export async function zap_over_floor(
             if (seeIt) {
                 await message(seeText, state, env);
                 redrawAt(x, y, state);
+                if (noticesQueued()) await emitQueuedNotices();
             } else if (senseText) {
                 await message(senseText, state, env);
             } else if (hearText) {
@@ -5498,6 +5554,7 @@ export async function zap_over_floor(
         });
         if (burned && couldsee(x, y, state)) {
             redrawAt(x, y, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await message(
                 `${Blind(state.u) ? 'You smell a whiff' : 'You see a puff'} of smoke.`,
                 state, env,
@@ -5826,6 +5883,7 @@ export async function dobuzz(
     // so the beam glyph replaces the hero glyph during the animation.
     if (type < 0)
         redraw(state.u.ux, state.u.uy, state);
+    if (noticesQueued()) await emitQueuedNotices();
     let range = random.rn1(7, 7);
     if (dx === 0 && dy === 0)
         range = 1;
@@ -5856,6 +5914,7 @@ export async function dobuzz(
                     markInvisible(sx, sy, state);
                 else if (!mon)
                     unmarkInvisible(sx, sy, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 if (ZAP_POS(state.level.at(sx, sy).typ)
                     || (isok(lsx, lsy) && cansee(lsx, lsy, state)))
                     await drawBeam(sx, sy, state);
@@ -6402,6 +6461,7 @@ export async function zap_updown(obj, state = game,
                 stackobj(rock, { state, random });
             }
             newsym(x, y);
+            if (noticesQueued()) await emitQueuedNotices();
         } else if (state.u.dz > 0 && trap) {
             if (!striking) {
                 const closed = await closeholdingtrap(state.youmonst, state);
@@ -6418,6 +6478,7 @@ export async function zap_updown(obj, state = game,
                     } else {
                         trap.tseen = 1;
                         newsym(x, y);
+                        if (noticesQueued()) await emitQueuedNotices();
                         await ttyPline('A trapdoor appears beneath you.', state, rawEnv);
                         disclose = true;
                     }
@@ -6434,6 +6495,7 @@ export async function zap_updown(obj, state = game,
                 trap.ttyp = HOLE;
                 trap.tseen = 1;
                 newsym(x, y);
+                if (noticesQueued()) await emitQueuedNotices();
                 await dotrap(trap, NO_TRAP_FLAGS, state, rawEnv);
             }
         }
@@ -6634,6 +6696,7 @@ export async function cancel_monst(
         mdef.mcan = 1;
         /* force shapeshifter into its base form or mimic to unhide */
         await normal_shape(mdef, state, env);
+        if (noticesQueued()) await emitQueuedNotices();
 
         if (mdef.data === state.mons[PM_CLAY_GOLEM]) {
             if (canseemon(mdef, state)) {

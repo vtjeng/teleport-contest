@@ -70,7 +70,11 @@ import {
     WAN_LIGHTNING,
     WAND_CLASS,
 } from './objects.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
 import { Ring_gone } from './do_wear.js';
 import { bypass_objlist, nxt_unbypassed_obj, setnotworn } from './worn.js';
@@ -159,6 +163,7 @@ async function removeObjectQuantity(obj, quantity, env) {
         return;
     }
     await delobj(obj, lifecycleEnv);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: zap.c burn_floor_objects() (4617-4628). Both names are xname(),

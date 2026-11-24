@@ -18,6 +18,10 @@ async function fixture() {
 
 test('ball restriction owns extraction and rejects ordinary, nested and wrong-pin placement', async () => {
     await fixture();
+    // ball.c unplacebc() and placebc() refuse through impossible() while the
+    // restriction holds, and the report prints where it is raised; spaces
+    // answer its --More-- prompts.
+    for (let i = 0; i < 12; ++i) game.nhDisplay.pushKey(32);
     const draws = [];
     const env = {random: {rnd: n => { draws.push(n); return 137; }}};
     const pin = unplacebc_and_covet_placebc(game, env);

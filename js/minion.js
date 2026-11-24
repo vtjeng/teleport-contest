@@ -52,7 +52,11 @@ import { vision_recalc_async } from './vision.js';
 import { livelog_printf, verbalize, youFeel } from './pline.js';
 import { align_gname } from './pray.js';
 import { set_voice } from './sounds.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { canseemon, canspotmon } from './display.js';
 import { enexto } from './teleport.js';
 import { m_dowear, which_armor } from './worn.js';
@@ -93,6 +97,7 @@ export async function lose_guardian_angel(mon, state = game, rawEnv = {}) {
             }
         }
         await mongone(mon, env);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     for (let i = random.rn1(3, 2); i > 0; --i) {
         const at = enexto(state.u.ux, state.u.uy,
@@ -100,6 +105,7 @@ export async function lose_guardian_angel(mon, state = game, rawEnv = {}) {
         if (at)
             await mk_roamer(state.mons[M.PM_ANGEL], state.u.ualign.type,
                 at.x, at.y, false, env);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 }
 
@@ -129,6 +135,7 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
             ? await mk_roamer(state.mons[M.PM_ANGEL], state.u.ualign.type,
                 at.x, at.y, true, env)
             : null;
+        if (noticesQueued()) await emitQueuedNotices();
         if (angel) {
             angel.mstrategy &= ~STRAT_APPEARMSG;
             if (state.u?.uconduct?.pets) {
@@ -136,6 +143,7 @@ export async function gain_guardian_angel(state = game, rawEnv = {}) {
                 state.u.uconduct.pets++;
             }
             newsym(angel.mx, angel.my, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await message(Blind(state.u)
                 ? youFeel('the presence of a friendly angel near you.', state)
                 : 'An angel appears near you.', state);
@@ -246,6 +254,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         mtmp.mtame = 0;
         set_malign(mtmp, state);
         redraw(mtmp.mx, mtmp.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
         return 0;
     }
 
@@ -268,6 +277,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
             mtmp.mstrategy &= ~STRAT_APPEARMSG;
         }
         redraw(mtmp.mx, mtmp.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     if (state.youmonst?.data?.mlet === M.S_DEMON) {
@@ -281,6 +291,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         }
         if (!await tele_restrict(mtmp, state, env))
             await rloc(mtmp, RLOC_MSG, { ...env, state, random });
+        if (noticesQueued()) await emitQueuedNotices();
         return 1;
     }
 
@@ -337,6 +348,7 @@ export async function demon_talk(mtmp, state = game, env = {}) {
         state,
     );
     await mongone(mtmp, { state });
+    if (noticesQueued()) await emitQueuedNotices();
     return 1;
 }
 

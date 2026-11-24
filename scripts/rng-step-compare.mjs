@@ -19,7 +19,9 @@
 //   node scripts/rng-step-compare.mjs [--port <directory>] <session.json>...
 //
 // It prints one JSON line per file and exits 1 when a file lags or fails to
-// replay. --port names a checkout whose js/jsmain.js replays instead of this
+// replay. The replay is js/jsmain.js runSegmentStrict(), so a file whose
+// replay draws a random number or reads a key while a line waits in the
+// notice queue (js/rng.js, "Queued output") fails to replay too. --port names a checkout whose js/jsmain.js replays instead of this
 // one's.
 
 import { readFileSync } from 'node:fs';

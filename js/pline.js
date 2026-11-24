@@ -14,6 +14,7 @@ import {
     emitQueuedNotices, ttyNorep, ttyPline, ttyUrgentPline,
 } from './tty_message.js';
 import { isok } from './cmd_isok.js';
+import { waitingPrinter } from './source_steps.js';
 import { Blind, Deaf, Unaware } from './youprop.js';
 
 
@@ -145,7 +146,7 @@ export function norep_printer(env = {}) {
 // wait: each impossible() prints where C calls it, and the rest of the body
 // runs after it.
 export function impossible_printer(state = game, env = {}) {
-    return (text) => impossible(text, state, env);
+    return waitingPrinter((text) => impossible(text, state, env));
 }
 
 // C appends to gg.gamelog and preserves insertion order. The C allocator

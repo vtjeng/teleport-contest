@@ -190,8 +190,10 @@ import {
 import {
     clearTtyMessageWindow,
     displayPendingTtyMessageWindow,
-    ttyPline,
+    emitQueuedNotices,
+    noticesQueued,
     tty_message_menu,
+    ttyPline,
 } from './tty_message.js';
 import { menuTitleStyle } from './tty_menu.js';
 import { tty_wait_synch } from './tty_rawprint.js';
@@ -3387,10 +3389,12 @@ export async function delallobj(x, y, env = {}) {
                 normalized.hooks.unpunish(normalized);
             else
                 unpunish(state, normalized);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         const next = obj.nexthere;
         if (obj !== state.uchain)
             await delobj(obj, normalized);
+        if (noticesQueued()) await emitQueuedNotices();
         obj = next;
     }
 }
@@ -3452,6 +3456,7 @@ export async function useupf(obj, numused, env = {}) {
             await stolen_value(otmp, otmp.ox, otmp.oy, false, false, state);
     }
     await delobj(otmp, normalized);
+    if (noticesQueued()) await emitQueuedNotices();
     if (at_u && state.u.uundetected && hides_under(state.youmonst?.data))
         await hideunder(state.youmonst, { ...normalized, state });
 }

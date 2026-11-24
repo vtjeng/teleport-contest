@@ -495,7 +495,11 @@ import { newegd } from './vault.js';
 import { coreRandom } from './rng.js';
 import { enexto_core, goodpos, noteleport_level } from './teleport.js';
 import { mhidden_description, messageAt } from './startup_a11y.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { impossible_printer, norep_printer } from './pline.js';
 import { block_point, cansee, does_block } from './vision.js';
 import { get_shop_item } from './shknam.js';
@@ -2216,6 +2220,7 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
     const { state } = normalized;
     const drawn = redrawSquareWaiting(monster.mx, monster.my, normalized);
     if (drawn) await drawn;
+    if (noticesQueued()) await emitQueuedNotices();
     const appearance = runtimeAppearanceMessage(monster, mmflags, normalized);
     if (appearance) {
         await normalized.norepMessage(appearance, state, normalized);
@@ -2623,6 +2628,7 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
     const maybeMonster = makemon(ptr, x, y, mmflags, normalized);
     const monster = maybeMonster && typeof maybeMonster.then === 'function'
         ? await maybeMonster : maybeMonster;
+    if (noticesQueued()) await emitQueuedNotices();
     if (!monster) return null;
     // C's one makemon() tests in_mklev itself, so a runtime caller can
     // reach the level-creation form: teleport.c level_tele() 1326-1332 sets
@@ -2664,6 +2670,7 @@ export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
         mmflags,
         normalized,
     ), normalized.onImpossible ?? sync_impossible, normalized.state);
+    if (noticesQueued()) await emitQueuedNotices();
     await finishRuntimeCreationTail(monster, mmflags, normalized);
     return monster;
 }

@@ -1740,6 +1740,10 @@ test('the melee arm separates every guard a recording leaves undecided',
 // double-punch hero reaches this slice with it already nonzero.
 test('the bare-handed ring switch reads the hand that struck', async () => {
     await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
+    // The swings below reach worn.c which_armor() with a flag its switch does
+    // not hold, and impossible() prints "bad flag in which_armor" where it is
+    // raised; spaces answer its three --More-- prompts.
+    for (let i = 0; i < 12; ++i) game.nhDisplay.pushKey(32);
     const left = mksobj(RIN_ADORNMENT, true, false, { state: game });
     // A different ring type on the right hand, so that overriding one
     // material below leaves the two hands distinguishable.

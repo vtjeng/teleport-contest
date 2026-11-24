@@ -31,7 +31,11 @@ import { dist2, push_front, s_suffix } from './hacklib.js';
 
 import { impossible, impossible_printer } from './pline.js';
 import { ImpossibleCall, finish_steps } from './source_steps.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { rnd_nextto_goodpos } from './trap.js';
 import { fmt_ptr } from './alloc.js';
 import { isok } from './cmd_isok.js';
@@ -483,6 +487,7 @@ export async function cutworm(worm, x, y, cuttier, rawEnv = {}) {
     }
     if (cutIndex === 0) {
         shrink_worm(wnum, env);
+        if (noticesQueued()) await emitQueuedNotices();
         return;
     }
 
@@ -521,6 +526,7 @@ export async function cutworm(worm, x, y, cuttier, rawEnv = {}) {
             );
         }
         toss_wsegs(newTail, true, env);
+        if (noticesQueued()) await emitQueuedNotices();
         if (worm.mhp > 1) worm.mhp = Math.trunc(worm.mhp / 2);
         return;
     }

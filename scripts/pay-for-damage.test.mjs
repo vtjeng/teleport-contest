@@ -44,7 +44,7 @@ test('pay_for_damage follows the C selection, pursuit, and restitution branches'
     assert.match(js, /keeperDistance === nearestKeeper && picks[\s\S]*?roll\(\+\+picks\)/u);
     assert.match(js, /if \(!shopkeeper\.mpeaceful \|\| shopkeeper\.mextra\.eshk\.following\)[\s\S]*?hot_pursuit\(shopkeeper, state\)/u);
     assert.match(js, /cant_mollify[\s\S]*?roll\(50\)/u);
-    assert.match(js, /if \(inShop\) \{[\s\S]*?await mnexto\(shopkeeper, RLOC_NOMSG, env\);[\s\S]*?\n    \} else \{[\s\S]*?await mnearto\(shopkeeper, x, y, true, RLOC_MSG, env\);\n    \}/u);
+    assert.match(js, /if \(inShop\) \{[\s\S]*?await mnexto\(shopkeeper, RLOC_NOMSG, env\);[\s\S]*?\n    \} else \{[\s\S]*?await mnearto\(shopkeeper, x, y, true, RLOC_MSG, env\);\n(?:        if \(noticesQueued\(\)\) await emitQueuedNotices\(\);\n)?    \}/u);
     assert.match(js, /await check_credit\(damageCost, shopkeeper, state, env\)[\s\S]*?money2mon\(shopkeeper, damageCost, state\)[\s\S]*?await home_shk\(shopkeeper, false, state, env\)[\s\S]*?pacify_shk\(shopkeeper, false\)/u);
 
     const state = {

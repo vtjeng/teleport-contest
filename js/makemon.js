@@ -145,7 +145,11 @@ import {
 
 import { MAXMCLASSES } from './symbols.js';
 import { enexto } from './teleport.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
 import { monsdump } from './glyph_ids.js';
 import { messageAt } from './startup_a11y.js';
@@ -435,6 +439,7 @@ export async function grow_up(mtmp, victim, env = {}) {
         if (mtmp.cham === oldtype && is_shapeshifter(ptr))
             mtmp.cham = newtype;
         newsym(mtmp.mx, mtmp.my);
+        if (noticesQueued()) await emitQueuedNotices();
         lev_limit = mtmp.m_lev; /* never undo an evolution's increment */
         mtmp.female = Boolean(fem);
         if (mtmp.mleashed) update_inventory({ state });
@@ -607,6 +612,7 @@ export async function clone_mon(mon, x, y, state = game, rawEnv = {}) {
     }
     set_malign(m2, state);
     redraw(m2.mx, m2.my, state); /* display the new monster */
+    if (noticesQueued()) await emitQueuedNotices();
 
     return m2;
 }

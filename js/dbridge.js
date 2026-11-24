@@ -41,7 +41,11 @@ import {
 } from './vision.js';
 import { mksobj_at } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { vtense } from './objnam.js';
 import {
     Amphibious, Confusion, Deaf, Flying, Fumbling, Hallucination, Levitation,
@@ -307,7 +311,9 @@ export async function destroy_drawbridge(x, y, state = game, rawEnv = {}) {
     }
 
     newsym(x, y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     newsym(x2, y2, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (!does_block(x2, y2, wall, state)) unblock_point(x2, y2, state);
     await vision_recalc_async(0, {
         ...env,
@@ -614,7 +620,9 @@ export async function close_drawbridge(x, y, state = game, env = {}) {
     del_engr_at(x, y, state);
     del_engr_at(x2, y2, state);
     newsym(x, y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     newsym(x2, y2, state);
+    if (noticesQueued()) await emitQueuedNotices();
     block_point(x2, y2, state);
     nokiller(state);
 }
@@ -656,7 +664,9 @@ export async function open_drawbridge(x, y, state = game, env = {}) {
         del_engr_at(tx, ty, state);
     }
     newsym(x, y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     newsym(x2, y2, state);
+    if (noticesQueued()) await emitQueuedNotices();
     unblock_point(x2, y2, state);
     if (on_level(state.u.uz, state.stronghold_level)) {
         state.u.uevent ??= {};

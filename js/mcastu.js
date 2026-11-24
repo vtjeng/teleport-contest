@@ -104,7 +104,11 @@ import {
     norep_printer,
 } from './pline.js';
 import { finish_steps } from './source_steps.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import {
     Antimagic, Blind, Blinded, Cold_resistance, Confusion, Deaf,
     Detect_monsters, Displaced, Fire_resistance, Free_action, HConfusion,
@@ -1215,12 +1219,14 @@ async function mcast_disappear(mtmp, rawEnv = {}) {
     }
 
     mon_set_minvis(mtmp, false, state, rawEnv);
+    if (noticesQueued()) await emitQueuedNotices();
 
     // map_invisible() paints the global game, so a foreign state (such as a
     // test's hand-built state) keeps only its memory write.
     if (cansee(mtmp.mx, mtmp.my, state) && !canspotmon(mtmp, state)) {
         if (state === game) map_invisible(mtmp.mx, mtmp.my, state);
         else map_invisible_memory_only(mtmp.mx, mtmp.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 }
 

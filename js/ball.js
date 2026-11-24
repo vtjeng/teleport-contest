@@ -90,7 +90,11 @@ import { coreRandom, rn1, rn2, rnd } from './rng.js';
 import { setnotworn, setuqwep, setuswapwep } from './worn.js';
 import { setuwep, welded } from './wield.js';
 import { note_unported } from './unported.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { impossible, youFeel } from './pline.js';
 import { Blind, Levitation, Maybe_Half_Phys, Punished } from './youprop.js';
 import { sync_impossible } from './source_steps.js';
@@ -227,6 +231,7 @@ async function placebc_core(state, rawEnv = {}) {
     state.u.bglyph = glyph;
     state.u.cglyph = glyph;
     redraw(state.u.ux, state.u.uy, state);
+    if (noticesQueued()) await emitQueuedNotices();
     state.bcrestriction = 0;
 }
 
@@ -568,6 +573,7 @@ export async function drag_ball(
     if (dist2(x, y, chain.ox, chain.oy) <= 2) {
         move_bc(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally),
             pointerValue(chainx), pointerValue(chainy), state);
+        if (noticesQueued()) await emitQueuedNotices();
         return true;
     }
 
@@ -577,6 +583,7 @@ export async function drag_ball(
         setPointer(bcControl, BC_CHAIN);
         move_bc(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally),
             pointerValue(chainx), pointerValue(chainy), state);
+        if (noticesQueued()) await emitQueuedNotices();
         if (carried(ball)) {
             if (distmin(x, y, chain.ox, chain.oy) > 1) {
                 setPointer(chainx, state.u.ux);
@@ -602,13 +609,21 @@ export async function drag_ball(
                 causeDelay, state,
             );
         };
+        // skipToDrag() for this async caller: move_bc() can queue a
+        // mention_map notice, which C prints before the drag goes on.
+        const skipToDragPrinted = async () => {
+            const dragged = await skipToDrag();
+            if (noticesQueued()) await emitQueuedNotices();
+            return dragged;
+        };
 
         switch (dist2(x, y, ball.ox, ball.oy)) {
         case 8:
             setPointer(chainx, Math.trunc((ball.ox + x) / 2));
             setPointer(chainy, Math.trunc((ball.oy + y) / 2));
             if (isChainRock(pointerValue(chainx), pointerValue(chainy))
-                && !alreadyInRock) return skipToDrag();
+                && !alreadyInRock) return skipToDragPrinted();
+            if (noticesQueued()) await emitQueuedNotices();
             break;
         case 5: {
             let tempx;
@@ -631,7 +646,8 @@ export async function drag_ball(
                         && dist2(x, y, tempx, tempy) === 1)
                     || (dist2(state.u.ux, state.u.uy, ball.ox, ball.oy) === 4
                         && dist2(x, y, tempx, tempy) === 2)))
-                    return skipToDrag();
+                    return skipToDragPrinted();
+                if (noticesQueued()) await emitQueuedNotices();
                 setPointer(chainx, tempx2);
                 setPointer(chainy, tempy2);
             } else if (!isChainRock(tempx, tempy)
@@ -641,12 +657,13 @@ export async function drag_ball(
                         && dist2(x, y, tempx2, tempy2) === 1)
                     || (dist2(state.u.ux, state.u.uy, ball.ox, ball.oy) === 4
                         && dist2(x, y, tempx2, tempy2) === 2)))
-                    return skipToDrag();
+                    return skipToDragPrinted();
+                if (noticesQueued()) await emitQueuedNotices();
                 setPointer(chainx, tempx);
                 setPointer(chainy, tempy);
             } else if (isChainRock(tempx, tempy) && isChainRock(tempx2, tempy2)
                 && !alreadyInRock) {
-                return skipToDrag();
+                return skipToDragPrinted();
             } else {
                 const d1 = dist2(tempx, tempy, chain.ox, chain.oy);
                 const d2 = dist2(tempx2, tempy2, chain.ox, chain.oy);
@@ -665,7 +682,8 @@ export async function drag_ball(
             setPointer(chainx, Math.trunc((x + ball.ox) / 2));
             setPointer(chainy, Math.trunc((y + ball.oy) / 2));
             if (isChainRock(pointerValue(chainx), pointerValue(chainy))
-                && !alreadyInRock) return skipToDrag();
+                && !alreadyInRock) return skipToDragPrinted();
+            if (noticesQueued()) await emitQueuedNotices();
             break;
         case 2:
             if (dist2(x, y, ball.ox, ball.oy) === 2
@@ -673,7 +691,8 @@ export async function drag_ball(
                 if (chain.oy === y) setPointer(chainx, ball.ox);
                 else setPointer(chainy, ball.oy);
                 if (isChainRock(pointerValue(chainx), pointerValue(chainy))
-                    && !alreadyInRock) return skipToDrag();
+                    && !alreadyInRock) return skipToDragPrinted();
+                if (noticesQueued()) await emitQueuedNotices();
                 break;
             }
             // falls through
@@ -751,15 +770,18 @@ async function dragBallTail(
                 state.u.ux = chain.ox;
                 state.u.uy = chain.oy;
                 newsym(state.u.ux0, state.u.uy0);
+                if (noticesQueued()) await emitQueuedNotices();
             }
             nomul(0, state);
             setPointer(bcControl, BC_BALL);
             move_bc(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally),
                 pointerValue(chainx), pointerValue(chainy), state);
+            if (noticesQueued()) await emitQueuedNotices();
             setPointer(ballx, chain.ox);
             setPointer(bally, chain.oy);
             move_bc(0, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally),
                 pointerValue(chainx), pointerValue(chainy), state);
+            if (noticesQueued()) await emitQueuedNotices();
             await spoteffects(true, state);
             return false;
         }
@@ -768,6 +790,7 @@ async function dragBallTail(
     setPointer(bcControl, BC_BALL | BC_CHAIN);
     move_bc(1, pointerValue(bcControl), pointerValue(ballx), pointerValue(bally),
         pointerValue(chainx), pointerValue(chainy), state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (dist2(x, y, state.u.ux, state.u.uy) > 2) {
         setPointer(ballx, x);
         setPointer(bally, y);
@@ -872,8 +895,10 @@ export async function drop_ball(x, y, state = game) {
         u.cglyph = u.bc_order ? u.bglyph : memoryGlyph(u.ux, u.uy, state);
     }
     movobj(state.uchain, u.ux, u.uy, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (Blind(state.u)) u.bc_order = bc_order(state);
     newsym(u.ux0, u.uy0, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (u.ux0 !== u.ux || u.uy0 !== u.uy)
         await spoteffects(true, state);
 }

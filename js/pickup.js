@@ -270,8 +270,13 @@ import {
     uteetering_at_seen_pit,
 } from './trap.js';
 import {
-    clearTtyMessageWindow, displayPendingTtyMessageWindow,
-    ttyNorep, ttyPline, ttyUrgentPline,
+    clearTtyMessageWindow,
+    displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
+    ttyNorep,
+    ttyPline,
+    ttyUrgentPline,
 } from './tty_message.js';
 import {
     add_menu, add_menu_heading, getlin, select_menu,
@@ -1402,6 +1407,7 @@ export async function pick_obj(otmp, state = game, env = {}, plan = null) {
         && costly_spot(ox, oy, state);
     await obj_extract_self(otmp, env);
     if (fromfloor) (env.redraw ?? newsym)(ox, oy, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (robshop) {
         const savedShops = state.u.ushops;
         const shop = in_rooms(ox, oy, SHOPBASE, state)[0];
@@ -1712,6 +1718,7 @@ export async function pickup(what, state = game) {
         // newsym_force is newsym() plus dirty bookkeeping; the display owner
         // treats the ordinary redraw as the complete effect here.
         if (n_picked) newsym(u.ux, u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
         if (autopickup) await check_here(n_picked > 0, state);
     }
     state.gp.pickup_encumbrance = 0;

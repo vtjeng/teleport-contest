@@ -518,7 +518,11 @@ import {
     seetrap,
 } from './trap_effects.js';
 import {
-    ttyNorep, ttyPline, ttyUrgentPline,
+    emitQueuedNotices,
+    noticesQueued,
+    ttyNorep,
+    ttyPline,
+    ttyUrgentPline,
 } from './tty_message.js';
 import { tty_raw_print } from './tty_rawprint.js';
 import { init_objects, objdescr_is } from './o_init.js';
@@ -601,6 +605,7 @@ export async function revive_nasty(x, y, msg, state = game) {
             const adjacent = enexto(x, y, occupant.data, { state });
             if (adjacent)
                 await rloc_to(occupant, adjacent.x, adjacent.y, { state });
+            if (noticesQueued()) await emitQueuedNotices();
         }
         if (msg) await ttyNorep(msg, state);
         const { revive_corpse } = await import('./do.js');
@@ -614,6 +619,7 @@ export async function revive_nasty(x, y, msg, state = game) {
             const adjacent = enexto(x, y, monster.data, { state });
             if (adjacent)
                 await rloc_to(monster, adjacent.x, adjacent.y, { state });
+            if (noticesQueued()) await emitQueuedNotices();
         }
     }
     return revived;
@@ -1710,6 +1716,7 @@ async function cannot_push_msg(otmp, sx, sy, state, env) {
         await message(`You try to move ${what}, but in vain.`, state);
     }
     if (Blind(state.u)) feel_location(sx, sy, state);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: hack.c cannot_push() (262-312). A failed push can instead let giants
@@ -1855,6 +1862,7 @@ export async function still_chewing(x, y, state = game) {
 
     if (boulder) {
         await delobj(boulder, { state });
+        if (noticesQueued()) await emitQueuedNotices();
         await ttyPline('You eat the boulder.', state);
         boulder = sobj_at(BOULDER, x, y, state);
         if (IS_OBSTRUCTED(lev.typ) || closed_door(x, y, state) || boulder) {
@@ -1914,6 +1922,7 @@ export async function still_chewing(x, y, state = game) {
 
     recalc_block_point(x, y, state);
     newsym(x, y);
+    if (noticesQueued()) await emitQueuedNotices();
     if (digtxt) await ttyPline(digtxt, state);
     if (dmgtxt) await pay_for_damage(dmgtxt, false, state);
     reset_digging(state);
@@ -2064,17 +2073,22 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
     // square that remembers an invisible monster.
     if (glyph_is_invisible(state.level.at(rx, ry)?.remembered_glyph?.glyph))
         unmap_object(rx, ry, state);
+    if (noticesQueued()) await emitQueuedNotices();
     otmp.next_boulder = 0;
     movobj(otmp, rx, ry, state); /* does newsym(rx,ry) */
+    if (noticesQueued()) await emitQueuedNotices();
     // 210-215.
     if (Blind(state.u)) {
         // hack.c:211-212 feels both the boulder's destination and the square
         // it left.  The destination may be two cells away, so feel_location()
         // must use display.c's sign-clamped seenv indexing.
         feel_location(rx, ry, state);
+        if (noticesQueued()) await emitQueuedNotices();
         feel_location(sx, sy, state);
+        if (noticesQueued()) await emitQueuedNotices();
     } else {
         newsym(sx, sy);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     // 217-240. Crossing the free spot can add or remove the boulder's bill.
     let shkp;
@@ -2149,6 +2163,7 @@ async function moverock_core(sx, sy, state, env) {
             const message = env.message ?? ttyPline;
             await message('That feels like a boulder.', state);
             map_object(otmp, true, state);
+            if (noticesQueued()) await emitQueuedNotices();
             nomul(0, state);
             return -1;
         }
@@ -2160,6 +2175,7 @@ async function moverock_core(sx, sy, state, env) {
 
         /* make sure that this boulder is visible as the top object */
         if (otmp !== state.level.objects[sx][sy]) movobj(otmp, sx, sy, state);
+        if (noticesQueued()) await emitQueuedNotices();
 
         const rx = u.ux + 2 * u.dx; /* boulder destination position */
         const ry = u.uy + 2 * u.dy;
@@ -2169,6 +2185,7 @@ async function moverock_core(sx, sy, state, env) {
         if (state.context?.nopick) {
             const oldglyph = glyph_at(sx, sy, state);
             feel_location(sx, sy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             if (throws_rocks(state.youmonst?.data)) {
                 await message(
                     `You ${u_locomotion('step', state)} over a boulder here.`,
@@ -2198,6 +2215,7 @@ async function moverock_core(sx, sy, state, env) {
         if (Levitation(state.u)
             || Is_airlevel(state.u?.uz, state)) {
             if (Blind(state.u)) feel_location(sx, sy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await message(
                 `You don't have enough leverage to push ${the(xnameFresh(otmp, state), state)}.`,
                 state,
@@ -2206,6 +2224,7 @@ async function moverock_core(sx, sy, state, env) {
         }
         if (verysmall(state.youmonst?.data) && !u.usteed) {
             if (Blind(state.u)) feel_location(sx, sy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await message(
                 `You're too small to push that ${xnameFresh(otmp, state)}.`,
                 state,
@@ -2234,6 +2253,7 @@ async function moverock_core(sx, sy, state, env) {
         // result of cannot_push() remains the source return value.
         if (state.level?.flags?.sokoban_rules && u.dx && u.dy) {
             if (Blind(state.u)) feel_location(sx, sy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             await message(
                 `${The(xnameFresh(otmp, state), state)} won't roll diagonally `
                 + `on this ${surface(sx, sy, state)}.`,
@@ -2254,6 +2274,7 @@ async function moverock_core(sx, sy, state, env) {
             // 459-460. moverock_core() returned at 356-361 unless the square
             // already shows the boulder, so this re-maps what is displayed.
             if (Blind(state.u)) feel_location(sx, sy, state);
+            if (noticesQueued()) await emitQueuedNotices();
             if (canspotmon(mtmp, state)) {
                 await message(
                     `There's ${a_monnam(mtmp, { state })} on the other side.`,
@@ -2272,6 +2293,7 @@ async function moverock_core(sx, sy, state, env) {
                 if (line !== null) await message(line, state);
                 if (!Deaf(state.u)) deliver_part1 = true;
                 map_invisible(rx, ry, state);
+                if (noticesQueued()) await emitQueuedNotices();
             }
             if (state.flags?.verbose) {
                 // 474-475. C names the steed when mounted; dopush() below
@@ -2310,6 +2332,7 @@ async function moverock_core(sx, sy, state, env) {
                     await obj_extract_self(otmp, objectEnv);
                     await place_object(otmp, rx, ry, objectEnv);
                     redraw(sx, sy, state);
+                    if (noticesQueued()) await emitQueuedNotices();
                     await message(
                         `${(!Deaf(state.u) || !Blind(state.u))
                             ? 'KAABLAMM!!' : 'Gadzooks'}!  `
@@ -2320,6 +2343,7 @@ async function moverock_core(sx, sy, state, env) {
                     await blow_up_landmine(ttmp, effectEnv);
                     await fill_pit(u.ux, u.uy, state, effectEnv);
                     if (cansee(rx, ry, state)) redraw(rx, ry, state);
+                    if (noticesQueued()) await emitQueuedNotices();
                     return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
                 }
                 break;
@@ -2332,6 +2356,7 @@ async function moverock_core(sx, sy, state, env) {
                 if (!await flooreffects(otmp, rx, ry, 'fall', effectEnv))
                     await place_object(otmp, rx, ry, objectEnv);
                 if (mtmp && !Blind(state.u)) redraw(rx, ry, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
             }
             case HOLE:
@@ -2359,6 +2384,7 @@ async function moverock_core(sx, sy, state, env) {
                 state.level.at(rx, ry).flags &= ~W_NONDIGGABLE;
                 state.level.at(rx, ry).candig = 1;
                 if (cansee(rx, ry, state)) redraw(rx, ry, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
             case LEVEL_TELEP: {
                 const newlev = random_teleport_level(state);
@@ -2382,6 +2408,7 @@ async function moverock_core(sx, sy, state, env) {
                 otmp.oy = dest.dlevel;
                 otmp.owornmask = MIGR_RANDOM;
                 seetrap(ttmp, { ...effectEnv, redraw });
+                if (noticesQueued()) await emitQueuedNotices();
                 return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
             }
             case TELEP_TRAP:
@@ -2389,6 +2416,7 @@ async function moverock_core(sx, sy, state, env) {
                 otmp.next_boulder = 0;
                 await rloco(otmp, effectEnv);
                 seetrap(ttmp, { ...effectEnv, redraw });
+                if (noticesQueued()) await emitQueuedNotices();
                 return sobj_at(BOULDER, sx, sy, state) ? -1 : 0;
             case ROLLING_BOULDER_TRAP: {
                 let tox = rx;
@@ -2405,6 +2433,7 @@ async function moverock_core(sx, sy, state, env) {
                     state,
                 );
                 await feeltrap(ttmp, { ...effectEnv, redraw });
+                if (noticesQueued()) await emitQueuedNotices();
                 // hack.c:614. Keep trap_effects.js behind a dynamic import:
                 // trap_effects.js imports hack.js for other trap callbacks.
                 const { launch_obj } = await import('./trap_effects.js');
@@ -2505,6 +2534,7 @@ export async function test_move(
         if (Blind(state.u) && mode === DO_MOVE) {
             await finish_steps(feel_location_steps(x, y, state),
                 impossible_printer(state));
+            if (noticesQueued()) await emitQueuedNotices();
         }
         if (passesWalls && may_passwall(x, y, state)) {
             // The source intentionally continues into the common checks.
@@ -2566,6 +2596,7 @@ export async function test_move(
         // TEST_MOVE and DO_MOVE return after this closed-door arm.
         if (Blind(state.u) && mode === DO_MOVE)
             feel_location(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         if (passesWalls) {
             // The source falls through to the common checks.
         } else if (can_ooze(state.youmonst, state)) {
@@ -2654,6 +2685,7 @@ export async function test_move(
                 || await block_door(x, y, state, { message }))) {
             if (mode === DO_MOVE) {
                 if (Blind(state.u)) feel_location(x, y, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 if (state.u?.uinwater || state.flags?.mention_walls) {
                     await message(
                         "You can't move diagonally into an intact doorway.",
@@ -3702,6 +3734,7 @@ async function domove_fight_web(x, y, state) {
 
         deltrap(trap, state);
         newsym(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         return true;
     }
     return false;
@@ -3820,8 +3853,11 @@ async function domove_fight_empty(x, y, state) {
 
     /* about to become known empty -- remove 'I' if present */
     unmap_object(x, y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     if (boulder) map_object(boulder, true, state);
+    if (noticesQueued()) await emitQueuedNotices();
     newsym(x, y);
+    if (noticesQueued()) await emitQueuedNotices();
     // C re-reads glyph_at() here and marks it nhUse(); nothing reads it back.
 
     let buf;
@@ -4174,6 +4210,7 @@ async function domove_core(state = game) {
     // already taken the marker away on the paths its own disjunct admits, so
     // this fires for the 'm' prefix, which that disjunct excludes.
         unmap_invisible(newx, newy, state);
+        if (noticesQueued()) await emitQueuedNotices();
 
     // C ref: domove_core():2815-2818, C's first line after unmap_invisible()
     // and its comment "not attacking an animal, so we try to move". A steed
@@ -4316,7 +4353,9 @@ async function domove_core(state = game) {
         remove_monster(u.ux, u.uy, state);
         place_monster(destinationMonster, u.ux0, u.uy0, state);
         newsym(u.ux, u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
         newsym(u.ux0, u.uy0);
+        if (noticesQueued()) await emitQueuedNotices();
         destinationMonster.mux = u.ux;
         destinationMonster.muy = u.uy;
         await ttyPline(`${noticed
@@ -4324,9 +4363,11 @@ async function domove_core(state = game) {
             : 'Something'} swaps places with you...`, state);
         if (!canspotmon(destinationMonster, state))
             map_invisible(u.ux0, u.uy0, state);
+        if (noticesQueued()) await emitQueuedNotices();
         state.context.mon_moving = 1;
         try {
             const trapEnv = domove_monster_trap_env(state);
+            if (noticesQueued()) await emitQueuedNotices();
             if (!await minliquid(destinationMonster, trapEnv))
                 await mintrap(destinationMonster, NO_TRAP_FLAGS, trapEnv);
         } finally {
@@ -4417,6 +4458,7 @@ async function domove_core(state = game) {
             state.domoveAttempting & (DOMOVE_RUSH | DOMOVE_WALK);
         u.umoved = true;
         newsym(oldx, oldy);
+        if (noticesQueued()) await emitQueuedNotices();
         // vision_recalc() redraws the hero; C has no second arrival newsym().
         await vision_recalc_async(1, { state });
         await invocation_message(state);
@@ -4434,6 +4476,7 @@ async function domove_core(state = game) {
             chainy.value,
             state,
         );
+    if (noticesQueued()) await emitQueuedNotices();
     // C ref: domove_core():2979-2980. Staying put does not re-enter a
     // floor pile, trap, or any other arrival effect.
     if (u.umoved) await spoteffects(true, state);
@@ -4902,6 +4945,7 @@ export async function domove_swap_with_pet(
     // revealing it is part of the swap attempt and repaints its square.
     monster.mundetected = false;
     if (M_AP_TYPE(monster)) seemimic(monster, state);
+    if (noticesQueued()) await emitQueuedNotices();
     u.ux = monster.mx;
     u.uy = monster.my;
 
@@ -4953,6 +4997,7 @@ export async function domove_swap_with_pet(
                 state,
                 redraw: newsym,
             });
+            if (noticesQueued()) await emitQueuedNotices();
             which = just_an(what);
         }
         await message(
@@ -4987,7 +5032,9 @@ export async function domove_swap_with_pet(
     remove_monster(x, y, state);
     place_monster(monster, oldX, oldY, state);
     newsym(x, y, state);
+    if (noticesQueued()) await emitQueuedNotices();
     newsym(oldX, oldY, state);
+    if (noticesQueued()) await emitQueuedNotices();
 
     const hasGivenName = has_mgivenname(monster);
     const article = monster.mtame
@@ -5015,6 +5062,7 @@ export async function domove_swap_with_pet(
     );
 
     const trapEnv = domove_monster_trap_env(state, env);
+    if (noticesQueued()) await emitQueuedNotices();
     const random = trapEnv.random;
     const trapResult = await minliquid(monster, trapEnv)
         ? Trap_Killed_Mon

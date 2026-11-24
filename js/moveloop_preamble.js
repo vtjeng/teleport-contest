@@ -24,7 +24,11 @@ import {
 import { read_engr_at } from './engrave.js';
 import { rnd } from './rng.js';
 import { initrack } from './track.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { fix_shop_damage } from './shk.js';
 
 // C ref: attrib.c change_luck().
@@ -105,6 +109,7 @@ export async function moveloop_preamble(
     if (state.gd?.defer_see_monsters) {
         state.gd.defer_see_monsters = false;
         await see_monsters(state, env);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     state.u.uz0 ??= { dnum: 0, dlevel: 0 };

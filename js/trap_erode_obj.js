@@ -71,7 +71,11 @@ import {
     xnameFresh,
 } from './objnam.js';
 import { coreRandom } from './rng.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
 import { which_armor } from './worn.js';
 import { cansee } from './vision.js';
@@ -345,6 +349,7 @@ export async function erode_obj(obj, description, type, flags, env) {
             }
         }
         await delobj(obj, { ...env, state });
+        if (noticesQueued()) await emitQueuedNotices();
         return ER_DESTROYED;
     }
 

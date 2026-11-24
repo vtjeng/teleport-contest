@@ -87,7 +87,9 @@ function batchCount(sizes) {
 // violations runSegment() reports the same way, attached as
 // `terminationViolations`, and the js/youprop.js argument uses
 // (js/gstate.js recordArgumentMisuse()), which runSegment() records instead of
-// throwing, attached as `argumentMisuses`. It also compares each segment's
+// throwing, attached as `argumentMisuses`, and the draws and key reads made
+// while a line was queued (js/rng.js, "Queued output"), attached as
+// `queuedOutput`. It also compares each segment's
 // random-number calls with the recording step by step
 // (scripts/rng-step-compare.mjs), attached as `rngSteps`.
 const SEGMENT_ERROR_PRELOAD = join(dirname(SCRIPT_PATH), 'segment-error-preload.mjs');
@@ -148,6 +150,13 @@ export function withSegmentErrors(child, errorDir) {
             result.argumentMisuses = readLog(argumentMisuseLog);
             const named = result.argumentMisuses.map(({ detail, count }) => `${detail} (${count}x)`);
             lines.push(`  ARGUMENT MISUSE: ${result.session} (${named.join('; ')})\n`);
+        }
+        const queuedOutputLog = join(errorDir, `${result.session}.queued-output.jsonl`);
+        if (existsSync(queuedOutputLog)) {
+            result.queuedOutput = readLog(queuedOutputLog);
+            const named = result.queuedOutput.flatMap(({ kept }) => kept)
+                .slice(0, 3).map(({ kind, detail }) => `${kind}: ${detail}`);
+            lines.push(`  QUEUED OUTPUT: ${result.session} (${named.join('; ')})\n`);
         }
         // The per-step comparison writes a line for every segment, in step
         // or not, so it adds no stderr line: the caller decides what a

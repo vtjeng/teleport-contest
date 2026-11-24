@@ -97,7 +97,9 @@ export function rngStepProblem(result, pinned = PINNED_LAGGING) {
  * judge's comparison passed: something ran after the game ended. So does one
  * that gave a js/youprop.js macro the wrong argument, which the judge's
  * runSegment() records instead of throwing (js/gstate.js), and one that
- * rngStepProblem() faults; `outOfStep` holds those with the fault.
+ * rngStepProblem() faults; `outOfStep` holds those with the fault. So does
+ * one that drew a random number or read a key while a line waited in the
+ * notice queue (js/rng.js, "Queued output"), attached as `queuedOutput`.
  */
 export function summarizeRecordings(bundle, pinned = PINNED_LAGGING) {
     const totals = { recordings: 0, passing: 0, screens: 0, screensTotal: 0,
@@ -107,7 +109,8 @@ export function summarizeRecordings(bundle, pinned = PINNED_LAGGING) {
         const problem = rngStepProblem(result, pinned);
         if (problem) totals.outOfStep.push({ session: result.session, problem });
         if (result.passed && !result.terminationViolations?.length
-            && !result.argumentMisuses?.length && !problem) totals.passing += 1;
+            && !result.argumentMisuses?.length && !result.queuedOutput?.length
+            && !problem) totals.passing += 1;
         else totals.failing.push(result.session);
         const screens = result.metrics?.screens ?? {};
         const rng = result.metrics?.rngCalls ?? {};

@@ -114,7 +114,11 @@ import {
 // others' exports only inside function bodies, so the cycles resolve.
 import { inhishop, shop_keeper } from './shk.js';
 import { findpriest, inhistemple } from './priest.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { impossible } from './pline.js';
 // js/windows.js does not import from this file, so there is no cycle.
 import { add_menu_heading, getlin, select_menu } from './windows.js';
@@ -1280,6 +1284,7 @@ export async function u_on_newpos(
         // its random glyph from the display RNG here, before the arrival
         // docrt() draws it again.
         map_location(x, y, false, state);
+        if (noticesQueued()) await emitQueuedNotices();
         state.iflags ??= {};
         state.iflags.terrain_typ = MAX_TYPE;
     } else if (!Blind(state.u)
@@ -1288,6 +1293,7 @@ export async function u_on_newpos(
         // still on same level; might have come close enough to
         // generic object(s) to redisplay them as specific objects
         seeNearbyObjects(state, seeNearbyObjectsOptions);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     const line = earth_sense(state);
     if (!line) return;

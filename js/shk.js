@@ -281,7 +281,12 @@ import { body_part, mbodypart, poly_gender } from './polyself.js';
 import { impossible, livelog_printf, verbalize, youHear, youFeel } from './pline.js';
 import { growl, set_voice, yelp } from './sounds.js';
 import { is_izchak, saleable, shkname, Shknam } from './shknam.js';
-import { ttyNorep, ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyNorep,
+    ttyPline,
+} from './tty_message.js';
 import { tty_wait_synch } from './tty_rawprint.js';
 import { note_unported } from './unported.js';
 import { sync_impossible } from './source_steps.js';
@@ -749,11 +754,12 @@ export async function shkcatch(obj, x, y, state = game, rawEnv = {}) {
         return null;
     }
 
-    if (await mnearto(shkp, x, y, true, RLOC_NOMSG, {
+    const moved = await mnearto(shkp, x, y, true, RLOC_NOMSG, {
         ...rawEnv,
         state,
-    }) === 2
-        && !Deaf(state.u) && !muteshk(shkp)) {
+    });
+    if (noticesQueued()) await emitQueuedNotices();
+    if (moved === 2 && !Deaf(state.u) && !muteshk(shkp)) {
         set_voice(shkp, 0, 80, 0, state);
         await verbalize('Out of my way, scum!', state);
     }
@@ -766,6 +772,7 @@ export async function shkcatch(obj, x, y, state = game, rawEnv = {}) {
             rawEnv,
         );
         if (!canspotmon(shkp, state)) map_invisible(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         await nh_delay_output(state);
         // mark_synch() only flushes the C terminal stream and has no state;
         // the async message/flush above preserves the observable order.
@@ -2860,8 +2867,8 @@ async function kops_gone(silent, state, env) {
         const next = monster.nmon;
         if (monster.mhp > 0 && monster.data?.mlet === S_KOP) {
             if (canspotmon(monster, state)) ++visible;
-            const removal = mongone(monster, { ...env, state });
-            if (removal && typeof removal.then === 'function') await removal;
+            await mongone(monster, { ...env, state });
+            if (noticesQueued()) await emitQueuedNotices();
         }
         monster = next;
     }
@@ -3708,6 +3715,7 @@ async function litter_scatter(litter, x, y, shkp, state = game, env = {}) {
             await verbalize('Get your junk out of my wall!', state, env);
         }
         unplacebc(state);
+        if (noticesQueued()) await emitQueuedNotices();
         await placebc(state, env);
     }
 
@@ -3832,6 +3840,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
         deltrap(trap, state);
         del_engr_at(x, y, state);
         if (seeit) newsym(x, y);
+        if (noticesQueued()) await emitQueuedNotices();
         if (!catchup) disposition = 3;
     }
 
@@ -3858,6 +3867,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
     del_engr_at(x, y, state);
 
     if (seeit) newsym(x, y);
+    if (noticesQueued()) await emitQueuedNotices();
     block_point(x, y, state);
     if (catchup) return 1;
 
@@ -3869,6 +3879,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
             await message('Suddenly, the shop door reappears!', state, env);
         }
         newsym(x, y);
+        if (noticesQueued()) await emitQueuedNotices();
     } else if (IS_WALL(damage.typ)) {
         if (inside_shop(state.u.ux, state.u.uy, state)
             === shkp.mextra.eshk.shoproom) {
@@ -3887,6 +3898,7 @@ async function repair_damage(shkp, damage, catchup, state = game, env = {}) {
             message: env.message ?? ttyPline,
         });
     litter_newsyms(litter, x, y);
+    if (noticesQueued()) await emitQueuedNotices();
     if (disposition < 3) disposition = 2;
     return disposition;
 }
@@ -4753,6 +4765,7 @@ async function rouse_shk(shopkeeper, verbosely = false, state = game, env = {}) 
 async function home_shk(shopkeeper, _killkops, state, env = {}) {
     await mnearto(shopkeeper, shopkeeper.mextra.eshk.shk.x,
         shopkeeper.mextra.eshk.shk.y, true, RLOC_NOMSG, { ...env, state });
+    if (noticesQueued()) await emitQueuedNotices();
     state.level.flags ??= {};
     state.level.flags.has_shop = true;
     await after_shk_move(shopkeeper, state);
@@ -4932,6 +4945,7 @@ export async function paybill(croaked, silently, state = game) {
         }
         /* for bones: we don't want a shopless shk around */
         if (!local) await mongone(mtmp, { state });
+        if (noticesQueued()) await emitQueuedNotices();
     }
     return taken;
 }
@@ -5140,6 +5154,7 @@ export async function pay_for_damage(
             // effect; the following monster relocation remains awaited.
         }
         await mnearto(shopkeeper, x, y, true, RLOC_MSG, env);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     if ((um_dist(x, y, 1, state) && !inShop)

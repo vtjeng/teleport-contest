@@ -196,6 +196,8 @@ import {
 import { finish_steps } from './source_steps.js';
 import {
     displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
     ttyPline,
     ttyUrgentPline,
 } from './tty_message.js';
@@ -936,6 +938,7 @@ export async function light_hits_gremlin(
     } else if (cansee(monster.mx, monster.my, state)
         && !canspotmon(monster, state)) {
         map_invisible(monster.mx, monster.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 }
 
@@ -1089,6 +1092,7 @@ export async function that_is_a_mimic(
     }
     if (reveal_it)
         seemimic(mtmp, state);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: uhitm.c stumble_onto_mimic() (6281-6297). Called when the hero moves
@@ -1109,6 +1113,7 @@ export async function stumble_onto_mimic(mtmp, state = game, env = {}) {
         && !glyph_is_invisible(
             state.level?.at(mtmp.mx, mtmp.my)?.remembered_glyph?.glyph)) {
         map_invisible(mtmp.mx, mtmp.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 }
 
@@ -1159,6 +1164,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
             state,
         );
         map_invisible(state.gb.bhitpos.x, state.gb.bhitpos.y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         // An unseen mimic is treated as though the hero stumbled onto a
         // visible mimic, including the source's adjacent-sticking check.
         if (M_AP_TYPE(mtmp)
@@ -1182,6 +1188,7 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
             // If a hidden mimic was where the player remembers an unseen
             // monster, the player is in luck -- attacks it even though hidden.
             seemimic(mtmp, state);
+            if (noticesQueued()) await emitQueuedNotices();
             return false;
         }
         await stumble_onto_mimic(mtmp, state, {
@@ -1199,8 +1206,10 @@ export async function attack_checks(mtmp, wep, state = game, env = {}) {
         mtmp.mundetected = 0;
         mtmp.msleeping = 0;
         newsym(mtmp.mx, mtmp.my);
+        if (noticesQueued()) await emitQueuedNotices();
         if (glyph_is_invisible(glyph)) {
             seemimic(mtmp, state);
+            if (noticesQueued()) await emitQueuedNotices();
             return false;
         }
         if (!tp_sensemon(mtmp, state)
@@ -1468,6 +1477,7 @@ export async function start_engulf(mdef, state = game, env = {}) {
     const uEnfold = enfolds(state.youmonst.data);
     if (!Invisible(state.u)) {
         map_location(state.u.ux, state.u.uy, true, state);
+        if (noticesQueued()) await emitQueuedNotices();
         await tmp_at(
             DISP_ALWAYS,
             mon_to_glyph(state.youmonst, state),
@@ -1489,6 +1499,7 @@ export async function end_engulf(state = game) {
     if (!Invisible(state.u)) {
         await tmp_at(DISP_END, 0, state);
         await newsym(state.u.ux, state.u.uy, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
 }
 
@@ -1536,6 +1547,7 @@ export async function gulpum(mdef, mattk, state = game, env = {}) {
                 );
             } else {
                 map_invisible(mdef.mx, mdef.my, state);
+                if (noticesQueued()) await emitQueuedNotices();
             }
             return M_ATTK_HIT;
         }
@@ -2316,6 +2328,7 @@ export async function do_attack(monster, state = game, env = {}) {
             state.level.at(x, y)?.remembered_glyph?.glyph)
         && !engulfing_u(monster, state)) {
         map_invisible(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     return true;
 }
@@ -2480,6 +2493,7 @@ export async function hitum_cleave(target, uattk, state = game, env = {}) {
         if (!mon) {
             if (glyph_is_invisible(state.level.at(tx, ty)?.remembered_glyph?.glyph))
                 unmap_invisible(tx, ty, state);
+            if (noticesQueued()) await emitQueuedNotices();
             continue;
         }
 
@@ -4151,6 +4165,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             ), state);
             if (!(await tele_restrict(magr, state, { ...env, message })))
                 await rloc(magr, RLOC_MSG, rlocEnv);
+            if (noticesQueued()) await emitQueuedNotices();
             mhm.hitflags = M_ATTK_AGR_DONE;
             mhm.done = true;
             return;
@@ -4167,6 +4182,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             if (random.rn2(3)) {
                 if (!(await tele_restrict(magr, state, { ...env, message })))
                     await rloc(magr, RLOC_MSG, rlocEnv);
+                if (noticesQueued()) await emitQueuedNotices();
                 mhm.hitflags = M_ATTK_AGR_DONE;
                 mhm.done = true;
                 return;
@@ -4189,6 +4205,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
             if (!is_anml
                 && !(await tele_restrict(magr, state, { ...env, message })))
                 await rloc(magr, RLOC_MSG, rlocEnv);
+            if (noticesQueued()) await emitQueuedNotices();
             if (is_anml && stolenName.value && canseemon(magr, state)) {
                 // uhitm.c:mhitm_ad_sedu() reports the stolen name before
                 // monflee(), using the same caller-filled buffer as steal().
@@ -4304,6 +4321,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
                 setApparxy: set_apparxy,
             };
             await rloc(magr, RLOC_NOMSG, rlocEnv);
+            if (noticesQueued()) await emitQueuedNotices();
             if (state.gv?.vis && couldspot
                 && !canspotmon(magr, state)) {
                 await message(`${buf} suddenly disappears!`, state);
@@ -5219,6 +5237,7 @@ export async function shade_miss(
         }
         if (!youdef && !canspotmon(mdef, state))
             map_invisible(mdef.mx, mdef.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     if (!youdef) mdef.msleeping = 0;
     return true;
@@ -6960,12 +6979,14 @@ export async function mhitm_ad_heal(
 
             if (goaway) {
                 await mongone(magr, { ...env, state });
+                if (noticesQueued()) await emitQueuedNotices();
                 mhm.done = true;
                 mhm.hitflags = M_ATTK_DEF_DIED;
                 return;
             } else if (!random.rn2(33)) {
                 if (!await tele_restrict(magr, state, env))
                     await rloc(magr, RLOC_MSG, { ...env, state, random });
+                if (noticesQueued()) await emitQueuedNotices();
                 await monflee(magr, random.d(3, 6), true, false, {
                     ...env,
                     state,
@@ -7227,6 +7248,7 @@ export async function mhitm_ad_sgld(
                     onscary(x, y, mon, normalized.state),
                 setApparxy: set_apparxy,
             });
+            if (noticesQueued()) await emitQueuedNotices();
             if (state.gv?.vis && couldspot && !canspotmon(magr, state))
                 await message(`${buf} suddenly disappears!`, state);
         }
@@ -7333,6 +7355,7 @@ export async function mhitm_ad_tlpt(
         ? Monnam(mdef, state, env) : null;
     mdef.mstrategy &= ~STRAT_WAITFORU;
     await rloc(mdef, RLOC_NOMSG, { ...env, state });
+    if (noticesQueued()) await emitQueuedNotices();
     if (state.gv?.vis && wasSeen
         && !canspotmon(mdef, state)
         && mdef !== state.u.usteed) {

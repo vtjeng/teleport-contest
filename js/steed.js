@@ -150,7 +150,11 @@ import {
     trapname,
 } from './trap.js';
 import { mintrap } from './trap_effects.js';
-import { ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyPline,
+} from './tty_message.js';
 import { use_skill } from './weapon.js';
 import {
     is_pole,
@@ -392,6 +396,7 @@ export async function use_saddle(otmp, state = game, env = {}) {
             await remove_worn_item(otmp, false, state, env);
         await freeinv(otmp, { ...env, state });
         put_saddle_on_mon(otmp, mtmp, { ...env, state });
+        if (noticesQueued()) await emitQueuedNotices();
     } else {
         await ttyPline(`${Monnam(mtmp, state)} resists!`, state);
     }
@@ -514,6 +519,7 @@ export async function mount_steed(mtmp, force, state = game) {
     if (!force && state.urole?.mnum !== PM_KNIGHT && !(--mtmp.mtame)) {
         /* no longer tame */
         newsym(mtmp.mx, mtmp.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
         await ttyPline(
             `${Monnam(mtmp, state)} resists`
             + `${mtmp.mleashed ? ' and its leash comes off' : ''}!`,
@@ -682,6 +688,7 @@ export async function kick_steed(state = game) {
         await m_unleash(steed, true, { state });
     if (!steed.mtame || u.ulevel + steed.mtame < rnd(MAXULEV / 2 + 5)) {
         newsym(steed.mx, steed.my, state);
+        if (noticesQueued()) await emitQueuedNotices();
         await dismount_steed(DISMOUNT_THROWN, state);
         return;
     }
@@ -968,6 +975,7 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
                 await rloc_to(mtmp, nearbySteed.x, nearbySteed.y, positionEnv);
             else
                 await rloc(mtmp, RLOC_ERR | RLOC_NOMSG, positionEnv);
+            if (noticesQueued()) await emitQueuedNotices();
             return;
         }
 
@@ -1024,6 +1032,7 @@ export async function dismount_steed(reason, state = game, rawEnv = {}) {
             const nearbySteed = enexto(u.ux, u.uy, mtmp.data, positionEnv);
             if (nearbySteed) {
                 await rloc_to(mtmp, nearbySteed.x, nearbySteed.y, positionEnv);
+                if (noticesQueued()) await emitQueuedNotices();
             } else if (reason === DISMOUNT_BYCHOICE) {
                 await killed(mtmp, state, positionEnv);
                 adjalign(-1, state);
@@ -1074,6 +1083,7 @@ async function maybewakesteed(steed, state = game) {
         await ttyPline(`${Monnam(steed, state)} wakes up.`, state);
     /* regardless of waking, terminate any meal in progress */
     finish_meating(steed, { state });
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: steed.c stucksteed() (876-895). Answers whether the hero's steed can

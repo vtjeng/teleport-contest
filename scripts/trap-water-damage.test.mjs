@@ -685,7 +685,7 @@ test('drown moves a punished ball and chain before setting underwater state',
         assert.match(cPlacebcCore,
             /flooreffects\(uchain, u\.ux, u\.uy, ""\);[\s\S]*?flooreffects\(uball, u\.ux, u\.uy, ""\);/u);
         assert.match(jsTrap,
-            /if \(Punished\(state\)\) \{\s*\/\/ trap\.c:drown[\s\S]*?unplacebc\(state\);\s*await placebc\(state\);\s*\}/u);
+            /if \(Punished\(state\)\) \{\s*\/\/ trap\.c:drown[\s\S]*?unplacebc\(state\);\s*(?:if \(noticesQueued\(\)\) await emitQueuedNotices\(\);\s*)?await placebc\(state\);\s*\}/u);
         assert.doesNotMatch(jsTrap,
             /note_unported\('ball\.c (?:unplacebc|placebc)'\)/u);
         assert.match(jsTrap,

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "_comment": "mkmaze.c movebubbles() with mention_map on: arriving on the Plane of Water, newsym() redraws each square a bubble's monster leaves, and display.c show_glyph() prints a notice there, inside movebubbles(), before the bubbles' rn2(3) moves. The port queued it and drew the bubble moves before the notice's --More--. Fresh Valkyrie seed and date; the #wizlevelport menu keys are the established public setup.",
+  "segments": [
+    {
+      "seed": 5172093,
+      "datetime": "20270903141500",
+      "nethackrc": "OPTIONS=name:BubbleNotice,role:Valkyrie,race:human,gender:female,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,!autopickup,!tips,mention_map\n",
+      "moves": "    #wizlevelport\n?\n>>K                        nothing\n    s    s    s    "
+    }
+  ]
+}

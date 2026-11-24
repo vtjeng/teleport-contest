@@ -432,6 +432,24 @@ export async function emitQueuedNotices(state = game) {
         await emitGlyphUpdateNotices(state, { pline: ttyPline });
 }
 
+// True while a line waits in the notice queue and no drain is printing it.
+// C prints display.c show_glyph()'s notice inside the draw that raises it
+// and waits at its --More-- before the caller goes on, so an `async` caller
+// of a synchronous draw prints the queue right after the call:
+//
+//     newsym(x, y);
+//     if (noticesQueued()) await emitQueuedNotices();
+//
+// The test keeps a quiet draw synchronous: no await, so a caller that does
+// not wait for this function's promise still sees the rest of the body run
+// first, as before. js/rng.js, "Queued output", says why the line must print
+// before the next draw or key; scripts/queued-output-calls.test.mjs checks
+// that every such call is followed by the flush.
+export function noticesQueued(state = game) {
+    return Boolean(state._glyphUpdateNotices?.length)
+        && !state._emittingGlyphUpdateNotices;
+}
+
 // C refs: pline.c vpline(), Norep(); win/tty/topl.c update_topl(). Messages
 // share the top line only when both fit with two separating spaces and room
 // for a future --More--. PLINE_NOREPEAT compares the new individual message

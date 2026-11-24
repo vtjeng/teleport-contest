@@ -2,7 +2,9 @@
 
 import { KEY_ESC, WIN_STOP } from './const.js';
 import { game } from './gstate.js';
-import { isTerminated, neverSettles, recordTerminationViolation } from './rng.js';
+import {
+    checkQueuedOutput, isTerminated, neverSettles, recordTerminationViolation,
+} from './rng.js';
 import {
     messageWindow,
     TOPLINE_NEED_MORE,
@@ -27,6 +29,9 @@ export async function nhgetch(state = game) {
     // the window procedures answer ESC without reading a key, so the
     // recorder's tty_nhgetch() input boundary does not happen either.
     if (state?.nhDisplay?.windowprocsHup) return KEY_ESC;
+    // C has printed every line it raised before it reads a key (js/rng.js,
+    // "Queued output").
+    if (state === game) checkQueuedOutput('key', 'a key read');
     // Fire the capture hook before reading the next key
     const hook = state._preNhgetchHook;
     if (hook) await hook();

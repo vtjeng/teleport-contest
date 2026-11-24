@@ -12,7 +12,10 @@
 // $TELEPORT_SEGMENT_ERROR_DIR/<session file name>.jsonl, and one per
 // violation to <session file name>.violations.jsonl beside it, and one per
 // recorded js/youprop.js argument use (js/gstate.js recordArgumentMisuse()) to
-// <session file name>.argument-misuses.jsonl. For every segment it also
+// <session file name>.argument-misuses.jsonl, and one per segment whose
+// replay drew a random number or read a key while a line was queued
+// (js/rng.js, "Queued output") to <session file name>.queued-output.jsonl.
+// For every segment it also
 // compares the random-number calls of each input step with the session
 // file's (scripts/rng-step-compare.mjs) and appends the result to
 // <session file name>.rng-steps.jsonl. It changes no
@@ -34,6 +37,7 @@ if (sessionArg && errorDir) {
     const jsmain = resolve(dirname(runnerPath), '..', 'js', 'jsmain.js');
     const {
         setArgumentMisuseReporter,
+        setQueuedOutputReporter,
         setRngSlicesReporter,
         setSegmentErrorReporter,
         setTerminationViolationReporter,
@@ -53,6 +57,10 @@ if (sessionArg && errorDir) {
     setArgumentMisuseReporter((uses) => {
         appendFileSync(argumentMisuseLog, uses
             .map(({ kind, detail, count }) => `${JSON.stringify({ kind, detail, count })}\n`).join(''));
+    });
+    const queuedOutputLog = join(errorDir, `${session}.queued-output.jsonl`);
+    setQueuedOutputReporter(({ count, kept }) => {
+        appendFileSync(queuedOutputLog, `${JSON.stringify({ count, kept })}\n`);
     });
     // One line per segment, in order. The judge replays the segments that
     // frozen/session_loader.mjs normalizeSession() gives it, so the recorded

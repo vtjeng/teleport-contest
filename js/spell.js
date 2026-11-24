@@ -157,6 +157,8 @@ import { coreRandom, rn2_on_display_rng } from './rng.js';
 import { aggravate_steps } from './wizard.js';
 import {
     displayPendingTtyMessageWindow,
+    emitQueuedNotices,
+    noticesQueued,
     ttyPline,
 } from './tty_message.js';
 import {
@@ -2009,6 +2011,7 @@ export async function cast_chain_lightning(state = game, env = {}) {
                             `You shock ${mon_nam(mon, state)}${exclam(dmg)}`, state);
                         if (!canseemon(mon, state) && !state.gn.notonhead)
                             map_invisible(zap.x, zap.y, state);
+                        if (noticesQueued()) await emitQueuedNotices();
                     }
                 } else if (canseemon(mon, state)) {
                     await (env.message ?? ttyPline)(`${Monnam(mon, state)} resists.`, state);

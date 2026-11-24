@@ -388,7 +388,12 @@ import {
 } from './trap.js';
 import { dotrap, seetrap } from './trap_effects.js';
 import { glyph_to_cmap } from './glyphs.js';
-import { ttyNorep, ttyPline } from './tty_message.js';
+import {
+    emitQueuedNotices,
+    noticesQueued,
+    ttyNorep,
+    ttyPline,
+} from './tty_message.js';
 import { create_mplayers } from './mplayer.js';
 import {
     cansee,
@@ -506,6 +511,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
     case OBJ_BURIED:
         if (isZombie) {
             await maketrap(monster.mx, monster.my, PIT, env);
+            if (noticesQueued()) await emitQueuedNotices();
             if (cansee(monster.mx, monster.my, state)) {
                 const trap = t_at(monster.mx, monster.my, state);
                 if (trap) trap.tseen = true;
@@ -513,6 +519,7 @@ export async function revive_corpse(corpse, state = game, rawEnv = {}) {
                     ? Amonnam(monster, { state }) : 'Something'}`
                     + ' claws itself out of the ground!', state, env);
                 (env.newsym ?? newsym)(monster.mx, monster.my, state);
+                if (noticesQueued()) await emitQueuedNotices();
             } else if (dist2(monster.mx, monster.my,
                 state.u.ux, state.u.uy) < 25) {
                 // Soundeffect() is a no-op in the recorder's nosound backend.
@@ -545,7 +552,9 @@ export async function revive_mon(body, _timeout, rawEnv = {}) {
         if (obstacle && (state.level.flags.stasis_until ?? 0) < state.moves) {
             const noticed = canseemon(obstacle, state);
             const oldName = Monnam(obstacle, state);
-            if (await rloc(obstacle, RLOC_NOMSG, env)) {
+            const moved = await rloc(obstacle, RLOC_NOMSG, env);
+            if (noticesQueued()) await emitQueuedNotices();
+            if (moved) {
                 if (noticed && !canseemon(obstacle, state))
                     await message(`${oldName} vanishes.`, state, env);
                 else if (!noticed && canseemon(obstacle, state))
@@ -786,6 +795,7 @@ export async function deferred_goto(state = game, rawEnv = {}) {
             if (trap) {
                 deltrap(trap, state);
                 (rawEnv.newsym ?? newsym)(u.ux, u.uy, state);
+                if (noticesQueued()) await emitQueuedNotices();
             }
         }
         if (state.gd.dfr_post_msg) {
@@ -884,6 +894,7 @@ export async function boulder_hits_pool(otmp, rx, ry, pushing = false, rawEnv = 
         }
         await bury_objs(rx, ry, state, rawEnv);
         redraw(rx, ry, state);
+        if (noticesQueued()) await emitQueuedNotices();
         if (pushing) {
             const who = state.u?.usteed
                 ? y_monnam(state.u.usteed, state)
@@ -1068,6 +1079,7 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
             await useupf(obj, 1, { ...rawEnv, state });
             await bury_objs(x, y, state, rawEnv);
             (rawEnv.newsym ?? newsym)(x, y, state);
+            if (noticesQueued()) await emitQueuedNotices();
             return true;
         }
         if (is_lava(x, y, state)) {
@@ -1092,7 +1104,9 @@ export async function flooreffects(obj, x, y, verb, rawEnv = {}) {
                     }
                 }
                 map_background(x, y, 0, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 (rawEnv.newsym ?? newsym)(x, y, state);
+                if (noticesQueued()) await emitQueuedNotices();
             }
             const { water_damage } = await import('./trap_water_damage.js');
             result = (await water_damage(obj, null, false, {
@@ -1298,6 +1312,7 @@ export async function polymorph_sink(state = game, rawEnv = {}) {
         await message('The sink vanishes.', state);
     }
     newsym(x, y);
+    if (noticesQueued()) await emitQueuedNotices();
 }
 
 // C ref: do.c dosinkring() (497-661). The object remains marked in_use through
@@ -1394,6 +1409,7 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
                     ideed = true;
                 }
                 await delobj(otmp, { ...rawEnv, state });
+                if (noticesQueued()) await emitQueuedNotices();
             }
             otmp = otmp2;
         }
@@ -1404,6 +1420,7 @@ async function dosinkring(obj, state = game, rawEnv = {}) {
         break;
     case RIN_TELEPORTATION:
         nosink = teleport_sink(state, random);
+        if (noticesQueued()) await emitQueuedNotices();
         await ttyPline(
             `The sink ${nosink ? '' : 'momentarily '}vanishes.`, state,
         );
@@ -2088,8 +2105,10 @@ async function dropzAdmitted(obj, normalized, withImpact = false) {
         // game, because its draw half paints that game whatever state it is
         // handed.
         map_object(obj, 0, normalized.state);
+        if (noticesQueued()) await emitQueuedNotices();
     }
     newsym(normalized.state.u.ux, normalized.state.u.uy);
+    if (noticesQueued()) await emitQueuedNotices();
     await encumber_msg(normalized.state);
 }
 
@@ -2196,6 +2215,7 @@ async function engulfer_digests_food(obj, state = game, env = {}) {
         await mcureblindness(swallower, false, state);
     }
     await delobj(obj, { ...env, state });
+    if (noticesQueued()) await emitQueuedNotices();
     return true;
 }
 
@@ -2696,6 +2716,7 @@ export async function goto_level(
     // level is saved. The pointers remain on the hero while both objects are
     // free, so getlev()/mklev() can restore them at the destination.
     if (Punished(state)) unplacebc(state);
+    if (noticesQueued()) await emitQueuedNotices();
     reset_utrap(false, state);
     await fill_pit(u.ux, u.uy, state);
     set_ustuck(null, state);
@@ -2817,6 +2838,7 @@ export async function goto_level(
             }
         } else {
             seetrap(ttrap, { redraw: newsym });
+            if (noticesQueued()) await emitQueuedNotices();
             await u_on_newpos(ttrap.tx, ttrap.ty, state);
         }
     // do.c:1802-1810 places the hero at a random spot after a fall or a
@@ -3203,8 +3225,9 @@ export async function u_collide_m(mtmp, state = game) {
     if ((mtmp = m_at(state.u.ux, state.u.uy, state)) != null) {
         if (state.wizard)
             await ttyPline("(monster in hero's way)", state);
-        if (!await rloc(mtmp, RLOC_NOMSG, { state })
-            || (mtmp = m_at(state.u.ux, state.u.uy, state)) != null)
+        const moved = await rloc(mtmp, RLOC_NOMSG, { state });
+        if (noticesQueued()) await emitQueuedNotices();
+        if (!moved || (mtmp = m_at(state.u.ux, state.u.uy, state)) != null)
             /* no room to move it; send it away, to return later */
             await m_into_limbo(mtmp, state);
     }
