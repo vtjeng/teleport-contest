@@ -1,0 +1,18 @@
+{
+  "version": 5,
+  "comment": "unixmain.c: with no name in the rc the recorder passes \"-u ''\", tty_askname() asks \"Who are you?\" in plnamesuffix() (unixmain.c:198), and attempt_restore (unixmain.c:220-243) then finds the save made under the typed name. !selectsaved keeps tty_askname() from listing the saved game first.",
+  "segments": [
+    {
+      "seed": 4418027,
+      "datetime": "20390214081500",
+      "nethackrc": "OPTIONS=role:Ranger,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,!selectsaved\n",
+      "moves": "Corvin\n s Sy"
+    },
+    {
+      "seed": 4418028,
+      "datetime": "20390214083000",
+      "nethackrc": "OPTIONS=role:Ranger,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none,!selectsaved\n",
+      "moves": "Corvin\n s:"
+    }
+  ]
+}

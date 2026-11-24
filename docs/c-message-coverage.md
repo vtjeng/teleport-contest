@@ -28,10 +28,10 @@ Of these, 70 have no fixed piece of 6 or more characters and are not checked.
 
 | Kind | Checked | Found in `js/` | Exempt | Missing |
 | --- | ---: | ---: | ---: | ---: |
-| gameplay | 4068 | 4006 | 62 | 0 |
+| gameplay | 4068 | 4007 | 61 | 0 |
 | diagnostic | 726 | 597 | 6 | 123 |
 | debug | 120 | 4 | 0 | 116 |
-| total | 4914 | 4607 | 68 | 239 |
+| total | 4914 | 4608 | 67 | 239 |
 
 ## Missing by C file
 
@@ -972,9 +972,6 @@ Whole file not ported by design: it parses NetHack's command line; the recorder'
   - 1039 pline: `This game is void.`
 
 ### src/save.c
-
-- `dosave0()`: create_savefile() failed because the save directory is missing or not writable, an installation fault (approved: Vincent, 2026-11-13)
-  - 130 pline: `Cannot open save file.`
 
 - `tricked_fileremoved()`: a level file the game wrote is gone when it reopens it; only another process deleting it does that (approved: Vincent, 2026-11-13)
   - 341 pline: `Probably someone removed it.`

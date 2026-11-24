@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "As save-name-cut-mid-utf8-save-last, with keys after the save: on macOS the failed save leaves the game running (save.c dosave() docrt()), so the later commands play on. On Linux the game ends at the save and the recorder rejects this recipe; it is recorded on macOS only (recorder/competitor-probes).",
+  "segments": [
+    {
+      "seed": 3390217,
+      "datetime": "20410305101500",
+      "nethackrc": "OPTIONS=name:Wanderingcartographerofthenor€,role:Priest,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\n",
+      "moves": "  s Sy  s i\u001b:"
+    }
+  ]
+}

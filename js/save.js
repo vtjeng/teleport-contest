@@ -55,7 +55,8 @@ import { forget_temple_entry } from './priest.js';
 import { maybe_write_timer, save_timers } from './timeout.js';
 import { initrack } from './track.js';
 import {
-    create_savefile, have_savefile_name, open_savefile,
+    create_savefile, delete_savefile, have_savefile_name, open_savefile,
+    savefile_creatable,
 } from './files.js';
 import { docrt } from './display.js';
 import { clearTtyMessageWindow, displayPendingTtyMessageWindow, ttyPline } from './tty_message.js';
@@ -410,7 +411,8 @@ export async function dosave(state = game) {
             await nh_terminate(state);
         } else {
             // C ref: save.c:66-67. dosave0() returns 0 when the player
-            // declines to overwrite an old save file; the game goes on.
+            // declines to overwrite an old save file or the save file cannot
+            // be created; the game goes on.
             await docrt();
         }
     }
@@ -462,6 +464,18 @@ export async function dosave0(state = game) {
             state)) === 'n') {
             return 0;
         }
+    }
+
+    // C ref: save.c:126-133. HUP mark_synch() is an fflush() with no JS
+    // counterpart. create_savefile()'s creat() fails where the judge's APFS
+    // volume refuses the name (js/files.js playgroundCanCreate()); C then
+    // reports it, unless a hangup has arrived, unlinks the name and saves
+    // nothing, so the luck adjustments below are not made.
+    if (!savefile_creatable(state)) {
+        if (!state.program_state?.done_hup)
+            await ttyPline('Cannot open save file.', state);
+        delete_savefile(state);
+        return 0;
     }
 
     // C ref: save.c:142-145. Undo date-dependent luck adjustments made at

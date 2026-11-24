@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "end.c disclose() with end_disclose \"+i\": the inventory is listed without a query after the quit; tests the top line and status under the listing.",
+  "segments": [
+    {
+      "seed": 5150443,
+      "datetime": "20390214081500",
+      "nethackrc": "OPTIONS=name:Ines,role:Archeologist,race:dwarf,gender:female,align:lawful,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\nOPTIONS=disclose:+i -a -v -g -c -o\n",
+      "moves": " #quit\ny  "
+    }
+  ]
+}

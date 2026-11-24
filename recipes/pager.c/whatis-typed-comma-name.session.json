@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "pager.c checkfile(): a typed name that starts with \", \" keeps the whole name (pager.c:961 `if (ep && ep > dbase_str)`), so \", newt\" finds no data.base entry: \"You don't have any information on those things.\"",
+  "segments": [
+    {
+      "seed": 2271830,
+      "datetime": "20390214081500",
+      "nethackrc": "OPTIONS=name:Kestrel,role:Wizard,race:elf,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen,!autopickup,pettype:none\n",
+      "moves": " /?, newt\n  s"
+    }
+  ]
+}

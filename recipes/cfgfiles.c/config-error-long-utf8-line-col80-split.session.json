@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "cfgfiles.c config_erradd() raw-prints the offending rc line (pline(\"\\n%s\", origline) while the windows are not up) and then \" * Line N: ...\" messages. Patch 006 nomux_raw_putch() stores a byte only below column 80 and counts columns in bytes, so the 112-byte line loses its tail, and its byte at column 79, the first of a two-byte character, decodes as U+FFFD. The third line puts two-byte characters in the error text. Recorded on macOS (recorder/competitor-probes); the Linux recording is the same.",
+  "segments": [
+    {
+      "seed": 9081123,
+      "datetime": "20330411183000",
+      "nethackrc": "OPTIONS=name:Ilka,role:Healer,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=fruit:xőőőőőőőőőőőőőőőőőőőőőőőőőőőőőőőőőőőőőőőő,nosuchoptionhere\nOPTIONS=boguséé:1\n",
+      "moves": "\n s\u001b"
+    }
+  ]
+}

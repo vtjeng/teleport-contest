@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "comment": "topten.c topten() copynchars(t0->name, plname, NAMSZ) keeps 10 of the name's 15 bytes: \"Rua\", one four-byte character and three bytes of the next. The score list is raw output (patch 006 nomux_raw_putch() stores bytes by column), which the recorder decodes as UTF-8, so the cut character reads as U+FFFD and the rest of the line shifts left by the bytes the decoded characters merge, bold padding included. Recorded on macOS (recorder/competitor-probes); the Linux recording is the same.",
+  "segments": [
+    {
+      "seed": 2210987,
+      "datetime": "20330411183000",
+      "nethackrc": "OPTIONS=name:Rua🌊🌊🌊,role:Archeologist,race:dwarf,gender:male,align:lawful,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": " #quit\ny "
+    }
+  ]
+}

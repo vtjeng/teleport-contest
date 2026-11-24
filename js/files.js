@@ -91,6 +91,26 @@ export function playgroundReadFile(path) {
     return vfsReadFile(stored);
 }
 
+// Whether creat(path) or fopen(path, "w") can make a new file there. APFS
+// stores every name as UTF-8 and refuses to create one that is not: the call
+// fails with EILSEQ, where Linux's ext4 takes any bytes. The macOS recorder
+// run 45507166983 showed it: #save under a player name that unixmain.c
+// process_options() had cut to 31 bytes inside a three-byte character
+// printed "Cannot open save file." and the game went on, and the next
+// process found no save file. `path` holds C's bytes, one per code unit, as
+// fileNameFold() reads them; text that is not one byte per code unit is
+// already decoded and names nothing APFS refuses.
+export function playgroundCanCreate(path) {
+    const text = String(path);
+    if (/^[\x00-\x7f]*$/u.test(text) || /[^\x00-\xff]/u.test(text)) return true;
+    try {
+        UTF8.decode(Uint8Array.from(text, (c) => c.charCodeAt(0)));
+    } catch {
+        return false;
+    }
+    return true;
+}
+
 // fopen(path, "w") and fwrite(): replaces the file `path` reaches.
 export function playgroundWriteFile(path, content) {
     const stored = playgroundKey(path);
@@ -146,6 +166,15 @@ export function set_error_savefile(state = game) {
 // C ref: save.c dosave0():100, the `!gs.SAVEF[0]` test.
 export function have_savefile_name(state = game) {
     return SAVEF(state) !== '';
+}
+
+// C ref: files.c create_savefile() (1159-1213), its creat() of the file
+// gs.SAVEF names: false where C gets no file descriptor and returns no
+// NHFILE. save.c dosave0() calls it at save.c:128, before it writes anything;
+// the port tests the name there and writes the whole file afterwards with
+// create_savefile() below.
+export function savefile_creatable(state = game) {
+    return playgroundCanCreate(SAVEF(state));
 }
 
 // C ref: files.c create_savefile() (1159-1213) and the writes that follow
