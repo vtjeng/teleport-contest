@@ -1524,15 +1524,14 @@ test('js/ has no second port of a do_name.c naming function', () => {
     assert.deepEqual(wrappers, []);
 
     // Callers of mcastu.c and muse.c functions put Monnam() and mon_nam() on
-    // an env as `monsterName` and `monnam` operations: five and two. C calls
-    // the functions directly. Lower a count when a provider is removed.
-    const providers = (key) => [...sources.values()].reduce(
-        (sum, source) => sum
-            + (source.match(new RegExp(`^\\s*${key}: \\(`, 'gmu'))?.length ?? 0),
-        0,
+    // an env as `monsterName` and `monnam` operations, five and two of them,
+    // and nine places in js/mcastu.js and js/muse.js called the operation
+    // instead of the function C calls. No env carries a naming operation:
+    // neither key is set, read or destructured anywhere in js/.
+    const operation = /\.(?:monsterName|monnam)\b|\b(?:monsterName|monnam)\s*:|\{[^}]*\b(?:monsterName|monnam)\b[^}]*\}\s*=/u;
+    assert.deepEqual(
+        files.filter((file) => operation.test(sources.get(file))), [],
     );
-    assert.equal(providers('monsterName'), 5);
-    assert.equal(providers('monnam'), 2);
 });
 
 // potion.c djinni_from_bottle() 2826 names the djinni with a_monnam(). The

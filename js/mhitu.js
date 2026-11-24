@@ -1757,14 +1757,10 @@ export async function mattacku(monster, rawEnv = {}) {
     /* Unlike defensive stuff, don't let them use item _and_ attack. */
     if (await finish_steps(find_offensive_steps(monster, env),
         impossible_printer(state))) {
-        // muse.c use_offensive() names the thrower of a hurled potion with
-        // Monnam() and sends it through m_throw(); js/muse.js takes both as
-        // operations.
+        // muse.c use_offensive() sends a hurled potion through m_throw();
+        // js/muse.js takes it as an operation.
         const offended = await use_offensive(monster, {
             ...env,
-            monsterName: (mtmp) => Monnam(mtmp, state, {
-                displayRandom: env.displayRandom,
-            }),
             throwMissile: m_throw,
         });
         if (offended !== 0) return offended === 1 ? 1 : 0;
@@ -1974,15 +1970,11 @@ export async function mattacku(monster, rawEnv = {}) {
 
         case M.AT_MAGC:
             if (range2) {
-                // mcastu.c buzzmu() names the caster with Monnam().
-                sum[i] = await buzzmu(monster, mattk, {
-                    ...env,
-                    monsterName: (mtmp) => Monnam(mtmp, state),
-                });
+                sum[i] = await buzzmu(monster, mattk, env);
             } else {
-                // js/mcastu.js castmu() takes Monnam(), mon_nam() and the
-                // spell damage's losehp() as operations. A monster's spell
-                // is damage from a monster.
+                // js/mcastu.js castmu() takes the spell damage's losehp()
+                // as an operation. A monster's spell is damage from a
+                // monster.
                 sum[i] = await castmu(monster, mattk, true, foundyou, {
                     ...env,
                     losehp: env.losehp ?? ((n, knam, format) => losehp(
@@ -1990,10 +1982,6 @@ export async function mattacku(monster, rawEnv = {}) {
                         { ...env, fromMonster: true },
                     )),
                     encumberMessage: env.encumberMessage ?? encumber_msg,
-                    monsterName: (mtmp) => Monnam(mtmp, state, {
-                        displayRandom: env.displayRandom,
-                    }),
-                    monnam: (mtmp) => mon_nam(mtmp, state, env),
                 });
             }
             break;

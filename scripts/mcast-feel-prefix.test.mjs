@@ -38,10 +38,10 @@ for(const c of cases)for(const awareness of ['awake','paralyzed','sleeping','fai
   game.multi=awareness==='awake'?0:-4;game.u.usleep=awareness==='sleeping'?1:0;game.u.uhs=awareness==='fainted'?FAINTED:NOT_HUNGRY;game.u.uhunger=awareness==='fainted'?-10:900;game.nomovemsg=awareness==='sleeping'?'You wake up.':null;
   const state=game;
   const before={core:structuredClone(game.coreCtx),display:structuredClone(game.displayCtx),grid:structuredClone(game.nhDisplay.grid)};
-  const lines=[],draws=[];let count=0,encumbrance=0;
+  const lines=[],draws=[];let count=0,encumbrance=0,displayDraws=0;
   const random={rn2:n=>{draws.push(['rn2',n]);return count++===0?c.spell:50;},d:(n,s)=>{draws.push(['d',n,s]);return n;},rnd:n=>{draws.push(['rnd',n]);return 1;}};
   const agr=state.level.monlist,hp=state.u.uhp,str=state.u.acurr.a[A_STR];
-  const result=await castmu(agr,{aatyp:AT_MAGC,adtyp:c.cleric?AD_CLRC:AD_SPEL,damn:1,damd:6},!c.aggravate,!c.aggravate,{state,random,monsterName:()=> 'The caster',losehp:async()=>{throw Error('unexpected strength-overflow HP loss');},encumberMessage:async()=>{encumbrance++;},message:async line=>lines.push(line),unsupported:r=>{throw Error(r);}});
+  const result=await castmu(agr,{aatyp:AT_MAGC,adtyp:c.cleric?AD_CLRC:AD_SPEL,damn:1,damd:6},!c.aggravate,!c.aggravate,{state,random,displayRandom:()=>{displayDraws++;return 0;},losehp:async()=>{throw Error('unexpected strength-overflow HP loss');},encumberMessage:async()=>{encumbrance++;},message:async line=>lines.push(line),unsupported:r=>{throw Error(r);}});
   assert.equal(result,1);assert.equal(encumbrance,c.weaken?1:0);assert.equal(state.u.uhp,hp);assert.equal(agr.mspec_used,2);
   const dreaming=awareness==='sleeping'||awareness==='fainted';
   if(c.suffix)assert(lines.includes(`You ${dreaming?'dream that you feel':'feel'} ${c.suffix}`),JSON.stringify(lines));
@@ -52,6 +52,10 @@ for(const c of cases)for(const awareness of ['awake','paralyzed','sleeping','fai
   if(c.id==='stun-already-stunned')assert.equal(lines.length,1,'the already-stunned effect adds no sensation');
   if(c.aggravate)assert.equal(agr.nmon.msleeping,false);
   assert.deepEqual(draws,[['rn2',15],['rn2',150],...(c.aggravate?[]:[['d',8,6]]),...(c.weaken?[['rnd',9]]:c.curse?[['rnd',6]]:[])]);
+  // mcastu.c names the caster with Monnam(); a hallucinating hero sees an
+  // rndmonnam() name, drawn from the display stream, and no other line here
+  // draws from it.
+  assert.equal(displayDraws>0,Boolean(c.hallu));
   assert.deepEqual(game.coreCtx,before.core);assert.deepEqual(game.displayCtx,before.display);assert.deepEqual(game.nhDisplay.grid,before.grid);
 });
 

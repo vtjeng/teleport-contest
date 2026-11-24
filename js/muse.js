@@ -2774,18 +2774,17 @@ export async function use_offensive(mtmp, rawEnv = {}) {
          * are not objects.  Also set dknown in mthrowu.c.
          */
         if (cansee(mtmp.mx, mtmp.my, state)) {
-            // C's pline_mon() with Monnam(); a caller may replace either.
+            // C's pline_mon() with Monnam(); a caller may replace the
+            // pline.
             const message = env.message ?? ttyPline;
-            const monsterName = env.monsterName
-                ?? ((monster) => Monnam(monster, state, {
-                    displayRandom: env.displayRandom,
-                }));
             observe_object(otmp, state);
             // pline_mon() sets the message location to the thrower's square,
             // which messageAt() prefixes under the accessiblemsg option.
             await message(
                 messageAt(
-                    `${monsterName(mtmp, state)} hurls `
+                    `${Monnam(mtmp, state, {
+                        displayRandom: env.displayRandom,
+                    })} hurls `
                     + `${singular(otmp, donameFresh, state)}!`,
                     mtmp.mx,
                     mtmp.my,

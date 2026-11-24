@@ -3202,7 +3202,7 @@ test('a starting pet\'s dog_move reflection gate calls mon_reflects',
         });
 });
 
-test('both production castmu adapters preserve source mon_nam', () => {
+test('castmu names a fumbling caster with mon_nam() and its callers add no name', () => {
     const mhitu = readFileSync(new URL('../nethack-c/upstream/src/mhitu.c', import.meta.url), 'utf8');
     const js = readFileSync(new URL('../js/unported_monster_actions.js', import.meta.url), 'utf8');
     // mattacku() builds castmu()'s operations at its AT_MAGC call.
@@ -3228,10 +3228,16 @@ test('both production castmu adapters preserve source mon_nam', () => {
     assert.match(mhitu, /castmu\(mtmp, mattk, TRUE, foundyou\)/u);
     assert.match(dochug, /castmu\(mtmp, a, FALSE, FALSE\)/u);
     assert.match(fumble, /canseemon\(mtmp\)[\s\S]*?mon_nam\(mtmp\)/u);
-    assert.match(attackAdapter,
-        /monnam: \(mtmp\) => mon_nam\(mtmp, state, env\)/u);
-    assert.match(spellAdapter,
-        /monnam: \(mtmp\) => mon_nam\(mtmp, state, env\)/u);
+    // js/mcastu.js castmu() calls mon_nam() itself, as C does; neither
+    // caller supplies a naming operation for it to call instead.
+    const mcastuJs = readFileSync(new URL('../js/mcastu.js', import.meta.url), 'utf8');
+    const fumbleJsStart = mcastuJs.indexOf('if (random.rn2(ml * 10)');
+    const fumbleJs = mcastuJs.slice(fumbleJsStart,
+        mcastuJs.indexOf('return M_ATTK_MISS;', fumbleJsStart));
+    assert.match(fumbleJs,
+        /The air crackles around \$\{mon_nam\(mtmp, state, env\)\}\./u);
+    assert.doesNotMatch(attackAdapter, /monsterName|monnam/u);
+    assert.doesNotMatch(spellAdapter, /monsterName|monnam/u);
     assert.doesNotMatch(spellAdapter, /pmnames\?\./u,
         'the undirected-spell adapter must preserve invisible and other C naming rules');
 });
@@ -3287,8 +3293,8 @@ test('monster missile caller adapters preserve hallucinated display RNG', () => 
     assert.ok(useOffensiveStart >= 0 && useOffensiveEnd > useOffensiveStart);
     assert.match(MUSE_SOURCE.slice(useOffensiveStart, useOffensiveEnd), /m_throw\(/u);
 
-    // m_throw(), monshoot() and mattacku()'s use_offensive() call pass the
-    // caller's display RNG themselves.
+    // m_throw(), monshoot() and use_offensive()'s hurled-potion line pass
+    // the caller's display RNG themselves.
     const mthrowuJs = readFileSync(
         new URL('../js/mthrowu.js', import.meta.url), 'utf8');
     const mThrowJsStart = mthrowuJs.indexOf('export async function m_throw(');
@@ -3310,9 +3316,10 @@ test('monster missile caller adapters preserve hallucinated display RNG', () => 
     const potionAdapterEnd = mhituJs.indexOf('});', potionAdapterStart);
     assert.ok(potionAdapterStart >= 0 && potionAdapterEnd > potionAdapterStart);
     const potionAdapter = mhituJs.slice(potionAdapterStart, potionAdapterEnd);
-    assert.match(potionAdapter,
-        /Monnam\(mtmp, state, \{\s*displayRandom: env\.displayRandom,/u);
     assert.match(potionAdapter, /throwMissile: m_throw,/u);
+    const museJs = readFileSync(new URL('../js/muse.js', import.meta.url), 'utf8');
+    assert.match(museJs,
+        /\$\{Monnam\(mtmp, state, \{\s*displayRandom: env\.displayRandom,\s*\}\)\} hurls /u);
 
     const petAdapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(
         'export async function runPetRangedAttack(',
