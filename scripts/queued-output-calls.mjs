@@ -54,6 +54,11 @@ const HOOK_TARGETS = new Map([
     ['feel_location', 'feel_location'], ['show_glyph', 'show_glyph_cell'],
     ['redrawSquare', 'redrawSquare'], ['see_monsters', 'see_monsters'],
     ['see_objects', 'see_objects'],
+    // detect.c dosearch0()'s and mfind0()'s operations (detect.js
+    // normalizeSearchEnv()), whose defaults are these draws.
+    ['feelLocation', 'feel_location'], ['feelNewSym', 'feel_newsym'],
+    ['newSym', 'newsym'], ['mapInvisible', 'map_invisible'],
+    ['seemimic', 'seemimic'],
 ]);
 
 // The queue's own machinery, which raises and prints the lines.
@@ -209,7 +214,13 @@ export function buildGraph(sources) {
                         async: node.async, generator: node.generator, calls: [], module,
                         parent: owner, aliases: new Map(), node };
                     fns.push(current);
-                    if (name) {
+                    // Only a name a call can reach as an identifier binds:
+                    // an object property such as `{ newsym: (x, y) => ... }`
+                    // must not shadow the module's import of that name.
+                    const binds = node.type === 'FunctionDeclaration'
+                        || parent?.type === 'VariableDeclarator'
+                        || (parent?.type === 'AssignmentExpression' && parent.left.type === 'Identifier');
+                    if (name && binds) {
                         if (!module.functions.has(name)) module.functions.set(name, []);
                         module.functions.get(name).push(current);
                     }

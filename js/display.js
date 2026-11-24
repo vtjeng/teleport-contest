@@ -67,7 +67,9 @@ import {
     TOPLINE_NEED_MORE,
     clearTtyMessageWindow,
     dismissPendingTtyMessage,
+    emitQueuedNotices,
     messageWindow,
+    noticesQueued,
 } from './tty_message.js';
 import {
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
@@ -4936,7 +4938,12 @@ export async function tmp_at(x, y, state = game) {
     case DISP_END:
         if (tglyph.style === DISP_BEAM || tglyph.style === DISP_ALL) {
             /* Erase (reset) from source to end */
-            for (const spot of tglyph.saved) newsym(spot.x, spot.y);
+            // Each newsym() can raise a mention_map notice, which C prints
+            // there, before the next square (js/rng.js, "Queued output").
+            for (const spot of tglyph.saved) {
+                newsym(spot.x, spot.y);
+                if (noticesQueued()) await emitQueuedNotices();
+            }
         } else if (tglyph.style === DISP_TETHER) {
             if (y === BACKTRACK && tglyph.saved.length > 1) {
                 // display.c:1247-1258. Retrace the tether one square at a
@@ -4946,18 +4953,24 @@ export async function tmp_at(x, y, state = game) {
                     const current = tglyph.saved[i];
                     const previous = tglyph.saved[i - 1];
                     newsym(current.x, current.y);
+                    if (noticesQueued()) await emitQueuedNotices();
                     show_glyph_cell(
                         previous.x, previous.y, tglyph.glyph,
                     );
+                    if (noticesQueued()) await emitQueuedNotices();
                     await flush_screen(0);
                     await nh_delay_output(state);
                 }
                 tglyph.saved.length = 1;
             }
-            for (const spot of tglyph.saved) newsym(spot.x, spot.y);
+            for (const spot of tglyph.saved) {
+                newsym(spot.x, spot.y);
+                if (noticesQueued()) await emitQueuedNotices();
+            }
         } else { /* DISP_FLASH or DISP_ALWAYS */
             if (tglyph.saved.length) /* been called at least once */
                 newsym(tglyph.saved[0].x, tglyph.saved[0].y);
+            if (noticesQueued()) await emitQueuedNotices();
         }
         stack.shift();
         break;
@@ -4976,6 +4989,7 @@ export async function tmp_at(x, y, state = game) {
             if (tglyph.saved.length) {
                 const prev = tglyph.saved[tglyph.saved.length - 1];
                 show_glyph_cell(prev.x, prev.y, tether_glyph(prev.x, prev.y, state));
+                if (noticesQueued()) await emitQueuedNotices();
             }
             /* save pos for later use or erasure */
             tglyph.saved.push({ x, y });
@@ -4983,6 +4997,7 @@ export async function tmp_at(x, y, state = game) {
             if (tglyph.saved.length) {
                 /* not first call, so reset previous pos */
                 newsym(tglyph.saved[0].x, tglyph.saved[0].y);
+                if (noticesQueued()) await emitQueuedNotices();
                 tglyph.saved.length = 0; /* display is presently up to date */
             }
             if (!cansee(x, y, state) && tglyph.style !== DISP_ALWAYS) break;
@@ -4990,6 +5005,7 @@ export async function tmp_at(x, y, state = game) {
         }
 
         show_glyph_cell(x, y, tglyph.glyph); /* show it */
+        if (noticesQueued()) await emitQueuedNotices();
         await flush_screen(0);               /* make sure it shows up */
         break;
     }

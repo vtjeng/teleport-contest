@@ -675,6 +675,7 @@ export async function gold_detect(scroll, state = game) {
     let terrainType = TER_DETECT | TER_OBJ;
     if (!goldUnderHero) {
         newsym(state.u.ux, state.u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
         terrainType |= TER_MON;
     }
     await ttyPline(youFeel('very greedy, and sense gold!', state), state);
@@ -793,6 +794,7 @@ export async function food_detect(scroll, state = game) {
     let terrainType = TER_DETECT | TER_OBJ;
     if (!countHere) {
         newsym(state.u.ux, state.u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
         terrainType |= TER_MON;
     }
     if (scroll) {
@@ -999,6 +1001,7 @@ export async function object_detect(detector = null, objectClass = 0,
     const currentGlyph = glyph_at(state.u.ux, state.u.uy, state);
     if (!glyph_is_object(currentGlyph)) {
         newsym(state.u.ux, state.u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
         terrainType |= TER_MON;
     }
     await ttyPline(
@@ -1151,6 +1154,7 @@ async function detect_obj_traps(objlist, showThem, how, ft = null, state = game)
             }
             if (ft) {
                 foundone(x, y, trapglyph, state);
+                if (noticesQueued()) await emitQueuedNotices();
                 ft.num_traps++;
             }
         }
@@ -1194,6 +1198,7 @@ async function display_trap_map(cursedSource, state = game) {
     let terrainType = TER_DETECT | (cursedSource ? TER_OBJ : TER_TRP);
     if (!glyph_is_trap(currentGlyph) && !glyph_is_object(currentGlyph)) {
         newsym(state.u.ux, state.u.uy);
+        if (noticesQueued()) await emitQueuedNotices();
         terrainType |= TER_MON;
     }
     await ttyPline(youFeel(`${cursedSource ? 'very greedy' : 'entrapped'}.`, state), state);
@@ -1893,6 +1898,7 @@ function defaultFeelSearchNewSym(x, y, env) {
 
 async function defaultFoundTrapDisplay(trap, x, y, env) {
     const layer = await env.feelNewSym(x, y, env);
+    if (noticesQueued()) await emitQueuedNotices();
     if (!env.injected.has('feelNewSym')) {
         const remembered = env.state.level.at(x, y).remembered_glyph;
         return Boolean(
@@ -2123,6 +2129,7 @@ async function mfind0(monster, via_warning, env) {
             newsym: (sx, sy) => env.newSym(sx, sy, env),
             unblockPoint: (sx, sy) => env.unblockPoint(sx, sy, env),
         });
+        if (noticesQueued()) await emitQueuedNotices();
         foundSomething = true;
     } else {
         // This is intentionally sampled before mundetected is cleared, as in
@@ -2148,6 +2155,9 @@ async function mfind0(monster, via_warning, env) {
             foundSomething = true;
         }
         await env.newSym(x, y, env);
+        // The default newsym() is synchronous; C prints a mention_map notice
+        // inside it, before exercise()'s random number below.
+        if (noticesQueued()) await emitQueuedNotices();
     }
 
     if (!foundSomething) return 0;
@@ -2160,6 +2170,7 @@ async function mfind0(monster, via_warning, env) {
     await env.exerciseWisdom(env);
     if (!spotted) {
         await env.mapInvisible(x, y, env);
+        if (noticesQueued()) await emitQueuedNotices();
         await env.message(youFeel('an unseen monster!', state), x, y, env);
     } else if (!sensemon(monster, state)) {
         const name = monster.mtame
@@ -2302,6 +2313,7 @@ export async function findone(x, y, found, state) {
         if (noticesQueued()) await emitQueuedNotices();
         foundone(x, y, await finish_steps(back_to_glyph_steps(x, y, state),
             impossible_printer(state)), state);
+        if (noticesQueued()) await emitQueuedNotices();
         found.num_sdoors++;
     } else if (location.typ === SCORR) {
         await flash_glyph_at(
@@ -2313,6 +2325,7 @@ export async function findone(x, y, found, state) {
             impossible_printer(state));
         if (noticesQueued()) await emitQueuedNotices();
         foundone(x, y, cmap_to_glyph(S_corr, state), state);
+        if (noticesQueued()) await emitQueuedNotices();
         found.num_scorrs++;
     }
 
@@ -2324,6 +2337,7 @@ export async function findone(x, y, found, state) {
         sense_trap(trap, x, y, false, state);
         if (noticesQueued()) await emitQueuedNotices();
         foundone(x, y, trap_to_glyph(trap, state), state);
+        if (noticesQueued()) await emitQueuedNotices();
         found.num_traps++;
     }
     if (closed_door(x, y, state)
@@ -2334,6 +2348,7 @@ export async function findone(x, y, found, state) {
         sense_trap(dummyTrap, x, y, false, state);
         if (noticesQueued()) await emitQueuedNotices();
         foundone(x, y, glyph, state);
+        if (noticesQueued()) await emitQueuedNotices();
         found.num_traps++;
     }
 
@@ -2368,6 +2383,7 @@ export async function findone(x, y, found, state) {
             );
             monster.mundetected = false;
             newsym(x, y, state);
+            if (noticesQueued()) await emitQueuedNotices();
             found.num_mons++;
         }
         if (!glyph_is_invisible(location.remembered_glyph?.glyph)) {
@@ -2431,17 +2447,20 @@ export async function openone(x, y, counter, state) {
         }
         unblock_point(x, y, state);
         newsym(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         counter.value++;
     } else if (location.typ === SCORR) {
         location.typ = CORR;
         unblock_point(x, y, state);
         newsym(x, y, state);
+        if (noticesQueued()) await emitQueuedNotices();
         counter.value++;
     } else if (t_at(x, y, state)) {
         const trap = t_at(x, y, state);
         if (!trap.tseen && trap.ttyp !== STATUE_TRAP) {
             trap.tseen = true;
             newsym(x, y, state);
+            if (noticesQueued()) await emitQueuedNotices();
             counter.value++;
         }
         const monster = u_at(x, y, state)
@@ -2664,6 +2683,9 @@ export async function dosearch0(aflag, rawEnv = {}) {
             if (explicit && (Blind(u)
                 || visible_region_at(x, y, state))) {
                 await env.feelLocation(x, y, env);
+                // The hook's default draws synchronously (display.c
+                // feel_location()); C prints its mention_map notice there.
+                if (noticesQueued()) await emitQueuedNotices();
             }
             if (location.typ === SDOOR) {
                 if (env.random.rnl(7 - fund)) continue;
@@ -2673,6 +2695,9 @@ export async function dosearch0(aflag, rawEnv = {}) {
                 await env.exerciseWisdom(env);
                 env.nomulZero(env);
                 await env.feelLocation(x, y, env);
+                // The hook's default draws synchronously (display.c
+                // feel_location()); C prints its mention_map notice there.
+                if (noticesQueued()) await emitQueuedNotices();
                 await env.message(
                     'You find a hidden door.', x, y, env,
                 );
@@ -2684,6 +2709,9 @@ export async function dosearch0(aflag, rawEnv = {}) {
                 await env.exerciseWisdom(env);
                 env.nomulZero(env);
                 await env.feelNewSym(x, y, env);
+                // The hook's default draws synchronously (display.c
+                // feel_location()); C prints its mention_map notice there.
+                if (noticesQueued()) await emitQueuedNotices();
                 await env.message(
                     'You find a hidden passage.', x, y, env,
                 );

@@ -12,11 +12,10 @@ import { readJsSources, scanQueuedOutputCalls, unflushedCalls } from './queued-o
 
 // The display.js reason: js/display.js is being split from the map-location
 // records by the screen-buffer work, so its own async draws (docrt(),
-// tmp_at(), swallowed(), under_water(), shieldeff(), flash_glyph_at()) wait
-// for that change to land. They are known to draw before the print: a
-// replay of the corpus with mention_map forced on still shows tmp_at()'s
-// newsym() leaving a notice queued past a core draw, which the run-time
-// check (js/rng.js) records in any recording that reaches it.
+// swallowed(), under_water(), shieldeff(), flash_glyph_at()) wait for that
+// change to land. tmp_at() was converted after batch games b11 and b12 drew
+// before its notices; the run-time check (js/rng.js) records any of these
+// that does the same.
 const DISPLAY_REASON = 'js/display.js async draw; converted after the screen-buffer change lands';
 
 // "<file> | <function> | <callee>": [count, reason].
@@ -28,8 +27,6 @@ const ALLOWED = {
     'js/display.js | shieldeff | show_glyph_cell': [1, DISPLAY_REASON],
     'js/display.js | swallowed | display_self': [1, DISPLAY_REASON],
     'js/display.js | swallowed | show_glyph_cell': [9, DISPLAY_REASON],
-    'js/display.js | tmp_at | newsym': [5, DISPLAY_REASON],
-    'js/display.js | tmp_at | show_glyph_cell': [3, DISPLAY_REASON],
     'js/display.js | under_water | newsym': [1, DISPLAY_REASON],
     'js/display.js | under_water | show_glyph_cell': [2, DISPLAY_REASON],
     'js/mon.js | hideunder | env.redraw ?? newsym': [1,
@@ -55,7 +52,7 @@ const ALLOWED = {
 // draw caller is seen, and a conversion lowers its file's count.
 const SYNC_CALLERS = {
     'js/apply.js': 1, 'js/artifacts.js': 1, 'js/attrib.js': 1, 'js/ball.js': 22,
-    'js/bury.js': 2, 'js/detect.js': 12, 'js/dig.js': 9, 'js/display.js': 48, 'js/do.js': 3,
+    'js/bury.js': 2, 'js/detect.js': 15, 'js/dig.js': 9, 'js/display.js': 48, 'js/do.js': 3,
     'js/dog.js': 2, 'js/dogmove.js': 1, 'js/eat.js': 2, 'js/engrave.js': 1,
     'js/extralev.js': 7, 'js/fountain.js': 1, 'js/hack.js': 3, 'js/invent.js': 3,
     'js/light.js': 1, 'js/makemon.js': 2, 'js/makemon_create.js': 12, 'js/mhitm.js': 5,
@@ -68,10 +65,10 @@ const SYNC_CALLERS = {
     'js/worn.js': 7, 'js/zap.js': 2,
 };
 
-// 30 listed calls under 14 entries (23 November 2026).
-const ALLOWED_PINS = { entries: 14, calls: 30 };
-// 405 calls in 261 synchronous functions (23 November 2026).
-const SYNC_CALLER_PIN = 405;
+// 22 listed calls under 12 entries (24 November 2026).
+const ALLOWED_PINS = { entries: 12, calls: 22 };
+// 408 calls in 263 synchronous functions (24 November 2026).
+const SYNC_CALLER_PIN = 408;
 
 const scan = scanQueuedOutputCalls(readJsSources());
 
@@ -112,6 +109,8 @@ test('the scan finds an unprinted draw and accepts the flush after it', () => {
             + 'export function show_glyph_cell() { queueGlyphUpdateNotice(); }\n'
             + 'export function newsym() { show_glyph_cell(); }\n',
         'js/a.js': "import { newsym } from './display.js';\n"
+            // An object property named like the import must not shadow it.
+            + 'const hooks = { newsym: (x, y) => x + y };\n'
             + 'export async function bare() { newsym(1, 2); }\n'
             + 'export async function printed() {\n'
             + '    newsym(1, 2);\n'

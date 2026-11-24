@@ -2511,7 +2511,7 @@ test('object_detect preserves its C browser and terrain-bit order', () => {
     assert.match(source, /if \(!ct\)\s*display_nhwindow\(WIN_MAP, TRUE\);\s*else\s*browse_map/u);
     assert.doesNotMatch(source, /gk\.known/u);
     assert.match(implementation, /let terrainType = TER_DETECT \| TER_OBJ;/u);
-    assert.match(implementation, /newsym\(state\.u\.ux, state\.u\.uy\);\s*terrainType \|= TER_MON;/u);
+    assert.match(implementation, /newsym\(state\.u\.ux, state\.u\.uy\);\s*(?:if \(noticesQueued\(\)\) await emitQueuedNotices\(\);\s*)?terrainType \|= TER_MON;/u);
     assert.match(implementation, /await browse_map\(terrainType, 'object', state\);\s*await map_redisplay\(state\);/u);
     assert.match(implementation, /if \(!count\) await tty_display_nhwindow_map_blocking\(state\);\s*else await browse_map/u);
     assert.doesNotMatch(implementation, /state\.gk/u);
