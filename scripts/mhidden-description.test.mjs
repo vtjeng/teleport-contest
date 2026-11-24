@@ -159,9 +159,6 @@ const CALL_SITES = {
         'pager.c look_at_monster() 482'],
     'js/pager.js | self_lookat': [
         'MHID_PREFIX | MHID_ARTICLE | MHID_REGION', 'pager.c self_lookat() 124'],
-    'js/startup_a11y.js | describeMonster': [
-        'MHID_PREFIX | MHID_ARTICLE | MHID_REGION',
-        'pager.c look_at_monster() 482'],
     'js/uhitm.js | flash_hits_mon': ['MHID_ALTMON',
         'uhitm.c flash_hits_mon() 6361'],
 };

@@ -50,9 +50,11 @@ import {
     M1_FLY,
     MZ_HUGE,
     PM_GHOST,
+    PM_NEWT,
     monst_globals_init,
 } from '../js/monsters.js';
-import { _startupA11yInternals, collectLookaroundMessages, collectMonsterMovementMessage, collectMonsterNoticeMessage, collectMonsterNoticeMessages, describeMonster } from '../js/startup_a11y.js';
+import { _startupA11yInternals, collectLookaroundMessages, collectMonsterMovementMessage, collectMonsterNoticeMessage, collectMonsterNoticeMessages } from '../js/startup_a11y.js';
+import { look_at_monster } from '../js/pager.js';
 import { cmap_to_glyph, monster_glyph_info } from '../js/display.js';
 import {
     S_corr,
@@ -562,27 +564,26 @@ test('monster descriptions use the stored C shopkeeper name', () => {
         my: 10,
     };
 
-    const visible = { state, canSpotMonster: () => true };
-    assert.equal(describeMonster(shopkeeper, visible), 'peaceful Adjama');
+    // pager.c look_at_monster() is reached only for a monster the hero
+    // perceives; Detect_monsters makes canspotmon() true without a map, so
+    // x_monnam() names it instead of answering "it".
+    state.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+    assert.equal(look_at_monster(shopkeeper, 21, 10, state), 'peaceful Adjama');
 
     // C names with a leading marker are returned without that marker by
     // shkname(); an apparent monster bypasses this shopkeeper arm.
     shopkeeper.mextra.eshk.shknam = '-Lucrezia';
-    assert.equal(describeMonster(shopkeeper, visible), 'peaceful Lucrezia');
+    assert.equal(look_at_monster(shopkeeper, 21, 10, state), 'peaceful Lucrezia');
 
+    // x_monnam() names a monster shown as another species by that species;
+    // mhidden_description() adds nothing for it without MHID_ALTMON.
+    monst_globals_init(state);
     const apparent = {
         ...shopkeeper,
-        data: { pmnames: [null, null, 'shopkeeper'] },
         m_ap_type: M_AP_MONSTER,
+        mappearance: PM_NEWT,
     };
-    assert.equal(
-        describeMonster(apparent, {
-            state,
-            canSpotMonster: () => true,
-            species: { pmnames: [null, null, 'newt'] },
-        }),
-        'peaceful newt',
-    );
+    assert.equal(look_at_monster(apparent, 21, 10, state), 'peaceful newt');
 });
 
 test('monster descriptions format a named ghost as a possessive ghost', () => {
@@ -597,10 +598,14 @@ test('monster descriptions format a named ghost as a possessive ghost', () => {
         my: 10,
     };
 
+    // pager.c look_at_monster() is reached only for a monster the hero
+    // perceives; Detect_monsters makes canspotmon() true without a map, so
+    // x_monnam() names it instead of answering "it".
+    state.u.uprops[DETECT_MONSTERS].intrinsic = 1;
     // pager.c look_at_monster() calls distant_monnam(), whose x_monnam()
     // ghost arm appends the species after making the given name possessive.
     assert.equal(
-        describeMonster(ghost, { state, canSpotMonster: () => true }),
+        look_at_monster(ghost, 21, 10, state),
         "Elara's ghost, asleep",
     );
 });

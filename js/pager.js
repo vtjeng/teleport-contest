@@ -7,6 +7,7 @@
 
 import { rm_doormask } from './game.js';
 import {
+    ARTICLE_NONE,
     BEAR_TRAP,
     BOLT_LIM,
     BUFSZ,
@@ -106,6 +107,8 @@ import {
 import { isok } from './cmd_isok.js';
 import {
     Mgender,
+    coyotename,
+    distant_monnam,
     hliquid,
     mon_nam,
     pmname,
@@ -175,7 +178,7 @@ import { currency, display_inventory, sobj_at } from './invent.js';
 import { m_at } from './monst.js';
 import {
     M2_DEMON, M2_ELF, M2_HUMAN, M2_ORC,
-    NUMMONS, PM_ELF, PM_GNOME, PM_HUMAN, PM_SAMURAI, PM_WIZARD,
+    NUMMONS, PM_COYOTE, PM_ELF, PM_GNOME, PM_HUMAN, PM_SAMURAI, PM_WIZARD,
     S_EEL, S_HUMAN, S_MIMIC, S_invisible,
 } from './monsters.js';
 import { ok_to_quest } from './quest.js';
@@ -251,10 +254,7 @@ import {
     VENOM_CLASS,
 } from './objects.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
-import {
-    describeMonster,
-    monsterSurfaceDescription,
-} from './startup_a11y.js';
+import { monsterSurfaceDescription } from './startup_a11y.js';
 import {
     hides_under,
     is_clinger,
@@ -592,13 +592,11 @@ export function self_lookat(state = game) {
 // C ref: pager.c look_at_monster() (422-552). The optional output receives
 // the C monbuf/howmonseen side channel; lookat() returns the permonst pointer
 // separately, as its caller does.
-function look_at_monster(monster, x, y, state, output = null) {
+export function look_at_monster(monster, x, y, state, output = null) {
     const hallucinating = Hallucination(state.u);
-    const name = describeMonster(monster, {
-        state,
-        hallucinating,
-        pagerBase: true,
-    });
+    const name = monster.data?.pmidx === PM_COYOTE && !hallucinating
+        ? coyotename(monster, [], state)
+        : distant_monnam(monster, ARTICLE_NONE, undefined, state);
     const tail = monster.mx !== x || monster.my !== y;
     const prefix = tail
         ? ((monster.isshk && !hallucinating) ? 'tail of ' : 'tail of a ')
