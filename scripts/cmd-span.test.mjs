@@ -429,12 +429,12 @@ test('u_have_seen_whole_selection treats only selected unseen squares as hidden'
     const state = {
         level: {
             at: (x, y) => ({
-                disp_glyph: x === 2 && y === 2 ? { glyph: 1 } : undefined,
+                _gbuf: { glyphinfo: x === 2 && y === 2 ? { glyph: 1 } : undefined },
             }),
         },
     };
     assert.equal(u_have_seen_whole_selection(selection, state), false);
-    state.level.at = () => ({ disp_glyph: { glyph: 1 } });
+    state.level.at = () => ({ _gbuf: { glyphinfo: { glyph: 1 } } });
     assert.equal(u_have_seen_whole_selection(selection, state), true);
 });
 

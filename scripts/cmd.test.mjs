@@ -98,6 +98,7 @@ import { GameMap } from '../js/game.js';
 import {
     flush_screen,
     remembered_glyph_presentation,
+    tty_map_cell_at,
 } from '../js/display.js';
 import {
     BOULDER,
@@ -566,7 +567,7 @@ test('blind obstacle refusal records exact tactile viewing vectors',
                     // hold a floor object, whose memory is an unresolved
                     // glyph number rather than a presentation.
                     assert.equal(
-                        destination.disp_ch,
+                        tty_map_cell_at(x, y).ch,
                         remembered_glyph_presentation(
                             destination.remembered_glyph,
                             game,

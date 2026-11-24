@@ -87,6 +87,8 @@ import {
     remembered_glyph_from_presentation,
     trap_glyph_info,
     warning_of,
+    glyph_buffer_at,
+    tty_map_cell_at,
 } from '../js/display.js';
 import {
     GLYPH_OBJ_OFF,
@@ -279,7 +281,7 @@ test('detect.c object-chain searches preserve class, material, and Schrödinger 
 test('detect.c check_map_spot preserves the stale-gold map exception', () => {
     const x = 2;
     const y = 3;
-    const location = { disp_glyph: { glyph: objnum_to_glyph(3) } };
+    const location = { _gbuf: { glyphinfo: { glyph: objnum_to_glyph(3) } } };
     const objects = Array.from({ length: 5 }, () => ({}));
     objects[3] = { oc_class: TOOL_CLASS, oc_material: GOLD };
     objects[4] = { oc_material: IRON };
@@ -761,19 +763,31 @@ function rememberedGlyphContract(glyph) {
     return { glyph: typeof glyph === 'number' ? glyph : glyph.glyph };
 }
 
+// The terminal cell of the square whose location record is `location` on
+// the installed level.
+function cellOfLocation(location) {
+    for (let x = 0; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            if (game.level.at(x, y) === location) return tty_map_cell_at(x, y);
+        }
+    }
+    throw new Error('location is not on the installed level');
+}
+
 function assertCompleteMappedGlyph(
     location,
     glyph,
     label = '',
 ) {
+    const cell = cellOfLocation(location);
     assert.deepEqual({
-        ch: location.disp_ch,
-        color: location.disp_color,
-        dec: Boolean(location.disp_decgfx),
-        attr: location.disp_attr ?? 0,
-        displayCh: location.disp_browser_ch ?? null,
-        displayColor: location.disp_browser_color ?? null,
-        displayAttr: location.disp_browser_attr ?? null,
+        ch: cell.ch,
+        color: cell.color,
+        dec: Boolean(cell.decgfx),
+        attr: cell.attr ?? 0,
+        displayCh: cell.browser_ch ?? null,
+        displayColor: cell.browser_color ?? null,
+        displayAttr: cell.browser_attr ?? null,
     }, {
         ch: glyph.ch,
         color: glyph.color,
@@ -1080,8 +1094,8 @@ test('blind feel_location keeps a detected monster detected under general Warnin
     feel_location(target.x, target.y, game);
 
     const location = game.level.at(target.x, target.y);
-    assert.equal(location.disp_ch, 'i');
-    assert.equal(location.disp_attr & ATR_INVERSE, ATR_INVERSE);
+    assert.equal(tty_map_cell_at(target.x, target.y).ch, 'i');
+    assert.equal(tty_map_cell_at(target.x, target.y).attr & ATR_INVERSE, ATR_INVERSE);
 });
 
 test('blind tactile mapping delegates unavailable floors to display.c', async () => {
@@ -1152,9 +1166,9 @@ test('default trap comparison preserves injected mapping contracts', async () =>
                         = remembered_glyph_from_presentation(expected);
                     return descriptor(trap);
                 }
-                location.disp_ch = expected.ch;
-                location.disp_color = expected.color;
-                location.disp_decgfx = expected.dec;
+                tty_map_cell_at(target.x, target.y).ch = expected.ch;
+                tty_map_cell_at(target.x, target.y).color = expected.color;
+                tty_map_cell_at(target.x, target.y).decgfx = expected.dec;
                 return undefined;
             },
         });
@@ -1174,9 +1188,9 @@ test('default trap comparison preserves injected mapping contracts', async () =>
             );
             assert.deepEqual(
                 [
-                    location.disp_ch,
-                    location.disp_color,
-                    Boolean(location.disp_decgfx),
+                    tty_map_cell_at(target.x, target.y).ch,
+                    tty_map_cell_at(target.x, target.y).color,
+                    Boolean(tty_map_cell_at(target.x, target.y).decgfx),
                 ],
                 [expected.ch, expected.color, Boolean(expected.dec)],
                 `${label}: final redraw`,
@@ -1257,9 +1271,9 @@ test('trap clutter uses logical layers when custom symbols collide', async () =>
     const staleBrowserCell = game.level.at(target.x + 2, target.y);
     // Seed stale browser-only presentation so cls() must clear every pending
     // projection field before the temporary trap frame is flushed.
-    staleBrowserCell.disp_browser_ch = '✦';
-    staleBrowserCell.disp_browser_color = 'rgb(1, 2, 3)';
-    staleBrowserCell.disp_browser_attr = 4;
+    tty_map_cell_at(target.x + 2, target.y).browser_ch = '✦';
+    tty_map_cell_at(target.x + 2, target.y).browser_color = 'rgb(1, 2, 3)';
+    tty_map_cell_at(target.x + 2, target.y).browser_attr = 4;
     const captures = captureInputBoundaries();
     game.nhDisplay.pushKey(' '.charCodeAt(0));
     const random = tactileSearchRandom(8);
@@ -1385,10 +1399,10 @@ test('a telepathically sensed visible mimic shows real form and remembers disgui
     }, game);
     const disguise = monster_glyph_info(monster, game);
     assert.deepEqual({
-        ch: location.disp_ch,
-        color: location.disp_color,
-        dec: Boolean(location.disp_decgfx),
-        attr: location.disp_attr ?? 0,
+        ch: tty_map_cell_at(target.x, target.y).ch,
+        color: tty_map_cell_at(target.x, target.y).color,
+        dec: Boolean(tty_map_cell_at(target.x, target.y).decgfx),
+        attr: tty_map_cell_at(target.x, target.y).attr ?? 0,
     }, {
         ch: shown.ch,
         color: shown.color,
@@ -1449,10 +1463,10 @@ test('detect-only mimic presentation retains the underlying trap memory', async 
             m_ap_type: 0,
         }, game);
         assert.deepEqual({
-            ch: location.disp_ch,
-            color: location.disp_color,
-            dec: Boolean(location.disp_decgfx),
-            attr: location.disp_attr ?? 0,
+            ch: tty_map_cell_at(target.x, target.y).ch,
+            color: tty_map_cell_at(target.x, target.y).color,
+            dec: Boolean(tty_map_cell_at(target.x, target.y).decgfx),
+            attr: tty_map_cell_at(target.x, target.y).attr ?? 0,
         }, {
             ch: shown.ch,
             color: shown.color,
@@ -1520,7 +1534,7 @@ test('WIN_STOP suppresses trap input waiting but still redraws', async () => {
     assert.equal(trap.tseen, true);
     // docrt() restores the trap from map memory, then vision_recalc(0)
     // reapplies the visible region over that remembered glyph.
-    assert.equal(location.disp_ch, '#');
+    assert.equal(tty_map_cell_at(target.x, target.y).ch, '#');
     assert.deepEqual(
         location.remembered_glyph,
         rememberedGlyphContract(trap_glyph_info(trap, game)),
@@ -2588,7 +2602,7 @@ test('trapped glyph predicates preserve C core RNG gates and short circuits', ()
             const cell = state.level.at(10, 10);
             cell.typ = DOOR;
             cell.flags = D_ISOPEN;
-            cell.disp_glyph = { glyph: trap_to_glyph({ ttyp }, state) };
+            glyph_buffer_at(10, 10, state).glyphinfo = { glyph: trap_to_glyph({ ttyp }, state) };
             state.invent = { otyp: CHEST, otrapped: true, nobj: null };
             assert.equal(predicate(ttyp, 10, 10, state), expectedGate === 0);
             // Open-door fallback calls chest with ttyp DOOR, which short-circuits.
@@ -2600,7 +2614,7 @@ test('trapped glyph predicates preserve C core RNG gates and short circuits', ()
             state.u.uprops[HALLUC_RES] = { extrinsic: 1, blocked: 1 };
             assert.equal(predicate(ttyp, 10, 10, state), true);
             assert.deepEqual(getRngLog(), []);
-            cell.disp_glyph = { glyph: GLYPH_UNEXPLORED_OFF };
+            glyph_buffer_at(10, 10, state).glyphinfo = { glyph: GLYPH_UNEXPLORED_OFF };
             assert.equal(predicate(ttyp, 10, 10, state), false);
             assert.deepEqual(getRngLog(), []);
         }
@@ -2609,7 +2623,7 @@ test('trapped glyph predicates preserve C core RNG gates and short circuits', ()
 
 test('trapped chest checks floor then hero, steed and monster direct inventory chains', () => {
     const state = { level: new GameMap(), u: { ux: 10, uy: 10, uprops: [] }, invent: null };
-    state.level.at(10, 10).disp_glyph = { glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }, state) };
+    glyph_buffer_at(10, 10, state).glyphinfo = { glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }, state) };
     const box = { otyp: LARGE_BOX, otrapped: false, nexthere: null, nobj: null };
     // Floor identity needs a box, whereas held boxes must actually be trapped.
     state.level.objects[10][10] = box;

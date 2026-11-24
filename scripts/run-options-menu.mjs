@@ -41,6 +41,7 @@ import { cansee } from '../js/vision.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
+import { tty_map_cell_at } from '../js/display.js';
 
 // A fixed weekday morning outside any calendar event, so no extra startup
 // message can shift the menu's first screen.
@@ -713,7 +714,7 @@ export async function verifyOptionsMenuSegment(segment) {
         }
         // display.h hero_glyph passes Ugender, so the female hero's own square
         // carries MG_FEMALE and follows the option in either direction.
-        const heroAttr = game.level.at(game.u.ux, game.u.uy).disp_attr;
+        const heroAttr = tty_map_cell_at(game.u.ux, game.u.uy).attr;
         if ((heroAttr === ATR_INVERSE) !== game.iflags.wizmgender)
             throw new Error('the repaint gave the hero the wrong attribute');
 
@@ -730,7 +731,7 @@ export async function verifyOptionsMenuSegment(segment) {
             const expected = game.iflags.wc_hilite_pet
                 ? game.iflags.wc2_petattr
                 : game.iflags.wizmgender ? ATR_INVERSE : ATR_NONE;
-            if (game.level.at(pet.mx, pet.my).disp_attr !== expected)
+            if (tty_map_cell_at(pet.mx, pet.my).attr !== expected)
                 throw new Error('the repaint gave the pet the wrong attribute');
         }
 
@@ -823,7 +824,7 @@ export async function verifyOptionsMenuSegment(segment) {
         // The attribute the two 'hilite_pile' recipes turn on and the
         // 'use_inverse' one turns off; the colour recipe never raises it.
         const highlighted = segment.moves === REMEMBERED_PILE_PICK;
-        if ((game.level.at(x, y).disp_attr === ATR_INVERSE) !== highlighted) {
+        if ((tty_map_cell_at(x, y).attr === ATR_INVERSE) !== highlighted) {
             throw new Error(
                 'the repaint gave the remembered pile the wrong attribute',
             );

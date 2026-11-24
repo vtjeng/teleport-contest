@@ -30,16 +30,19 @@ export function makeLocation() {
         seenv: 0,          // which angles the hero has seen this wall from
         horizontal: false, // is this a horizontal wall?
         edge: false,       // is this at the edge of the map?
-        disp_ch: ' ',      // current display character
-        disp_color: NO_COLOR,
-        disp_decgfx: false,
-        disp_attr: 0,
-        // UTF-8 and IBM symbol sets have distinct recorder-wire and browser
-        // representations under recorder patch 006.
-        disp_browser_ch: null,
-        disp_browser_color: null,
-        disp_browser_attr: null,
-        gnew: 0,           // dirty flag for flush_glyph_buf
+        // The square's gbuf entry, terminal cell and patch 006 shadow cell;
+        // js/display.js glyph_buffer_at() describes them.
+        _gbuf: { gnew: 0 },
+        _tty: {
+            ch: ' ',
+            color: NO_COLOR,
+            decgfx: false,
+            attr: 0,
+            browser_ch: null,
+            browser_color: null,
+            browser_attr: null,
+        },
+        _nomux: {},
         glyph_symidx: -1,  // S_* symbol index
         // C ref: rm.h struct rm's `glyph`. js/display.js
         // remembered_glyph_from_presentation() builds it, and it holds

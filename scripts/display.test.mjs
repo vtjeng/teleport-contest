@@ -16,6 +16,7 @@ import {
     see_nearby_objects,
     status_eval_next_unhilite,
     timebot,
+    glyph_buffer_at,
 } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
@@ -243,7 +244,7 @@ test('docrt redraws the hero through vision while monster overlays are deferred'
     game.gd ??= {};
     game.gd.defer_see_monsters = true;
     await docrt();
-    assert.equal(location.disp_glyph.ch, '@',
+    assert.equal(glyph_buffer_at(ux, uy).glyphinfo.ch, '@',
         'display.c docrt_flags restores vision before its deferred see_monsters call');
     assert.equal(game.gd.defer_see_monsters, true,
         'only the allmain.c post-restore consumer clears the deferral');

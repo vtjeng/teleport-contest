@@ -10,7 +10,7 @@ import { isaac64_init, isaac64_next_uint64 } from '../js/isaac64.js';
 import { newObject, place_object } from '../js/obj.js';
 import { light_globals_init } from '../js/light.js';
 import { vision_reset, vision_recalc, init_vision_globals, cansee } from '../js/vision.js';
-import { newsym, objnum_to_glyph } from '../js/display.js';
+import { newsym, objnum_to_glyph, tty_map_cell_at } from '../js/display.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
@@ -46,7 +46,7 @@ for (const hallucinating of [true, false]) for (const detection of [true, false]
             }
             newsym(5, 7);
             assert.deepEqual(game.displayCtx, expectedDisplay, 'one grounded object draw, no pre-mapping draw');
-            assert.equal(game.level.at(5, 7).disp_ch, '@');
+            assert.equal(tty_map_cell_at(5, 7).ch, '@');
             assert.ok(game.level.at(5, 7).seenv, 'the tactile owner updates seen-vector memory');
             if (!levitating)
                 assert.equal(game.level.at(5, 7).remembered_glyph.glyph, objnum_to_glyph(rememberedType, game));

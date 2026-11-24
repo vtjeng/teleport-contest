@@ -12,6 +12,7 @@ import {
 } from '../js/const.js';
 import { GLYPH_CMAP_A_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { S_room, S_corr } from '../js/symbols.js';
+import { glyph_buffer_at } from '../js/display.js';
 
 const c = readFileSync('nethack-c/upstream/src/ball.c', 'utf8');
 const doC = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
@@ -40,7 +41,7 @@ function fixture(order = CHAIN, separate = false) {
     state.level.at(10, 8).remembered_glyph = { glyph: ROOM_MEMORY };
     state.level.at(ballx, 8).remembered_glyph = { glyph: ROOM_MEMORY };
     // Caches must read levl memory rather than this different transient glyph.
-    state.level.at(10, 8).disp_glyph = { glyph: CORRIDOR_MEMORY };
+    glyph_buffer_at(10, 8, state).glyphinfo = { glyph: CORRIDOR_MEMORY };
     return state;
 }
 

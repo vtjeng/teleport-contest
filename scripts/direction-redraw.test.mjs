@@ -7,7 +7,12 @@ import {compareSessionOutputs, formatReport, runJsSession} from './diff-fresh.mj
 import {createScoringWorkspace, removeScoringWorkspace} from './scoring-workspace.mjs';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
-import {docrt} from '../js/display.js';
+import {
+    docrt,
+    glyph_buffer_at,
+    tty_map_cell_at,
+    nomux_cell_at,
+} from '../js/display.js';
 import {normalizeSession} from '../frozen/session_loader.mjs';
 
 const root = new URL('./test-fixtures/recovery-direction-redraw/',import.meta.url);
@@ -58,8 +63,8 @@ test('refresh-only redraw reprints a buffered cell the terminal shows blank',asy
     assert.notEqual(expected.ch,' ','the hero glyph is visible before the blanking');
     // What docorner() leaves on a cell row_refresh() skips: a blank terminal
     // cell under an unchanged, already flushed gbuf entry.
-    loc.disp_ch=null; loc.tty_ch=null; loc.gnew=0;
+    tty_map_cell_at(x,y).ch=null; nomux_cell_at(x,y).ch=null; glyph_buffer_at(x,y).gnew=0;
     await docrt({refreshOnly:true});
     assert.deepEqual(display.grid[y+1][x-1],expected);
-    assert.equal(loc.gnew,0,'flush_screen() clears the bit the reprint raised');
+    assert.equal(glyph_buffer_at(x,y).gnew,0,'flush_screen() clears the bit the reprint raised');
 });

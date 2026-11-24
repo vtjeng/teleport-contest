@@ -1006,12 +1006,12 @@ test('count_surround_traps counts hidden traps and trapped doors', () => {
     // so any cell with this glyph is "not showing a trap".
     const NOT_TRAP_GLYPH = 100000;
     // Build a 3x3 level grid centered at (5, 5). Each cell needs a
-    // disp_glyph.glyph for glyph_at() and a typ/doormask for door checks.
+    // gbuf entry glyph for glyph_at() and a typ/doormask for door checks.
     const cells = {};
     for (let x = 4; x <= 6; x++) {
         for (let y = 4; y <= 6; y++) {
             cells[`${x},${y}`] = {
-                disp_glyph: { glyph: NOT_TRAP_GLYPH },
+                _gbuf: { glyphinfo: { glyph: NOT_TRAP_GLYPH } },
                 typ: 0,        // STONE, not a door
                 flags: 0,
             };
@@ -1019,7 +1019,7 @@ test('count_surround_traps counts hidden traps and trapped doors', () => {
     }
     const state = {
         level: {
-            at(x, y) { return cells[`${x},${y}`] || { disp_glyph: { glyph: NOT_TRAP_GLYPH }, typ: 0, flags: 0 }; },
+            at(x, y) { return cells[`${x},${y}`] || { _gbuf: { glyphinfo: { glyph: NOT_TRAP_GLYPH } }, typ: 0, flags: 0 }; },
             traps: [],
             objects: {},
         },

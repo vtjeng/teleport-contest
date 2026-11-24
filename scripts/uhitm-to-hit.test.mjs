@@ -35,6 +35,7 @@ import {
     GLYPH_INVISIBLE,
     glyph_at,
     glyph_is_invisible,
+    glyph_buffer_at,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -1649,7 +1650,7 @@ test('attack_checks reveals a mimic at an invisible-marker square',
         const cell = game.level.at(mimic.mx, mimic.my);
         const { glyph_is_invisible } = await import('../js/display.js');
         const { GLYPH_INVIS_OFF } = await import('../js/glyph_offsets.js');
-        cell.disp_glyph = { glyph: GLYPH_INVIS_OFF };
+        glyph_buffer_at(mimic.mx, mimic.my).glyphinfo = { glyph: GLYPH_INVIS_OFF };
         assert.ok(glyph_is_invisible(
             glyph_at(mimic.mx, mimic.my, game)));
 

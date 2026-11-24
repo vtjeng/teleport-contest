@@ -4162,8 +4162,8 @@ test('mongrantswish cleans up after makewish sequentially, as potion.c does', as
         /mongone\(mon\); \*monp = 0; tmp_at\(DISP_ALWAYS, glyph\); tmp_at\(mx, my\); makewish\(\); tmp_at\(DISP_END, 0\);$/u);
 
     // A stand-in djinni square: (7, 4) is an arbitrary map position and 1234
-    // an arbitrary non-zero glyph; mongrantswish only reads disp_glyph there.
-    const state = { level: { at: (x, y) => (x === 7 && y === 4 ? { disp_glyph: 1234 } : null) } };
+    // an arbitrary non-zero glyph; mongrantswish only reads the gbuf entry there.
+    const state = { level: { at: (x, y) => (x === 7 && y === 4 ? { _gbuf: { glyphinfo: 1234 } } : null) } };
     const monster = { mx: 7, my: 4 };
     const calls = [];
     const env = {

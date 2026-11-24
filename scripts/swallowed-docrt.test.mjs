@@ -8,7 +8,7 @@ import {
 import { GLYPH_SWALLOW_OFF } from '../js/glyph_offsets.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
-import { docrt } from '../js/display.js';
+import { docrt, glyph_buffer_at } from '../js/display.js';
 import {
     initialize_symbols_from_options,
     S_sw_bc,
@@ -70,7 +70,7 @@ test('docrt redraws a swallowed stomach from a fresh display frame', async () =>
 
     for (const [index, [x, y, symbol]] of positions.entries()) {
         assert.equal(
-            game.level.at(x, y).disp_glyph.glyph,
+            glyph_buffer_at(x, y).glyphinfo.glyph,
             ((species[index] << 3) | (symbol - S_sw_tl))
                 + GLYPH_SWALLOW_OFF,
             `stomach cell ${index} uses the corresponding display draw`,

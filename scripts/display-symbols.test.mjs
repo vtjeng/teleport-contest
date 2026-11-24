@@ -192,6 +192,8 @@ import {
     print_glyph_attr,
     SCORER_DEC_MAP,
     weapon_status,
+    glyph_buffer_at,
+    tty_map_cell_at,
 } from '../js/display.js';
 import {
     GLYPH_ALTAR_OFF,
@@ -612,10 +614,10 @@ function glyphPresentationRecord(glyph) {
     return record;
 }
 
-function captureDisplayWrites(location) {
-    let logicalPresentation = location.disp_glyph;
+function captureDisplayWrites(entry) {
+    let logicalPresentation = entry.glyphinfo;
     const writes = [];
-    Object.defineProperty(location, 'disp_glyph', {
+    Object.defineProperty(entry, 'glyphinfo', {
         configurable: true,
         enumerable: true,
         get() {
@@ -1091,7 +1093,7 @@ test('disabled color suppresses the hero color', () => {
 
     newsym(7, 4);
 
-    assert.equal(state.level.at(7, 4).disp_color, NO_COLOR);
+    assert.equal(tty_map_cell_at(7, 4, state).color, NO_COLOR);
 });
 
 test('legacy DECgraphics selects the same primary symbol table', () => {
@@ -1735,10 +1737,10 @@ test('a ridden mount takes its gender bit and no pet highlight', () => {
     };
 
     newsym(7, 4);
-    assert.equal(state.level.at(7, 4).disp_attr, ATR_INVERSE);
+    assert.equal(tty_map_cell_at(7, 4, state).attr, ATR_INVERSE);
     state.u.usteed.female = 0;
     newsym(7, 4);
-    assert.equal(state.level.at(7, 4).disp_attr, ATR_NONE);
+    assert.equal(tty_map_cell_at(7, 4, state).attr, ATR_NONE);
 });
 
 // C ref: display.h statue_to_glyph() (950-964), its Hallucination arm (951-953):
@@ -1948,7 +1950,7 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
     state.level.monsters[x][y] = pet;
 
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, 'f');
+    assert.equal(tty_map_cell_at(x, y, state).ch, 'f');
     // display.h normal_obj_to_glyph(): map memory records the object's glyph
     // number, not the monster standing over it, and nothing else -- the ')'
     // and the colour below are re-derived from that number at each draw.
@@ -1960,7 +1962,7 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
     state.u.ux = x;
     state.u.uy = y;
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, '@');
+    assert.equal(tty_map_cell_at(x, y, state).ch, '@');
     assert.equal(
         state.level.at(x, y).remembered_glyph.glyph, GLYPH_OBJ_OFF + 42,
     );
@@ -2017,7 +2019,7 @@ test('feel_newsym draws the occupant when sighted and the terrain when blind',
         };
 
         feel_newsym(x, y, state);
-        assert.equal(state.level.at(x, y).disp_ch, 'f');
+        assert.equal(tty_map_cell_at(x, y, state).ch, 'f');
         // newsym() records no viewing vector; only the blind arm does.
         assert.equal(state.level.at(x, y).seenv ?? 0, 0);
 
@@ -2026,7 +2028,7 @@ test('feel_newsym draws the occupant when sighted and the terrain when blind',
         // The blind hero feels floor, not the cat standing on it. The symbol
         // is still S_room's byte: this state never ran reglyph_darkroom(), so
         // showsyms[S_darkroom] is still defsym.h:113's own '.'.
-        assert.equal(state.level.at(x, y).disp_ch, '.');
+        assert.equal(tty_map_cell_at(x, y, state).ch, '.');
         // display.c:894-897. The square is ROOM and unlit, so map memory moves
         // off S_room whatever 'dark_room' says; with it on, to S_darkroom.
         assert.equal(
@@ -2046,7 +2048,7 @@ test('feel_newsym draws the occupant when sighted and the terrain when blind',
         glyph_to_cmap(state.level.at(x, y).remembered_glyph.glyph),
         S_stone,
     );
-        assert.equal(state.level.at(x, y).disp_ch, ' ');
+        assert.equal(tty_map_cell_at(x, y, state).ch, ' ');
     });
 
 // A hero standing one step west of <x,y>, blind, on her own feet, with
@@ -2086,7 +2088,7 @@ test('feel_location darkens a remembered lit corridor', () => {
     state.flags.lit_corridor = true; // makes back_to_glyph() answer S_litcorr
     feel_location(x, y, state);
     assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_corr);
-    assert.equal(corridor.disp_ch, cmap_symbol(S_corr, state).ch);
+    assert.equal(tty_map_cell_at(x, y, state).ch, cmap_symbol(S_corr, state).ch);
 
     // A corridor the hero has seen lit keeps the lit symbol, because C's
     // condition is `!lev->waslit`.
@@ -2124,7 +2126,7 @@ test('newsym feels the blind hero square before displaying self', () => {
         S_darkroom,
         'the tactile update is saved before the hero redraw',
     );
-    assert.equal(location.disp_ch, '@');
+    assert.equal(tty_map_cell_at(x, y, state).ch, '@');
 });
 
 // display.c map_invisible() (377-385) with the GLYPH_INVIS_OFF arm of
@@ -2140,8 +2142,8 @@ test('map_invisible remembers and draws the invisible-monster marker', () => {
     map_invisible(x, y, state);
     assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
     assert.equal(glyph_is_invisible(location.remembered_glyph.glyph), true);
-    assert.equal(location.disp_ch, 'I');
-    assert.equal(location.disp_color, NO_COLOR);
+    assert.equal(tty_map_cell_at(x, y, state).ch, 'I');
+    assert.equal(tty_map_cell_at(x, y, state).color, NO_COLOR);
 
     // MG_INVIS raises no attribute in tty_print_glyph()'s chain
     // (wintty.c:3923-3937 tests MG_PET, MG_OBJPILE, MG_FEMALE and the
@@ -2156,7 +2158,7 @@ test('map_invisible remembers and draws the invisible-monster marker', () => {
         wc_hilite_pet: true,
     };
     map_invisible(x, y, state);
-    assert.equal(location.disp_attr, 0);
+    assert.equal(tty_map_cell_at(x, y, state).attr, 0);
 });
 
 test('map_invisible declines the hero square and gates only memory', () => {
@@ -2167,10 +2169,10 @@ test('map_invisible declines the hero square and gates only memory', () => {
     const location = state.level.at(x, y);
 
     // display.c:379, "don't display I at hero's location": neither half runs.
-    location.disp_ch = null;
+    tty_map_cell_at(x, y, state).ch = null;
     map_invisible(x, y, state);
     assert.equal(location.remembered_glyph, undefined);
-    assert.equal(location.disp_ch, null);
+    assert.equal(tty_map_cell_at(x, y, state).ch, null);
 
     // display.c:380-382. hero_memory gates the memory write alone, so the
     // draw at 383 still happens with it off. No ported path clears the flag,
@@ -2179,7 +2181,7 @@ test('map_invisible declines the hero square and gates only memory', () => {
     state.level.flags.hero_memory = false;
     map_invisible(x, y, state);
     assert.equal(location.remembered_glyph, undefined);
-    assert.equal(location.disp_ch, 'I');
+    assert.equal(tty_map_cell_at(x, y, state).ch, 'I');
 });
 
 test('newsym re-asserts a remembered marker instead of the floor under it',
@@ -2203,7 +2205,7 @@ test('newsym re-asserts a remembered marker instead of the floor under it',
     map_invisible(x, y, state);
     newsym(x, y);
     assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
-    assert.equal(location.disp_ch, 'I');
+    assert.equal(tty_map_cell_at(x, y, state).ch, 'I');
 
     // The same square out of sight draws its memory, which is still the
     // marker: newsym()'s unsighted arm resolves the remembered number. The
@@ -2212,8 +2214,8 @@ test('newsym re-asserts a remembered marker instead of the floor under it',
     state.viz_array[y][x] = 0;
     newsym(x, y);
     assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
-    assert.equal(location.disp_glyph.glyph, GLYPH_INVISIBLE);
-    assert.equal(location.disp_ch, 'I');
+    assert.equal(glyph_buffer_at(x, y, state).glyphinfo.glyph, GLYPH_INVISIBLE);
+    assert.equal(tty_map_cell_at(x, y, state).ch, 'I');
 });
 
 test('the marker arm yields to a monster and to the hero', () => {
@@ -2245,7 +2247,7 @@ test('the marker arm yields to a monster and to the hero', () => {
         my: y,
     };
     newsym(x, y);
-    assert.equal(location.disp_ch, 'f');
+    assert.equal(tty_map_cell_at(x, y, state).ch, 'f');
     assert.equal(location.remembered_glyph.glyph, floor);
 
     // The hero's own square takes C's `if (u_at(x, y))` arm above the chain.
@@ -2256,7 +2258,7 @@ test('the marker arm yields to a monster and to the hero', () => {
     state.u.ux = x;
     state.u.uy = y;
     newsym(x, y);
-    assert.notEqual(location.disp_ch, 'I');
+    assert.notEqual(tty_map_cell_at(x, y, state).ch, 'I');
     assert.equal(location.remembered_glyph.glyph, floor);
 });
 
@@ -2279,7 +2281,7 @@ test('unmap_invisible clears a remembered marker and repaints the square',
     map_invisible(x, y, state);
     assert.equal(unmap_invisible(x, y, state), true);
     assert.equal(location.remembered_glyph.glyph, floor);
-    assert.equal(location.disp_ch, cmap_symbol(S_room, state).ch);
+    assert.equal(tty_map_cell_at(x, y, state).ch, cmap_symbol(S_room, state).ch);
     // Clearing it twice is a no-op: the second call finds no marker.
     assert.equal(unmap_invisible(x, y, state), false);
 });
@@ -2338,14 +2340,14 @@ test('newsym darkens a remembered lit corridor once it leaves sight', () => {
     // defsym.h:116-117 colours both corridor cmaps CLR_GRAY, so
     // reset_glyphmap() (display.c:2938-2940) recolours the lit one to
     // CLR_WHITE while the two draw the same byte.
-    assert.equal(corridor.disp_color, CLR_WHITE);
+    assert.equal(tty_map_cell_at(x, y, state).color, CLR_WHITE);
 
     state.viz_array[y][x] = 0;
     newsym(x, y);
     assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_corr);
     // recorderMapColor() folds S_corr's CLR_GRAY onto the terminal default.
-    assert.equal(corridor.disp_color, NO_COLOR);
-    assert.equal(corridor.disp_ch, cmap_symbol(S_corr, state).ch);
+    assert.equal(tty_map_cell_at(x, y, state).color, NO_COLOR);
+    assert.equal(tty_map_cell_at(x, y, state).ch, cmap_symbol(S_corr, state).ch);
 
     // C's outer condition is `!lev->waslit || (flags.dark_room &&
     // iflags.use_color)`. A corridor the hero saw permanently lit keeps the
@@ -2475,7 +2477,7 @@ test('feel_location maps a sensed monster after tactile memory updates', () => {
         glyph_to_cmap(square.remembered_glyph.glyph), S_darkroom,
     );
     assert.equal(lastseentyp_grid(state)[x][y], ROOM);
-    assert.equal(square.disp_glyph.glyph, GLYPH_DETECT_MALE_OFF + PM_GOBLIN);
+    assert.equal(glyph_buffer_at(x, y, state).glyphinfo.glyph, GLYPH_DETECT_MALE_OFF + PM_GOBLIN);
     assert.equal(state.level.monsters[x][y].meverseen, 1);
 
     // Without the sensing the same square is felt normally.
@@ -2514,7 +2516,7 @@ test('newsym displays a long-worm segment with the tail glyph', () => {
     // PM_LONG_WORM_TAIL for the glyph.
     newsym(x, y);
     assert.equal(
-        state.level.at(x, y).disp_glyph.glyph,
+        glyph_buffer_at(x, y, state).glyphinfo.glyph,
         GLYPH_MON_MALE_OFF + PM_LONG_WORM_TAIL,
     );
     assert.equal(worm.meverseen, 1);
@@ -2544,7 +2546,7 @@ test('newsym does not reveal a hidden worm tail through monster detection', () =
 
     newsym(x, y);
     assert.notEqual(
-        state.level.at(x, y).disp_glyph.glyph,
+        glyph_buffer_at(x, y, state).glyphinfo.glyph,
         GLYPH_DETECT_MALE_OFF + PM_LONG_WORM_TAIL,
     );
     assert.equal(worm.meverseen, undefined);
@@ -3004,7 +3006,7 @@ test('feel_location maps a seen trap, and an object above it', () => {
     assert.equal(
         defsym_to_trap(glyph_to_cmap(square.remembered_glyph.glyph)), PIT,
     );
-    assert.equal(square.disp_ch, trapGlyph.ch);
+    assert.equal(tty_map_cell_at(x, y, state).ch, trapGlyph.ch);
 
     // An object on the same square takes the arm above, and the trap identity
     // does not travel with a record that no longer represents the trap.
@@ -3045,7 +3047,7 @@ test('feel_location writes a felt engraving to memory only under hero_memory',
 
         feel_location(x, y, state);
         assert.equal(
-            square.disp_ch,
+            tty_map_cell_at(x, y, state).ch,
             cmap_symbol(S_engroom, state).ch,
             `hero_memory ${heroMemory}`,
         );
@@ -3115,7 +3117,7 @@ test('feel_location paints a gas cloud only for a hero who can see it', () => {
 
         feel_location(x, y, state);
         assert.equal(
-            state.level.at(x, y).disp_ch,
+            tty_map_cell_at(x, y, state).ch,
             cmap_symbol(blind ? S_stone : S_poisoncloud, state).ch,
             `blind ${blind}`,
         );
@@ -3340,9 +3342,9 @@ test('hallucinated map_object paths preserve presentation, memory, and RNG', () 
         const location = state.level.at(x, y);
         assert.deepEqual(
             [
-                location.disp_ch,
-                location.disp_color,
-                location.disp_attr,
+                tty_map_cell_at(x, y, state).ch,
+                tty_map_cell_at(x, y, state).color,
+                tty_map_cell_at(x, y, state).attr,
             ],
             [
                 expectedShown.ch,
@@ -3433,9 +3435,9 @@ test('out-of-sight objects retain memory without display-RNG work', () => {
     const drawn = map_glyphinfo(priorMemory.glyph, state);
     assert.deepEqual(
         [
-            location.disp_ch,
-            location.disp_color,
-            location.disp_decgfx,
+            tty_map_cell_at(x, y, state).ch,
+            tty_map_cell_at(x, y, state).color,
+            tty_map_cell_at(x, y, state).decgfx,
         ],
         [drawn.ch, drawn.color, drawn.dec],
     );
@@ -3511,9 +3513,9 @@ test('hallucinated revealed object mimics map disguise before real form', () => 
         const location = state.level.at(x, y);
         assert.deepEqual(
             [
-                location.disp_ch,
-                location.disp_color,
-                location.disp_attr,
+                tty_map_cell_at(x, y, state).ch,
+                tty_map_cell_at(x, y, state).color,
+                tty_map_cell_at(x, y, state).attr,
             ],
             [
                 expectedMonster.ch,
@@ -3568,9 +3570,9 @@ test('shape-changer protection does not reveal an unsensed invisible mimic',
         const location = state.level.at(x, y);
         assert.deepEqual(
             [
-                location.disp_ch,
-                location.disp_color,
-                location.disp_attr,
+                tty_map_cell_at(x, y, state).ch,
+                tty_map_cell_at(x, y, state).color,
+                tty_map_cell_at(x, y, state).attr,
             ],
             [expected.ch, expected.color, printedAttr(expected, state)],
         );
@@ -3633,9 +3635,9 @@ test('protected furniture mimics remember disguise regardless of hero memory',
             const location = state.level.at(x, y);
             assert.deepEqual(
                 [
-                    location.disp_ch,
-                    location.disp_color,
-                    location.disp_attr,
+                    tty_map_cell_at(x, y, state).ch,
+                    tty_map_cell_at(x, y, state).color,
+                    tty_map_cell_at(x, y, state).attr,
                 ],
                 [
                     expectedMonster.ch,
@@ -3693,9 +3695,9 @@ test('unprotected furniture mimics bypass disabled hero memory without RNG',
         const location = state.level.at(x, y);
         assert.deepEqual(
             [
-                location.disp_ch,
-                location.disp_color,
-                location.disp_attr,
+                tty_map_cell_at(x, y, state).ch,
+                tty_map_cell_at(x, y, state).color,
+                tty_map_cell_at(x, y, state).attr,
             ],
             [expected.ch, expected.color, printedAttr(expected, state)],
         );
@@ -3730,7 +3732,12 @@ test('map_trap paints on show and remembers only under hero memory', () => {
         state.level.at(x, y).remembered_glyph = { ...priorMemory };
         const glyph = trap_glyph_info(trap, state);
         map_trap(trap, show, state);
-        return { location: state.level.at(x, y), glyph };
+        return {
+            location: state.level.at(x, y),
+            entry: glyph_buffer_at(x, y, state),
+            cell: tty_map_cell_at(x, y, state),
+            glyph,
+        };
     };
 
     // Both halves run. Recomputing the glyph from the same two helpers the
@@ -3743,8 +3750,8 @@ test('map_trap paints on show and remembers only under hero memory', () => {
         shown.location.remembered_glyph,
         remembered_glyph_from_presentation(shown.glyph),
     );
-    assert.equal(shown.location.disp_ch, shown.glyph.ch);
-    assert.equal(shown.location.gnew, 1);
+    assert.equal(shown.cell.ch, shown.glyph.ch);
+    assert.equal(shown.entry.gnew, 1);
 
     // show 0 writes the memory and leaves the display buffer untouched, which
     // is the state a fresh cell starts in.
@@ -3753,15 +3760,15 @@ test('map_trap paints on show and remembers only under hero memory', () => {
         unshown.location.remembered_glyph,
         remembered_glyph_from_presentation(unshown.glyph),
     );
-    assert.equal(unshown.location.disp_glyph, undefined);
-    assert.equal(unshown.location.gnew, 0);
+    assert.equal(unshown.entry.glyphinfo, undefined);
+    assert.equal(unshown.entry.gnew, 0);
 
     // Without hero memory the paint still happens and the square keeps
     // whatever it remembered before.
     const forgotten = mapped(false, 1);
     assert.deepEqual(forgotten.location.remembered_glyph, priorMemory);
-    assert.equal(forgotten.location.disp_ch, forgotten.glyph.ch);
-    assert.equal(forgotten.location.gnew, 1);
+    assert.equal(forgotten.cell.ch, forgotten.glyph.ch);
+    assert.equal(forgotten.entry.gnew, 1);
 });
 
 test('monster disguises are transient and preserve display-RNG order', () => {
@@ -3879,15 +3886,15 @@ test('monster disguises are transient and preserve display-RNG order', () => {
             }, state);
         state.u.uprops[HALLUC].intrinsic = hallucinating ? 1 : 0;
         const location = state.level.at(x, y);
-        const glyphWrites = captureDisplayWrites(location);
+        const glyphWrites = captureDisplayWrites(glyph_buffer_at(x, y, state));
 
         newsym(x, y);
 
         assert.deepEqual(
             [
-                location.disp_ch,
-                location.disp_color,
-                location.disp_attr,
+                tty_map_cell_at(x, y, state).ch,
+                tty_map_cell_at(x, y, state).color,
+                tty_map_cell_at(x, y, state).attr,
             ],
             [
                 expectedShown.ch,
@@ -3989,15 +3996,15 @@ test('monster disguises preserve divergent hallucinated statue memory', () => {
     }, state);
     state.u.uprops[HALLUC].intrinsic = 1;
     const location = state.level.at(x, y);
-    const glyphWrites = captureDisplayWrites(location);
+    const glyphWrites = captureDisplayWrites(glyph_buffer_at(x, y, state));
 
     newsym(x, y);
 
     assert.deepEqual(
         [
-            location.disp_ch,
-            location.disp_color,
-            location.disp_attr,
+            tty_map_cell_at(x, y, state).ch,
+            tty_map_cell_at(x, y, state).color,
+            tty_map_cell_at(x, y, state).attr,
         ],
         [expectedReal.ch, expectedReal.color, printedAttr(expectedReal, state)],
     );
@@ -4060,7 +4067,7 @@ test('protected monster disguises queue their transient glyph update', async () 
         m_ap_type: 0,
     }, state);
     const location = state.level.at(x, y);
-    const glyphWrites = captureDisplayWrites(location);
+    const glyphWrites = captureDisplayWrites(glyph_buffer_at(x, y, state));
 
     newsym(x, y);
 
@@ -4085,7 +4092,7 @@ test('protected monster disguises queue their transient glyph update', async () 
         pline: async (message, receivedState) => {
             assert.equal(receivedState, state);
             assert.deepEqual(
-                glyphPresentationRecord(location.disp_glyph),
+                glyphPresentationRecord(glyph_buffer_at(x, y, state).glyphinfo),
                 glyphPresentationRecord(expectedDisguise),
                 'the notice flush sees the disguise frame',
             );
@@ -4099,12 +4106,12 @@ test('protected monster disguises queue their transient glyph update', async () 
     assert.deepEqual(emitted, returned);
     assert.deepEqual(state._glyphUpdateNotices, []);
     assert.deepEqual(
-        glyphPresentationRecord(location.disp_glyph),
+        glyphPresentationRecord(glyph_buffer_at(x, y, state).glyphinfo),
         glyphPresentationRecord(expectedReal),
         'the later real form remains buffered after the notice',
     );
     assert.equal(
-        location.gnew,
+        glyph_buffer_at(x, y, state).gnew,
         1,
         'the unflushed final form remains dirty after the transient frame',
     );
@@ -4143,8 +4150,8 @@ test('glyph updates describe newly revealed objects, traps, and furniture', asyn
     ];
 
     for (const [glyph, suffix] of cases) {
-        location.disp_glyph = null;
-        location.gnew = 0;
+        glyph_buffer_at(x, y, state).glyphinfo = null;
+        glyph_buffer_at(x, y, state).gnew = 0;
         show_glyph_cell(x, y, glyph);
         assert.equal(
             state._glyphUpdateNotices?.at(-1)?.message,
@@ -4233,18 +4240,18 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
     const messages = await emitGlyphUpdateNotices(state, {
         pline: async () => {
             frames.push([
-                first.disp_glyph
-                    ? glyphPresentationRecord(first.disp_glyph) : null,
-                second.disp_glyph
-                    ? glyphPresentationRecord(second.disp_glyph) : null,
-                unannounced.disp_glyph
-                    ? glyphPresentationRecord(unannounced.disp_glyph) : null,
-                third.disp_glyph
-                    ? glyphPresentationRecord(third.disp_glyph) : null,
+                glyph_buffer_at(7, 4, state).glyphinfo
+                    ? glyphPresentationRecord(glyph_buffer_at(7, 4, state).glyphinfo) : null,
+                glyph_buffer_at(8, 4, state).glyphinfo
+                    ? glyphPresentationRecord(glyph_buffer_at(8, 4, state).glyphinfo) : null,
+                glyph_buffer_at(9, 4, state).glyphinfo
+                    ? glyphPresentationRecord(glyph_buffer_at(9, 4, state).glyphinfo) : null,
+                glyph_buffer_at(10, 4, state).glyphinfo
+                    ? glyphPresentationRecord(glyph_buffer_at(10, 4, state).glyphinfo) : null,
             ]);
-            roomSidecars.push(sidecars(unannounced.disp_glyph));
-            roomSubjects.push(unannounced.disp_glyph?.a11ySubject ?? null);
-            roomGlyphs.push(unannounced.disp_glyph?.glyph ?? null);
+            roomSidecars.push(sidecars(glyph_buffer_at(9, 4, state).glyphinfo));
+            roomSubjects.push(glyph_buffer_at(9, 4, state).glyphinfo?.a11ySubject ?? null);
+            roomGlyphs.push(glyph_buffer_at(9, 4, state).glyphinfo?.glyph ?? null);
         },
     });
     assert.deepEqual(messages, [
@@ -4289,22 +4296,22 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
         'filtered logical glyph IDs were replayed in later frames',
     );
     assert.deepEqual(
-        sidecars(unannounced.disp_glyph),
+        sidecars(glyph_buffer_at(9, 4, state).glyphinfo),
         expectedRoomSidecars,
         'filtered accessibility sidecars survived final-buffer restoration',
     );
     assert.strictEqual(
-        unannounced.disp_glyph.a11ySubject,
+        glyph_buffer_at(9, 4, state).glyphinfo.a11ySubject,
         room.a11ySubject,
         'final restoration retained the mutable subject reference',
     );
     assert.equal(
-        unannounced.disp_glyph.glyph,
+        glyph_buffer_at(9, 4, state).glyphinfo.glyph,
         room.glyph,
         'final restoration retained the logical glyph ID',
     );
     assert.deepEqual(
-        [first.gnew, second.gnew, unannounced.gnew, third.gnew],
+        [glyph_buffer_at(7, 4, state).gnew, glyph_buffer_at(8, 4, state).gnew, glyph_buffer_at(9, 4, state).gnew, glyph_buffer_at(10, 4, state).gnew],
         [0, 0, 0, 0],
         'all cumulative presentations were flushed by the final notice',
     );
@@ -4326,7 +4333,7 @@ test('a dirty same-identity furniture rewrite still queues a notice', async () =
     state.a11y.mon_notices_blocked = 1;
     show_glyph_cell(7, 4, fountain);
     state.a11y.mon_notices_blocked = 0;
-    assert.equal(location.gnew, 1);
+    assert.equal(glyph_buffer_at(7, 4, state).gnew, 1);
     assert.equal(state._glyphUpdateNotices, undefined);
     show_glyph_cell(7, 4, fountain);
 
@@ -4335,7 +4342,7 @@ test('a dirty same-identity furniture rewrite still queues a notice', async () =
         ['(3south,6east): fountain.'],
     );
     await emitGlyphUpdateNotices(state, { pline: async () => {} });
-    assert.equal(location.gnew, 0);
+    assert.equal(glyph_buffer_at(7, 4, state).gnew, 0);
 });
 
 // display.c show_glyph() prints its notice through pline_xy(), and vpline()'s
@@ -4894,7 +4901,7 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
     state.level.flags.hero_memory = false;
     state.u.ux = 1;
     state.u.uy = 1;
-    location.disp_glyph = null;
+    glyph_buffer_at(x, y, state).glyphinfo = null;
     location.remembered_glyph = null;
     state._glyphUpdateNotices = [];
     newsym(x, y);
@@ -5185,12 +5192,12 @@ test('glyph update identity ignores pile highlighting', async () => {
 
     show_glyph_cell(x, y, object_glyph_info(object, state));
     await emitGlyphUpdateNotices(state, { pline: async () => {} });
-    assert.equal(location.gnew, 0);
+    assert.equal(glyph_buffer_at(x, y, state).gnew, 0);
 
     state.iflags.hilite_pile = true;
     show_glyph_cell(x, y, object_glyph_info(object, state));
 
-    assert.equal(printedAttr(location.disp_glyph, state), ATR_INVERSE);
+    assert.equal(printedAttr(glyph_buffer_at(x, y, state).glyphinfo, state), ATR_INVERSE);
     assert.deepEqual(
         state._glyphUpdateNotices,
         [],
@@ -5307,7 +5314,7 @@ test('newsym maps a visible object mimic as its remembered chest', () => {
     };
 
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, '(');
+    assert.equal(tty_map_cell_at(x, y, state).ch, '(');
     assert.equal(
         remembered_glyph_presentation(
             state.level.at(x, y).remembered_glyph, state,
@@ -5413,9 +5420,9 @@ test('object mimics use display_monster zeroobj glyph and corpse metadata', () =
         newsym(x, y);
         assert.deepEqual(
             {
-                ch: state.level.at(x, y).disp_ch,
-                color: state.level.at(x, y).disp_color,
-                dec: state.level.at(x, y).disp_decgfx,
+                ch: tty_map_cell_at(x, y, state).ch,
+                color: tty_map_cell_at(x, y, state).color,
+                dec: tty_map_cell_at(x, y, state).decgfx,
             },
             expected,
             `visible ${otyp}`,
@@ -5444,10 +5451,10 @@ test('nearby zero-class object mimics stay outside the generic-glyph range', () 
     newsym(x, y);
     assert.equal(state.objects[SPE_FORCE_BOLT].oc_encountered, 0);
     assert.equal(
-        state.level.at(x, y).disp_ch,
+        tty_map_cell_at(x, y, state).ch,
         object_class_symbol(ILLOBJ_CLASS, state).ch,
     );
-    assert.equal(state.level.at(x, y).disp_color, NO_COLOR);
+    assert.equal(tty_map_cell_at(x, y, state).color, NO_COLOR);
     assert.equal(
         remembered_glyph_presentation(
             state.level.at(x, y).remembered_glyph, state,
@@ -5496,8 +5503,8 @@ test('newsym maps a visible furniture mimic into display and memory', () => {
     };
 
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, '+');
-    assert.equal(state.level.at(x, y).disp_color, CLR_BROWN);
+    assert.equal(tty_map_cell_at(x, y, state).ch, '+');
+    assert.equal(tty_map_cell_at(x, y, state).color, CLR_BROWN);
     const remembered = remembered_glyph_presentation(
         state.level.at(x, y).remembered_glyph, state,
     );
@@ -5532,7 +5539,7 @@ test('a visible gas region covers the hero without refreshing map memory', () =>
     add_region(cloud, state, { deferVisual: true });
 
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, '#');
+    assert.equal(tty_map_cell_at(x, y, state).ch, '#');
     assert.equal(state.level.at(x, y).remembered_glyph.glyph, priorMemory);
 });
 
@@ -5562,7 +5569,7 @@ test('newsym overlays visible gas on liquid and accessible terrain', () => {
         newsym(x, y);
 
         assert.deepEqual(
-            [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+            [tty_map_cell_at(x, y, state).ch, tty_map_cell_at(x, y, state).color],
             ['#', NO_COLOR],
             `${sourceArm} draws the visible steam region`,
         );
@@ -5581,7 +5588,7 @@ test('gas colors and ordinary/disguised monster precedence follow newsym', () =>
 
     newsym(x, y);
     assert.deepEqual(
-        [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+        [tty_map_cell_at(x, y, state).ch, tty_map_cell_at(x, y, state).color],
         ['#', NO_COLOR],
     );
 
@@ -5589,7 +5596,7 @@ test('gas colors and ordinary/disguised monster precedence follow newsym', () =>
     cloud.glyph_cmap = S_poisoncloud;
     newsym(x, y);
     assert.deepEqual(
-        [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+        [tty_map_cell_at(x, y, state).ch, tty_map_cell_at(x, y, state).color],
         ['#', CLR_BRIGHT_GREEN],
     );
 
@@ -5606,7 +5613,7 @@ test('gas colors and ordinary/disguised monster precedence follow newsym', () =>
     state.u.uy = y;
     newsym(x, y);
     assert.deepEqual(
-        [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+        [tty_map_cell_at(x, y, state).ch, tty_map_cell_at(x, y, state).color],
         ['f', CLR_WHITE],
         'an adjacent ordinary monster overrides gas',
     );
@@ -5619,7 +5626,7 @@ test('gas colors and ordinary/disguised monster precedence follow newsym', () =>
         monster.mappearance = appearance;
         newsym(x, y);
         assert.deepEqual(
-            [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+            [tty_map_cell_at(x, y, state).ch, tty_map_cell_at(x, y, state).color],
             ['#', CLR_BRIGHT_GREEN],
             'a disguised mimic remains behind gas',
         );
@@ -5643,11 +5650,11 @@ test('a remembered marker overrides gas with no monster to prefer', () => {
     add_region(cloud, state, { deferVisual: true });
 
     newsym(x, y);
-    assert.equal(location.disp_ch, '#');
+    assert.equal(tty_map_cell_at(x, y, state).ch, '#');
 
     map_invisible(x, y, state);
     newsym(x, y);
-    assert.equal(location.disp_ch, 'I');
+    assert.equal(tty_map_cell_at(x, y, state).ch, 'I');
     assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
 });
 
@@ -5685,7 +5692,7 @@ test('generic monster warning overrides gas without hiding a visible monster', (
 
     assert.equal(newsym(x, y), undefined);
     assert.deepEqual(
-        [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+        [tty_map_cell_at(x, y, state).ch, tty_map_cell_at(x, y, state).color],
         ['2', CLR_RED],
         'an unseen dangerous monster floats its warning above gas',
     );
@@ -5693,7 +5700,7 @@ test('generic monster warning overrides gas without hiding a visible monster', (
     monster.minvis = false;
     assert.equal(newsym(x, y), undefined);
     assert.deepEqual(
-        [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
+        [tty_map_cell_at(x, y, state).ch, tty_map_cell_at(x, y, state).color],
         ['f', CLR_WHITE],
         'ordinary physical visibility takes precedence over warning',
     );
@@ -5732,9 +5739,9 @@ test('see invisible keeps a warned detected mimic physically visible', () => {
     newsym(x, y);
     assert.deepEqual(
         [
-            state.level.at(x, y).disp_ch,
-            state.level.at(x, y).disp_color,
-            state.level.at(x, y).disp_attr,
+            tty_map_cell_at(x, y, state).ch,
+            tty_map_cell_at(x, y, state).color,
+            tty_map_cell_at(x, y, state).attr,
         ],
         [disguise.ch, disguise.color, printedAttr(disguise, state)],
         'physical visibility shows an unsensed disguise instead of warning',
@@ -5744,9 +5751,9 @@ test('see invisible keeps a warned detected mimic physically visible', () => {
     newsym(x, y);
     assert.deepEqual(
         [
-            state.level.at(x, y).disp_ch,
-            state.level.at(x, y).disp_color,
-            state.level.at(x, y).disp_attr,
+            tty_map_cell_at(x, y, state).ch,
+            tty_map_cell_at(x, y, state).color,
+            tty_map_cell_at(x, y, state).attr,
         ],
         [actual.ch, actual.color, printedAttr(actual, state)],
         'detection defeats the physically visible disguise without inversion',
@@ -5763,9 +5770,9 @@ test('see invisible keeps a warned detected mimic physically visible', () => {
     newsym(x, y);
     assert.deepEqual(
         [
-            state.level.at(x, y).disp_ch,
-            state.level.at(x, y).disp_color,
-            state.level.at(x, y).disp_attr,
+            tty_map_cell_at(x, y, state).ch,
+            tty_map_cell_at(x, y, state).color,
+            tty_map_cell_at(x, y, state).attr,
         ],
         [actual.ch, actual.color, ATR_INVERSE],
         'detection alone uses detected presentation',
@@ -5865,9 +5872,9 @@ test('detected monsters preserve tame and hallucination display-RNG rules', () =
             + `resistance=${resistance ?? 'none'}`;
         assert.deepEqual(
             [
-                state.level.at(x, y).disp_ch,
-                state.level.at(x, y).disp_color,
-                state.level.at(x, y).disp_attr,
+                tty_map_cell_at(x, y, state).ch,
+                tty_map_cell_at(x, y, state).color,
+                tty_map_cell_at(x, y, state).attr,
             ],
             [expected.ch, expected.color, expectedAttr],
             label,
@@ -5946,9 +5953,9 @@ test('physical sight owns hallucinated monster presentation over detection', () 
     state.u.uprops[HALLUC].intrinsic = 1;
     assert.deepEqual(
         [
-            state.level.at(x, y).disp_ch,
-            state.level.at(x, y).disp_color,
-            state.level.at(x, y).disp_attr,
+            tty_map_cell_at(x, y, state).ch,
+            tty_map_cell_at(x, y, state).color,
+            tty_map_cell_at(x, y, state).attr,
         ],
         [expected.ch, expected.color, printedAttr(expected, state)],
         'physically seen hallucinated monsters do not use inverse detection',
@@ -5976,9 +5983,9 @@ test('show_glyph_cell accepts presentation records, not map-memory records', () 
     show_glyph_cell(x, y, { ch: 'x', color: CLR_RED, dec: true });
     assert.deepEqual(
         [
-            state.level.at(x, y).disp_ch,
-            state.level.at(x, y).disp_color,
-            state.level.at(x, y).disp_decgfx,
+            tty_map_cell_at(x, y, state).ch,
+            tty_map_cell_at(x, y, state).color,
+            tty_map_cell_at(x, y, state).decgfx,
         ],
         ['x', CLR_RED, true],
     );
@@ -6004,7 +6011,7 @@ test('show_glyph_cell retains a non-enumerable logical monster glyph', () => {
     );
     show_glyph_cell(x, y, presentation);
 
-    const buffered = state.level.at(x, y).disp_glyph;
+    const buffered = glyph_buffer_at(x, y, state).glyphinfo;
     assert.equal(buffered.glyph, presentation.glyph);
     assert.equal(
         Object.getOwnPropertyDescriptor(buffered, 'glyph').enumerable,
@@ -6018,7 +6025,7 @@ test('show_glyph_cell retains each complete ordered presentation', () => {
     const y = 4;
     const state = visibleCellState({ x, y });
     const location = state.level.at(x, y);
-    const glyphWrites = captureDisplayWrites(location);
+    const glyphWrites = captureDisplayWrites(glyph_buffer_at(x, y, state));
     const presentations = [
         {
             ch: 'i',
@@ -6054,11 +6061,11 @@ test('show_glyph_cell retains each complete ordered presentation', () => {
         'same-character style changes and browser-only glyphs remain distinct',
     );
     assert.equal(
-        location.disp_ch,
+        tty_map_cell_at(x, y, state).ch,
         'i',
         'a null recorder glyph preserves the prior recorder-facing character',
     );
-    assert.deepEqual(location.disp_glyph, glyphPresentationRecord(
+    assert.deepEqual(glyph_buffer_at(x, y, state).glyphinfo, glyphPresentationRecord(
         presentations.at(-1),
     ));
 });
@@ -6069,13 +6076,13 @@ test('newsym is side-effect-only for ordinary, hero, and gas updates', () => {
     const state = visibleCellState({ x, y, ux: 1, uy: 1 });
 
     assert.equal(newsym(x, y), undefined);
-    assert.equal(state.level.at(x, y).disp_ch, '.');
+    assert.equal(tty_map_cell_at(x, y, state).ch, '.');
 
     state.u.ux = x;
     state.u.uy = y;
     assert.equal(newsym(x, y), undefined);
     assert.equal(
-        state.level.at(x, y).disp_ch,
+        tty_map_cell_at(x, y, state).ch,
         hero_glyph_info(state).ch,
     );
 
@@ -6087,7 +6094,7 @@ test('newsym is side-effect-only for ordinary, hero, and gas updates', () => {
     cloud.glyph_cmap = S_cloud;
     add_region(cloud, state, { deferVisual: true });
     assert.equal(newsym(x, y), undefined);
-    assert.equal(state.level.at(x, y).disp_ch, '#');
+    assert.equal(tty_map_cell_at(x, y, state).ch, '#');
 });
 
 test('newsym preserves the swallowed display except for the hero', () => {
@@ -6104,11 +6111,11 @@ test('newsym preserves the swallowed display except for the hero', () => {
         attr: ATR_BOLD,
     });
     const swallowedCell = {
-        ch: location.disp_ch,
-        color: location.disp_color,
-        dec: location.disp_decgfx,
-        attr: location.disp_attr,
-        glyph: location.disp_glyph,
+        ch: tty_map_cell_at(x, y, state).ch,
+        color: tty_map_cell_at(x, y, state).color,
+        dec: tty_map_cell_at(x, y, state).decgfx,
+        attr: tty_map_cell_at(x, y, state).attr,
+        glyph: glyph_buffer_at(x, y, state).glyphinfo,
     };
 
     // display.c newsym() must not let an ordinary terrain redraw overwrite
@@ -6116,11 +6123,11 @@ test('newsym preserves the swallowed display except for the hero', () => {
     newsym(x, y);
     assert.deepEqual(
         {
-            ch: location.disp_ch,
-            color: location.disp_color,
-            dec: location.disp_decgfx,
-            attr: location.disp_attr,
-            glyph: location.disp_glyph,
+            ch: tty_map_cell_at(x, y, state).ch,
+            color: tty_map_cell_at(x, y, state).color,
+            dec: tty_map_cell_at(x, y, state).decgfx,
+            attr: tty_map_cell_at(x, y, state).attr,
+            glyph: glyph_buffer_at(x, y, state).glyphinfo,
         },
         swallowedCell,
     );
@@ -6136,9 +6143,9 @@ test('newsym preserves the swallowed display except for the hero', () => {
     });
     newsym(x, y);
     const hero = hero_glyph_info(state);
-    assert.equal(location.disp_ch, hero.ch);
-    assert.equal(location.disp_color, hero.color);
-    assert.equal(location.disp_glyph.glyph, hero.glyph);
+    assert.equal(tty_map_cell_at(x, y, state).ch, hero.ch);
+    assert.equal(tty_map_cell_at(x, y, state).color, hero.color);
+    assert.equal(glyph_buffer_at(x, y, state).glyphinfo.glyph, hero.glyph);
 });
 
 test('newsym reveals visible engravings beneath higher-priority layers', () => {
@@ -6175,8 +6182,8 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
 
     newsym(x, y);
     assert.equal(engraving.erevealed, true);
-    assert.equal(state.level.at(x, y).disp_ch, '`');
-    assert.equal(state.level.at(x, y).disp_color, CLR_BRIGHT_BLUE);
+    assert.equal(tty_map_cell_at(x, y, state).ch, '`');
+    assert.equal(tty_map_cell_at(x, y, state).color, CLR_BRIGHT_BLUE);
     assert.deepEqual(
         remembered_glyph_presentation(
             state.level.at(x, y).remembered_glyph, state,
@@ -6191,7 +6198,7 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     state.level.objects[x][y] = { otyp: 42, oclass: WEAPON_CLASS };
     newsym(x, y);
     assert.equal(engraving.erevealed, true);
-    assert.equal(state.level.at(x, y).disp_ch, ')');
+    assert.equal(tty_map_cell_at(x, y, state).ch, ')');
     assert.equal(
         remembered_glyph_presentation(
             state.level.at(x, y).remembered_glyph, state,
@@ -6202,9 +6209,9 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     state.level.objects[x][y] = null;
     state.level.at(x, y).typ = CORR;
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, '#');
-    assert.equal(state.level.at(x, y).disp_color, CLR_BRIGHT_BLUE);
-    assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
+    assert.equal(tty_map_cell_at(x, y, state).ch, '#');
+    assert.equal(tty_map_cell_at(x, y, state).color, CLR_BRIGHT_BLUE);
+    assert.equal(tty_map_cell_at(x, y, state).attr, ATR_INVERSE);
     assert.equal(
         printedAttr(remembered_glyph_presentation(
             state.level.at(x, y).remembered_glyph, state,
@@ -6214,7 +6221,7 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
 
     state.viz_array[y][x] = 0;
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
+    assert.equal(tty_map_cell_at(x, y, state).attr, ATR_INVERSE);
 
     // display.c show_glyph() (2031-2044) leaves an entry whose glyph and
     // glyphflags are unchanged alone, so turning 'use_inverse' off does not
@@ -6224,10 +6231,10 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     state.viz_array[y][x] = 0x2;
     state.iflags = { wc_inverse: false };
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
-    state.level.at(x, y).disp_glyph = null;
+    assert.equal(tty_map_cell_at(x, y, state).attr, ATR_INVERSE);
+    glyph_buffer_at(x, y, state).glyphinfo = null;
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_attr, 0);
+    assert.equal(tty_map_cell_at(x, y, state).attr, 0);
 
     const metaEngraving = parseNethackrc(
         String.raw`SYMBOLS=S_engrcorr:\m#`,
@@ -6235,17 +6242,17 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     state.iflags = { ...metaEngraving.iflags };
     initialize_symbols_from_options(metaEngraving, state);
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, '#');
-    assert.equal(state.level.at(x, y).disp_attr, 0);
+    assert.equal(tty_map_cell_at(x, y, state).ch, '#');
+    assert.equal(tty_map_cell_at(x, y, state).attr, 0);
 
     const enhanced = parseNethackrc('OPTIONS=symset:Enhanced1');
     state.iflags = { ...enhanced.iflags };
     initialize_symbols_from_options(enhanced, state);
     newsym(x, y);
-    assert.ok(state.level.at(x, y).disp_browser_ch);
-    assert.equal(state.level.at(x, y).disp_browser_attr, ATR_INVERSE);
+    assert.ok(tty_map_cell_at(x, y, state).browser_ch);
+    assert.equal(tty_map_cell_at(x, y, state).browser_attr, ATR_INVERSE);
     assert.equal(
-        state.level.at(x, y).disp_attr,
+        tty_map_cell_at(x, y, state).attr,
         0,
         'a UTF-8 browser glyph does not mutate the recorder-facing cell',
     );
@@ -6328,13 +6335,13 @@ test('flush_screen preserves final map attributes for recorder and browser cells
     state.iflags = { ...enhanced.iflags, wc_inverse: true };
     initialize_symbols_from_options(enhanced, state);
     newsym(x, y);
-    const browserCharacter = state.level.at(x, y).disp_browser_ch;
+    const browserCharacter = tty_map_cell_at(x, y, state).browser_ch;
     assert.ok(browserCharacter);
     enableBrowserGlyphProjection(state.nhDisplay);
     await flush_screen(1);
     assert.deepEqual(gridCell(), {
         ch: browserCharacter,
-        color: state.level.at(x, y).disp_browser_color,
+        color: tty_map_cell_at(x, y, state).browser_color,
         attr: ATR_INVERSE,
     });
 });
@@ -6448,8 +6455,8 @@ test('newsym layers seen traps below objects and above engravings', () => {
 
     newsym(x, y);
     assert.equal(engraving.erevealed, true);
-    assert.equal(state.level.at(x, y).disp_ch, '^');
-    assert.equal(state.level.at(x, y).disp_color, CLR_RED);
+    assert.equal(tty_map_cell_at(x, y, state).ch, '^');
+    assert.equal(tty_map_cell_at(x, y, state).color, CLR_RED);
     assert.equal(
         remembered_glyph_presentation(
             state.level.at(x, y).remembered_glyph, state,
@@ -6461,10 +6468,10 @@ test('newsym layers seen traps below objects and above engravings', () => {
     state.iflags ??= {};
     state.iflags.wc2_darkgray = true;
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_color, NO_COLOR);
+    assert.equal(tty_map_cell_at(x, y, state).color, NO_COLOR);
     state.iflags.wc2_darkgray = false;
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_color, NO_COLOR);
+    assert.equal(tty_map_cell_at(x, y, state).color, NO_COLOR);
     trap.ttyp = LANDMINE;
 
     state.level.objects[x][y] = {
@@ -6472,18 +6479,18 @@ test('newsym layers seen traps below objects and above engravings', () => {
         oclass: WEAPON_CLASS,
     };
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, ')');
+    assert.equal(tty_map_cell_at(x, y, state).ch, ')');
 
     state.level.objects[x][y] = null;
     trap.tseen = false;
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, '`');
+    assert.equal(tty_map_cell_at(x, y, state).ch, '`');
 
     trap.tseen = true;
     state.level.at(x, y).typ = POOL;
     newsym(x, y);
     assert.equal(
-        state.level.at(x, y).disp_ch,
+        tty_map_cell_at(x, y, state).ch,
         '}',
         'water covers floor objects, traps, and engravings',
     );
@@ -6494,7 +6501,7 @@ test('newsym layers seen traps below objects and above engravings', () => {
     state.u.uinwater = true;
     newsym(x, y);
     assert.equal(
-        state.level.at(x, y).disp_ch,
+        tty_map_cell_at(x, y, state).ch,
         '^',
         'an underwater hero sees the trap through the pool layer',
     );
@@ -6504,20 +6511,20 @@ test('newsym layers seen traps below objects and above engravings', () => {
     // hero glyph must not leak through on that distant redraw.
     state.u.ux = x - 3;
     state.level.at(x, y).typ = ROOM;
-    state.level.at(x, y).disp_ch = '@';
+    tty_map_cell_at(x, y, state).ch = '@';
     state.level.objects[x][y] = { otyp: 42, oclass: WEAPON_CLASS };
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, '@');
+    assert.equal(tty_map_cell_at(x, y, state).ch, '@');
 
     // The same early return applies to distant liquid cells; nearby liquid
     // was exercised above. Water-level maps bypass this restriction.
     state.level.at(x, y).typ = POOL;
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, '@');
+    assert.equal(tty_map_cell_at(x, y, state).ch, '@');
     state.water_level = { dnum: 1, dlevel: 2 };
     state.u.uz = { dnum: 1, dlevel: 2 };
     newsym(x, y);
-    assert.equal(state.level.at(x, y).disp_ch, ')');
+    assert.equal(tty_map_cell_at(x, y, state).ch, ')');
 });
 
 test('newsym applies the C underwater guard before redrawing memory', () => {
@@ -6551,13 +6558,13 @@ test('newsym snapshots permanent lighting only at the visible boundary', () => {
 
     newsym(x, y);
     assert.equal(loc.waslit, true);
-    assert.equal(loc.disp_color, CLR_WHITE);
+    assert.equal(tty_map_cell_at(x, y, state).color, CLR_WHITE);
     assert.equal(lastseentyp_grid(state)[x][y], CORR);
 
     loc.lit = false;
     newsym(x, y);
     assert.equal(loc.waslit, false);
-    assert.equal(loc.disp_color, NO_COLOR);
+    assert.equal(tty_map_cell_at(x, y, state).color, NO_COLOR);
 
     loc.lit = true;
     state.viz_array[y][x] = 0;
@@ -7149,8 +7156,8 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
     const live = resetGame();
     live.level = new GameMap();
     live.level.at(7, 4).typ = FOUNTAIN;
-    live.level.at(7, 4).disp_ch = 'x';
-    live.level.at(7, 4).disp_color = CLR_RED;
+    tty_map_cell_at(7, 4, live).ch = 'x';
+    tty_map_cell_at(7, 4, live).color = CLR_RED;
     live.u = { ux: 1, uy: 1 };
     live.flags = {};
     live.viz_array = [];
@@ -7161,14 +7168,14 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
     initialize_symbols_from_options(options, live);
     newsym(7, 4);
     assert.equal(
-        live.level.at(7, 4).disp_ch,
+        tty_map_cell_at(7, 4, live).ch,
         'x',
         'recorder patch 006 leaves the prior cell under g_pututf8()',
     );
-    assert.equal(live.level.at(7, 4).disp_color, CLR_RED);
-    assert.equal(live.level.at(7, 4).disp_browser_ch, '⌠');
+    assert.equal(tty_map_cell_at(7, 4, live).color, CLR_RED);
+    assert.equal(tty_map_cell_at(7, 4, live).browser_ch, '⌠');
     assert.equal(
-        live.level.at(7, 4).disp_browser_color,
+        tty_map_cell_at(7, 4, live).browser_color,
         'rgb(0, 150, 255)',
     );
     assert.deepEqual(
@@ -7179,17 +7186,17 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
     );
 
     live.viz_array[4][7] = 0;
-    live.level.at(7, 4).disp_glyph = null;
-    live.level.at(7, 4).disp_browser_ch = null;
-    live.level.at(7, 4).disp_browser_color = null;
+    glyph_buffer_at(7, 4, live).glyphinfo = null;
+    tty_map_cell_at(7, 4, live).browser_ch = null;
+    tty_map_cell_at(7, 4, live).browser_color = null;
     newsym(7, 4);
     assert.deepEqual(
-        live.level.at(7, 4).disp_glyph.rgb,
+        glyph_buffer_at(7, 4, live).glyphinfo.rgb,
         [0, 150, 255],
         'out-of-sight reconstruction retains the remembered custom RGB',
     );
     assert.equal(
-        live.level.at(7, 4).disp_browser_color,
+        tty_map_cell_at(7, 4, live).browser_color,
         'rgb(0, 150, 255)',
     );
 });
@@ -8593,7 +8600,7 @@ test('disabled status updates retain blank reserved tty rows', async () => {
     state.nhDisplay = new GameDisplay(null);
     state.level = new GameMap();
     state.iflags = { status_updates: false, wc2_statuslines: 2 };
-    state.level.at(7, 20).disp_ch = '.';
+    tty_map_cell_at(7, 20, state).ch = '.';
 
     await flush_screen(1);
 
@@ -9670,9 +9677,9 @@ test('three-line status leaves a 24-row map unclipped', async () => {
         acurr: { a: [12, 13, 14, 15, 16, 17] },
         uprops: zeroHeroProperties(),
     };
-    state.level.at(1, 0).disp_ch = 'A';
+    tty_map_cell_at(1, 0, state).ch = 'A';
     // Not newly flushed, so it is not printed over the status window.
-    state.level.at(1, 20).disp_ch = 'Z';
+    tty_map_cell_at(1, 20, state).ch = 'Z';
 
     // allmain.c moveloop_preamble() sets disp.botlx before the first flush.
     state.disp = { botlx: true };
@@ -10829,7 +10836,7 @@ for (const heroMemory of [true, false])
             else
                 assert.deepEqual(location.remembered_glyph, priorMemory,
                     'disabled hero memory preserves the old stored glyph');
-            assert.equal(location.disp_glyph.glyph, expected.glyph);
+            assert.equal(glyph_buffer_at(x, y, state).glyphinfo.glyph, expected.glyph);
             assert.equal(rn2_on_display_rng(997), next,
                 'both source redraws consume the display stream exactly once');
             assert.equal(object.dknown, true);
@@ -10858,46 +10865,46 @@ test('display_self maps the hero appearance before the normal hero species', asy
         game.youmonst.m_ap_type = type;
         game.youmonst.mappearance = appearance;
         display_self();
-        assert.equal(game.level.at(ux,uy).disp_glyph.glyph,expected);
+        assert.equal(glyph_buffer_at(ux,uy).glyphinfo.glyph,expected);
     }
     game.flags.female = true; // Unpolymorphed Ugender uses flags.female.
     game.youmonst.m_ap_type = M_AP_MONSTER;
     game.youmonst.mappearance = 0; // Giant ant, female ordinary monster glyph.
     display_self();
-    assert.equal(game.level.at(ux,uy).disp_glyph.glyph,GLYPH_MON_FEM_OFF);
+    assert.equal(glyph_buffer_at(ux,uy).glyphinfo.glyph,GLYPH_MON_FEM_OFF);
     game.youmonst.m_ap_type = 0; // M_AP_NOTHING restores the normal hero.
     display_self();
-    assert.equal(game.level.at(ux,uy).disp_glyph.glyph,hero_glyph_info(game).glyph);
+    assert.equal(glyph_buffer_at(ux,uy).glyphinfo.glyph,hero_glyph_info(game).glyph);
     assert.deepEqual(game.displayCtx,displayBefore,'no self-disguise or ordinary-hero display draw');
     // show_glyph() maps with the hero's coordinates, including the accessibility override.
     game.sysopt = {accessibility:1};
     initialize_symbols_from_options(parseNethackrc('SYMBOLS=S_hero_override:?'),game);
     game.youmonst.m_ap_type = M_AP_MONSTER;
     display_self();
-    assert.equal(game.level.at(ux,uy).disp_glyph.ch,'?');
+    assert.equal(glyph_buffer_at(ux,uy).glyphinfo.ch,'?');
     game.u.uprops[HALLUC].intrinsic = 0;
     game.youmonst.m_ap_type = M_AP_OBJECT;
     const steed = {data:game.mons[0],female:1}; // Visible female giant ant takes precedence.
     game.u.usteed = steed;
     display_self();
-    assert.equal(game.level.at(ux,uy).disp_glyph.glyph,GLYPH_RIDDEN_FEM_OFF);
+    assert.equal(glyph_buffer_at(ux,uy).glyphinfo.glyph,GLYPH_RIDDEN_FEM_OFF);
     steed.minvis = 1; // An unseen steed gives way to the hero's own disguise.
     display_self();
-    assert.equal(game.level.at(ux,uy).disp_glyph.glyph,objnum_to_glyph(STRANGE_OBJECT));
+    assert.equal(glyph_buffer_at(ux,uy).glyphinfo.glyph,objnum_to_glyph(STRANGE_OBJECT));
 });
 
 test('full map repaint preserves blank glyph color and attributes', async () => {
     const state = statusRenderingState();
     const loc = state.level.at(12, 8);
-    loc.disp_ch = ' ';
-    loc.disp_color = CLR_RED;
-    loc.disp_attr = ATR_INVERSE;
+    tty_map_cell_at(12, 8, state).ch = ' ';
+    tty_map_cell_at(12, 8, state).color = CLR_RED;
+    tty_map_cell_at(12, 8, state).attr = ATR_INVERSE;
     await flush_screen(1);
     assert.deepEqual(state.nhDisplay.grid[9][11], {
         ch: ' ', color: CLR_RED, attr: ATR_INVERSE,
     });
-    loc.disp_attr = 0;
-    loc.disp_color = NO_COLOR;
+    tty_map_cell_at(12, 8, state).attr = 0;
+    tty_map_cell_at(12, 8, state).color = NO_COLOR;
     await flush_screen(1);
     assert.deepEqual(state.nhDisplay.grid[9][11], {
         ch: ' ', color: NO_COLOR, attr: 0,
