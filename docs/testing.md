@@ -19,7 +19,7 @@ The source-pinned tests and the generators read the C and Lua source from
 
 | Check | Command | Inputs | What it compares |
 | --- | --- | --- | --- |
-| Unit and tooling tests | `npm test` | `scripts/*.test.mjs` (1,228 files), directly under `scripts/` | Source-pinned function results, short replays and tooling behavior. A test file outside `scripts/` fails the suite; one in a subdirectory of `scripts/` is neither run nor flagged. |
+| Unit and tooling tests | `npm test` | `scripts/*.test.mjs`, directly under `scripts/` | Source-pinned function results, short replays and tooling behavior. A test file outside `scripts/` fails the suite; one in a subdirectory of `scripts/` is neither run nor flagged. |
 | One test file | `node --test scripts/<name>.test.mjs` | The named file | As above, for one file. `npm test` takes no file arguments; it accepts only `-- --shard <i>/<n>`. |
 | Lint | `npm run lint` | `js/`, `scripts/` | The ESLint rules in `eslint.config.js`. The pre-commit hook runs it too. |
 | Generated tables | `npm run check:<name>` (14 of them) | `scripts/generate-*.mjs` | Each table equals fresh output from the C or Lua source. Tests in `npm test` guard the generators without a `check:` script. |
@@ -33,6 +33,7 @@ The source-pinned tests and the generators read the C and Lua source from
 | Excluded commits | Part of `npm test` | `scripts/excluded-window.test.mjs` | Fails if game code repeats four consecutive lines that commits `736b8cd04..15ed31f2d` added. |
 | Judge entry point | Part of `npm test` | `scripts/run-segment-imports.test.mjs` | Fails if a file outside `frozen/` takes the judge's `runSegment` from `js/jsmain.js`, which ends a crashed segment instead of throwing, rather than `runSegmentStrict`. |
 | Known failures | Part of `npm test` | `scripts/known-failures.test.mjs` | Recordings that do not match yet, reported as `# TODO` without failing the suite. |
+| Deliberate gaps | Part of `npm test` | `scripts/deliberate-gaps.test.mjs`, `docs/testing.md` | Fails when a pin file under `scripts/` is unclassified or missing from "Deliberate gaps", when that section names a missing path, and when one of its counts differs from the pin or scan it comes from. |
 
 ## Full validation
 
@@ -112,6 +113,66 @@ an investigation under `investigations/synthetic/` or a measured host
 difference. Remove an entry when its case matches. When a case's counts
 change for a reason that leaves the reference invalid, update `expected` in
 the same commit as that reason.
+
+## Deliberate gaps
+
+Read this section to find which C behaviour the port does not reproduce on
+purpose, why, how far it reaches and which file holds the exact list. A
+known failure is a case the port should match and does not yet; a known
+difference (see "Local recordings and the judge's host") is output that
+depends on the recorder's host, where the port follows the judge's macOS
+host. A deliberate gap is behaviour left out after a decision, usually
+because only debug play or an internal error reaches it, or because C's
+result depends on memory that no input fixes.
+
+`scripts/deliberate-gaps.test.mjs`, part of `npm test`, keeps this section
+complete. It fails when a pin file under `scripts/` is not named here, when
+a path named here does not exist, and when a count below differs from the
+file it is taken from. `scripts/deliberate-gaps.mjs` defines a pin file and
+classifies each one; `node scripts/deliberate-gaps.mjs` prints the
+classification and the current counts.
+
+| Behaviour | Why | Reach | Exact list |
+| --- | --- | --- | --- |
+| An `impossible()` report or a `mention_map` notice raised in synchronous port code prints at the next message, prompt or turn boundary. C prints it at once and waits at its `--More--`. | Synchronous port code cannot wait for a key, so it queues the line (`sync_impossible()` in `js/source_steps.js`; `js/startup_a11y.js`). Printing at C's point needs each path's callers converted to `*_steps` generators or `async` forms. Vincent decided on 2026-11-24 to leave the remaining sites. | The output differs only when C draws a random number or reads a key before the port prints the line. `checkQueuedOutput()` in `js/rng.js` records each such draw or read, `runSegmentStrict()` in `js/jsmain.js` throws on it, and `scripts/score-recordings.mjs` fails the recording. The listed sites run only in debug play or on internal-error paths. On a dungeon −1 level, which only a wished magic portal reaches, `dungeon.c` `builds_up()` reports through 28 `newcham()` calls in 21 `async` functions that pass no printer, through object creation (`mksobj()`, `mkobj()`, `mksobj_at()`, `mkobj_at()`) for a wished statue, box or gold, and through level programs loaded by `#wizloadlua`. Light deletions (`dealloc_obj()`, `end_burn()`, and `m_detach()` under `mongone()`) report only a missing light source. In all, 162 `sync_impossible()` calls in 129 functions queue a report. A map notice needs the `mention_map` option, which is off by default. | `scripts/level-difficulty-steps.test.mjs`: 25 entries holding 28 calls (`ALLOWED`, the synchronous callers of the `level_difficulty()` family and `del_light_source()`). `scripts/queued-output-calls.test.mjs`: 12 entries holding 22 calls in `ALLOWED`, and 393 calls in `SYNC_CALLERS`. `scripts/discarded-promise-allowlist.json`: 118 entries holding 170 calls, pinned by `scripts/discarded-promises.test.mjs`; most entries show that the dropped promise never exists, and those whose reason names `sync_impossible()` queue a report. `LAGGING_RECORDINGS` in `scripts/rng-step-compare.mjs`: 0 recordings, pinned by `scripts/rng-step-compare.test.mjs`. |
+| `level_info()` for a ledger past `svl.level_info[MAXLINFO]`. The port models only the bytes that fall in a spare subroom record of `svr.rooms[]` in the Linux recorder's build, and throws a `RangeError` for any other ledger. | C does not check the ledger (`dungeon.c`), so it reads and writes the global that follows the array. The judge's macOS build lays out its globals differently. | Debug play: a wished magic portal leads to ledger 16704 to 18246 for a tune of two or more notes. Batch 12 game g00163 reaches an address outside the model, so no port can match it; its recording is kept outside the repository. | `level_info_in_spare_subroom()` in `js/dungeon.js`; `scripts/level-arrival.test.mjs`; the `guard` entry for `js/dungeon.js \| level_info` in `scripts/throw-site-list.json`. |
+| A segment whose `datetime` is before 1900. The port uses the requested date, as the Linux recorder does. | On macOS the game shows the real clock instead, probably because `mktime()` returns −1 for such a date and recorder patch 001 then falls back to `time()` (not traced in the macOS source). No port can match a recording of the real clock. | A judged session with such a `datetime`. The public sessions use 2000 to 2026. | `experiments/host-parity/sample2/README.md`, "Dates before 1900". |
+| A `hilite_status` value with 21 or more `/`-separated fields. The port reports a fixed configuration error. | `botl.c` `parse_status_hl1()` fills `hsbuf[0]` to `hsbuf[20]`, and a parser then reads `hsbuf[21]`, past the array. Two Linux recordings of the same input show different text. | A `hilite_status` line in the nethackrc, or the value typed at the `hilite_status` prompt of `#optionsfull`. | The comment above `STATUS_HILITE_BOUNDARY_ERROR` in `js/options.js`; `experiments/host-parity/sample2/README.md`, "`hsbuf[21]`". |
+| The race step after "Pick race first" with no role chosen and every race filtered out. The port treats the missing role as allowing no race and picks race 0 without a menu. | `role.c` `validrace(-1, i)` reads `roles[-1].allow` (`role.c:778-784`), bytes of a relocated pointer that change with the load address. Six recordings of one recipe gave six outcomes; the port's is one of them. | The role menu's `/` after the filters leave no role. | `recipes/role.c/race-first-no-role-every-race-filtered-blocked.session.json`, a blocked recipe with no recording; `js/player_selection.js`. |
+| `strprepend()`'s `PREFIX too short` report and `doname()`'s `long object description overflow` panic (`objnam.c:123-135`, `1727-1732`). The port prints the report and throws at the panic. | Each test is true only after C has written past an array: `doname_base()` builds its prefix in the 80-byte `prefix[PREFIX]` (`objnam.c:1233`) and the description in a 256-byte `nextobuf()` buffer. What C does after the overrun depends on the build. | An object description longer than C's buffers. No recording reaches it. | `strprepend()` in `js/objnam.js`; the `panic` entry for `js/objnam.js \| doname_base` in `scripts/throw-site-list.json`. |
+| A C call that `note_unported('<file>.c <function>')` stands for (`js/unported.js`). The port skips the call and records the label in `game.unported`. | `SKIPPED_CALL_REASONS` gives the reason for each label: a host file, program or log whose content the port does not have (`files.c`, `nhlua.c`, `mail.c`), the debug fuzzer (`wizcmds.c` `wiz_fuzzer()`), or an internal-error report at a site that `scripts/impossible-sites.test.mjs` and `scripts/note-unported-stale.test.mjs` list with a reason. | Debug play, host files and internal-error paths. | `scripts/skipped-call-reasons.mjs`: 17 calls under 8 labels, pinned by `scripts/skipped-call-reasons.test.mjs`. `node scripts/skipped-call-reasons.mjs --sites` prints each call's site and label. `scripts/option-statement-sources.test.mjs` pins the calls in `js/options.js` (none). |
+| `files.c` `fopen_wizkit_file()` for a name whose result depends on the host's files. For an absolute name, `resolveHostRootPath()` in `js/files.js` answers for the root directory, `/dev/null`, `/etc/sudoers` and names it takes to be missing; the port records any other name with `note_unported()`. | The port cannot see the recording host's files. | A new game in debug mode with a `WIZKIT` line in the nethackrc. | 2 of the `note_unported()` calls above; `scripts/wizkit.test.mjs`. |
+| A synchronous port function throws where C calls `panic()`, so the segment ends without C's panic report. A `guard` throw ends the segment on a state C reads on regardless. | A synchronous function cannot wait on `panic()` in `js/end.js`. No known C caller creates a guard's state. | Internal-error paths: 96 `panic` throws. No known input: 87 `guard` throws, one of them the dungeon −1 ledger above. | `scripts/throw-site-list.json`, pinned by `scripts/throw-sites.test.mjs`; `node scripts/throw-sites.mjs` lists the current throws. |
+| 5 C files that the port does not port, and 61 C messages whose text it does not hold. | Each entry gives its reason and Vincent's approval. For example, the port keeps state between segments in `input.storage`, not in NetHack's save files. | No recorded game: the build leaves the code out, or the recorder refuses the input that reaches it. | `scripts/not-ported-by-design.mjs`; `scripts/c-message-exemptions.mjs`. |
+
+The other pin files hold no deliberate gap. `NOT_GAP_LISTS` in
+`scripts/deliberate-gaps.mjs` gives each one's reason:
+
+- Reviewed equivalences, where the port does what C does by another route:
+  `scripts/check-c-constants.test.mjs`, `scripts/front-pushed-lists.test.mjs`,
+  `scripts/half-physical-damage.test.mjs`,
+  `scripts/level-relative-times.test.mjs`,
+  `scripts/menu-overlay-source.test.mjs`, `scripts/print-time-flags.test.mjs`,
+  `scripts/rm-flags-overlay.test.mjs`, `scripts/room-index-lookup.test.mjs`,
+  `scripts/visibility-predicate-reviewed.json`,
+  `scripts/you-feel-literal.test.mjs`, `scripts/you-see-prefix.test.mjs` and
+  `scripts/youprop-reads.test.mjs`. The `REVIEWED` and `REVIEWED_UNPORTED`
+  lists in `scripts/column-zero-guard.test.mjs` are equivalences too, although
+  the pin-file rule does not find them.
+- C diagnostics that test a resource or state the port does not have, or
+  that cannot fire in C either: `scripts/c-diagnostic-markers.test.mjs`.
+- Sites a source scan cannot read: `scripts/check-fixed-datetime.test.mjs`,
+  `scripts/check-namespace-members.test.mjs`,
+  `scripts/missile-callee-defaults.test.mjs` and
+  `scripts/scatter-operations.test.mjs`.
+- Tooling: `scripts/excluded-window.test.mjs`,
+  `scripts/run-segment-imports.test.mjs`,
+  `scripts/exception-count.test.mjs` and `scripts/deliberate-gaps.test.mjs`.
+- Failures and unfinished ports: `scripts/known-failures.test.mjs` ("Known
+  failures"), and `scripts/unreachable-guards.test.mjs` and
+  `scripts/unsupported-operation.test.mjs`, which pin refusals of unported
+  paths. The `Unsupported*Error` throws and the `unported` class of
+  `scripts/throw-site-list.json` are unfinished ports as well.
 
 ## Local recordings and the judge's host
 

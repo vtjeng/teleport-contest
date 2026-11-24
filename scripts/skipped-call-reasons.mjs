@@ -19,6 +19,7 @@
 //
 //   node scripts/skipped-call-reasons.mjs          print the summary
 //   node scripts/skipped-call-reasons.mjs --json   print it as JSON
+//   node scripts/skipped-call-reasons.mjs --sites  print each call's site and label
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -165,8 +166,12 @@ export function skippedCallsWithoutReason(jsFiles, registry = SKIPPED_CALL_REASO
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-    const summary = skippedCallsWithoutReason(readJsFiles());
-    if (process.argv.includes('--json')) {
+    const jsFiles = readJsFiles();
+    const summary = skippedCallsWithoutReason(jsFiles);
+    if (process.argv.includes('--sites')) {
+        for (const { site, labels } of skippedCalls(jsFiles))
+            console.log(`${site} ${labels ? labels.join(' | ') : '(no label)'}`);
+    } else if (process.argv.includes('--json')) {
         console.log(JSON.stringify(summary, null, 2));
     } else {
         console.log(`${summary.count} of ${summary.calls} skipped C calls have no recorded reason`);
