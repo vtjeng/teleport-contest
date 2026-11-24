@@ -29,7 +29,9 @@ import {
     getRngLog,
     isTerminated,
     oneMacrotask,
+    queuedOutputViolations,
     raceTermination,
+    resetQueuedOutput,
     resetTermination,
     terminationViolations,
 } from './rng.js';
@@ -347,6 +349,7 @@ export class NethackGame {
         // state and the RNG log (js/rng.js, "Segment termination").
         await oneMacrotask();
         resetTermination();
+        resetQueuedOutput();
         // teleport.c tele_trap()'s static guard is restored by a finally
         // block, which does not run when the game terminates inside it.
         reset_in_tele_trap();
@@ -989,6 +992,9 @@ export async function runSegment(input, options = {}) {
     nhGame.terminationViolations = terminationViolations();
     if (nhGame.terminationViolations.length)
         terminationViolationReporter?.(nhGame.terminationViolations);
+    nhGame.queuedOutput = queuedOutputViolations();
+    if (nhGame.queuedOutput.count)
+        queuedOutputReporter?.(nhGame.queuedOutput);
     nhGame.argumentMisuses = recordedArgumentMisuses();
     if (nhGame.argumentMisuses.length)
         argumentMisuseReporter?.(nhGame.argumentMisuses);
@@ -1013,6 +1019,18 @@ export async function runSegmentStrict(input, options = {}) {
         error.segmentGame = nhGame;
         throw error;
     }
+    // js/rng.js, "Queued output": a draw or key read while a line waited in
+    // the notice queue happened before that line in this port, after it in C.
+    nhGame.queuedOutput = queuedOutputViolations();
+    if (nhGame.queuedOutput.count) {
+        const error = new Error(`${nhGame.queuedOutput.count} random-number `
+            + 'draws or key reads happened while a line was queued; first: '
+            + nhGame.queuedOutput.kept
+                .slice(0, 3).map(({ kind, detail }) => `${kind}: ${detail}`).join('; '));
+        error.name = 'QueuedOutputError';
+        error.segmentGame = nhGame;
+        throw error;
+    }
     return nhGame;
 }
 
@@ -1031,6 +1049,14 @@ export function setSegmentErrorReporter(reporter) {
 let terminationViolationReporter = null;
 export function setTerminationViolationReporter(reporter) {
     terminationViolationReporter = reporter;
+}
+
+// The same, for the draws and key reads js/rng.js checkQueuedOutput() found
+// while a line was queued: one call per segment that has any, with
+// { count, kept }. The judge never registers one.
+let queuedOutputReporter = null;
+export function setQueuedOutputReporter(reporter) {
+    queuedOutputReporter = reporter;
 }
 
 // The same, for the js/youprop.js argument uses that runSegment() recorded in

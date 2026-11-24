@@ -44,6 +44,7 @@ function coreDraw(context, x) {
 function logResult(name, args, result) {
     if (!_rngLogEnabled) return;
     const entry = `${name}(${args})=${result}`;
+    checkQueuedOutput('rng', entry);
     if (dropAfterTermination(entry)) return;
     _rngLog.push(entry);
 }
@@ -127,6 +128,47 @@ export function recordTerminationViolation(kind, detail) {
 
 export function terminationViolations() {
     return _termination.violations.map((violation) => ({ ...violation }));
+}
+
+// ── Queued output ──
+//
+// C prints every line where it is raised, and waits at its --More-- there.
+// Synchronous port code cannot wait, so a line it raises (display.c
+// show_glyph()'s mention_map notice, vision.c notice_all_mons(), pline.c
+// impossible()) joins the notice queue (js/startup_a11y.js
+// queueNoticeLine()), which keeps the map and status rows of that moment and
+// prints over them at the next drain. That gives C's screens, and C's order,
+// only while nothing C does after the line has happened yet: the waiting
+// caller nearest the queueing call must drain the queue (newsym_async(),
+// tty_message.js emitQueuedNotices()) before the game draws a core random
+// number or reads a key. Each draw or key read with a line still queued is
+// recorded here; runSegment() reports them and runSegmentStrict() fails on
+// them, so a replay shows the chain that broke the rule. The judge's
+// runSegment() only records them. Only the live game's queue counts: a
+// projected state's queue is discarded with the copy, and a drain in
+// progress prints the lines it took off the queue first.
+const QUEUED_OUTPUT_KEPT = 20;
+let _queuedOutput = { count: 0, kept: [] };
+
+export function resetQueuedOutput() {
+    _queuedOutput = { count: 0, kept: [] };
+}
+
+// Called with the event about to happen; records it when a line is queued.
+export function checkQueuedOutput(kind, detail) {
+    const queued = game._glyphUpdateNotices?.length;
+    if (!queued || game._emittingGlyphUpdateNotices) return;
+    _queuedOutput.count += 1;
+    if (_queuedOutput.kept.length < QUEUED_OUTPUT_KEPT)
+        _queuedOutput.kept.push({ kind, detail: `${detail} with ${queued} queued` });
+}
+
+// { count, kept }: how many events found a line queued, and the first few.
+export function queuedOutputViolations() {
+    return {
+        count: _queuedOutput.count,
+        kept: _queuedOutput.kept.map((violation) => ({ ...violation })),
+    };
 }
 
 // A promise that never settles. Each call creates its own, so a suspended

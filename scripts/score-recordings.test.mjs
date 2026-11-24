@@ -101,6 +101,21 @@ test('summarizeRecordings fails a matching recording with a recorded argument mi
         failing: ['mon.c__misusing.session.json'], outOfStep: [] });
 });
 
+test('summarizeRecordings fails a matching recording that drew while a line was queued', () => {
+    // js/rng.js checkQueuedOutput() found one draw while a line waited in
+    // the notice queue; runScorer() attaches it as queuedOutput. The judge's
+    // comparison still passes, since the draw itself matches.
+    const bundle = { results: [
+        { session: 'display.c__queued.session.json', passed: true, rngSteps: IN_STEP,
+            queuedOutput: [{ count: 1, kept: [{ kind: 'rng', detail: 'rn2(4)=2 with 1 queued' }] }],
+            metrics: { screens: { matched: 7, total: 7 },
+                rngCalls: { matched: 40, total: 40 } } },
+    ] };
+    assert.deepEqual(summarizeRecordings(bundle), { recordings: 1, passing: 0, screens: 7,
+        screensTotal: 7, rng: 40, rngTotal: 40,
+        failing: ['display.c__queued.session.json'], outOfStep: [] });
+});
+
 test('summarizeRecordings fails a recording whose RNG calls fall in another step than C\'s, unless pinned', () => {
     // Both recordings match as the judge counts them. The second segment of
     // each draws 2 calls in step 5 where C drew none, the shape a line
