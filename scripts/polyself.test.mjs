@@ -346,7 +346,7 @@ test('polymon releases punishment in the source slippery-form branch', () => {
     const jsSlip = JS_POLYMON_FUNCTION.indexOf(
         "await message('You slip out of the iron chain.'",
     );
-    const jsUnpunish = JS_POLYMON_FUNCTION.indexOf('unpunish(state, env)', jsSlip);
+    const jsUnpunish = JS_POLYMON_FUNCTION.indexOf('await unpunish_async(state, env)', jsSlip);
     assert.match(C_POLYMON_FUNCTION,
         /if \(amorphous\(gy\.youmonst\.data\) \|\| is_whirly\(gy\.youmonst\.data\)\s+\|\| unsolid\(gy\.youmonst\.data\)\)/u);
     assert.match(JS_POLYMON_FUNCTION,
@@ -529,7 +529,7 @@ test('polymon learns egg species in both matching red-dragon routes', async () =
     // C polymon reaches the lays_eggs branch when the transformation screen
     // identifies red dragon; #sit at step 31 later confirms the egg-laying form.
     assert.match(C_POLYMON_FUNCTION, /newsym\(u\.ux, u\.uy\);[\s\S]*if \(lays_eggs\(gy\.youmonst\.data\)\) \{[\s\S]*learn_egg_type\(u\.umonnum\);[\s\S]*learn_egg_type\(egg_type_from_parent\(u\.umonnum, TRUE\)\);/u);
-    assert.match(JS_POLYMON_FUNCTION, /redraw\(u\.ux, u\.uy, state\);[\s\S]*if \(lays_eggs\(state\.youmonst\.data\)\) \{[\s\S]*learn_egg_type\(u\.umonnum, state, env\);[\s\S]*learn_egg_type\(egg_type_from_parent\(u\.umonnum, true\), state, env\);/u);
+    assert.match(JS_POLYMON_FUNCTION, /await printQueued\(redraw\(u\.ux, u\.uy, state\)\);[\s\S]*if \(lays_eggs\(state\.youmonst\.data\)\) \{[\s\S]*learn_egg_type\(u\.umonnum, state, env\);[\s\S]*learn_egg_type\(egg_type_from_parent\(u\.umonnum, true\), state, env\);/u);
 
     for (const path of [
         'recordings/sit.c/egg-laying-red-dragon-independent.session.json',

@@ -858,7 +858,7 @@ test('dighole runs magical-trap explosions before deleting and redrawing the tra
     assert.match(jsDig,
         /const damage = 20 \+ random\.d\(3, 6\);\s*const \{ explode \} = await import\('\.\/explode\.js'\);\s*await explode\(\s*x, y, 0, damage, TRAP_EXPLODE, EXPL_MAGICAL, state,/u);
     assert.match(jsDig,
-        /\{ \.\.\.rawEnv, random, message \},\s*\);\s*await deltrap\(trap, state\);\s*newsym\(x, y, state\);/u);
+        /\{ \.\.\.rawEnv, random, message \},\s*\);\s*await deltrap\(trap, state\);\s*await newsym_async\(x, y\);/u);
 });
 
 test('adj_pit_checks reports hard foundations and supporting structures', () => {

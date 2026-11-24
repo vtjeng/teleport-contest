@@ -730,12 +730,12 @@ test('dothrow petrification call sites use minstapetrify in C order', async () =
     assert.match(jsHurtle,
         /await minstapetrify\(mon, true, state,[\s\S]*?await wake_nearto\(x, y, 10, \{ state, random, message \}\);/u);
     assert.match(jsMHurtle,
-        /await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?redraw\(monster\.mx, monster\.my\);[\s\S]*?await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?redraw\(otherMonster\.mx, otherMonster\.my\);[\s\S]*?await minstapetrify\(monster, true/u);
+        /await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?await printQueued\(redraw\(monster\.mx, monster\.my\)\);[\s\S]*?await minstapetrify\([\s\S]*?!state\.context\?\.mon_moving[\s\S]*?await printQueued\(redraw\(otherMonster\.mx, otherMonster\.my\)\);[\s\S]*?await minstapetrify\(monster, true/u);
     assert.match(jsMHurtle,
-        /state\.killer\.name = `being hit by \$\{name\}`;[\s\S]*?await instapetrify\(state\.killer\.name, state, env\);[\s\S]*?redraw\(state\.u\.ux, state\.u\.uy\);/u);
+        /state\.killer\.name = `being hit by \$\{name\}`;[\s\S]*?await instapetrify\(state\.killer\.name, state, env\);[\s\S]*?await printQueued\(redraw\(state\.u\.ux, state\.u\.uy\)\);/u);
     assert.doesNotMatch(jsMHurtle, /note_unported\('trap\.c instapetrify'\)/u);
     assert.match(jsThrow,
-        /await minstapetrify\(\s*u\.ustuck, true, state, operationEnv,\s*\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj, \{ state \}\);/u);
+        /await minstapetrify\(\s*u\.ustuck, true, state, operationEnv,\s*\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?await delobj_async\(obj, \{ state \}\);/u);
     assert.doesNotMatch(DOTHROW_JS, /note_unported\('trap\.c minstapetrify'\)/u);
 
     resetGame();
@@ -786,7 +786,7 @@ test('thitmonst petrifies an engulfing animal before consuming its corpse',
         assert.match(c,
             /if \(obj->otyp == CORPSE && touch_petrifies\(&mons\[obj->corpsenm\]\)\)[\s\S]*?if \(is_animal\(md\)\)[\s\S]*?minstapetrify\(u\.ustuck, TRUE\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj\);[\s\S]*?return 1;/u);
         assert.match(js,
-            /await minstapetrify\(\s*u\.ustuck, true, state, operationEnv,\s*\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?delobj\(obj, \{ state \}\);[\s\S]*?return 1;/u);
+            /await minstapetrify\(\s*u\.ustuck, true, state, operationEnv,\s*\);[\s\S]*?if \(!u\.uswallow\)[\s\S]*?await delobj_async\(obj, \{ state \}\);[\s\S]*?return 1;/u);
 
         resetGame();
         await runSegment({
@@ -1583,7 +1583,7 @@ test('breakobj wires the lit-oil source branch before object cleanup', () => {
     assert.match(jsBody,
         /obj\.in_use = 1;[\s\S]*?if \(obj\.otyp === POT_OIL && obj\.lamplit\) \{\s*await explode_oil\(obj, x, y, state,/u);
     assert.ok(jsBody.indexOf('await explode_oil(obj, x, y, state,')
-        < jsBody.indexOf('if (!fracture) await delobj(obj, objectEnv)'));
+        < jsBody.indexOf('if (!fracture) await delobj_async(obj, objectEnv)'));
     assert.equal(jsBody.includes("note_unported('potion.c explode_oil')"), false);
 });
 

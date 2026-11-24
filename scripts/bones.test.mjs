@@ -56,7 +56,7 @@ test('savebones releases leashes before unpunishing the hero', async () => {
     assert.match(cSource,
         /make_bones:\s*unleash_all\(\);[\s\S]*?if \(Punished\)\s*unpunish\(\)/u);
     assert.match(jsSource,
-        /\/\/ make_bones:\s*unleash_all\(state\);[\s\S]*?if \(state\.uball\) unpunish\(state\);/u);
+        /\/\/ make_bones:\s*unleash_all\(state\);[\s\S]*?if \(state\.uball\) await unpunish_async\(state\);/u);
     assert.match(jsSource, /import \{ unleash_all \} from '\.\/apply\.js';/u);
     assert.doesNotMatch(jsSource, /unleash_all\(\) -- no leash logic/u);
 });

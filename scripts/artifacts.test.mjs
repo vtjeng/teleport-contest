@@ -1082,7 +1082,7 @@ test('Mb_hit follows C probe ordering and calls the canonical zap helper', () =>
     );
     assert.match(
         JS_MB_HIT,
-        /if \(attack_indx === MB_INDEX_PROBE && !canspotmon\(mdef, state\)\)[\s\S]*?map_invisible\(mdef\.mx, mdef\.my, state\);/u,
+        /if \(attack_indx === MB_INDEX_PROBE && !canspotmon\(mdef, state\)\)[\s\S]*?await map_invisible_async\(mdef\.mx, mdef\.my, state\);/u,
     );
     assert.doesNotMatch(JS_MB_HIT, /note_unported\(['"]mondata\.c canspotmon/u);
     assert.match(

@@ -161,7 +161,7 @@ test('drop_ball ports its trap and relocation branches through both callers', ()
     assert.match(c, /drop_ball\(coordxy x, coordxy y\)[\s\S]*?if \(Blind\)[\s\S]*?if \(x != u\.ux \|\| y != u\.uy\)[\s\S]*?case TT_BEARTRAP:[\s\S]*?side = rn2\(3\) \? LEFT_SIDE : RIGHT_SIDE;[\s\S]*?set_wounded_legs\(side, rn1\(1000, 500\)\);[\s\S]*?reset_utrap\(TRUE\);[\s\S]*?fill_pit\(u\.ux, u\.uy\);[\s\S]*?movobj\(uchain, u\.ux, u\.uy\);[\s\S]*?spoteffects\(TRUE\);/u);
     assert.match(doC, /if \(obj == uball\)\s+drop_ball\(u\.ux, u\.uy\);/u);
     assert.match(dothrowC, /if \(obj == uball\)\s+drop_ball\(gb\.bhitpos\.x, gb\.bhitpos\.y\);/u);
-    assert.match(js, /export async function drop_ball\(x, y, state = game\)[\s\S]*?set_wounded_legs\(side, rn1\(1000, 500\), state\);[\s\S]*?movobj\(state\.uchain, u\.ux, u\.uy, state\);[\s\S]*?await spoteffects\(true, state\);/u);
+    assert.match(js, /export async function drop_ball\(x, y, state = game\)[\s\S]*?set_wounded_legs\(side, rn1\(1000, 500\), state\);[\s\S]*?await printQueued\(movobj\(state\.uchain, u\.ux, u\.uy, state\)\);[\s\S]*?await spoteffects\(true, state\);/u);
     assert.match(doJs, /await drop_ball\(normalized\.state\.u\.ux, normalized\.state\.u\.uy,[\s\S]*?normalized\.state\);/u);
     assert.match(dothrowJs, /await drop_ball\(bx, by, state\);/u);
     assert.doesNotMatch(doJs, /note_unported\('ball\.c drop_ball'\)/u);

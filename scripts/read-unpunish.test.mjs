@@ -19,7 +19,7 @@ test('eatspecial forwards its operation environment to the punishment release he
     assert.match(cFunction,
         /if \(otmp == uball\)\s+unpunish\(\);[\s\S]*?if \(otmp == uchain\)\s+unpunish\(\);/u);
     assert.match(jsFunction,
-        /if \(otmp === state\.uball\)\s+unpunish\(state, env\);[\s\S]*?if \(otmp === state\.uchain\)\s*\{\s*unpunish\(state, env\);/u);
+        /if \(otmp === state\.uball\)\s+await unpunish_async\(state, env\);[\s\S]*?if \(otmp === state\.uchain\)\s*\{\s*await unpunish_async\(state, env\);/u);
 });
 
 test('unpunish clears the chain slot, deletes it, then clears the ball slot',

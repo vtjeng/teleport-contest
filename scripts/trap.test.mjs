@@ -673,7 +673,7 @@ test('trap.c lava_effects awaits burn_away_slime before lava handling', () => {
     assert.ok(jsStart >= 0 && jsEnd > jsStart);
     const jsLava = JS_TRAP.slice(jsStart, jsEnd);
     const jsOrder = [
-        'feel_newsym(u.ux, u.uy, state);',
+        'await feel_newsym_async(u.ux, u.uy, state);',
         'await burn_away_slime(state);',
         'if (likes_lava(state.youmonst?.data))',
     ].map((text) => jsLava.indexOf(text));
@@ -748,10 +748,10 @@ test('float_down moves the chain with the punished ball before redrawing the old
     const jsFloatDown = JS_TRAP.slice(jsFloatStart, jsFloatEnd);
     const jsRelocate = jsFloatDown.indexOf('u.ux = state.uball.ox;');
     const jsMoveChain = jsFloatDown.indexOf(
-        'movobj(state.uchain, u.ux, u.uy, state);', jsRelocate,
+        'await printQueued(movobj(state.uchain, u.ux, u.uy, state));', jsRelocate,
     );
     const jsRedrawOld = jsFloatDown.indexOf(
-        'newsym(u.ux0, u.uy0, state);', jsMoveChain,
+        'await newsym_async(u.ux0, u.uy0);', jsMoveChain,
     );
     assert.ok(jsRelocate >= 0 && jsMoveChain > jsRelocate
         && jsRedrawOld > jsMoveChain);

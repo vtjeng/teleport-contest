@@ -91,13 +91,13 @@ test('failed untrap preserves C ball/chain and final-death ordering', () => {
     const body = jsTrap.slice(start, jsTrap.indexOf('async function try_disarm(', start));
     // trap.c:5406 evaluates movement legality before the punished drag.
     assert.match(body, /await test_move[\s\S]*&& \(!Punished\(state\)[\s\S]*await drag_ball/u);
-    assert.match(body, /move_bc\(0, bc\.value, bx\.value, by\.value, cx\.value, cy\.value, state\)/u);
+    assert.match(body, /move_bc_async\(0, bc\.value, bx\.value, by\.value, cx\.value, cy\.value, state\)/u);
     // C death cannot return from spoteffects; don't publish later trap state.
     assert.match(body, /await spoteffects\(true, state\);[\s\S]*gameover\) return;[\s\S]*failing_untrap--/u);
     // The failed movement routes through check_leash before the chain and trap effects.
     assert.match(
         body,
-        /await vision_recalc_async\(1, \{ state \}\);[\s\S]*?await check_leash\(u\.ux0, u\.uy0, \{ state \}\);[\s\S]*?move_bc\(0, bc\.value,[\s\S]*?await spoteffects\(true, state\)/u,
+        /await vision_recalc_async\(1, \{ state \}\);[\s\S]*?await check_leash\(u\.ux0, u\.uy0, \{ state \}\);[\s\S]*?move_bc_async\(0, bc\.value,[\s\S]*?await spoteffects\(true, state\)/u,
     );
     assert.doesNotMatch(body, /note_unported\('apply\.c check_leash'\)/u);
 });

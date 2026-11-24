@@ -76,10 +76,10 @@ export const PRINTING_FORMS = new Set([
     'printQueued', 'newsym_async', 'killRedrawAsync', 'redrawSquareWaiting',
 ]);
 
-// The printing forms that take a draw's result rather than its arguments:
-// `await printQueued(draw(...))` prints after the draw, and waits for it
-// first when it answers a promise.
-const RESULT_PRINTERS = new Set(['printQueued']);
+// The printing form that takes a draw's result rather than its arguments,
+// as "<file>#<function>": `await printQueued(draw(...))` prints after the
+// draw, and waits for it first when it answers a promise.
+const RESULT_PRINTERS = new Set(['js/tty_message.js#printQueued']);
 
 // Each `return` argument of a function record's node, or an arrow's body.
 function returned(fnNode) {
@@ -499,7 +499,8 @@ export function scanQueuedOutputCalls(sources) {
                 form = 'flushed';
                 via = 'printing form';
             } else if (printerCall && printerCall.targets.length
-                && printerCall.targets.every((to) => RESULT_PRINTERS.has(to.name) && printing.has(to))
+                && printerCall.targets.every((to) => RESULT_PRINTERS.has(`${to.file}#${to.name}`)
+                    && printing.has(to))
                 && printerCall.parent?.type === 'AwaitExpression') {
                 form = 'flushed';
                 via = 'printQueued';

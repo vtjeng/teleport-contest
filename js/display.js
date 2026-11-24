@@ -4165,10 +4165,10 @@ export function newsym_async(x, y, env = {}) {
     const drawn = redraw !== newsym ? redraw(x, y, state)
         : finish_steps(newsym_steps(x, y), impossible_printer(state, env));
     if (env.queuedLines === false) return drawn;
-    const printQueued = () => (state._glyphUpdateNotices?.length
+    const printLines = () => (state._glyphUpdateNotices?.length
         ? emitGlyphUpdateNotices(state).then(() => undefined) : undefined);
     return drawn && typeof drawn.then === 'function'
-        ? drawn.then(printQueued) : printQueued();
+        ? drawn.then(printLines) : printLines();
 }
 
 export function* newsym_steps(x, y) {

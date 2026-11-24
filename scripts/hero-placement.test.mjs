@@ -61,13 +61,13 @@ function initializedState() {
     return state;
 }
 
-test('u_on_newpos records the first position and terrain on a new level', () => {
+test('u_on_newpos records the first position and terrain on a new level', async () => {
     const state = initializedState();
     const steed = { mx: 1, my: 1 };
     state.u.usteed = steed;
     state.level.at(14, 8).typ = STAIRS;
 
-    u_on_newpos(14, 8, state);
+    await u_on_newpos(14, 8, state);
 
     assert.deepEqual([state.u.ux, state.u.uy], [14, 8]);
     assert.deepEqual([state.u.ux0, state.u.uy0], [14, 8]);

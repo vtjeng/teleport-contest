@@ -1357,7 +1357,7 @@ test('u_on_newpos keeps its live redraw default and accepts a caller see_nearby_
     assert.match(dungeonSource,
         /seeNearbyObjectsOptions = undefined/u);
     assert.match(dungeonSource,
-        /seeNearbyObjects\(state, seeNearbyObjectsOptions\);/u);
+        /await printQueued\(seeNearbyObjects\(state, seeNearbyObjectsOptions\)\);/u);
     const displaySource = readFileSync(
         new URL('../js/display.js', import.meta.url),
         'utf8',
@@ -1391,7 +1391,7 @@ test('u_on_newpos keeps its live redraw default and accepts a caller see_nearby_
     const jsHurtle = dothrowSource.slice(jsHurtleStart, jsHurtleEnd);
     const jsOrder = [
         'u_on_newpos(x, y, state',
-        'redraw(oldX, oldY);',
+        'await printQueued(redraw(oldX, oldY));',
         'await vision_recalc_async(1, { state, redraw });',
         'await flush(1);',
         'await switch_terrain(state,',

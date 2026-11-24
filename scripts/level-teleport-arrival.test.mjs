@@ -489,7 +489,7 @@ test('undestroyable_trap names exactly the two trap.h exceptions', () => {
 });
 
 test('a random-arrival earth-sense collector preserves the exact notice',
-    () => {
+    async () => {
         const state = placementState();
         state.urace.mnum = PM_DWARF;
         state.level.at(10, 8).typ = ROOM;
@@ -498,7 +498,7 @@ test('a random-arrival earth-sense collector preserves the exact notice',
             nobj: { ox: 10, oy: 8, nobj: null },
         };
         const lines = [];
-        u_on_newpos(10, 8, state, {
+        await u_on_newpos(10, 8, state, {
             earthSenseMessage: (line) => lines.push(line),
         });
         assert.deepEqual(lines, ['You sense something below your feet.']);

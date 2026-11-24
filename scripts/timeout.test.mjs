@@ -3027,7 +3027,7 @@ test('slime_dialogue follows timeout.c countdown order through nh_timeout',
             'const timeout = Math.trunc(Slimed(u)) & TIMEOUT;',
         ));
         assert.ok(jsBody.includes('const index = Math.trunc(timeout / 2);'));
-        assert.ok(jsBody.includes('(env.newsym ?? newsym)(u.ux, u.uy, state);'));
+        assert.ok(jsBody.includes('await printQueued((env.newsym ?? newsym)(u.ux, u.uy, state));'));
         assert.match(jsBody,
             /nolimbs\(state\.youmonst\.data\) && strstri\(text, 'limbs'\) >= 0\)\s*text = strsubst\(text, 'limbs', 'extremities'\)/u);
         assert.match(jsBody,

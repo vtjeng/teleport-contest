@@ -50,7 +50,7 @@ test('trapeffect_poly_trap keeps the ordinary hero source order', () => {
     const jsOrder = [
         'await steedintrap(trap, null, env);',
         'deltrap(trap, state);',
-        'newsym(state.u.ux, state.u.uy);',
+        'await newsym_async(state.u.ux, state.u.uy);',
         "await message(plineYouFeel('a change coming over you.', state), state, env);",
         'await polyself(POLY_NOFLAGS, state);',
     ].map((part) => jsOrdinaryArm.indexOf(part));

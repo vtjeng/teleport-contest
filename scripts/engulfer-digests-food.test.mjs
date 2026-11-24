@@ -51,7 +51,7 @@ test('swallowed corpse digestion keeps C deletion timer ownership', () => {
         /healmon\(swallower, swallower\.mhpmax, 0\);\s*await mcureblindness\(swallower, false, state\);/u,
     );
     assert.doesNotMatch(DO_JS, /note_unported\(['"]mon\.c mcureblindness/u);
-    assert.match(DO_JS, /delobj\(obj, \{ \.\.\.env, state \}\)/u);
+    assert.match(DO_JS, /await delobj_async\(obj, \{ \.\.\.env, state \}\)/u);
 });
 
 test('engulfer corpse polymorph matches the source polyfood predicate', () => {

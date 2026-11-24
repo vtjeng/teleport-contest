@@ -142,7 +142,7 @@ test('freedom keeps C operation order and all five production calls are awaited'
     const jsBody = js.slice(js.indexOf('export async function buried_ball_to_freedom'),
         js.indexOf('// C ref: dig.c unearth_objs()'));
     assert.match(cBody, /obj_extract_self\(ball\);[\s\S]*place_object\(ball, cc.x, cc.y\);[\s\S]*stackobj\(ball\);[\s\S]*reset_utrap\(TRUE\);[\s\S]*del_engr_at\(cc.x, cc.y\);[\s\S]*newsym\(cc.x, cc.y\);/u);
-    assert.match(jsBody, /obj_extract_self\(ball, env\);[\s\S]*place_object\(ball, cc.x, cc.y, env\);[\s\S]*stackobj\(ball, env\);[\s\S]*await reset_utrap\(true, state\);[\s\S]*del_engr_at\(cc.x, cc.y, state\);[\s\S]*redraw\(cc.x, cc.y, state\);/u);
+    assert.match(jsBody, /obj_extract_self\(ball, env\);[\s\S]*place_object\(ball, cc.x, cc.y, env\);[\s\S]*stackobj\(ball, env\);[\s\S]*await reset_utrap\(true, state\);[\s\S]*del_engr_at\(cc.x, cc.y, state\);[\s\S]*await printQueued\(redraw\(cc.x, cc.y, state\)\);/u);
     assert.match(cBody, /#if 0[\s\S]*stop_timer\(RUST_METAL[\s\S]*#endif/u);
     assert.doesNotMatch(jsBody, /stop_timer\(/u);
     // rg of the C call sites gives one each in read/apply/pray and two in

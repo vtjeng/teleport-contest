@@ -640,6 +640,10 @@ test('burying a punishment ball waits after unpunish and trap setup before extra
 
     // dig.c:1993-1998 completes unpunish/set_utrap before pline_The, but
     // doesn't read nexthere or extract the ball until the message is dismissed.
+    // unpunish() is awaited through its printing form (js/read.js
+    // unpunish_async()), so the message starts a few microtasks in.
+    for (let i = 0; i < 50 && !acknowledge; ++i) await Promise.resolve();
+    assert.ok(acknowledge, 'pline_The has started');
     assert.equal(chain.where, OBJ_DELETED);
     assert.equal(state.u.utrap, 27);
     assert.equal(ball.where, OBJ_FLOOR);

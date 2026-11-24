@@ -531,8 +531,9 @@ test('gd_move waits for the cleanup disappearance message', async () => {
         message,
     });
     // wallify_vault() may finish a source-order migration on an awaited
-    // cleanup path before the disappearance pline starts.
-    for (let i = 0; i < 10
+    // cleanup path, and each awaited draw's printing form waits a turn,
+    // before the disappearance pline starts.
+    for (let i = 0; i < 50
         && !messages.some((text) => text.endsWith('disappears.'));
         ++i)
         await Promise.resolve();

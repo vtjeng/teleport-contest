@@ -15,14 +15,15 @@ import { scanDiscardedPromises } from './discarded-promises.mjs';
 import { assertExceptionCount } from './exception-count.mjs';
 import { readJsSources, scanQueuedOutputCalls, unflushedCalls } from './queued-output-calls.mjs';
 
-// The display.js reason: js/display.js is being split from the map-location
-// records by the screen-buffer work, so its own async draws (docrt(),
-// tmp_at(), swallowed(), under_water(), shieldeff(), flash_glyph_at()) wait
-// for that change to land. They are known to draw before the print: a
-// replay of the corpus with mention_map forced on still shows tmp_at()'s
-// newsym() leaving a notice queued past a core draw, which the run-time
-// check (js/rng.js) records in any recording that reaches it.
-const DISPLAY_REASON = 'js/display.js async draw; converted after the screen-buffer change lands';
+// The display.js reason: js/display.js's own async draws (docrt(),
+// tmp_at(), swallowed(), under_water(), shieldeff(), flash_glyph_at())
+// waited for the screen-buffer work, which has landed, and are not
+// converted yet. A conversion prints lines these draws now leave queued, so
+// it changes output and needs its own recordings. They are known to draw
+// before the print: a replay of the corpus with mention_map forced on still
+// shows tmp_at()'s newsym() leaving a notice queued past a core draw, which
+// the run-time check (js/rng.js) records in any recording that reaches it.
+const DISPLAY_REASON = 'js/display.js async draw; prints nothing yet, and printing changes output';
 
 // "<file> | <function> | <callee>": [count, reason].
 const ALLOWED = {

@@ -902,7 +902,7 @@ test('dokick keeps the source guard, swallowed, wake and target dispatch order',
     assert.doesNotMatch(body,/UnsupportedKickError/u);
     assert.match(body,/switch \(rn2\(3\)\)[\s\S]*case 1:[\s\S]*digests\(u\.ustuck.data\)[\s\S]*burps loudly/u);
     assert.match(body,/is_pool\(x, y, state\) \|\| maploc.typ === LAVAWALL\)\s*!== Boolean\(u.uinwater\)/u);
-    assert.match(body,/glyph !== oldGlyph && glyph_is_invisible\(glyph\)\)\s*show_glyph_cell\(x, y, map_glyphinfo\(oldGlyph, state\)\);/u,
+    assert.match(body,/glyph !== oldGlyph && glyph_is_invisible\(glyph\)\)\s*await printQueued\(show_glyph_cell\(x, y, map_glyphinfo\(oldGlyph, state\)\)\);/u,
         'an invisible-marker death away from the kicked square redraws oldglyph');
 });
 

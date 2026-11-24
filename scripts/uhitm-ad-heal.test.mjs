@@ -141,9 +141,9 @@ test('mhitm_ad_heal preserves C arm and dispatcher order', () => {
     assert.match(jsHelper,
         /make_sick\(0, null, false, SICK_ALL, state, env\)/u);
     assert.match(jsHelper,
-        /await mongone\(magr, \{ \.\.\.env, state \}\);[\s\S]*?mhm\.done = true/u);
+        /await mongone_async\(magr, \{ \.\.\.env, state \}\);[\s\S]*?mhm\.done = true/u);
     assert.match(jsHelper,
-        /await rloc\(magr, RLOC_MSG, \{ \.\.\.env, state, random \}\);[\s\S]*?await monflee/u);
+        /await rloc_async\(magr, RLOC_MSG, \{ \.\.\.env, state, random \}\);[\s\S]*?await monflee/u);
 });
 
 test('the Nurse attack is not a legal ordinary hero polymorph target', () => {

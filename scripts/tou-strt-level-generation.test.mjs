@@ -83,5 +83,5 @@ test('special room filling belongs to makelevel or post-topology direct finaliza
     assert.equal((jsMake.match(/await finishLevelGeneration\(\);/gu) ?? []).length, 7);
     assert.equal((jsMake.match(/await (?:makemaz|specialLevelApi\.finish)\([^;]*;\n\s+await finishLevelGeneration\(\);\n\s+return;/gu) ?? []).length, 6);
     const finalize = js.slice(js.indexOf('export async function lspo_finalize_level('), js.indexOf('async function finishFixupSpecial('));
-    assert.ok(finalize.indexOf('level_finalize_topology();') < finalize.indexOf('await fill_special_room(')); // sp_lev.c6055–6059: mineralize first.
+    assert.ok(finalize.indexOf('level_finalize_topology();') < finalize.indexOf('await printQueued(fill_special_room(')); // sp_lev.c6055–6059: mineralize first.
 });

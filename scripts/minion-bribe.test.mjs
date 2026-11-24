@@ -44,7 +44,7 @@ test('demon_talk preserves relocation context and C charisma argument order', ()
     assert.match(jsBody, /await tele_restrict\(mtmp, state, env\)/u);
     assert.match(
         jsBody,
-        /await rloc\(mtmp, RLOC_MSG, \{ \.\.\.env, state, random \}\)/u,
+        /await rloc_async\(mtmp, RLOC_MSG, \{ \.\.\.env, state, random \}\)/u,
     );
     assert.match(jsBody, /random\.rnd\(5 \* acurr\(state, A_CHA\)\)/u);
 });
