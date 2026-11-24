@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 33091,
+      "datetime": "20311008090000",
+      "nethackrc": "OPTIONS=name:Orsolya,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "ibTibWia-"
+    }
+  ],
+  "comment": "With !verbose, the Wizard takes off and wears her cloak and un-wields her staff from the inventory menu. invent.c ddoinv() calls dispinv_with_action(), which hands the picked item to iactions.c itemactions(), whose itemactions_pushkeys() queues the command and the item letter, and invent.c getobj() takes the letter from cmdq_pop() without a prompt."
+}

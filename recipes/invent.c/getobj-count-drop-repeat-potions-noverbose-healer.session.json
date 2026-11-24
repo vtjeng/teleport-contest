@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 21879,
+      "datetime": "20280418093000",
+      "nethackrc": "OPTIONS=name:Asclepia,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "d2d\u0001d3k\u00012s\u0001i"
+    }
+  ],
+  "comment": "With !verbose, the Healer drops 2 potions and 3 apples by count and repeats each with ^A (invent.c getobj()'s CMDQ_INT path), then searches twice with a count and repeats that."
+}

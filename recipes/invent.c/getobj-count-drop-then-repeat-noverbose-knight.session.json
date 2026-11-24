@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10768,
+      "datetime": "20300930160000",
+      "nethackrc": "OPTIONS=name:Bors,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "d5g\u0001d3h\u0001i"
+    }
+  ],
+  "comment": "With !verbose, the Knight drops 5 apples and 3 carrots with a count typed at getobj()'s prompt, repeating each with ^A: invent.c getobj() queues the count with cmdq_add_int(CQ_REPEAT) and the letter with cmdq_add_key(), and the repeat takes both from the CMDQ_INT path."
+}

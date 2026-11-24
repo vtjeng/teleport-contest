@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 32980,
+      "datetime": "20330815213000",
+      "nethackrc": "OPTIONS=name:Hal,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "i2cdi3fdi"
+    }
+  ],
+  "comment": "With !verbose, a count typed before an item letter in the inventory menu selects part of the stack, but invent.c dispinv_with_action() passes only the object to itemactions(), so \"Drop this stack\" drops all four tripe rations after a count of 3. invent.c ddoinv() calls dispinv_with_action(), which hands the picked item to iactions.c itemactions(), whose itemactions_pushkeys() queues the command and the item letter, and invent.c getobj() takes the letter from cmdq_pop() without a prompt."
+}

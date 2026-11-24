@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66324,
+      "datetime": "20271020081500",
+      "nethackrc": "OPTIONS=name:Perceval,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "idTifTigeifW"
+    }
+  ],
+  "comment": "With !verbose, the Knight takes off his helmet and gloves, eats an apple and puts the gloves back on from the inventory menu. invent.c ddoinv() calls dispinv_with_action(), which hands the picked item to iactions.c itemactions(), whose itemactions_pushkeys() queues the command and the item letter, and invent.c getobj() takes the letter from cmdq_pop() without a prompt."
+}

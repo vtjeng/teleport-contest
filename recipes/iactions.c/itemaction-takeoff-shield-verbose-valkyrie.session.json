@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 99657,
+      "datetime": "20310412110000",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "icTicWib-"
+    }
+  ],
+  "comment": "The verbose control for the !verbose item-action recipes: a dwarvish Valkyrie takes off and wears her shield and un-readies her dagger. invent.c ddoinv() calls dispinv_with_action(), which hands the picked item to iactions.c itemactions(), whose itemactions_pushkeys() queues the command and the item letter, and invent.c getobj() takes the letter from cmdq_pop() without a prompt."
+}

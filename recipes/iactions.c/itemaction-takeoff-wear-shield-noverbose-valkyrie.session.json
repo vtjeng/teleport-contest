@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 11873,
+      "datetime": "20290620100000",
+      "nethackrc": "OPTIONS=name:Sigrun,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "icTicWib-iaw\u001b"
+    }
+  ],
+  "comment": "With !verbose, the Valkyrie takes off and wears her shield and un-readies her dagger from the inventory menu; the wielded spear's menu has no wield entry, so w does nothing and escape closes it. invent.c ddoinv() calls dispinv_with_action(), which hands the picked item to iactions.c itemactions(), whose itemactions_pushkeys() queues the command and the item letter, and invent.c getobj() takes the letter from cmdq_pop() without a prompt."
+}

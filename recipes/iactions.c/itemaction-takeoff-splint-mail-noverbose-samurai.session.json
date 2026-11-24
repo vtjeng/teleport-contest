@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44102,
+      "datetime": "20280911170000",
+      "nethackrc": "OPTIONS=name:Takeda,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose,time\n",
+      "moves": "ieTibw idtl"
+    }
+  ],
+  "comment": "With !verbose, the Samurai takes off his splint mail (a multi-turn do_wear.c occupation), wields the wakizashi, which makes the katana his alternate weapon, and throws a ya by hand. invent.c ddoinv() calls dispinv_with_action(), which hands the picked item to iactions.c itemactions(), whose itemactions_pushkeys() queues the command and the item letter, and invent.c getobj() takes the letter from cmdq_pop() without a prompt."
+}

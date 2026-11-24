@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77435,
+      "datetime": "20320706140000",
+      "nethackrc": "OPTIONS=name:Indira,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "iha\u001bicTibT"
+    }
+  ],
+  "comment": "With !verbose, the Archeologist opens her sack (escaped), then takes off her fedora and leather jacket from the inventory menu. invent.c ddoinv() calls dispinv_with_action(), which hands the picked item to iactions.c itemactions(), whose itemactions_pushkeys() queues the command and the item letter, and invent.c getobj() takes the letter from cmdq_pop() without a prompt."
+}
