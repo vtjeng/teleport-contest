@@ -172,7 +172,6 @@ import {
 import {
     Adjmonnam,
     a_monnam,
-    capitalizedMonsterName,
     hcolor,
     hliquid,
     l_monnam,
@@ -3579,7 +3578,7 @@ async function hmon_hitmon_splitmon(hmd, mon, obj, state, env) {
             if (state.u.twoweap && state.flags?.verbose)
                 withwhat = ` with ${yname(obj, state)}`;
             await message(
-                `${capitalizedMonsterName(mon, state)} divides as you hit it${withwhat}!`,
+                `${Monnam(mon, state)} divides as you hit it${withwhat}!`,
                 state,
             );
             hmd.hittxt = true;
@@ -4147,7 +4146,7 @@ async function mhitm_ad_sedu(magr, mattk, mdef, mhm, state = game, env = {}) {
                     ? 'brags about the goods some dungeon explorer provided'
                     : 'makes some remarks about how difficult theft is lately';
             await message(messageAt(
-                `${capitalizedMonsterName(magr, state)} ${bragMsg}.`,
+                `${Monnam(magr, state)} ${bragMsg}.`,
                 magr.mx, magr.my, state,
             ), state);
             if (!(await tele_restrict(magr, state, { ...env, message })))

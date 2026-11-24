@@ -262,7 +262,6 @@ import { messageAt } from './startup_a11y.js';
 
 import { obj_sheds_light } from './light.js';
 import {
-    capitalizedMonsterName,
     some_mon_nam,
     Monnam,
     mon_nam,
@@ -1427,7 +1426,7 @@ export async function spitmm(mtmp, mattk, mtarg, rawEnv = {}) {
         if (!random.rn2(BOLT_LIM - distmin(mtmp.mx, mtmp.my, tx, ty))) {
             if (canseemon(mtmp, state)) {
                 await message(
-                    `${capitalizedMonsterName(mtmp, state)} spits venom!`,
+                    `${Monnam(mtmp, state)} spits venom!`,
                     state,
                     env,
                 );
@@ -1589,7 +1588,7 @@ export async function monshoot(monster, missile, launcher, rawEnv = {}) {
             })
             : '';
         const message = env.message ?? ttyPline;
-        const monsterName = capitalizedMonsterName(monster, state, {
+        const monsterName = Monnam(monster, state, {
             displayRandom: env.displayRandom,
         });
         await message(

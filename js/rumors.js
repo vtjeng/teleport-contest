@@ -8,7 +8,7 @@ import {
 } from './const.js';
 import { exercise } from './attrib.js';
 import { y_n, ynq } from './cmd.js';
-import { capitalizedMonsterName } from './do_name.js';
+import { Monnam } from './do_name.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
 import { record_achievement } from './insight.js';
@@ -304,7 +304,7 @@ export async function doconsult(oracl, state = game, env = {}) {
         await message('There is no one here to consult.', state);
         return ECMD_OK;
     } else if (!oracl.mpeaceful) {
-        await message(`${capitalizedMonsterName(oracl, state)} is in no mood for consultations.`, state);
+        await message(`${Monnam(oracl, state)} is in no mood for consultations.`, state);
         return ECMD_OK;
     } else if (!umoney) {
         await message('You have no gold.', state);

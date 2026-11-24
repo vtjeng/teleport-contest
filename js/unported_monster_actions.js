@@ -27,7 +27,7 @@ import {
     pet_ranged_attk,
 } from './dogmove.js';
 import { migrate_to_level } from './dog.js';
-import { capitalizedMonsterName } from './do_name.js';
+import { Monnam } from './do_name.js';
 import { engr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
@@ -219,7 +219,7 @@ function monsterMissileEnv(monster, env) {
         ),
         message: ttyPline,
         monsterAt: (x, y, state) => m_at(x, y, state),
-        monsterName: (subject) => capitalizedMonsterName(
+        monsterName: (subject) => Monnam(
             subject,
             env.state,
             { displayRandom: env.displayRandom },

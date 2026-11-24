@@ -43,7 +43,7 @@ import {
     W_ARMU,
     materialnm,
 } from './const.js';
-import { Monnam, monsterPossessive } from './do_name.js';
+import { Monnam, mon_nam } from './do_name.js';
 import { game } from './gstate.js';
 import { delobj, update_inventory } from './invent.js';
 import { AD_ACID, AD_FIRE } from './monsters.js';
@@ -75,7 +75,7 @@ import { ttyPline } from './tty_message.js';
 import { inventory_resistance_check } from './zap.js';
 import { which_armor } from './worn.js';
 import { cansee } from './vision.js';
-import { dist2, strncmpi } from './hacklib.js';
+import { dist2, s_suffix, strncmpi } from './hacklib.js';
 import { canseemon } from './display.js';
 import { dry_a_towel } from './weapon.js';
 import { impossible } from './pline.js';
@@ -222,10 +222,10 @@ export async function erode_obj(obj, description, type, flags, env) {
     const nameEnv = { displayRandom: env.displayRandom };
     const possessive = () => uvictim
         ? 'Your' : vismon
-            ? monsterPossessive(obj.ocarry, state, true, nameEnv) : 'The';
+            ? s_suffix(Monnam(obj.ocarry, state, nameEnv)) : 'The';
     const lowerPossessive = () => uvictim
         ? 'your' : vismon
-            ? monsterPossessive(obj.ocarry, state, false, nameEnv) : 'the';
+            ? s_suffix(mon_nam(obj.ocarry, state, nameEnv)) : 'the';
     const verbose = state.flags.verbose;
     const print = Boolean(flags & EF_VERBOSE);
 
@@ -441,7 +441,7 @@ export async function acid_damage(obj, env = {}) {
                 );
             } else if (vismon) {
                 await (env.message ?? ttyPline)(
-                `${monsterPossessive(victim, state, true)} ${msg}.`, state,
+                `${s_suffix(Monnam(victim, state))} ${msg}.`, state,
                 );
             }
         }

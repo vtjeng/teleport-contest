@@ -110,7 +110,7 @@ import {
 } from './display.js';
 import { cursed } from './do_wear.js';
 import {
-    capitalizedMonsterName,
+    Monnam,
     mon_nam,
     noveltitle,
     pmname,
@@ -708,7 +708,7 @@ export async function growl(mtmp, state = game, random = coreRandom) {
     if (growl_verb) {
         if (canseemon(mtmp, state) || !Deaf(state.u)) {
             await ttyPline(
-                `${capitalizedMonsterName(mtmp, state)} `
+                `${Monnam(mtmp, state)} `
                 + `${vtense(null, growl_verb)}!`,
                 state,
             );
@@ -768,7 +768,7 @@ export async function yelp(mtmp, state = game, random = coreRandom) {
     }
     if (yelp_verb) {
         await ttyPline(
-            `${capitalizedMonsterName(mtmp, state)} `
+            `${Monnam(mtmp, state)} `
             + `${vtense(null, yelp_verb)}!`,
             state,
         );
@@ -807,7 +807,7 @@ export async function whimper(mtmp, rawEnv = {}) {
     if (whimper_verb) {
         // Soundeffect() is a no-op with the recorder's nosound backend.
         await message(
-            `${capitalizedMonsterName(mtmp, state)} `
+            `${Monnam(mtmp, state)} `
             + `${vtense(null, whimper_verb)}.`,
             state,
         );
@@ -847,7 +847,7 @@ export async function beg(mtmp, rawEnv = {}) {
         }
     } else if (spotMonster(mtmp, state)) {
         await message(
-            `${capitalizedMonsterName(mtmp, state)} seems famished.`,
+            `${Monnam(mtmp, state)} seems famished.`,
             state,
         );
     }
@@ -1055,7 +1055,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
         if (state.flags?.moonphase === FULL_MOON
             && (night(state) ^ !random.rn2(13))) {
             await message(
-                `${capitalizedMonsterName(mtmp, state, rawEnv)} throws back ${mhis(mtmp, { state, random, canSpotMonster: spotMonster })} head `
+                `${Monnam(mtmp, state, rawEnv)} throws back ${mhis(mtmp, { state, random, canSpotMonster: spotMonster })} head `
                 + `and lets out a blood curdling ${ptr === state.mons?.[PM_HUMAN_WERERAT]
                     ? 'shriek' : 'howl'}!`, state,
             );
@@ -1158,7 +1158,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
         plineMsg = 'imitates you.';
         break;
     case MS_BONES:
-        await message(`${capitalizedMonsterName(mtmp, state, rawEnv)} rattles noisily.`, state);
+        await message(`${Monnam(mtmp, state, rawEnv)} rattles noisily.`, state);
         await message('You freeze for a moment.', state);
         nomul(-2, state);
         state.multi_reason = 'scared by rattling';
@@ -1188,7 +1188,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
             switch (random.rn2(4)) {
             case 0:
                 await message(
-                    `${capitalizedMonsterName(mtmp, state, rawEnv)} boasts about ${mhis(mtmp, { state, random, canSpotMonster: spotMonster })} gem collection.`,
+                    `${Monnam(mtmp, state, rawEnv)} boasts about ${mhis(mtmp, { state, random, canSpotMonster: spotMonster })} gem collection.`,
                     state,
                 );
                 break;
@@ -1368,7 +1368,7 @@ export async function domonnoise(mtmp, state = game, rawEnv = {}) {
     }
 
     if (plineMsg) {
-        await message(`${capitalizedMonsterName(mtmp, state, rawEnv)} ${plineMsg}`, state);
+        await message(`${Monnam(mtmp, state, rawEnv)} ${plineMsg}`, state);
     } else if (mtmp.mcan && verbalMsgMcan) {
         set_voice(mtmp, 0, 80, 0, state);
         state.gp.pline_flags |= PLINE_VERBALIZE;
@@ -1458,7 +1458,7 @@ async function dochat(state) {
     if (u.usteed && u.dz > 0) {
         if (helpless(u.usteed)) {
             await ttyPline(
-                `${capitalizedMonsterName(u.usteed, state)} seems not to notice you.`,
+                `${Monnam(u.usteed, state)} seems not to notice you.`,
                 state,
             );
             return ECMD_TIME;
@@ -1539,7 +1539,7 @@ async function dochat(state) {
     if (helpless(mtmp) && !mtmp.ispriest) {
         if (canspotmon(mtmp, state)) {
             await ttyPline(
-                `${capitalizedMonsterName(mtmp, state)} seems not to notice you.`,
+                `${Monnam(mtmp, state)} seems not to notice you.`,
                 state,
             );
         }
@@ -1553,7 +1553,7 @@ async function dochat(state) {
         if (!canspotmon(mtmp, state))
             map_invisible(mtmp.mx, mtmp.my, state);
         await ttyPline(
-            `${capitalizedMonsterName(mtmp, state)} is eating noisily.`,
+            `${Monnam(mtmp, state)} is eating noisily.`,
             state,
         );
         return ECMD_OK;
@@ -1635,7 +1635,7 @@ export async function tiphat(state = game, rawEnv = {}) {
         if (u.usteed && u.dz > 0) {
             if (helpless(u.usteed)) {
                 await message(
-                    `${capitalizedMonsterName(u.usteed, state)} doesn't notice.`,
+                    `${Monnam(u.usteed, state)} doesn't notice.`,
                     state,
                 );
             } else {
@@ -1696,7 +1696,7 @@ export async function tiphat(state = game, rawEnv = {}) {
     } else if (!mtmp || !responsive_mon_at(x, y, state)) {
         if (vismon) {
             await message(
-                `${capitalizedMonsterName(mtmp, state)} seems not to notice you.`,
+                `${Monnam(mtmp, state)} seems not to notice you.`,
                 state,
             );
         } else {
@@ -1710,7 +1710,7 @@ export async function tiphat(state = game, rawEnv = {}) {
             const wornHelmet = which_armor(mtmp, W_ARMH, state);
             if (!wornHelmet) {
                 await message(
-                    `${capitalizedMonsterName(mtmp, state)} waves.`,
+                    `${Monnam(mtmp, state)} waves.`,
                     state,
                 );
             } else {
@@ -1721,7 +1721,7 @@ export async function tiphat(state = game, rawEnv = {}) {
                 });
                 if (wornHelmet.cursed) {
                     await message(
-                        `${capitalizedMonsterName(mtmp, state)} grasps `
+                        `${Monnam(mtmp, state)} grasps `
                         + `${possessive} ${helm_simple_name(wornHelmet, state)} `
                         + "but can't remove it.",
                         state,
@@ -1729,7 +1729,7 @@ export async function tiphat(state = game, rawEnv = {}) {
                     wornHelmet.bknown = true;
                 } else {
                     await message(
-                        `${capitalizedMonsterName(mtmp, state)} tips `
+                        `${Monnam(mtmp, state)} tips `
                         + `${possessive} ${helm_simple_name(wornHelmet, state)} `
                         + 'in response.',
                         state,
@@ -1743,7 +1743,7 @@ export async function tiphat(state = game, rawEnv = {}) {
             const twice = (deaf || which > 0 || random.rn2(3))
                 ? 0 : random.rn1(2, 1);
             await message(
-                `${capitalizedMonsterName(mtmp, state)} ${reactions[which]}`
+                `${Monnam(mtmp, state)} ${reactions[which]}`
                 + `${twice ? ` and ${reactions[twice]}` : ''} at you...`,
                 state,
             );
@@ -1752,7 +1752,7 @@ export async function tiphat(state = game, rawEnv = {}) {
             if (!vismon) map_invisible(x, y, state);
         } else if (vismon) {
             await message(
-                `${capitalizedMonsterName(mtmp, state)} doesn't respond.`,
+                `${Monnam(mtmp, state)} doesn't respond.`,
                 state,
             );
         } else {

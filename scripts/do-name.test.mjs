@@ -3,7 +3,7 @@ import test from 'node:test';
 import { readdirSync, readFileSync } from 'node:fs';
 
 import { LAST_PROP } from '../js/const.js';
-import { bytesText, encodeUtf8Text } from '../js/hacklib.js';
+import { bytesText, encodeUtf8Text, s_suffix } from '../js/hacklib.js';
 import {
     Amonnam,
     Adjmonnam,
@@ -11,8 +11,6 @@ import {
     alreadynamed,
     bogon_is_pname,
     bogusmon,
-    capitalizedAlwaysVisibleMonsterName,
-    capitalizedMonsterName,
     christen_orc,
     christen_monst,
     free_mgivenname,
@@ -26,7 +24,6 @@ import {
     mon_nam_too,
     m_monnam,
     mon_pmname,
-    monsterPossessive,
     new_mgivenname,
     new_oname,
     nextmbuf,
@@ -158,17 +155,13 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         };
 
         assert.equal(mon_nam(monster, state), 'the saddled pony');
-        assert.equal(
-            capitalizedMonsterName(monster, state),
-            'The saddled pony',
-        );
         assert.equal(Monnam(monster, state), 'The saddled pony');
         assert.equal(
-            capitalizedAlwaysVisibleMonsterName(monster, state),
+            noit_Monnam(monster, state),
             'Your saddled pony',
         );
         assert.equal(
-            monsterPossessive(monster, state, true),
+            s_suffix(Monnam(monster, state)),
             "The saddled pony's",
         );
 
@@ -179,7 +172,7 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         };
         assert.equal(mon_nam(monster, state), 'the pony');
         monster.mextra.mgivenname = 'Horses';
-        assert.equal(monsterPossessive(monster, state), "Horses'");
+        assert.equal(s_suffix(mon_nam(monster, state)), "Horses'");
 
         // do_name.c x_monnam():863-865 and 876-885. A hero who cannot spot the
         // monster gets "it", ahead of the given name, the article and the
@@ -187,14 +180,14 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         // wrapper that keeps its name, because it passes SUPPRESS_IT.
         state.u.uprops[DETECT_MONSTERS].intrinsic = 0;
         assert.equal(mon_nam(monster, state), 'it');
-        assert.equal(capitalizedMonsterName(monster, state), 'It');
+        assert.equal(Monnam(monster, state), 'It');
         assert.equal(
-            capitalizedAlwaysVisibleMonsterName(monster, state),
+            noit_Monnam(monster, state),
             'Horses',
         );
         delete monster.mextra.mgivenname;
         assert.equal(
-            capitalizedAlwaysVisibleMonsterName(monster, state),
+            noit_Monnam(monster, state),
             'Your pony',
         );
 
@@ -252,7 +245,7 @@ test('mon_nam uses a shopkeeper\'s stored name', () => {
         'Akranes',
     );
     assert.equal(
-        capitalizedMonsterName(shopkeeper, state, {
+        Monnam(shopkeeper, state, {
             canSpotMonster: () => true,
         }),
         'Akranes',
@@ -1456,4 +1449,68 @@ test('four callers name the monster with the function C calls', () => {
     const wildmiss = portedFunctionBody('mhitu.js', 'wildmiss');
     assert.match(wildmiss,
         /\$\{Some_Monnam\(mtmp, state, rawEnv\)\} attacks you /u);
+});
+
+// do_name.c defines each naming function once. The port held second copies
+// under names of its own: one of Monnam(), one of noit_mon_nam(), one of
+// noit_Monnam(), and a helper that chose between s_suffix(Monnam()) and
+// s_suffix(mon_nam()) by a flag. A caller could not be compared with its C
+// statement by name, and 8 of the 189 callers of the first three had drifted
+// to a function C does not call there. The three checks below keep a copy
+// from returning.
+test('js/ has no second port of a do_name.c naming function', () => {
+    const files = readdirSync('js').filter((file) => file.endsWith('.js'));
+    const sources = new Map(files.map(
+        (file) => [file, readFileSync(`js/${file}`, 'utf8')],
+    ));
+
+    // Assembled so that this file does not hold the names it searches for.
+    const deleted = [
+        ['capitalized', 'Monster', 'Name'],
+        ['always', 'Visible', 'Monster', 'Name'],
+        ['capitalized', 'Always', 'Visible', 'Monster', 'Name'],
+        ['monster', 'Possessive'],
+    ].map((parts) => parts.join(''));
+    for (const name of deleted) {
+        assert.deepEqual(
+            files.filter((file) => sources.get(file).includes(name)), [], name,
+        );
+    }
+
+    // A function js/do_name.js exports carries the name of a function
+    // do_name.c defines. A C definition starts in column one with its name
+    // and an opening parenthesis.
+    const cNames = new Set([...readFileSync(
+        'nethack-c/upstream/src/do_name.c', 'utf8',
+    ).matchAll(/^([A-Za-z_][A-Za-z0-9_]*)\(/gmu)].map((match) => match[1]));
+    // do_name.c defines 55 functions; a different count means this pattern
+    // no longer reads the file.
+    assert.equal(cNames.size, 55);
+    const exported = [...sources.get('do_name.js').matchAll(
+        /^export (?:async )?function\*? ([A-Za-z_$][A-Za-z0-9_$]*)/gmu,
+    )].map((match) => match[1]);
+    // One exception: rndmonnamDetails() is rndmonnam() (do_name.c 1388-1408)
+    // returning the species index and gender it drew beside the name.
+    assert.deepEqual(
+        exported.filter((name) => !cNames.has(name)), ['rndmonnamDetails'],
+    );
+
+    // No function elsewhere in js/ is only a call of one of the monster
+    // naming functions, with or without its first letter raised.
+    const naming = 'x_monnam|l_monnam|mon_nam|noit_mon_nam|some_mon_nam|Monnam'
+        + '|noit_Monnam|Some_Monnam|noname_monnam|m_monnam|y_monnam|YMonnam'
+        + '|Adjmonnam|a_monnam|Amonnam|distant_monnam|mon_nam_too';
+    const wrapper = new RegExp(
+        '(?:function\\*? ([A-Za-z_$][A-Za-z0-9_$]*)\\([^)]*\\) \\{'
+        + '|(?:const|let) ([A-Za-z_$][A-Za-z0-9_$]*) = (?:async )?\\([^)]*\\) =>(?: \\{)?)'
+        + `\\s*(?:return )?(?:upstart\\(|s_suffix\\()*(?:${naming})\\(`,
+        'gu',
+    );
+    const wrappers = [];
+    for (const [file, source] of sources) {
+        if (file === 'do_name.js') continue;
+        for (const match of source.matchAll(wrapper))
+            wrappers.push(`${file} ${match[1] ?? match[2]}`);
+    }
+    assert.deepEqual(wrappers, []);
 });

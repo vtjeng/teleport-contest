@@ -147,7 +147,6 @@ import { doup, goto_level, heal_legs, trycall } from './do.js';
 import {
     Amonnam,
     Monnam,
-    capitalizedMonsterName,
     docall,
     hcolor,
     hliquid,
@@ -441,7 +440,7 @@ export async function djinni_from_bottle(obj, state = game, env = {}) {
                 indefinite.slice(1)} emerges!`,
             state,
         );
-        await message(`${capitalizedMonsterName(monster, state)} speaks.`, state);
+        await message(`${Monnam(monster, state)} speaks.`, state);
     } else {
         await message('You smell acrid fumes.', state);
         await message('Something speaks.', state);
@@ -476,7 +475,7 @@ export async function djinni_from_bottle(obj, state = game, env = {}) {
         await message('"It is about time!"', state);
         if (canspotmon(monster, state)) {
             await message(
-                `${capitalizedMonsterName(monster, state)} vanishes.`,
+                `${Monnam(monster, state)} vanishes.`,
                 state,
             );
         }

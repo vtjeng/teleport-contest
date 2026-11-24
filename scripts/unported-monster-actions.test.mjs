@@ -3301,7 +3301,7 @@ test('monster missile caller adapters preserve hallucinated display RNG', () => 
     const monshootJsEnd = mthrowuJs.indexOf('\nexport ', monshootJsStart + 1);
     assert.ok(monshootJsStart >= 0 && monshootJsEnd > monshootJsStart);
     assert.match(mthrowuJs.slice(monshootJsStart, monshootJsEnd),
-        /capitalizedMonsterName\(monster, state, \{\s*displayRandom: env\.displayRandom,/u);
+        /Monnam\(monster, state, \{\s*displayRandom: env\.displayRandom,/u);
 
     const mhituJs = readFileSync(new URL('../js/mhitu.js', import.meta.url), 'utf8');
     const potionAdapterStart = mhituJs.indexOf(
@@ -3311,7 +3311,7 @@ test('monster missile caller adapters preserve hallucinated display RNG', () => 
     assert.ok(potionAdapterStart >= 0 && potionAdapterEnd > potionAdapterStart);
     const potionAdapter = mhituJs.slice(potionAdapterStart, potionAdapterEnd);
     assert.match(potionAdapter,
-        /capitalizedMonsterName\(mtmp, state, \{\s*displayRandom: env\.displayRandom,/u);
+        /Monnam\(mtmp, state, \{\s*displayRandom: env\.displayRandom,/u);
     assert.match(potionAdapter, /throwMissile: m_throw,/u);
 
     const petAdapterStart = SIMPLE_ACTIONS_JS_SOURCE.indexOf(

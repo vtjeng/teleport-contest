@@ -162,7 +162,6 @@ import {
 } from './dungeon.js';
 import {
     Amonnam,
-    capitalizedMonsterName,
     mon_nam,
     x_monnam,
     Monnam,
@@ -530,7 +529,7 @@ export async function mu_maybe_destroy_web(monster, domsg, trap, env) {
                     + ` ${article} spider web!`, state, env);
             } else {
                 await message(messageAt(
-                    `${capitalizedMonsterName(monster, state)}`
+                    `${Monnam(monster, state)}`
                     + ` ${flaming(species) ? 'burns' : 'dissolves'}`
                     + ` ${article} spider web!`,
                     monster.mx, monster.my, state,
@@ -546,7 +545,7 @@ export async function mu_maybe_destroy_web(monster, domsg, trap, env) {
             await message(`You flow through ${article} spider web.`, state, env);
         } else {
             await message(messageAt(
-                `${capitalizedMonsterName(monster, state)}`
+                `${Monnam(monster, state)}`
                 + ` flows through ${article} spider web.`,
                 monster.mx, monster.my, state,
             ), state, env);
@@ -630,7 +629,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
         } else if (!mindless(monster.data)) {
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(monster, state)} stops`
+                    `${Monnam(monster, state)} stops`
                     + ' momentarily and appears to cringe.',
                     monster.mx,
                     monster.my,
@@ -740,7 +739,7 @@ async function trapeffect_arrow_trap(mtmp, trap, _trflags, env) {
         if (inSight && seeIt) {
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(mtmp, state)}`
+                    `${Monnam(mtmp, state)}`
                     + ' triggers a trap but nothing happens.',
                     mtmp.mx,
                     mtmp.my,
@@ -796,7 +795,7 @@ export async function thitm(tlev, mon, obj, d_override, nocorpse, env) {
             // floor.
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(mon, state)} is almost hit by`
+                    `${Monnam(mon, state)} is almost hit by`
                     + ` ${donameFresh(obj, state)}!`,
                     mon.mx,
                     mon.my,
@@ -819,7 +818,7 @@ export async function thitm(tlev, mon, obj, d_override, nocorpse, env) {
             // miss arm above.
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(mon, state)} is hit by`
+                    `${Monnam(mon, state)} is hit by`
                     + ` ${donameFresh(obj, state)}`
                     + `${harmless ? ' but is not harmed.' : '!'}`,
                     mon.mx,
@@ -963,7 +962,7 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
         if (inSight && see_it) {
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(mtmp, state)} triggers a trap`
+                    `${Monnam(mtmp, state)} triggers a trap`
                     + ' but nothing happens.',
                     mtmp.mx,
                     mtmp.my,
@@ -1171,7 +1170,7 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
             if (in_sight) {
                 await message(
                     messageAt(
-                        `${capitalizedMonsterName(mtmp, state)} is caught in`
+                        `${Monnam(mtmp, state)} is caught in`
                         + ` ${a_your[trap.madeby_u ? 1 : 0]} bear trap!`,
                         mtmp.mx,
                         mtmp.my,
@@ -1193,7 +1192,7 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
             if (in_sight) {
                 await message(
                     messageAt(
-                        `${capitalizedMonsterName(mtmp, state)} evades`
+                        `${Monnam(mtmp, state)} evades`
                         + ` ${a_your[trap.madeby_u ? 1 : 0]} bear trap!`,
                         mtmp.mx,
                         mtmp.my,
@@ -1318,7 +1317,7 @@ async function trapeffect_slp_gas_trap(mtmp, trap, _trflags, env) {
             && in_sight) {
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(mtmp, state)}`
+                    `${Monnam(mtmp, state)}`
                     + ' suddenly falls asleep!',
                     mtmp.mx,
                     mtmp.my,
@@ -1406,7 +1405,7 @@ async function steedintrap(trap, otmp, env) {
             && !breathless(steed.data) && !helpless(steed)
             && await sleep_monst(steed, random.rnd(25), -1, env)) {
             await message(
-                `${capitalizedMonsterName(steed, state, env)} suddenly falls asleep!`,
+                `${Monnam(steed, state, env)} suddenly falls asleep!`,
                 state,
                 env,
             );
@@ -1644,7 +1643,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
                 seetrap(trap, env);
                 await message(
                     messageAt(
-                        `${capitalizedMonsterName(mtmp, state, env)} doesn't fall`
+                        `${Monnam(mtmp, state, env)} doesn't fall`
                         + ' into the pit.',
                         mtmp.mx,
                         mtmp.my,
@@ -1667,7 +1666,7 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
     if (in_sight) {
         await message(
             messageAt(
-                `${capitalizedMonsterName(mtmp, state, env)} ${fallverb} into`
+                `${Monnam(mtmp, state, env)} ${fallverb} into`
                 + ` ${a_your[trap.madeby_u ? 1 : 0]} pit!`,
                 mtmp.mx,
                 mtmp.my,
@@ -1947,7 +1946,7 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
                         tt === TRAPDOOR
                             ? `A trap door opens, but ${mon_nam(mtmp, state)}`
                                 + " doesn't fall through."
-                            : `${capitalizedMonsterName(mtmp, state)}`
+                            : `${Monnam(mtmp, state)}`
                                 + " doesn't fall through the hole.",
                         mtmp.mx,
                         mtmp.my,
@@ -1963,7 +1962,7 @@ async function trapeffect_hole(mtmp, trap, trflags, env) {
             if (inSight) {
                 await (env.message ?? ttyPline)(
                     messageAt(
-                        `${capitalizedMonsterName(mtmp, state)}`
+                        `${Monnam(mtmp, state)}`
                             + ' seems to be yanked down!',
                         mtmp.mx,
                         mtmp.my,
@@ -2224,7 +2223,7 @@ async function trapeffect_fire_trap(mtmp, trap, _trflags, env) {
             await shieldeff(mtmp.mx, mtmp.my, state);
             // C prints this with plain pline().
             await message(
-                `${capitalizedMonsterName(mtmp, state, env)} is uninjured.`,
+                `${Monnam(mtmp, state, env)} is uninjured.`,
                 state,
                 env,
             );
@@ -2447,7 +2446,7 @@ async function trapeffect_anti_magic(mtmp, trap, _trflags, env) {
                 seetrap(trap, env);
                 await message(
                     messageAt(
-                        `${capitalizedMonsterName(mtmp, state)} seems lethargic.`,
+                        `${Monnam(mtmp, state)} seems lethargic.`,
                         mtmp.mx,
                         mtmp.my,
                         state,
@@ -2663,7 +2662,7 @@ export async function launch_obj(otyp, x1, y1, x2, y2, style, state, rawEnv = {}
                     if (cansee(x, y, state))
                         await message(
                             messageAt(
-                                `${capitalizedMonsterName(mtmp, state)}`
+                                `${Monnam(mtmp, state)}`
                                     + ' snatches the boulder.',
                                 x,
                                 y,
@@ -2977,7 +2976,7 @@ async function trapeffect_rolling_boulder_trap(monster, trap, _trflags, env) {
                 await message(
                     messageAt(
                         `${!Deaf(state.u) ? 'Click!  ' : ''}`
-                            + `${capitalizedMonsterName(monster, state)}`
+                            + `${Monnam(monster, state)}`
                             + ` triggers ${trap.tseen
                                 ? 'a rolling boulder trap' : 'something'}.`,
                         monster.mx,
@@ -3202,7 +3201,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
             tearWeb = true;
         } else if (inSight) {
             await message(messageAt(
-                `${capitalizedMonsterName(monster, state)}`
+                `${Monnam(monster, state)}`
                 + ` is caught in ${article} spider web.`,
                 monster.mx, monster.my, state,
             ), state, env);
@@ -3228,7 +3227,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
     if (tearWeb) {
         if (inSight)
             await message(messageAt(
-                `${capitalizedMonsterName(monster, state)}`
+                `${Monnam(monster, state)}`
                 + ` tears through ${article} spider web!`,
                 monster.mx, monster.my, state,
             ), state, env);
@@ -3237,7 +3236,7 @@ export async function trapeffect_web(monster, trap, trflags, env) {
     } else if (forcetrap && !monster.mtrapped) {
         if (inSight) {
             await message(messageAt(
-                `${capitalizedMonsterName(monster, state)}`
+                `${Monnam(monster, state)}`
                 + ` avoids ${article} spider web!`,
                 monster.mx, monster.my, state,
             ), state, env);
@@ -3437,7 +3436,7 @@ export async function trapeffect_rust_trap(mtmp, trap, _trflags, env) {
     if (completelyrusts(mptr)) {
         if (inSight)
             await message(messageAt(
-                `${capitalizedMonsterName(mtmp, state)} ${rustTrapMonsterLifesaver(mtmp, state)
+                `${Monnam(mtmp, state)} ${rustTrapMonsterLifesaver(mtmp, state)
                     ? 'starts to fall' : 'falls'} to pieces!`,
                 mtmp.mx,
                 mtmp.my,
@@ -3736,7 +3735,7 @@ export async function trapeffect_landmine(mtmp, trap, trflags, rawEnv = {}) {
         await message(
             messageAt(
                 `${Deaf(state.u) ? '' : 'KAABLAMM!!!  '}`
-                    + `${capitalizedMonsterName(mtmp, state, env)} triggers`
+                    + `${Monnam(mtmp, state, env)} triggers`
                     + ` ${a_your[Number(Boolean(trap.madeby_u))]} land mine!`,
                 mtmp.mx,
                 mtmp.my,
@@ -4027,7 +4026,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
                     if (canseemon(monster, state)) {
                         await message(
                             messageAt(
-                                `${capitalizedMonsterName(monster, state)}`
+                                `${Monnam(monster, state)}`
                                     + ' pulls free...',
                                 monster.mx,
                                 monster.my,
@@ -4045,11 +4044,11 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
                 if (canseemon(monster, state)) {
                     let text = null;
                     if (is_pit(tt)) {
-                        text = `${capitalizedMonsterName(monster, state)}`
+                        text = `${Monnam(monster, state)}`
                             + ` climbs ${m_easy_escape_pit(monster, state)
                                 ? 'easily ' : ''}out of the pit.`;
                     } else if (tt === BEAR_TRAP || tt === WEB) {
-                        text = `${capitalizedMonsterName(monster, state)}`
+                        text = `${Monnam(monster, state)}`
                             + ` pulls free of the ${trapname(tt, false, state, random)}.`;
                     }
                     if (text !== null) {
@@ -4067,7 +4066,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
                 if (canseemon(monster, state)) {
                     await message(
                         messageAt(
-                            `${capitalizedMonsterName(monster, state)}`
+                            `${Monnam(monster, state)}`
                                 + ' eats a bear trap!',
                             monster.mx,
                             monster.my,
@@ -4084,7 +4083,7 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
                 if (canseemon(monster, state)) {
                     await message(
                         messageAt(
-                            `${capitalizedMonsterName(monster, state)}`
+                            `${Monnam(monster, state)}`
                                 + ' munches on some spikes!',
                             monster.mx,
                             monster.my,
