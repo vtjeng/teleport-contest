@@ -992,6 +992,7 @@ export async function runSegment(input, options = {}) {
     nhGame.argumentMisuses = recordedArgumentMisuses();
     if (nhGame.argumentMisuses.length)
         argumentMisuseReporter?.(nhGame.argumentMisuses);
+    rngSlicesReporter?.(nhGame.getRngSlices());
     return nhGame;
 }
 
@@ -1038,6 +1039,14 @@ export function setTerminationViolationReporter(reporter) {
 let argumentMisuseReporter = null;
 export function setArgumentMisuseReporter(reporter) {
     argumentMisuseReporter = reporter;
+}
+
+// The same, for the random-number calls of each input step: one call per
+// segment, crashed or not, with getRngSlices(). scripts/rng-step-compare.mjs
+// compares them with the recording's steps. The judge never registers one.
+let rngSlicesReporter = null;
+export function setRngSlicesReporter(reporter) {
+    rngSlicesReporter = reporter;
 }
 
 function createSegmentGame(input, { traceThemeroomSelections = false } = {}) {

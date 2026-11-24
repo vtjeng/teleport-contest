@@ -4,13 +4,15 @@
 // many matched. A recording is a recipe under recipes/ recorded with the
 // patched C program; AGENTS.md, "Validate completed work", states when one
 // is committed. `npm run checkpoint` runs this beside the development score
-// and fails when any recording stops matching.
+// and fails when any recording stops matching, or draws its random numbers
+// in another input step than C did (scripts/rng-step-compare.mjs).
 
 import { cpSync, existsSync, mkdtempSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { localTmpdir } from './local-tmpdir.mjs';
+import { LAGGING_RECORDINGS, combineSegments } from './rng-step-compare.mjs';
 import {
     PROJECT_ROOT,
     createScoringWorkspace,
@@ -62,21 +64,50 @@ export function flatName(relativePath) {
     return relativePath.split(/[\\/]/u).join('__');
 }
 
+// LAGGING_RECORDINGS under the names the scoring workspace gives them.
+const PINNED_LAGGING = new Set([...LAGGING_RECORDINGS.keys()].map(flatName));
+
+/**
+ * What is wrong with a result's per-step RNG comparison (`rngSteps`, which
+ * scripts/scoring-workspace.mjs runScorer() attaches), or null. A recording
+ * must be in step unless `pinned` holds it, and a pinned one must lag, so
+ * the list cannot keep an entry that a fix has made stale. A recording with
+ * no comparison fails: the check never passes by not running.
+ */
+export function rngStepProblem(result, pinned = PINNED_LAGGING) {
+    const segments = result.rngSteps ?? [];
+    const error = segments.find(segment => segment.error);
+    if (error) return `per-step RNG comparison failed: ${error.error}`;
+    const { steps, differing, first } = combineSegments(segments);
+    if (!steps) return 'per-step RNG comparison did not run';
+    const isPinned = pinned.has(result.session);
+    if (differing && !isPinned) {
+        return `${differing} of ${steps} steps draw other RNG calls than C, first at segment `
+            + `${first.segment} step ${first.step} (recorded ${first.recorded}, port ${first.port})`;
+    }
+    if (!differing && isPinned)
+        return 'in step now: remove it from LAGGING_RECORDINGS in scripts/rng-step-compare.mjs';
+    return null;
+}
+
 /**
  * Totals over a runner bundle, and the recordings that did not match. A
  * recording whose replay recorded a termination violation (scripts/
  * scoring-workspace.mjs runScorer() attaches them) fails even when the
  * judge's comparison passed: something ran after the game ended. So does one
  * that gave a js/youprop.js macro the wrong argument, which the judge's
- * runSegment() records instead of throwing (js/gstate.js).
+ * runSegment() records instead of throwing (js/gstate.js), and one that
+ * rngStepProblem() faults; `outOfStep` holds those with the fault.
  */
-export function summarizeRecordings(bundle) {
+export function summarizeRecordings(bundle, pinned = PINNED_LAGGING) {
     const totals = { recordings: 0, passing: 0, screens: 0, screensTotal: 0,
-        rng: 0, rngTotal: 0, failing: [] };
+        rng: 0, rngTotal: 0, failing: [], outOfStep: [] };
     for (const result of bundle.results) {
         totals.recordings += 1;
+        const problem = rngStepProblem(result, pinned);
+        if (problem) totals.outOfStep.push({ session: result.session, problem });
         if (result.passed && !result.terminationViolations?.length
-            && !result.argumentMisuses?.length) totals.passing += 1;
+            && !result.argumentMisuses?.length && !problem) totals.passing += 1;
         else totals.failing.push(result.session);
         const screens = result.metrics?.screens ?? {};
         const rng = result.metrics?.rngCalls ?? {};
@@ -131,6 +162,8 @@ async function main(args) {
         }
         const totals = summarizeRecordings(parseRunnerBundle(child.stdout));
         for (const name of totals.failing) console.log(`  FAIL: ${name}`);
+        for (const { session, problem } of totals.outOfStep)
+            console.log(`  STEP: ${session} (${problem})`);
         console.log(formatSummary(totals));
         if (totals.failing.length > 0) process.exitCode = 1;
     } finally {

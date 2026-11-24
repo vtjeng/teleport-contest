@@ -30,7 +30,7 @@ test('runner speed fits startup plus a per-move cost like the frozen runner', ()
     assert.equal(runnerSpeed([{ time: { ms: 5, moves: 1 } }]).label, '?');
 });
 
-test('runScorer() names a crash, a termination violation and an argument misuse the judge entry point reported', (t) => {
+test('runScorer() names a crash, a termination violation and an argument misuse the judge entry point reported, and attaches the per-step RNG comparison', (t) => {
     // A stand-in workspace: its runner starts one worker per session, as
     // frozen/ps_test_runner.mjs does, and its runSegment() reports a crash for
     // crash.session.json only and a termination violation for
@@ -46,10 +46,13 @@ test('runScorer() names a crash, a termination violation and an argument misuse 
         'js/jsmain.js': `let reporter = null;
 let violationReporter = null;
 let misuseReporter = null;
+let slicesReporter = null;
 export function setSegmentErrorReporter(next) { reporter = next; }
 export function setTerminationViolationReporter(next) { violationReporter = next; }
 export function setArgumentMisuseReporter(next) { misuseReporter = next; }
+export function setRngSlicesReporter(next) { slicesReporter = next; }
 export function runSegment(file) {
+    slicesReporter?.(file.endsWith('clean.session.json') ? [['rn2(2)=1']] : [['rn2(2)=0']]);
     if (file.endsWith('misusing.session.json'))
         misuseReporter?.([{ kind: 'youpropArgument', detail: 'read game.u in u_at', count: 3 }]);
     if (file.endsWith('crash.session.json'))
@@ -76,10 +79,12 @@ if (worker) {
     console.log(JSON.stringify({ results }));
 }
 `,
-        'sessions/crash.session.json': '{}',
-        'sessions/clean.session.json': '{}',
-        'sessions/stray.session.json': '{}',
-        'sessions/misusing.session.json': '{}',
+        // The preload reads the recorded steps through the workspace's own
+        // loader; every session records one step that draws rn2(2)=1.
+        'frozen/session_loader.mjs': 'export function normalizeSession(data) { return data; }\n',
+        ...Object.fromEntries(['crash', 'clean', 'stray', 'misusing'].map(name =>
+            [`sessions/${name}.session.json`, JSON.stringify({ segments: [
+                { steps: [{ rng: ['rn2(2)=1 @ f(x.c:1)'], screen: 'x' }] }] })])),
     };
     for (const [path, body] of Object.entries(files)) {
         mkdirSync(dirname(join(root, path)), { recursive: true });
@@ -96,6 +101,15 @@ if (worker) {
             [{ kind: 'youpropArgument', detail: 'read game.u in u_at', count: 3 }]],
         ['stray.session.json', null, undefined,
             [{ kind: 'rng', detail: 'rn2(3)=0' }, { kind: 'nhgetch', detail: 'late read' }], undefined],
+    ]);
+    // Every session gets its per-step RNG comparison, in step or not: the
+    // stand-in draws the recorded rn2(2)=1 for clean.session.json only.
+    const differs = { step: 0, recorded: 1, port: 1 };
+    assert.deepEqual(results.map(r => r.rngSteps), [
+        [{ segment: 0, steps: 1, differing: 0, first: null }],
+        [{ segment: 0, steps: 1, differing: 1, first: differs }],
+        [{ segment: 0, steps: 1, differing: 1, first: differs }],
+        [{ segment: 0, steps: 1, differing: 1, first: differs }],
     ]);
     assert.match(child.stderr, /^ {2}CRASH: crash\.session\.json \(TypeError: stand-in crash\)$/mu);
     assert.match(child.stderr,

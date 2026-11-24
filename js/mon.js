@@ -4371,8 +4371,10 @@ function killRedraw(x, y, env) {
 }
 
 // killRedraw() for a caller that can wait: display.c newsym() can reach
-// wall_angle()'s impossible() for a seen wall, which then prints at C's
-// point (js/display.js newsym_async()). The result is a promise only then.
+// wall_angle()'s impossible() for a seen wall, and show_glyph() can print
+// a mention_map notice; both then print at C's point, before the caller's
+// next random-number call (js/display.js newsym_async()). The result is a
+// promise only then.
 function killRedrawAsync(x, y, env) {
     if (typeof env.hooks?.newsym === 'function') return killRedraw(x, y, env);
     const state = env.state ?? game;

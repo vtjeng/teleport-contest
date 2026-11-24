@@ -28,7 +28,7 @@ import {
     W_TOOL,
     W_WEAPONS,
 } from './const.js';
-import { newsym } from './display.js';
+import { newsym, newsym_async } from './display.js';
 import { o_unleash } from './apply.js';
 import { dropCommandEnv, flooreffects } from './do.js';
 import {
@@ -1233,7 +1233,10 @@ export async function relobj(mtmp, show, is_pet, rawEnv = {}) {
         );
     }
 
-    if (show && cansee(omx, omy, state)) redraw(omx, omy, state);
+    // C prints the notice display.c show_glyph() raises for this newsym()
+    // before relobj() returns.
+    if (show && cansee(omx, omy, state))
+        await newsym_async(omx, omy, { state, redraw });
 }
 
 // C ref: steal.c somegold() (14-34). Return a bounded proportional subset of

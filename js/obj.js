@@ -404,6 +404,7 @@ import {
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
 import { sync_impossible } from './source_steps.js';
+import { emitGlyphUpdateNotices } from './startup_a11y.js';
 
 export const SPBOOK_NO_NOVEL = -SPBOOK_CLASS;
 
@@ -1086,6 +1087,14 @@ export async function bill_dummy_object(otmp, env = {}) {
     if (otmp.unpaid) {
         cost = unpaid_cost(otmp, COST_SINGLEOBJ, state);
         subfrombill(otmp, shop_keeper(state.u.ushops[0], state), state, normalized);
+        // shk.c unpaid_cost(), sub_one_frombill() and onbill() report an
+        // unpaid object that is on no bill through impossible(), and C
+        // waits at each report's --More-- before nextoid() draws. The
+        // three are synchronous here and queue their reports
+        // (js/source_steps.js sync_impossible()); nothing between them
+        // draws a random number, prints or changes the status rows, so
+        // printing the queue now is C's order.
+        await emitGlyphUpdateNotices(state);
     }
     // C: dummy = newobj(); *dummy = *otmp; then override specific fields.
     // Copy otmp's properties first so nextoid sees the correct otyp/oclass.

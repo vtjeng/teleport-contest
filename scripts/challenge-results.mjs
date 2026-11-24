@@ -164,7 +164,7 @@ export function challengeInputSnapshot(root, batch) {
         'scripts/challenge-results.mjs',
         'scripts/score-challenges.mjs',
         'scripts/scoring-workspace.mjs',
-        'scripts/segment-error-preload.mjs',
+        'scripts/segment-error-preload.mjs', 'scripts/rng-step-compare.mjs',
         selected.manifestPath,
         ...selected.cases.flatMap(entry => [entry.recipe, entry.recording]),
     ];
