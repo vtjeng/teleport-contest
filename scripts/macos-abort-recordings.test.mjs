@@ -36,6 +36,9 @@ const CASES = [
     ['pager.c/do_screen_description-engraving-text-226-aborts', [0]],
     // Return, then Escape over text, at the saved-games menu search.
     ['getline.c/menu-search-before-message-window', [1, 2]],
+    // Return at the same search, after a config error put the recorder in
+    // raw mode.
+    ['getline.c/menu-search-after-config-error-raw-print', [1]],
 ];
 
 // end.c panic() from debug-mode #panic: NH_abort() raises SIGABRT on every
