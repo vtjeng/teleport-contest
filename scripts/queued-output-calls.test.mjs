@@ -13,9 +13,10 @@ import { readJsSources, scanQueuedOutputCalls, unflushedCalls } from './queued-o
 // The display.js reason: js/display.js is being split from the map-location
 // records by the screen-buffer work, so its own async draws (docrt(),
 // tmp_at(), swallowed(), under_water(), shieldeff(), flash_glyph_at()) wait
-// for that change to land. Each draws a whole screen or an animation frame
-// and is followed, in every caller, by a message or delay that drains the
-// queue; the run-time check (js/rng.js) records any draw that comes first.
+// for that change to land. They are known to draw before the print: a
+// replay of the corpus with mention_map forced on still shows tmp_at()'s
+// newsym() leaving a notice queued past a core draw, which the run-time
+// check (js/rng.js) records in any recording that reaches it.
 const DISPLAY_REASON = 'js/display.js async draw; converted after the screen-buffer change lands';
 
 // "<file> | <function> | <callee>": [count, reason].
