@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 61232,
+      "datetime": "20301003030000",
+      "nethackrc": "OPTIONS=name:Hrolf,role:Barbarian,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=frob\u0001nicate\n",
+      "moves": "  ll"
+    }
+  ],
+  "comment": "probe"
+}

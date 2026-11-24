@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 77435,
+      "datetime": "20320706140000",
+      "nethackrc": "OPTIONS=name:Indira,role:Archeologist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "iha\u001bicTibT"
+    }
+  ],
+  "comment": "probe"
+}

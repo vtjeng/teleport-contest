@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 33091,
+      "datetime": "20311008090000",
+      "nethackrc": "OPTIONS=name:Orsolya,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "ibTibWia-"
+    }
+  ],
+  "comment": "probe"
+}

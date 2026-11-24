@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66324,
+      "datetime": "20271020081500",
+      "nethackrc": "OPTIONS=name:Perceval,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "idTifTigeifW"
+    }
+  ],
+  "comment": "probe"
+}

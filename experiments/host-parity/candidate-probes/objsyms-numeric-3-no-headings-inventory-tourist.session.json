@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 78787,
+      "datetime": "20300909191900",
+      "nethackrc": "OPTIONS=name:Gwendo,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:3,!menu_headings\n",
+      "moves": "i Da\n\u001b"
+    }
+  ],
+  "comment": "probe"
+}

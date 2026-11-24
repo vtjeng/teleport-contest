@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 99657,
+      "datetime": "20310412110000",
+      "nethackrc": "OPTIONS=name:Brynja,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\n",
+      "moves": "icTicWib-"
+    }
+  ],
+  "comment": "probe"
+}

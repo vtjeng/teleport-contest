@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 49903,
+      "datetime": "20311212121200",
+      "nethackrc": "OPTIONS=name:Gawain,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,horsename:Roan\n",
+      "moves": ";  m. "
+    }
+  ],
+  "comment": "probe"
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 63019,
+      "datetime": "20320515170000",
+      "nethackrc": "OPTIONS=name:Sylas,role:Ranger,race:elf,gender:male,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"Something is engraved.*\"\nMSGTYPE=stop \"You read: .*\"\n",
+      "moves": " y      hhhy      ll"
+    }
+  ],
+  "comment": "probe"
+}

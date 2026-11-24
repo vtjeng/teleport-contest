@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 17093,
+      "datetime": "20290401101010",
+      "nethackrc": "OPTIONS=name:Nim,role:Rogue,race:orc,gender:male,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none,statuslines:3,showexp,time\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": " y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 38879,
+      "datetime": "20300808080800",
+      "nethackrc": "OPTIONS=name:Tamsa,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:cat,catname:Mìmì\n",
+      "moves": ";  m. "
+    }
+  ],
+  "comment": "probe"
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 46802,
+      "datetime": "20280304200000",
+      "nethackrc": "OPTIONS=name:Lionel,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay\n",
+      "moves": "/m  /o  /M  "
+    }
+  ],
+  "comment": "probe"
+}

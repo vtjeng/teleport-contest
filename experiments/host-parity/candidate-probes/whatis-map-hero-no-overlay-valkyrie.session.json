@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 13579,
+      "datetime": "20290817113000",
+      "nethackrc": "OPTIONS=name:Thyra,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "//.  "
+    }
+  ],
+  "comment": "probe"
+}

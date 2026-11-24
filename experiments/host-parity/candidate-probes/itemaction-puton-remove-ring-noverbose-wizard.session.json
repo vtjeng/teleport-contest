@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22981,
+      "datetime": "20300214120000",
+      "nethackrc": "OPTIONS=name:Wendel,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "idPridRiePlieR"
+    }
+  ],
+  "comment": "probe"
+}

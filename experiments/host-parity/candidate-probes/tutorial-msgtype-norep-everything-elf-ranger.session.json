@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10987,
+      "datetime": "20300214120000",
+      "nethackrc": "OPTIONS=name:Elowen,role:Ranger,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=norep \".*\"\n",
+      "moves": " y   lhlh  hhhy  "
+    }
+  ],
+  "comment": "probe"
+}

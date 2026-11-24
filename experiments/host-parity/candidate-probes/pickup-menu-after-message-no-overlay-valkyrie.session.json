@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 32468,
+      "datetime": "20300101010100",
+      "nethackrc": "OPTIONS=name:Gudrun,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "dbdd,b\ni "
+    }
+  ],
+  "comment": "probe"
+}

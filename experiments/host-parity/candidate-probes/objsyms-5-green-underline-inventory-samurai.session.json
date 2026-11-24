@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10101,
+      "datetime": "20291212222200",
+      "nethackrc": "OPTIONS=name:Jubei,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:5,menu_headings:green&underline\n",
+      "moves": "i Da\n\u001b"
+    }
+  ],
+  "comment": "probe"
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 23232,
+      "datetime": "20300411141400",
+      "nethackrc": "OPTIONS=name:Brannoc,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:entries,menu_headings:underline\n",
+      "moves": "Da\n><\u001b"
+    }
+  ],
+  "comment": "probe"
+}

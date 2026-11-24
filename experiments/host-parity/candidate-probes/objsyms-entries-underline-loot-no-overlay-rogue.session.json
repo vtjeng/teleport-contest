@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90909,
+      "datetime": "20281111212100",
+      "nethackrc": "OPTIONS=name:Isak,role:Rogue,race:human,gender:male,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:entries,menu_headings:underline,!menu_overlay\n",
+      "moves": "df#loot\nyia\nd\n  "
+    }
+  ],
+  "comment": "probe"
+}

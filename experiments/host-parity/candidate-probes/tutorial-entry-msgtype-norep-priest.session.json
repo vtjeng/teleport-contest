@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 90215,
+      "datetime": "20310718063000",
+      "nethackrc": "OPTIONS=name:Odo,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=norep \"Entering the tutorial.\"\n",
+      "moves": " y   hhhy   "
+    }
+  ],
+  "comment": "probe"
+}

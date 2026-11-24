@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 40817,
+      "datetime": "20290314101500",
+      "nethackrc": "OPTIONS=name:Ab\u0001cd,role:Valkyrie,race:human,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": "lll\u0018    #quit\ny "
+    }
+  ],
+  "comment": "probe"
+}

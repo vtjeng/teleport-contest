@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 68024,
+      "datetime": "20290916213000",
+      "nethackrc": "OPTIONS=name:Ingrid,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "dbdd:  i "
+    }
+  ],
+  "comment": "probe"
+}

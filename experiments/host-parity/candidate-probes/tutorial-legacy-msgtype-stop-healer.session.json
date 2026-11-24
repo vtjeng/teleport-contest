@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 27755,
+      "datetime": "20280229141400",
+      "nethackrc": "OPTIONS=name:Galen,role:Healer,race:gnome,gender:male,align:neutral\nOPTIONS=!splash_screen,pettype:none\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": "   y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

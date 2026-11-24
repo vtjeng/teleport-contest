@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 24680,
+      "datetime": "20300522150000",
+      "nethackrc": "OPTIONS=name:Isolde,role:Wizard,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "/?newt\n    "
+    }
+  ],
+  "comment": "probe"
+}

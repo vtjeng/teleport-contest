@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 32109,
+      "datetime": "20280911170000",
+      "nethackrc": "OPTIONS=name:Yuki,role:Monk,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"\\btutorial\\b\"\n",
+      "moves": " y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

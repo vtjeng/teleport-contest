@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 55213,
+      "datetime": "20330310033000",
+      "nethackrc": "OPTIONS=name:Agathe,role:Priest,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "iia\u001bicTidq"
+    }
+  ],
+  "comment": "probe"
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 88508,
+      "datetime": "20290525190000",
+      "nethackrc": "OPTIONS=name:Dottie,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "ilPilRiiT"
+    }
+  ],
+  "comment": "probe"
+}

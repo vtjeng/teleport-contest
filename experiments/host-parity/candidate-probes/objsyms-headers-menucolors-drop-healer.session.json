@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 89898,
+      "datetime": "20311010202000",
+      "nethackrc": "OPTIONS=name:Hespera,role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:headers,menucolors\nMENUCOLOR=\"potion\"=cyan&bold\nMENUCOLOR=\"Potions\"=red\n",
+      "moves": "Da\n\u001bi "
+    }
+  ],
+  "comment": "probe"
+}

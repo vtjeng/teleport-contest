@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 84765,
+      "datetime": "20260213120000",
+      "nethackrc": "OPTIONS=name:Goro,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=hide \"Watch out!.*\"\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": "  y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

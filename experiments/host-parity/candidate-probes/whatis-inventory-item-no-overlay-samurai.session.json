@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 35791,
+      "datetime": "20311206081000",
+      "nethackrc": "OPTIONS=name:Hanzo,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "/ia    "
+    }
+  ],
+  "comment": "probe"
+}

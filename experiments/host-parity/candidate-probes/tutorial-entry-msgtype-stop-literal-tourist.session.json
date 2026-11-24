@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 70411,
+      "datetime": "20280611091500",
+      "nethackrc": "OPTIONS=name:Brisa,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none,showexp\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": " y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 51920,
+      "datetime": "20291102200000",
+      "nethackrc": "OPTIONS=name:Hrafn,role:Valkyrie,race:dwarf,gender:female,align:lawful\nOPTIONS=!legacy,!splash_screen,pettype:none,time\nMSGTYPE=stop \"Entering.*\"\n",
+      "moves": " y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

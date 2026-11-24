@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 12121,
+      "datetime": "20290310121200",
+      "nethackrc": "OPTIONS=name:Alaric,role:Wizard,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:headers,menu_headings:bold\n",
+      "moves": "i "
+    }
+  ],
+  "comment": "probe"
+}

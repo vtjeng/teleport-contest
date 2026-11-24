@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44102,
+      "datetime": "20280911170000",
+      "nethackrc": "OPTIONS=name:Takeda,role:Samurai,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose,time\n",
+      "moves": "ieTibwidt"
+    }
+  ],
+  "comment": "probe"
+}

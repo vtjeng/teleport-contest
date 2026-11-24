@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 32980,
+      "datetime": "20330815213000",
+      "nethackrc": "OPTIONS=name:Hal,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!verbose\n",
+      "moves": "i2cdi3fdi"
+    }
+  ],
+  "comment": "probe"
+}

@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 12634,
+      "datetime": "20300125234500",
+      "nethackrc": "OPTIONS=name:Ysolde,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"Hello .*\"\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": "  y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

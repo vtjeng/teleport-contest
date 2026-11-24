@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 22917,
+      "datetime": "20330101000100",
+      "nethackrc": "OPTIONS=name:Bartholomewsonofgrumblefoot,role:Caveman,race:dwarf,gender:male,align:lawful\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"Hello .*\"\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": "  y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

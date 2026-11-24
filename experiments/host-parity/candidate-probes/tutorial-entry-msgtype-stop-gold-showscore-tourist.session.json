@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 66402,
+      "datetime": "20341020153000",
+      "nethackrc": "OPTIONS=name:Mags,role:Tourist,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none,showscore,showexp,time,!autopickup\nMSGTYPE=stop \"Entering the tutorial.\"\nMSGTYPE=stop \"You read: .*\"\n",
+      "moves": " y      hhhy     "
+    }
+  ],
+  "comment": "probe"
+}

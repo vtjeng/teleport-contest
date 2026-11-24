@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 34343,
+      "datetime": "20310505151500",
+      "nethackrc": "OPTIONS=name:Cerys,role:Wizard,race:elf,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,menu_objsyms:both,menu_headings:red&inverse\n",
+      "moves": "DAa\n\u001b,>.\n          "
+    }
+  ],
+  "comment": "probe"
+}

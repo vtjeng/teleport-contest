@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 95876,
+      "datetime": "20290620100000",
+      "nethackrc": "OPTIONS=name:Fizzwick,role:Wizard,race:gnome,gender:male,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \".*\"\n",
+      "moves": "  y      hhhy        "
+    }
+  ],
+  "comment": "probe"
+}

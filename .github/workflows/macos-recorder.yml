@@ -38,6 +38,22 @@ jobs:
             node --version
           } | tee macos-recordings/host.txt
 
+      # Throwaway recorder branch: record only the candidate probes.
+      - name: Record the candidate probes
+        run: experiments/host-parity/record-sample.sh macos-recordings/candidate-probes 4 experiments/host-parity/candidate-probes/*.session.json
+
+      - name: Upload probe recordings
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: macos-recordings
+          path: macos-recordings/
+          if-no-files-found: error
+
+  unused:
+    if: false
+    runs-on: macos-latest
+    steps:
       - name: Record the sample
         run: experiments/host-parity/record-sample.sh macos-recordings
 

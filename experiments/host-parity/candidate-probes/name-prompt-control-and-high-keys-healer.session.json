@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 16692,
+      "datetime": "20320229090000",
+      "nethackrc": "OPTIONS=role:Healer,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": "Me\u0001déa\n  ss#quit\ny "
+    }
+  ],
+  "comment": "probe"
+}

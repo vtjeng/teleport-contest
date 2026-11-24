@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 21098,
+      "datetime": "20310412110000",
+      "nethackrc": "OPTIONS=name:Pell,role:Healer,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"Entering\\sthe\\stutorial\"\n",
+      "moves": " y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

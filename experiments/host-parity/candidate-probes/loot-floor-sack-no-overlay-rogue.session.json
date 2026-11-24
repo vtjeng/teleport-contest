@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 80246,
+      "datetime": "20310630190000",
+      "nethackrc": "OPTIONS=name:Vex,role:Rogue,race:human,gender:female,align:chaotic\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "df#loot\nyia\nd\n  "
+    }
+  ],
+  "comment": "probe"
+}

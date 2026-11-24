@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 43579,
+      "datetime": "20311107230000",
+      "nethackrc": "OPTIONS=name:Tenzin,role:Monk,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none\n",
+      "moves": "dfi Da\n\u001b"
+    }
+  ],
+  "comment": "probe"
+}

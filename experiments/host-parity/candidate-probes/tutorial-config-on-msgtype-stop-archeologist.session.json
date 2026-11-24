@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 44480,
+      "datetime": "20290909090909",
+      "nethackrc": "OPTIONS=name:Petra,role:Archeologist,race:gnome,gender:female,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none,tutorial\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": "    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

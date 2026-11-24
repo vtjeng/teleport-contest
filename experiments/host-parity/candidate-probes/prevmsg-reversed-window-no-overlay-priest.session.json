@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 10246,
+      "datetime": "20330707171700",
+      "nethackrc": "OPTIONS=name:Benedikt,role:Priest,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none,msg_window:reversed\n",
+      "moves": "dedf:\u0010  "
+    }
+  ],
+  "comment": "probe"
+}

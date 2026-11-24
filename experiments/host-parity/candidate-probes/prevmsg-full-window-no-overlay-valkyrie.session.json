@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 91357,
+      "datetime": "20280125061500",
+      "nethackrc": "OPTIONS=name:Astrid,role:Valkyrie,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,!menu_overlay,pettype:none,msg_window:full\n",
+      "moves": "db,ss\u0010  "
+    }
+  ],
+  "comment": "probe"
+}

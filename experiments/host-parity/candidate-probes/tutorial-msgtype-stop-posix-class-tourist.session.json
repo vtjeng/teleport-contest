@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 54321,
+      "datetime": "20300214120000",
+      "nethackrc": "OPTIONS=name:Wilma,role:Tourist,race:human,gender:female,align:neutral\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"Entering[[:space:]]the[[:space:]]tutorial\"\n",
+      "moves": " y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

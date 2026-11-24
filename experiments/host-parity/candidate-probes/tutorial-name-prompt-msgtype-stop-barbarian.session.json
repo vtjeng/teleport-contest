@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 58146,
+      "datetime": "20280808180000",
+      "nethackrc": "OPTIONS=role:Barbarian,race:orc,gender:female,align:chaotic\nOPTIONS=!legacy,!splash_screen,pettype:none\nMSGTYPE=stop \"Entering the tutorial.\"\n",
+      "moves": "Urga\n y    hhhy    "
+    }
+  ],
+  "comment": "probe"
+}

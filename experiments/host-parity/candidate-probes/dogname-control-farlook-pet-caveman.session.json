@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 27715,
+      "datetime": "20290101080000",
+      "nethackrc": "OPTIONS=name:Ugg,role:Caveman,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:dog,dogname:Fi\u0001do\n",
+      "moves": " ;  m. "
+    }
+  ],
+  "comment": "probe"
+}

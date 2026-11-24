@@ -1,0 +1,12 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 95536,
+      "datetime": "20271111111100",
+      "nethackrc": "OPTIONS=name:Aurelianusmaximilianuscorne\u0001lx,role:Priest,race:human,gender:male,align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen,pettype:none\nOPTIONS=disclose:-i -a -v -g -c -o\n",
+      "moves": "sss\u0018    #quit\ny "
+    }
+  ],
+  "comment": "probe"
+}
