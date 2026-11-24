@@ -576,11 +576,11 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
     const usubmerged = Boolean(state.u?.uinwater);
 
     // C: impossible("%s attacks you without knowing your location?",
-    // Monst_name) (mhitu.c 188-189), then return. The caller violated
+    // Some_Monnam(mtmp)) (mhitu.c 188-189), then return. The caller violated
     // mattacku()'s target invariant; a test may collect the text through
     // rawEnv.impossible instead.
     if (!unotseen && !unotthere && !usubmerged) {
-        const text = `${capitalizedMonsterName(mtmp, state, rawEnv)} attacks you `
+        const text = `${Some_Monnam(mtmp, state, rawEnv)} attacks you `
             + 'without knowing your location?';
         if (typeof rawEnv.impossible === 'function') rawEnv.impossible(text);
         else await impossible(text, state, rawEnv);

@@ -1420,3 +1420,40 @@ test('js/ has no second port of mon_nam()', () => {
     // noit_mon_nam().
     assert.equal(body.match(/\bnoit_mon_nam\(mtmp, state\)/gu)?.length, 2);
 });
+
+function portedFunctionBody(file, name) {
+    const source = readFileSync(`js/${file}`, 'utf8');
+    const body = source.match(new RegExp(
+        `\\n(?:export )?(?:async )?function ${name}\\([\\s\\S]*?\\n\\}\\n`, 'u',
+    ))?.[0];
+    assert.ok(body, `${file} ${name}()`);
+    return body;
+}
+
+// Four functions called a "name the monster whatever the hero sees" helper
+// (noit_mon_nam() or noit_Monnam()) or Monnam() where C calls another
+// do_name.c function. The first three are reached only with a monster the
+// hero can spot, or a tame one, and for those the spellings agree; the fourth
+// is an impossible() text. No recording tells them apart, so the text of each
+// function is pinned here instead.
+test('four callers name the monster with the function C calls', () => {
+    // hack.c domove_swap_with_pet() 2126, 2133, 2139, 2151 and 2160: each of
+    // the five "You stop." refusals names the monster with YMonnam(). 2170
+    // calls x_monnam() directly.
+    const swap = portedFunctionBody('hack.js', 'domove_swap_with_pet');
+    assert.equal(swap.match(/You stop\. {2}\$\{YMonnam\(monster, state\)\}/gu)?.length, 5);
+    assert.doesNotMatch(swap, /noit_/u);
+    // uhitm.c do_attack() 498-500: y_monnam() with its first byte raised.
+    assert.match(portedFunctionBody('uhitm.js', 'do_attack'),
+        /You stop\. {2}\$\{upstart\(y_monnam\(monster, state\)\)\} /u);
+    // dogmove.c quickmimic() 1502: y_monnam(), taken before the appearance
+    // changes.
+    assert.match(portedFunctionBody('dogmove.js', 'quickmimic'),
+        /const oldName = y_monnam\(mtmp, state\);\n\s*const spotted = canspotmon/u);
+    // mhitu.c wildmiss() 188-189: the impossible() text uses Some_Monnam(),
+    // an unseen attacker being "Someone" or "Something"; the messages after
+    // the early returns use Monnam() (204).
+    const wildmiss = portedFunctionBody('mhitu.js', 'wildmiss');
+    assert.match(wildmiss,
+        /\$\{Some_Monnam\(mtmp, state, rawEnv\)\} attacks you /u);
+});

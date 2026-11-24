@@ -172,7 +172,6 @@ import {
 import {
     Adjmonnam,
     a_monnam,
-    capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
     hcolor,
     hliquid,
@@ -2206,7 +2205,7 @@ export async function do_attack(monster, state = game, env = {}) {
                 });
             }
             await message(
-                `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)} `
+                `You stop.  ${upstart(y_monnam(monster, state))} `
                     + 'is in the way!',
                 state,
             );

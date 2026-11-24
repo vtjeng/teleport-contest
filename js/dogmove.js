@@ -57,7 +57,6 @@ import { isok } from './cmd_isok.js';
 import { dirtocoord, xytodir } from './cmd.js';
 import { glyph_is_object, newsym, vobj_at } from './display.js';
 import {
-    alwaysVisibleMonsterName,
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
     pmname,
@@ -690,7 +689,7 @@ export async function quickmimic(mtmp, rawEnv = {}) {
     } while (--trycnt > 0);
     if (trycnt === 0) idx = QUICK_MIMIC_CHOICES.length - 1;
 
-    const oldName = alwaysVisibleMonsterName(mtmp, state);
+    const oldName = y_monnam(mtmp, state);
     const spotted = canspotmon(mtmp, state);
     const seeloc = cansee(mtmp.mx, mtmp.my, state);
     const [, , appearance, appearanceType] = QUICK_MIMIC_CHOICES[idx];
