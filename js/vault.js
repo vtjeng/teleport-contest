@@ -71,9 +71,7 @@ import {
 import { m_carrying, m_into_limbo, mnexto, mongone, mpickgold, setmangry } from './mon.js';
 import { mon_wield_item } from './weapon.js';
 import {
-    capitalizedAlwaysVisibleMonsterName,
-    alwaysVisibleMonsterName,
-    capitalizedMonsterName,
+    noit_mon_nam,
     Monnam,
     noit_Monnam,
     pmname,
@@ -473,7 +471,7 @@ async function wallify_vault(grd, state, env) {
     if (movedgold || fixed) {
         if (in_fcorridor(grd, grd.mx, grd.my) || cansee(grd.mx, grd.my, state))
             await env.message(
-                `${capitalizedAlwaysVisibleMonsterName(grd, state)} whispers an incantation.`,
+                `${noit_Monnam(grd, state)} whispers an incantation.`,
                 state, env,
             );
         else {
@@ -526,7 +524,7 @@ async function gd_move_cleanup(grd, semi_dead, disappear_msg_seen, state, env) {
             // awaitable in JS, and monmove.c:m_move() awaits gd_move(), so
             // preserve that source ordering before the turn is captured.
             await env.message(
-                `Suddenly, ${alwaysVisibleMonsterName(grd, state)} disappears.`,
+                `Suddenly, ${noit_mon_nam(grd, state)} disappears.`,
                 state, env,
             );
         return 1;
@@ -695,7 +693,7 @@ export async function gd_move(grd, env = {}) {
             && (state.level.at(egrd.fakecorr[0].fx, egrd.fakecorr[0].fy).typ
                 === egrd.fakecorr[0].ftyp)) {
             await message(
-                `${capitalizedAlwaysVisibleMonsterName(grd, state)}, confused, disappears.`,
+                `${noit_Monnam(grd, state)}, confused, disappears.`,
                 state, gdEnv,
             );
             return gd_move_cleanup(grd, semi_dead, true, state, gdEnv);
@@ -967,7 +965,7 @@ async function gd_move_proceed(
         const dest = await find_guard_dest(grd, state, env);
         if (!dest || (dest.x === ggx && dest.y === ggy)) {
             await env.message(
-                `${capitalizedMonsterName(grd, state)}, confused, disappears.`,
+                `${Monnam(grd, state)}, confused, disappears.`,
                 state, env,
             );
             return gd_move_cleanup(grd, semi_dead, true, state, env);

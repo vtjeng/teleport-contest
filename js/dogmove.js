@@ -57,9 +57,7 @@ import { isok } from './cmd_isok.js';
 import { dirtocoord, xytodir } from './cmd.js';
 import { glyph_is_object, newsym, vobj_at } from './display.js';
 import {
-    alwaysVisibleMonsterName,
-    capitalizedAlwaysVisibleMonsterName,
-    capitalizedMonsterName,
+    noit_Monnam,
     pmname,
     Monnam,
     y_monnam,
@@ -574,7 +572,7 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
             : `${devour ? 'devours' : 'eats'} ${objName}`;
         await message(
             messageAt(
-                `${capitalizedAlwaysVisibleMonsterName(mtmp, state, rawEnv)}`
+                `${noit_Monnam(mtmp, state, rawEnv)}`
                 + ` ${action}.`,
                 mtmp.mx,
                 mtmp.my,
@@ -603,7 +601,7 @@ export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
             const name = distant_name(obj, donameFresh, state);
             if (state.flags?.verbose)
                 await message(
-                    `${capitalizedMonsterName(mtmp, state)} spits `
+                    `${Monnam(mtmp, state)} spits `
                         + `${name} out in disgust!`, state,
                 );
         }
@@ -690,7 +688,7 @@ export async function quickmimic(mtmp, rawEnv = {}) {
     } while (--trycnt > 0);
     if (trycnt === 0) idx = QUICK_MIMIC_CHOICES.length - 1;
 
-    const oldName = alwaysVisibleMonsterName(mtmp, state);
+    const oldName = y_monnam(mtmp, state);
     const spotted = canspotmon(mtmp, state);
     const seeloc = cansee(mtmp.mx, mtmp.my, state);
     const [, , appearance, appearanceType] = QUICK_MIMIC_CHOICES[idx];
@@ -861,7 +859,7 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
             if (state.flags?.verbose) {
                 await message(
                     messageAt(
-                        `${capitalizedMonsterName(monster, state, {
+                        `${Monnam(monster, state, {
                             displayRandom: bound => rn2_on_display_rng(bound, state),
                         })}`
                         + ` picks up ${takenName}.`,
@@ -1669,7 +1667,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
             const message = env.message ?? ttyPline;
             await message(
                 messageAt(
-                    `${capitalizedAlwaysVisibleMonsterName(monster, state, env)}`
+                    `${noit_Monnam(monster, state, env)}`
                     + ` ${vtense(null, locomotion(monster.data, 'step'))}`
                     + ' reluctantly '
                     + ((is_flyer(monster.data) || is_floater(monster.data))

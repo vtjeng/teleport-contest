@@ -116,11 +116,9 @@ import {
     Monnam,
     Some_Monnam,
     Amonnam,
-    capitalizedMonsterName,
     christen_monst,
     hliquid,
     mon_nam,
-    monsterPossessive,
     noit_Monnam,
     noit_mon_nam,
     pmname,
@@ -576,11 +574,11 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
     const usubmerged = Boolean(state.u?.uinwater);
 
     // C: impossible("%s attacks you without knowing your location?",
-    // Monst_name) (mhitu.c 188-189), then return. The caller violated
+    // Some_Monnam(mtmp)) (mhitu.c 188-189), then return. The caller violated
     // mattacku()'s target invariant; a test may collect the text through
     // rawEnv.impossible instead.
     if (!unotseen && !unotthere && !usubmerged) {
-        const text = `${capitalizedMonsterName(mtmp, state, rawEnv)} attacks you `
+        const text = `${Some_Monnam(mtmp, state, rawEnv)} attacks you `
             + 'without knowing your location?';
         if (typeof rawEnv.impossible === 'function') rawEnv.impossible(text);
         else await impossible(text, state, rawEnv);
@@ -598,7 +596,7 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
     if (unotseen) {
         if (!compat) {
             const outcome = random.rn2(3);
-            const name = capitalizedMonsterName(mtmp, state, rawEnv);
+            const name = Monnam(mtmp, state, rawEnv);
             const swings = mattk.aatyp === M.AT_BITE ? 'snaps'
                 : mattk.aatyp === M.AT_KICK ? 'kicks'
                     : mattk.aatyp === M.AT_STNG
@@ -616,7 +614,7 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
                     : `${name} strikes at ${target}!`;
             await message(messageAt(text, mtmp.mx, mtmp.my, state), state);
         } else {
-            const name = capitalizedMonsterName(mtmp, state, rawEnv);
+            const name = Monnam(mtmp, state, rawEnv);
             await message(
                 messageAt(`${name} tries to touch you and misses!`,
                     mtmp.mx, mtmp.my, state),
@@ -629,7 +627,7 @@ export async function wildmiss(mtmp, mattk, rawEnv = {}) {
     // The displacement message is intentionally emitted even while blind;
     // at this point cansee() has established that the monster's own square is
     // visible. Underwater is reached only when the preceding reason is off.
-    const name = capitalizedMonsterName(mtmp, state, rawEnv);
+    const name = Monnam(mtmp, state, rawEnv);
     let text;
     if (unotthere) {
         text = compat
@@ -1222,7 +1220,7 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
     const gh = hitmsgState(state);
     let punct = '!';
     let verb;
-    let Monst_name = capitalizedMonsterName(mtmp, state, env);
+    let Monst_name = Monnam(mtmp, state, env);
 
     /* Note: if opposite gender, "seductively";
        if same gender, "engagingly" for nymph, normal msg for others. */
@@ -1283,7 +1281,7 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
 //
 // C opens with map_invisible() for a monster the hero cannot spot, marking the
 // square as containing an invisible monster, then falls through to the miss
-// message. capitalizedMonsterName() produces "It" when canspotmon() is false.
+// message. Monnam() produces "It" when canspotmon() is false.
 async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const message = rawEnv.message ?? ttyPline;
@@ -1306,7 +1304,7 @@ async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     if (could_seduce(mtmp, state.youmonst, mattk, rawEnv) && !mtmp.mcan) {
         await pline_mon(
             mtmp,
-            `${capitalizedMonsterName(mtmp, state, rawEnv)} `
+            `${Monnam(mtmp, state, rawEnv)} `
             + 'pretends to be friendly.',
             state,
             messageEnv,
@@ -1314,7 +1312,7 @@ async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     } else {
         await pline_mon(
             mtmp,
-            `${capitalizedMonsterName(mtmp, state, rawEnv)} `
+            `${Monnam(mtmp, state, rawEnv)} `
             + `${(nearmiss && state.flags?.verbose) ? 'just ' : ''}misses!`,
             state,
             messageEnv,
@@ -1356,7 +1354,7 @@ async function mswings(mtmp, otemp, bash, rawEnv = {}) {
     if (state.flags?.verbose && !Blind(state.u)
         && visible(mtmp, state)) {
         await message(messageAt(
-            `${capitalizedMonsterName(mtmp, state, rawEnv)} `
+            `${Monnam(mtmp, state, rawEnv)} `
             + `${mswings_verb(otemp, bash, rawEnv)} `
             + `${(otemp.quan > 1) ? 'one of ' : ''}`
             + `${mhis(mtmp, {
@@ -1764,7 +1762,7 @@ export async function mattacku(monster, rawEnv = {}) {
         // operations.
         const offended = await use_offensive(monster, {
             ...env,
-            monsterName: (mtmp) => capitalizedMonsterName(mtmp, state, {
+            monsterName: (mtmp) => Monnam(mtmp, state, {
                 displayRandom: env.displayRandom,
             }),
             throwMissile: m_throw,
@@ -1979,7 +1977,7 @@ export async function mattacku(monster, rawEnv = {}) {
                 // mcastu.c buzzmu() names the caster with Monnam().
                 sum[i] = await buzzmu(monster, mattk, {
                     ...env,
-                    monsterName: (mtmp) => capitalizedMonsterName(mtmp, state),
+                    monsterName: (mtmp) => Monnam(mtmp, state),
                 });
             } else {
                 // js/mcastu.js castmu() takes Monnam(), mon_nam() and the
@@ -1992,7 +1990,7 @@ export async function mattacku(monster, rawEnv = {}) {
                         { ...env, fromMonster: true },
                     )),
                     encumberMessage: env.encumberMessage ?? encumber_msg,
-                    monsterName: (mtmp) => capitalizedMonsterName(mtmp, state, {
+                    monsterName: (mtmp) => Monnam(mtmp, state, {
                         displayRandom: env.displayRandom,
                     }),
                     monnam: (mtmp) => mon_nam(mtmp, state, env),
@@ -2239,7 +2237,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         } else {
             const injectedSpotOwner = rawEnv.canSpotMonster
                 ?? rawEnv.canSeeMonster;
-            const engulferName = capitalizedMonsterName(mtmp, state,
+            const engulferName = Monnam(mtmp, state,
                 injectedSpotOwner ? rawEnv : {
                     ...rawEnv,
                     // C calls Monnam after placing the attacker on the
@@ -2927,7 +2925,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
             if (useeit) {
                 await ureflects(
                     '%s gaze is reflected by your %s.',
-                    monsterPossessive(monster, state, true, env),
+                    s_suffix(Monnam(monster, state, env)),
                     state,
                     env,
                 );
@@ -2971,7 +2969,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
             && !Stone_resistance(state.u)
             && !Unaware(state)) {
             await message(
-                `You meet ${monsterPossessive(monster, state)} gaze.`,
+                `You meet ${s_suffix(mon_nam(monster, state))} gaze.`,
                 state,
                 env,
             );
@@ -3001,7 +2999,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
                 // an extrinsic property does not suppress this source message.
                 if (!HConfusion(state.u)) {
                     await message(messageAt(
-                        `${monsterPossessive(monster, state, true, env)} gaze `
+                        `${s_suffix(Monnam(monster, state, env))} gaze `
                         + 'confuses you!',
                         monster.mx, monster.my, state,
                     ), state, env);
@@ -3064,7 +3062,7 @@ export async function gazemu(monster, attack, rawEnv = {}) {
             } else {
                 const blinded = draw('d', attack.damn, attack.damd);
                 await message(
-                    `You are blinded by ${monsterPossessive(monster, state)}`
+                    `You are blinded by ${s_suffix(mon_nam(monster, state))}`
                     + ' radiance!',
                     state,
                     env,

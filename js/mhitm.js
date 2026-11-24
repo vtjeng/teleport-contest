@@ -64,7 +64,6 @@ import {
 } from './const.js';
 import {
     Adjmonnam,
-    capitalizedMonsterName,
     hliquid,
     Monnam,
     mon_nam,
@@ -448,7 +447,7 @@ async function missmm(magr, mdef, mattk, env) {
         // the naming predicate. Keep both random owners for reflexive names.
         const nameEnv = { random: env.random, displayRandom: env.displayRandom };
         await message(
-            `${capitalizedMonsterName(magr, state, nameEnv)} `
+            `${Monnam(magr, state, nameEnv)} `
             + `${(magr.mcan || !could_seduce(magr, mdef, mattk, env))
                 ? 'misses' : 'pretends to be friendly to'} `
             + `${mon_nam_too(mdef, magr, state, nameEnv)}.`,
@@ -492,7 +491,7 @@ export async function fightm(mtmp, rawEnv = {}) {
                     set_ustuck(null, state);
                     const message = env.message ?? ttyPline;
                     await message(
-                        `${capitalizedMonsterName(mtmp, state)} releases you!`,
+                        `${Monnam(mtmp, state)} releases you!`,
                         state,
                     );
                 } else {
@@ -1252,7 +1251,7 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
 
     if (state.gv.vis) {
         const nameEnv = { random: env.random, displayRandom: env.displayRandom };
-        const magr_name = capitalizedMonsterName(magr, state, nameEnv);
+        const magr_name = Monnam(magr, state, nameEnv);
         let buf = '';
 
         if (compat) {

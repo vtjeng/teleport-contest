@@ -259,7 +259,7 @@ import {
 } from './obj.js';
 import { obj_shuffle_range, observe_object } from './o_init.js';
 import {
-    capitalizedMonsterName,
+    Monnam,
     hcolor as nameColor,
     mon_nam,
 } from './do_name.js';
@@ -2093,7 +2093,7 @@ export async function artifact_hit(
                             state);
                     } else if (vis) {
                         await message(
-                            `${capitalizedMonsterName(magr, state)} cuts deeply into ${hittee}!`,
+                            `${Monnam(magr, state)} cuts deeply into ${hittee}!`,
                             state);
                     }
                     dmgptr.value *= 2;
@@ -2108,7 +2108,7 @@ export async function artifact_hit(
             } else {
                 if (bigmonst(state.youmonst.data)) {
                     await message(
-                        `${magr ? capitalizedMonsterName(magr, state) : wepdesc} cuts deeply into you!`,
+                        `${magr ? Monnam(magr, state) : wepdesc} cuts deeply into you!`,
                         state);
                     dmgptr.value *= 2;
                     return true;

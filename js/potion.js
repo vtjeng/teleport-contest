@@ -145,9 +145,8 @@ import {
 } from './display.js';
 import { doup, goto_level, heal_legs, trycall } from './do.js';
 import {
-    Amonnam,
+    a_monnam,
     Monnam,
-    capitalizedMonsterName,
     docall,
     hcolor,
     hliquid,
@@ -188,7 +187,7 @@ import {
     unbless, uncurse,
 } from './obj.js';
 import { obj_resists } from './bury.js';
-import { dist2, s_suffix, upstart, lcase } from './hacklib.js';
+import { dist2, s_suffix, upstart } from './hacklib.js';
 import {
     The, Tobjnam, Yname2, Yobjnam2, cxname, donameFresh, is_plural,
     isPoisonable, otense, short_oname, simpleonames, the, thesimpleoname,
@@ -435,13 +434,11 @@ export async function djinni_from_bottle(obj, state = game, env = {}) {
     }
 
     if (!Blind(state.u)) {
-        const indefinite = Amonnam(monster, { state });
         await message(
-            `In a cloud of smoke, ${lcase(indefinite.charAt(0))}${
-                indefinite.slice(1)} emerges!`,
+            `In a cloud of smoke, ${a_monnam(monster, { state })} emerges!`,
             state,
         );
-        await message(`${capitalizedMonsterName(monster, state)} speaks.`, state);
+        await message(`${Monnam(monster, state)} speaks.`, state);
     } else {
         await message('You smell acrid fumes.', state);
         await message('Something speaks.', state);
@@ -476,7 +473,7 @@ export async function djinni_from_bottle(obj, state = game, env = {}) {
         await message('"It is about time!"', state);
         if (canspotmon(monster, state)) {
             await message(
-                `${capitalizedMonsterName(monster, state)} vanishes.`,
+                `${Monnam(monster, state)} vanishes.`,
                 state,
             );
         }

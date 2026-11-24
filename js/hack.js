@@ -238,7 +238,7 @@ import { buried_ball, buried_ball_to_punishment, bury_objs, dig_typ, use_pick_ax
 import {
     Amonnam,
     a_monnam,
-    capitalizedAlwaysVisibleMonsterName,
+    YMonnam,
     hliquid,
     m_monnam,
     mon_nam,
@@ -4918,7 +4918,7 @@ export async function domove_swap_with_pet(
         didntMove = true;
     } else if (oldX !== x && oldY !== y && NODIAG(monsndx(monster.data))) {
         await message(
-            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+            `You stop.  ${YMonnam(monster, state)}`
                 + ` can't move diagonally.`,
             state,
         );
@@ -4927,7 +4927,7 @@ export async function domove_swap_with_pet(
         && !(verysmall(monster.data)
             && (!monster.minvent || curr_mon_load(monster) <= 600))) {
         await message(
-            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+            `You stop.  ${YMonnam(monster, state)}`
                 + ` won't fit into the same spot that you're at.`,
             state,
         );
@@ -4937,7 +4937,7 @@ export async function domove_swap_with_pet(
         && bad_rock(monster.data, oldX, y, state)
         && (bigmonst(monster.data) || curr_mon_load(monster) > 600)) {
         await message(
-            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+            `You stop.  ${YMonnam(monster, state)}`
                 + ` won't fit through.`,
             state,
         );
@@ -4956,7 +4956,7 @@ export async function domove_swap_with_pet(
             which = just_an(what);
         }
         await message(
-            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+            `You stop.  ${YMonnam(monster, state)}`
                 + ` can't move out of ${which}${what}.`,
             state,
         );
@@ -4972,7 +4972,7 @@ export async function domove_swap_with_pet(
             || (state.svq?.quest_status?.leader_m_id
                 && monster.m_id === state.svq.quest_status.leader_m_id))) {
         await message(
-            `You stop.  ${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+            `You stop.  ${YMonnam(monster, state)}`
                 + ` doesn't want to swap places.`,
             state,
         );

@@ -90,7 +90,7 @@ import { tty_status_state } from './wintty.js';
 import { gather_locs_interesting } from './getpos.js';
 import { visible_region_at } from './region.js';
 import {
-    capitalizedMonsterName,
+    Monnam,
     coyotename,
     distant_monnam,
     hliquid,
@@ -1508,7 +1508,7 @@ export function collectMonsterMovementMessage(
     // C Monnam draws from the active cosmetic stream, that of the state the
     // message is about.
     return messageAt(
-        `${capitalizedMonsterName(monster, state, {
+        `${Monnam(monster, state, {
             displayRandom: bound => rn2_on_display_rng(bound, state),
         })} `
             + `${singularMovementVerb(monster.data)}${suffix}.`,

@@ -195,7 +195,6 @@ import {
 import {
     Amonnam,
     a_monnam,
-    capitalizedMonsterName,
     free_mgivenname,
     hliquid,
     Mgender,
@@ -205,6 +204,7 @@ import {
     noit_mon_nam,
     oname,
     pmname,
+    noname_monnam,
     x_monnam,
     y_monnam,
     minimal_monnam,
@@ -1651,7 +1651,7 @@ export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
         mtmp.mblinded = 0;
         if (verbos && haseyes(mtmp.data)) {
             await monsterMessage(
-                `${capitalizedMonsterName(mtmp, state)} can see again.`,
+                `${Monnam(mtmp, state)} can see again.`,
                 mtmp,
                 state,
                 rawEnv,
@@ -1695,7 +1695,7 @@ export async function meatmetal(mtmp, rawEnv = {}) {
             if (visible && state.flags?.verbose) {
                 const name = distant_name(obj, donameFresh, state);
                 await monsterMessage(
-                    `${capitalizedMonsterName(mtmp, state)} eats ${name}!`,
+                    `${Monnam(mtmp, state)} eats ${name}!`,
                     mtmp,
                     state,
                     rawEnv,
@@ -1706,7 +1706,7 @@ export async function meatmetal(mtmp, rawEnv = {}) {
             if (visible && state.flags?.verbose) {
                 const name = distant_name(obj, donameFresh, state);
                 await monsterMessage(
-                    `${capitalizedMonsterName(mtmp, state)} spits ${name} out in disgust!`,
+                    `${Monnam(mtmp, state)} spits ${name} out in disgust!`,
                     mtmp,
                     state,
                     rawEnv,
@@ -1719,7 +1719,7 @@ export async function meatmetal(mtmp, rawEnv = {}) {
             const name = distant_name(obj, donameFresh, state);
             if (state.flags?.verbose)
                 await monsterMessage(
-                    `${capitalizedMonsterName(mtmp, state)} eats ${name}!`,
+                    `${Monnam(mtmp, state)} eats ${name}!`,
                     mtmp,
                     state,
                     rawEnv,
@@ -1800,9 +1800,9 @@ export async function meatobj(mtmp, rawEnv = {}) {
             engulfed++;
             const name = distant_name(obj, donameFresh, state);
             if (engulfed === 1)
-                messageText = `${capitalizedMonsterName(mtmp, state)} engulfs ${name}.`;
+                messageText = `${Monnam(mtmp, state)} engulfs ${name}.`;
             else if (engulfed === 2)
-                messageText = `${capitalizedMonsterName(mtmp, state)} engulfs several objects.`;
+                messageText = `${Monnam(mtmp, state)} engulfs several objects.`;
             await obj_extract_self(obj, objectGenerationEnv({ ...rawEnv, state }));
             await mpickobjRuntime(mtmp, obj, rawEnv);
         } else {
@@ -1811,7 +1811,7 @@ export async function meatobj(mtmp, rawEnv = {}) {
                 const name = distant_name(obj, donameFresh, state);
                 if (state.flags?.verbose)
                     await monsterMessage(
-                        `${capitalizedMonsterName(mtmp, state)} eats ${name}!`,
+                        `${Monnam(mtmp, state)} eats ${name}!`,
                         mtmp,
                         state,
                         rawEnv,
@@ -1876,7 +1876,7 @@ export async function meatcorpse(mtmp, rawEnv = {}) {
             const name = distant_name(obj, donameFresh, state);
             if (state.flags?.verbose)
                 await monsterMessage(
-                    `${capitalizedMonsterName(mtmp, state, { displayRandom: rawEnv.displayRandom })} eats ${name}!`,
+                    `${Monnam(mtmp, state, { displayRandom: rawEnv.displayRandom })} eats ${name}!`,
                     mtmp,
                     state,
                     rawEnv,
@@ -1928,7 +1928,7 @@ export async function mon_give_prop(mtmp, prop, rawEnv = {}) {
     mtmp.mintrinsics = (mtmp.mintrinsics ?? 0) | intrinsic;
     if (canseemon(mtmp, state) && msg) {
         await monsterMessage(
-            msg.replace('%s', capitalizedMonsterName(mtmp, state, { displayRandom: rawEnv.displayRandom })),
+            msg.replace('%s', Monnam(mtmp, state, { displayRandom: rawEnv.displayRandom })),
             mtmp,
             state,
             rawEnv,
@@ -1943,7 +1943,7 @@ export async function mon_givit(mtmp, ptr, rawEnv = {}) {
     const visible = canseemon(mtmp, state);
     if (ptr === state.mons?.[PM_STALKER]) {
         if (!mtmp.perminvis || mtmp.invis_blkd) {
-            const oldName = capitalizedMonsterName(mtmp, state, { displayRandom: rawEnv.displayRandom });
+            const oldName = Monnam(mtmp, state, { displayRandom: rawEnv.displayRandom });
             mon_set_minvis(mtmp, false, state, rawEnv);
             if (visible) {
                 const text = !canspotmon(mtmp, state)
@@ -1975,7 +1975,7 @@ export function mpickgold(mtmp, rawEnv = {}) {
             const message = rawEnv.message ?? ttyPline;
             message(
                 messageAt(
-                    `${capitalizedMonsterName(mtmp, state)} picks up some ${material === GOLD ? 'gold' : 'money'}.`,
+                    `${Monnam(mtmp, state)} picks up some ${material === GOLD ? 'gold' : 'money'}.`,
                     mtmp.mx,
                     mtmp.my,
                     state,
@@ -2433,7 +2433,7 @@ export async function minliquid_core(monster, env = {}) {
         const dam = random.d(2, 6);
         if (liquidCanSee(monster, env)) {
             await liquidMessage(
-                capitalizedMonsterName(monster, state, namingEnv) + ' rusts.',
+                Monnam(monster, state, namingEnv) + ' rusts.',
                 monster,
                 env,
             );
@@ -2468,7 +2468,7 @@ export async function minliquid_core(monster, env = {}) {
                             ? 'melts away'
                             : 'burns to a crisp';
                     await liquidMessage(
-                        capitalizedMonsterName(monster, state, namingEnv)
+                        Monnam(monster, state, namingEnv)
                             + ' ' + verb + '.',
                         monster,
                         env,
@@ -2480,7 +2480,7 @@ export async function minliquid_core(monster, env = {}) {
                 if (monster.mhp < 1) {
                     if (liquidCanSee(monster, env)) {
                         await liquidMessage(
-                            capitalizedMonsterName(monster, state, namingEnv)
+                            Monnam(monster, state, namingEnv)
                                 + ' surrenders to the fire.',
                             monster,
                             env,
@@ -2489,7 +2489,7 @@ export async function minliquid_core(monster, env = {}) {
                     await mondead(monster, state, env);
                 } else if (liquidCanSee(monster, env)) {
                     await liquidMessage(
-                        capitalizedMonsterName(monster, state, namingEnv)
+                        Monnam(monster, state, namingEnv)
                             + ' burns slightly.',
                         monster,
                         env,
@@ -2521,7 +2521,7 @@ export async function minliquid_core(monster, env = {}) {
             if (liquidCanSee(monster, env)) {
                 if (state.context?.mon_moving) {
                     await liquidMessage(
-                        capitalizedMonsterName(monster, state, namingEnv)
+                        Monnam(monster, state, namingEnv)
                             + ' drowns.',
                         monster,
                         env,
@@ -2538,7 +2538,7 @@ export async function minliquid_core(monster, env = {}) {
             if (engulfing_u(monster, state)) {
                 // C prints this with plain pline().
                 await liquidPlainMessage(
-                    capitalizedMonsterName(monster, state, namingEnv)
+                    Monnam(monster, state, namingEnv)
                         + ' sinks as ' + hliquid('water', namingEnv)
                         + ' rushes in and flushes you out.',
                     env,
@@ -2876,18 +2876,6 @@ function shapeOldNames(monster, state, msg, env = {}) {
     };
 }
 
-function shapeNameForMessage(monster, state, article, suppress = 0, env = {}) {
-    return x_monnam(
-        monster,
-        article,
-        null,
-        suppress,
-        false,
-        state,
-        env,
-    );
-}
-
 function shapeIsDigesting(species) {
     return Boolean(attacktype_fordmg(species, AT_ENGL, AD_DGST));
 }
@@ -3016,8 +3004,8 @@ function* apply_newcham_steps(
                 let trail = '';
                 if (is_vampshifter(monster)) {
                     trail = ` which was a shapeshifted ${
-                        x_monnam(monster, ARTICLE_NONE, null,
-                            SUPPRESS_NAME, false, state, normalized)}`;
+                        noname_monnam(monster, ARTICLE_NONE,
+                            state, normalized)}`;
                 } else if (shapeIsDigesting(target)) {
                     trail = "'s stomach";
                 }
@@ -3068,22 +3056,23 @@ function* apply_newcham_steps(
                     monster.mx, monster.my, state), state, normalized);
             yield usmellmon(target, normalized);
         } else if (!seenorsensed) {
-            const current = shapeNameForMessage(
+            const current = x_monnam(
                 monster,
-                state,
                 monster.mtame ? ARTICLE_YOUR : ARTICLE_A,
+                null,
                 0,
+                false,
+                state,
                 normalized,
             );
             yield normalized.message(messageAt(`${upstart(current)} appears!`,
                 monster.mx, monster.my, state), state, normalized);
         } else {
             yield normalized.message(messageAt(
-                `${oldname} turns into ${shapeNameForMessage(
+                `${oldname} turns into ${noname_monnam(
                     monster,
-                    state,
                     ARTICLE_A,
-                    SUPPRESS_NAME,
+                    state,
                     normalized,
                 )}!`,
                 monster.mx,
@@ -5954,7 +5943,7 @@ export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
         ? worm_known(mdef, state) : cansee(mdef.mx, mdef.my, state))) {
         await message(
             messageAt(
-                `${capitalizedMonsterName(mdef, state, { displayRandom: env.displayRandom })} is`
+                `${Monnam(mdef, state, { displayRandom: env.displayRandom })} is`
                 + ` ${nonliving(mptr) ? 'destroyed' : 'killed'}`
                 + `${fltxt ? ' by the ' : ''}${fltxt}!`,
                 mdef.mx,

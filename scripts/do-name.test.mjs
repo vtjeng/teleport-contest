@@ -3,7 +3,7 @@ import test from 'node:test';
 import { readdirSync, readFileSync } from 'node:fs';
 
 import { LAST_PROP } from '../js/const.js';
-import { bytesText, encodeUtf8Text } from '../js/hacklib.js';
+import { bytesText, encodeUtf8Text, s_suffix } from '../js/hacklib.js';
 import {
     Amonnam,
     Adjmonnam,
@@ -11,8 +11,6 @@ import {
     alreadynamed,
     bogon_is_pname,
     bogusmon,
-    capitalizedAlwaysVisibleMonsterName,
-    capitalizedMonsterName,
     christen_orc,
     christen_monst,
     free_mgivenname,
@@ -26,7 +24,6 @@ import {
     mon_nam_too,
     m_monnam,
     mon_pmname,
-    monsterPossessive,
     new_mgivenname,
     new_oname,
     nextmbuf,
@@ -158,17 +155,13 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         };
 
         assert.equal(mon_nam(monster, state), 'the saddled pony');
-        assert.equal(
-            capitalizedMonsterName(monster, state),
-            'The saddled pony',
-        );
         assert.equal(Monnam(monster, state), 'The saddled pony');
         assert.equal(
-            capitalizedAlwaysVisibleMonsterName(monster, state),
+            noit_Monnam(monster, state),
             'Your saddled pony',
         );
         assert.equal(
-            monsterPossessive(monster, state, true),
+            s_suffix(Monnam(monster, state)),
             "The saddled pony's",
         );
 
@@ -179,7 +172,7 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         };
         assert.equal(mon_nam(monster, state), 'the pony');
         monster.mextra.mgivenname = 'Horses';
-        assert.equal(monsterPossessive(monster, state), "Horses'");
+        assert.equal(s_suffix(mon_nam(monster, state)), "Horses'");
 
         // do_name.c x_monnam():863-865 and 876-885. A hero who cannot spot the
         // monster gets "it", ahead of the given name, the article and the
@@ -187,14 +180,14 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         // wrapper that keeps its name, because it passes SUPPRESS_IT.
         state.u.uprops[DETECT_MONSTERS].intrinsic = 0;
         assert.equal(mon_nam(monster, state), 'it');
-        assert.equal(capitalizedMonsterName(monster, state), 'It');
+        assert.equal(Monnam(monster, state), 'It');
         assert.equal(
-            capitalizedAlwaysVisibleMonsterName(monster, state),
+            noit_Monnam(monster, state),
             'Horses',
         );
         delete monster.mextra.mgivenname;
         assert.equal(
-            capitalizedAlwaysVisibleMonsterName(monster, state),
+            noit_Monnam(monster, state),
             'Your pony',
         );
 
@@ -252,7 +245,7 @@ test('mon_nam uses a shopkeeper\'s stored name', () => {
         'Akranes',
     );
     assert.equal(
-        capitalizedMonsterName(shopkeeper, state, {
+        Monnam(shopkeeper, state, {
             canSpotMonster: () => true,
         }),
         'Akranes',
@@ -1419,4 +1412,138 @@ test('js/ has no second port of mon_nam()', () => {
     // muse.c:2633-2641 names the drinker twice, both times with
     // noit_mon_nam().
     assert.equal(body.match(/\bnoit_mon_nam\(mtmp, state\)/gu)?.length, 2);
+});
+
+function portedFunctionBody(file, name) {
+    const source = readFileSync(`js/${file}`, 'utf8');
+    const body = source.match(new RegExp(
+        `\\n(?:export )?(?:async )?function ${name}\\([\\s\\S]*?\\n\\}\\n`, 'u',
+    ))?.[0];
+    assert.ok(body, `${file} ${name}()`);
+    return body;
+}
+
+// Four functions called a "name the monster whatever the hero sees" helper
+// (noit_mon_nam() or noit_Monnam()) or Monnam() where C calls another
+// do_name.c function. The first three are reached only with a monster the
+// hero can spot, or a tame one, and for those the spellings agree; the fourth
+// is an impossible() text. No recording tells them apart, so the text of each
+// function is pinned here instead.
+test('four callers name the monster with the function C calls', () => {
+    // hack.c domove_swap_with_pet() 2126, 2133, 2139, 2151 and 2160: each of
+    // the five "You stop." refusals names the monster with YMonnam(). 2170
+    // calls x_monnam() directly.
+    const swap = portedFunctionBody('hack.js', 'domove_swap_with_pet');
+    assert.equal(swap.match(/You stop\. {2}\$\{YMonnam\(monster, state\)\}/gu)?.length, 5);
+    assert.doesNotMatch(swap, /noit_/u);
+    // uhitm.c do_attack() 498-500: y_monnam() with its first byte raised.
+    assert.match(portedFunctionBody('uhitm.js', 'do_attack'),
+        /You stop\. {2}\$\{upstart\(y_monnam\(monster, state\)\)\} /u);
+    // dogmove.c quickmimic() 1502: y_monnam(), taken before the appearance
+    // changes.
+    assert.match(portedFunctionBody('dogmove.js', 'quickmimic'),
+        /const oldName = y_monnam\(mtmp, state\);\n\s*const spotted = canspotmon/u);
+    // mhitu.c wildmiss() 188-189: the impossible() text uses Some_Monnam(),
+    // an unseen attacker being "Someone" or "Something"; the messages after
+    // the early returns use Monnam() (204).
+    const wildmiss = portedFunctionBody('mhitu.js', 'wildmiss');
+    assert.match(wildmiss,
+        /\$\{Some_Monnam\(mtmp, state, rawEnv\)\} attacks you /u);
+});
+
+// do_name.c defines each naming function once. The port held second copies
+// under names of its own: one of Monnam(), one of noit_mon_nam(), one of
+// noit_Monnam(), and a helper that chose between s_suffix(Monnam()) and
+// s_suffix(mon_nam()) by a flag. A caller could not be compared with its C
+// statement by name, and 8 of the 189 callers of the first three had drifted
+// to a function C does not call there. The three checks below keep a copy
+// from returning.
+test('js/ has no second port of a do_name.c naming function', () => {
+    const files = readdirSync('js').filter((file) => file.endsWith('.js'));
+    const sources = new Map(files.map(
+        (file) => [file, readFileSync(`js/${file}`, 'utf8')],
+    ));
+
+    // Assembled so that this file does not hold the names it searches for.
+    const deleted = [
+        ['capitalized', 'Monster', 'Name'],
+        ['always', 'Visible', 'Monster', 'Name'],
+        ['capitalized', 'Always', 'Visible', 'Monster', 'Name'],
+        ['monster', 'Possessive'],
+    ].map((parts) => parts.join(''));
+    for (const name of deleted) {
+        assert.deepEqual(
+            files.filter((file) => sources.get(file).includes(name)), [], name,
+        );
+    }
+
+    // A function js/do_name.js exports carries the name of a function
+    // do_name.c defines. A C definition starts in column one with its name
+    // and an opening parenthesis.
+    const cNames = new Set([...readFileSync(
+        'nethack-c/upstream/src/do_name.c', 'utf8',
+    ).matchAll(/^([A-Za-z_][A-Za-z0-9_]*)\(/gmu)].map((match) => match[1]));
+    // do_name.c defines 55 functions; a different count means this pattern
+    // no longer reads the file.
+    assert.equal(cNames.size, 55);
+    const exported = [...sources.get('do_name.js').matchAll(
+        /^export (?:async )?function\*? ([A-Za-z_$][A-Za-z0-9_$]*)/gmu,
+    )].map((match) => match[1]);
+    // One exception: rndmonnamDetails() is rndmonnam() (do_name.c 1388-1408)
+    // returning the species index and gender it drew beside the name.
+    assert.deepEqual(
+        exported.filter((name) => !cNames.has(name)), ['rndmonnamDetails'],
+    );
+
+    // No function elsewhere in js/ opens with a call of one of the monster
+    // naming functions, returned or saved, with or without its first letter
+    // raised, unless it carries the name of a C function, as uhitm.c
+    // dynamic_multi_reason() does.
+    const sourceDir = 'nethack-c/upstream/src';
+    const allCNames = new Set(readdirSync(sourceDir)
+        .filter((file) => file.endsWith('.c'))
+        .flatMap((file) => [...readFileSync(`${sourceDir}/${file}`, 'utf8')
+            .matchAll(/^([A-Za-z_][A-Za-z0-9_]*)\(/gmu)].map((match) => match[1])));
+    const naming = 'x_monnam|l_monnam|mon_nam|noit_mon_nam|some_mon_nam|Monnam'
+        + '|noit_Monnam|Some_Monnam|noname_monnam|m_monnam|y_monnam|YMonnam'
+        + '|Adjmonnam|a_monnam|Amonnam|distant_monnam|mon_nam_too';
+    const wrapper = new RegExp(
+        '(?:function\\*? ([A-Za-z_$][A-Za-z0-9_$]*)\\([^)]*\\) \\{'
+        + '|(?:const|let) ([A-Za-z_$][A-Za-z0-9_$]*) = (?:async )?\\([^)]*\\) =>(?: \\{)?)'
+        + `\\s*(?:(?:const|let) [A-Za-z_$]+ = |return )?(?:upstart\\(|s_suffix\\()*(?:${naming})\\(`,
+        'gu',
+    );
+    const wrappers = [];
+    for (const [file, source] of sources) {
+        if (file === 'do_name.js') continue;
+        for (const match of source.matchAll(wrapper)) {
+            const name = match[1] ?? match[2];
+            if (!allCNames.has(name)) wrappers.push(`${file} ${name}`);
+        }
+    }
+    assert.deepEqual(wrappers, []);
+
+    // Callers of mcastu.c and muse.c functions put Monnam() and mon_nam() on
+    // an env as `monsterName` and `monnam` operations: five and two. C calls
+    // the functions directly. Lower a count when a provider is removed.
+    const providers = (key) => [...sources.values()].reduce(
+        (sum, source) => sum
+            + (source.match(new RegExp(`^\\s*${key}: \\(`, 'gmu'))?.length ?? 0),
+        0,
+    );
+    assert.equal(providers('monsterName'), 5);
+    assert.equal(providers('monnam'), 2);
+});
+
+// potion.c djinni_from_bottle() 2826 names the djinni with a_monnam(). The
+// port called Amonnam() and lowered the first letter again, which is the same
+// text only while the name starts with an article: a hallucinated proper name
+// such as "Dudley" has none and came out as "dudley".
+// recordings/potion.c/djinni-from-bottle-hallucinated-proper-name replays
+// that case; this pins the call.
+test('djinni_from_bottle names the djinni with a_monnam()', () => {
+    const body = portedFunctionBody('potion.js', 'djinni_from_bottle');
+    assert.match(body,
+        /In a cloud of smoke, \$\{a_monnam\(monster, \{ state \}\)\} emerges!/u);
+    assert.doesNotMatch(body, /Amonnam\(|lcase\(/u);
 });

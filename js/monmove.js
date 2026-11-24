@@ -182,7 +182,6 @@ import {
     Amonnam,
     Monnam,
     YMonnam,
-    capitalizedMonsterName,
     mon_nam,
 } from './do_name.js';
 import { dogfood } from './dogfood.js';
@@ -748,7 +747,7 @@ async function mind_blast(mtmp, env = {}) {
     if (canseemon(mtmp, state)) {
         await message(
             messageAt(
-                `${capitalizedMonsterName(mtmp, state, nameEnv)} concentrates.`,
+                `${Monnam(mtmp, state, nameEnv)} concentrates.`,
                 mtmp.mx, mtmp.my, state,
             ),
             state,
@@ -1044,7 +1043,7 @@ export async function m_break_boulder(mtmp, x, y, env = {}) {
         && (otmp = sobj_at(BOULDER, x, y, state)) != null) {
         if (!is_rider(mtmp.data)) {
             if (!Deaf(state.u) && mdistu(mtmp, state) < 4 * 4) {
-                const text = `${capitalizedMonsterName(mtmp, state)} mutters ${
+                const text = `${Monnam(mtmp, state)} mutters ${
                     mtmp.ispriest ? 'a prayer' : 'an incantation'
                 }.`;
                 // C: canspotmon() gates set_msg_xy() for the location prefix;
@@ -1924,7 +1923,7 @@ export async function bee_eat_jelly(mon, obj, env = {}) {
         if (canseemon(mon, state)) {
             await message(
                 messageAt(
-                    `${capitalizedMonsterName(mon, state)} eats ${an(xnameFresh(obj, state))}.`,
+                    `${Monnam(mon, state)} eats ${an(xnameFresh(obj, state))}.`,
                     mon.mx,
                     mon.my,
                     state,
@@ -2353,7 +2352,7 @@ async function cast_undirected_spell(monster, env) {
     if (!attacks) return false;
     const castEnv = {
         ...env,
-        monsterName: (mtmp) => capitalizedMonsterName(mtmp, state),
+        monsterName: (mtmp) => Monnam(mtmp, state),
         monnam: (mtmp) => mon_nam(mtmp, state, env),
         message: async (text, s) => { await ttyPline(text, s); },
     };
@@ -3351,7 +3350,7 @@ export async function postmov(
                     if (canseeit && canspotmon(monster, state)) {
                         await message(
                             messageAt(
-                                `${capitalizedMonsterName(monster, state, rawEnv)}`
+                                `${Monnam(monster, state, rawEnv)}`
                                 + ' opens a door.',
                                 monster.mx,
                                 monster.my,
@@ -3598,7 +3597,7 @@ export async function itsstuck(monster, rawEnv = {}) {
         const message = rawEnv.message ?? ttyPline;
         const result = message(
             messageAt(
-                `${capitalizedMonsterName(monster, state)} cannot escape from you!`,
+                `${Monnam(monster, state)} cannot escape from you!`,
                 monster.mx, monster.my, state,
             ),
             state,

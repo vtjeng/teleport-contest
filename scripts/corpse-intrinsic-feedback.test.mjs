@@ -7,7 +7,7 @@ import {newMonster,place_monster} from '../js/monst.js';import {PM_PURPLE_WORM,P
 import {mon_givit,mon_give_prop} from '../js/mon.js';
 import {ROOM,HALLUC,HALLUC_RES,BLINDED,SEE_INVIS,DETECT_MONSTERS,FIRE_RES,TELEPORT,NON_PM} from '../js/const.js';
 import {light_globals_init} from '../js/light.js';import {vision_reset,vision_recalc,init_vision_globals} from '../js/vision.js';
-import {canseemon,canspotmon} from '../js/display.js';import {capitalizedMonsterName} from '../js/do_name.js';import {rn2_on_display_rng} from '../js/rng.js';
+import {canseemon,canspotmon} from '../js/display.js';import {Monnam} from '../js/do_name.js';import {rn2_on_display_rng} from '../js/rng.js';
 for(const hallu of [false,true])for(const mode of ['sighted','blind-detected','blind-unsensed','see-invisible'])for(const condition of ['new','blocked','already'])test(`stalker intrinsic Hallu=${hallu} ${mode} ${condition}`,async()=>{await check({hallu,mode,condition,kind:'stalker'});});
 for(const hallu of [false,true])for(const mode of ['sighted','blind-detected'])for(const already of [false,true])test(`fire intrinsic Hallu=${hallu} ${mode} already=${already}`,async()=>{await check({hallu,mode,already,kind:'fire'});});
 for(const hallu of [false,true])test(`unsupported corpse intrinsic Hallu=${hallu}`,async()=>{await check({hallu,mode:'sighted',kind:'unsupported'});});
@@ -22,7 +22,7 @@ async function check(c){
  // Evaluate the expected name on a copy of the display stream taken before
  // the action; the copy then follows the live redraw below.
  const liveDisplay=game.displayCtx;let refDisplay,name;game.displayCtx=structuredClone(liveDisplay);
- try{name=transition||(grant&&visible)?capitalizedMonsterName(actor,game,{displayRandom:n=>rn2_on_display_rng(n,game)}):null;}finally{refDisplay=game.displayCtx;game.displayCtx=liveDisplay;}
+ try{name=transition||(grant&&visible)?Monnam(actor,game,{displayRandom:n=>rn2_on_display_rng(n,game)}):null;}finally{refDisplay=game.displayCtx;game.displayCtx=liveDisplay;}
  const ref={displayCtx:refDisplay};
  const before={core:structuredClone(game.coreCtx)};
  const lines=[],redraws=[];

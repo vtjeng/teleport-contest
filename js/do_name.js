@@ -989,13 +989,6 @@ function x_monnam_it(suppress, monster, state, env = {}) {
     return 'something';
 }
 
-// C ref: do_name.c Monnam() (1073-1080) under the port's older name; Monnam()
-// below is the same function.
-export function capitalizedMonsterName(monster, state = game, env = {}) {
-    const name = mon_nam(monster, state, env);
-    return upstart(name);
-}
-
 // C ref: do_name.c some_mon_nam() (1064-1071). Like mon_nam() but when the
 // monster cannot be spotted, answers "someone" or "something" via AUGMENT_IT
 // instead of "it".
@@ -1401,34 +1394,6 @@ export function x_monnam(
     }
 }
 
-// C ref: do_name.c noit_Monnam() (1082-1089) over noit_mon_nam()
-// (1053-1060). ARTICLE_YOUR becomes "your" for an unnamed tame monster and
-// "the" otherwise; a given name has no article.
-//
-// noit_mon_nam() passes x_monnam() SUPPRESS_IT, and SUPPRESS_SADDLE as well
-// for a named monster. SUPPRESS_HALLUCINATION is not among them, so
-// do_name.c:861 raises do_hallu for a hallucinating hero and :950-955 replaces
-// the whole name with rndmonnam(), which draws rn2_on_display_rng() once per
-// rejected species and once more for the gender (do_name.c:1399-1407).
-// SUPPRESS_IT is the whole point of this wrapper: C's comment at 1049-1052
-// says it names a monster "as if the player can always see" it.
-export function alwaysVisibleMonsterName(
-    monster,
-    state = game,
-    env = {},
-) {
-    return noit_mon_nam(monster, state, env);
-}
-
-export function capitalizedAlwaysVisibleMonsterName(
-    monster,
-    state = game,
-    env = {},
-) {
-    const name = alwaysVisibleMonsterName(monster, state, env);
-    return upstart(name);
-}
-
 // C ref: do_name.c mon_nam_too() (1189-1216). The object of a verb whose
 // subject is `other_mon`: an ordinary name when the two differ, and a
 // reflexive pronoun when they are the same monster.
@@ -1480,23 +1445,6 @@ export function monverbself(mon, monnamtext, verb, othertext,
         result += ' ' + othertext;
     result += ' ' + selfbuf;
     return result;
-}
-
-// C ref: hacklib.c s_suffix() over mon_nam()/Monnam(), which is how mhitm.c
-// hitmm() spells the AT_TENT line at 687-690. The suffix comes from the ported
-// function rather than from an apostrophe rule written here, because
-// s_suffix() special-cases "it" and "you" case-blind: C answers "Its
-// tentacles suck", and a bare apostrophe rule answers "It's".
-export function monsterPossessive(
-    monster,
-    state = game,
-    capitalized = false,
-    env = {},
-) {
-    const name = capitalized
-        ? capitalizedMonsterName(monster, state, env)
-        : mon_nam(monster, state, env);
-    return s_suffix(name);
 }
 
 export function rndghostname(env = {}) {

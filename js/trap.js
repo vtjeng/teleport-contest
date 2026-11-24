@@ -186,7 +186,7 @@ import {
 } from './dbridge.js';
 import { getdir, xytodir, ynq } from './cmd.js';
 import {
-    Monnam, capitalizedMonsterName, mon_nam, mon_pmname,
+    Monnam, mon_nam, mon_pmname,
     noit_Monnam, y_monnam, YMonnam, rndcolor, hliquid, hcolor, rndmonnam,
     a_monnam, christen_monst, obj_pmname,
 } from './do_name.js';
@@ -2478,7 +2478,7 @@ async function try_disarm(ttmp, force_failure, state = game) {
 
     /* Test for monster first, monsters are displayed instead of trap. */
     if (mtmp && (!mtmp.mtrapped || !holdingtrap)) {
-        await ttyPline(`${capitalizedMonsterName(mtmp, state)} is in the way.`, state);
+        await ttyPline(`${Monnam(mtmp, state)} is in the way.`, state);
         return 0;
     }
     /* We might be forced to move onto the trap's location. */
@@ -2536,7 +2536,7 @@ async function try_disarm(ttmp, force_failure, state = game) {
                         }
                     }
                     if (mtmp.mtrapped)
-                        await ttyPline(`${capitalizedMonsterName(mtmp, state)} remains entangled.`, state);
+                        await ttyPline(`${Monnam(mtmp, state)} remains entangled.`, state);
                 }
             } else if (under_u) {
                 await dotrap(ttmp, FAILEDUNTRAP, state);
@@ -2562,7 +2562,7 @@ async function reward_untrap(ttmp, mtmp, state = game) {
             && mtmp.data?.mlet !== S_HUMAN) {
             mtmp.mpeaceful = 1;
             set_malign(mtmp, state); /* reset alignment */
-            await ttyPline(`${capitalizedMonsterName(mtmp, state)} is grateful.`, state);
+            await ttyPline(`${Monnam(mtmp, state)} is grateful.`, state);
         }
         /* Helping someone out of a trap is a nice thing to do. */
         if (!rn2(3) && !rnl(8) && state.u.ualign?.type === A_LAWFUL) {
@@ -2677,13 +2677,13 @@ async function disarm_shooting_trap(ttmp, otyp, state = game) {
 async function try_lift(mtmp, ttmp, xtra_wt, stuff, state = game) {
     if (calc_capacity(xtra_wt, state) >= HVY_ENCUMBER) {
         const reason = stuff ? 'carrying too much' : 'too heavy';
-        await ttyPline(`${capitalizedMonsterName(mtmp, state)} is ${reason} for you to lift.`, state);
+        await ttyPline(`${Monnam(mtmp, state)} is ${reason} for you to lift.`, state);
         if (!ttmp.madeby_u && !mtmp.mpeaceful && mtmp.mcanmove
             && !mindless(mtmp.data) && mtmp.data?.mlet !== S_HUMAN
             && rnl(10) < 3) {
             mtmp.mpeaceful = 1;
             set_malign(mtmp, state);
-            await ttyPline(`${capitalizedMonsterName(mtmp, state)} thinks it was nice of you to try.`, state);
+            await ttyPline(`${Monnam(mtmp, state)} thinks it was nice of you to try.`, state);
         }
         return 0;
     }
@@ -2696,7 +2696,7 @@ async function help_monster_out(mtmp, ttmp, state = game) {
     const u = state.u;
 
     if (!mtmp.mtrapped) {
-        await ttyPline(`${capitalizedMonsterName(mtmp, state)} isn't trapped.`, state);
+        await ttyPline(`${Monnam(mtmp, state)} isn't trapped.`, state);
         return 0;
     }
     /* Do you have the necessary capacity to lift anything? */
@@ -2730,7 +2730,7 @@ async function help_monster_out(mtmp, ttmp, state = game) {
         await ttyPline(`You try to grab ${mon_nam(mtmp, state)}, but cannot get a firm grasp.`, state);
         if (mtmp.msleeping) {
             mtmp.msleeping = 0;
-            await ttyPline(`${capitalizedMonsterName(mtmp, state)} awakens.`, state);
+            await ttyPline(`${Monnam(mtmp, state)} awakens.`, state);
         }
         return 1;
     }
@@ -2739,11 +2739,11 @@ async function help_monster_out(mtmp, ttmp, state = game) {
 
     if (mtmp.msleeping) {
         mtmp.msleeping = 0;
-        await ttyPline(`${capitalizedMonsterName(mtmp, state)} awakens.`, state);
+        await ttyPline(`${Monnam(mtmp, state)} awakens.`, state);
     } else if (mtmp.mfrozen && !rn2(mtmp.mfrozen)) {
         mtmp.mcanmove = 1;
         mtmp.mfrozen = 0;
-        await ttyPline(`${capitalizedMonsterName(mtmp, state)} stirs.`, state);
+        await ttyPline(`${Monnam(mtmp, state)} stirs.`, state);
     }
 
     /* is the monster too heavy? */
@@ -3150,7 +3150,7 @@ export async function openholdingtrap(mon, state = game) {
         if (canspotmon(mon, state)) {
             noticed = true;
             await ttyPline(
-                `${capitalizedMonsterName(mon, state)} is released from ${which}${trapdescr}.`,
+                `${Monnam(mon, state)} is released from ${which}${trapdescr}.`,
                 state,
             );
         } else if (cansee(t.tx, t.ty, state) && t.tseen) {
