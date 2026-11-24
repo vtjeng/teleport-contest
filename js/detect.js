@@ -119,6 +119,7 @@ import {
     GLYPH_INVISIBLE,
     mon_to_glyph,
     flash_glyph_at,
+    tty_map_cell_at,
     under_water,
 } from './display.js';
 import { depth, on_level, room_discovered, lastseentyp_grid } from './dungeon.js';
@@ -1909,11 +1910,11 @@ async function defaultFoundTrapDisplay(trap, x, y, env) {
     }
     // Preserve the injected-hook fallback contract for focused callers which
     // supply presentation but not a logical layer descriptor.
-    const shown = env.state.level.at(x, y);
+    const shown = tty_map_cell_at(x, y, env.state);
     const expected = trap_glyph_info(trap, env.state);
-    return shown.disp_ch === expected.ch
-        && shown.disp_color === expected.color
-        && Boolean(shown.disp_decgfx) === Boolean(expected.dec);
+    return shown.ch === expected.ch
+        && shown.color === expected.color
+        && Boolean(shown.decgfx) === Boolean(expected.dec);
 }
 
 async function defaultRevealFoundTrap(trap, env) {

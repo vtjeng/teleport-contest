@@ -5,7 +5,8 @@
 // display.c last drew, which glyph_at() returns. They differ whenever a
 // square is drawn without being remembered: a monster, the hero, a warning,
 // a detection overlay, the blank squares under_water() draws beside a
-// submerged hero. The port keeps them as `remembered_glyph` and `disp_glyph`.
+// submerged hero. The port keeps them as a location's `remembered_glyph` and
+// the `glyphinfo` of js/display.js glyph_buffer_at()'s entry.
 // Reading the wrong one has cost screens three times: a second 'I' drawn for
 // a blind submerged hero (uhitm.c do_attack()), an 'I' left behind by a
 // pushed boulder and by a wand of probing (hack.c dopush(), zap.c bhit()),
@@ -135,10 +136,8 @@ const SITES = [
         ['display.c reglyph_darkroom']],
     // wintty.c docorner() redraws through row_refresh().
     ['display.js', 'docorner', 'drawn', 3, ['display.c row_refresh']],
-    ['display.js', '<top>', 'drawn', 1, [],
-        'SCREEN_BUFFER_FIELDS, the list of fields that make up a gbuf entry'],
     ['display.js', 'commitFlushedGlyph', 'drawn', 1, ['display.c flush_screen']],
-    ['display.js', '_buildScreenOutput', 'drawn', 2, ['display.c flush_screen']],
+    ['display.js', '_buildScreenOutput', 'drawn', 3, ['display.c flush_screen']],
     ['display.js', 'cls', 'drawn', 1, [],
         'display.c clear_glyph_buffer() assigns whole gbuf entries, which the '
         + 'C scan does not match'],
@@ -198,16 +197,12 @@ const SITES = [
     // One read; the second match is the fallback for an injected reader.
     ['sounds.js', 'tiphat', 'drawn', 2, ['sounds.c tiphat']],
     ['sp_lev.js', 'flip_visuals', 'remembered', 2, ['sp_lev.c flip_visuals']],
-    ['startup_a11y.js', '<top>', 'drawn', 1, [],
-        'the list of gbuf fields the glyph-update notices snapshot'],
-    ['startup_a11y.js', 'captureBufferedLocation', 'drawn', 2, [],
+    ['startup_a11y.js', 'captureBufferedLocation', 'drawn', 1, [],
         'snapshots a gbuf entry for the glyph-update notices'],
-    ['startup_a11y.js', 'sameBufferedPresentation', 'drawn', 3, [],
+    ['startup_a11y.js', 'restoreBufferedLocation', 'drawn', 2, [],
+        'restores a gbuf snapshot'],
+    ['startup_a11y.js', 'sameBufferedPresentation', 'drawn', 2, [],
         'compares two gbuf snapshots'],
-    ['startup_a11y.js', 'restoreGlyphBuffer', 'drawn', 1, [],
-        'restores a gbuf snapshot'],
-    ['startup_a11y.js', 'applyGlyphFrameChanges', 'drawn', 1, [],
-        'restores a gbuf snapshot'],
     ['startup_a11y.js', 'bufferedGlyphSubjectAt', 'remembered', 1,
         ['pager.c mhidden_description']],
     ['startup_a11y.js', 'bufferedGlyphSubjectAt', 'drawn', 1,
@@ -257,7 +252,7 @@ test('SITES and DIFFERENT list every glyph access in js/ with its count', () => 
     assert.deepEqual(
         [...JS_SITES].sort(([a], [b]) => a.localeCompare(b)),
         [...listed].sort(([a], [b]) => a.localeCompare(b)),
-        'a function in js/ touches remembered_glyph, disp_glyph or glyph_at '
+        'a function in js/ touches remembered_glyph, glyphinfo or glyph_at '
         + 'differently from its row in SITES; compare it with its C function '
         + 'as the comment at the top of this file says, then update the row',
     );
@@ -308,15 +303,15 @@ test('the exception counts are the ones last reviewed', () => {
     // 4: POSITIONBAR, nhl_getmap(), display.c's macros, and the background
     // glyph. A new row needs its reason.
     assert.equal(UNPORTED.size, 4);
-    // 9: SCREEN_BUFFER_FIELDS, cls(), makeLocation(), resetAirLocation() and
-    // five glyph-buffer snapshot helpers in js/startup_a11y.js.
-    assert.equal(SITES.filter((row) => row[4].length === 0).length, 9);
+    // 6: cls(), makeLocation(), resetAirLocation() and three glyph-buffer
+    // snapshot helpers in js/startup_a11y.js.
+    assert.equal(SITES.filter((row) => row[4].length === 0).length, 6);
 });
 
 test('the scan finds the access however it is spelled', () => {
     // The spellings the scan must count, one site each. For the drawn glyph:
     // a glyph_at() call, a glyph_at reference kept as a fallback, and a
-    // direct disp_glyph read. For the remembered one: a read and a write.
+    // direct glyphinfo read. For the remembered one: a read and a write.
     assert.ok(JS_SITES.has('dothrow.js hurtle_step drawn'));
     assert.ok(JS_SITES.has('sounds.js tiphat drawn'));
     assert.ok(JS_SITES.has('potion.js mongrantswish drawn'));

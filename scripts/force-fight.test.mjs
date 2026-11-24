@@ -38,6 +38,7 @@ import {
     map_invisible,
     trap_to_glyph,
     unmap_object,
+    tty_map_cell_at,
 } from '../js/display.js';
 import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
@@ -124,6 +125,11 @@ const WEST = [-1, 0];
 
 function target(state) {
     return state.level.at(state.u.ux + WEST[0], state.u.uy + WEST[1]);
+}
+
+// The terminal cell of the target square.
+function targetCell(state) {
+    return tty_map_cell_at(state.u.ux + WEST[0], state.u.uy + WEST[1], state);
 }
 
 // rm.h:213-218 aliases doormask, altarmask and looted onto struct rm's
@@ -911,9 +917,9 @@ test('unmap_object rewrites memory without painting the square', async () => {
         const x = state.u.ux + WEST[0];
         const y = state.u.uy + WEST[1];
         state.level.traps.push({ tx: x, ty: y, ttyp: WEB, tseen });
-        target(state).disp_ch = null;
+        targetCell(state).ch = null;
         unmapTarget(state);
-        assert.equal(target(state).disp_ch, null, `tseen ${tseen}`);
+        assert.equal(targetCell(state).ch, null, `tseen ${tseen}`);
     }
 });
 
@@ -980,11 +986,11 @@ test('unmap_object maps engraving memory and reveals only in-sight engravings', 
             engraving.erevealed = 0;
             state.viz_array[y][x] = visible ? 2 : 0; // vision.h IN_SIGHT=2.
             target(state).waslit = false; // Must not darken the engraving to stone.
-            target(state).disp_ch = null; // show=0 changes memory without drawing.
+            targetCell(state).ch = null; // show=0 changes memory without drawing.
             unmap_object(x, y, state);
             assert.equal(engraving.erevealed, visible ? 1 : 0);
             assert.equal(target(state).remembered_glyph.glyph, engraving_to_glyph(engraving, state));
-            assert.equal(target(state).disp_ch, null);
+            assert.equal(targetCell(state).ch, null);
         }
     }
     // A wall fails spot_shows_engravings and retains terrain memory.
@@ -1029,12 +1035,12 @@ test('map_background paints only when asked to show', async () => {
     const state = await heroWithATargetSquare(FOUNTAIN);
     const x = state.u.ux + WEST[0];
     const y = state.u.uy + WEST[1];
-    target(state).disp_ch = null;
+    targetCell(state).ch = null;
     map_background(x, y, 0, state);
-    assert.equal(target(state).disp_ch, null);
+    assert.equal(targetCell(state).ch, null);
     map_background(x, y, 1, state);
     assert.equal(
-        target(state).disp_ch,
+        targetCell(state).ch,
         map_glyphinfo(back_to_glyph(x, y, state), state).ch,
     );
 });

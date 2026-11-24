@@ -78,6 +78,8 @@ import {
     map_glyphinfo,
     statue_to_glyph,
     trap_to_glyph,
+    glyph_buffer_at,
+    tty_map_cell_at,
 } from '../js/display.js';
 import {
     GLYPH_BODY_OFF,
@@ -181,6 +183,7 @@ import { withSerializedGrids } from './terminal-grid-capture.mjs';
 import { howmonseen } from '../js/vision.js';
 import { worm_known } from '../js/worm.js';
 import { lastseentyp_grid } from '../js/dungeon.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 test('getpos valid selection follows the C x-then-y traversal', async () => {
     // getpos.c:102-115 visits x from 1 through COLNO - 1, with y from 0
@@ -272,7 +275,7 @@ test('self_lookat appends the punished hero ball from C state', () => {
 test('lookat keeps See_invisible separate from Invisible and senses blind extrinsic telepathy', () => {
     // display.h:canspotself() uses Invisible (Invis && !See_invisible),
     // while pager.c:self_lookat() uses Invis for the hero's own adjective.
-    const state = {
+    const state = withScreenBuffers({
         flags: { female: false },
         iflags: {},
         plname: 'merlin',
@@ -287,7 +290,7 @@ test('lookat keeps See_invisible separate from Invisible and senses blind extrin
         urace: { adj: 'human' },
         mons: { 343: { pmnames: ['wizard', 'wizard', 'wizard'] } },
         level: { at: () => undefined },
-    };
+    });
     state.u.uprops[INVIS] = { intrinsic: 1 };
     state.u.uprops[SEE_INVIS] = { intrinsic: 1 };
     const self = lookat(3, 4, state).buf;
@@ -315,7 +318,7 @@ test('lookat keeps See_invisible separate from Invisible and senses blind extrin
 test('mhidden_description uses the hero state for hidden self coordinates', () => {
     // pager.c:mhidden_description() switches from mon->mx/my and mundetected
     // to u.ux/uy and u.uundetected for &gy.youmonst.
-    const state = {
+    const state = withScreenBuffers({
         u: { ux: 3, uy: 4, uundetected: true },
         youmonst: {
             mx: 70,
@@ -325,7 +328,7 @@ test('mhidden_description uses the hero state for hidden self coordinates', () =
             data: { mlet: 'h' },
         },
         level: { at: () => undefined, regions: [] },
-    };
+    });
     // self_lookat()'s mask (pager.c 124); the hiding text ignores every flag.
     assert.equal(
         mhidden_description(
@@ -347,7 +350,7 @@ test('lookat does not draw a swallowed glyph when looking away', () => {
     };
     initRng(2026091701);
     try {
-        const state = {
+        const state = withScreenBuffers({
             flags: {},
             iflags: { save_uswallow: true },
             displayCtx: cloneIsaacContext(game.displayCtx),
@@ -358,7 +361,7 @@ test('lookat does not draw a swallowed glyph when looking away', () => {
                 ustuck: { data: { mlet: 'e' }, mx: 3, my: 4 },
             },
             level: { at: () => undefined },
-        };
+        });
         const before = cloneIsaacContext(state.displayCtx);
         assert.equal(lookat(2, 4, state).buf, 'unexplored area');
         assert.deepEqual(state.displayCtx, before);
@@ -536,8 +539,21 @@ function terrainDescriptionState(cmap, flags = 0) {
     // active room symbol before pager.c scans gs.showsyms[].
     state.gs.showsyms[S_darkroom] = state.gs.showsyms[S_room];
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? { flags, disp_glyph: { glyph: cmap_to_glyph(cmap, state) } }
+        ? { flags }
         : undefined);
+    // The glyph is mapped when it is read, after the caller has finished
+    // the state (In_hell() reads state.dungeons).
+    // A caller's own glyphinfo replaces it.
+    Object.defineProperty(glyph_buffer_at(3, 4, withScreenBuffers(state)),
+        'glyphinfo', {
+            configurable: true,
+            get: () => ({ glyph: cmap_to_glyph(cmap, state) }),
+            set(value) {
+                Object.defineProperty(this, 'glyphinfo', {
+                    configurable: true, enumerable: true, writable: true, value,
+                });
+            },
+        });
     return state;
 }
 
@@ -676,8 +692,9 @@ function statueDescription() {
     });
     state.level.objects[3][4] = statue;
     state.level.at = (x, y) => x === 3 && y === 4
-        ? { disp_glyph: { glyph: statue_to_glyph(statue, state) } }
+        ? {}
         : undefined;
+    glyph_buffer_at(3, 4, withScreenBuffers(state)).glyphinfo = { glyph: statue_to_glyph(statue, state) };
     return describeLooked(state);
 }
 
@@ -711,8 +728,9 @@ test('quest-start downstairs is described as blocked before the quest', () => {
         killed_leader: false,
     } };
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? { disp_glyph: { glyph: cmap_to_glyph(S_dnstair, state) } }
+        ? {}
         : undefined);
+    glyph_buffer_at(3, 4, withScreenBuffers(state)).glyphinfo = { glyph: cmap_to_glyph(S_dnstair, state) };
     assert.deepEqual(describeLooked(state), {
         found: 1,
         out: '        a staircase down or a branch staircase down (blocked staircase down)',
@@ -736,14 +754,13 @@ test('looked descriptions compare the raw tty byte behind DEC graphics', () => {
     const glyph = cmap_to_glyph(S_vwall, state);
     const glyphInfo = map_glyphinfo(glyph, state);
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? {
-            // display.c stores the rendered character separately from the
-            // high-bit tty byte that pager.c uses for family matching.
-            disp_glyph: { glyph },
-            disp_ch: glyphInfo.ch,
-            disp_decgfx: glyphInfo.dec,
-        }
+        ? {}
         : undefined);
+    // display.c stores the rendered character separately from the high-bit
+    // tty byte that pager.c uses for family matching.
+    glyph_buffer_at(3, 4, withScreenBuffers(state)).glyphinfo = { glyph };
+    Object.assign(tty_map_cell_at(3, 4, state),
+        { ch: glyphInfo.ch, decgfx: glyphInfo.dec });
     assert.deepEqual(describeLooked(state), {
         found: 1,
         out: '        the interior of a monster or a wall (wall)',
@@ -768,11 +785,10 @@ test('blank stone retains matching monster and misc classes before refinement', 
     // many-things summary before lookat() supplies the actual stone detail.
     const state = terrainDescriptionState(S_stone);
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? {
-            seenv: 0xff,
-            disp_glyph: { glyph: cmap_to_glyph(S_stone, state) },
-        }
+        ? { seenv: 0xff }
         : undefined);
+    glyph_buffer_at(3, 4, withScreenBuffers(state)).glyphinfo
+        = { glyph: cmap_to_glyph(S_stone, state) };
     assert.deepEqual(describeLooked(state), {
         found: 1,
         out: '        can be many things (stone)',
@@ -818,8 +834,9 @@ test('cloud ambiguity names air and non-air terrain', () => {
         parseNethackrc('OPTIONS=symset:DECgraphics\n'), state,
     );
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? { disp_glyph: { glyph: cmap_to_glyph(S_cloud, state) } }
+        ? {}
         : undefined);
+    glyph_buffer_at(3, 4, withScreenBuffers(state)).glyphinfo = { glyph: cmap_to_glyph(S_cloud, state) };
     assert.deepEqual(describeLooked(state), {
         found: 1,
         out: '        can be many things (cloudy area)',
@@ -877,8 +894,9 @@ test('visible dart traps refine the overloaded trap symbol', () => {
         parseNethackrc('OPTIONS=symset:DECgraphics\n'), state,
     );
     state.level.at = (x, y) => (x === 3 && y === 4
-        ? { disp_glyph: { glyph: trap_to_glyph({ ttyp: DART_TRAP }) } }
+        ? {}
         : undefined);
+    glyph_buffer_at(3, 4, withScreenBuffers(state)).glyphinfo = { glyph: trap_to_glyph({ ttyp: DART_TRAP }) };
     assert.deepEqual(describeLooked(state), {
         found: 1,
         out: '        a trap (dart trap)',
@@ -1216,14 +1234,15 @@ test('trapped_chest_at scans each direct inventory owner only', () => {
     });
     const makeState = () => {
         const level = new GameMap();
-        level.at(x, y).disp_glyph = {
-            glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }),
-        };
-        return {
+        const state = withScreenBuffers({
             invent: null,
             u: { ux: x, uy: y, usteed: null },
             level,
+        });
+        glyph_buffer_at(x, y, state).glyphinfo = {
+            glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }),
         };
+        return state;
     };
 
     const heroState = makeState();
@@ -1289,25 +1308,26 @@ test('trap descriptions preserve synthetic trapped chest and door names', () => 
     const location = level.at(x, y);
     location.typ = DOOR;
     location.flags = D_TRAPPED;
-    const state = {
+    const state = withScreenBuffers({
         u: { ux: 1, uy: 1 },
         // D_TRAPPED is the remembered-door mask whose synthetic glyph
         // pager.c refines to "trapped door".
         level,
-    };
-    location.disp_glyph = {
+    });
+    const entry = glyph_buffer_at(x, y, state);
+    entry.glyphinfo = {
         glyph: trap_to_glyph({ ttyp: TRAPPED_CHEST }, state),
     };
     assert.equal(
         trap_description(TRAPPED_CHEST, x, y, state), 'trapped chest',
     );
-    location.disp_glyph.glyph = trap_to_glyph(
+    entry.glyphinfo.glyph = trap_to_glyph(
         { ttyp: TRAPPED_DOOR }, state,
     );
     assert.equal(
         trap_description(TRAPPED_DOOR, x, y, state), 'trapped door',
     );
-    location.disp_glyph.glyph = trap_to_glyph({ ttyp: ARROW_TRAP }, state);
+    entry.glyphinfo.glyph = trap_to_glyph({ ttyp: ARROW_TRAP }, state);
     assert.equal(
         trap_description(ARROW_TRAP, x, y, state), 'arrow trap',
     );
@@ -1362,10 +1382,10 @@ test('trap lists keep visible and obscured traps in map order', async () => {
     const installGlyph = (x, glyph) => {
         const presentation = map_glyphinfo(glyph, game);
         const location = game.level.at(x, y);
-        location.disp_glyph = { ...presentation, glyph };
-        location.disp_ch = presentation.ch;
-        location.disp_decgfx = presentation.dec;
-        location.disp_browser_ch = presentation.displayCh;
+        glyph_buffer_at(x, y).glyphinfo = { ...presentation, glyph };
+        tty_map_cell_at(x, y).ch = presentation.ch;
+        tty_map_cell_at(x, y).decgfx = presentation.dec;
+        tty_map_cell_at(x, y).browser_ch = presentation.displayCh;
     };
     installGlyph(visibleX, trap_to_glyph(visible, game));
     installGlyph(obscuredX, cmap_to_glyph(S_room, game));
@@ -1405,10 +1425,10 @@ test('trap lists format configured compass coordinates', async () => {
     const glyph = trap_to_glyph(trap, game);
     const presentation = map_glyphinfo(glyph, game);
     const location = game.level.at(x, y);
-    location.disp_glyph = { ...presentation, glyph };
-    location.disp_ch = presentation.ch;
-    location.disp_decgfx = presentation.dec;
-    location.disp_browser_ch = presentation.displayCh;
+    glyph_buffer_at(x, y).glyphinfo = { ...presentation, glyph };
+    tty_map_cell_at(x, y).ch = presentation.ch;
+    tty_map_cell_at(x, y).decgfx = presentation.dec;
+    tty_map_cell_at(x, y).browser_ch = presentation.displayCh;
 
     let rows;
     let glyphCharacter;
@@ -1439,12 +1459,12 @@ test('engraving lists use remembered grave terrain for obscured headstones',
         const y = game.u.uy;
         const location = game.level.at(x, y);
         const floor = map_glyphinfo(cmap_to_glyph(S_room, game), game);
-        location.disp_glyph = {
+        glyph_buffer_at(x, y).glyphinfo = {
             ...floor, glyph: cmap_to_glyph(S_room, game),
         };
-        location.disp_ch = floor.ch;
-        location.disp_decgfx = floor.dec;
-        location.disp_browser_ch = floor.displayCh;
+        tty_map_cell_at(x, y).ch = floor.ch;
+        tty_map_cell_at(x, y).decgfx = floor.dec;
+        tty_map_cell_at(x, y).browser_ch = floor.displayCh;
         // SVALL is 0xFF: C admits an engraving after any nonzero seenv bit;
         // the full mask avoids making this test about one viewing direction.
         location.seenv = 0xFF;
@@ -1598,13 +1618,13 @@ test('trap and engraving list choices return through the next boundary',
     }));
 
 test('lookat covers non-cmap glyph arms and returns source side channels', () => {
-    const state = {
+    const state = withScreenBuffers({
         context: { warntype: {} },
         flags: {},
         iflags: {},
         level: new GameMap(),
         u: { ux: 10, uy: 10, uz: { dnum: 0, dlevel: 1 }, uprops: [] },
-    };
+    });
     monst_globals_init(state);
     const monster = newMonster({
         data: state.mons[PM_SAMURAI],
@@ -1617,8 +1637,9 @@ test('lookat covers non-cmap glyph arms and returns source side channels', () =>
     state.viz_array = Array.from({ length: 21 }, () => new Uint8Array(80));
     state.viz_array[4][3] = COULD_SEE | IN_SIGHT;
     state.level.at = (x, y) => x === 3 && y === 4
-        ? { disp_glyph: { glyph: GLYPH_MON_MALE_OFF + PM_SAMURAI } }
+        ? {}
         : undefined;
+    glyph_buffer_at(3, 4, withScreenBuffers(state)).glyphinfo = { glyph: GLYPH_MON_MALE_OFF + PM_SAMURAI };
     const monsterResult = lookat(3, 4, state);
     assert.equal(monsterResult.pm, state.mons[PM_SAMURAI]);
     assert.match(monsterResult.buf, /hatamoto/u);
@@ -1633,22 +1654,26 @@ test('lookat covers non-cmap glyph arms and returns source side channels', () =>
     assert.equal(bearTrap.tseen, true);
 
     state.level.at = (x, y) => x === 3 && y === 4
-        ? { disp_glyph: { glyph: GLYPH_INVIS_OFF } }
+        ? {}
         : undefined;
+    glyph_buffer_at(3, 4, withScreenBuffers(state)).glyphinfo = { glyph: GLYPH_INVIS_OFF };
     assert.equal(
         lookat(3, 4, state).buf,
         'remembered, unseen, creature',
     );
     state.level.at = (x, y) => x === 3 && y === 4
-        ? { disp_glyph: { glyph: GLYPH_NOTHING_OFF } }
+        ? {}
         : undefined;
+    glyph_buffer_at(3, 4, withScreenBuffers(state)).glyphinfo = { glyph: GLYPH_NOTHING_OFF };
     assert.equal(lookat(3, 4, state).buf, 'dark part of a room');
     state.level.at = () => undefined;
+    glyph_buffer_at(3, 4, state).glyphinfo = null;
     assert.equal(lookat(3, 4, state).buf, 'unexplored area');
 
     state.level.at = (x, y) => x === 3 && y === 4
-        ? { disp_glyph: { glyph: GLYPH_WARNING_OFF + 2 } }
+        ? {}
         : undefined;
+    glyph_buffer_at(3, 4, withScreenBuffers(state)).glyphinfo = { glyph: GLYPH_WARNING_OFF + 2 };
     assert.equal(
         lookat(3, 4, state).buf,
         'unknown creature causing you anxiety',
@@ -1656,7 +1681,7 @@ test('lookat covers non-cmap glyph arms and returns source side channels', () =>
 });
 
 test('lookat routes the exceptional self and swallowed source arms', () => {
-    const selfState = {
+    const selfState = withScreenBuffers({
         flags: { female: false },
         iflags: {},
         plname: 'merlin',
@@ -1671,11 +1696,11 @@ test('lookat routes the exceptional self and swallowed source arms', () => {
         urace: { adj: 'human', mnum: 0 },
         mons: { 343: { pmnames: ['wizard', 'wizard', 'wizard'] } },
         level: { at: () => undefined },
-    };
+    });
     const selfResult = lookat(3, 4, selfState);
     assert.equal(selfResult.buf, 'human wizard called merlin');
 
-    const swallowedState = {
+    const swallowedState = withScreenBuffers({
         context: {},
         flags: {},
         iflags: {},
@@ -1688,7 +1713,7 @@ test('lookat routes the exceptional self and swallowed source arms', () => {
             uswallow: true,
         },
         mons: {},
-    };
+    });
     const holder = newMonster({
         data: { pmnames: ['kraken', 'kraken', 'kraken'], mflags1: 0 },
         mx: 3,
@@ -1742,11 +1767,11 @@ test('look_all includes the source invisible and warning descriptions', async ()
     // have no monster pointer, unlike live-monster descriptions.
     for (let y = 0; y < 21; ++y)
         for (let x = 1; x < 80; ++x)
-            game.level.at(x, y).disp_glyph = { glyph: NO_GLYPH };
+            glyph_buffer_at(x, y).glyphinfo = { glyph: NO_GLYPH };
     const x = game.u.ux, y = game.u.uy;
-    game.level.at(x, y).disp_glyph = { glyph: GLYPH_INVIS_OFF };
+    glyph_buffer_at(x, y).glyphinfo = { glyph: GLYPH_INVIS_OFF };
     // warnindx 1 is def_warnsyms' 'unknown creature causing you concern'.
-    game.level.at(x + 1, y).disp_glyph = { glyph: GLYPH_WARNING_OFF + 1 };
+    glyph_buffer_at(x + 1, y).glyphinfo = { glyph: GLYPH_WARNING_OFF + 1 };
     game.iflags.getpos_coords = GPCOORDS_COMPASS;
     let rows;
     game._preNhgetchHook = () => {
@@ -1769,10 +1794,10 @@ test('look_all hides an unsensed invisible hero and names your position', async 
     game.level.monlist = null;
     for (let y = 0; y < 21; ++y)
         for (let x = 1; x < 80; ++x)
-            game.level.at(x, y).disp_glyph = { glyph: NO_GLYPH };
+            glyph_buffer_at(x, y).glyphinfo = { glyph: NO_GLYPH };
     const x = game.u.ux, y = game.u.uy;
-    game.level.at(x, y).disp_glyph = { glyph: GLYPH_MON_MALE_OFF + game.u.umonnum };
-    game.level.at(x + 1, y).disp_glyph = { glyph: GLYPH_WARNING_OFF + 1 };
+    glyph_buffer_at(x, y).glyphinfo = { glyph: GLYPH_MON_MALE_OFF + game.u.umonnum };
+    glyph_buffer_at(x + 1, y).glyphinfo = { glyph: GLYPH_WARNING_OFF + 1 };
     // No blindness, see-invisible, telepathy or detection: Invisible is the
     // source reason that the hero cannot spot herself.
     game.u.uprops[INVIS] = { intrinsic: 1 };

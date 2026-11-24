@@ -10,7 +10,7 @@ import {
     NUM_GFILTER,
 } from '../js/const.js';
 import { cmdq_add_dir, cmdq_add_key, cmdq_add_userinput } from '../js/cmd.js';
-import { cmap_to_glyph } from '../js/display.js';
+import { cmap_to_glyph, glyph_buffer_at } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { getpos } from '../js/getpos.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -63,7 +63,7 @@ test('getpos matches traps by cmap family and finds a hidden Invocation square',
     const oldVibratingSymbol = game.gs.showsyms[
         SYM_OFF_P + S_arrow_trap + VIBRATING_SQUARE - 1
     ];
-    const oldDisplayGlyph = game.level.at(target.x, target.y).disp_glyph;
+    const oldDisplayGlyph = glyph_buffer_at(target.x, target.y).glyphinfo;
     const oldSeen = game.level.at(target.x, target.y).seenv;
     const oldTraps = game.level.traps;
     const oldInvocationPosition = game.inv_pos;
@@ -80,7 +80,7 @@ test('getpos matches traps by cmap family and finds a hidden Invocation square',
     try {
         game.gs.showsyms[SYM_OFF_P + webSymbol] = '!'.charCodeAt(0);
         assert.equal(cmap_symbol_byte(webSymbol, game), '!'.charCodeAt(0));
-        game.level.at(target.x, target.y).disp_glyph = {
+        glyph_buffer_at(target.x, target.y).glyphinfo = {
             glyph: cmap_to_glyph(webSymbol, game),
         };
         game.level.traps = [
@@ -113,7 +113,7 @@ test('getpos matches traps by cmap family and finds a hidden Invocation square',
             cmap_symbol_byte(S_arrow_trap + VIBRATING_SQUARE - 1, game),
             '~'.charCodeAt(0),
         );
-        game.level.at(target.x, target.y).disp_glyph = {
+        glyph_buffer_at(target.x, target.y).glyphinfo = {
             glyph: cmap_to_glyph(S_room, game),
         };
         game.level.at(target.x, target.y).seenv = 0;
@@ -166,7 +166,7 @@ test('getpos matches traps by cmap family and finds a hidden Invocation square',
         game.gs.showsyms[SYM_OFF_P + webSymbol] = oldWebSymbol;
         game.gs.showsyms[SYM_OFF_P + S_arrow_trap + VIBRATING_SQUARE - 1]
             = oldShowsym ?? oldVibratingSymbol;
-        game.level.at(target.x, target.y).disp_glyph = oldDisplayGlyph;
+        glyph_buffer_at(target.x, target.y).glyphinfo = oldDisplayGlyph;
         game.level.at(target.x, target.y).seenv = oldSeen;
         game.level.traps = oldTraps;
         game.inv_pos = oldInvocationPosition;
@@ -325,10 +325,10 @@ test('getpos automatic descriptions include configured compass coordinates', asy
     const oldCoordinateMode = game.iflags.getpos_coords;
     const oldAutodescribe = game.iflags.autodescribe;
     const target = { x: game.u.ux + 1, y: game.u.uy };
-    const oldDisplayGlyph = game.level.at(target.x, target.y).disp_glyph;
+    const oldDisplayGlyph = glyph_buffer_at(target.x, target.y).glyphinfo;
     game.iflags.getpos_coords = 'c';
     game.iflags.autodescribe = true;
-    game.level.at(target.x, target.y).disp_glyph = {
+    glyph_buffer_at(target.x, target.y).glyphinfo = {
         glyph: cmap_to_glyph(S_room, game),
     };
     const descriptions = [];
@@ -350,7 +350,7 @@ test('getpos automatic descriptions include configured compass coordinates', asy
         delete game._preNhgetchHook;
         game.iflags.getpos_coords = oldCoordinateMode;
         game.iflags.autodescribe = oldAutodescribe;
-        game.level.at(target.x, target.y).disp_glyph = oldDisplayGlyph;
+        glyph_buffer_at(target.x, target.y).glyphinfo = oldDisplayGlyph;
     }
     assert.ok(descriptions.some(message => /\(east\)/u.test(message)),
         `expected compass suffix in automatic description, got: ${descriptions.join(' | ')}`);
@@ -366,7 +366,7 @@ test('getpos same-glyph fast movement follows the configured run prefix', async 
         if (!preparedFloor && game.gg.getposx === game.u.ux + 1) {
             for (let x = 1; x < 79; ++x) {
                 const location = game.level.at(x, game.u.uy);
-                location.disp_glyph = { glyph: floor };
+                glyph_buffer_at(x, game.u.uy).glyphinfo = { glyph: floor };
             }
             preparedFloor = true;
         }

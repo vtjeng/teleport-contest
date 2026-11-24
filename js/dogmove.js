@@ -55,7 +55,9 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { dirtocoord, xytodir } from './cmd.js';
-import { glyph_is_object, newsym, vobj_at } from './display.js';
+import {
+    glyph_buffer_at, glyph_is_object, newsym, vobj_at,
+} from './display.js';
 import {
     noit_Monnam,
     pmname,
@@ -702,11 +704,11 @@ export async function quickmimic(mtmp, rawEnv = {}) {
     mtmp.mappearance = appearance;
 
     if (spotted || seeloc || canspotmon(mtmp, state)) {
-        const location = state.level.at(mtmp.mx, mtmp.my);
+        const entry = glyph_buffer_at(mtmp.mx, mtmp.my, state);
         // display.h glyph_at() reads the transient glyph buffer, not
         // levl[x][y].glyph.  M_AP_MONSTER deliberately leaves the underlying
         // floor memory unchanged while replacing this presentation.
-        const previousGlyph = location.disp_glyph?.glyph;
+        const previousGlyph = entry.glyphinfo?.glyph;
         let what = 'something';
         if (appearanceType === M_AP_FURNITURE) {
             what = CMAP_EXPLANATIONS[appearance];
@@ -731,7 +733,7 @@ export async function quickmimic(mtmp, rawEnv = {}) {
             await message('Your leash goes slack.', state);
             await m_unleash(mtmp, false, { ...rawEnv, state });
         }
-        const currentGlyph = location.disp_glyph?.glyph;
+        const currentGlyph = entry.glyphinfo?.glyph;
         if (currentGlyph !== previousGlyph) {
             await message(
                 `You ${seeloc ? 'see' : 'sense that'} `

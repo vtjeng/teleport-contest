@@ -5,7 +5,7 @@ import test from 'node:test';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { add_quoted_engraving, do_screen_description } from '../js/pager.js';
-import { cmap_to_glyph } from '../js/display.js';
+import { cmap_to_glyph, glyph_buffer_at } from '../js/display.js';
 import { lastseentyp_grid } from '../js/dungeon.js';
 import { S_grave } from '../js/symbols.js';
 import { GRAVE } from '../js/const.js';
@@ -117,8 +117,8 @@ test('a headstone aborts from 221 characters', async () => {
     const location = game.level.at(x, y);
     location.typ = GRAVE;
     lastseentyp_grid(game)[x][y] = GRAVE;
-    location.disp_glyph = {
-        ...location.disp_glyph, glyph: cmap_to_glyph(S_grave, game),
+    glyph_buffer_at(x, y).glyphinfo = {
+        ...glyph_buffer_at(x, y).glyphinfo, glyph: cmap_to_glyph(S_grave, game),
     };
     engraving.engr_txt[1] = piece(220);
     const fits = do_screen_description({ x, y }, true, 0, game);
@@ -147,7 +147,7 @@ test('a show_glyph() notice for the engraving ends the segment when it drains', 
     game.a11y.glyph_updates = true;
     game._glyphUpdateNotices = [];
     assert.equal(queueGlyphUpdateNotice(
-        x, y, null, game.level.at(x, y).disp_glyph, 0, game,
+        x, y, null, glyph_buffer_at(x, y).glyphinfo, 0, game,
     ), true);
     assert.equal(game._glyphUpdateNotices.at(-1).abort, true);
     await expectTerminated(() => emitGlyphUpdateNotices(game));

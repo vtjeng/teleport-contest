@@ -14,6 +14,7 @@ import { vision_reset, vision_recalc, init_vision_globals } from '../js/vision.j
 import { m_dowear } from '../js/worn.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
+import { tty_map_cell_at } from '../js/display.js';
 
 async function darkRoom() {
     await runSegment({ seed: 8432170, datetime: '20261113120000',
@@ -40,7 +41,7 @@ for (const creation of [true, false]) {
             const state = game;
             const monster = state.level.monlist;
             const target = state.level.at(9, 7);
-            assert.notEqual(target.disp_ch, '.');
+            assert.notEqual(tty_map_cell_at(9, 7, state).ch, '.');
             const calls = [];
             const env = { state, message: async () => {} };
             if (explicit) env.redraw = (x, y) => { calls.push([x, y]); };
@@ -48,9 +49,9 @@ for (const creation of [true, false]) {
             assert.equal(monster.minvent.lamplit, true);
             assert.notEqual(target.seenv, 0, 'armor light reveals the floor');
             if (!explicit) {
-                assert.equal(target.disp_ch, '.', 'live default redraw records the floor glyph');
+                assert.equal(tty_map_cell_at(9, 7, state).ch, '.', 'live default redraw records the floor glyph');
             } else {
-                assert.notEqual(target.disp_ch, '.', 'the supplied owner controls painting');
+                assert.notEqual(tty_map_cell_at(9, 7, state).ch, '.', 'the supplied owner controls painting');
             }
             if (explicit) assert.ok(calls.some(([x, y]) => x === 9 && y === 7));
             assert.deepEqual(game.coreCtx, coreBefore);

@@ -55,7 +55,11 @@ import {
 } from '../js/monsters.js';
 import { _startupA11yInternals, collectLookaroundMessages, collectMonsterMovementMessage, collectMonsterNoticeMessage, collectMonsterNoticeMessages } from '../js/startup_a11y.js';
 import { look_at_monster } from '../js/pager.js';
-import { cmap_to_glyph, monster_glyph_info } from '../js/display.js';
+import {
+    cmap_to_glyph,
+    monster_glyph_info,
+    glyph_buffer_at,
+} from '../js/display.js';
 import {
     S_corr,
     S_ndoor,
@@ -103,7 +107,7 @@ function reveal(state, x, y) {
             : location.typ === CORR ? S_corr
                 : location.typ === SINK ? S_sink : S_stone;
     const glyph = cmap_to_glyph(cmap, state);
-    if (Number.isInteger(glyph)) location.disp_glyph = { glyph };
+    if (Number.isInteger(glyph)) glyph_buffer_at(x, y, state).glyphinfo = { glyph };
 }
 
 test('monster sensing shares swallowed and underwater display gates', () => {
@@ -213,7 +217,7 @@ test('collectLookaroundMessages scans interesting glyphs by row', () => {
     monst_globals_init(state);
     pet.data = { ...state.mons[PM_GHOST], ...pet.data };
     state.level.monsters[12][5] = pet;
-    state.level.at(12, 5).disp_glyph = monster_glyph_info(pet, state);
+    glyph_buffer_at(12, 5, state).glyphinfo = monster_glyph_info(pet, state);
 
     // The room's own line is js/cmd.js lookaround_known_room()'s.
     assert.deepEqual(collectLookaroundMessages(state), [
@@ -634,7 +638,7 @@ test('lookaround treats an adjacent object mimic as seen up close', () => {
         mx: x,
         my: y,
     };
-    state.level.at(x, y).disp_glyph = monster_glyph_info(
+    glyph_buffer_at(x, y, state).glyphinfo = monster_glyph_info(
         state.level.monsters[x][y], state,
     );
 
@@ -651,7 +655,7 @@ test('lookaround uses the canonical pager for displayed terrain', () => {
     const location = state.level.at(x, y);
     location.typ = SINK;
     reveal(state, x, y);
-    location.disp_glyph = { glyph: cmap_to_glyph(S_sink, state) };
+    glyph_buffer_at(x, y, state).glyphinfo = { glyph: cmap_to_glyph(S_sink, state) };
 
     assert.equal(
         _startupA11yInternals.visibleSubjectAt(x, y, state)?.firstmatch,
@@ -666,7 +670,7 @@ test('lookaround filters ordinary liquid glyphs without naming or RNG', () => {
     const location = state.level.at(x, y);
     location.typ = POOL;
     state.viz_array[y][x] = IN_SIGHT;
-    location.disp_glyph = { glyph: cmap_to_glyph(S_pool, state) };
+    glyph_buffer_at(x, y, state).glyphinfo = { glyph: cmap_to_glyph(S_pool, state) };
 
     // visibleSubjectAt must apply getpos.c's GLOC_INTERESTING filter before
     // pager.c's waterbody_name(), so this ordinary pool neither names water
@@ -688,7 +692,7 @@ test('lookaround ignores a hidden object beneath an ordinary liquid glyph', () =
     const location = state.level.at(x, y);
     location.typ = POOL;
     state.viz_array[y][x] = IN_SIGHT;
-    location.disp_glyph = { glyph: cmap_to_glyph(S_pool, state) };
+    glyph_buffer_at(x, y, state).glyphinfo = { glyph: cmap_to_glyph(S_pool, state) };
     // The C lookaround filter sees the stored pool glyph before live object
     // state.  A hidden floor object must not route this square to pager.c's
     // water naming path or consume a display/gameplay RNG draw.

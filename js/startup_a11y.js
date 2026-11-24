@@ -105,8 +105,10 @@ import { locomotion, type_is_pname } from './mondata.js';
 import { rn2_on_display_rng } from './rng.js';
 import {
     glyph_at,
+    glyph_buffer_at,
     glyph_is_cmap,
     glyph_to_cmap,
+    tty_map_cell_at,
 } from './display.js';
 import {
     AMULET_CLASS,
@@ -325,19 +327,24 @@ function sameGlyphIdentity(left, right) {
     return left.a11yKind === right.a11yKind && left.ch === right.ch;
 }
 
-// Complete buffered-display subset of a levl location replayed around queued
-// notice frames. Capture, restore, and delta application use every entry;
-// reconciliation compares the display values, including selected nested
-// disp_glyph fields, but deliberately excludes the gnew dirty bit.
+// The buffered display of one map square replayed around queued notice
+// frames: the terminal cell (js/display.js tty_map_cell_at()) and the gbuf
+// entry (glyph_buffer_at()), but not the patch 006 shadow cell. Capture,
+// restore, and delta application use every field; reconciliation compares
+// the display values, including selected nested glyphinfo fields, but
+// deliberately excludes the gnew dirty bit.
+const GLYPH_FRAME_CELL_FIELDS = Object.freeze([
+    'ch',
+    'color',
+    'decgfx',
+    'attr',
+    'browser_ch',
+    'browser_color',
+    'browser_attr',
+]);
 const GLYPH_BUFFER_FIELDS = Object.freeze([
-    'disp_ch',
-    'disp_color',
-    'disp_decgfx',
-    'disp_attr',
-    'disp_browser_ch',
-    'disp_browser_color',
-    'disp_browser_attr',
-    'disp_glyph',
+    ...GLYPH_FRAME_CELL_FIELDS,
+    'glyphinfo',
     'gnew',
 ]);
 
@@ -362,18 +369,28 @@ function glyphBufferIndex(x, y) {
     return y * COLNO + x;
 }
 
-function captureBufferedLocation(location) {
+function captureBufferedLocation(x, y, state) {
+    const cell = tty_map_cell_at(x, y, state);
+    const entry = glyph_buffer_at(x, y, state);
     return {
-        disp_ch: location.disp_ch,
-        disp_color: location.disp_color,
-        disp_decgfx: location.disp_decgfx,
-        disp_attr: location.disp_attr,
-        disp_browser_ch: location.disp_browser_ch,
-        disp_browser_color: location.disp_browser_color,
-        disp_browser_attr: location.disp_browser_attr,
-        disp_glyph: clonePresentation(location.disp_glyph),
-        gnew: location.gnew,
+        ch: cell.ch,
+        color: cell.color,
+        decgfx: cell.decgfx,
+        attr: cell.attr,
+        browser_ch: cell.browser_ch,
+        browser_color: cell.browser_color,
+        browser_attr: cell.browser_attr,
+        glyphinfo: clonePresentation(entry.glyphinfo),
+        gnew: entry.gnew,
     };
+}
+
+function restoreBufferedLocation(x, y, saved, state) {
+    const cell = tty_map_cell_at(x, y, state);
+    for (const field of GLYPH_FRAME_CELL_FIELDS) cell[field] = saved[field];
+    const entry = glyph_buffer_at(x, y, state);
+    entry.glyphinfo = clonePresentation(saved.glyphinfo);
+    entry.gnew = saved.gnew;
 }
 
 function captureGlyphBuffer(state) {
@@ -385,7 +402,7 @@ function captureGlyphBuffer(state) {
             const location = state.level?.at?.(x, y);
             if (!location) continue;
             snapshot[glyphBufferIndex(x, y)]
-                = captureBufferedLocation(location);
+                = captureBufferedLocation(x, y, state);
         }
     }
     return snapshot;
@@ -395,12 +412,12 @@ function sameBufferedPresentation(left, right) {
     if (!left || !right) return left === right;
     for (const field of GLYPH_BUFFER_FIELDS) {
         if (field === 'gnew') continue;
-        if (field !== 'disp_glyph') {
+        if (field !== 'glyphinfo') {
             if (left[field] !== right[field]) return false;
             continue;
         }
-        const leftGlyph = left.disp_glyph;
-        const rightGlyph = right.disp_glyph;
+        const leftGlyph = left.glyphinfo;
+        const rightGlyph = right.glyphinfo;
         if (!leftGlyph || !rightGlyph) {
             if (leftGlyph !== rightGlyph) return false;
             continue;
@@ -440,11 +457,7 @@ function restoreGlyphBuffer(state, snapshot) {
             const location = state.level?.at(x, y);
             const saved = snapshot?.[glyphBufferIndex(x, y)];
             if (!location || !saved) continue;
-            for (const field of GLYPH_BUFFER_FIELDS) {
-                location[field] = field === 'disp_glyph'
-                    ? clonePresentation(saved[field])
-                    : saved[field];
-            }
+            restoreBufferedLocation(x, y, saved, state);
         }
     }
 }
@@ -455,11 +468,7 @@ function applyGlyphFrameChanges(state, changes, dirty) {
         const x = index - y * COLNO;
         const location = state.level?.at(x, y);
         if (!location) continue;
-        for (const field of GLYPH_BUFFER_FIELDS) {
-            location[field] = field === 'disp_glyph'
-                ? clonePresentation(saved[field])
-                : saved[field];
-        }
+        restoreBufferedLocation(x, y, saved, state);
         if (saved.gnew) dirty.add(index);
         else dirty.delete(index);
     }
@@ -478,7 +487,7 @@ function markGlyphFrameFlushed(state, dirty) {
         const y = Math.trunc(index / COLNO);
         const x = index - y * COLNO;
         const location = state.level?.at(x, y);
-        if (location) location.gnew = 0;
+        if (location) glyph_buffer_at(x, y, state).gnew = 0;
     }
     dirty.clear();
 }
@@ -505,7 +514,7 @@ function reconcileFinalGlyphBuffer(state, finalBuffer, flushedBuffer) {
                     finalBuffer[index],
                     flushedBuffer[index],
                 )) {
-                location.gnew = 0;
+                glyph_buffer_at(x, y, state).gnew = 0;
             }
         }
     }
@@ -517,14 +526,14 @@ function reconcileFinalGlyphBuffer(state, finalBuffer, flushedBuffer) {
 // instead, so while one is pending, a cell's gnew bit as the next
 // show_glyph() reads it is set only when show_glyph() has written the cell
 // since that notice. Called by display.js:show_glyph_cell() before it
-// installs the new presentation.
-export function glyphGnewSinceNotice(x, y, location, state) {
+// installs the new presentation; `entry` is the cell's gbuf entry.
+export function glyphGnewSinceNotice(x, y, entry, state) {
     const tracker = state._glyphNoticeFrameTracker;
     if (!tracker || state._emittingGlyphUpdateNotices
         || !state._glyphUpdateNotices?.length) {
-        return location.gnew;
+        return entry.gnew;
     }
-    return tracker.pending.has(glyphBufferIndex(x, y)) ? location.gnew : 0;
+    return tracker.pending.has(glyphBufferIndex(x, y)) ? entry.gnew : 0;
 }
 
 // Called by display.js:show_glyph_cell(), the local display.c:show_glyph()
@@ -538,7 +547,7 @@ export function noteGlyphBufferMutation(x, y, state) {
     if (!location) return;
     tracker.pending.set(
         glyphBufferIndex(x, y),
-        captureBufferedLocation(location),
+        captureBufferedLocation(x, y, state),
     );
 }
 
@@ -868,7 +877,8 @@ export function bufferedGlyphSubjectAt(monster, state) {
         monster.my,
     );
     const glyph = state.level?.flags?.hero_memory === false
-        ? location?.disp_glyph : location?.remembered_glyph;
+        ? glyph_buffer_at(monster.mx, monster.my, state)?.glyphinfo
+        : location?.remembered_glyph;
     return {
         hasGlyph: Boolean(glyph),
         hasSubject: Boolean(glyph)
@@ -1340,7 +1350,8 @@ function describeGlyphUpdate(glyph, x, y, state) {
 function visibleSubjectAt(x, y, state) {
     const location = state.level?.at(x, y);
     if (!location || !cansee(x, y, state)) return null;
-    if (!Number.isInteger(location.disp_glyph?.glyph)) return null;
+    if (!Number.isInteger(glyph_buffer_at(x, y, state).glyphinfo?.glyph))
+        return null;
     // C cmd.c:dolookaround() filters the displayed glyph through
     // getpos.c:gather_locs_interesting(), regardless of live objects,
     // traps, engravings, or monster furniture at the square.  In particular,

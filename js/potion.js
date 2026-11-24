@@ -140,8 +140,8 @@ import {
 import { acurr, adjattrib, exercise, poisontell } from './attrib.js';
 import { permapoisoned, Sting_effects } from './artifacts.js';
 import {
-    bot, newsym, see_monsters, see_objects, see_traps, set_mimic_blocking,
-    swallowed, tmp_at,
+    bot, glyph_buffer_at, newsym, see_monsters, see_objects, see_traps,
+    set_mimic_blocking, swallowed, tmp_at,
 } from './display.js';
 import { doup, goto_level, heal_legs, trycall } from './do.js';
 import {
@@ -406,7 +406,7 @@ export async function mongrantswish(monster, state = game, env = {}) {
     // C caches glyph_at(), an integer. The JS display buffer retains that
     // integer on its full presentation record, which tmp_at() needs in order
     // to redraw the same monster glyph after mongone() replaces the square.
-    const glyph = state.level?.at(x, y)?.disp_glyph;
+    const glyph = glyph_buffer_at(x, y, state)?.glyphinfo;
     if (!glyph) throw new Error('mongrantswish requires a displayed djinni');
     const removeMonster = env.removeMonster ?? mongone;
     const transient = env.transient ?? tmp_at;

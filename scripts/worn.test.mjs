@@ -1016,7 +1016,7 @@ test('ordinary make-invisible zap clears every long-worm tail at its command bou
             return {
                 x, y,
                 remembered: loc.remembered_glyph?.glyph ?? null,
-                presented: loc.disp_glyph?.glyph ?? null,
+                presented: glyph_buffer_at(x, y).glyphinfo?.glyph ?? null,
             };
         });
         const finalScreen = game.nhDisplay.serialize();
@@ -1028,3 +1028,4 @@ test('ordinary make-invisible zap clears every long-worm tail at its command bou
     });
 
 import { setuwep } from '../js/wield.js';
+import { glyph_buffer_at } from '../js/display.js';

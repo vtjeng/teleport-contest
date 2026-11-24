@@ -95,7 +95,7 @@ import { game, initialGb, resetGame } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { does_block, vision_reset } from '../js/vision.js';
 import { isThrowingWeapon } from '../js/invent.js';
-import { canspotmon, GLYPH_INVISIBLE } from '../js/display.js';
+import { canspotmon, GLYPH_INVISIBLE, tty_map_cell_at } from '../js/display.js';
 import {
     PM_CAVE_DWELLER,
     PM_CLERIC,
@@ -196,6 +196,7 @@ import { newMonster, place_monster } from '../js/monst.js';
 import { PM_SHOPKEEPER } from '../js/monsters.js';
 import { aligns } from '../js/roles.js';
 import { windowsUp } from './test-fixtures/windows-up.mjs';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const DOTHROW_C = readFileSync(
     new URL('../nethack-c/upstream/src/dothrow.c', import.meta.url), 'utf8',
@@ -596,7 +597,7 @@ test('hurtle_step() maps an unseen collision in live play', async () => {
 
         const liveCell = state.level.at(x, y);
         liveCell.remembered_glyph = undefined;
-        const originalDisplay = liveCell.disp_ch;
+        const originalDisplay = tty_map_cell_at(x, y, state).ch;
 
         // The live collision message is a stop message; dismiss its More so
         // the callback can finish its source-order effects.
@@ -607,7 +608,7 @@ test('hurtle_step() maps an unseen collision in live play', async () => {
         }, x, y), false);
         assert.equal(liveCell.remembered_glyph?.glyph, GLYPH_INVISIBLE,
             'the live callback retains map_invisible() memory behavior');
-        assert.notEqual(liveCell.disp_ch, originalDisplay,
+        assert.notEqual(tty_map_cell_at(x, y, state).ch, originalDisplay,
             'the live callback still paints through map_invisible()');
     } finally {
         resetGame();
@@ -990,7 +991,7 @@ function arena({
     uhpmax = 12,
 } = {}) {
     initRng(ARENA_SEED);
-    const state = { gb: initialGb() };
+    const state = withScreenBuffers({ gb: initialGb() });
     state.level = new GameMap();
     for (let x = 1; x <= last; x++) state.level.at(x, 4).typ = ROOM;
     state.u = {

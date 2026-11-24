@@ -139,6 +139,7 @@ import {
 import { _doWearInternals } from '../js/do_wear.js';
 import { expectTerminated } from './expect-terminated.mjs';
 import { windowsUp } from './test-fixtures/windows-up.mjs';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const HACK_SOURCE = readFileSync('nethack-c/upstream/src/hack.c', 'utf8');
 const HACK_JS_SOURCE = readFileSync('js/hack.js', 'utf8');
@@ -1628,7 +1629,7 @@ function runState(overrides = {}) {
     const uprops = [];
     uprops[BLINDED] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
     // The windows are up (wintty.c:1883), so pline() reaches WIN_MESSAGE.
-    return windowsUp({
+    return windowsUp(withScreenBuffers({
         gb: initialGb(),
         level,
         u: {
@@ -1643,7 +1644,7 @@ function runState(overrides = {}) {
         multi: COLNO,
         moves: 3,
         ...overrides,
-    });
+    }));
 }
 
 function adjacentTravelState(targetType = ROOM) {

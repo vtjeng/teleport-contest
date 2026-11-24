@@ -7,6 +7,7 @@ import { TIP_GETPOS } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
+import { glyph_buffer_at } from '../js/display.js';
 
 const recipe = JSON.parse(readFileSync(
     'recipes/terrain-browse-map-getpos-tip-redisplay-fresh.session.json',
@@ -39,7 +40,7 @@ test('DEL browses TER_MAP and restores the live map without time', async () => {
     assert.equal(Boolean(game.u.uinwater), false);
     assert.equal(Boolean(game.u.uburied), false);
     assert.equal(Boolean(game.u.uswallow), false);
-    assert.ok(game.level.at(game.u.ux, game.u.uy).disp_glyph);
+    assert.ok(glyph_buffer_at(game.u.ux, game.u.uy).glyphinfo);
 });
 
 test('known traps terrain choice browses and restores without time', async () => {

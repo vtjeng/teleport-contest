@@ -131,7 +131,8 @@ export function bc_order(state = game) {
     return BCPOS_DIFFER;
 }
 
-// C levl[x][y].glyph is persistent map memory, separate from disp_glyph.
+// C levl[x][y].glyph is persistent map memory, separate from the glyph
+// buffer js/display.js glyph_buffer_at() holds.
 // Undefined memory represents C's GLYPH_UNEXPLORED sentinel.
 function memoryGlyph(x, y, state) {
     return state.level.at(x, y).remembered_glyph?.glyph

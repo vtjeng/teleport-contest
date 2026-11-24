@@ -95,6 +95,7 @@ import {
     SKELETON_KEY,
 } from '../js/objects.js';
 import { loadPetCursedStepRecipe } from './run-pet-cursed-step.mjs';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const DOGMOVE_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/dogmove.c', import.meta.url), 'utf8',
@@ -202,6 +203,7 @@ const PET_STALE_MUX = 99;
 function activePetState(x = 5, y = 5) {
     const setup = petState();
     const { edog, monster, state } = setup;
+    withScreenBuffers(state);
     state.mons = MONSTER_TEMPLATES;
     state.u.uprops = [];
     state.youmonst = { data: state.mons[PM_LITTLE_DOG] };

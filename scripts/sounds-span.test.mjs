@@ -73,6 +73,8 @@ import {
     S_EEL,
 } from '../js/monsters.js';
 import { windowsUp } from './test-fixtures/windows-up.mjs';
+import { glyph_buffer_at } from '../js/display.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const SOUNDS_C = readFileSync(
     new URL('../nethack-c/upstream/src/sounds.c', import.meta.url), 'utf8',
@@ -85,11 +87,11 @@ const SEFFECTS_H = readFileSync(
 function minimalState() {
     const uprops = [];
     uprops[INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
-    return {
+    return withScreenBuffers({
         flags: {},
         level: new GameMap(),
         u: { ux: 4, uy: 5, dx: 0, dy: 0, dz: 0, uprops },
-    };
+    });
 }
 
 test('cry_sound pins every sounds.c switch result without drawing', () => {
@@ -190,7 +192,7 @@ test('mon_is_gecko prefers species identity and excludes long-worm tails', () =>
     state.mons[PM_LONG_WORM] = { pmidx: PM_LONG_WORM };
     assert.equal(mon_is_gecko({ data: state.mons[PM_GECKO] }, state), true);
 
-    state.level.locations[5][5].disp_glyph = {
+    glyph_buffer_at(5, 5, state).glyphinfo = {
         glyph: GLYPH_MON_MALE_OFF + PM_GECKO,
     };
     assert.equal(mon_is_gecko({

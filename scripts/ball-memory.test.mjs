@@ -12,6 +12,8 @@ import {
 } from '../js/const.js';
 import { GLYPH_CMAP_A_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { S_room, S_corr } from '../js/symbols.js';
+import { glyph_buffer_at } from '../js/display.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const c = readFileSync('nethack-c/upstream/src/ball.c', 'utf8');
 const doC = readFileSync('nethack-c/upstream/src/do.c', 'utf8');
@@ -26,8 +28,8 @@ const CORRIDOR_MEMORY = GLYPH_CMAP_A_OFF + S_corr;
 const DIFFER = 0, CHAIN = 1, BALL = 2;
 function fixture(order = CHAIN, separate = false) {
     // Interior coordinates allow canonical floor indexing without edge gates.
-    const state = { u: { ux: 10, uy: 8, uswallow: 0 },
-        level: new GameMap(), context: {}, flags: {}, go: {}, invent: null };
+    const state = withScreenBuffers({ u: { ux: 10, uy: 8, uswallow: 0 },
+        level: new GameMap(), context: {}, flags: {}, go: {}, invent: null });
     const object = (otyp, oclass) => ({ otyp, oclass, where: OBJ_FREE,
         quan: 1, nobj: null, nexthere: null, oartifact: 0 });
     state.uball = object(HEAVY_IRON_BALL, BALL_CLASS);
@@ -40,7 +42,7 @@ function fixture(order = CHAIN, separate = false) {
     state.level.at(10, 8).remembered_glyph = { glyph: ROOM_MEMORY };
     state.level.at(ballx, 8).remembered_glyph = { glyph: ROOM_MEMORY };
     // Caches must read levl memory rather than this different transient glyph.
-    state.level.at(10, 8).disp_glyph = { glyph: CORRIDOR_MEMORY };
+    glyph_buffer_at(10, 8, state).glyphinfo = { glyph: CORRIDOR_MEMORY };
     return state;
 }
 

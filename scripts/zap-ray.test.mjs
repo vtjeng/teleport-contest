@@ -71,6 +71,8 @@ import {
     mon_to_glyph,
     cmap_to_glyph,
     zapdir_to_glyph,
+    glyph_buffer_at,
+    tty_map_cell_at,
 } from '../js/display.js';
 import {
     GLYPH_UNEXPLORED_OFF,
@@ -435,7 +437,7 @@ test('stone-to-flesh self spell uses eat.c fix_petrification', async () => {
 // whether it is a DEC line-drawing byte.
 function mapCell(x, y) {
     const loc = game.level.at(x, y);
-    return { ch: loc.disp_ch, color: loc.disp_color, dec: loc.disp_decgfx };
+    return { ch: tty_map_cell_at(x, y).ch, color: tty_map_cell_at(x, y).color, dec: tty_map_cell_at(x, y).decgfx };
 }
 
 test('zaptype folds a monster zap onto the hero band it shares', () => {
@@ -1459,7 +1461,7 @@ test('a reflecting hero bounces the bolt without taking damage', async () => {
         game.flags.sparkle = true;
         game.viz_array[y][x] |= IN_SIGHT;
         game._animationFrameHook = () => {
-            frames.push(game.level.at(x, y).disp_glyph?.glyph);
+            frames.push(glyph_buffer_at(x, y).glyphinfo?.glyph);
         };
         game.u.uprops[REFLECTING] = { intrinsic: 0, extrinsic: 0 };
         game.u.uprops[REFLECTING][source] = FROMOUTSIDE;
@@ -1503,7 +1505,7 @@ test('dobuzz animates a visible reflecting monster before its message',
     game.flags.sparkle = true;
     const timeline = [];
     game._animationFrameHook = () => timeline.push({
-        type: 'frame', glyph: game.level.at(x, y).disp_glyph?.glyph,
+        type: 'frame', glyph: glyph_buffer_at(x, y).glyphinfo?.glyph,
     });
     const message = async (text) => timeline.push({ type: 'message', text });
 
@@ -2096,7 +2098,7 @@ test('shieldeff() draws the shield-static sequence before shieldeff_mon text', a
     game.viz_array[monster.my][monster.mx] |= IN_SIGHT;
     const frames = [];
     game._animationFrameHook = () => {
-        frames.push(game.level.at(monster.mx, monster.my).disp_glyph?.glyph);
+        frames.push(glyph_buffer_at(monster.mx, monster.my).glyphinfo?.glyph);
     };
     const messages = [];
     try {
@@ -2158,7 +2160,7 @@ test('flash_mon restores the original vision byte before newsym()', async () => 
     const original = game.viz_array[monster.my][monster.mx];
     const frames = [];
     game._animationFrameHook = () => {
-        frames.push(game.level.at(monster.mx, monster.my).disp_glyph?.glyph);
+        frames.push(glyph_buffer_at(monster.mx, monster.my).glyphinfo?.glyph);
     };
     await flash_mon(monster, game);
     assert.equal(game.viz_array[monster.my][monster.mx], original,
@@ -2225,7 +2227,7 @@ test('flash_glyph_at() uses remembered terrain when hero memory is enabled',
         const target = map_glyphinfo(GLYPH_INVISIBLE, game).glyph;
         const frames = [];
         game._animationFrameHook = () => {
-            frames.push(location.disp_glyph?.glyph);
+            frames.push(glyph_buffer_at(x, y).glyphinfo?.glyph);
         };
         await flash_glyph_at(x, y, target, 1, game);
         assert.deepEqual(frames, [target, remembered],
@@ -2246,7 +2248,7 @@ test('flash_glyph_at() uses remembered terrain when hero memory is enabled',
         await flash_glyph_at(x, y, target, 1, game);
         assert.equal(frames[1], GLYPH_UNEXPLORED_OFF,
             'display.c flash_glyph_at() keeps GLYPH_UNEXPLORED for missing memory');
-        assert.equal(location.disp_glyph?.ch,
+        assert.equal(glyph_buffer_at(x, y).glyphinfo?.ch,
             misc_symbol(SYM_UNEXPLORED, game).ch,
             'display.c flash_glyph_at() uses the configured unexplored symbol');
         location.remembered_glyph = savedMemory;

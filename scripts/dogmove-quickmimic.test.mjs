@@ -27,7 +27,7 @@ import {
     finish_meating,
     quickmimic,
 } from '../js/dogmove.js';
-import { newsym } from '../js/display.js';
+import { newsym, glyph_buffer_at } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import {
@@ -76,6 +76,7 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 function transientGlyph(glyph, ch) {
     const presentation = {
@@ -94,11 +95,7 @@ function quickState(visible = true) {
     const level = new GameMap();
     level.at(5, 5).typ = ROOM;
     level.at(5, 5).remembered_glyph = { glyph: 101 };
-    level.at(5, 5).disp_glyph = transientGlyph(
-        GLYPH_PET_MALE_OFF + PM_LITTLE_DOG,
-        'd',
-    );
-    const state = {
+    const state = withScreenBuffers({
         context: { mon_moving: false },
         flags: {},
         invent: null,
@@ -117,7 +114,11 @@ function quickState(visible = true) {
             uy: 5,
         },
         viz_array: Array.from({ length: 21 }, () => Array(80).fill(0)),
-    };
+    });
+    glyph_buffer_at(5, 5, state).glyphinfo = transientGlyph(
+        GLYPH_PET_MALE_OFF + PM_LITTLE_DOG,
+        'd',
+    );
     if (visible) state.viz_array[5][5] = COULD_SEE | IN_SIGHT;
     monst_globals_init(state);
     objects_globals_init(state);
@@ -191,7 +192,7 @@ function newsymQuickState(female) {
     monster.nmon = null;
     state.level.monlist = monster;
     place_monster(monster, monster.mx, monster.my, state);
-    state.level.at(monster.mx, monster.my).disp_glyph = null;
+    glyph_buffer_at(monster.mx, monster.my, state).glyphinfo = null;
     newsym(monster.mx, monster.my);
     return { monster, state };
 }
@@ -233,7 +234,7 @@ function eatingEnv(state, messages = [], redraws = []) {
         redraw(x, y) {
             redraws.push([x, y]);
             if (x === 5 && y === 5) {
-                state.level.at(x, y).disp_glyph = transientGlyph(
+                glyph_buffer_at(x, y, state).glyphinfo = transientGlyph(
                     GLYPH_MON_MALE_OFF + PM_KITTEN,
                     'f',
                 );
@@ -820,7 +821,7 @@ test('quickmimic turns a visible little dog into a kitten appearance',
             },
             redraw(x, y) {
                 assert.deepEqual([x, y], [5, 5]);
-                state.level.at(x, y).disp_glyph = transientGlyph(
+                glyph_buffer_at(x, y, state).glyphinfo = transientGlyph(
                     GLYPH_MON_MALE_OFF + PM_KITTEN,
                     'f',
                 );
@@ -846,7 +847,7 @@ test('quickmimic distinguishes logical glyphs with identical presentations',
         ]) {
             const { monster, state } = newsymQuickState(female);
             const location = state.level.at(5, 5);
-            const previousPresentation = location.disp_glyph;
+            const previousPresentation = glyph_buffer_at(5, 5, state).glyphinfo;
             assert.equal(
                 previousPresentation.glyph,
                 petOffset + PM_LITTLE_DOG,
@@ -860,9 +861,9 @@ test('quickmimic distinguishes logical glyphs with identical presentations',
                 waitMap: async () => {},
             });
 
-            assert.equal(location.disp_glyph.glyph,
+            assert.equal(glyph_buffer_at(5, 5, state).glyphinfo.glyph,
                 monsterOffset + PM_KITTEN);
-            assert.equal(location.disp_glyph.ch, previousPresentation.ch);
+            assert.equal(glyph_buffer_at(5, 5, state).glyphinfo.ch, previousPresentation.ch);
             assert.deepEqual(messages, [
                 'You see a kitten appear where your little dog was!',
             ]);
@@ -872,13 +873,13 @@ test('quickmimic distinguishes logical glyphs with identical presentations',
 test('quickmimic keeps C fallback for one logical glyph drawn two ways',
     async () => {
         const { monster, state } = quickState(true);
-        const previousGlyph = state.level.at(5, 5).disp_glyph.glyph;
+        const previousGlyph = glyph_buffer_at(5, 5, state).glyphinfo.glyph;
         const messages = [];
         await quickmimic(monster, {
             state,
             random: { rn2: () => 0 },
             redraw(x, y) {
-                state.level.at(x, y).disp_glyph = transientGlyph(
+                glyph_buffer_at(x, y, state).glyphinfo = transientGlyph(
                     previousGlyph,
                     'f',
                 );
@@ -899,7 +900,7 @@ test('a quickmimic on a copied monster leaves the shared live glyph buffer uncha
             ...monster,
             mextra: structuredClone(monster.mextra),
         };
-        const liveGlyph = state.level.at(5, 5).disp_glyph;
+        const liveGlyph = glyph_buffer_at(5, 5, state).glyphinfo;
         const liveDescriptor = Object.getOwnPropertyDescriptor(
             liveGlyph,
             'glyph',
@@ -913,7 +914,7 @@ test('a quickmimic on a copied monster leaves the shared live glyph buffer uncha
             waitMap: async () => {},
         });
 
-        assert.strictEqual(state.level.at(5, 5).disp_glyph, liveGlyph);
+        assert.strictEqual(glyph_buffer_at(5, 5, state).glyphinfo, liveGlyph);
         assert.deepEqual(
             Object.getOwnPropertyDescriptor(liveGlyph, 'glyph'),
             liveDescriptor,
@@ -943,7 +944,7 @@ test('quickmimic releases a leashed pet when its new form cannot wear a leash',
         const leash = { otyp: LEASH, leashmon: 41, nobj: null };
         state.invent = leash;
         const messages = [];
-        const oldGlyph = state.level.at(5, 5).disp_glyph.glyph;
+        const oldGlyph = glyph_buffer_at(5, 5, state).glyphinfo.glyph;
 
         await quickmimic(monster, {
             state,
@@ -951,7 +952,7 @@ test('quickmimic releases a leashed pet when its new form cannot wear a leash',
             random: { rn2: () => 8 },
             redraw() {
                 // A distinct logical glyph takes C's "appear" message arm.
-                state.level.at(5, 5).disp_glyph = transientGlyph(
+                glyph_buffer_at(5, 5, state).glyphinfo = transientGlyph(
                     oldGlyph + 1,
                     '?',
                 );
@@ -1003,7 +1004,7 @@ test('quickmimic announces a visible square even when the pet is invisible',
             state,
             random: { rn2: () => 0 },
             redraw(x, y) {
-                state.level.at(x, y).disp_glyph = transientGlyph(
+                glyph_buffer_at(x, y, state).glyphinfo = transientGlyph(
                     GLYPH_MON_MALE_OFF + PM_KITTEN,
                     'f',
                 );
@@ -1017,13 +1018,13 @@ test('quickmimic announces a visible square even when the pet is invisible',
 test('quickmimic compares a newly drawn glyph with an empty prior buffer',
     async () => {
         const { monster, state } = quickState(true);
-        state.level.at(5, 5).disp_glyph = null;
+        glyph_buffer_at(5, 5, state).glyphinfo = null;
         const messages = [];
         await quickmimic(monster, {
             state,
             random: { rn2: () => 0 },
             redraw(x, y) {
-                state.level.at(x, y).disp_glyph = transientGlyph(
+                glyph_buffer_at(x, y, state).glyphinfo = transientGlyph(
                     GLYPH_MON_MALE_OFF + PM_KITTEN,
                     'f',
                 );

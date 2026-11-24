@@ -2,7 +2,6 @@
 // C ref: rm.h struct rm, dungeon.h, you.h
 
 import { COLNO, MAX_NUM_WORMS, ROWNO, STONE } from './const.js';
-import { NO_COLOR } from './terminal.js';
 
 // C ref: rm.h `#define doormask flags`. C keeps one door mask per square,
 // in struct rm's `flags`, and so does makeLocation(): there is no separate
@@ -30,17 +29,6 @@ export function makeLocation() {
         seenv: 0,          // which angles the hero has seen this wall from
         horizontal: false, // is this a horizontal wall?
         edge: false,       // is this at the edge of the map?
-        disp_ch: ' ',      // current display character
-        disp_color: NO_COLOR,
-        disp_decgfx: false,
-        disp_attr: 0,
-        // UTF-8 and IBM symbol sets have distinct recorder-wire and browser
-        // representations under recorder patch 006.
-        disp_browser_ch: null,
-        disp_browser_color: null,
-        disp_browser_attr: null,
-        gnew: 0,           // dirty flag for flush_glyph_buf
-        glyph_symidx: -1,  // S_* symbol index
         // C ref: rm.h struct rm's `glyph`. js/display.js
         // remembered_glyph_from_presentation() builds it, and it holds
         // `{glyph}`: C's own levl[x][y].glyph number, unresolved, which

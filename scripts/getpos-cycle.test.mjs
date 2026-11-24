@@ -29,6 +29,7 @@ import { PM_FLOATING_EYE } from '../js/monsters.js';
 import {
     cmap_to_glyph,
     glyph_at,
+    glyph_buffer_at,
 } from '../js/display.js';
 import {
     cmp_coord_distu,
@@ -50,6 +51,7 @@ import {
     S_vodoor,
     S_water,
 } from '../js/symbols.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const C_SOURCE = readFileSync(
     new URL('../nethack-c/upstream/src/getpos.c', import.meta.url), 'utf8',
@@ -59,25 +61,25 @@ const SELVAR_SOURCE = readFileSync(
 );
 
 function initializedState() {
-    const state = {
+    const state = withScreenBuffers({
         u: { ux: 5, uy: 5, dx: 1, dy: 0 },
         iflags: { getloc_filter: GFILTER_NONE },
         level: new GameMap(),
         inv_pos: null,
         dungeons: {},
-    };
+    });
     for (let x = 1; x < 80; ++x) {
         for (let y = 0; y < 21; ++y) {
             const location = state.level.at(x, y);
             location.seenv = 1;
-            location.disp_glyph = { glyph: cmap_to_glyph(S_room, state) };
+            glyph_buffer_at(x, y, state).glyphinfo = { glyph: cmap_to_glyph(S_room, state) };
         }
     }
     return state;
 }
 
 test('cmp_coord_distu preserves C distance and y/x tie order', () => {
-    const state = { u: { ux: 5, uy: 5 } };
+    const state = withScreenBuffers({ u: { ux: 5, uy: 5 } });
     const coordinates = [
         { x: 7, y: 5 },
         { x: 3, y: 5 },
@@ -152,7 +154,7 @@ test('coord_desc formats every source coordinate mode', () => {
     assert.match(source, /case GPCOORDS_COMPASS:/);
     assert.match(source, /case GPCOORDS_MAP:/);
     assert.match(source, /case GPCOORDS_SCREEN:/);
-    const state = { u: { ux: 5, uy: 5 }, iflags: {} };
+    const state = withScreenBuffers({ u: { ux: 5, uy: 5 }, iflags: {} });
     state.iflags.getpos_coords = GPCOORDS_NONE;
     assert.equal(coord_desc(7, 5, state), '');
     state.iflags.getpos_coords = GPCOORDS_COMPASS;
@@ -177,15 +179,15 @@ test('gather_locs short-circuits the hero callback and uses literal tail glyphs'
 
     const normalTail = GLYPH_MON_MALE_OFF + 330;
     const petTail = GLYPH_PET_MALE_OFF + 330;
-    state.level.at(4, 5).disp_glyph = { glyph: normalTail };
-    state.level.at(6, 5).disp_glyph = { glyph: petTail };
+    glyph_buffer_at(4, 5, state).glyphinfo = { glyph: normalTail };
+    glyph_buffer_at(6, 5, state).glyphinfo = { glyph: petTail };
     assert.equal(gather_locs_interesting(4, 5, GLOC_MONS, state), false);
     assert.equal(gather_locs_interesting(6, 5, GLOC_MONS, state), true);
 });
 
 test('interesting locations exclude the complete C wall range including stone', () => {
     const state = initializedState();
-    state.level.at(6, 5).disp_glyph = { glyph: cmap_to_glyph(S_stone, state) };
+    glyph_buffer_at(6, 5, state).glyphinfo = { glyph: cmap_to_glyph(S_stone, state) };
     assert.equal(gather_locs_interesting(6, 5, GLOC_INTERESTING, state), false);
 });
 
@@ -196,7 +198,7 @@ test('object targets skip only the lone boulder and rock glyphs', () => {
     // pile as a target.
     const state = initializedState();
     const at = (glyph) => {
-        state.level.at(6, 5).disp_glyph = { glyph };
+        glyph_buffer_at(6, 5, state).glyphinfo = { glyph };
         return gather_locs_interesting(6, 5, GLOC_OBJS, state);
     };
     assert.equal(at(GLYPH_OBJ_OFF + ROCK), false);
@@ -212,10 +214,10 @@ test('unexplored targets read the remembered glyph under a sensed monster', () =
     // neighbour of the corridor at <6,5> is seen, so the monster square
     // alone decides the result.
     const state = initializedState();
-    state.level.at(6, 5).disp_glyph = { glyph: cmap_to_glyph(S_corr, state) };
+    glyph_buffer_at(6, 5, state).glyphinfo = { glyph: cmap_to_glyph(S_corr, state) };
     const neighbor = state.level.at(7, 5);
     neighbor.seenv = 0;
-    neighbor.disp_glyph = { glyph: GLYPH_MON_MALE_OFF + PM_FLOATING_EYE };
+    glyph_buffer_at(7, 5, state).glyphinfo = { glyph: GLYPH_MON_MALE_OFF + PM_FLOATING_EYE };
     assert.equal(gather_locs_interesting(6, 5, GLOC_EXPLORE, state), true);
     // A square felt while blind remembers its terrain without being seen;
     // it no longer counts as unexplored.
@@ -225,10 +227,10 @@ test('unexplored targets read the remembered glyph under a sensed monster', () =
 
 test('gather_locs includes the hero and sorts door locations', async () => {
     const state = initializedState();
-    state.level.at(3, 5).disp_glyph = {
+    glyph_buffer_at(3, 5, state).glyphinfo = {
         glyph: cmap_to_glyph(S_vodoor, state),
     };
-    state.level.at(7, 5).disp_glyph = {
+    glyph_buffer_at(7, 5, state).glyphinfo = {
         glyph: cmap_to_glyph(S_hodoor, state),
     };
     const locations = await gather_locs(GLOC_DOOR, state);
@@ -267,7 +269,7 @@ test('getpos source defines the twelve location-cycle bindings and wrap', () => 
 // pager.c:look_all selects MAP while the option remains NONE. The explicit
 // argument must affect formatting alone, without changing canonical options.
 test('coord_desc accepts the caller source mode without mutating options', () => {
-    const state = { u: { ux: 5, uy: 5 }, iflags: { getpos_coords: GPCOORDS_NONE } };
+    const state = withScreenBuffers({ u: { ux: 5, uy: 5 }, iflags: { getpos_coords: GPCOORDS_NONE } });
     // Source MAP prints the supplied map coordinates, independent of hero.
     assert.equal(coord_desc(7, 5, state, GPCOORDS_MAP), '<7,5>');
     assert.equal(state.iflags.getpos_coords, GPCOORDS_NONE);

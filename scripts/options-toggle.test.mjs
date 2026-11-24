@@ -24,7 +24,10 @@ import {
     reset_needed_visuals,
 } from '../js/options.js';
 import {
-    flush_screen, newsym, reglyph_darkroom,
+    flush_screen,
+    newsym,
+    reglyph_darkroom,
+    tty_map_cell_at,
 } from '../js/display.js';
 import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
 import { choose_classes_menu } from '../js/windows.js';
@@ -384,7 +387,7 @@ test("'wizmgender' repaints a female hero in inverse video", async () => {
     const state = await startGameWithConfig('OPTIONS=playmode:debug');
     assert.equal(state.wizard, true);
     assert.equal(state.flags.female, true);
-    const heroAttr = () => state.level.at(state.u.ux, state.u.uy).disp_attr;
+    const heroAttr = () => tty_map_cell_at(state.u.ux, state.u.uy, state).attr;
     assert.equal(heroAttr(), ATR_NONE);
 
     state.go = {};
@@ -430,7 +433,7 @@ test("'wizmgender' set from a configuration file reaches its reader",
         // matters is reached without a repaint: her own square carries the
         // attribute from the first draw.
         assert.equal(
-            state.level.at(state.u.ux, state.u.uy).disp_attr, ATR_INVERSE,
+            tty_map_cell_at(state.u.ux, state.u.uy, state).attr, ATR_INVERSE,
         );
     });
 
@@ -702,7 +705,7 @@ test('a glyph reset repaints a remembered out-of-sight pile', async () => {
     state.viz_array[y][x] = 0;
     newsym(x, y);
     assert.equal(cansee(x, y, state), false);
-    assert.equal(state.level.at(x, y).disp_attr, 0);
+    assert.equal(tty_map_cell_at(x, y, state).attr, 0);
     // display.h normal_obj_to_glyph() with obj_is_piletop() true.
     assert.equal(
         state.level.at(x, y).remembered_glyph.glyph,
@@ -715,7 +718,7 @@ test('a glyph reset repaints a remembered out-of-sight pile', async () => {
     state.go = { opt_need_redraw: true, opt_need_glyph_reset: true };
     await reset_needed_visuals(state);
 
-    assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
+    assert.equal(tty_map_cell_at(x, y, state).attr, ATR_INVERSE);
     assert.equal(state.go.opt_need_glyph_reset, false);
 
     // And back off again, which is the direction a repaint of a stored
@@ -723,7 +726,7 @@ test('a glyph reset repaints a remembered out-of-sight pile', async () => {
     state.iflags.hilite_pile = false;
     state.go = { opt_need_redraw: true, opt_need_glyph_reset: true };
     await reset_needed_visuals(state);
-    assert.equal(state.level.at(x, y).disp_attr, 0);
+    assert.equal(tty_map_cell_at(x, y, state).attr, 0);
 });
 
 test('reset_needed_visuals() spends every flag it consumes', async () => {

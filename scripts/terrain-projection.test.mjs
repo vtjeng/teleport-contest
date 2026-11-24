@@ -4,12 +4,19 @@ import test from 'node:test';
 import { ANTI_MAGIC, COLNO, IN_SIGHT, M_AP_FURNITURE, POOL, ROOM, ROWNO, SVALL,
     TER_FULL, TER_MAP, TER_MON, TER_OBJ, TER_TRP } from '../js/const.js';
 import { reveal_terrain_getglyph } from '../js/detect.js';
-import { cmap_to_glyph, GLYPH_INVISIBLE, objnum_to_glyph, trap_to_glyph } from '../js/display.js';
+import {
+    cmap_to_glyph,
+    GLYPH_INVISIBLE,
+    objnum_to_glyph,
+    trap_to_glyph,
+    glyph_buffer_at,
+} from '../js/display.js';
 import { GLYPH_MON_MALE_OFF, GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { DIAMOND } from '../js/objects.js';
 import { create_region } from '../js/region.js';
 import { S_cloud, S_corr, S_darkroom, S_fountain, S_litcorr, S_room, S_stone } from '../js/symbols.js';
 import { lastseentyp_grid } from '../js/dungeon.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const C = readFileSync(new URL('../nethack-c/upstream/src/detect.c', import.meta.url), 'utf8');
 const JS_SOURCE = readFileSync(new URL('../js/detect.js', import.meta.url), 'utf8');
@@ -18,26 +25,28 @@ function fixture() {
     // One interior remembered room square; C reads the same coordinate in
     // every layer. ANTI_MAGIC provides a known trap under the object overlay.
     const cell = { typ: ROOM, seenv: SVALL,
-        remembered_glyph: { glyph: cmap_to_glyph(S_room) },
-        disp_glyph: { glyph: objnum_to_glyph(DIAMOND) } };
+        remembered_glyph: { glyph: cmap_to_glyph(S_room) } };
     const state = { u: { ux: 10, uy: 10, uinwater: 0 },
         lastseentyp: { 10: { 10: ROOM } },
         level: { flags: { hero_memory: true }, regions: [],
             monsters: Array.from({ length: COLNO }, () => Array(ROWNO).fill(null)),
             traps: [{ tx: 10, ty: 10, ttyp: ANTI_MAGIC, tseen: true }],
             at: () => cell } };
-    return { cell, state, glyph: (subset, swallowed = false) =>
+    // The glyph buffer entry of the same square.
+    const entry = glyph_buffer_at(10, 10, withScreenBuffers(state));
+    entry.glyphinfo = { glyph: objnum_to_glyph(DIAMOND) };
+    return { cell, entry, state, glyph: (subset, swallowed = false) =>
         reveal_terrain_getglyph(10, 10, swallowed,
             cmap_to_glyph(S_stone), subset, state) };
 }
 test('terrain subsets preserve objects and uncover known traps in C order', () => {
-    const { cell, state, glyph } = fixture();
+    const { cell, entry, state, glyph } = fixture();
     const trap = trap_to_glyph(state.level.traps[0], state);
     assert.equal(glyph(TER_MAP), cmap_to_glyph(S_room));
     assert.equal(glyph(TER_MAP | TER_TRP), trap);
     assert.equal(glyph(TER_MAP | TER_TRP | TER_OBJ), objnum_to_glyph(DIAMOND));
     // C treats invisible-monster markers as replaceable even with keep_objs.
-    cell.disp_glyph.glyph = GLYPH_INVISIBLE;
+    entry.glyphinfo.glyph = GLYPH_INVISIBLE;
     assert.equal(glyph(TER_MAP | TER_TRP | TER_OBJ), trap);
     // Pool coverage suppresses the trap substitution unless underwater.
     cell.typ = POOL;
@@ -46,28 +55,28 @@ test('terrain subsets preserve objects and uncover known traps in C order', () =
     assert.equal(glyph(TER_MAP | TER_TRP), trap);
 });
 test('full projection restores seenv and normalizes C room/corridor glyphs', () => {
-    const { cell, glyph } = fixture();
+    const { cell, entry, glyph } = fixture();
     cell.seenv = 3; // A partial visibility mask must survive TER_FULL.
     assert.equal(glyph(TER_MAP | TER_FULL), cmap_to_glyph(S_room));
     assert.equal(cell.seenv, 3);
     for (const [from, to] of [[S_darkroom, S_room], [S_litcorr, S_corr]]) {
-        cell.disp_glyph.glyph = cmap_to_glyph(from);
+        entry.glyphinfo.glyph = cmap_to_glyph(from);
         assert.equal(glyph(TER_MAP | TER_OBJ), cmap_to_glyph(to));
     }
 });
 test('monster projection preserves or strips the live glyph per TER_MON', () => {
-    const { cell, glyph } = fixture();
-    cell.disp_glyph.glyph = GLYPH_MON_MALE_OFF; // First ordinary monster glyph.
+    const { entry, glyph } = fixture();
+    entry.glyphinfo.glyph = GLYPH_MON_MALE_OFF; // First ordinary monster glyph.
     assert.equal(glyph(TER_MAP | TER_OBJ), cmap_to_glyph(S_room));
     assert.equal(glyph(TER_MAP | TER_OBJ | TER_MON), GLYPH_MON_MALE_OFF);
 });
 test('visible region precedence matches C trap and unexplored arms', () => {
-    const { cell, state, glyph } = fixture();
+    const { cell, entry, state, glyph } = fixture();
     const region = create_region([{ lx: 10, ly: 10, hx: 10, hy: 10 }]);
     region.visible = true;
     region.glyph = cmap_to_glyph(S_cloud);
     state.level.regions.push(region);
-    cell.disp_glyph.glyph = GLYPH_MON_MALE_OFF;
+    entry.glyphinfo.glyph = GLYPH_MON_MALE_OFF;
     assert.equal(glyph(TER_MAP | TER_TRP), trap_to_glyph(state.level.traps[0], state));
     state.level.traps.length = 0;
     assert.equal(glyph(TER_MAP | TER_TRP), region.glyph);

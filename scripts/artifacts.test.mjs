@@ -100,6 +100,7 @@ import {
     races,
     roles,
 } from '../js/roles.js';
+import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 
 const C_ARTIFACT_SOURCE = readFileSync(
     'nethack-c/upstream/src/artifact.c', 'utf8',
@@ -1006,12 +1007,11 @@ test('count_surround_traps counts hidden traps and trapped doors', () => {
     // so any cell with this glyph is "not showing a trap".
     const NOT_TRAP_GLYPH = 100000;
     // Build a 3x3 level grid centered at (5, 5). Each cell needs a
-    // disp_glyph.glyph for glyph_at() and a typ/doormask for door checks.
+    // gbuf entry glyph for glyph_at() and a typ/doormask for door checks.
     const cells = {};
     for (let x = 4; x <= 6; x++) {
         for (let y = 4; y <= 6; y++) {
             cells[`${x},${y}`] = {
-                disp_glyph: { glyph: NOT_TRAP_GLYPH },
                 typ: 0,        // STONE, not a door
                 flags: 0,
             };
@@ -1019,11 +1019,13 @@ test('count_surround_traps counts hidden traps and trapped doors', () => {
     }
     const state = {
         level: {
-            at(x, y) { return cells[`${x},${y}`] || { disp_glyph: { glyph: NOT_TRAP_GLYPH }, typ: 0, flags: 0 }; },
+            at(x, y) { return cells[`${x},${y}`] || { typ: 0, flags: 0 }; },
             traps: [],
             objects: {},
         },
     };
+    for (const row of withScreenBuffers(state).gg.gbuf)
+        for (const entry of row) entry.glyphinfo = { glyph: NOT_TRAP_GLYPH };
     // No traps at all: should return 0.
     assert.equal(count_surround_traps(5, 5, state), 0,
         'empty 3x3 area has no hidden traps');
