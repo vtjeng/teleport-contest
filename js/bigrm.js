@@ -38,8 +38,8 @@ function mathRandom(a, b) {
 
 // C ref: nhlsel.c l_selection_line(). Bresenham line from (x1,y1) to
 // (x2,y2) on the selection grid.
-// C ref: nhlsel.c params_sel_2coords(), a Lua binding. The port runs the
-// dat/*.lua program as JavaScript, which calls the wrapped C function directly
+// C ref: nhlsel.c params_sel_2coords(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function directly
 // (the argument parsing of line(); bigrm.js selection_rect() and themerooms.js
 // selection_area() parse rect() and fillrect()).
 // C ref: selvar.c selection_do_line(), on the ThemeroomSelection that holds

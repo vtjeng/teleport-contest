@@ -307,8 +307,8 @@ function setTerrain(x, y, typ, env) {
         : set_levltyp(x, y, typ, { state: env.state });
 }
 
-// C ref: nhlua.c nhl_timer_start_at(), a Lua binding. The port runs the
-// dat/*.lua program as JavaScript, which calls the wrapped C function directly
+// C ref: nhlua.c nhl_timer_start_at(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function directly
 // (nh.start_timer_at() in themerms.lua).
 function startMeltTimer(x, y, when, env) {
     const hook = env.hooks.startMeltTimer;
@@ -1102,8 +1102,8 @@ function fillBoulderRoom(room, _difficulty, env) {
 
 // dat/themerms.lua "Buried zombies".  The same mutable pool is shuffled for
 // every corpse, and Lua's numeric loop truncates the half-room area.
-// C ref: nhlobj.c l_obj_timer_stop(), a Lua binding. The port runs the
-// dat/*.lua program as JavaScript, which calls the wrapped C function directly
+// C ref: nhlobj.c l_obj_timer_stop(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function directly
 // (o:stop_timer() in themerms.lua).
 function fillBuriedZombies(room, difficulty, env) {
     const zombifiable = [PM_KOBOLD, PM_GNOME, PM_ORC, PM_DWARF];
@@ -1208,8 +1208,8 @@ function fillGarden(room, _difficulty, env) {
 // dat/themerms.lua "Buried treasure". create_object() buries the chest while
 // its descriptor container frame is active, then lspo_object() invokes this
 // callback and only pops the frame after all random contents have been made.
-// C ref: nhlobj.c l_obj_to_table(), a Lua binding. The port runs the dat/*.lua
-// program as JavaScript, which calls the wrapped C function directly
+// C ref: nhlobj.c l_obj_to_table(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function directly
 // (obj:totable() in themerms.lua).
 function fillBuriedTreasure(room, _difficulty, env) {
     return createObject({

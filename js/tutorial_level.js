@@ -74,8 +74,8 @@ function liveCommandBindings(state) {
     return state.commandBindings;
 }
 
-// C ref: nhlua.c nhl_get_cmd_key(), a Lua binding. The port runs the dat/*.lua
-// program as JavaScript, which calls the wrapped C function directly
+// C ref: nhlua.c nhl_get_cmd_key(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function directly
 // (nh.eckey() in the tutorial programs).
 function tutorialCommandKey(command, model) {
     let nonPrintable = 0;
@@ -143,8 +143,8 @@ export const _tutorialLevelInternals = Object.freeze({
 // des.monster() returns a Promise for makemon()'s runtime tail, whose
 // appearance message can wait at --More--, and Lua finishes each call
 // before its next statement (scripts/lua-des-await.test.mjs).
-// C ref: nhlua.c nhl_parse_config(), a Lua binding. The port runs the
-// dat/*.lua program as JavaScript, which calls the wrapped C function directly
+// C ref: nhlua.c nhl_parse_config(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function directly
 // (nh.parse_config() in tut-1.lua).
 export async function loadTutorialLevel(des, state) {
     const { key: tutKey, help: tutKeyHelp } = tutorialKeys(des, state);

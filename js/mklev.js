@@ -869,8 +869,8 @@ async function mk_knox_portal(x, y) {
 }
 
 // C ref: mklev.c makerooms()
-// C ref: nhlua.c nhl_level_difficulty(), a Lua binding. The port runs the
-// dat/*.lua program as JavaScript, which calls the wrapped C function directly
+// C ref: nhlua.c nhl_level_difficulty(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function directly
 // (nh.level_difficulty() in themerms.lua).
 async function makerooms() {
     const g = game;
@@ -915,8 +915,8 @@ function is_themeroom_eligible(room, difficulty) {
 }
 
 // C ref: themerms.lua themerooms_generate().
-// C ref: nhlua.c nhl_rn2(), a Lua binding. The port runs the dat/*.lua program
-// as JavaScript, which calls the wrapped C function directly (nh.rn2() in
+// C ref: nhlua.c nhl_rn2(), a Lua binding. The port runs the Lua program from
+// dat/ as JavaScript, which calls the wrapped C function directly (nh.rn2() in
 // themerms.lua and other programs).
 export function select_themeroom(difficulty, random = rn2) {
     let pick = null;
@@ -2411,8 +2411,8 @@ function new_water_vault_escape_object(name, env) {
 
 // C ref: themerms.lua "Water-surrounded vault" map callback.
 // C ref: nhlobj.c l_obj_add_to_container(), a Lua binding. The port runs the
-// dat/*.lua program as JavaScript, which calls the wrapped C function directly
-// (obj:addcontent() in themerms.lua).
+// Lua program from dat/ as JavaScript, which calls the wrapped C function
+// directly (obj:addcontent() in themerms.lua).
 function water_surrounded_vault_contents(
     origin,
     context,
