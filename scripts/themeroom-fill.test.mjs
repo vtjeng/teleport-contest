@@ -84,7 +84,7 @@ import {
     sp_amask_to_amask,
     themeroom_fill,
 } from '../js/themeroom_fill.js';
-import { lspo_monster } from '../js/mklev.js';
+import { lspo_monster } from '../js/sp_lev.js';
 import { THEMEROOM_FILL_DEFINITIONS } from '../js/themerooms.js';
 import {
     AMULET_OF_LIFE_SAVING,

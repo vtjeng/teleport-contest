@@ -37,12 +37,8 @@ import {
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { swapbits } from '../js/hacklib.js';
-import { flip_encoded_dir_bits } from '../js/sp_lev.js';
 import {
-    selection_floodfill,
-    ThemeroomSelection,
-} from '../js/themerooms.js';
-import {
+    flip_encoded_dir_bits,
     cvt_to_abscoord,
     cvt_to_relcoord,
     floodfillchk_match_accessible,
@@ -62,7 +58,11 @@ import {
     search_door,
     set_floodfillchk_match_under,
     sp_code_jmpaddr,
-} from '../js/mklev.js';
+} from '../js/sp_lev.js';
+import {
+    selection_floodfill,
+    ThemeroomSelection,
+} from '../js/themerooms.js';
 import { get_unpacked_coord } from '../js/room_coordinates.js';
 
 function levelState() {

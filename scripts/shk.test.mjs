@@ -69,7 +69,7 @@ import { NethackGame, runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameDisplay } from '../js/game_display.js';
 import { getRngLog } from '../js/rng.js';
 import { do_mkroom } from '../js/mkroom.js';
-import { fill_special_room } from '../js/mklev.js';
+import { fill_special_room } from '../js/sp_lev.js';
 import { goodpos, teleds } from '../js/teleport.js';
 import { MORE_PROMPT } from '../js/tty_message.js';
 import { in_rooms } from '../js/rooms.js';

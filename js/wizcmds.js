@@ -109,13 +109,19 @@ import { overview_stats, In_W_tower_steps, on_level, print_dungeon,
 } from './dungeon.js';
 import { DEFAULT_PRIMARY_SYMBOLS } from './symbol_data.js';
 import { S_fountain, S_sink } from './symbols.js';
-import { mklev, load_special, lspo_reset_level, lspo_finalize_level } from './mklev.js';
+import { mklev } from './mklev.js';
 import {
     incr_itimeout, make_blinded, make_deaf, make_glib, make_hallucinated,
     make_sick, make_slimed, make_stunned,
     make_stoned, make_vomiting,
 } from './potion.js';
-import { flip_level, flip_level_rnd } from './sp_lev.js';
+import {
+    flip_level,
+    flip_level_rnd,
+    load_special,
+    lspo_reset_level,
+    lspo_finalize_level,
+} from './sp_lev.js';
 import { getpos } from './getpos.js';
 import { m_at } from './monst.js';
 import { monsndx, nonliving, olfaction } from './mondata.js';

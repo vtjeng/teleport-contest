@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {get_table_str_opt, luaL_checkstring} from '../js/nhlua.js';
-import {get_traptype_byname} from '../js/mklev.js';
+import { get_traptype_byname } from '../js/sp_lev.js';
 import {RUST_TRAP, NO_TRAP} from '../js/const.js';
 const fixture = new URL('./fixtures/optional-string-reader/', import.meta.url);
 const oracle = JSON.parse(readFileSync(new URL('oracle.json', fixture)));

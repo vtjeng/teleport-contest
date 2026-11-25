@@ -10,7 +10,7 @@ import {SHOPBASE, DOOR, ROOM, CORR, D_CLOSED, D_LOCKED, D_TRAPPED, ROOMOFFSET, D
 import {BOULDER} from '../../js/objects.js';
 import {objectGenerationEnv} from '../../js/object_generation.js';
 import {do_mkroom} from '../../js/mkroom.js';
-import {fill_special_room} from '../../js/mklev.js';
+import { fill_special_room } from '../../js/sp_lev.js';
 import {shop_keeper, inside_shop, addtobill, find_objowner, costly_spot, onshopbill} from '../../js/shk.js';
 import {rloc_to, teleds} from '../../js/teleport.js';
 import {mksobj_at} from '../../js/mkobj.js';

@@ -11,7 +11,8 @@ import { MAXNROFROOMS, OROOM } from '../js/const.js';
 import { mapseen_room, ROOM_INDEX } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
-import { add_room, build_room, sort_rooms } from '../js/mklev.js';
+import { add_room, sort_rooms } from '../js/mklev.js';
+import { build_room } from '../js/sp_lev.js';
 import { rest_rooms } from '../js/mkroom.js';
 
 // global.h:385. The slot numbers below are written out from it.

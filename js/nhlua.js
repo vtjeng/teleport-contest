@@ -416,7 +416,7 @@ export function nhl_init(random) {
 // except nhlib.lua's `align` shuffle (lines 24-25), so running one draws no
 // other random number and changes no game state. Every other dat/ file is a
 // level program, which needs the level coder (scripts/special-level-loaders
-// .test.mjs checks that each has a loader in js/mklev.js).
+// .test.mjs checks that each has a loader in js/sp_lev.js).
 export const LUA_LIBRARY_FILES = new Set([
     'dungeon.lua', 'nhcore.lua', 'nhlib.lua', 'quest.lua', 'themerms.lua',
 ]);

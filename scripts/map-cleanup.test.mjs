@@ -12,7 +12,7 @@ import {
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
-import { map_cleanup } from '../js/mklev.js';
+import { map_cleanup } from '../js/sp_lev.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { newObject, place_object } from '../js/mkobj.js';
 import {

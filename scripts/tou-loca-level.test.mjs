@@ -18,6 +18,7 @@ const wizardCommandsC = readFileSync('nethack-c/upstream/src/wizcmds.c', 'utf8')
 const questLevelsJs = readFileSync('js/quest_levels.js', 'utf8');
 const shknamJs = readFileSync('js/shknam.js', 'utf8');
 const makeLevelJs = readFileSync('js/mklev.js', 'utf8');
+const specialLevelJs = readFileSync('js/sp_lev.js', 'utf8');
 const wizardCommandsJs = readFileSync('js/wizcmds.js', 'utf8');
 
 test('Tou-loca generated map and door tables retain every Lua cell and fixed door', () => {
@@ -35,8 +36,8 @@ test('Tou-loca operators and natural shop fill trace to their C callers', () => 
     assert.match(wizardCommandsJs, /export async function wiz_level_tele\([\s\S]*?await level_tele\(state\)/u);
     assert.match(makeLevelC, /makelevel\(void\)[\s\S]*?if \(slev && !Is_rogue_level\(&u\.uz\)\)\s*\{\s*makemaz\(slev->proto\)/u);
     assert.match(mazeC, /makemaz\(const char \*s\)[\s\S]*?if \(load_special\(protofile\)\)/u);
-    assert.match(makeLevelJs, /const \{ QUEST_LEVEL_LOADERS \} = await import\('\.\/quest_levels\.js'\)/u);
-    assert.match(makeLevelJs, /\.\.\.QUEST_LEVEL_LOADERS/u);
+    assert.match(specialLevelJs, /const \{ QUEST_LEVEL_LOADERS \} = await import\('\.\/quest_levels\.js'\)/u);
+    assert.match(specialLevelJs, /\.\.\.QUEST_LEVEL_LOADERS/u);
     assert.match(nhlselC, /\{ "__bor", l_selection_or \}[\s\S]*?\{ "__add", l_selection_or \}[\s\S]*?\{ "__sub", l_selection_sub \}/u);
     assert.match(lua, /validtraps = validtraps - \(selection\.area\(15,03,20,05\) \+ selection\.area\(62,03,71,04\)\)/u);
     assert.match(questLevelsJs, /const validTraps = l_selection_sub\(floorSquares, shops\)/u);

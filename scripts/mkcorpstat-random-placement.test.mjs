@@ -20,9 +20,12 @@ const JS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'js');
 const UNAWAITED = new Map([
     // mk_named_object(), whose C callers name a map square.
     ['corpstat.js', 1],
-    // mklev.c fixup_special()'s statue, the iron-bars corpse and the random
-    // room statue; each square comes from the level being built.
-    ['mklev.js', 3],
+    // mklev.c's iron-bars corpse and random room statue; each square comes
+    // from the level being built.
+    ['mklev.js', 2],
+    // mkmaze.c fixup_special()'s statue, through the hook finishFixupSpecial()
+    // passes; the square comes from the level being built.
+    ['sp_lev.js', 1],
     // mklev.c mktrap_victim(), at the trap's square.
     ['mktrap.js', 1],
     // mon.c monstone(), at a petrified monster's square on the map; a parked

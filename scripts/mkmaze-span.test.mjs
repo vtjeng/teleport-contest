@@ -57,6 +57,7 @@ const C_MKMAZE = readFileSync('nethack-c/upstream/src/mkmaze.c', 'utf8');
 const C_SPLEV = readFileSync('nethack-c/upstream/src/sp_lev.c', 'utf8');
 const JS_MKMAZE = readFileSync('js/mkmaze.js', 'utf8');
 const JS_MKLEV = readFileSync('js/mklev.js', 'utf8');
+const JS_SPLEV = readFileSync('js/sp_lev.js', 'utf8');
 
 function sourceBody(source, signature) {
     const start = source.indexOf(signature);
@@ -71,7 +72,7 @@ test('load_special awaits fixup before premapping and leaves room filling to cal
     assert.ok(cFixup >= 0 && cPremap > cFixup);
     assert.equal(cBody.includes('fill_special_room('), false);
 
-    const jsApi = sourceBody(JS_MKLEV,
+    const jsApi = sourceBody(JS_SPLEV,
         'function createSpecialLevelApi(state, lua) {');
     const jsFinish = jsApi.slice(jsApi.indexOf('async finish() {'),
         jsApi.indexOf('// C ref: sp_lev.c lspo_map(), array form.'));
@@ -80,7 +81,7 @@ test('load_special awaits fixup before premapping and leaves room filling to cal
     assert.ok(jsFixup >= 0 && jsPremap > jsFixup);
     assert.equal(jsFinish.includes('fill_special_room('), false);
 
-    const jsLoader = sourceBody(JS_MKLEV, 'export async function load_special(');
+    const jsLoader = sourceBody(JS_SPLEV, 'export async function load_special(');
     assert.match(jsLoader, /await specialLevelApi\.finish\(\);/);
     const jsMakelevel = sourceBody(JS_MKLEV, 'async function makelevel(');
     assert.match(jsMakelevel, /await fillSpecialRooms\(\);/);

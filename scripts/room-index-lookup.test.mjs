@@ -37,9 +37,11 @@ const JS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'js');
 const ROOM_ARRAY_HOMES = {
     // mapseen_room() itself, the one lookup for svr.rooms[index].
     'dungeon.js': 'holds mapseen_room()',
-    // mklev.c, sp_lev.c and mkmap.c room creation, sorting, joining and
-    // filling.
+    // mklev.c and mkmap.c room creation, sorting, joining and filling.
     'mklev.js': 'creates, sorts and joins the top-level rooms',
+    // sp_lev.c room creation, corridors between rooms, and special-room
+    // filling.
+    'sp_lev.js': 'creates, connects and fills special-level rooms',
     // mkroom.c save_room()/rest_rooms() and the special-room pickers
     // mkshop(), pick_room() and mkswamp(), which scan only [0, nroom).
     'mkroom.js': 'saves, restores and picks top-level rooms',
@@ -120,8 +122,9 @@ test('only mapseen_room() resolves a room number to a room', () => {
 
 test('ROOM_ARRAY_HOMES holds the pinned number of files', () => {
     // 5 files on 19 November 2026: dungeon.js, mklev.js, mkroom.js,
-    // extralev.js and mkmaze.js.
-    const PINNED_HOMES = 5;
+    // extralev.js and mkmaze.js. 6 since sp_lev.c's code moved from mklev.js
+    // to sp_lev.js (25 November 2026).
+    const PINNED_HOMES = 6;
     assertExceptionCount(Object.keys(ROOM_ARRAY_HOMES).length, PINNED_HOMES, {
         what: 'ROOM_ARRAY_HOMES files',
         pin: 'PINNED_HOMES in scripts/room-index-lookup.test.mjs',

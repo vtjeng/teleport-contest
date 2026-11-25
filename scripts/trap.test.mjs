@@ -24,7 +24,7 @@ import { mksobj_at } from '../js/mkobj.js';
 import { LARGE_BOX, ROCK, SPE_STONE_TO_FLESH } from '../js/objects.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz, initRng } from '../js/rng.js';
 import { do_mkroom } from '../js/mkroom.js';
-import { fill_special_room } from '../js/mklev.js';
+import { fill_special_room } from '../js/sp_lev.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { costly_spot, get_cost, inside_shop } from '../js/shk.js';
 import { teleds } from '../js/teleport.js';

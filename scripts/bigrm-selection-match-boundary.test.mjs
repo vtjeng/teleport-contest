@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { resetGame } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
-import { lspo_terrain } from '../js/mklev.js';
+import { lspo_terrain } from '../js/sp_lev.js';
 import { HWALL } from '../js/const.js';
 import { selection_match } from '../js/bigrm.js';
 

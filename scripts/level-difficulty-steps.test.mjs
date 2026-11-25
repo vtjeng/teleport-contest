@@ -144,11 +144,11 @@ const ALLOWED = {
     'mklev.js | dodoor | dosdoor': [1,
         'the synchronous form, for roguecorr() above; mklev.c join() drives '
             + 'dodoor_steps()'],
-    'mklev.js | create_corridor | makecorridors': [1,
+    'sp_lev.js | create_corridor | makecorridors': [1,
         'a level program\'s des.corridor() with a random source (sp_lev.c '
             + 'create_corridor()), which is synchronous; on a dungeon -1 level '
             + 'only #wizloadlua runs a level program'],
-    'mklev.js | createSpecialLevelApi | mkclass': [1, LEVEL_PROGRAM],
+    'sp_lev.js | createSpecialLevelApi | mkclass': [1, LEVEL_PROGRAM],
     'mklev.js | mausoleum | mkclass': [1,
         'the themerms.lua "Mausoleum" room, made only by mklev.c makerooms() '
             + 'for a dungeon with a themerms file; dungeon -1 has none'],

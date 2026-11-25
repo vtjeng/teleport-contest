@@ -221,7 +221,7 @@ export class ThemeroomSelection {
     // l_selection_grow() clones before growing, so the receiver is unchanged.
     grow(direction = W_ANY, random = rn2) {
         if (direction === W_RANDOM) {
-            // C: random_wdir(), ported in mklev.js, which imports this
+            // C: random_wdir(), ported in sp_lev.js, which imports this
             // module; the same draw is made here instead.
             direction = [W_NORTH, W_SOUTH, W_EAST, W_WEST][random(4)];
         }

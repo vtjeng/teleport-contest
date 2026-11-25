@@ -112,7 +112,7 @@ export const HELD_ON_STATE = new Set([
 // HELD_ON_STATE members that initial_state_held_globals() leaves out.
 // js/topten.js holds gt.toptenwin as the window's list of lines, or null,
 // where C holds a winid that starts at WIN_ERR. gx.xstart, gy.ystart,
-// gx.xsize and gy.ysize belong to js/mklev.js sp_lev_frame(); state.xstart
+// gx.xsize and gy.ysize belong to js/sp_lev.js sp_lev_frame(); state.xstart
 // and the rest mirror it, and js/themerooms.js selection_origin() reads a
 // missing mirror as "no map frame yet".
 export const OWNED_ELSEWHERE = new Set([

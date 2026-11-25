@@ -13,7 +13,7 @@ const CONTROL = JSON.parse(readFileSync(
 
 test('fakewiz1 loader implements the source-backed tower level and is registered', () => {
     assert.equal(FAKEWIZ1_LEVEL_LOADERS.fakewiz1, fakewiz1);
-    assert.match(readFileSync('js/mklev.js', 'utf8'), /\.\.\.FAKEWIZ1_LEVEL_LOADERS/u);
+    assert.match(readFileSync('js/sp_lev.js', 'utf8'), /\.\.\.FAKEWIZ1_LEVEL_LOADERS/u);
     const sourceMap = LUA_SOURCE.match(/map\s*=\s*\[\[([\s\S]*?)\]\]/u)?.[1]
         .split('\n').slice(1, -1).join('\n');
     assert.ok(sourceMap);

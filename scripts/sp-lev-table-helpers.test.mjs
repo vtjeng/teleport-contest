@@ -22,6 +22,9 @@ import {
 import { def_char_to_monclass, def_char_to_objclass } from '../js/drawing.js';
 import {
     check_mapchr,
+    get_table_mapchr_opt,
+} from '../js/mklev.js';
+import {
     find_montype,
     find_objtype,
     get_coord,
@@ -29,7 +32,6 @@ import {
     get_table_coords_or_region,
     get_table_int_or_random,
     get_table_intarray_entry,
-    get_table_mapchr_opt,
     get_table_monclass,
     get_table_montype,
     get_table_objclass,
@@ -41,7 +43,7 @@ import {
     lspo_level_flags,
     lspo_message,
     nhl_get_xy_params,
-} from '../js/mklev.js';
+} from '../js/sp_lev.js';
 import {
     PM_GNOME,
     PM_GNOME_LEADER,

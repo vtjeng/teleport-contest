@@ -26,6 +26,7 @@ const teleportJs = readFileSync('js/teleport.js', 'utf8');
 const doJs = readFileSync('js/do.js', 'utf8');
 const allMainJs = readFileSync('js/allmain.js', 'utf8');
 const makeLevelJs = readFileSync('js/mklev.js', 'utf8');
+const specialLevelJs = readFileSync('js/sp_lev.js', 'utf8');
 const shopkeeperJs = readFileSync('js/shknam.js', 'utf8');
 const questLevelsJs = readFileSync('js/quest_levels.js', 'utf8');
 
@@ -177,7 +178,7 @@ test('Tou-goal selection and natural quest-level caller trace matches upstream d
     assert.match(makeLevelJs, /export async function mklev\([\s\S]*?await makelevel\(/u);
     assert.match(makeLevelJs,
         /if \(slev && slev\.proto && !Is_rogue_level\(g\.u\.uz, g\)\) \{\s*await makemaz\(slev\.proto, slev, g\);\s*await finishLevelGeneration\(\);\s*return;/u);
-    assert.match(makeLevelJs, /\.\.\.QUEST_LEVEL_LOADERS/u);
+    assert.match(specialLevelJs, /\.\.\.QUEST_LEVEL_LOADERS/u);
     assert.match(questLevelsJs, /'Tou-goal': touGoal/u);
 
     // The natural makelevel tail fills special rooms after load_special. That

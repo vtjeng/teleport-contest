@@ -136,14 +136,6 @@
       "count": 2,
       "reason": "mklev.c mineralize() (1449-1541) places gold and gems it has just made (when add_to_buried() is not taken). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
-    "js/mklev.js | create_trap | maketrap": {
-      "count": 1,
-      "reason": "sp_lev.c create_trap() makes the vibrating square here. js/trap.js maketrap() returns a Promise only from its STATUE_TRAP arm (mk_trap_statue()'s donor monster) and its pit and hole arms (unearth_objs()); VIBRATING_SQUARE takes neither."
-    },
-    "js/mklev.js | dig_corridor | mksobj_at": {
-      "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
-    },
     "js/mklev.js | fake_delphi | run_room_descriptor": {
       "count": 1,
       "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(). run_room_descriptor() returns a Promise only when its contents callback does, and this callback only places doors: sp_lev.c create_door() (1714-1805) sets the square's type and doormask and makes no monster. The rooms' FILL_NORMAL monsters come later, from fill_ordinary_room(), which makelevel() waits for."
@@ -160,21 +152,9 @@
       "count": 2,
       "reason": "mklev.c fill_ordinary_room() (939-1171) fills the supply chest with objects it has just made by type, none a crysknife. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
-    "js/mklev.js | generate_way_out_method | mksobj_at": {
-      "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
-    },
     "js/mklev.js | huge_room_with_another_room_inside | run_room_descriptor": {
       "count": 1,
       "reason": "Runs only during level creation: themed rooms are built by mklev.c makerooms() inside makelevel(). run_room_descriptor() returns a Promise only when its contents callback does, and this callback only places doors: sp_lev.c create_door() (1714-1805) sets the square's type and doormask and makes no monster. The rooms' FILL_NORMAL monsters come later, from fill_ordinary_room(), which makelevel() waits for."
-    },
-    "js/mklev.js | lspo_gas_cloud | create_gas_cloud": {
-      "count": 1,
-      "reason": "Called with cloud size 1. js/region.js create_gas_cloud() is `async`, and its only await is the impossible() for a size above MAX_CLOUD_SIZE (region.c:1238), so with size 1 its whole body, which appends the region, runs before the call returns. The calling code reads that region from the list on the next line."
-    },
-    "js/mklev.js | map_cleanup | obj_extract_self": {
-      "count": 1,
-      "reason": "sp_lev.c map_cleanup() extracts boulders found by sobj_at(), which are OBJ_FLOOR. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/mklev.js | nesting_rooms | run_room_descriptor": {
       "count": 2,
@@ -387,6 +367,26 @@
     "js/sp_lev_object.js | finishAccepted | obj_extract_self": {
       "count": 1,
       "reason": "sp_lev.c create_object() moves the statue's monster's minvent into the statue, so each object is OBJ_MINVENT. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
+    },
+    "js/sp_lev.js | create_trap | maketrap": {
+      "count": 1,
+      "reason": "sp_lev.c create_trap() makes the vibrating square here. js/trap.js maketrap() returns a Promise only from its STATUE_TRAP arm (mk_trap_statue()'s donor monster) and its pit and hole arms (unearth_objs()); VIBRATING_SQUARE takes neither."
+    },
+    "js/sp_lev.js | dig_corridor | mksobj_at": {
+      "count": 1,
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+    },
+    "js/sp_lev.js | generate_way_out_method | mksobj_at": {
+      "count": 1,
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+    },
+    "js/sp_lev.js | lspo_gas_cloud | create_gas_cloud": {
+      "count": 1,
+      "reason": "Called with cloud size 1. js/region.js create_gas_cloud() is `async`, and its only await is the impossible() for a size above MAX_CLOUD_SIZE (region.c:1238), so with size 1 its whole body, which appends the region, runs before the call returns. The calling code reads that region from the list on the next line."
+    },
+    "js/sp_lev.js | map_cleanup | obj_extract_self": {
+      "count": 1,
+      "reason": "sp_lev.c map_cleanup() extracts boulders found by sobj_at(), which are OBJ_FLOOR. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/startup_a11y.js | queueVisionMonsterNotices | notice_all_mons": {
       "count": 1,

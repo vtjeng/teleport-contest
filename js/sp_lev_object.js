@@ -69,7 +69,7 @@ import {
     get_table_int_or_random,
     get_table_objclass,
     get_table_objtype,
-} from './mklev.js';
+} from './sp_lev.js';
 import {
     begin_burn,
 } from './timeout.js';
@@ -371,7 +371,7 @@ function applyObjectFields(obj, specification, env) {
 }
 
 // pline.c impossible() through the caller's hook. A level program's des.*
-// env (js/mklev.js createSpecialLevelApi()) prints and returns the promise,
+// env (js/sp_lev.js createSpecialLevelApi()) prints and returns the promise,
 // which a caller that can wait settles before it goes on, as C's
 // create_object() does; a hook may also just record the text.
 // Copies: pline.c impossible() is also ported as pline.js impossible() and

@@ -31,7 +31,7 @@ export const RULES = [
         // prints impossible() and makes a maze when one does not.
         // scripts/special-level-loaders.test.mjs keeps every program loadable.
         name: 'special-level loader pre-check',
-        files: ['mklev.js'],
+        files: ['mklev.js', 'sp_lev.js'],
         pattern: /hasLoader|no loader for|SPECIAL_LEVEL_LOADERS\[fillName\]/gu,
     },
     {
@@ -47,7 +47,7 @@ export const RULES = [
         // get_table_option(); every create_room_door() caller passes a
         // themerms.lua literal or shop wall that the tables hold.
         name: 'room-door name refusal',
-        files: ['mklev.js'],
+        files: ['sp_lev.js'],
         pattern: /unsupported room door/gu,
     },
     {

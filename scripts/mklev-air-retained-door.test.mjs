@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { resetGame } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
-import { lspo_terrain, lspo_replace_terrain, lspo_door } from '../js/mklev.js';
+import { lspo_terrain, lspo_replace_terrain, lspo_door } from '../js/sp_lev.js';
 import { initRng } from '../js/rng.js';
 import { SDOOR, D_LOCKED, D_CLOSED } from '../js/const.js';
 

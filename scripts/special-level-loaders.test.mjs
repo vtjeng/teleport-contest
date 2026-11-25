@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { DAT_LUA_FILES } from '../js/dat_files.js';
-import { specialLevelLoaderNames } from '../js/mklev.js';
+import { specialLevelLoaderNames } from '../js/sp_lev.js';
 import { LUA_LIBRARY_FILES } from '../js/nhlua.js';
 
 // The dat/ programs that are not levels. Each is run by its own C caller,

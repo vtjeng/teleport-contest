@@ -48,7 +48,7 @@ import {
     nexttodoor,
     squadmon,
 } from '../js/mkroom.js';
-import { fill_special_room } from '../js/mklev.js';
+import { fill_special_room } from '../js/sp_lev.js';
 import { m_at } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
 import {

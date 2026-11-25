@@ -15,7 +15,8 @@ import {
 } from '../js/const.js';
 import { engr_at } from '../js/engrave.js';
 import { game, resetGame } from '../js/gstate.js';
-import { lspo_terrain, mklev, splev_chr2typ } from '../js/mklev.js';
+import { mklev, splev_chr2typ } from '../js/mklev.js';
+import { lspo_terrain } from '../js/sp_lev.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { objects_globals_init } from '../js/objects.js';
 import { initRng } from '../js/rng.js';
@@ -29,7 +30,7 @@ import { timeout_globals_init } from '../js/timeout.js';
 
 const C_SOURCE = readFileSync('nethack-c/upstream/src/sp_lev.c', 'utf8');
 
-// The special-level API's terrain() writer is js/mklev.js sel_set_ter(),
+// The special-level API's terrain() writer is js/sp_lev.js sel_set_ter(),
 // reached only through createSpecialLevelApi(), so each case runs mklev()
 // with an injected loader the way makelevel() runs a des-file. The loader
 // throws this sentinel after its paint so that finish() never runs; the paint

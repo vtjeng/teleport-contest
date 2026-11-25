@@ -83,7 +83,8 @@ test('Mon-goal preserves source descriptor order and shares one placement draw',
 
 test('Mon-goal is registered in the makelevel special-level dispatch', () => {
     const source = readFileSync('js/mklev.js', 'utf8');
-    assert.match(source, /import\('\.\/quest_levels\.js'\)/u);
-    assert.match(source, /\.\.\.QUEST_LEVEL_LOADERS/u);
+    const registry = readFileSync('js/sp_lev.js', 'utf8');
+    assert.match(registry, /import\('\.\/quest_levels\.js'\)/u);
+    assert.match(registry, /\.\.\.QUEST_LEVEL_LOADERS/u);
     assert.match(source, /await makemaz\(slev\.proto, slev, g\)/u);
 });

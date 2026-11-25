@@ -49,7 +49,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { NethackGame } from '../js/jsmain.js';
 import { GameDisplay } from '../js/game_display.js';
 import { do_mkroom } from '../js/mkroom.js';
-import { fill_special_room } from '../js/mklev.js';
+import { fill_special_room } from '../js/sp_lev.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { mksobj_at, set_corpsenm } from '../js/mkobj.js';
 import { FIGURINE, MINERAL } from '../js/objects.js';

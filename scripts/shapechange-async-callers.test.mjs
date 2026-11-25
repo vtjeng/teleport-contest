@@ -4,7 +4,7 @@ import test from 'node:test';
 import { MALE } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
-import { lspo_monster } from '../js/mklev.js';
+import { lspo_monster } from '../js/sp_lev.js';
 import { PM_DOG, monst_globals_init } from '../js/monsters.js';
 import { d, rn1, rn2, rnd, rne, rnz } from '../js/rng.js';
 

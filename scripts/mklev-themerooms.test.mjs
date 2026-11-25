@@ -21,20 +21,22 @@ import { game, resetGame } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { objectType, weight } from '../js/mkobj.js';
 import {
-    add_doors_to_room,
-    build_room,
-    create_door,
-    create_room_door,
     dispatch_themeroom,
-    fill_special_room,
     initialize_themeroom_branch,
-    lspo_map,
     mklev,
     run_room_descriptor,
     select_themeroom,
     themerooms_generate,
     UnsupportedThemeroomActionError,
 } from '../js/mklev.js';
+import {
+    add_doors_to_room,
+    build_room,
+    create_door,
+    create_room_door,
+    fill_special_room,
+    lspo_map,
+} from '../js/sp_lev.js';
 import {
     PM_FOG_CLOUD,
     PM_ETTIN_ZOMBIE,

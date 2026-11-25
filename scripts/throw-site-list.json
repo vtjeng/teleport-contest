@@ -1590,59 +1590,11 @@
       "c": null,
       "reason": "Replay harness contract (input queue, display, or module-level game); no C counterpart."
     },
-    "js/mklev.js | find_objtype | 'Unknown object id'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:3533",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | finishFlags | 'fill_special_room requires initialized level flags'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
-    "js/mklev.js | finishOwnRoom | 'fill_special_room requires initialized level flags'": {
-      "count": 1,
-      "class": "invariant",
-      "c": null,
-      "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
-    },
     "js/mklev.js | fix_wall_spines | `wall_extends: bad bounds (${x1},${y1}) to (${x2},${y2})`": {
       "count": 1,
       "class": "panic",
       "c": "src/mkmaze.c:250",
       "reason": "C fix_wall_spines() panics on bounds outside the map; synchronous level creation."
-    },
-    "js/mklev.js | get_coord | 'non-table coord specified'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:5363",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | get_coord | 'Not a coordinate'": {
-      "count": 2,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:5342",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | get_table_align | `unknown special-level alignment ${spec.align}`": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/nhlua.c:1130",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | get_table_int_or_random | `Expected integer or \"random\" for \"${name}\", got ` + (tmp ? ": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:3429",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | get_table_intarray_entry | `Array entry #1 is ${luaL_typename(value)}, expected number`": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:5275",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
     },
     "js/mklev.js | get_table_mapchr | 'Erroneous map char'": {
       "count": 1,
@@ -1656,179 +1608,17 @@
       "c": "src/nhlua.c:265",
       "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
     },
-    "js/mklev.js | get_table_montype | 'Unknown monster id'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:3176",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | get_table_region | 'Not a region'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:5303",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | get_table_region | `table expected, got ${luaL_typename(value)}`": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:5297",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | l_selection_check | 'Selection error'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/nhlsel.c:65",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_engraving | 'Wrong parameters'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:3919",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_gas_cloud | 'wrong parameters'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:4961",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_gold | 'Wrong parameters'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:4506",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_level_flags | 'expected string params'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:3767",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_level_flags | `Unknown level flag ${s}`": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:3826",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_message | 'Wrong parameters'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:3085",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_monster | 'Unknown appear_as type'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:3335",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_region | 'region needs region'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:5610",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_region | 'Wrong parameters'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:5633",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_replace_terrain | err": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:5081",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_room | 'Room must have both w and h'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:4066",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_room | 'Room must have both x and y'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:4060",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_room | 'Too deeply nested rooms?!'": {
-      "count": 1,
-      "class": "panic",
-      "c": "src/sp_lev.c:4038",
-      "reason": "C panic(\"Too deeply nested rooms?!\"); synchronous level creation."
-    },
-    "js/mklev.js | lspo_terrain | 'Erroneous map char'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:5022",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_terrain | 'wrong parameters'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:5018",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | lspo_trap | 'Unknown trap type'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:4459",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
     "js/mklev.js | luathemes_at | 'gl.luathemes[-1] reads gl.light_base as a Lua state'": {
       "count": 1,
       "class": "guard",
       "c": null,
       "reason": "Models C reading gl.luathemes[-1], which aliases gl.light_base; a non-empty list would be used as a lua_State (undefined behaviour), and no light source exists when it is read."
     },
-    "js/mklev.js | map | 'Map data error'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:6134",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | map | 'Map requires either x,y or halign,valign params'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:6187",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | mapfrag_get | `outside mapfrag (${mf.wid},${mf.hei}), wanted (${x},${y})`": {
-      "count": 1,
-      "class": "panic",
-      "c": "src/sp_lev.c:269",
-      "reason": "C panic(\"outside mapfrag ...\"); synchronous level creation."
-    },
-    "js/mklev.js | mapFromRows | 'special-level map rows must have equal width'": {
-      "count": 2,
-      "class": "invariant",
-      "c": null,
-      "reason": "The JavaScript row-array map form has no C counterpart; every committed map is rectangular."
-    },
     "js/mklev.js | mausoleum | 'Mausoleum could not resolve a human corpse species'": {
       "count": 1,
       "class": "lua-error",
       "c": "src/sp_lev.c:3704",
       "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | nhl_abs_coord | 'nhl_abs_coord: Wrong args'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:4832",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | object | 'Unknown montype'": {
-      "count": 1,
-      "class": "lua-error",
-      "c": "src/sp_lev.c:3704",
-      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
-    },
-    "js/mklev.js | search_door | 'search_door: Bad wall!'": {
-      "count": 1,
-      "class": "panic",
-      "c": "src/sp_lev.c:2526",
-      "reason": "C panic(\"search_door: Bad wall!\"); synchronous level creation."
     },
     "js/mklev.js | wall_cleanup | `wall_cleanup: bad bounds (${x1},${y1}) to (${x2},${y2})`": {
       "count": 1,
@@ -2987,6 +2777,216 @@
       "class": "invariant",
       "c": null,
       "reason": "Argument type, missing injected operation or uninitialized state; C's types and call sites rule it out."
+    },
+    "js/sp_lev.js | finishFlags | 'fill_special_room requires initialized level flags'": {
+      "count": 1,
+      "class": "invariant",
+      "c": null,
+      "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
+    },
+    "js/sp_lev.js | finishOwnRoom | 'fill_special_room requires initialized level flags'": {
+      "count": 1,
+      "class": "invariant",
+      "c": null,
+      "reason": "Use before the initialization every game performs first (catalogs, globals, display or hero state); C has no such state to check."
+    },
+    "js/sp_lev.js | map | 'Map data error'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:6134",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | map | 'Map requires either x,y or halign,valign params'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:6187",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | object | 'Unknown montype'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:3704",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | find_objtype | 'Unknown object id'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:3533",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | get_coord | 'non-table coord specified'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:5363",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | get_coord | 'Not a coordinate'": {
+      "count": 2,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:5342",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | get_table_align | `unknown special-level alignment ${spec.align}`": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/nhlua.c:1130",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | get_table_int_or_random | `Expected integer or \"random\" for \"${name}\", got ` + (tmp ? ": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:3429",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | get_table_intarray_entry | `Array entry #1 is ${luaL_typename(value)}, expected number`": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:5275",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | get_table_montype | 'Unknown monster id'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:3176",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | get_table_region | 'Not a region'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:5303",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | get_table_region | `table expected, got ${luaL_typename(value)}`": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:5297",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | l_selection_check | 'Selection error'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/nhlsel.c:65",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_engraving | 'Wrong parameters'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:3919",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_gas_cloud | 'wrong parameters'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:4961",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_gold | 'Wrong parameters'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:4506",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_level_flags | 'expected string params'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:3767",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_level_flags | `Unknown level flag ${s}`": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:3826",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_message | 'Wrong parameters'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:3085",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_monster | 'Unknown appear_as type'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:3335",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_region | 'region needs region'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:5610",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_region | 'Wrong parameters'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:5633",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_replace_terrain | err": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:5081",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_room | 'Room must have both w and h'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:4066",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_room | 'Room must have both x and y'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:4060",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_room | 'Too deeply nested rooms?!'": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/sp_lev.c:4038",
+      "reason": "C panic(\"Too deeply nested rooms?!\"); synchronous level creation."
+    },
+    "js/sp_lev.js | lspo_terrain | 'Erroneous map char'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:5022",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_terrain | 'wrong parameters'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:5018",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | lspo_trap | 'Unknown trap type'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:4459",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | mapfrag_get | `outside mapfrag (${mf.wid},${mf.hei}), wanted (${x},${y})`": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/sp_lev.c:269",
+      "reason": "C panic(\"outside mapfrag ...\"); synchronous level creation."
+    },
+    "js/sp_lev.js | mapFromRows | 'special-level map rows must have equal width'": {
+      "count": 2,
+      "class": "invariant",
+      "c": null,
+      "reason": "The JavaScript row-array map form has no C counterpart; every committed map is rectangular."
+    },
+    "js/sp_lev.js | nhl_abs_coord | 'nhl_abs_coord: Wrong args'": {
+      "count": 1,
+      "class": "lua-error",
+      "c": "src/sp_lev.c:4832",
+      "reason": "Port of a C Lua error raise, which unwinds the level script as the throw does; the shipped dat/*.lua never trigger it."
+    },
+    "js/sp_lev.js | search_door | 'search_door: Bad wall!'": {
+      "count": 1,
+      "class": "panic",
+      "c": "src/sp_lev.c:2526",
+      "reason": "C panic(\"search_door: Bad wall!\"); synchronous level creation."
     },
     "js/spell.js | deadbook | 'successful Book of the Dead invocation requires d'": {
       "count": 1,

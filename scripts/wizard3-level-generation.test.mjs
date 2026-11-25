@@ -68,7 +68,7 @@ test('Wizard3 preserves the complete source map and canonical return selection',
     assert.equal(des.selection.numpoints(), 364); // 28 written columns × 13 source rows.
     assert.equal(des.selection.get(53, 5), false); // The transparent final column.
     assert.ok(des.selectionReads() > 1, 'protection must consume the returned selection');
-    const registry = readFileSync('js/mklev.js', 'utf8');
+    const registry = readFileSync('js/sp_lev.js', 'utf8');
     assert.match(registry, /import\('\.\/wizard3_levels\.js'\)/u);
     assert.match(registry, /\.\.\.WIZARD3_LEVEL_LOADERS/u);
 });

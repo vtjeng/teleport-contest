@@ -68,7 +68,8 @@ test('special room filling belongs to makelevel or post-topology direct finaliza
     const makeSource = readFileSync('nethack-c/upstream/src/mklev.c', 'utf8');
     const cLoader = luaSource.slice(luaSource.indexOf('load_special(const char *name)'));
     assert.ok(!cLoader.includes('fill_special_room(')); // sp_lev.c6454–6503 ends at premap_detect.
-    const jsFinish = js.slice(js.indexOf('        async finish() {'), js.indexOf('// C ref: sp_lev.c lspo_map(), array form.'));
+    const spJs = readFileSync('js/sp_lev.js', 'utf8');
+    const jsFinish = spJs.slice(spJs.indexOf('        async finish() {'), spJs.indexOf('// C ref: sp_lev.c lspo_map(), array form.'));
     assert.ok(!jsFinish.includes('fill_special_room('));
     const cMake = makeSource.slice(makeSource.indexOf('makelevel(void)\n{'), makeSource.indexOf('makelevel(void)\n{') + 8500);
     assert.match(cMake, /Fill all special rooms now, regardless[\s\S]*fill_special_room\(&svr\.rooms\[i\]\);/u); // mklev.c1414–1418 common tail.
@@ -82,6 +83,6 @@ test('special room filling belongs to makelevel or post-topology direct finaliza
     // needs the same post-generation filling as named special levels.
     assert.equal((jsMake.match(/await finishLevelGeneration\(\);/gu) ?? []).length, 7);
     assert.equal((jsMake.match(/await (?:makemaz|specialLevelApi\.finish)\([^;]*;\n\s+await finishLevelGeneration\(\);\n\s+return;/gu) ?? []).length, 6);
-    const finalize = js.slice(js.indexOf('export async function lspo_finalize_level('), js.indexOf('async function finishFixupSpecial('));
+    const finalize = spJs.slice(spJs.indexOf('export async function lspo_finalize_level('), spJs.indexOf('async function finishFixupSpecial('));
     assert.ok(finalize.indexOf('level_finalize_topology();') < finalize.indexOf('await printQueued(fill_special_room(')); // sp_lev.c6055–6059: mineralize first.
 });
