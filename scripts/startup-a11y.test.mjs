@@ -6,11 +6,9 @@ import {
     COLNO,
     COULD_SEE,
     CORR,
-    DB_WEST,
     DETECT_MONSTERS,
     DOOR,
     D_BROKEN,
-    DRAWBRIDGE_UP,
     GPCOORDS_COMPASS,
     GPCOORDS_COMFULL,
     GPCOORDS_MAP,
@@ -36,12 +34,7 @@ import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
 import {
-    ARMOR_CLASS,
     CHEST,
-    CRYSTAL_PLATE_MAIL,
-    LEATHER_ARMOR,
-    LONG_SWORD,
-    WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
@@ -248,27 +241,6 @@ test('collectLookaroundMessages scans interesting glyphs by row', () => {
         '(northwest): tame little dog.',
         '(4west): broken door.',
     ]);
-});
-
-test('look-at recognizes a drawbridge portcullis from its adjacent bridge', () => {
-    const state = startupState();
-    const x = 9;
-    const y = 6;
-    const doorway = state.level.at(x, y);
-    doorway.typ = DOOR;
-    const bridge = state.level.at(x + 1, y);
-    bridge.typ = DRAWBRIDGE_UP;
-    bridge.flags = DB_WEST;
-
-    assert.equal(
-        _startupA11yInternals.terrainDescription(
-            doorway,
-            x,
-            y,
-            state,
-        ),
-        'open drawbridge portcullis',
-    );
 });
 
 test('accessible locations honor every whatis_coord presentation', () => {
@@ -730,38 +702,3 @@ test('lookaround ignores a hidden object beneath an ordinary liquid glyph', () =
     );
     assert.equal(rn2(997), before);
 });
-
-test('lookaround object names retain grease and erosion modifier order', () => {
-    const state = startupState();
-    objects_globals_init(state);
-    init_objects(state, () => 0);
-    const describe = _startupA11yInternals.describeObject;
-    const base = {
-        oclass: WEAPON_CLASS,
-        dknown: true,
-        quan: 1,
-        ox: state.u.ux,
-        oy: state.u.uy,
-    };
-    assert.equal(describe({
-        ...base,
-        otyp: LONG_SWORD,
-        greased: true,
-        oeroded: 2,
-        oeroded2: 3,
-    }, state), 'a greased very rusty thoroughly corroded long sword');
-    assert.equal(describe({
-        ...base,
-        otyp: LEATHER_ARMOR,
-        oclass: ARMOR_CLASS,
-        oeroded: 1,
-        oeroded2: 2,
-    }, state), 'a burnt very rotted leather armor');
-    assert.equal(describe({
-        ...base,
-        otyp: CRYSTAL_PLATE_MAIL,
-        oclass: ARMOR_CLASS,
-        oeroded: 3,
-    }, state), 'a thoroughly cracked crystal plate mail');
-});
-

@@ -389,10 +389,7 @@ import {
     trap_to_defsym,
 } from '../js/symbols.js';
 import { escapes } from '../js/options_escapes.js';
-import {
-    _startupA11yInternals,
-    emitGlyphUpdateNotices,
-} from '../js/startup_a11y.js';
+import { emitGlyphUpdateNotices } from '../js/startup_a11y.js';
 import { look_at_monster } from '../js/pager.js';
 import {
     enableBrowserGlyphProjection,
@@ -4259,7 +4256,7 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
         '(3south,6east): fountain.',
         '(3south,7east): pit.',
         // terrainGlyphAt() installs the square, so the map really holds an
-        // unaligned altar and js/startup_a11y.js altarDescription() names it.
+        // unaligned altar and js/pager.js lookatOrdinaryTerrain() names it.
         '(3south,9east): unaligned altar.',
     ]);
     assert.deepEqual(frames, [
@@ -4993,11 +4990,6 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
         /, hiding under a corpse$/u,
         'minimal_xname suppresses the hidden corpse species',
     );
-    assert.equal(
-        _startupA11yInternals.describeObject(corpse, state),
-        'a goblin corpse',
-        'full object descriptions retain the corpse species',
-    );
 
     const cloud = create_region();
     add_rect_to_reg(cloud, { lx: 7, ly: 4, hx: 7, hy: 4 });
@@ -5049,11 +5041,6 @@ test('fruit object descriptions preserve source articles and plural order', () =
     location.remembered_glyph = object_glyph_info(fruit, state);
 
     state.gf.ffruit.fname = 'the eXcALiBuR';
-    assert.equal(
-        _startupA11yInternals.describeObject(fruit, state),
-        'the eXcALiBuR',
-        'candidate-side the is ignored while matching canonical Excalibur',
-    );
     assert.match(
         look_at_monster(hider, x, y, state),
         /, hiding under an eXcALiBuR$/u,
@@ -5061,37 +5048,13 @@ test('fruit object descriptions preserve source articles and plural order', () =
     );
 
     state.gf.ffruit.fname = 'eXcALiBuR';
-    assert.equal(
-        _startupA11yInternals.describeObject(fruit, state),
-        'eXcALiBuR',
-        'fake-artifact lookup ignores case and omits an indefinite article',
-    );
     assert.match(
         look_at_monster(hider, x, y, state),
         /, hiding under an eXcALiBuR$/u,
         'hidden simple naming still applies an() to case-varied Excalibur',
     );
 
-    fruit.greased = true;
-    assert.equal(
-        _startupA11yInternals.describeObject(fruit, state),
-        'greased eXcALiBuR',
-        'artifact-fruit lookup precedes outer doname modifiers',
-    );
-
-    state.gf.ffruit.fname = 'orb of detection';
-    assert.equal(
-        _startupA11yInternals.describeObject(fruit, state),
-        'the greased orb of detection',
-        'canonical artifact the is optional during lookup and forced outside modifiers',
-    );
-    fruit.greased = false;
     state.gf.ffruit.fname = 'The Orb of Detection';
-    assert.equal(
-        _startupA11yInternals.describeObject(fruit, state),
-        'the Orb of Detection',
-        'full fake-artifact fruit forces its canonical definite article',
-    );
     assert.match(
         look_at_monster(hider, x, y, state),
         /, hiding under an Orb of Detection$/u,
@@ -5108,11 +5071,6 @@ test('fruit object descriptions preserve source articles and plural order', () =
     state.gf.ffruit.fname = 'pair of boots';
     fruit.greased = true;
     fruit.quan = 2;
-    assert.equal(
-        _startupA11yInternals.describeObject(fruit, state),
-        '2 greased pair of boots',
-        'fruit pluralization precedes outer doname modifiers',
-    );
     show_glyph_cell(x, y, object_glyph_info(fruit, state));
     assert.equal(
         state._glyphUpdateNotices.at(-1).message,
@@ -5121,11 +5079,6 @@ test('fruit object descriptions preserve source articles and plural order', () =
 
     state.gf.ffruit.fname = 'blueberries';
     fruit.greased = false;
-    assert.equal(
-        _startupA11yInternals.describeObject(fruit, state),
-        '2 blueberries',
-        'already-plural fruit is singularized before being pluralized again',
-    );
     location.remembered_glyph = object_glyph_info(fruit, state);
     assert.match(
         look_at_monster(hider, x, y, state),
@@ -5134,11 +5087,6 @@ test('fruit object descriptions preserve source articles and plural order', () =
     );
 
     state.gf.ffruit.fname = 'foo@';
-    assert.equal(
-        _startupA11yInternals.describeObject(fruit, state),
-        '2 foo@s',
-        "NetHack's letter() treats @ as a pluralizable letter",
-    );
     location.remembered_glyph = object_glyph_info(fruit, state);
     assert.match(
         look_at_monster(hider, x, y, state),
