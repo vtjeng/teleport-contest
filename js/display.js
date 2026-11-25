@@ -2748,11 +2748,11 @@ export function map_glyphinfo(glyph, state = game, options = undefined) {
     Object.defineProperty(presentation, 'glyph', { value: glyph });
     if (!state.a11y?.glyph_updates) return presentation;
     // The GLYPH_NOTHING arm draws from no defsym index, so it takes its
-    // accessibility kind directly. js/startup_a11y.js:535 tests
-    // `oldKind === 'nothing'`, which is its transcription of display.c
-    // show_glyph()'s disjunct on the old glyph; without this the arm reports
-    // no kind, the reader falls back to 'other', and that disjunct can never
-    // fire for a square the repair blanked.
+    // accessibility kind directly. js/startup_a11y.js
+    // queueGlyphUpdateNotice() tests `oldKind === 'nothing'`, which is its
+    // transcription of display.c show_glyph()'s disjunct on the old glyph;
+    // without this the arm reports no kind, the reader falls back to 'other',
+    // and that disjunct can never fire for a square the repair blanked.
     if (glyph === GLYPH_NOTHING_OFF) {
         return withAccessibilityMetadata(
             presentation, 'nothing', 'nothing', { type: 'nothing' },
@@ -3434,11 +3434,10 @@ export function glyph_at(x, y, state = game) {
  * do not belong in map memory, and this refuses one rather than storing it.
  *
  * The two accessibility sidecars ride along because they describe what the
- * square holds rather than how it is drawn: js/startup_a11y.js reads
- * a11ySubject straight off the remembered record to name a mimic or a hider,
- * and a glyph number alone cannot recover a zeroobj mimic's mappearance. They
- * stay non-enumerable so that every existing copy of a remembered record keeps
- * the shape it already had.
+ * square holds rather than how it is drawn, and a glyph number alone cannot
+ * recover a zeroobj mimic's mappearance; js/startup_a11y.js copies them into
+ * its snapshots. They stay non-enumerable so that every existing copy of a
+ * remembered record keeps the shape it already had.
  */
 export function remembered_glyph_from_presentation(glyph) {
     if (!Number.isInteger(glyph?.glyph)) {

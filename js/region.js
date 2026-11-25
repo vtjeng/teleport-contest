@@ -175,8 +175,8 @@ export function create_region(rectangles = []) {
         // the defsym index that region.c create_gas_cloud() (1194) wraps in
         // cmap_to_glyph(), so the name says which of the two it is.
         // js/display.js show_region() does the wrapping, and
-        // js/startup_a11y.js compares this against S_poisoncloud. Converting
-        // it to C's number is a later change.
+        // js/pager.js mhidden_description() compares this against
+        // S_poisoncloud. Converting it to C's number is a later change.
         glyph_cmap: S_cloud,
     };
     for (const rectangle of rectangles) add_rect_to_reg(region, rectangle);
