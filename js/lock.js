@@ -48,7 +48,7 @@ import {
     is_pool,
     is_lava,
 } from './dbridge.js';
-import { is_magic_key, touch_artifact } from './artifacts.js';
+import { is_magic_key, touch_artifact } from './artifact.js';
 import { stop_occupation } from './allmain.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import {
@@ -95,7 +95,7 @@ import {
     is_weptool,
     objectType,
     place_object,
-} from './obj.js';
+} from './mkobj.js';
 import {
     CHEST,
     CREDIT_CARD,
@@ -939,7 +939,7 @@ export function u_have_forceable_weapon(state = game) {
 }
 
 // C ref: obj.h Is_box() (195-196). True for chests and large boxes.
-// Copies: obj.h Is_box() is also ported as obj.js isBox(). A change to it
+// Copies: obj.h Is_box() is also ported as mkobj.js isBox(). A change to it
 // must reach every copy.
 export function Is_box(obj) {
     return obj.otyp === CHEST || obj.otyp === LARGE_BOX;

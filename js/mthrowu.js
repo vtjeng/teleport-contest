@@ -166,7 +166,7 @@ import {
     splitobj,
     stone_missile,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import {
     ACID_VENOM,
     ARMOR_CLASS,
@@ -242,7 +242,7 @@ import {
     select_rwep,
     setmnotwielded,
 } from './weapon.js';
-import { artifact_hit, spec_abon } from './artifacts.js';
+import { artifact_hit, spec_abon } from './artifact.js';
 import { extract_from_minvent, find_mac, is_pole } from './worn.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { mwelded } from './wield.js';

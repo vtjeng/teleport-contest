@@ -6,7 +6,7 @@ import { game } from '../js/gstate.js';
 import { addinv, money_cnt } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_ORACLE } from '../js/monsters.js';
-import { mksobj, weight } from '../js/obj.js';
+import { mksobj, weight } from '../js/mkobj.js';
 import { GOLD_PIECE } from '../js/objects.js';
 import { doconsult } from '../js/rumors.js';
 

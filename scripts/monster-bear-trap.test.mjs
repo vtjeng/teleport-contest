@@ -65,7 +65,7 @@ import {
     PM_RUST_MONSTER,
     PM_WATER_ELEMENTAL,
 } from '../js/monsters.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { CORPSE, IRON_SHOES } from '../js/objects.js';
 
 import { t_at, trapname } from '../js/trap.js';

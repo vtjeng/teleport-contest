@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { ART_SUNSWORD, discover_artifact } from '../js/artifacts.js';
+import { ART_SUNSWORD, discover_artifact } from '../js/artifact.js';
 import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
     ACID_RES,
@@ -121,7 +121,7 @@ import {
     is_shirt,
     is_suit,
     is_sword,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import {
     ALCHEMY_SMOCK,
     AMULET_CLASS,

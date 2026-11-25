@@ -75,7 +75,7 @@ import { can_blow } from '../js/mondata.js';
 import { canseemon, sensemon } from '../js/display.js';
 import { create_drawbridge } from '../js/dbridge.js';
 import { add_to_container, addinv } from '../js/invent.js';
-import { mksobj, place_object, remove_object, set_corpsenm } from '../js/obj.js';
+import { mksobj, place_object, remove_object, set_corpsenm } from '../js/mkobj.js';
 import { teleds } from '../js/teleport.js';
 import { setuwep } from '../js/wield.js';
 import { init_objects } from '../js/o_init.js';
@@ -105,7 +105,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { newMonster, place_monster, remove_monster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { messageAt } from '../js/startup_a11y.js';
 import {
     AMULET_OF_GUARDING,

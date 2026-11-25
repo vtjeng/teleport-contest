@@ -25,7 +25,7 @@ import {
     ARMOR_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { monst_globals_init, PM_HUMAN } from '../js/monsters.js';
 import { initRng } from '../js/rng.js';
 import { timeout_globals_init } from '../js/timeout.js';

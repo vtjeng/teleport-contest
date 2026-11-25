@@ -106,7 +106,7 @@ import {
     PM_WOODLAND_ELF,
     monst_globals_init,
 } from '../js/monsters.js';
-import { isMetallic, newObject, weight } from '../js/obj.js';
+import { isMetallic, newObject, weight } from '../js/mkobj.js';
 import { setToplinesDirectly } from '../js/topl.js';
 import { init_objects } from '../js/o_init.js';
 import { singular, xnameFresh } from '../js/objnam.js';

@@ -51,7 +51,7 @@ import {
     MON_EXPLODE,
 } from '../js/const.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     NON_PM,

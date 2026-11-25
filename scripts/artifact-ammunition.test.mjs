@@ -2,10 +2,10 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { invoke_create_ammo } from '../js/artifacts.js';
+import { invoke_create_ammo } from '../js/artifact.js';
 import { ECMD_TIME, FUMBLING, OBJ_FLOOR, OBJ_INVENT } from '../js/const.js';
 import { ARROW } from '../js/objects.js';
-import { mksobj, weight } from '../js/obj.js';
+import { mksobj, weight } from '../js/mkobj.js';
 import { initRng, enableRngLog, getRngLog, rnd } from '../js/rng.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';

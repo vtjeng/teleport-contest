@@ -132,7 +132,7 @@ import {
     poison_strdmg,
     setuhpmax,
     } from './attrib.js';
-import { ART_ORB_OF_DETECTION, retouch_equipment } from './artifacts.js';
+import { ART_ORB_OF_DETECTION, retouch_equipment } from './artifact.js';
 import { zero_victual_info } from './context.js';
 import {
     paranoid_query,
@@ -183,7 +183,7 @@ import {
     dopotion, incr_itimeout, make_blinded, make_confused, make_deaf, make_glib, make_hallucinated, make_sick, make_slimed, make_stoned, make_stunned, make_vomiting, self_invis_message, set_itimeout, } from './potion.js';
 import { delayed_killer, done } from './end.js';
 import {
-    carried, costly_alteration, bcsign, is_flammable, isMetallic, isRustprone, is_rottable, objectType, peek_at_iced_corpse_age, set_bknown, splitobj, weight, g_at, mksobj, } from './obj.js';
+    carried, costly_alteration, bcsign, is_flammable, isMetallic, isRustprone, is_rottable, objectType, peek_at_iced_corpse_age, set_bknown, splitobj, weight, g_at, mksobj, } from './mkobj.js';
 import {
     Tobjnam, an, ansimpleoname, corpse_xname, donameFresh, killer_xname, obj_is_pname, otense, safe_qbuf, singular, the, the_unique_pm, thesimpleoname, xnameFresh, yobjnam, } from './objnam.js';
 import {
@@ -4230,7 +4230,7 @@ export async function doeat(state = game, env = {}) {
         await eatEnv.message("You can't eat something you're wearing.", state);
         return ECMD_OK;
     }
-    const { retouch_object, touch_artifact } = await import('./artifacts.js');
+    const { retouch_object, touch_artifact } = await import('./artifact.js');
     if (carried(otmp)) {
         const selected = { obj: otmp };
         if (!await retouch_object(selected, false, state)) return ECMD_TIME;

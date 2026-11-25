@@ -38,7 +38,7 @@ import {
     mksobj_at,
     weight,
     curse,
-} from './obj.js';
+} from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { sync_impossible } from './source_steps.js';
 

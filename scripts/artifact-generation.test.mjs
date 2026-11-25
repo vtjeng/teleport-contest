@@ -21,7 +21,7 @@ import {
     mk_artifact,
     nartifact_exist,
     permapoisoned,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     A_LAWFUL,
     A_NONE,
@@ -37,7 +37,7 @@ import {
     ONAME_VIA_NAMING,
     ONAME_WISH,
 } from '../js/const.js';
-import { mksobj, newObject } from '../js/obj.js';
+import { mksobj, newObject } from '../js/mkobj.js';
 import { initUnported } from '../js/unported.js';
 import {
     ELVEN_BROADSWORD,
@@ -352,7 +352,7 @@ test('Grimtooth receives permanent poison during artifact conversion', () => {
     assert.equal(permapoisoned(null), false);
 });
 
-test('obj.js hooks preserve generation order and finalize artifact weight', () => {
+test('mkobj.js hooks preserve generation order and finalize artifact weight', () => {
     const state = stateFor('Wiz', 'neutral', 'orc');
     const script = scriptedRandom([
         // next_ident(): object id increments by rnd(2).

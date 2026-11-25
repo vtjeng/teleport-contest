@@ -5,7 +5,7 @@ import { BUFSZ, NON_PM } from '../js/const.js';
 import { PM_KITTEN, PM_SAMURAI, monst_globals_init } from '../js/monsters.js';
 import { bytesText, textBytes, utf8Text } from '../js/hacklib.js';
 import { disco_typename, init_objects } from '../js/o_init.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import {
     obj_typename, safe_typename, simple_typename, xcalled, xnameFresh,
 } from '../js/objnam.js';

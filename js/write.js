@@ -21,7 +21,7 @@ import { getobj, hold_another_object, obfree, useup } from './invent.js';
 import { update_inventory } from './invent.js';
 import { nohands } from './mondata.js';
 import { PM_WIZARD } from './monsters.js';
-import { bcsign, mksobj, objectType } from './obj.js';
+import { bcsign, mksobj, objectType } from './mkobj.js';
 import { an, aobjnam, The, Tobjnam, yname } from './objnam.js';
 import { discover_object, observe_object } from './o_init.js';
 import {

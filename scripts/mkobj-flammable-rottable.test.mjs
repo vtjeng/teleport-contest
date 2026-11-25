@@ -12,7 +12,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { is_flammable, is_rottable } from '../js/obj.js';
+import { is_flammable, is_rottable } from '../js/mkobj.js';
 import { objects_globals_init } from '../js/objects.js';
 import {
     TALLOW_CANDLE,   // 224, WAX material, candle

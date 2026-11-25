@@ -100,7 +100,7 @@ import {
 import {
     BOULDER, PICK_AXE, ROCK, SCR_SCARE_MONSTER,
 } from '../js/objects.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { newegd } from '../js/vault.js';

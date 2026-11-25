@@ -126,7 +126,7 @@ import { surface } from './dungeon.js';
 import { sync_impossible } from './source_steps.js';
 import { stop_occupation } from './allmain.js';
 import { confdir } from './cmd.js';
-import { artifact_light } from './artifacts.js';
+import { artifact_light } from './artifact.js';
 import { acurr, adjattrib, exercise, stone_luck } from './attrib.js';
 import { canseemon, newsym, see_monsters_async, set_mimic_blocking, vobj_at } from './display.js';
 import {
@@ -205,7 +205,7 @@ import {
 } from './objects.js';
 import {
     carried, remove_object, shrink_glob, weight,
-} from './obj.js';
+} from './mkobj.js';
 import { m_at } from './monst.js';
 import { cansee } from './vision.js';
 import {

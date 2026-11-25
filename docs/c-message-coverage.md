@@ -64,7 +64,7 @@ The JS module column says whether `js/` has a module with the C file's name.
 | src/mklev.c | yes | 0 | 0 | 2 |
 | src/mkmap.c | no | 0 | 1 | 0 |
 | src/mkmaze.c | yes | 0 | 4 | 2 |
-| src/mkobj.c | no | 0 | 11 | 4 |
+| src/mkobj.c | yes | 0 | 11 | 4 |
 | src/mon.c | yes | 0 | 2 | 2 |
 | src/nhlua.c | yes | 0 | 12 | 0 |
 | src/o_init.c | yes | 0 | 2 | 0 |

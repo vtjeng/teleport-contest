@@ -41,7 +41,7 @@ import {
     is_art,
     restrict_name,
     retouch_object,
-} from './artifacts.js';
+} from './artifact.js';
 import { reset_remarm, setwornEnv } from './do_wear.js';
 import { acurr, exercise } from './attrib.js';
 import { makeplural } from './fruit.js';
@@ -83,7 +83,7 @@ import {
     uncurse,
     unsplitobj,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import {
     an,
     aobjnam,

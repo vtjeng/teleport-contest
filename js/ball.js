@@ -60,7 +60,7 @@ import {
     carried,
     place_object,
     remove_object,
-} from './obj.js';
+} from './mkobj.js';
 import { maybe_unhide_at } from './mon.js';
 import { m_at } from './monst.js';
 import { dist2, distmin } from './hacklib.js';

@@ -10,7 +10,7 @@ import { GameDisplay } from '../../js/game_display.js';
 import { game } from '../../js/gstate.js';
 import { NethackGame } from '../../js/jsmain.js';
 import { add_to_minv, mergable } from '../../js/invent.js';
-import { mksobj, mksobj_at } from '../../js/obj.js';
+import { mksobj, mksobj_at } from '../../js/mkobj.js';
 import { objectGenerationEnv } from '../../js/object_generation.js';
 import { GLOB_OF_GRAY_OOZE } from '../../js/objects.js';
 import { M2_COLLECT, PM_GOBLIN } from '../../js/monsters.js';

@@ -5,7 +5,7 @@ import { COLNO, ROWNO } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mbhitm } from '../js/muse.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { WAN_TELEPORTATION } from '../js/objects.js';
 import { goodpos } from '../js/teleport.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';

@@ -10,7 +10,7 @@ import {game} from '../js/gstate.js';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {new_light_source} from '../js/light.js';
 import {PM_GNOME,PM_LICHEN,LOW_PM} from '../js/monsters.js';
-import {newObject,place_object,weight} from '../js/obj.js';
+import {newObject,place_object,weight} from '../js/mkobj.js';
 import {BRASS_LANTERN,CANDELABRUM_OF_INVOCATION,OIL_LAMP,POT_OIL,TALLOW_CANDLE,WAX_CANDLE} from '../js/objects.js';
 import {burn_object,lantern_message,peek_timer,run_timers,see_lamp_flicker,start_timer} from '../js/timeout.js';
 

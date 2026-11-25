@@ -8,7 +8,7 @@ import { ROOM, OBJ_MINVENT } from '../js/const.js';
 import { PM_HUMAN } from '../js/monsters.js';
 import { GOLD_DRAGON_SCALE_MAIL } from '../js/objects.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { light_globals_init } from '../js/light.js';
 import { vision_reset, vision_recalc, init_vision_globals } from '../js/vision.js';
 import { m_dowear } from '../js/worn.js';

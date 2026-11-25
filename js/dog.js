@@ -149,7 +149,7 @@ import { an, the, Tobjnam, xnameFresh } from './objnam.js';
 import {
     make_happy_shk, make_happy_shoppers, picked_container, set_residency,
 } from './shk.js';
-import { place_object } from './obj.js';
+import { place_object } from './mkobj.js';
 import {
     EXPENSIVE_CAMERA,
     SCROLL_CLASS,

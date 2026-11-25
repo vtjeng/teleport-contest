@@ -160,7 +160,7 @@ import {
     objectType,
     rnd_class,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import {
     BAG_OF_HOLDING, BAG_OF_TRICKS, BOULDER, COIN_CLASS, CORPSE,
     DILITHIUM_CRYSTAL, EGG, EXPENSIVE_CAMERA, GEM_CLASS, GLASS,
@@ -226,7 +226,7 @@ import { finish_meating } from './dogmove.js';
 import { hidden_gold } from './vault.js';
 import { snuff_candle } from './apply_splash_lit.js';
 import { breakchestlock } from './lock.js';
-import { is_art, ART_MJOLLNIR } from './artifacts.js';
+import { is_art, ART_MJOLLNIR } from './artifact.js';
 import { water_damage } from './trap_water_damage.js';
 import { makemon_runtime } from './makemon_create.js';
 import {

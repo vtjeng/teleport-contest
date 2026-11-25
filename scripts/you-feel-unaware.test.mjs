@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { fig_transform } from '../js/apply.js';
-import { ART_EXCALIBUR } from '../js/artifacts.js';
+import { ART_EXCALIBUR } from '../js/artifact.js';
 
 import {
     ANTIMAGIC, BLINDED, FIRE_RES, FROMOUTSIDE, G_GENOD, LEVEL_TELEP, MAGIC_TRAP,
@@ -29,7 +29,7 @@ import { mon_poly } from '../js/mhitm.js';
 import {
     PM_HORNED_DEVIL, PM_HUMAN_ZOMBIE, PM_JACKAL, PM_KNIGHT, PM_STONE_GOLEM, PM_WEREWOLF,
 } from '../js/monsters.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { FIGURINE, POT_POLYMORPH } from '../js/objects.js';
 import { polymon } from '../js/polyself.js';
 import { potionhit } from '../js/potion.js';

@@ -32,7 +32,7 @@ import {
     PM_WIZARD_OF_YENDOR,
     monst_globals_init,
 } from '../js/monsters.js';
-import { peek_at_iced_corpse_age } from '../js/obj.js';
+import { peek_at_iced_corpse_age } from '../js/mkobj.js';
 import { corpse_xname, the_unique_pm } from '../js/objnam.js';
 import {
     CORPSE, GLOB_OF_BLACK_PUDDING, LARGE_BOX, objects_globals_init,

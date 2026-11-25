@@ -17,7 +17,7 @@ import {
     W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
-import { ART_STORMBRINGER, init_artifacts } from '../js/artifacts.js';
+import { ART_STORMBRINGER, init_artifacts } from '../js/artifact.js';
 import { weapon_status } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -30,7 +30,7 @@ import {
 } from '../js/monsters.js';
 import {
     curse, newObject,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import {
     ARROW,
     BOW,

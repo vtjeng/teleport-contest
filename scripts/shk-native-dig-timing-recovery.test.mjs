@@ -6,7 +6,7 @@ import { GameMap } from '../js/game.js';
 import { ROOM, ROOMOFFSET, SHOPBASE, DOOR, D_ISOPEN } from '../js/const.js';
 import { PM_SHOPKEEPER } from '../js/monsters.js';
 import { PICK_AXE } from '../js/objects.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { addinv } from '../js/invent.js';
 import { stock_room } from '../js/shknam.js';
 import { rloc_to } from '../js/teleport.js';

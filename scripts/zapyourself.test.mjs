@@ -40,7 +40,7 @@ import {
 import { PM_NEWT } from '../js/monsters.js';
 import { animate_statue } from '../js/trap.js';
 import { game } from '../js/gstate.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { monsterObject } from '../js/monster_object.js';
 import {
     d, rn1, rn2, rnd, rne, rnl, rnz, initRng, enableRngLog, getRngLog,
@@ -51,7 +51,7 @@ import { GameDisplay } from '../js/game_display.js';
 import { do_mkroom } from '../js/mkroom.js';
 import { fill_special_room } from '../js/mklev.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { mksobj_at, set_corpsenm } from '../js/obj.js';
+import { mksobj_at, set_corpsenm } from '../js/mkobj.js';
 import { FIGURINE, MINERAL } from '../js/objects.js';
 import { PM_FLESH_GOLEM } from '../js/monsters.js';
 import { costly_spot, get_cost, inside_shop } from '../js/shk.js';
@@ -678,9 +678,9 @@ test('animate_statue awaits runtime pickup for each contained glob before deleti
     const fixture = join(testDir,
         '../.cache/glob-animate-statue-contained-pair-main-reviewed-qualification-20261019/attempt.mjs');
     const fixtureBytes = readFileSync(fixture);
-    assert.equal(fixtureBytes.length, 19101);
+    assert.equal(fixtureBytes.length, 19103);
     assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
-        '284cd84dc01ba9a786afbb88f1fd33a7815a63f62d49e2cca06b4cf77d6b240b');
+        'bae15fab0930de16cb81e76e3042887d403375a63070b587142c885404d60be4');
 
     const runRoot = join(testDir,
         '../.cache/fix-glob-animate-statue-contents-runtime-source-parity-20261019/runs');

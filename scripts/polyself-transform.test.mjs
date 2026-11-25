@@ -35,7 +35,7 @@ import {
 } from '../js/mondata.js';
 import { aligns, character_race, roles } from '../js/roles.js';
 import { uasmon_maxStr, set_uasmon, newman } from '../js/polyself.js';
-import { init_artifacts } from '../js/artifacts.js';
+import { init_artifacts } from '../js/artifact.js';
 import { set_mon_data } from '../js/makemon_create.js';
 import { make_glib } from '../js/potion.js';
 import { uwepgone, uswapwepgone } from '../js/wield.js';

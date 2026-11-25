@@ -12,7 +12,7 @@ import { resetGame } from '../js/gstate.js';
 import { sobj_at } from '../js/invent.js';
 import { newMonster } from '../js/monst.js';
 import { PM_GIANT_ANT, monst_globals_init } from '../js/monsters.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import {
     BOULDER, ROCK, ROCK_CLASS, STATUE, objects_globals_init,
 } from '../js/objects.js';

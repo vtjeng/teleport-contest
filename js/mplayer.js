@@ -13,14 +13,14 @@ import {
     ROWNO,
 } from './const.js';
 import * as O from './objects.js';
-import { ART_MAGICBANE, mk_artifact, is_art } from './artifacts.js';
+import { ART_MAGICBANE, mk_artifact, is_art } from './artifact.js';
 import { christen_monst } from './do_name.js';
 import { rank_of } from './display.js';
 import { game } from './gstate.js';
 import { makemon_by_context, mkmonmoney, mongets, rnd_defensive_item, rnd_misc_item, rnd_offensive_item } from './makemon_create.js';
 import { is_female, is_mplayer, monsndx, set_mon_data } from './mondata.js';
-import { mkobj, mksobj, rnd_class, is_spear, weight } from './obj.js';
-import { curse, bless } from './obj.js';
+import { mkobj, mksobj, rnd_class, is_spear, weight } from './mkobj.js';
+import { curse, bless } from './mkobj.js';
 import { PM_ARCHEOLOGIST, PM_BARBARIAN, PM_CAVE_DWELLER, PM_CLERIC, PM_HEALER, PM_KNIGHT, PM_MONK, PM_RANGER, PM_ROGUE, PM_SAMURAI, PM_TOURIST, PM_VALKYRIE, PM_WIZARD } from './monsters.js';
 import { coreRandom } from './rng.js';
 import { mpickobj } from './steal.js';

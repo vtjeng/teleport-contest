@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {BLINDED,TIMEOUT} from '../js/const.js';
-import {ART_SUNSWORD} from '../js/artifacts.js';
+import {ART_SUNSWORD} from '../js/artifact.js';
 import {game} from '../js/gstate.js';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {PM_GREMLIN} from '../js/monsters.js';

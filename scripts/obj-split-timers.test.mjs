@@ -18,7 +18,7 @@ import {
 
 const C_MKOBJ = readFileSync('nethack-c/upstream/src/mkobj.c', 'utf8');
 const C_TIMEOUT = readFileSync('nethack-c/upstream/src/timeout.c', 'utf8');
-const JS_OBJ = readFileSync('js/obj.js', 'utf8');
+const JS_OBJ = readFileSync('js/mkobj.js', 'utf8');
 const JS_TIMEOUT = readFileSync('js/timeout.js', 'utf8');
 
 function sourceFunction(source, signature) {

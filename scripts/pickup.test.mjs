@@ -63,7 +63,7 @@ import {
     ART_ORB_OF_DETECTION,
     ART_ORB_OF_FATE,
     init_artifacts,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     calc_capacity,
     inv_cnt,
@@ -89,7 +89,7 @@ import {
     unsplitobj,
     clear_splitobjs,
     weight,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     add_to_container,
@@ -2451,10 +2451,10 @@ test('public held-SACK glob stash awaits the real contained-object transfer',
         const fixture = resolve(repoRoot,
             '.cache/glob-public-stash-source-clock-reviewed-qualification-20261019/attempt.mjs');
         const fixtureBytes = await readFile(fixture);
-        assert.equal(fixtureBytes.length, 16486,
+        assert.equal(fixtureBytes.length, 16488,
             'run the exact reviewed canonical fixture bytes');
         assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
-            'ffc92d4c0b8f936908da7ead55d3c4bf3d9fec57733f90fcd6232b98403e58c9',
+            'e4b8c42885ae8817a06084fdb07fff2ca4413790b9069ab65fd5f29bb89eda06',
             'fixture remains the immutable clock-corrected qualification body');
 
         await mkdir(taskDir, { recursive: true });

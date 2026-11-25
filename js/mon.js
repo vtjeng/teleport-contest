@@ -176,7 +176,7 @@ import {
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { get_mleash, leashable, m_unleash, um_dist } from './apply.js';
-import { artifact_exists, artifactTouchable } from './artifacts.js';
+import { artifact_exists, artifactTouchable } from './artifact.js';
 import { night } from './calendar.js';
 import {
     docrt,
@@ -624,7 +624,7 @@ import {
     Is_dragon_scales,
     is_mines_prize,
     is_soko_prize,
-} from './obj.js';
+} from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     AMULET_OF_LIFE_SAVING,
@@ -2033,10 +2033,10 @@ export async function mpickstuff(monster, obj, carryamt, rawEnv = {}) {
     const message = rawEnv.message ?? ttyPline;
     const redraw = rawEnv.redraw ?? newsym;
     // splitobj(), remove_object() and add_to_minv() each reach owners that
-    // obj.js expects the caller to supply.
+    // mkobj.js expects the caller to supply.
     const objectEnv = objectGenerationEnv(env);
 
-    // splitobj() normalizes through js/obj.js objectEnv(), which needs the
+    // splitobj() normalizes through js/mkobj.js objectEnv(), which needs the
     // whole source random set because next_ident() draws rnd(2). State that
     // here, at the split, rather than up front where it is not yet true.
     if (carryamt !== obj.quan) {

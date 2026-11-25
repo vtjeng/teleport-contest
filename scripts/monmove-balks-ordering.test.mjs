@@ -29,7 +29,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import {
     ARROW,
     BOW,

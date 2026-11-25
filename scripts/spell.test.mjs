@@ -45,7 +45,7 @@ import {
     OBJ_NAME,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
-import { curse, newObject } from '../js/obj.js';
+import { curse, newObject } from '../js/mkobj.js';
 import {
     age_spells,
     book_cursed,

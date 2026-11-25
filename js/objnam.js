@@ -8,14 +8,14 @@
 // wishymatch(), rnd_otyp_by_namedesc() and the o_ranges[], spellings[], wrp[]
 // and wrpsym[] tables. Neither file imports the other. That file reaches the
 // objects[] tables through js/objects.js OBJ_NAME() and OBJ_DESCR(), and
-// object construction through js/obj.js.
+// object construction through js/mkobj.js.
 
 import {
     ART_EYES_OF_THE_OVERWORLD, ART_ORB_OF_DETECTION, artifact_light,
     artifact_name, artiname, glow_color, glow_verb,
     find_artifact, undiscovered_artifact,
     permapoisoned,
-} from './artifacts.js';
+} from './artifact.js';
 import { BUFSZ, BURN_OBJECT, COST_CONTENTS, CORPSTAT_FEMALE,
     CORPSTAT_GENDER, CORPSTAT_HISTORIC,
     CORPSTAT_MALE, CORPSTAT_RANDOM, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
@@ -62,7 +62,7 @@ import {
     isCorrodeable, isCrackable,
     isDamageable, is_flammable, isMultigen, is_rottable, isRustprone,
     is_ammo, is_missile, is_weptool, objectType,
-} from './obj.js';
+} from './mkobj.js';
 import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
 import { Strlen_ } from './strutil.js';
 import {

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 // C gazemu uses pline_mon at this site; source-derived expectation, no new C execution.
 import {cancel_monst} from '../js/zap.js';
-import {mksobj} from '../js/obj.js';
+import {mksobj} from '../js/mkobj.js';
 import {addinv} from '../js/invent.js';
 import {WAN_CANCELLATION} from '../js/objects.js';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';

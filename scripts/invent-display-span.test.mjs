@@ -44,7 +44,7 @@ import {
 } from '../js/invent.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject, weight } from '../js/obj.js';
+import { newObject, weight } from '../js/mkobj.js';
 import {
     COIN_CLASS,
     FOOD_CLASS,

@@ -128,7 +128,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { init_dummyobj, mksobj, newObject, place_object, set_corpsenm } from '../js/obj.js';
+import { init_dummyobj, mksobj, newObject, place_object, set_corpsenm } from '../js/mkobj.js';
 import { addinv, sobj_at } from '../js/invent.js';
 import { setuwep } from '../js/wield.js';
 import {

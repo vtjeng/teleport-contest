@@ -4,7 +4,7 @@
 // mksobj_init() and mksobj() initialize statues and figurines;
 // add_to_container() calls obj_no_longer_held(); place_object() calls
 // vision.c block_point() for a boulder, and remove_object() calls
-// recalc_block_point() for one. js/obj.js and js/invent.js make
+// recalc_block_point() for one. js/mkobj.js and js/invent.js make
 // those calls unless a test supplies the hook. Game code must neither supply
 // those hooks (a copy of the default that a new caller can forget) nor
 // refuse when one is absent.
@@ -190,21 +190,21 @@ test('the scan accepts reads, calls, definitions and comments', () => {
 test('every defaulted hook is still read where C calls its default', () => {
     // A renamed hook would otherwise drop out of the scan silently.
     const sources = Object.fromEntries(jsSources());
-    assert.match(sources['obj.js'], /normalized\.hooks\.stopObjectTimers/u);
-    assert.match(sources['obj.js'], /obj_stop_timers\(obj, normalized\.state, normalized\)/u);
+    assert.match(sources['mkobj.js'], /normalized\.hooks\.stopObjectTimers/u);
+    assert.match(sources['mkobj.js'], /obj_stop_timers\(obj, normalized\.state, normalized\)/u);
     assert.match(sources['invent.js'], /env\.hooks\?\.stopObjectTimers/u);
-    assert.match(sources['obj.js'], /normalized\.hooks\.deleteObjectLightSource/u);
-    assert.match(sources['obj.js'], /del_light_source\(LS_OBJECT, obj, normalized\.state\)/u);
-    assert.match(sources['obj.js'], /env\.hooks\.monsterObject \?\? monsterObject/u);
+    assert.match(sources['mkobj.js'], /normalized\.hooks\.deleteObjectLightSource/u);
+    assert.match(sources['mkobj.js'], /del_light_source\(LS_OBJECT, obj, normalized\.state\)/u);
+    assert.match(sources['mkobj.js'], /env\.hooks\.monsterObject \?\? monsterObject/u);
     assert.match(sources['invent.js'], /env\.hooks\?\.objectNoLongerHeld/u);
     assert.match(sources['invent.js'], /: obj_no_longer_held\(obj, env\)/u);
-    assert.match(sources['obj.js'], /normalized\.hooks\.blockPoint\s*\?\?/u);
-    assert.match(sources['obj.js'], /block_point\(bx, by, placeEnv\.state\)/u);
+    assert.match(sources['mkobj.js'], /normalized\.hooks\.blockPoint\s*\?\?/u);
+    assert.match(sources['mkobj.js'], /block_point\(bx, by, placeEnv\.state\)/u);
     assert.match(sources['invent.js'], /if \(isContainer\(obj\)\) maybe_reset_pick\(obj, env\.state\);/u);
     assert.match(sources['invent.js'], /await encumber_msg\(state, \{\s*message: normalized\.hooks\.message \?\? ttyPline,/u);
 });
 
-// Hooks js/obj.js, js/invent.js and js/worn.js still refuse to run without,
+// Hooks js/mkobj.js, js/invent.js and js/worn.js still refuse to run without,
 // with the number of requiredHook() sites naming each. Each stands in for a C
 // call to the named function.
 const REMAINING_REQUIRED_HOOKS = {

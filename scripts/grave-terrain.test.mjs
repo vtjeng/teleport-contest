@@ -29,7 +29,7 @@ import {
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
 import { make_grave } from '../js/grave.js';
-import { newObject, place_object, remove_object } from '../js/obj.js';
+import { newObject, place_object, remove_object } from '../js/mkobj.js';
 import { PM_TROLL } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import { is_ice } from '../js/dbridge.js';

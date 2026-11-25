@@ -10,7 +10,7 @@ import test from 'node:test';
 
 import * as M from '../js/monsters.js';
 import * as O from '../js/objects.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { objdescr_is, init_objects } from '../js/o_init.js';
 import { monverbself } from '../js/do_name.js';
 import { m_carrying } from '../js/mon.js';

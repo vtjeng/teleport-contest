@@ -9,7 +9,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { RIN_GAIN_STRENGTH } from '../js/objects.js';
 import {
     AD_ENCH,

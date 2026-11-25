@@ -13,7 +13,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { fill_special_room } from '../js/mklev.js';
-import { g_at, mkgold } from '../js/obj.js';
+import { g_at, mkgold } from '../js/mkobj.js';
 import { GOLD_PIECE, objects_globals_init } from '../js/objects.js';
 
 function initializedState() {

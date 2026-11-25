@@ -10,7 +10,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { InMemoryStorage } from '../js/storage.js';
 import { CXN_ARTICLE, KILLED_BY, LAST_PROP, OBJ_INVENT, STONE_RES } from '../js/const.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import {
     CORPSE, LEATHER_GLOVES, GAUNTLETS_OF_DEXTERITY,
     YELLOW_DRAGON_SCALES, objects_globals_init,

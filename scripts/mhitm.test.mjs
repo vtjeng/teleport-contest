@@ -97,7 +97,7 @@ import {
     PM_BROWN_PUDDING,
 } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { mksobj, objectType } from '../js/obj.js';
+import { mksobj, objectType } from '../js/mkobj.js';
 import { cansee } from '../js/vision.js';
 import { find_mac } from '../js/worn.js';
 import { APPLE, CLUB, SHORT_SWORD, IRON, METAL } from '../js/objects.js';

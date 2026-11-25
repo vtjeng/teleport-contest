@@ -15,7 +15,7 @@ import { NethackGame } from '../../js/jsmain.js';
 import {
     addinv_runtime, inventoryObjects, mergable, obj_extract_self,
 } from '../../js/invent.js';
-import { mksobj, place_object } from '../../js/obj.js';
+import { mksobj, place_object } from '../../js/mkobj.js';
 import { objectGenerationEnv } from '../../js/object_generation.js';
 import * as canonicalRng from '../../js/rng.js';
 import { cloneIsaacContext, getRngLog } from '../../js/rng.js';

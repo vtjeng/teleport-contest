@@ -29,7 +29,7 @@ import {
     artifact_origin,
     defends,
     defends_when_carried,
-    } from './artifacts.js';
+    } from './artifact.js';
 import { ship_object } from './dokick.js';
 import { o_unleash } from './apply.js';
 import {
@@ -79,7 +79,7 @@ import { ENGRAVE, EYE, FACE, FOOT, HEAD, HOLE, TRAPDOOR } from './const.js';
 import { hard_helmet, setwornEnv } from './do_wear.js';
 import { makeplural } from './fruit.js';
 import { ok_to_quest } from './quest.js';
-import { mksobj_at } from './obj.js';
+import { mksobj_at } from './mkobj.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import {
     check_capacity, losehp, nh_delay_output, nomul, test_move, set_uinwater, } from './hack.js';
@@ -159,7 +159,7 @@ import {
     stone_object_type,
     splitobj,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { setnotworn } from './worn.js';
 import { COIN_CLASS,
@@ -1962,7 +1962,7 @@ export async function makewish(state = game) {
     const nothing = Object.freeze({});
     // readobjnam()'s typfnd: tail calls mksobj(), which reaches the same
     // generation machinery mklev.c and makemon() do -- mkbox_cnts() for a
-    // container is the arm a wish reaches today. The hooks obj.js requires for
+    // container is the arm a wish reaches today. The hooks mkobj.js requires for
     // those arms are the ones every other mksobj() caller assembles, so this
     // wish path assembles them the same way rather than a subset of its own.
     const oldwisharti = Math.trunc(state.u.uconduct.wisharti ?? 0);
@@ -2137,8 +2137,8 @@ export async function makewish(state = game) {
 // dokick.c ghitm(). Kicked objects use the same gold and weapon hit owners.
 
 // The following helpers are the IMMEDIATE-wand object arm from zap.c.  They
-// live here (rather than in obj.js) because zap.c owns the polymorph policy;
-// obj.js remains the owner of allocation and chain mechanics.
+// live here (rather than in mkobj.js) because zap.c owns the polymorph policy;
+// mkobj.js remains the owner of allocation and chain mechanics.
 
 function zapObjectEnv(state, random, rawEnv = {}) {
     return objectGenerationEnv({
@@ -6661,7 +6661,7 @@ export async function cancel_monst(
     return true;
 }
 
-// Local helpers for cancel_monst to avoid importing from artifacts.js
+// Local helpers for cancel_monst to avoid importing from artifact.js
 // (which would create a tighter circular dependency).
 function Antimagic_cancel(state) {
     return Antimagic(state.u);

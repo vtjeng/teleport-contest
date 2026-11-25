@@ -11,7 +11,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { is_mines_prize, is_soko_prize, nomerge_exception } from '../js/obj.js';
+import { is_mines_prize, is_soko_prize, nomerge_exception } from '../js/mkobj.js';
 
 // -- Prize objects return true ------------------------------------------------
 

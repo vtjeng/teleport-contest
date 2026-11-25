@@ -11,7 +11,7 @@ import {
 } from '../js/const.js';
 import { done_object_cleanup } from '../js/end.js';
 import { GameMap } from '../js/game.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 
 function cleanupState({ ux = 2, uy = 2, dx = 1, dy = 0 } = {}) {
     const level = new GameMap();

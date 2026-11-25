@@ -38,7 +38,7 @@ import {
     PM_WIZARD,
 } from './monsters.js';
 import { discover_object } from './o_init.js';
-import { is_ammo } from './obj.js';
+import { is_ammo } from './mkobj.js';
 import {
     FLINT,
     FOOD_RATION,

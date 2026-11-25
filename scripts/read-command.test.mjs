@@ -55,7 +55,7 @@ import {
 } from '../js/read.js';
 import { addinv, getobj } from '../js/invent.js';
 import { not_fully_identified } from '../js/objnam.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { getRngLog, initRng } from '../js/rng.js';
 import { TOPLINE_NEED_MORE } from '../js/tty_message.js';
 import { scrolltele } from '../js/teleport.js';

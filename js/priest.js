@@ -102,7 +102,7 @@ import {
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { AMULET_OF_YENDOR } from './objects.js';
 import { just_an } from './objnam.js';
-import { curse, mkobj, SPBOOK_NO_NOVEL } from './obj.js';
+import { curse, mkobj, SPBOOK_NO_NOVEL } from './mkobj.js';
 import { body_part } from './polyself.js';
 import { a_gname_at, halu_gname } from './pray.js';
 import { linedup } from './mthrowu.js';

@@ -10,7 +10,7 @@ import {CORPSE, LARGE_BOX} from '../js/objects.js';
 import {G_GENOD, W_WEP, OBJ_MIGRATING, OBJ_MINVENT, OBJ_CONTAINED, OBJ_DELETED, OBJ_FREE, OBJ_INVENT, ROT_CORPSE,
     TIMER_OBJECT, ZOMBIFY_MON} from '../js/const.js';
 import {PM_HUMAN, PM_HUMAN_ZOMBIE, PM_LICHEN} from '../js/monsters.js';
-import {newObject, place_object, weight} from '../js/obj.js';
+import {newObject, place_object, weight} from '../js/mkobj.js';
 import {peek_timer, run_timers, start_timer} from '../js/timeout.js';
 
 async function initializedState() {

@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 import test from 'node:test';
 import {game} from '../js/gstate.js';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
-import {g_at} from '../js/obj.js';
+import {g_at} from '../js/mkobj.js';
 import {GOLD_PIECE} from '../js/objects.js';
 
 function floorGold() {

@@ -7,7 +7,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { AD_SAMU, AT_CLAW, PM_GRID_BUG } from '../js/monsters.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { AMULET_CLASS, AMULET_OF_YENDOR } from '../js/objects.js';
 import { mhitm_ad_samu, mhitm_adtyping } from '../js/uhitm.js';
 

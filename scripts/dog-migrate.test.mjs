@@ -42,7 +42,7 @@ import { NethackGame, runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameDisplay } from '../js/game_display.js';
 import { makemon_runtime } from '../js/makemon_create.js';
 import { maketrap } from '../js/trap.js';
-import { mksobj_at, newObject, place_object } from '../js/obj.js';
+import { mksobj_at, newObject, place_object } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     PM_SMALL_MIMIC,

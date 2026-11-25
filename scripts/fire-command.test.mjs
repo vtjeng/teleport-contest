@@ -17,7 +17,7 @@ import {
     loadFireCommandRecipe,
 } from './run-fire-command.mjs';
 import { ARROW } from '../js/objects.js';
-import { ammo_and_launcher } from '../js/obj.js';
+import { ammo_and_launcher } from '../js/mkobj.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 
@@ -37,7 +37,7 @@ function role(segment) {
     return /role:([A-Za-z]+)/u.exec(segment.nethackrc)[1];
 }
 
-// The floor pile at <x,y>, head first, as js/obj.js place_object() links it.
+// The floor pile at <x,y>, head first, as js/mkobj.js place_object() links it.
 function pileAt(x, y) {
     const found = [];
     for (let obj = game.level.objects[x]?.[y]; obj; obj = obj.nexthere)

@@ -9,7 +9,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE, PM_KEYSTONE_KOP } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { m_throw } from '../js/mthrowu.js';
-import { mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/mkobj.js';
 import { CREAM_PIE, EGG } from '../js/objects.js';
 import { select_rwep } from '../js/weapon.js';
 

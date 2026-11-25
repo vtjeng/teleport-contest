@@ -33,7 +33,7 @@ import { dotip, tip_ok, use_container } from '../js/pickup.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 
 async function heroOnCleanSquare(seed = 83001621) {
     await runSegment({
@@ -290,8 +290,8 @@ test('public dotip transfers a contained glob through the runtime container writ
     const fixture = resolve('.cache/glob-public-tip-between-sacks-main-reviewed-qualification-20261019/attempt.mjs');
     const fixtureBytes = readFileSync(fixture);
     const fixtureHash = createHash('sha256').update(fixtureBytes).digest('hex');
-    assert.equal(fixtureBytes.byteLength, 24844, 'exact Main-reviewed fixture is present');
-    assert.equal(fixtureHash, 'a2eb8ee82602d78c42347da696c0e50ec5844166e8961a06c54cbcdd6866f9e7',
+    assert.equal(fixtureBytes.byteLength, 24846, 'exact Main-reviewed fixture is present');
+    assert.equal(fixtureHash, 'ba4689f9061f3a3b0216c1da0e42d86427ab231c589e7ede966f3bb4e0f53ef1',
         'exact Main-reviewed fixture bytes are used');
 
     const evidenceRoot = resolve('.cache/glob-public-tip-runtime-source-parity-20261019');

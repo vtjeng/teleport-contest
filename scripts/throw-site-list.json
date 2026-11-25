@@ -42,91 +42,91 @@
       "c": "src/apply.c:2196",
       "reason": "C reads &mons[corpse->corpsenm] directly; a corpse always carries a valid species."
     },
-    "js/artifacts.js | artifact_defends | `artifact defense requires artifact ${obj.oartifact} data`": {
+    "js/artifact.js | artifact_defends | `artifact defense requires artifact ${obj.oartifact} data`": {
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:get_artifact()",
       "reason": "C get_artifact() maps an index outside 1..NROFARTIFACTS to the empty ART_NONARTIFACT row rather than indexing past artilist[]; obj->oartifact is only ever 0 or a valid index, so the throw cannot fire in valid play."
     },
-    "js/artifacts.js | artifact_name | 'artifact_name requires an initialized artilist'": {
+    "js/artifact.js | artifact_name | 'artifact_name requires an initialized artilist'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
     },
-    "js/artifacts.js | artifact_origin | `invalid artifact index ${index}`": {
+    "js/artifact.js | artifact_origin | `invalid artifact index ${index}`": {
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:485",
       "reason": "C indexes artiexist[a] directly; oartifact is always a valid index."
     },
-    "js/artifacts.js | artifactTables | 'artifact operation requires init_artifacts()'": {
+    "js/artifact.js | artifactTables | 'artifact operation requires init_artifacts()'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
     },
-    "js/artifacts.js | find_artifact | `invalid artifact index ${index}`": {
+    "js/artifact.js | find_artifact | `invalid artifact index ${index}`": {
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:427",
       "reason": "C reads artiexist[a].found directly; oartifact is always a valid index (found_artifact() reports a nonexistent one)."
     },
-    "js/artifacts.js | hack_artifacts | 'hack_artifacts requires an initialized artilist'": {
+    "js/artifact.js | hack_artifacts | 'hack_artifacts requires an initialized artilist'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
     },
-    "js/artifacts.js | hack_artifacts | 'hack_artifacts requires state.urole from role_init'": {
+    "js/artifact.js | hack_artifacts | 'hack_artifacts requires state.urole from role_init'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
     },
-    "js/artifacts.js | hack_artifacts | `invalid quest artifact ${questArtifact}`": {
+    "js/artifact.js | hack_artifacts | `invalid quest artifact ${questArtifact}`": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Checks the role table's quest artifact index, which is fixed data."
     },
-    "js/artifacts.js | initialAlignment | 'init_artifacts requires role_init alignment state'": {
+    "js/artifact.js | initialAlignment | 'init_artifacts requires role_init alignment state'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first."
     },
-    "js/artifacts.js | mk_artifact | 'artifact rn2 result was outside its bound'": {
+    "js/artifact.js | mk_artifact | 'artifact rn2 result was outside its bound'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Checks the injected random source returned a value inside its bound."
     },
-    "js/artifacts.js | mk_artifact | 'mk_artifact selected a candidate without an object'": {
+    "js/artifact.js | mk_artifact | 'mk_artifact selected a candidate without an object'": {
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:262",
       "reason": "C mksobj() never returns null and the !by_align arm always has an object."
     },
-    "js/artifacts.js | mk_artifact | `invalid artifact base object type ${art.otyp}`": {
+    "js/artifact.js | mk_artifact | `invalid artifact base object type ${art.otyp}`": {
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:172",
       "reason": "C indexes objects[] directly; every object and artilist row names a valid type."
     },
-    "js/artifacts.js | mk_artifact | `invalid artifact base object type ${obj.otyp}`": {
+    "js/artifact.js | mk_artifact | `invalid artifact base object type ${obj.otyp}`": {
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:172",
       "reason": "C indexes objects[] directly; every object and artilist row names a valid type."
     },
-    "js/artifacts.js | randomFromEnv | 'artifact random injection requires rn2'": {
+    "js/artifact.js | randomFromEnv | 'artifact random injection requires rn2'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An injected random source is missing or out of contract; every production caller passes the core RNG."
     },
-    "js/artifacts.js | touch_artifact | `invalid artifact index ${index}`": {
+    "js/artifact.js | touch_artifact | `invalid artifact index ${index}`": {
       "count": 1,
       "class": "guard",
       "c": "src/artifact.c:908",
@@ -2122,13 +2122,13 @@
       "count": 1,
       "class": "invariant",
       "c": null,
-      "reason": "The obj.js monster-object hook was called with an object type or phase it does not serve; a JavaScript calling convention."
+      "reason": "The mkobj.js monster-object hook was called with an object type or phase it does not serve; a JavaScript calling convention."
     },
     "js/monster_object.js | monsterObject | `monsterObject phase ${phase}`": {
       "count": 1,
       "class": "invariant",
       "c": null,
-      "reason": "The obj.js monster-object hook was called with an object type or phase it does not serve; a JavaScript calling convention."
+      "reason": "The mkobj.js monster-object hook was called with an object type or phase it does not serve; a JavaScript calling convention."
     },
     "js/monsters.js | reset_mvitals | 'reset_mvitals requires monst_globals_init()'": {
       "count": 1,
@@ -2310,145 +2310,145 @@
       "c": null,
       "reason": "An injected rn2 that returned outside its bound; C's rn2(4) cannot."
     },
-    "js/obj.js | add_to_migration_steps | `add_to_migration: obj where=${obj.where}, not free`": {
+    "js/mkobj.js | add_to_migration_steps | `add_to_migration: obj where=${obj.where}, not free`": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2701",
       "reason": "add_to_migration() panics on an object that is not free."
     },
-    "js/obj.js | dealloc_obj | 'dealloc_obj with cobj'": {
+    "js/mkobj.js | dealloc_obj | 'dealloc_obj with cobj'": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2759",
       "reason": "dealloc_obj() panics on an object whose cobj is set."
     },
-    "js/obj.js | dealloc_obj | 'dealloc_obj with nobj'": {
+    "js/mkobj.js | dealloc_obj | 'dealloc_obj with nobj'": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2757",
       "reason": "dealloc_obj() panics on an object whose nobj is set."
     },
-    "js/obj.js | dealloc_obj | 'stopObjectTimers must clear obj.timed'": {
+    "js/mkobj.js | dealloc_obj | 'stopObjectTimers must clear obj.timed'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "A test's stopObjectTimers hook that did not clear obj.timed."
     },
-    "js/obj.js | dealloc_obj | `dealloc_obj: object where=${obj.where}, expected free`": {
+    "js/mkobj.js | dealloc_obj | `dealloc_obj: object where=${obj.where}, expected free`": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2753",
       "reason": "dealloc_obj() panics on an object that is neither free nor Lua-free (one already deleted is reported through impossible() instead)."
     },
-    "js/obj.js | extract_nexthere | 'extract_nexthere: object lost'": {
+    "js/mkobj.js | extract_nexthere | 'extract_nexthere: object lost'": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2638",
       "reason": "extract_nexthere() panics when the object is not on the chain."
     },
-    "js/obj.js | extract_nobj | 'extract_nobj: object lost'": {
+    "js/mkobj.js | extract_nobj | 'extract_nobj: object lost'": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2611",
       "reason": "extract_nobj() panics when the object is not on the chain."
     },
-    "js/obj.js | floorObjectGrid | 'floor object operations require a GameMap object grid'": {
+    "js/mkobj.js | floorObjectGrid | 'floor object operations require a GameMap object grid'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first (monst_globals_init(), init_objects() and the like)."
     },
-    "js/obj.js | initializedIdentContext | 'next_ident requires initialized nonzero context.ident'": {
+    "js/mkobj.js | initializedIdentContext | 'next_ident requires initialized nonzero context.ident'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first (monst_globals_init(), init_objects() and the like)."
     },
-    "js/obj.js | mkobj | 'mkobj requires init_objects()'": {
+    "js/mkobj.js | mkobj | 'mkobj requires init_objects()'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first (monst_globals_init(), init_objects() and the like)."
     },
-    "js/obj.js | mksobj_init | `mksobj_init: unsupported class ${type.oc_class} for otyp ${": {
+    "js/mkobj.js | mksobj_init | `mksobj_init: unsupported class ${type.oc_class} for otyp ${": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:1167",
       "reason": "mksobj_init() panics on an object class with no case."
     },
-    "js/obj.js | monsterVital | 'monster object creation requires initialized mvitals'": {
+    "js/mkobj.js | monsterVital | 'monster object creation requires initialized mvitals'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first (monst_globals_init(), init_objects() and the like)."
     },
-    "js/obj.js | objectCatalog | 'object catalog requires objects_globals_init()'": {
+    "js/mkobj.js | objectCatalog | 'object catalog requires objects_globals_init()'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "Called before the initialization every game performs first (monst_globals_init(), init_objects() and the like)."
     },
-    "js/obj.js | objectType | `invalid object type ${otyp}`": {
+    "js/mkobj.js | objectType | `invalid object type ${otyp}`": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An object type outside objects[]; C indexes the array without a check."
     },
-    "js/obj.js | place_object | `place_object: object where=${obj.where}, expected free`": {
+    "js/mkobj.js | place_object | `place_object: object where=${obj.where}, expected free`": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2324",
       "reason": "place_object() panics on an object that is not free."
     },
-    "js/obj.js | place_object | `place_object: off-map location <${x},${y}>`": {
+    "js/mkobj.js | place_object | `place_object: off-map location <${x},${y}>`": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2312",
       "reason": "place_object() panics on a spot outside the level arrays (column 0 is reported through impossible() and placed)."
     },
-    "js/obj.js | randomObjectClass | 'mkobj: random class probabilities did not total 100'": {
+    "js/mkobj.js | randomObjectClass | 'mkobj: random class probabilities did not total 100'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "The class probability tables are constants that total 100, so the loop always returns."
     },
-    "js/obj.js | remove_object | 'remove_object requires an object'": {
+    "js/mkobj.js | remove_object | 'remove_object requires an object'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/obj.js | remove_object | `remove_object: object where=${obj.where}, expected floor`": {
+    "js/mkobj.js | remove_object | `remove_object: object where=${obj.where}, expected floor`": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:2514",
       "reason": "remove_object() panics on an object that is not on the floor."
     },
-    "js/obj.js | remove_object | `remove_object: off-map location <${x},${y}>`": {
+    "js/mkobj.js | remove_object | `remove_object: off-map location <${x},${y}>`": {
       "count": 1,
       "class": "guard",
       "c": null,
       "reason": "C remove_object() indexes level.objects[ox][oy] without a check; place_object() stores only in-array coordinates."
     },
-    "js/obj.js | replace_object | 'replace_object: obj position'": {
+    "js/mkobj.js | replace_object | 'replace_object: obj position'": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:676",
       "reason": "replace_object() panics on an object in no known chain."
     },
-    "js/obj.js | sourceRandom | 'random injection requires rn2, rnd, rn1, and rne'": {
+    "js/mkobj.js | sourceRandom | 'random injection requires rn2, rnd, rn1, and rne'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/obj.js | splitobj | 'splitobj requires an object'": {
+    "js/mkobj.js | splitobj | 'splitobj requires an object'": {
       "count": 1,
       "class": "invariant",
       "c": null,
       "reason": "An argument of the wrong type or shape, which C's types rule out."
     },
-    "js/obj.js | splitobj | `splitobj requires 0 < quantity < ${obj.quan} ` + 'and an em": {
+    "js/mkobj.js | splitobj | `splitobj requires 0 < quantity < ${obj.quan} ` + 'and an em": {
       "count": 1,
       "class": "panic",
       "c": "src/mkobj.c:463",

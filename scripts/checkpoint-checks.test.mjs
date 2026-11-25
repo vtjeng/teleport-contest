@@ -73,7 +73,7 @@ test('the checkpoint reports duplicate symbols without gating on them', () => {
     // of the checkpoint: 282 keys would bury every check around it.
     const summary = summarizeDuplicateSymbols({
         stdout: 'isweptool: js/mondata.js:219 is_weptool (function), '
-            + 'js/obj.js:44 isWeptool (function)\n'
+            + 'js/mkobj.js:44 isWeptool (function)\n'
             + 'near-miss surface: js/dungeon.js:1271 surface_typ (function), '
             + 'js/monmove.js:613 surfaceAt (function)\n'
             + 'indexed 7199 top-level definition(s) in 144 file(s); '

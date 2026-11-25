@@ -66,7 +66,7 @@ import {
     ART_SNICKERSNEE,
     artifact_light,
     set_artifact_intrinsic,
-} from './artifacts.js';
+} from './artifact.js';
 import { cancel_doff } from './do_wear.js';
 import { impossible } from './pline.js';
 import { fmt_ptr } from './alloc.js';
@@ -105,7 +105,7 @@ import {
     obj_no_longer_held,
     objectType,
     place_object,
-} from './obj.js';
+} from './mkobj.js';
 import {
     breakarm,
     cantweararm,

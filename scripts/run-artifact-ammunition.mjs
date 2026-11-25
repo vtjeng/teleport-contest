@@ -4,9 +4,9 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { ARROW } from '../js/objects.js';
-import { ART_LONGBOW_OF_DIANA } from '../js/artifacts.js';
+import { ART_LONGBOW_OF_DIANA } from '../js/artifact.js';
 import { FUMBLING, OBJ_FLOOR } from '../js/const.js';
-import { weight } from '../js/obj.js';
+import { weight } from '../js/mkobj.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';

@@ -36,7 +36,7 @@ import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { objects_globals_init } from '../js/objects.js';
-import { init_artifacts } from '../js/artifacts.js';
+import { init_artifacts } from '../js/artifact.js';
 import { init_objects } from '../js/o_init.js';
 import { enableRngLog, initRng } from '../js/rng.js';
 import { level_tele } from '../js/teleport.js';

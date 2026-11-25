@@ -217,7 +217,7 @@ import {
     carried, g_at, hasContents, isBox, isCandle, isContainer,
     is_pick, remove_object, set_bknown, set_corpsenm, splitobj, unsplitobj, weight,
     unbless,
-} from './obj.js';
+} from './mkobj.js';
 
 import { get_obj_location, obj_is_burning } from './light.js';
 import { snuff_lit } from './apply_splash_lit.js';
@@ -280,7 +280,7 @@ import {
 import {
     add_menu, add_menu_heading, getlin, select_menu,
 } from './windows.js';
-import { touch_artifact } from './artifacts.js';
+import { touch_artifact } from './artifact.js';
 import {
     SCATTER_MAY_DESTROY,
     SCATTER_MAY_HIT,

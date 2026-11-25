@@ -22,7 +22,7 @@ import {
     W_ARM,
 } from '../js/const.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject, weight, bless } from '../js/obj.js';
+import { newObject, weight, bless } from '../js/mkobj.js';
 import { arti_light_radius, light_globals_init, new_light_source }
     from '../js/light.js';
 import { timeout_globals_init, start_timer, peek_timer } from '../js/timeout.js';

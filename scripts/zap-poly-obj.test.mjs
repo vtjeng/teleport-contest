@@ -11,7 +11,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { poly_obj } from '../js/zap.js';
 import {
     d, rn1, rn2, rnd, rne, rnl, rnz,

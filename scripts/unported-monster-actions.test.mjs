@@ -147,7 +147,7 @@ import {
 } from '../js/mhitu.js';
 import { newMonster } from '../js/monst.js';
 import { newmonhp, set_malign } from '../js/makemon.js';
-import { mksobj, newObject } from '../js/obj.js';
+import { mksobj, newObject } from '../js/mkobj.js';
 import { addinv } from '../js/invent.js';
 import { makemon_runtime, creationEnv, mongets } from '../js/makemon_create.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -155,7 +155,7 @@ import { setworn } from '../js/worn.js';
 import { Ring_on, setwornEnv } from '../js/do_wear.js';
 import { healup } from '../js/potion.js';
 import { cmdq_add_key } from '../js/cmd.js';
-import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_STING, ART_STORMBRINGER, ART_SUNSWORD } from '../js/artifact.js';
 import {
     ARROW,
     BOULDER,

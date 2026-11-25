@@ -691,7 +691,7 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'pray.c gods_angry': ported('js/pray.js godvoice'),
 
     // read.c
-    'read.c assign_candy_wrapper': ported('js/obj.js mksobj_init',
+    'read.c assign_candy_wrapper': ported('js/mkobj.js mksobj_init',
         'rn2(12) hard-coded rather than derived from the table'),
     'read.c seffect_blank_paper': ported('js/read.js seffects'),
 

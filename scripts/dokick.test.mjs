@@ -48,7 +48,7 @@ test('dokick.c floor-object kick and gold-catch source owners are exported', () 
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { newMonster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { GOLD_PIECE, COIN_CLASS } from '../js/objects.js';
 import { PM_LEPRECHAUN, PM_SOLDIER, PM_SERGEANT, PM_LIEUTENANT,
     PM_CAPTAIN, PM_WATCHMAN, PM_NEWT } from '../js/monsters.js';

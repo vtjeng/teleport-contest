@@ -782,7 +782,7 @@ async function wizkit_addinv(obj, state) {
         && !merge_choice(state.invent, obj, state)) {
         /* inventory overflow; can't just place & stack object since
            hero isn't in position yet, so schedule for arrival later */
-        const { add_to_migration_async } = await import('./obj.js');
+        const { add_to_migration_async } = await import('./mkobj.js');
         await add_to_migration_async(obj, state);
         obj.ox = 0; /* index of main dungeon */
         obj.oy = 1; /* starting level number */

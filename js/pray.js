@@ -144,7 +144,7 @@ import {
     is_art,
     mk_artifact,
     nartifact_exist,
-} from './artifacts.js';
+} from './artifact.js';
 import {
     ALIGNLIM,
     adjalign,
@@ -226,7 +226,7 @@ import {
     SPBOOK_NO_NOVEL,
     set_bknown,
     uncurse,
-} from './obj.js';
+} from './mkobj.js';
 import { get_mtraits } from './corpstat.js';
 import {
     BOULDER,
@@ -658,7 +658,7 @@ async function consume_offering(otmp, state) {
 
 // C ref: pray.c:1780-1834 bestow_artifact(). The selected alignment-specific
 // mk_artifact() path creates a new gift; the normal-object/A_NONE hook in
-// artifacts.js is a separate caller with different selection rules.
+// artifact.js is a separate caller with different selection rules.
 async function bestow_artifact(maxGiftValue, state) {
     const { u } = state;
     const nartifacts = nartifact_exist(state);

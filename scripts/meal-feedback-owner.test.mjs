@@ -7,7 +7,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameMap } from '../js/game.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { newObject, place_object, weight } from '../js/obj.js';
+import { newObject, place_object, weight } from '../js/mkobj.js';
 import { PM_PURPLE_WORM, PM_KILLER_BEE, NON_PM } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import { BLINDED,HALLUC,DETECT_MONSTERS,ROOM,STONE,OBJ_DELETED } from '../js/const.js';

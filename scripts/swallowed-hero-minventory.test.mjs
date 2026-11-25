@@ -7,7 +7,7 @@ import { display_minventory } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { PM_PURPLE_WORM } from '../js/monsters.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { OIL_LAMP } from '../js/objects.js';
 
 async function setup() {

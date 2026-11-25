@@ -12,7 +12,7 @@ import {
     newObject,
     replace_object,
     unknwn_contnr_contents,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 
 // ---------------------------------------------------------------------------
 // unknwn_contnr_contents -- pure function

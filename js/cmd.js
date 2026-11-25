@@ -123,7 +123,7 @@ import {
     reset_trapset,
     use_unicorn_horn,
 } from './apply.js';
-import { doinvoke } from './artifacts.js';
+import { doinvoke } from './artifact.js';
 import { ballrelease, placebc, unplacebc_async } from './ball.js';
 import {
     dosearch,
@@ -180,7 +180,7 @@ import {
     mon_nam,
     x_monnam,
 } from './do_name.js';
-import { dobjsfree, isContainer, UnsupportedObjectOperationError } from './obj.js';
+import { dobjsfree, isContainer, UnsupportedObjectOperationError } from './mkobj.js';
 import { doloot, dotip } from './pickup.js';
 import {
     dodrink,

@@ -67,11 +67,11 @@ function count(code, pattern) {
     return [...code.matchAll(pattern)].length;
 }
 
-// js/obj.js once refused a missing monster catalog entry, a null artifact
+// js/mkobj.js once refused a missing monster catalog entry, a null artifact
 // (mkobj.c:890 and :1099: "mk_artifact() with otmp and A_NONE will never
 // return NULL"), an unset current fruit (options.c initoptions_finish() sets
 // it on every startup) and a cursed object outside free-object generation.
-// obj.js's requiredHook() went when remove_object() began calling
+// mkobj.js's requiredHook() went when remove_object() began calling
 // recalc_block_point() itself (mkobj.c:2518). What is left is invent.js
 // requiredHook()'s refusal, whose hook names
 // scripts/lifecycle-hook-defaults.test.mjs pins.
@@ -79,16 +79,16 @@ const OBJECT_OPERATION_REFUSAL_SITES = 1;
 
 test('object operations refuse only through requiredHook()', () => {
     let sites = 0;
-    for (const file of ['obj.js', 'invent.js']) {
+    for (const file of ['mkobj.js', 'invent.js']) {
         sites += count(jsCode(file), /new UnsupportedObjectOperationError\(/gu);
     }
     assert.match(functionBody(jsCode('invent.js'), 'requiredHook'),
         /new UnsupportedObjectOperationError\(/u);
     assertExceptionCount(sites, OBJECT_OPERATION_REFUSAL_SITES, {
-        what: 'UnsupportedObjectOperationError throw sites in obj.js and invent.js',
+        what: 'UnsupportedObjectOperationError throw sites in mkobj.js and invent.js',
         pin: 'OBJECT_OPERATION_REFUSAL_SITES in scripts/unreachable-guards.test.mjs',
     });
-    const code = jsCode('obj.js');
+    const code = jsCode('mkobj.js');
     // mkobj.c mksobj_init() calls its corpse, egg and tin initializer only
     // from those three case labels, so the switch needs no default.
     assert.doesNotMatch(functionBody(code, 'initializeMonsterFood'), /default\s*:/u);

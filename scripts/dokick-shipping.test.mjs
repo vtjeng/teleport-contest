@@ -15,7 +15,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     add_to_migration, add_to_migration_async, mksobj, objectType, place_object,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { add_to_container } from '../js/invent.js';
 import {

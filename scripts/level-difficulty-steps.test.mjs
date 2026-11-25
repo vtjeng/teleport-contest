@@ -163,13 +163,13 @@ const ALLOWED = {
     'mktrap.js | traptype_rnd | level_difficulty': [1, NO_FILL],
     'room_features.js | mkgrave | level_difficulty': [1, NO_FILL],
     'monster_object.js | initializeStatue | level_difficulty': [1, OBJECT_CREATION],
-    'obj.js | mkbox_cnts | level_difficulty': [1, OBJECT_CREATION],
-    'obj.js | mkgold | level_difficulty': [1,
+    'mkobj.js | mkbox_cnts | level_difficulty': [1, OBJECT_CREATION],
+    'mkobj.js | mkgold | level_difficulty': [1,
         `only mkgold(0, ...) reads it; ${OBJECT_CREATION}`],
     // light.c del_light_source()'s impossible() reports. Each of these
     // deletes a source that its owner's creation made, so no recording
     // reaches the report on these paths.
-    'obj.js | dealloc_obj | del_light_source': [1,
+    'mkobj.js | dealloc_obj | del_light_source': [1,
         'dealloc_obj() is synchronous, with 21 calls, and obfree() above '
             + 'it has 62'],
     'timeout.js | objectLightDeletion | del_light_source': [1,

@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { fixup_oil } from '../js/obj.js';
+import { fixup_oil } from '../js/mkobj.js';
 import { POT_OIL, POT_WATER } from '../js/objects.js';
 import { MAX_OIL_IN_FLASK } from '../js/const.js';
 

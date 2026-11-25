@@ -14,7 +14,7 @@ import {
     mksobj,
     objectType,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import {
     ARMOR_CLASS,
     COIN_CLASS,

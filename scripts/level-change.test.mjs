@@ -89,7 +89,7 @@ import {
     inventoryObjects,
     obj_extract_self,
 } from '../js/invent.js';
-import { add_to_migration, mksobj, mksobj_at } from '../js/obj.js';
+import { add_to_migration, mksobj, mksobj_at } from '../js/mkobj.js';
 import { makemon_runtime } from '../js/makemon_create.js';
 import { migrate_to_level } from '../js/dog.js';
 import { ledger_no } from '../js/dungeon.js';

@@ -4,7 +4,7 @@
 import { W_ARM, W_ARMC, W_ARMF, W_ARMG, W_ARMH, W_ARMS, W_ARMU } from './const.js';
 import { game } from './gstate.js';
 import { discover_object } from './o_init.js';
-import { is_ammo, is_missile, is_weptool, objectType } from './obj.js';
+import { is_ammo, is_missile, is_weptool, objectType } from './mkobj.js';
 import {
     ARMOR_CLASS,
     ARM_BOOTS,

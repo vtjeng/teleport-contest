@@ -29,7 +29,7 @@ import {
     ROWNO,
     TEMP_LIT,
 } from './const.js';
-import { artifact_light } from './artifacts.js';
+import { artifact_light } from './artifact.js';
 import { ignitable } from './apply_catch_lit.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
@@ -56,7 +56,7 @@ import { panic } from './end.js';
 import { find_oid } from './shk.js';
 import { circle_offset, clear_path, vision_recalc_async } from './vision.js';
 import { canseemon, canspotmon, flush_screen, map_invisible, newsym } from './display.js';
-import { place_object, remove_object } from './obj.js';
+import { place_object, remove_object } from './mkobj.js';
 import { nh_delay_output } from './hack.js';
 import { impossible } from './pline.js';
 import { otense, simpleonames, xname } from './objnam.js';

@@ -5,7 +5,7 @@ import { ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { domove } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { remove_object, place_object } from '../js/obj.js';
+import { remove_object, place_object } from '../js/mkobj.js';
 import { SCROLL_CLASS, SCR_PUNISHMENT } from '../js/objects.js';
 import { punish } from '../js/read.js';
 import { tty_map_cell_at } from '../js/display.js';

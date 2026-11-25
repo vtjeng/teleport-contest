@@ -39,7 +39,7 @@ import {
     unblock_point,
     vision_recalc_async,
 } from './vision.js';
-import { mksobj_at } from './obj.js';
+import { mksobj_at } from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     ttyPline,

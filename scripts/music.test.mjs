@@ -20,7 +20,7 @@ import { PM_COCKATRICE, PM_GUARD, PM_GRID_BUG, PM_LICHEN, PM_SNAKE, PM_SOLDIER,
     PM_NEWT, PM_WOOD_NYMPH } from '../js/monsters.js';
 import { BOULDER, CORPSE, DRUM_OF_EARTHQUAKE, LEATHER_DRUM, TOOL_CLASS,
     WOODEN_FLUTE } from '../js/objects.js';
-import { mksobj, mksobj_at, set_corpsenm } from '../js/obj.js';
+import { mksobj, mksobj_at, set_corpsenm } from '../js/mkobj.js';
 import { addinv, sobj_at } from '../js/invent.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { setuwep } from '../js/wield.js';

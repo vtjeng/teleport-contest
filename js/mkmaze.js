@@ -89,7 +89,7 @@ import {
     place_object,
     remove_object,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import { shiny_obj } from './objnam_readobjnam.js';
 import {
     BOULDER,

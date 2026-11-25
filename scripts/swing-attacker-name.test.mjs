@@ -13,7 +13,7 @@ import { vision_reset, vision_recalc, init_vision_globals } from '../js/vision.j
 import { canspotmon, canseemon } from '../js/display.js';
 import { mattackm } from '../js/mhitm.js';
 import { CLUB } from '../js/objects.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 import { rn2_on_display_rng } from '../js/rng.js';

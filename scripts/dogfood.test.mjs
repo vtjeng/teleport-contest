@@ -43,7 +43,7 @@ import {
     S_FUNGUS,
     S_YETI,
 } from '../js/monsters.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import {
     AMULET_OF_STRANGULATION,
     APPLE,

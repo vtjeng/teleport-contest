@@ -56,7 +56,7 @@ import {
 import {
     ART_EXCALIBUR,
     ART_GIANTSLAYER,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
@@ -129,7 +129,7 @@ import {
     POT_BLINDNESS,
     HEAVY_IRON_BALL,
 } from '../js/objects.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { addinv } from '../js/invent.js';
 import { setuwep } from '../js/wield.js';
 import { setwornEnv } from '../js/do_wear.js';

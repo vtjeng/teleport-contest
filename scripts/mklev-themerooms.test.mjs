@@ -19,7 +19,7 @@ import { GameMap } from '../js/game.js';
 import { finish_fruit_option } from '../js/fruit.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { objectType, weight } from '../js/obj.js';
+import { objectType, weight } from '../js/mkobj.js';
 import {
     add_doors_to_room,
     build_room,

@@ -215,7 +215,7 @@ import {
 } from './dungeon.js';
 import { more_experienced, newexplevel } from './exper.js';
 import { floating_above } from './fountain.js';
-import { artifact_has_invprop } from './artifacts.js';
+import { artifact_has_invprop } from './artifact.js';
 import { record_achievement } from './insight.js';
 import { game } from './gstate.js';
 import {
@@ -286,7 +286,7 @@ import {
 import {
     free_omid, free_omonst, is_pick, isCandle, obj_meld, obj_nexto_xy, objectType, place_object,
     pudding_merge_message, set_bknown, set_corpsenm, splitobj, weight,
-} from './obj.js';
+} from './mkobj.js';
 import { oinit } from './o_init.js';
 import {
     The, Tobjnam, Doname2, an, corpse_xname, donameFresh, is_plural, otense,
@@ -1707,7 +1707,7 @@ async function drop(obj, state = game) {
         if (!can_reach_floor(true, state)) {
             // do.c:758-773, the levitating or trapped hero: finesse_ahriman(),
             // hitfloor() and float_down() retain C's order around freeinv().
-            const { finesse_ahriman } = await import('./artifacts.js');
+            const { finesse_ahriman } = await import('./artifact.js');
             const levhack = finesse_ahriman(obj, state);
             if (levhack) {
                 state.u.uprops[LEVITATION].extrinsic = W_ART;

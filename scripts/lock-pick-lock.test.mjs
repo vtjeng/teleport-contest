@@ -8,7 +8,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { pick_lock, reset_pick } from '../js/lock.js';
 import { newMonster } from '../js/monst.js';
 import { M1_NOHANDS, PM_SMALL_MIMIC } from '../js/monsters.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { CHEST, CREDIT_CARD, LOCK_PICK, SKELETON_KEY, TOOL_CLASS } from '../js/objects.js';
 import { S_hcdoor, S_vcdoor } from '../js/symbols.js';

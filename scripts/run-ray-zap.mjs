@@ -64,7 +64,7 @@ import { isok } from '../js/cmd_isok.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
-import { objectType } from '../js/obj.js';
+import { objectType } from '../js/mkobj.js';
 import { RAY } from '../js/objects.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 import { validateCleanRecipe } from './diff-fresh.mjs';

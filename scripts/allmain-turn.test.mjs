@@ -118,7 +118,7 @@ import {
 import {
     newObject,
     place_object,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import { add_to_buried } from '../js/invent.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {

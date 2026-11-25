@@ -12,7 +12,7 @@ import { ALTAR, AM_LAWFUL, AM_SHRINE, ROOM } from '../js/const.js';
 import { monst_globals_init, PM_GOBLIN } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { find_defensive } from '../js/muse.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { objects_globals_init, WAN_DIGGING } from '../js/objects.js';
 
 function stateWithSquare(square) {

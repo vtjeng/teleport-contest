@@ -84,7 +84,7 @@ import {
 } from '../js/monsters.js';
 import { initworm } from '../js/worm.js';
 import { init_objects } from '../js/o_init.js';
-import { mksobj_at, newObject } from '../js/obj.js';
+import { mksobj_at, newObject } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -2347,7 +2347,7 @@ function pickupStack(state, otyp, quan, overrides = {}) {
     return obj;
 }
 
-// obj.js requires the whole source random set even though the only draw the
+// mkobj.js requires the whole source random set even though the only draw the
 // pickup reaches through it is next_ident()'s rnd(2).
 function pickupRandom() {
     const unreached = (name) => () => {

@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import { OBJ_CONTAINED, OBJ_INVENT, ER_DAMAGED } from '../js/const.js';
-import { newObject, weight } from '../js/obj.js';
+import { newObject, weight } from '../js/mkobj.js';
 import { init_objects } from '../js/o_init.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';

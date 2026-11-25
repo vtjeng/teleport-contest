@@ -8,7 +8,7 @@ import { accessible } from '../js/monmove.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { passes_rocks } from '../js/mondata.js';
 import { AD_RBRE, NON_PM, PM_JACKAL, PM_XORN } from '../js/monsters.js';
-import { mksobj, stone_missile } from '../js/obj.js';
+import { mksobj, stone_missile } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { DART, ROCK } from '../js/objects.js';
 import { thitm } from '../js/trap_effects.js';
@@ -230,7 +230,7 @@ test('a missile that connects is named, damages, and is used up', async () => {
     // dmgval() is rnd(3) plus the +2 enchantment, so three off nine.
     assert.equal(mon.mhp, 6);
     // mkobj.c dealloc_obj() frees the record; the port marks it OBJ_DELETED
-    // instead, which is js/obj.js's own note on the collapsed delete queue.
+    // instead, which is js/mkobj.js's own note on the collapsed delete queue.
     assert.equal(dart.where, OBJ_DELETED, 'dealloc_obj() consumed it');
     assert.equal(game.level.objects[mon.mx][mon.my], null, 'and undropped');
 });

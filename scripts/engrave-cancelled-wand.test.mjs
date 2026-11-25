@@ -3,7 +3,7 @@ import test from 'node:test';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { doengrave } from '../js/engrave.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { The, xnameFresh } from '../js/objnam.js';
 import { WAN_NOTHING, WAND_CLASS } from '../js/objects.js';
 import { BLINDED, OBJ_INVENT } from '../js/const.js';

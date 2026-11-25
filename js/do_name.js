@@ -74,7 +74,7 @@ import { set_artifact_intrinsic,
     artifact_name,
     exist_artifact,
     restrict_name,
-} from './artifacts.js';
+} from './artifact.js';
 import {
     flush_screen,
     glyph_at,
@@ -130,7 +130,7 @@ import {
     NUMMONS,
     SPECIAL_PM,
 } from './monsters.js';
-import { carried, dealloc_obj, objectType } from './obj.js';
+import { carried, dealloc_obj, objectType } from './mkobj.js';
 import {
     discover_object,
     rename_disco,
@@ -1093,7 +1093,7 @@ export function rndcolor(state = game, env = {}) {
 // none. env.displayRandom keeps deterministic tests on the same seam used by
 // x_monnam() without changing the C-shaped state argument. env.random is the
 // gameplay stream in callers' environments, so it is never consulted here.
-// Copies: do_name.c hcolor() is also ported as artifacts.js hcolor(). A
+// Copies: do_name.c hcolor() is also ported as artifact.js hcolor(). A
 // change to it must reach every copy.
 export function hcolor(colorpref, state = game, env = {}) {
     const hallucinating = Hallucination(state.u);

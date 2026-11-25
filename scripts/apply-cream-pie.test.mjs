@@ -20,7 +20,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { can_blnd, haseyes } from '../js/mondata.js';
 import { AT_WEAP, M1_NOEYES } from '../js/monsters.js';
 import { CREAM_PIE } from '../js/objects.js';
-import { mksobj, splitobj, weight } from '../js/obj.js';
+import { mksobj, splitobj, weight } from '../js/mkobj.js';
 import { make_blinded } from '../js/potion.js';
 import { getRngLog } from '../js/rng.js';
 import { addtobill, onbill, shop_keeper, unpaid_cost } from '../js/shk.js';

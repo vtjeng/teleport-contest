@@ -140,7 +140,7 @@ test('monstone uses the object random defaults when the caller has no provider',
         assert.equal(
             game.level.objects[golem.mx][golem.my]?.otyp,
             STATUE,
-            'statue initialization uses obj.js defaults instead of an rn2-only override',
+            'statue initialization uses mkobj.js defaults instead of an rn2-only override',
         );
         assert.ok(golem.mstate & MON_DETACH);
     });

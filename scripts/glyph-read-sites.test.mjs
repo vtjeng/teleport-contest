@@ -54,7 +54,7 @@ const SITES = [
     ['apply.js', 'use_pole', 'drawn', 1, ['apply.c use_pole']],
     ['apply.js', 'use_leash_core', 'remembered', 1, ['apply.c use_leash_core']],
     ['apply.js', 'its_dead', 'drawn', 1, ['apply.c its_dead']],
-    ['artifacts.js', 'count_surround_traps', 'drawn', 1,
+    ['artifact.js', 'count_surround_traps', 'drawn', 1,
         ['artifact.c count_surround_traps']],
     // Every read of levl[x][y].glyph into u.bglyph or u.cglyph.
     ['ball.js', 'memoryGlyph', 'remembered', 1,

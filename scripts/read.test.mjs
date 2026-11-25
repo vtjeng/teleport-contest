@@ -40,7 +40,7 @@ import {
 import { spelleffects } from '../js/spell.js';
 import { addinv } from '../js/invent.js';
 import { mpickobj } from '../js/steal.js';
-import { mksobj, objectType } from '../js/obj.js';
+import { mksobj, objectType } from '../js/mkobj.js';
 import { Ring_on, setwornEnv } from '../js/do_wear.js';
 import { setworn } from '../js/worn.js';
 import { coreRandom, enableRngLog, getRngLog, initRng } from '../js/rng.js';

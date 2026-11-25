@@ -120,7 +120,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject, splitobj } from '../js/obj.js';
+import { newObject, splitobj } from '../js/mkobj.js';
 import {
     AKLYS,
     ARROW,
@@ -179,7 +179,7 @@ import {
     ART_LONGBOW_OF_DIANA,
     ART_MJOLLNIR,
     init_artifacts,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     d, enableRngLog, getRngLog, initRng, rn1, rn2, rne, rnl, rnd,
 } from '../js/rng.js';
@@ -1126,7 +1126,7 @@ function rollsBeforeFirstLanding() {
     return landing < 0 ? all.length : landing;
 }
 
-// The floor pile at <x,y>, head first, as js/obj.js place_object() links it.
+// The floor pile at <x,y>, head first, as js/mkobj.js place_object() links it.
 function pileAt(state, x, y) {
     const found = [];
     for (let obj = state.level.objects[x]?.[y]; obj; obj = obj.nexthere)

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 // C gazemu uses pline_mon at this site; source-derived expectation, no new C execution.
-import {mksobj} from '../js/obj.js';
+import {mksobj} from '../js/mkobj.js';
 import {addinv,sobj_at} from '../js/invent.js';
 import {SHIELD_OF_REFLECTION,STATUE} from '../js/objects.js';
 import {setworn} from '../js/worn.js';

@@ -51,7 +51,7 @@ import {
     score_targ,
 } from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import { game, initialGb } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
 import { initrack, settrack } from '../js/track.js';

@@ -8,7 +8,7 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     assertPricedObjectNameable,
@@ -53,7 +53,7 @@ import { getRngLog } from '../js/rng.js';
 import { create_region } from '../js/region.js';
 import { check_special_room } from '../js/rooms.js';
 import { corpsenm_price_adj, get_cost_of_shop_item } from '../js/shk.js';
-import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
+import { ART_EXCALIBUR, init_artifacts } from '../js/artifact.js';
 import { start_timer } from '../js/timeout.js';
 
 const DIRECTIONS = [

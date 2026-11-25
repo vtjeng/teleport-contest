@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { where_name } from '../js/obj.js';
+import { where_name } from '../js/mkobj.js';
 import {
     OBJ_FREE,
     OBJ_FLOOR,

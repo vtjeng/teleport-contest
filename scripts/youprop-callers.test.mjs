@@ -96,7 +96,7 @@ test('artifact.c finesse_ahriman() reads Levitation, which BLevitation defeats',
     // finesse_ahriman() (artifact.c:2244, 2257) returns FALSE unless the hero
     // is Levitating, then probes whether dropping the Heart of Ahriman would
     // end Levitation. Levitation is (HLevitation || ELevitation) &&
-    // !BLevitation (youprop.h:242). artifacts.js tested HLevitation ||
+    // !BLevitation (youprop.h:242). artifact.js tested HLevitation ||
     // ELevitation, so a hero whose invoked levitation was blocked (inside
     // rock or water, or trapped in the floor) took do.c's levhack branch.
     // A recorded game would need the Heart invoked while levitation is
@@ -104,7 +104,7 @@ test('artifact.c finesse_ahriman() reads Levitation, which BLevitation defeats',
     const c = cBody(read('nethack-c/upstream/src/artifact.c'), 'finesse_ahriman');
     assert.equal(count(c, /!Levitation\b/gu), 2, 'C reads Levitation twice');
     const { LAST_PROP, LEVITATION, W_ARTI, FROMOUTSIDE } = await import('../js/const.js');
-    const { ART_HEART_OF_AHRIMAN, finesse_ahriman, init_artifacts } = await import('../js/artifacts.js');
+    const { ART_HEART_OF_AHRIMAN, finesse_ahriman, init_artifacts } = await import('../js/artifact.js');
     const { roles } = await import('../js/roles.js');
     // init_artifacts() reads the role (hack_artifacts); a Barbarian owns
     // the Heart of Ahriman.

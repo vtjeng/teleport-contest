@@ -7,7 +7,7 @@
 // succeeds. Default /usr/bin/compress absence exercises a separate files.c gap.
 import assert from 'node:assert/strict';
 import { OBJ_FLOOR } from '../js/const.js';
-import { ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_SUNSWORD } from '../js/artifact.js';
 import { game } from '../js/gstate.js';
 import { savefileKey } from './test-fixtures/savefile-key.mjs';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';

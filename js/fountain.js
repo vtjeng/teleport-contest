@@ -51,7 +51,7 @@ import {
 import { acurr, adjattrib, exercise, poison_strdmg } from './attrib.js';
 import {
     ART_EXCALIBUR, artiname, discover_artifact, exist_artifact,
-} from './artifacts.js';
+} from './artifact.js';
 import { monster_detect } from './detect.js';
 import {
     bot, newsym, newsym_async, glyph_at, glyph_is_cmap, glyph_to_cmap,
@@ -88,7 +88,7 @@ import {
     PM_KNIGHT, PM_SEWER_RAT, PM_WATER_DEMON, PM_WATER_ELEMENTAL,
     PM_WATER_MOCCASIN, PM_WATER_NYMPH,
 } from './monsters.js';
-import { bless, curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class, uncurse } from './obj.js';
+import { bless, curse, mkgold, mkobj, mkobj_at, mksobj_at, objectType, rnd_class, uncurse } from './mkobj.js';
 import { observe_object } from './o_init.js';
 import { body_part, mbodypart, polyself } from './polyself.js';
 import { coreRandom } from './rng.js';
@@ -1041,7 +1041,7 @@ export async function dipfountain(obj, state = game, env = {}) {
             while (otmp && loss > 0) {
                 const nextobj = otmp.nobj;
                 if (otmp.oclass === COIN_CLASS) {
-                    const { objectType } = await import('./obj.js');
+                    const { objectType } = await import('./mkobj.js');
                     const denomination = objectType(otmp, state).oc_cost;
                     let coin_loss = Math.trunc(
                         (loss + denomination - 1) / denomination);

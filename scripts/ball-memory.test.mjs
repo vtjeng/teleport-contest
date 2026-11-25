@@ -5,7 +5,7 @@ import test from 'node:test';
 import { bc_order, set_bc, unplacebc } from '../js/ball.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
-import { place_object, remove_object } from '../js/obj.js';
+import { place_object, remove_object } from '../js/mkobj.js';
 import { HEAVY_IRON_BALL, IRON_CHAIN, BALL_CLASS, CHAIN_CLASS } from '../js/objects.js';
 import {
     BC_BALL, BC_CHAIN, BLINDED, OBJ_FREE, OBJ_INVENT,

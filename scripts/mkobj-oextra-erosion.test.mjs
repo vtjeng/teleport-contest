@@ -20,7 +20,7 @@ import {
     newObject,
     newomid,
     new_omailcmd,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import { objects_globals_init } from '../js/objects.js';
 
 const state = {};

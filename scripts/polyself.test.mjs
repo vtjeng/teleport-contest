@@ -102,7 +102,7 @@ test('break_armor imports and applies the source is_flimsy predicate for horns',
     assert.match(jsFunction,
         /if \(has_horns\(uptr\) && \(otmp = state\.uarmh\) != null\)\s*\{\s*if \(is_flimsy\(otmp, state\) && !donning\(otmp, state\)\)/u);
     assert.match(JS_SOURCE,
-        /import \{[^}]*\bis_flimsy,[^}]*\} from '\.\/obj\.js';/su);
+        /import \{[^}]*\bis_flimsy,[^}]*\} from '\.\/mkobj\.js';/su);
 });
 
 test('dohide petrifies after reporting an all-cockatrice floor pile', () => {

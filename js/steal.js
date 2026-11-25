@@ -86,7 +86,7 @@ import { AD_SITM, AT_ENGL, S_NYMPH } from './monsters.js';
 import { can_carry } from './moncarry.js';
 import {
     carried, g_at, objectType, place_object, splitobj, unknow_object,
-} from './obj.js';
+} from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     ARMOR_CLASS,
@@ -155,7 +155,7 @@ import { mwepgone } from './weapon.js';
 import { rloc, rloc_async, rloco, tele_restrict } from './teleport.js';
 import { unpunish_async } from './read.js';
 import { canseemon, canspotmon } from './display.js';
-import { ART_ORB_OF_DETECTION, touch_artifact } from './artifacts.js';
+import { ART_ORB_OF_DETECTION, touch_artifact } from './artifact.js';
 import { body_part, mbodypart } from './polyself.js';
 import {
     Adornment, Blind, Conflict, Flying, Levitation,

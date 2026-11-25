@@ -144,7 +144,7 @@ import { hu_stat } from './eat.js';
 import { observe_object } from './o_init.js';
 import { can_reach_floor, engr_at, engr_can_be_felt } from './engrave.js';
 import { status_version } from './version.js';
-import { is_weptool } from './obj.js';
+import { is_weptool } from './mkobj.js';
 import { cmap_to_type } from './mkroom.js';
 import { newuexp } from './exper.js';
 import { weapon_type } from './startup_skills.js';
@@ -153,7 +153,7 @@ import { bimanual } from './worn.js';
 import {
     ART_MITRE_OF_HOLINESS,
     ART_TSURUGI_OF_MURAMASA,
-} from './artifacts.js';
+} from './artifact.js';
 import {
     AKLYS,
     AMULET_OF_GUARDING,
@@ -311,7 +311,7 @@ import { CMAP_COLORS, SYMBOL_INDEX_BY_NAME } from './symbol_data.js';
 import { t_at, unconscious } from './trap.js';
 
 import { nomux_putch_byte } from './termcap.js';
-import { Sting_effects } from './artifacts.js';
+import { Sting_effects } from './artifact.js';
 // pray.c owns critically_low_hp(); botl.c:2555 and wintty.c:4539 are two of
 // its three C call sites, so the status line reads the one port in js/pray.js
 // rather than keeping a second copy here.
@@ -3885,7 +3885,7 @@ export function map_invisible_async(...args) {
 // C ref: display.c map_invisible()'s levl[].glyph write alone, for a state
 // other than the game, such as a unit test's hand-built state. The C call
 // also paints the window, which belongs to the game, so this skips that half.
-// js/artifacts.js Mb_hit() and js/mcastu.js mcast_disappear() call it when
+// js/artifact.js Mb_hit() and js/mcastu.js mcast_disappear() call it when
 // they are handed such a state.
 export function map_invisible_memory_only(x, y, state) {
     if (!state || state === game) {

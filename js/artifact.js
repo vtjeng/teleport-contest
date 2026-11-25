@@ -1,4 +1,4 @@
-// artifacts.js -- artifact table and new-game artifact initialization.
+// artifact.js -- artifact table and new-game artifact initialization.
 // C refs: include/artifact.h, include/artilist.h, src/artifact.c
 //          init_artifacts(), hack_artifacts(), artifact_name(), and
 //          undiscovered_artifact().
@@ -115,7 +115,7 @@ import { use_crystal_ball } from './detect.js';
 import { inside_shop } from './shk.js';
 import { getrumor } from './random_text.js';
 import { impossible, verbalize, youFeel } from './pline.js';
-import { isContainer as Is_container, bcsign } from './obj.js';
+import { isContainer as Is_container, bcsign } from './mkobj.js';
 import { HCOLORS } from './random_text_data.js';
 import {
     AD_ACID,
@@ -274,7 +274,7 @@ import {
     objectType,
     uncurse,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import { obj_shuffle_range, observe_object } from './o_init.js';
 import {
     Monnam,
@@ -1387,7 +1387,7 @@ export function mk_artifact(
     return obj;
 }
 
-/** Hook adapter for obj.js makeArtifact(). */
+/** Hook adapter for mkobj.js makeArtifact(). */
 export function makeArtifact(obj, options = {}) {
     return mk_artifact(
         obj,
@@ -1398,7 +1398,7 @@ export function makeArtifact(obj, options = {}) {
     );
 }
 
-/** Hook adapter for obj.js artifactCount(). */
+/** Hook adapter for mkobj.js artifactCount(). */
 export function artifactCount(env = game) {
     return nartifact_exist(env);
 }
@@ -3002,7 +3002,7 @@ export function permapoisoned(obj) {
     return Boolean(obj && obj.oartifact === ART_GRIMTOOTH);
 }
 
-/** Hook adapter for obj.js isPermanentlyPoisoned(). */
+/** Hook adapter for mkobj.js isPermanentlyPoisoned(). */
 export function isPermanentlyPoisoned(obj) {
     return permapoisoned(obj);
 }

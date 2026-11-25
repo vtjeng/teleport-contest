@@ -14,7 +14,7 @@ import { MORE_PROMPT } from '../../js/tty_message.js';
 import { SACK, GLOB_OF_GRAY_OOZE } from '../../js/objects.js';
 import { m_at } from '../../js/monst.js';
 import { addToMinvRuntime, addToContainerRuntime, container_weight, mergable } from '../../js/invent.js';
-import { mksobj, place_object } from '../../js/obj.js';
+import { mksobj, place_object } from '../../js/mkobj.js';
 import { objectGenerationEnv } from '../../js/object_generation.js';
 import { meatobj } from '../../js/mon.js';
 import * as canonicalRng from '../../js/rng.js';

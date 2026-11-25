@@ -5,7 +5,7 @@ import test from 'node:test';
 
 import {
     SPFX_SEARCH,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     ANTI_MAGIC,
     ARTICLE_NONE,
@@ -195,7 +195,7 @@ import {
     S_FELINE,
 } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { create_region } from '../js/region.js';
 
 import { ATR_INVERSE, CLR_WHITE } from '../js/terminal.js';

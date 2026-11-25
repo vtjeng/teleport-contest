@@ -9,7 +9,7 @@ import {GameMap} from '../js/game.js';
 import {POOL,MOAT,WATER,LAVAPOOL,ROOM,HALLUC,BLINDED,FROMOUTSIDE,
     MAGICAL_BREATHING,MAGIC_PORTAL,OBJ_DELETED,OBJ_FLOOR,OBJ_INVENT} from '../js/const.js';
 import {BOULDER,FOOD_RATION} from '../js/objects.js';
-import {mksobj,place_object,weight} from '../js/obj.js';
+import {mksobj,place_object,weight} from '../js/mkobj.js';
 import {addinv} from '../js/invent.js';
 import {dropx,dropCommandEnv,preflight_dropx} from '../js/do.js';
 import {getRngLog,rn2} from '../js/rng.js';

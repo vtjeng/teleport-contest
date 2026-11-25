@@ -96,7 +96,7 @@ import {
     NON_PM,
 } from '../js/monsters.js';
 import { add_to_minv } from '../js/invent.js';
-import { mksobj, mksobj_at } from '../js/obj.js';
+import { mksobj, mksobj_at } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     MIRROR,

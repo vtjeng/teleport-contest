@@ -4,7 +4,7 @@ import test from 'node:test';
 import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_SUNSWORD } from '../js/artifact.js';
 
 // cmd.c binds A to doddoremarm; source do_takeoff clears the primary through
 // setuwep before announcing empty hands and completing the occupation.

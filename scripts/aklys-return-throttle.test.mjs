@@ -7,10 +7,10 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { return_from_mtoss } from '../js/mthrowu.js';
 import { newMonster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { PM_GOBLIN } from '../js/monsters.js';
 import { AKLYS } from '../js/objects.js';
-import { ART_FIRE_BRAND } from '../js/artifacts.js';
+import { ART_FIRE_BRAND } from '../js/artifact.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 

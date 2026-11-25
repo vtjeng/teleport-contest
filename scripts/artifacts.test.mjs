@@ -57,7 +57,7 @@ import {
     monster_touch_artifact,
     touch_artifact,
     what_gives,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ANTIMAGIC, BLND_RES,
     ENERGY_REGENERATION, TELEPAT,
@@ -105,7 +105,7 @@ import { withScreenBuffers } from './screen-buffer-fixture.mjs';
 const C_ARTIFACT_SOURCE = readFileSync(
     'nethack-c/upstream/src/artifact.c', 'utf8',
 );
-const JS_ARTIFACT_SOURCE = readFileSync('js/artifacts.js', 'utf8');
+const JS_ARTIFACT_SOURCE = readFileSync('js/artifact.js', 'utf8');
 const C_MB_HIT_START = C_ARTIFACT_SOURCE.indexOf('Mb_hit(struct monst *magr');
 const C_MB_HIT_END = C_ARTIFACT_SOURCE.indexOf(
     '\n}\n\nDISABLE_WARNING_FORMAT_NONLITERAL', C_MB_HIT_START,

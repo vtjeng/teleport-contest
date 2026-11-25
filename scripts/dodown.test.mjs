@@ -45,7 +45,7 @@ import { u_rooted } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
-import { mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/mkobj.js';
 import { BOULDER, BULLWHIP, PICK_AXE } from '../js/objects.js';
 import { PM_LURKER_ABOVE, PM_ROCK_PIERCER } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';

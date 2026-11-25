@@ -1,5 +1,5 @@
 // C code that needs a temporary object writes `temp = cg.zeroobj;` and then
-// sets a few fields. The port's cg.zeroobj is newObject() in js/obj.js. No
+// sets a few fields. The port's cg.zeroobj is newObject() in js/mkobj.js. No
 // game state carries a `zeroobj` property, so spreading one copies nothing
 // and leaves every field C zeroes undefined: object_detect()'s mimic copy
 // then added an undefined class to a glyph offset.
@@ -15,7 +15,7 @@ import {
 } from '../js/objects.js';
 import { generic_obj_to_glyph, object_is_generic } from '../js/display.js';
 import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 
 const JS_DIR = join(fileURLToPath(new URL('..', import.meta.url)), 'js');
 

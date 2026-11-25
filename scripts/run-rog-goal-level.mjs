@@ -4,7 +4,7 @@
 // registered names exercise the two filename forms. No seed search.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
+import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifact.js';
 import { PM_CHAMELEON, PM_MASTER_ASSASSIN, PM_SHARK } from '../js/monsters.js';
 import { SKELETON_KEY, TIN } from '../js/objects.js';
 import { game } from '../js/gstate.js';

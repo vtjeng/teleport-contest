@@ -9,7 +9,7 @@ import {
 import { game } from './gstate.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { discover_object } from './o_init.js';
-import { bill_dummy_object, carried } from './obj.js';
+import { bill_dummy_object, carried } from './mkobj.js';
 import { Yname2, otense, yname } from './objnam.js';
 import { in_rooms } from './rooms.js';
 import { check_unpaid, costly_spot, shop_keeper } from './shk.js';

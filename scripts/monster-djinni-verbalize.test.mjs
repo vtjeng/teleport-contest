@@ -7,7 +7,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { use_misc } from '../js/muse.js';
 import { PM_DJINNI, PM_GOBLIN } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { POT_GAIN_LEVEL } from '../js/objects.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';

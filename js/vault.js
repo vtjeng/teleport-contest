@@ -79,7 +79,7 @@ import {
 } from './do_name.js';
 import { makeplural } from './fruit.js';
 import { adjalign } from './attrib.js';
-import { carried, g_at, hasContents, place_object, remove_object } from './obj.js';
+import { carried, g_at, hasContents, place_object, remove_object } from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { BOULDER, COIN_CLASS, GOLD_PIECE, ROCK, TIN_WHISTLE } from './objects.js';
 import { an, mimic_obj_name, simpleonames } from './objnam.js';

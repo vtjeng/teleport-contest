@@ -78,7 +78,7 @@
 import { game } from '../js/gstate.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { is_axe, is_pick } from '../js/obj.js';
+import { is_axe, is_pick } from '../js/mkobj.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';
 import { normalizeSession } from '../frozen/session_loader.mjs';

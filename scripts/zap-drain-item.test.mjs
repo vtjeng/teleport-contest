@@ -11,7 +11,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import {
     LEATHER_ARMOR,
     POTION_CLASS,

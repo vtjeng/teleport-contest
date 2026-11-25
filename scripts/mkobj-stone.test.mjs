@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { stone_object_type, stone_furniture_type } from '../js/obj.js';
+import { stone_object_type, stone_furniture_type } from '../js/mkobj.js';
 
 // -- stone_object_type -------------------------------------------------------
 // C ref: mkobj.c:1264.  Returns true for BOULDER (475), STATUE (476),

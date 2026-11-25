@@ -122,7 +122,7 @@ import { monsndx, nonliving, olfaction } from './mondata.js';
 import { setpaid } from './shk.js';
 import { HConfusion, HHallucination, Underwater } from './youprop.js';
 import { check_wornmask_slots } from './worn.js';
-import { obj_sanity_check } from './obj.js';
+import { obj_sanity_check } from './mkobj.js';
 import { bc_sanity_check } from './ball.js';
 import { trap_sanity_check } from './trap.js';
 import { does_block, get_viz_clear } from './vision.js';

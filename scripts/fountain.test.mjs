@@ -61,7 +61,7 @@ import {
 } from '../js/fountain.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
-import { ART_EXCALIBUR } from '../js/artifacts.js';
+import { ART_EXCALIBUR } from '../js/artifact.js';
 import { vomit } from '../js/eat.js';
 import {
     PM_ACID_BLOB,
@@ -79,7 +79,7 @@ import {
     PM_HUMAN,
     PM_WATCHMAN,
 } from '../js/monsters.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import {
     DILITHIUM_CRYSTAL, GOLD_PIECE, LOADSTONE, LUCKSTONE,
     POTION_CLASS, POT_SPEED,

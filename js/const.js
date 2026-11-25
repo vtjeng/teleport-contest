@@ -2938,7 +2938,7 @@ export const HEADER_MACRO_NON_EMITTABLE = Object.freeze([
     "DLBFILE: platform/filesystem path constant; not used in web runtime",
     "DUMPLOG_FILE: platform/filesystem path template; not used in web runtime",
     "HACKDIR: platform/filesystem path constant; not used in web runtime",
-    "NROFARTIFACTS: owned by artifacts.js (derived from AFTER_LAST_ARTIFACT)",
+    "NROFARTIFACTS: owned by artifact.js (derived from AFTER_LAST_ARTIFACT)",
     "N_DIRS_Z: kept manual with direction arrays and DIR_* ordering contract",
     "P: objects.h alias; owned by objects.js with objclass.h direction constants",
     "PAPER: objects.h alias; owned by objects.js material constants",
@@ -3056,7 +3056,7 @@ export function u_at(x, y, state = game) {
 export function OBJ_AT(x, y, state = game) {
     return Boolean(state?.level?.objects?.[x]?.[y]);
 }
-// Copies: obj.h Has_contents() is also ported as obj.js hasContents(). A
+// Copies: obj.h Has_contents() is also ported as mkobj.js hasContents(). A
 // change to it must reach every copy.
 export function Has_contents(obj) { return obj?.cobj != null; }
 // C ref: hack.h:1538 `#define AC_VALUE(AC) ((AC) >= 0 ? (AC) : -rnd(-(AC)))`.
@@ -3131,7 +3131,7 @@ export function Is_botlevel(uz, state = game) {
     return !!dun && lev.dlevel === dun.num_dunlevs;
 }
 // Copies: dungeon.h Is_rogue_level() is also ported as makemon_create.js
-// isRogueLevel() and obj.js isRogueLevel(). A change to it must reach every
+// isRogueLevel() and mkobj.js isRogueLevel(). A change to it must reach every
 // copy.
 export function Is_rogue_level(uz, state = game) { const g = state; return g?.rogue_level && (uz ?? g?.u?.uz)?.dnum === g.rogue_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.rogue_level.dlevel; }
 export function Is_oracle_level(uz, state = game) { const g = state; return g?.oracle_level && (uz ?? g?.u?.uz)?.dnum === g.oracle_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.oracle_level.dlevel; }

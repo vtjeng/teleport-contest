@@ -69,7 +69,7 @@ import {
 } from './const.js';
 import { messageAt } from './startup_a11y.js';
 import { isok } from './cmd_isok.js';
-import { SPFX_SEARCH } from './artifacts.js';
+import { SPFX_SEARCH } from './artifact.js';
 import {
     DEF_OC_SYMS_NAMES,
     def_char_is_furniture,
@@ -170,7 +170,7 @@ import { dist2, s_suffix } from './hacklib.js';
 import { makeplural } from './fruit.js';
 import { impossible_printer, youFeel, youSee } from './pline.js';
 import { finish_steps, sync_impossible } from './source_steps.js';
-import { isBox, newObject, objectType } from './obj.js';
+import { isBox, newObject, objectType } from './mkobj.js';
 import {
     CHEST,
     COIN_CLASS,

@@ -30,7 +30,7 @@ import { init_objects } from '../js/o_init.js';
 import { coreRandom, initRng, enableRngLog, getRngLog } from '../js/rng.js';
 import { addinv_runtime, freeinv } from '../js/invent.js';
 import { addtobill, shop_keeper } from '../js/shk.js';
-import { mksobj, newObject, place_object } from '../js/obj.js';
+import { mksobj, newObject, place_object } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { dismissPendingTtyMessage } from '../js/tty_message.js';
 import { start_glob_timeout, timeout_globals_init } from '../js/timeout.js';

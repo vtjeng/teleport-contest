@@ -84,7 +84,7 @@ import { assign_level } from '../js/dungeon.js';
 import { dismissPendingTtyMessage } from '../js/tty_message.js';
 import { create_drawbridge } from '../js/dbridge.js';
 import { add_to_minv } from '../js/invent.js';
-import { mksobj, newObject } from '../js/obj.js';
+import { mksobj, newObject } from '../js/mkobj.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { find_delayed_killer } from '../js/end.js';
 import {
@@ -125,7 +125,7 @@ import {
     WAN_SLEEP,
     WAND_CLASS,
 } from '../js/objects.js';
-import { ART_DRAGONBANE, ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_DRAGONBANE, ART_SUNSWORD } from '../js/artifact.js';
 import { coreRandom, d, enableRngLog, getRngLog, rn1, rn2, rn2_on_display_rng, rnd, rne, rnl, rnz } from '../js/rng.js';
 // Read straight out of the generated defsym.h index rather than through
 // js/symbols.js, so the assertion does not rest on the same `S_vbeam + n`

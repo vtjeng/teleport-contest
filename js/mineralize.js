@@ -28,7 +28,7 @@ import {
     mksobj_at,
     place_object,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import {
     GEM_CLASS,
     GOLD_PIECE,

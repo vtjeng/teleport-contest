@@ -328,7 +328,7 @@ import { a_monnam, hliquid, pmname, x_monnam } from './do_name.js';
 import { mon_aligntyp } from './priest.js';
 import { align_gname, can_pray, u_gname } from './pray.js';
 import { spellid } from './spell.js';
-import { is_ammo, isMetallic, is_wet_towel, objectType } from './obj.js';
+import { is_ammo, isMetallic, is_wet_towel, objectType } from './mkobj.js';
 import { body_part, mbodypart, udeadinside, ugenocided } from './polyself.js';
 import { reg_damg, visible_region_at } from './region.js';
 import { mhidden_description, waterbody_name } from './pager.js';
@@ -359,7 +359,7 @@ import {
 } from './weapon.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
 import { empty_handed } from './wield.js';
-import { ART_OGRESMASHER } from './artifacts.js';
+import { ART_OGRESMASHER } from './artifact.js';
 import { RIGHT_HANDED } from './u_init.js';
 import {
     t_at,

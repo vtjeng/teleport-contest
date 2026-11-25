@@ -6,7 +6,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_GNOME, PM_GRAY_UNICORN, PM_NEWT, NON_PM } from '../js/monsters.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { WAN_STRIKING, WAND_CLASS } from '../js/objects.js';
 import { rn2, rne, rnz } from '../js/rng.js';
 import { use_offensive } from '../js/muse.js';

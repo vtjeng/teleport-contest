@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { Stone_resistance } from '../js/artifacts.js';
+import { Stone_resistance } from '../js/artifact.js';
 import { HOMEMADE_TIN } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';

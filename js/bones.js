@@ -3,7 +3,7 @@
 
 import { rest_ghostly_regions } from './region.js';
 // resetobjs()'s restoring arm.
-import { artifact_exists, exist_artifact } from './artifacts.js';
+import { artifact_exists, exist_artifact } from './artifact.js';
 import { ONAME, OBJ_CONTAINED, OBJ_FLOOR, ONAME_BONES, SHOPBASE } from './const.js';
 import { safe_oname } from './do_name.js';
 import { get_obj_location } from './light.js';
@@ -92,7 +92,7 @@ import { restpriest } from './priest.js';
 import { restshk, set_residency } from './shk.js';
 import { can_carry } from './moncarry.js';
 import { the, xname } from './objnam.js';
-import { artifact_light } from './artifacts.js';
+import { artifact_light } from './artifact.js';
 import { unleash_all } from './apply.js';
 import {
     maybe_write_ls, obj_is_burning, relink_light_sources, restore_light_sources,
@@ -110,7 +110,7 @@ import {
     is_mines_prize,
     is_soko_prize,
     set_corpsenm,
-} from './obj.js';
+} from './mkobj.js';
 import { end_burn, restore_timers, timer_is_local } from './timeout.js';
 import { place_wsegs } from './worm.js';
 import { deltrap } from './trap.js';

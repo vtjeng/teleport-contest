@@ -35,8 +35,8 @@ import {
     doorlock,
 } from '../js/lock.js';
 import { M1_NOHANDS } from '../js/monsters.js';
-import { is_magic_key } from '../js/artifacts.js';
-import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifacts.js';
+import { is_magic_key } from '../js/artifact.js';
+import { ART_MASTER_KEY_OF_THIEVERY } from '../js/artifact.js';
 import { PM_GHOST, PM_ROGUE, PM_WIZARD } from '../js/monsters.js';
 import {
     CREDIT_CARD,

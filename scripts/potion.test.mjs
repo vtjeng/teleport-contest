@@ -37,7 +37,7 @@ import { discover_object } from '../js/o_init.js';
 import { add_to_minv, addinv } from '../js/invent.js';
 import { dipfountain, dipsink } from '../js/fountain.js';
 import { inaccessible_equipment } from '../js/do_wear.js';
-import { mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/mkobj.js';
 import { dist2 } from '../js/hacklib.js';
 import { cansee } from '../js/vision.js';
 import {

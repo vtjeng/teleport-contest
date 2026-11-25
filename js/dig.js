@@ -224,7 +224,7 @@ import {
     obj_ice_effects,
     place_object,
     rnd_treefruit_at,
-} from './obj.js';
+} from './mkobj.js';
 import { cansee, does_block, m_canseeu, recalc_block_point, unblock_point } from './vision.js';
 import { coreRandom } from './rng.js';
 import { set_voice } from './sounds.js';

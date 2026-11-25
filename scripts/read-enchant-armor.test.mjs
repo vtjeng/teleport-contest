@@ -8,7 +8,7 @@ import {
     ARMOR_CLASS, LEATHER_ARMOR, SCR_ENCHANT_ARMOR, SCROLL_CLASS,
 } from '../js/objects.js';
 import { seffect_enchant_armor, seffects } from '../js/read.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 
 async function freshWorld(seed) {
     await runSegment({

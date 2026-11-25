@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { init_artifacts } from '../js/artifacts.js';
+import { init_artifacts } from '../js/artifact.js';
 import {
     ALTAR,
     AM_LAWFUL,

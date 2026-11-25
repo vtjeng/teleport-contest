@@ -25,7 +25,7 @@ import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { ART_EXCALIBUR } from '../js/artifacts.js';
+import { ART_EXCALIBUR } from '../js/artifact.js';
 import {
     ECMD_TIME,
     HALLUC,

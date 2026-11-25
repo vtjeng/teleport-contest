@@ -11,7 +11,7 @@ import test from 'node:test';
 import { OBJ_INVENT, PL_PSIZ } from '../js/const.js';
 import { docall } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import {
     discover_object,
     undiscover_object,

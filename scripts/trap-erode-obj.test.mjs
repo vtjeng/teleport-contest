@@ -44,7 +44,7 @@ import {
 } from '../js/objects.js';
 import { acid_damage, erode_obj } from '../js/trap_erode_obj.js';
 import { addinv } from '../js/invent.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { setworn } from '../js/worn.js';
 import { setwornEnv } from '../js/do_wear.js';
 import { erode_armor } from '../js/uhitm.js';

@@ -28,7 +28,7 @@ import {
 import { game } from '../js/gstate.js';
 import { dopickup, pickup_checks } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { mksobj_at } from '../js/obj.js';
+import { mksobj_at } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { ELVEN_DAGGER } from '../js/objects.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';

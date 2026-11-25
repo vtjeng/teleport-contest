@@ -18,7 +18,7 @@ import {
     sort_valuables,
 } from '../js/end.js';
 import { game } from '../js/gstate.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { AMULET_OF_LIFE_SAVING, BELL_OF_OPENING, LARGE_BOX }
     from '../js/objects.js';
 import { observe_quantum_cat } from '../js/pickup.js';

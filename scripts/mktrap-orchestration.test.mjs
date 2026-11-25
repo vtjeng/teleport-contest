@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { init_artifacts } from '../js/artifacts.js';
+import { init_artifacts } from '../js/artifact.js';
 import {
     ARROW_TRAP,
     BEAR_TRAP,
@@ -57,7 +57,7 @@ import {
     obj_no_longer_held,
     place_object,
     weight,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import {
     ARROW,
     BAG_OF_HOLDING,

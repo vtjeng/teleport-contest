@@ -8,7 +8,7 @@ import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { mhitm_adtyping } from '../js/uhitm.js';
 import { findgold } from '../js/steal.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { mksobj, mksobj_at, remove_object } from '../js/obj.js';
+import { mksobj, mksobj_at, remove_object } from '../js/mkobj.js';
 import { add_to_minv, addinv_runtime, INVLET_BASIC, obj_extract_self } from '../js/invent.js';
 import { inv_cnt } from '../js/hack.js';
 import { GOLD_PIECE, DAGGER } from '../js/objects.js';

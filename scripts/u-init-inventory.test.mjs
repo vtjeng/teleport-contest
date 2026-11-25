@@ -4,7 +4,7 @@ import test from 'node:test';
 import { OBJ_DELETED, OBJ_FREE } from '../js/const.js';
 import { initializeInventory, inventoryObjects } from '../js/invent.js';
 import { PM_HUMAN, PM_ORC, PM_WIZARD } from '../js/monsters.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { init_objects } from '../js/o_init.js';
 import {
     ARMOR_CLASS,

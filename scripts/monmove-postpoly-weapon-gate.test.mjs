@@ -8,7 +8,7 @@ import { PM_XORN, PM_OGRE, NON_PM } from '../js/monsters.js';
 import { ROOM, POLY_TRAP, OBJ_MINVENT, OBJ_FLOOR } from '../js/const.js';
 import { recalc_block_point, vision_recalc } from '../js/vision.js';
 import { DAGGER } from '../js/objects.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { mpickobj } from '../js/steal.js';
 import { newcham } from '../js/mon.js';
 import { maketrap } from '../js/trap.js';

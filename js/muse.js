@@ -172,7 +172,7 @@ import {
     unbless,
     unknow_object,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import * as O from './objects.js';
 import { an, ansimpleoname, distant_name, donameFresh, is_plural,
     simpleonames, singular, the, vtense, xnameFresh } from './objnam.js';
@@ -226,7 +226,7 @@ import {
 import { doorlock } from './lock.js';
 import { cansee, couldsee, recalc_block_point, unblock_point } from './vision.js';
 import { body_part } from './polyself.js';
-import { arti_reflects } from './artifacts.js';
+import { arti_reflects } from './artifact.js';
 // read.c owns the boulder helpers used by both hero and monster earth scrolls.
 // The functions call back into this module only at runtime through shared
 // monster helpers; neither module reads the other's bindings during setup.

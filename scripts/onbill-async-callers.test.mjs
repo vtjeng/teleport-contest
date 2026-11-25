@@ -16,7 +16,7 @@ import { parse } from 'acorn';
 //
 // Each listed function is synchronous, and making it async would reach too
 // far up its callers:
-// - shk.js billable(): obj.js costly_alteration() calls it, and release()
+// - shk.js billable(): mkobj.js costly_alteration() calls it, and release()
 //   and place_object() call that.
 // - shk.js sub_one_frombill(): through subfrombill(), steal.js mpickobj(),
 //   which makemon() reaches.

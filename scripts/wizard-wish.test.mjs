@@ -13,7 +13,7 @@ import test from 'node:test';
 
 import { rhack,
 } from '../js/cmd.js';
-import { init_artifacts } from '../js/artifacts.js';
+import { init_artifacts } from '../js/artifact.js';
 import {
     A_CON, A_STR, FIG_TRANSFORM, MOD_ENCUMBER, OBJ_FLOOR, POOL, UNENCUMBERED,
 } from '../js/const.js';
@@ -607,9 +607,9 @@ test('makewish supplies invent.c the reviver predicate for corpse stacks',
 
 // zap.c makewish() calls readobjnam(), whose typfnd: tail calls mksobj(). Five
 // of the seven container types reach mkobj.c mkbox_cnts() from there, and
-// nothing else on the wish path needs an obj.js hook, so before this slice the
+// nothing else on the wish path needs an mkobj.js hook, so before this slice the
 // call site passed only the game state. Both halves are asserted: that a wish
-// mkbox_cnts() is inlined in obj.js and no longer uses a populateContainer
+// mkbox_cnts() is inlined in mkobj.js and no longer uses a populateContainer
 // hook; the end-to-end segment replay verifies that a wished container gets
 // properly populated through the running game.
 test('makewish() populates wished containers through mkbox_cnts()', async () => {

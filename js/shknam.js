@@ -39,7 +39,7 @@ import { mkclass, set_malign } from './makemon.js';
 import { m_at } from './monst.js';
 import { NON_PM, PM_LICHEN, PM_SHOPKEEPER, S_MIMIC } from './monsters.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { mkobj_at, mksobj_at } from './obj.js';
+import { mkobj_at, mksobj_at } from './mkobj.js';
 import {
     CORPSE,
     EGG,

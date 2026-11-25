@@ -5,7 +5,7 @@ import test from 'node:test';
 import { BLINDED, OBJ_DELETED, OBJ_FREE } from '../js/const.js';
 import { OIL_LAMP, SCR_BLANK_PAPER, SCR_FIRE } from '../js/objects.js';
 import { game } from '../js/gstate.js';
-import { mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/mkobj.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { fire_damage_chain } from '../js/trap.js';
 import { cansee, couldsee } from '../js/vision.js';

@@ -6,7 +6,7 @@ import { game } from '../../js/gstate.js';
 import { GameDisplay } from '../../js/game_display.js';
 import { OBJ_FREE, OBJ_INVENT, OBJ_CONTAINED, OBJ_FLOOR, OBJ_MINVENT, TIMER_OBJECT, SHRINK_GLOB, Upolyd } from '../../js/const.js';
 import { SACK, GLOB_OF_GRAY_OOZE } from '../../js/objects.js';
-import { mksobj, weight } from '../../js/obj.js';
+import { mksobj, weight } from '../../js/mkobj.js';
 import { objectGenerationEnv } from '../../js/object_generation.js';
 import { addinv_runtime, addToContainerRuntime, container_weight, mergable } from '../../js/invent.js';
 import { use_container } from '../../js/pickup.js';

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { ART_EXCALIBUR } from '../js/artifacts.js';
+import { ART_EXCALIBUR } from '../js/artifact.js';
 import { DISPATCHED_COMMANDS } from '../js/cmd.js';
 import {
     DOOR,
@@ -67,7 +67,7 @@ import {
     zappable,
     zapnodir,
 } from '../js/zap.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     BLIND,

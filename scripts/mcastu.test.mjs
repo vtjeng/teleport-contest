@@ -63,7 +63,7 @@ import {
     S_ANT,
 } from '../js/monsters.js';
 import { DAGGER, STRANGE_OBJECT, WEAPON_CLASS } from '../js/objects.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { has_aggravatables } from '../js/wizard.js';
 import { parseNethackrc } from '../js/options.js';
 

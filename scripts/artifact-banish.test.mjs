@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { invoke_banish } from '../js/artifacts.js';
+import { invoke_banish } from '../js/artifact.js';
 import { ECMD_TIME, MS_NEMESIS, MON_MIGRATING } from '../js/const.js';
 import { PM_IMP, PM_KITTEN, PM_ASMODEUS, PM_JUIBLEX } from '../js/monsters.js';
 import { LEASH } from '../js/objects.js';
@@ -14,7 +14,7 @@ import { initRng, enableRngLog, getRngLog } from '../js/rng.js';
 // the canonical Quest status. Pin those C contracts before exercising play.
 test('invoke_banish preserves canonical chain, destination and Quest source order', () => {
     const c = readFileSync(new URL('../nethack-c/upstream/src/artifact.c', import.meta.url), 'utf8');
-    const js = readFileSync(new URL('../js/artifacts.js', import.meta.url), 'utf8');
+    const js = readFileSync(new URL('../js/artifact.js', import.meta.url), 'utf8');
     const source = c.slice(c.indexOf('invoke_banish(struct obj *obj UNUSED)'), c.indexOf('invoke_fling_poison(struct obj *obj)'));
     const port = js.slice(js.indexOf('async function invoke_banish'), js.indexOf('// C ref: artifact.c invoke_fling_poison'));
     assert.match(source, /find_hell\(&dest\);[\s\S]*for \(mtmp = fmon; mtmp; mtmp = mtmp2\)/u);

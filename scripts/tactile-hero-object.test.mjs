@@ -7,7 +7,7 @@ import { GameMap } from '../js/game.js';
 import { BLINDED, HALLUC, DETECT_MONSTERS, LEVITATION, ROOM } from '../js/const.js';
 import { ROCK, CORPSE, FIRST_OBJECT, NUM_OBJECTS } from '../js/objects.js';
 import { isaac64_init, isaac64_next_uint64 } from '../js/isaac64.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import { light_globals_init } from '../js/light.js';
 import { vision_reset, vision_recalc, init_vision_globals, cansee } from '../js/vision.js';
 import { newsym, objnum_to_glyph, tty_map_cell_at } from '../js/display.js';

@@ -91,7 +91,7 @@ import {
 } from './fruit.js';
 import { notice_all_mons } from './hack.js';
 import { m_at } from './monst.js';
-import { dealloc_obj, mkobj, mksobj } from './obj.js';
+import { dealloc_obj, mkobj, mksobj } from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { just_an } from './objnam.js';
 import { observe_object } from './o_init.js';

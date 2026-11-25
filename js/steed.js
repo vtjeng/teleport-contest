@@ -135,7 +135,7 @@ import {
 } from './monsters.js';
 import { killed, monkilled } from './mon.js';
 import { acurr, adjalign } from './attrib.js';
-import { greatest_erosion, isMetallic, mksobj } from './obj.js';
+import { greatest_erosion, isMetallic, mksobj } from './mkobj.js';
 import { BOULDER, SADDLE } from './objects.js';
 import { an } from './objnam.js';
 import { encumber_msg, u_handsy } from './pickup.js';

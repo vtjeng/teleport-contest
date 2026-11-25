@@ -94,7 +94,7 @@ import { gamelog_add, livelog_printf } from '../js/pline.js';
 import { initUnported } from '../js/unported.js';
 import {
     ART_GRAYSWANDIR,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     BASICENLIGHTENMENT,
     ENL_GAMEINPROGRESS,

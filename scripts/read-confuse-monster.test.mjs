@@ -16,7 +16,7 @@ import {
     SPE_CONFUSE_MONSTER,
     SPBOOK_CLASS,
 } from '../js/objects.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { spelleffects } from '../js/spell.js';
 
 async function initialize(seed) {

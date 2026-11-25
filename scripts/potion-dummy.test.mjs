@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { OBJ_FREE } from '../js/const.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { POT_BOOZE, POTION_CLASS } from '../js/objects.js';
 import {
     POTION_DUMMY_CASES, loadPotionDummyRecipe, verifyPotionDummySegment,

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { OBJ_CONTAINED, OBJ_FLOOR, OBJ_MINVENT, W_WEP } from '../js/const.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { restmonchn, restobjchn } from '../js/restore.js';
 import { parseSnapshot, serializeSnapshot } from '../js/snapshot.js';
 

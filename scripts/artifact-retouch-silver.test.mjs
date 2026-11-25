@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { retouch_equipment } from '../js/artifacts.js';
+import { retouch_equipment } from '../js/artifact.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_WEREWOLF } from '../js/monsters.js';

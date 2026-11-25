@@ -101,10 +101,10 @@ test('the checked-in quality ledger has a valid schema', async () => {
 
 test('numstat parsing totals text changes and identifies binary files', () => {
   // The small, distinct counts make additions and deletions easy to distinguish.
-  const metrics = parseNumstat('7\t2\tjs/obj.js\n3\t1\tjs/invent.js\n-\t-\tjs/data.bin');
+  const metrics = parseNumstat('7\t2\tjs/mkobj.js\n3\t1\tjs/invent.js\n-\t-\tjs/data.bin');
 
   assert.deepEqual([...metrics.files], [
-    'js/obj.js',
+    'js/mkobj.js',
     'js/invent.js',
     'js/data.bin',
   ]);
@@ -117,7 +117,7 @@ test('metric formatting separates commits, files, and changed lines', () => {
   // These values exercise singular and plural labels in one compact fixture.
   const text = formatMetrics({
     commits: 1,
-    files: new Set(['js/obj.js', 'js/invent.js']),
+    files: new Set(['js/mkobj.js', 'js/invent.js']),
     additions: 20,
     deletions: 4,
     binaryFiles: 0,
@@ -653,7 +653,7 @@ test('the review gate counts commits and changed lines since the frontier', () =
   // Three ten-line fixes stay below both the ten-commit and 1,000-line gate.
   const threeSmallCommits = {
     commits: 3,
-    files: new Set(['js/obj.js']),
+    files: new Set(['js/mkobj.js']),
     additions: 20,
     deletions: 10,
     binaryFiles: 0,

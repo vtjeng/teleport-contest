@@ -36,7 +36,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import { acurr } from '../js/attrib.js';
-import { ART_MAGICBANE, spec_abon } from '../js/artifacts.js';
+import { ART_MAGICBANE, spec_abon } from '../js/artifact.js';
 import { omon_adj, should_mulch_missile } from '../js/dothrow.js';
 import { game } from '../js/gstate.js';
 import { add_to_minv } from '../js/invent.js';
@@ -56,7 +56,7 @@ import {
 } from '../js/monsters.js';
 import { m_at, newMonster, remove_monster } from '../js/monst.js';
 import { mksobj, mksobj_at, place_object, remove_object }
-    from '../js/obj.js';
+    from '../js/mkobj.js';
 import { killer_xname, mshot_xname } from '../js/objnam.js';
 import {
     ARROW,

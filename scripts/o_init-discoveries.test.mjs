@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { NROFARTIFACTS } from '../js/artifacts.js';
+import { NROFARTIFACTS } from '../js/artifact.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {

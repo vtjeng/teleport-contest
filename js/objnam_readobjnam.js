@@ -13,7 +13,7 @@ import {
     artifact_name,
     nartifact_exist,
     permapoisoned,
-    } from './artifacts.js';
+    } from './artifact.js';
 import {
     is_pool,
     is_lava,
@@ -38,7 +38,7 @@ import {
 import { counter_were, genus, zombie_form } from './mon.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
 import {
-    curse, is_ammo, isBox, isCandle, isCorrodeable, isCrackable, isDamageable, is_flammable, is_missile, isMultigen, is_rottable, isRustprone, is_weptool, mkobj, mksobj, objectType, place_object, rnd_class, set_corpsenm, weight, } from './obj.js';
+    curse, is_ammo, isBox, isCandle, isCorrodeable, isCrackable, isDamageable, is_flammable, is_missile, isMultigen, is_rottable, isRustprone, is_weptool, mkobj, mksobj, objectType, place_object, rnd_class, set_corpsenm, weight, } from './mkobj.js';
 import { erosion_matters } from './objnam.js';
 import { is_quest_artifact } from './questpgr.js';
 import { coreRandom } from './rng.js';

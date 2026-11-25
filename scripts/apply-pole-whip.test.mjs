@@ -8,7 +8,7 @@ import {
     snickersnee_used_dist_attk,
     use_whip,
 } from '../js/apply.js';
-import { ART_SNICKERSNEE } from '../js/artifacts.js';
+import { ART_SNICKERSNEE } from '../js/artifact.js';
 import {
     A_DEX, COLNO, COULD_SEE, CQ_CANNED, IN_SIGHT, LIFESAVED,
     OBJ_INVENT, ROOM, ROWNO, W_AMUL, W_WEP,
@@ -20,7 +20,7 @@ import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_COCKATRICE, PM_SOLDIER } from '../js/monsters.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import {
     AMULET_OF_LIFE_SAVING, ARROW, BOW, BULLWHIP, CORPSE, LANCE,
 } from '../js/objects.js';

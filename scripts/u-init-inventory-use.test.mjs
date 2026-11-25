@@ -18,7 +18,7 @@ import {
     ART_SNICKERSNEE,
     ART_SUNSWORD,
     init_artifacts,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import { init_dungeons } from '../js/dungeon.js';
 import { finish_fruit_option } from '../js/fruit.js';
 import { game, resetGame } from '../js/gstate.js';

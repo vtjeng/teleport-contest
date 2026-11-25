@@ -8,7 +8,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_OGRE, NON_PM } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { addinv } from '../js/invent.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { ORCISH_DAGGER } from '../js/objects.js';
 import { mpickobj } from '../js/steal.js';
 import { runDirectMonsterAction } from '../js/unported_monster_actions.js';

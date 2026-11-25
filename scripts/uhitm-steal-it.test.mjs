@@ -6,11 +6,11 @@ import { oname } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { add_to_minv } from '../js/invent.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { AD_SSEX, PM_GOBLIN, PM_WOOD_NYMPH } from '../js/monsters.js';
 import { AMULET_OF_ESP } from '../js/objects.js';
-import { ART_EYE_OF_THE_AETHIOPICA } from '../js/artifacts.js';
+import { ART_EYE_OF_THE_AETHIOPICA } from '../js/artifact.js';
 import { mhitm_ad_ssex } from '../js/uhitm.js';
 
 const cSource = readFileSync('nethack-c/upstream/src/uhitm.c', 'utf8');

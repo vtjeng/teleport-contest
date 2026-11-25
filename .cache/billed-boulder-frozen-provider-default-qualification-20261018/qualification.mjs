@@ -13,7 +13,7 @@ import {do_mkroom} from '../../js/mkroom.js';
 import {fill_special_room} from '../../js/mklev.js';
 import {shop_keeper, inside_shop, addtobill, find_objowner, costly_spot, onshopbill} from '../../js/shk.js';
 import {rloc_to, teleds} from '../../js/teleport.js';
-import {mksobj_at} from '../../js/obj.js';
+import {mksobj_at} from '../../js/mkobj.js';
 import {test_move} from '../../js/hack.js';
 import {set_move_cmd} from '../../js/cmd.js';
 import {m_at} from '../../js/monst.js';

@@ -7,7 +7,7 @@ import { GameDisplay } from '../../js/game_display.js';
 import { game } from '../../js/gstate.js';
 import { NethackGame } from '../../js/jsmain.js';
 import { addToContainerRuntime, container_weight, mergable } from '../../js/invent.js';
-import { curse, mksobj, mksobj_at, set_corpsenm, uncurse } from '../../js/obj.js';
+import { curse, mksobj, mksobj_at, set_corpsenm, uncurse } from '../../js/mkobj.js';
 import { objectGenerationEnv } from '../../js/object_generation.js';
 import { GLOB_OF_GRAY_OOZE, STATUE } from '../../js/objects.js';
 import { PM_GOBLIN } from '../../js/monsters.js';

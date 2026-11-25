@@ -105,7 +105,7 @@ import {
 } from './const.js';
 import { isok } from './cmd_isok.js';
 import { acurr, adjalign, exercise } from './attrib.js';
-import { arti_cost } from './artifacts.js';
+import { arti_cost } from './artifact.js';
 import { y_n, yn_function } from './cmd.js';
 import { bot, map_invisible_async, newsym, newsym_async } from './display.js';
 import { assign_level, depth, ledger_no, mapseen_room, on_level } from './dungeon.js';
@@ -163,7 +163,7 @@ import {
     mksobj,
     place_object,
     remove_object,
-} from './obj.js';
+} from './mkobj.js';
 import {
     AGATE,
     AMBER,

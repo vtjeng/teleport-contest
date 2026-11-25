@@ -4,7 +4,7 @@
 // blindness through BBlinded. Game code calls Blind() from js/youprop.js; an
 // inline disjunction must be followed by its own BBlinded() term. The scan
 // found four sites without one (uhitm.js mhitm_ad_sedu, do.js
-// familiar_level_msg, artifacts.js Sting_effects and questpgr.js's %x
+// familiar_level_msg, artifact.js Sting_effects and questpgr.js's %x
 // conversion), all of which C writes as Blind.
 
 import assert from 'node:assert/strict';

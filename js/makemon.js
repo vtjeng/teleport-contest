@@ -78,7 +78,7 @@ import {
     set_mon_data,
 } from './mondata.js';
 import { mon_track_clear, place_monster } from './monst.js';
-import { next_ident } from './obj.js';
+import { next_ident } from './mkobj.js';
 import { discover_object } from './o_init.js';
 import { BAG_OF_TRICKS } from './objects.js';
 import { create_particular } from './read.js';

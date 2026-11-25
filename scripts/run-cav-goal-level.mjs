@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { ART_SCEPTRE_OF_MIGHT } from '../js/artifacts.js';
+import { ART_SCEPTRE_OF_MIGHT } from '../js/artifact.js';
 import { PM_CHROMATIC_DRAGON, PM_SHRIEKER } from '../js/monsters.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

@@ -14,7 +14,7 @@ import { light_globals_init } from '../js/light.js';
 import { vision_reset, vision_recalc, init_vision_globals } from '../js/vision.js';
 import { canseemon } from '../js/display.js';
 import { rn2_on_display_rng } from '../js/rng.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { LOADSTONE } from '../js/objects.js';
 
 for (const hallu of [false, true]) for (const mode of ['rejected', 'steadfast', 'moved']) {

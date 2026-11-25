@@ -58,7 +58,7 @@ import {
     is_rottable,
     isRustprone,
     objectType,
-} from './obj.js';
+} from './mkobj.js';
 import {
     aobjnam,
     cloak_simple_name,

@@ -103,7 +103,7 @@ import {
 } from '../js/mondata.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
-import { curse, mksobj, weight } from '../js/obj.js';
+import { curse, mksobj, weight } from '../js/mkobj.js';
 import {
     G_FREQ,
     G_SGROUP,

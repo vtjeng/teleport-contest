@@ -58,7 +58,7 @@ test('buried_ball skips lookup while trapped by a different trap', () => {
 });
 
 import { GameMap } from '../js/game.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import { add_to_buried } from '../js/invent.js';
 
 // <10,10> is an interior square. The nearby coordinate is exactly the source

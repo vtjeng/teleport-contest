@@ -11,7 +11,7 @@ import { GameDisplay } from '../../js/game_display.js';
 import { OBJ_FREE, OBJ_FLOOR, OBJ_INVENT, OBJ_CONTAINED, OBJ_MINVENT, TOPLINE_NEED_MORE,
     TIMER_OBJECT, SHRINK_GLOB, Upolyd } from '../../js/const.js';
 import { SACK, GLOB_OF_GRAY_OOZE } from '../../js/objects.js';
-import { mksobj, weight, isContainer } from '../../js/obj.js';
+import { mksobj, weight, isContainer } from '../../js/mkobj.js';
 import { objectGenerationEnv } from '../../js/object_generation.js';
 import { addinv_runtime, addToContainerRuntime, container_weight, mergable } from '../../js/invent.js';
 import { dotip } from '../../js/pickup.js';

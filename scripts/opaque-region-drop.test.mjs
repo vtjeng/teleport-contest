@@ -8,7 +8,7 @@ import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {GameMap} from '../js/game.js';
 import {ROOM,HALLUC,BLINDED,FROMOUTSIDE,OBJ_FLOOR,OBJ_INVENT,W_WEP} from '../js/const.js';
 import {QUARTERSTAFF,FOOD_RATION} from '../js/objects.js';
-import {mksobj} from '../js/obj.js';
+import {mksobj} from '../js/mkobj.js';
 import {addinv} from '../js/invent.js';
 import {setuwep} from '../js/wield.js';
 import {dropx,dropCommandEnv} from '../js/do.js';

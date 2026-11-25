@@ -12,7 +12,7 @@ import {
 import { PM_FLESH_GOLEM, PM_IRON_GOLEM, PM_HUMAN, NON_PM, AD_DRST, PM_BLACK_DRAGON } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { breamm } from '../js/mthrowu.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { KATANA, SHORT_SWORD, TOWEL, POT_BOOZE } from '../js/objects.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 import { block_point } from '../js/vision.js';

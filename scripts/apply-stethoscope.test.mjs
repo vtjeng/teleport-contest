@@ -110,7 +110,7 @@ import {
     mksobj_at,
     newObject,
     set_bknown,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { _doWearInternals } from '../js/do_wear.js';
 import {

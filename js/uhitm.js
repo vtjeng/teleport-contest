@@ -16,7 +16,7 @@ import {
     permapoisoned,
     retouch_equipment,
     shade_glare,
-} from './artifacts.js';
+} from './artifact.js';
 import {
     is_pool,
     is_waterwall,
@@ -527,7 +527,7 @@ import {
     objectType,
     stone_missile,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import {
     add_to_minv, addinv_runtime, carrying, freeinv, INVLET_BASIC, merge_choice,
     hold_another_object, obfree, obj_extract_self, update_inventory, useup, useupall,

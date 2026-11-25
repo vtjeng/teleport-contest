@@ -10,7 +10,7 @@ import {PM_WOOD_NYMPH} from '../js/monsters.js';
 import {pluslvl} from '../js/exper.js';
 import {rloc_to} from '../js/teleport.js';
 import {do_improvisation} from '../js/music.js';
-import {mksobj} from '../js/obj.js';
+import {mksobj} from '../js/mkobj.js';
 import {addinv} from '../js/invent.js';
 import {WOODEN_HARP} from '../js/objects.js';
 import {make_deaf} from '../js/potion.js';

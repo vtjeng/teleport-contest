@@ -143,7 +143,7 @@ import {
     carrying, currency, display_inventory, money_cnt, obfree, set_cknown_lknown, sortloot, stackobjRuntime,
     update_inventory, useup,
 } from './invent.js';
-import { bless, isContainer, mksobj, place_object } from './obj.js';
+import { bless, isContainer, mksobj, place_object } from './mkobj.js';
 import { discover_object } from './o_init.js';
 import {
     AMULET_OF_LIFE_SAVING,
@@ -165,7 +165,7 @@ import {
     LAST_REAL_GEM,
     SPE_BOOK_OF_THE_DEAD,
 } from './objects.js';
-import { arti_cost, artiname } from './artifacts.js';
+import { arti_cost, artiname } from './artifact.js';
 import {
     an, doname_with_price, the, thesimpleoname, the_unique_obj, the_unique_pm,
     xnameFresh,

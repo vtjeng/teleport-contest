@@ -178,8 +178,8 @@ import {
     PM_WERERAT,
 } from '../js/monsters.js';
 import { parseCFunctions } from './c-functions.mjs';
-import { mksobj } from '../js/obj.js';
-import { ART_STORMBRINGER, init_artifacts } from '../js/artifacts.js';
+import { mksobj } from '../js/mkobj.js';
+import { ART_STORMBRINGER, init_artifacts } from '../js/artifact.js';
 import {
     AMULET_OF_GUARDING,
     BOULDER,

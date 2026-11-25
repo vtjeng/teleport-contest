@@ -12,7 +12,7 @@ import {
     ART_ORB_OF_DETECTION,
     ART_SUNSWORD,
     init_artifacts,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     BEAR_TRAP,
     BLINDED,
@@ -75,7 +75,7 @@ import { init_objects } from '../js/o_init.js';
 import { get_obj_location } from '../js/light.js';
 import { append_price_quote } from '../js/shk.js';
 import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import {
     An,
     The,
@@ -248,7 +248,7 @@ const OBJ_HEADER_SOURCE = readFileSync('nethack-c/upstream/include/obj.h', 'utf8
 const OBJNAM_JS_SOURCE = readFileSync('js/objnam.js', 'utf8');
 const OBJ_H_SOURCE = readFileSync('nethack-c/upstream/include/obj.h', 'utf8');
 const ARTIFACT_SOURCE = readFileSync('nethack-c/upstream/src/artifact.c', 'utf8');
-const ARTIFACT_JS_SOURCE = readFileSync('js/artifacts.js', 'utf8');
+const ARTIFACT_JS_SOURCE = readFileSync('js/artifact.js', 'utf8');
 const ZAP_SOURCE = readFileSync('nethack-c/upstream/src/zap.c', 'utf8');
 const LIGHT_JS_SOURCE = readFileSync('js/light.js', 'utf8');
 
@@ -2425,7 +2425,7 @@ test('erosion_matters keeps the full C switch, weptool macro, and source callers
 
     // The read.c caller was already canonical and is checked without editing it.
     const callers = [
-        ['js/obj.js', /function may_generate_eroded\(otmp, state\)[\s\S]*?erosion_matters\(otmp, state\)/u],
+        ['js/mkobj.js', /function may_generate_eroded\(otmp, state\)[\s\S]*?erosion_matters\(otmp, state\)/u],
         ['js/invent.js', /export function mergable\(otmp, obj, env = \{\}\)[\s\S]*?erosion_matters\(obj, normalized\.state\)/u],
         ['js/do_wear.js', /export async function destroy_arm\([\s\S]*?erosion_matters\(armor, state\)/u],
         ['js/read.js', /function seffect_enchant_weapon\([\s\S]*?erosion_matters\(uwep, state\)/u],

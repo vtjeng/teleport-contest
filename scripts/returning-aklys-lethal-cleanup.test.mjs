@@ -10,7 +10,7 @@ import { set_apparxy } from '../js/monmove.js';
 import { make_blinded, set_itimeout } from '../js/potion.js';
 import { rn2, rnd } from '../js/rng.js';
 import { m_throw } from '../js/mthrowu.js';
-import { mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/mkobj.js';
 import { AKLYS } from '../js/objects.js';
 import { add_to_minv, stackobj } from '../js/invent.js';
 import { canseemon } from '../js/display.js';

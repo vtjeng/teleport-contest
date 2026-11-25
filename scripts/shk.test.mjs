@@ -60,7 +60,7 @@ import {
     STRANGE_OBJECT,
     WEAPON_CLASS,
 } from '../js/objects.js';
-import { mksobj, newObject } from '../js/obj.js';
+import { mksobj, newObject } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { currency, money_cnt } from '../js/invent.js';
 import { GameMap } from '../js/game.js';

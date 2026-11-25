@@ -50,7 +50,7 @@ import { loadThroneDropRecipe, THRONE_DROP_CASES } from './run-throne-drop.mjs';
 import { getRngLog, initRng } from '../js/rng.js';
 import {
     mksobj, newObject, place_object, remove_object,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import { stairway_at } from '../js/stairs.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {

@@ -116,7 +116,7 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { game, resetGame } from '../js/gstate.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import {
     domove,
     domove_swap_with_pet,

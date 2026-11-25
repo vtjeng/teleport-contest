@@ -106,7 +106,7 @@ import { coreRandom, getRngLog } from '../js/rng.js';
 import { engr_at } from '../js/engrave.js';
 import { t_at } from '../js/trap.js';
 import { m_at, newMonster } from '../js/monst.js';
-import { newObject, mksobj, place_object, weight } from '../js/obj.js';
+import { newObject, mksobj, place_object, weight } from '../js/mkobj.js';
 import { add_to_buried, addinv, sobj_at } from '../js/invent.js';
 import { addtobill, shop_keeper } from '../js/shk.js';
 import { Can_dig_down, dunlevs_in_dungeon, on_level } from '../js/dungeon.js';
@@ -1070,9 +1070,9 @@ test('default unearth awaits the real first floor-glob merge before continuing',
     const fixture = resolve(root,
         '../.cache/glob-unearth-main-reviewed-qualification-20261018/attempt.mjs');
     const fixtureBytes = readFileSync(fixture);
-    assert.equal(fixtureBytes.byteLength, 15540);
+    assert.equal(fixtureBytes.byteLength, 15542);
     assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
-        'bdeda7781a934d4356bb62999bd7b0a414ebe9de6accca9164273ef516e534be');
+        '3b70ad956b3fa6d40b9a5d364a80f6c09504919705b9ef11b48c06c21c97fe2b');
 
     const child = spawnSync(process.execPath, [fixture], {
         cwd: resolve(root, '..'), encoding: 'utf8', maxBuffer: 16 * 1024 * 1024,

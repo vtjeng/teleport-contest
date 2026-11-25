@@ -32,7 +32,7 @@ import {
 import {
     arti_speak,
     init_artifacts,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     PM_SAMURAI,
     PM_YELLOW_LIGHT,
@@ -56,7 +56,7 @@ import {
 } from '../js/wield.js';
 import { GameDisplay } from '../js/game_display.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { getobj, hands_obj } from '../js/invent.js';
 import { aligns, races, roles } from '../js/roles.js';
 import { windowsUp } from './test-fixtures/windows-up.mjs';

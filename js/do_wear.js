@@ -163,7 +163,7 @@ import {
     set_occupation,
     yn_function,
 } from './cmd.js';
-import { artifact_light, retouch_object } from './artifacts.js';
+import { artifact_light, retouch_object } from './artifact.js';
 import { obj_resists } from './bury.js';
 import { game } from './gstate.js';
 import { schar } from './global.js';
@@ -232,7 +232,7 @@ import {
     isRustprone,
     set_bknown,
     curse,
-} from './obj.js';
+} from './mkobj.js';
 import {
     ALCHEMY_SMOCK,
     AMULET_CLASS,

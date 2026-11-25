@@ -10,7 +10,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { t_at } from '../js/trap.js';
 import { Helmet_off } from '../js/do_wear.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { HELM_OF_TELEPATHY } from '../js/objects.js';
 import { hurtle_step } from '../js/dothrow.js';

@@ -245,7 +245,7 @@ import {
     monster_class_symbol,
     object_class_symbol,
 } from './symbols.js';
-import { dealloc_obj, is_treefruit, mkobj, mksobj } from './obj.js';
+import { dealloc_obj, is_treefruit, mkobj, mksobj } from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { obj_stop_timers } from './timeout.js';
 import { observe_object } from './o_init.js';

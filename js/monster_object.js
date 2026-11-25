@@ -17,7 +17,7 @@ import {
     SPBOOK_NO_NOVEL,
     mkobj,
     set_corpsenm,
-} from './obj.js';
+} from './mkobj.js';
 import { FIGURINE, STATUE } from './objects.js';
 
 function initializeStatue(obj, env) {
@@ -59,7 +59,7 @@ function finalizeMonsterObject(obj, env) {
     set_corpsenm(obj, obj.corpsenm, env);
 }
 
-// ObjectEnv hook for obj.js. Keeping both phases in one source-shaped owner
+// ObjectEnv hook for mkobj.js. Keeping both phases in one source-shaped owner
 // prevents callers from recreating only the visible species field while
 // skipping constructor RNG, gender, timers, or weight finalization.
 export function monsterObject(obj, phase, env) {

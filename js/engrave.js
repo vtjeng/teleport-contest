@@ -47,7 +47,7 @@ import {
     is_pool_or_lava,
 } from './dbridge.js';
 import { exercise_nonphysical } from './attrib.js';
-import { ART_FIRE_BRAND, is_art } from './artifacts.js';
+import { ART_FIRE_BRAND, is_art } from './artifact.js';
 import { ceiling, on_level, surface, surface_typ } from './dungeon.js';
 import { game } from './gstate.js';
 import { newsym } from './display.js';
@@ -71,7 +71,7 @@ import { wand_explode } from './read.js';
 import { check_unpaid } from './shk.js';
 import { learnwand, zappable, zapnodir } from './zap.js';
 import {
-    is_blade, is_boots, is_wet_towel, objectType, splitobj, } from './obj.js';
+    is_blade, is_boots, is_wet_towel, objectType, splitobj, } from './mkobj.js';
 
 import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
 import { welded } from './wield.js';
@@ -697,7 +697,7 @@ export async function engrave(state = game, env = {}) {
             if (firsttime) await say(`One of ${yname(stylus, state)} gets dull.`);
             // The command caller injects only engraving's rn2/rnd pair, and
             // mkobj.c splitobj() draws nothing. Leave the random source to
-            // js/obj.js, which uses the shared RNG module when none is given,
+            // js/mkobj.js, which uses the shared RNG module when none is given,
             // as C's splitobj() uses the global RNG.
             stylus = context.stylus = await splitobj(stylus, 1, {
                 state,

@@ -348,7 +348,7 @@ import {
     unsplitobj,
     mksobj,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import {
     simple_typename,
     simpleonames,
@@ -634,7 +634,7 @@ import {
     ART_SNICKERSNEE,
     arti_speak,
     retouch_object,
-} from './artifacts.js';
+} from './artifact.js';
 import { canseemon, canspotmon, sensemon } from './display.js';
 import {
     BBlinded, Blind, BlindedTimeout, Conflict, Confusion, Deaf, EFumbling,

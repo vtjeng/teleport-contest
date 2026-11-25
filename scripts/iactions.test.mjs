@@ -1,7 +1,7 @@
 // Tests for iactions.js (item_naming_classification, item_reading_classification,
 // itemactions_pushkeys via itemactions) and supporting pure functions ported
 // alongside it: name_ok, call_ok, objtyp_is_callable (do_name.js),
-// armcat_to_wornmask, wearmask_to_obj (worn.js), is_blade (obj.js),
+// armcat_to_wornmask, wearmask_to_obj (worn.js), is_blade (mkobj.js),
 // boots_simple_name, shield_simple_name, shirt_simple_name,
 // armor_simple_name (objnam.js), check_invent_gold (invent.js),
 // cmdq_add_key (cmd.js).
@@ -46,7 +46,7 @@ import {
 import { check_invent_gold } from '../js/invent.js';
 import {
     is_blade,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import { init_objects } from '../js/o_init.js';
 import {
     AMULET_OF_YENDOR,

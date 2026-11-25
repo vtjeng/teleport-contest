@@ -7,7 +7,7 @@ import {
     ART_STING,
     ART_SUNSWORD,
     init_artifacts,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import { initialGb } from '../js/gstate.js';
 import {
     P_ATTACK_SPELL,
@@ -84,7 +84,7 @@ import {
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { light_globals_init, new_light_source } from '../js/light.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import {
     ACID_VENOM,
     ATHAME,

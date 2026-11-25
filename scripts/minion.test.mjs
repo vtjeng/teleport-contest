@@ -10,7 +10,7 @@ import {
     MM_EMIN,
     MM_NOMSG,
 } from '../js/const.js';
-import { ART_DEMONBANE } from '../js/artifacts.js';
+import { ART_DEMONBANE } from '../js/artifact.js';
 import {
     dlord,
     dprince,

@@ -8,7 +8,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { is_treefruit } from '../js/obj.js';
+import { is_treefruit } from '../js/mkobj.js';
 
 // -- Positive cases: every entry in C's treefruits[] array -------------------
 // C ref: mkobj.c:1978-1980.  static const int treefruits[] = {

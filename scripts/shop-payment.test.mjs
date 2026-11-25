@@ -6,7 +6,7 @@ import { A_CHA, COST_CONTENTS, DETECT_MONSTERS, ECMD_OK, ECMD_TIME, MENU_TRADITI
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { addinv_runtime, money_cnt, obj_extract_self, obfree } from '../js/invent.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { paydoname } from '../js/objnam.js';
 import { DART, FOOD_RATION, GOLD_PIECE, SACK } from '../js/objects.js';

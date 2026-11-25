@@ -204,12 +204,12 @@ test('a duplicate line names every site, its spelling, and its kind', () => {
             sites: [
                 { file: 'js/mondata.js', line: 219,
                     name: 'is_weptool', kind: 'function' },
-                { file: 'js/obj.js', line: 44,
+                { file: 'js/mkobj.js', line: 44,
                     name: 'isWeptool', kind: 'function' },
             ],
         }),
         'isweptool: js/mondata.js:219 is_weptool (function), '
-            + 'js/obj.js:44 isWeptool (function)',
+            + 'js/mkobj.js:44 isWeptool (function)',
     );
 });
 

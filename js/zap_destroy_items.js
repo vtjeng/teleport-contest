@@ -42,7 +42,7 @@ import {
 } from './mondata.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { m_useup } from './mthrowu.js';
-import { isMetallic, objectType, weight } from './obj.js';
+import { isMetallic, objectType, weight } from './mkobj.js';
 import {
     An,
     The,

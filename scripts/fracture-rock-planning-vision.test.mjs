@@ -6,7 +6,7 @@ import test from 'node:test';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {GameMap} from '../js/game.js';
-import {mksobj,place_object} from '../js/obj.js';
+import {mksobj,place_object} from '../js/mkobj.js';
 import {BOULDER,STATUE,ROCK} from '../js/objects.js';
 import {ROOM,HALLUC,BLINDED,OBJ_FLOOR,OBJ_FREE} from '../js/const.js';
 import {objectGenerationEnv} from '../js/object_generation.js';

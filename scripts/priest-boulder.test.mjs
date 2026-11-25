@@ -7,7 +7,7 @@ import { ROOM } from '../js/const.js';
 import { PM_ALIGNED_CLERIC, NON_PM } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { newepri, move_special } from '../js/priest.js';
-import { mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/mkobj.js';
 import { BOULDER, ROCK } from '../js/objects.js';
 import { block_point, cansee, vision_reset, vision_recalc } from '../js/vision.js';
 import { rn1, rn2, rnd, d, rne } from '../js/rng.js';

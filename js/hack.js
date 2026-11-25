@@ -187,7 +187,7 @@ import {
     Ugender,
     has_mgivenname,
 } from './const.js';
-import { ART_STING, ART_STORMBRINGER, attacks } from './artifacts.js';
+import { ART_STING, ART_STORMBRINGER, attacks } from './artifact.js';
 import { isok } from './cmd_isok.js';
 import { body_part, float_vs_flight, rehumanize } from './polyself.js';
 import { adjalign, acurrstr, acurr, exercise } from './attrib.js';
@@ -333,7 +333,7 @@ import {
     objectType,
     place_object,
     remove_object,
-} from './obj.js';
+} from './mkobj.js';
 import {
     an,
     bare_artifactname,

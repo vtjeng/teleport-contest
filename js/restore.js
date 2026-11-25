@@ -52,7 +52,7 @@ import {
     PL_NSIZ_PLUS,
     WIN_ERR,
 } from './const.js';
-import { init_artifacts, restore_artifacts } from './artifacts.js';
+import { init_artifacts, restore_artifacts } from './artifact.js';
 import {
     ledger_no, level_info, load_exclusions, on_level, set_dungeon_topology,
     copy_lastseentyp_grid, load_mapseen,
@@ -64,7 +64,7 @@ import { adj_erinys, hideunder, restrap, restore_cham } from './mon.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL, S_MIMIC } from './monsters.js';
 import { init_oclass_probs } from './o_init.js';
-import { defineObjAliases, free_omid } from './obj.js';
+import { defineObjAliases, free_omid } from './mkobj.js';
 import { fruitadd } from './fruit.js';
 import { defineObjclassAliases, GRAPPLING_HOOK, PICK_AXE } from './objects.js';
 import { set_mimic_sym } from './makemon_create.js';

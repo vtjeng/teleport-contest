@@ -42,7 +42,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { inv_weight, near_capacity } from '../js/hack.js';
 import { is_undead } from '../js/mondata.js';
 import { CHEST } from '../js/objects.js';
-import { mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/mkobj.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
     AT_BITE,

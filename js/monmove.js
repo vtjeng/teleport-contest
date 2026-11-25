@@ -166,7 +166,7 @@ import {
     is_lava,
 } from './dbridge.js';
 import { isok } from './cmd_isok.js';
-import { artifactTouchable, artifact_light, has_magic_key } from './artifacts.js';
+import { artifactTouchable, artifact_light, has_magic_key } from './artifact.js';
 import { acurr } from './attrib.js';
 import { bury_an_obj, obj_resists } from './bury.js';
 import {
@@ -375,7 +375,7 @@ import {
     is_soko_prize,
     objectType,
     splitobj,
-} from './obj.js';
+} from './mkobj.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -1124,13 +1124,13 @@ async function watch_on_duty(mtmp, rawEnv = {}) {
     }
 }
 
-// Copies: obj.h is_pick() is also ported as obj.js is_pick(). A change to it
+// Copies: obj.h is_pick() is also ported as mkobj.js is_pick(). A change to it
 // must reach every copy.
 function isPick(obj, state) {
     return Boolean(obj && objectType(obj, state).oc_skill === P_PICK_AXE);
 }
 
-// Copies: obj.h is_axe() is also ported as obj.js is_axe(). A change to it
+// Copies: obj.h is_axe() is also ported as mkobj.js is_axe(). A change to it
 // must reach every copy.
 function isAxe(obj, state) {
     return Boolean(obj && objectType(obj, state).oc_skill === P_AXE);

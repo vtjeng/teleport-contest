@@ -6,7 +6,7 @@ import { FOOD_CLASS, GLOB_OF_GREEN_SLIME, objects_globals_init } from '../js/obj
 import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject, obj_nexto, obj_nexto_xy } from '../js/obj.js';
+import { newObject, obj_nexto, obj_nexto_xy } from '../js/mkobj.js';
 
 const C_MKOBJ = readFileSync(
     new URL('../nethack-c/upstream/src/mkobj.c', import.meta.url), 'utf8',
@@ -17,7 +17,7 @@ const C_MON = readFileSync(
 const C_DO = readFileSync(
     new URL('../nethack-c/upstream/src/do.c', import.meta.url), 'utf8',
 );
-const JS_OBJ = readFileSync(new URL('../js/obj.js', import.meta.url), 'utf8');
+const JS_OBJ = readFileSync(new URL('../js/mkobj.js', import.meta.url), 'utf8');
 const JS_MON = readFileSync(new URL('../js/mon.js', import.meta.url), 'utf8');
 const JS_DO = readFileSync(new URL('../js/do.js', import.meta.url), 'utf8');
 

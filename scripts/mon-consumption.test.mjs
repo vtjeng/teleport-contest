@@ -55,7 +55,7 @@ import {
     reset_mvitals,
 } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import {
     CORPSE,
     GOLD_PIECE,
@@ -317,9 +317,9 @@ test('mon_give_prop records resistance and mpickgold transfers coins', async () 
 test('meatbox and meatobj await the real monster-inventory glob merge', () => {
     const fixture = resolve('.cache/glob-cube-meatobj-main-reviewed-qualification-20261019/attempt.mjs');
     const fixtureBytes = readFileSync(fixture);
-    assert.equal(fixtureBytes.length, 30196, 'the reviewed fixed-input fixture is unchanged');
+    assert.equal(fixtureBytes.length, 30198, 'the reviewed fixed-input fixture is unchanged');
     assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
-        '24624e681f541bfdda3c834d82ed314047a5d09aad6b632cd2ceefbc0e9f7a88');
+        'a055f28d46a03ada97d1f0817feffb2031db06b62b9e53d5d945a7ee506e32bc');
 
     const requestedCapture = process.env.MON_CONSUMPTION_CAPTURE_DIR;
     const captureDir = requestedCapture

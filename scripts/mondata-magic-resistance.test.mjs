@@ -15,7 +15,7 @@ import {
     ART_MAGICBANE,
     ART_ORB_OF_DETECTION,
     NROFARTIFACTS,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import { resists_magm } from '../js/mondata.js';
 import { PM_BABY_GRAY_DRAGON, PM_NEWT } from '../js/monsters.js';
 

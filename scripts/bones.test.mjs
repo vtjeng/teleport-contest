@@ -15,7 +15,7 @@ import { getnow } from '../js/calendar.js';
 import { set_bonesfile_name } from '../js/files_bones.js';
 import { textBytes, utf8Text } from '../js/hacklib.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { bless, mksobj_at } from '../js/obj.js';
+import { bless, mksobj_at } from '../js/mkobj.js';
 import { AMULET_OF_YENDOR, FAKE_AMULET_OF_YENDOR } from '../js/objects.js';
 import {
     InMemoryStorage, setStorageForTesting, vfsReadFile, vfsWriteFile,

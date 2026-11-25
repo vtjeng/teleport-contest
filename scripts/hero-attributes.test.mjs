@@ -48,7 +48,7 @@ import {
     PM_MONK,
     S_NYMPH,
 } from '../js/monsters.js';
-import { ART_OGRESMASHER } from '../js/artifacts.js';
+import { ART_OGRESMASHER } from '../js/artifact.js';
 import { DUNCE_CAP, GAUNTLETS_OF_POWER, LUCKSTONE } from '../js/objects.js';
 
 function advancement(infix, inrnd, lofix, lornd, hifix, hirnd) {

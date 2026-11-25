@@ -32,7 +32,7 @@ import { dipfountain } from '../js/fountain.js';
 import { polymorph_sink } from '../js/do.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { DAGGER, LEATHER_GLOVES, POT_ACID, TOWEL } from '../js/objects.js';
 import { dodip, make_glib, potion_dip } from '../js/potion.js';

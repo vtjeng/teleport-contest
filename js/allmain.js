@@ -55,14 +55,14 @@ import {
 import { makemon_runtime } from './makemon_create.js';
 import { init_objects } from './o_init.js';
 import { maybe_shuffle_customizations } from './glyphs.js';
-import { UnsupportedObjectOperationError } from './obj.js';
+import { UnsupportedObjectOperationError } from './mkobj.js';
 import { polyself, set_uasmon } from './polyself.js';
 import { you_were } from './were.js';
 import { objectGenerationHooks } from './object_generation.js';
 import { S_EEL, reset_mvitals } from './monsters.js';
 import { depth, init_dungeons, on_level } from './dungeon.js';
 import { movebubbles, fumaroles } from './mkmaze.js';
-import { init_artifacts, mkot_trap_warn } from './artifacts.js';
+import { init_artifacts, mkot_trap_warn } from './artifact.js';
 import { role_init, welcomeHallucinationMessage, welcomeIdentity,
     welcomeMessage } from './role_init.js';
 import { livelog_printf, norep_printer } from './pline.js';
@@ -164,7 +164,7 @@ import {
 import { age_spells } from './spell.js';
 import { settrack } from './track.js';
 import { check_leash } from './apply.js';
-import { clear_splitobjs } from './obj.js';
+import { clear_splitobjs } from './mkobj.js';
 import { makewish } from './zap.js';
 import { clear_bypasses } from './worn.js';
 import { amulet, intervene } from './wizard.js';

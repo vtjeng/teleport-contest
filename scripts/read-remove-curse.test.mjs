@@ -8,7 +8,7 @@ import {
     ARMOR_CLASS, LEATHER_ARMOR, SCR_REMOVE_CURSE, SCROLL_CLASS,
     SPE_REMOVE_CURSE,
 } from '../js/objects.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { seffects } from '../js/read.js';
 import { spelleffects } from '../js/spell.js';
 import { loadReadRemoveCurseRecipe } from './run-read-remove-curse.mjs';

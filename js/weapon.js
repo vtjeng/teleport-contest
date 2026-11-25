@@ -9,7 +9,7 @@ import {
     shade_glare,
     spec_abon,
     spec_dbon,
-} from './artifacts.js';
+} from './artifact.js';
 import {
     is_pool,
 } from './dbridge.js';
@@ -128,7 +128,7 @@ import {
     carried,
     place_object,
     objectType,
-} from './obj.js';
+} from './mkobj.js';
 import {
     ACID_VENOM,
     AKLYS,

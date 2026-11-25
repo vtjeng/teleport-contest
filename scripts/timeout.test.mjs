@@ -6,7 +6,7 @@ import { compareSessionOutputs } from './diff-fresh.mjs';
 import { expectTerminated } from './expect-terminated.mjs';
 import { loadHeroTimeoutRecipes, verifyHeroTimeoutSegment } from './run-hero-timeouts.mjs';
 
-import { ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_SUNSWORD } from '../js/artifact.js';
 import {
     ACCESSIBLE,
     ACID_RES,
@@ -114,7 +114,7 @@ import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { light_globals_init, new_light_source } from '../js/light.js';
 import { TIMEOUT_PROPERTY_NAMES } from '../js/timeout_property_data.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import {
     CORPSE,
     FEDORA,

@@ -14,7 +14,7 @@ import { GameMap } from '../js/game.js';
 import { resetGame } from '../js/gstate.js';
 import { map_cleanup } from '../js/mklev.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import {
     BOULDER,
     ROCK_CLASS,

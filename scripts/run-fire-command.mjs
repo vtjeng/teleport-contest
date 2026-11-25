@@ -47,7 +47,7 @@
 // :551, and a missile that reaches a monster reaches thitmonst(). Both are
 // recorded as deferrals instead.
 
-import { ammo_and_launcher, is_ammo } from '../js/obj.js';
+import { ammo_and_launcher, is_ammo } from '../js/mkobj.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';

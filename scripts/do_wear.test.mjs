@@ -6,7 +6,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { addinv } from '../js/invent.js';
 import { LEATHER_CLOAK } from '../js/objects.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { destroy_arm, setwornEnv } from '../js/do_wear.js';
 import { setworn } from '../js/worn.js';
 

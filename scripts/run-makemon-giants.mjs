@@ -10,7 +10,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_FIRE_GIANT, PM_FROST_GIANT } from '../js/monsters.js';
 import { OBJ_MINVENT } from '../js/const.js';
-import { weight } from '../js/obj.js';
+import { weight } from '../js/mkobj.js';
 import { compareSessionOutputs, validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix, runMatrixCli } from './fresh-matrix.mjs';
 

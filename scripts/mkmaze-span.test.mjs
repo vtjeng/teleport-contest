@@ -218,9 +218,9 @@ test('mkmaze.c movebubbles clears worm wx values before bubble relocation', asyn
 test('mkmaze.c mv_bubble awaits runtime stacking before releasing Water contents', () => {
     const fixture = '.cache/glob-water-bubble-main-reviewed-qualification-20261019/attempt.mjs';
     const fixtureBytes = readFileSync(fixture);
-    assert.equal(fixtureBytes.length, 35594);
+    assert.equal(fixtureBytes.length, 35596);
     assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
-        'e44552e6e9bf51945769f29504a3665e945e694aae2b2a1a555f3702d05bd510');
+        '042a5f4c24866d969b895d770f560ac8daf97df6c84e35ba86a1bcbcfa02386a');
 
     const evidenceDir = mkdtempSync(join(process.cwd(),
         '.cache/glob-water-bubble-stack-runtime-source-parity-20261019/run-'));

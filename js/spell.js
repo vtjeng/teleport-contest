@@ -93,7 +93,7 @@ import {
 } from './monsters.js';
 import {
     isMetallic, mksobj, objectType, set_bknown, weight,
-} from './obj.js';
+} from './mkobj.js';
 import { Tobjnam, an } from './objnam.js';
 import { check_unpaid } from './shk.js';
 import { tele } from './teleport.js';

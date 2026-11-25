@@ -20,7 +20,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { mksobj_at } from '../js/obj.js';
+import { mksobj_at } from '../js/mkobj.js';
 import { LARGE_BOX, ROCK, SPE_STONE_TO_FLESH } from '../js/objects.js';
 import { d, rn1, rn2, rnd, rne, rnl, rnz, initRng } from '../js/rng.js';
 import { do_mkroom } from '../js/mkroom.js';

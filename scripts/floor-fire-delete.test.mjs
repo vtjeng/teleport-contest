@@ -6,7 +6,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { GameMap } from '../js/game.js';
 import { ROOM, OBJ_FLOOR } from '../js/const.js';
 import { SCR_IDENTIFY, SCROLL_CLASS } from '../js/objects.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { burn_floor_objects } from '../js/zap_destroy_items.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';

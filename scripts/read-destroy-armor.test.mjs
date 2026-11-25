@@ -22,7 +22,7 @@ import {
     WHITE_DRAGON_SCALE_MAIL,
 } from '../js/objects.js';
 import { obj_erode_type } from '../js/do_wear.js';
-import { objectType } from '../js/obj.js';
+import { objectType } from '../js/mkobj.js';
 import { loadReadDestroyArmorRecipe } from './run-read-destroy-armor.mjs';
 
 function inventorySnapshot(state = game) {

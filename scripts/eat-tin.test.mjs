@@ -50,7 +50,7 @@ import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
 import { cmdq_add_key } from '../js/cmd.js';
 import { addinv } from '../js/invent.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { objects_globals_init, AXE, DAGGER, TIN, TIN_OPENER } from '../js/objects.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';

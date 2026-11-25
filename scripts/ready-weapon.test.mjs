@@ -55,7 +55,7 @@ import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { roles } from '../js/roles.js';
 import { windowsUp } from './test-fixtures/windows-up.mjs';
 

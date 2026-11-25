@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
-import { ART_EXCALIBUR, ART_MAGICBANE } from '../js/artifacts.js';
+import { ART_EXCALIBUR, ART_MAGICBANE } from '../js/artifact.js';
 import { ANTIMAGIC, BLINDED, HALF_SPDAM, OBJ_INVENT, ONAME_WISH, W_SADDLE } from '../js/const.js';
 import { oname } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { DAGGER, GOLD_PIECE, LONG_SWORD, OBJECT_TEMPLATES, SADDLE, SPBOOK_CLASS, TOOL_CLASS, WEAPON_CLASS, COIN_CLASS } from '../js/objects.js';
 import { rndcurse } from '../js/sit.js';
 

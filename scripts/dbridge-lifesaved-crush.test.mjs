@@ -8,7 +8,7 @@ import { add_to_minv } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GOBLIN } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { AMULET_OF_LIFE_SAVING } from '../js/objects.js';
 import { d, rn1, rn2, rne, rnl, rnz } from '../js/rng.js';
 import { m_dowear } from '../js/worn.js';

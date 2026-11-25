@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { createArtifactTable } from '../js/artifacts.js';
+import { createArtifactTable } from '../js/artifact.js';
 import {
     HALLUC,
     HALLUC_RES,
@@ -21,7 +21,7 @@ import { NethackGame } from '../js/jsmain.js';
 import * as M from '../js/monsters.js';
 import { monst_globals_init, reset_mvitals } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import * as O from '../js/objects.js';
 import { role_init } from '../js/role_init.js';
 import {

@@ -56,7 +56,7 @@ import {
     S_YETI,
 } from './monsters.js';
 import { find_pmmonst } from './monmove.js';
-import { objectType } from './obj.js';
+import { objectType } from './mkobj.js';
 import {
     AMULET_OF_STRANGULATION,
     APPLE,
@@ -112,14 +112,14 @@ function isQuestArtifact(obj, state) {
         && obj.oartifact === state.urole?.questarti);
 }
 
-// Copies: objclass.h is_metallic() is also ported as obj.js isMetallic(). A
+// Copies: objclass.h is_metallic() is also ported as mkobj.js isMetallic(). A
 // change to it must reach every copy.
 function isMetallic(obj, state) {
     const material = objectType(obj, state).oc_material;
     return material >= IRON && material <= MITHRIL;
 }
 
-// Copies: objclass.h is_rustprone() is also ported as obj.js isRustprone(). A
+// Copies: objclass.h is_rustprone() is also ported as mkobj.js isRustprone(). A
 // change to it must reach every copy.
 function isRustprone(obj, state) {
     return objectType(obj, state).oc_material === IRON;

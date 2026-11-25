@@ -6,7 +6,7 @@ import { _doWearInternals } from '../js/do_wear.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { AMULET_OF_REFLECTION, AMULET_OF_STRANGULATION } from '../js/objects.js';
 import { fix_worst_trouble, TROUBLE_STRANGLED } from '../js/pray.js';
 import { getRngLog } from '../js/rng.js';

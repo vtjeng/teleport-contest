@@ -6,7 +6,7 @@ import { COLNO, G_GONE, IN_SIGHT, COULD_SEE, NO_MINVENT, ROOM, ROWNO } from '../
 import { GameMap } from '../js/game.js';
 import { mkundead } from '../js/mkroom.js';
 import { PM_GHOST, PM_HUMAN, PM_NEWT, S_ZOMBIE, monst_globals_init, reset_mvitals } from '../js/monsters.js';
-import { mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/mkobj.js';
 import { CORPSE, objects_globals_init } from '../js/objects.js';
 import { enexto } from '../js/teleport.js';
 import { timeout_globals_init } from '../js/timeout.js';

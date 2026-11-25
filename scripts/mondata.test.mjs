@@ -20,7 +20,7 @@ import {
     NROFARTIFACTS,
     ART_SCEPTRE_OF_MIGHT,
     ART_SUNSWORD,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     _mondataInternals,
     acidic,

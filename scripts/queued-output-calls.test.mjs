@@ -58,7 +58,7 @@ const ALLOWED = {
 // `*_steps` form. The counts are pinned both ways so that a new synchronous
 // draw caller is seen, and a conversion lowers its file's count.
 const SYNC_CALLERS = {
-    'js/apply.js': 1, 'js/artifacts.js': 1, 'js/attrib.js': 1, 'js/ball.js': 22,
+    'js/apply.js': 1, 'js/artifact.js': 1, 'js/attrib.js': 1, 'js/ball.js': 22,
     'js/bury.js': 2, 'js/detect.js': 15, 'js/dig.js': 9, 'js/display.js': 45, 'js/do.js': 3,
     'js/dog.js': 2, 'js/dogmove.js': 1, 'js/eat.js': 2, 'js/engrave.js': 1,
     'js/extralev.js': 7, 'js/fountain.js': 1, 'js/hack.js': 3, 'js/invent.js': 3,

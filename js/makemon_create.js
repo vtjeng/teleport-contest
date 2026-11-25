@@ -93,7 +93,7 @@ import {
     ART_DEMONBANE,
     ART_EXCALIBUR,
     artifact_exists,
-} from './artifacts.js';
+} from './artifact.js';
 import { newemin } from './minion.js';
 import { in_town } from './hack.js';
 import {
@@ -327,7 +327,7 @@ import {
     rnd_class,
     set_corpsenm,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { vtense } from './objnam.js';
 import {
@@ -595,7 +595,7 @@ export function creationEnv(env = {}) {
 }
 
 // Copies: dungeon.h Is_rogue_level() is also ported as const.js
-// Is_rogue_level() and obj.js isRogueLevel(). A change to it must reach every
+// Is_rogue_level() and mkobj.js isRogueLevel(). A change to it must reach every
 // copy.
 export function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);

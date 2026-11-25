@@ -5,7 +5,7 @@ import { game } from '../js/gstate.js';
 import { GameMap } from '../js/game.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { domove } from '../js/hack.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import { ROCK, CORPSE, FIRST_OBJECT, NUM_OBJECTS } from '../js/objects.js';
 import { ROOM, BLINDED, HALLUC, OBJ_FREE, OBJ_FLOOR, DOMOVE_WALK } from '../js/const.js';
 import { light_globals_init } from '../js/light.js';

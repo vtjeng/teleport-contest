@@ -15,7 +15,7 @@ import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { t_at } from '../js/trap.js';
 import { cansee } from '../js/vision.js';
 import { is_displacer, is_reviver, is_rider } from '../js/mondata.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { CORPSE, LARGE_BOX } from '../js/objects.js';
 import { peek_timer, start_timer, run_timers } from '../js/timeout.js';
 

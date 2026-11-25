@@ -45,7 +45,7 @@ import {
     rnd_class,
     splitobj,
     weight,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import { init_objects } from '../js/o_init.js';
 import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { hornoplenty } from '../js/mkobj_hornoplenty.js';

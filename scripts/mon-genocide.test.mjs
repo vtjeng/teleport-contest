@@ -10,7 +10,7 @@ import {accessible} from '../js/monmove.js';
 import {m_at, newMonster, place_monster, remove_monster} from '../js/monst.js';
 import {NON_PM, PM_CHAMELEON, PM_GOBLIN, PM_LICHEN, PM_NEWT} from '../js/monsters.js';
 import {add_to_minv} from '../js/invent.js';
-import {mksobj} from '../js/obj.js';
+import {mksobj} from '../js/mkobj.js';
 import {m_dowear} from '../js/worn.js';
 import {AMULET_OF_LIFE_SAVING, EGG, SACK} from '../js/objects.js';
 import {loadMonGenocideCases, verifyMonGenocideSegment} from './run-mon-genocide.mjs';

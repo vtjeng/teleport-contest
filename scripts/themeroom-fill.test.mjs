@@ -68,7 +68,7 @@ import {
     ART_ORCRIST,
     artifact_exists,
     init_artifacts,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import { GameMap } from '../js/game.js';
 import { engr_at } from '../js/engrave.js';
 import { add_to_minv } from '../js/invent.js';
@@ -76,7 +76,7 @@ import { light_globals_init } from '../js/light.js';
 import { dmonsfree } from '../js/makemon_create.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { init_objects } from '../js/o_init.js';
-import { mksobj, weight } from '../js/obj.js';
+import { mksobj, weight } from '../js/mkobj.js';
 import {
     initialize_themeroom_postprocess_branch,
     run_themeroom_fill,

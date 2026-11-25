@@ -31,12 +31,12 @@ import { newMonster } from '../js/monst.js';
 import { PM_KITTEN, PM_LONG_WORM, PM_VALKYRIE, monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { light_globals_init, new_light_source } from '../js/light.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { moveloop_core } from '../js/allmain.js';
 import { initUnported } from '../js/unported.js';
-import { ART_SUNSWORD, init_artifacts } from '../js/artifacts.js';
+import { ART_SUNSWORD, init_artifacts } from '../js/artifact.js';
 import {
     AMULET_OF_GUARDING,
     ARROW,

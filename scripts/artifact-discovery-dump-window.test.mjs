@@ -3,7 +3,7 @@ import test from 'node:test';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { game } from '../js/gstate.js';
 import { doclassdisco } from '../js/o_init.js';
-import { NROFARTIFACTS, ART_EXCALIBUR } from '../js/artifacts.js';
+import { NROFARTIFACTS, ART_EXCALIBUR } from '../js/artifact.js';
 import { ECMD_OK, MENU_TRADITIONAL } from '../js/const.js';
 
 for (const answer of ['y', 'n']) test(`${answer === 'y' ? 'target' : 'control'}: wizard artifact dump answer=${answer}`, async () => {

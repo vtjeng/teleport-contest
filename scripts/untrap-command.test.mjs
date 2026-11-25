@@ -18,7 +18,7 @@ const cTrap = source('../nethack-c/upstream/src/trap.c');
 const cArtifact = source('../nethack-c/upstream/src/artifact.c');
 const cLock = source('../nethack-c/upstream/src/lock.c');
 const jsTrap = source('../js/trap.js');
-const jsArtifact = source('../js/artifacts.js');
+const jsArtifact = source('../js/artifact.js');
 const jsLock = source('../js/lock.js');
 
 test('invocation consumes untrap before selecting cancellation or elapsed time', () => {

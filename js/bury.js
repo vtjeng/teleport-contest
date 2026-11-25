@@ -16,7 +16,7 @@ import {
 import { is_rider } from './mondata.js';
 import {
     objectType,
-} from './obj.js';
+} from './mkobj.js';
 import {
     AMULET_OF_YENDOR,
     BELL_OF_OPENING,

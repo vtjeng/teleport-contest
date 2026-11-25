@@ -176,7 +176,7 @@ import {
     ydir,
 } from './const.js';
 import { isok } from './cmd_isok.js';
-import { is_art, ART_STING, attacks, has_magic_key } from './artifacts.js';
+import { is_art, ART_STING, attacks, has_magic_key } from './artifact.js';
 import { exercise, adjalign, acurr, poisoned } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { buried_ball, unearth_objs } from './dig.js';
@@ -289,7 +289,7 @@ import {
     place_object,
     remove_object,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import { mkcorpstat } from './corpstat.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {

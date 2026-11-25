@@ -19,7 +19,7 @@ import {
     weight_cap as initial_weight_cap,
 } from './hack.js';
 import { resetInventory } from './invent.js';
-import { ARM_BONUS, is_ammo, is_launcher, is_spear } from './obj.js';
+import { ARM_BONUS, is_ammo, is_launcher, is_spear } from './mkobj.js';
 import { discover_object } from './o_init.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import {

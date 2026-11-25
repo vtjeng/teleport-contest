@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { ART_EXCALIBUR } from '../js/artifacts.js';
+import { ART_EXCALIBUR } from '../js/artifact.js';
 import {
     ALTAR,
     BLINDED,
@@ -63,7 +63,7 @@ import {
     S_DRAGON,
     S_EEL,
 } from '../js/monsters.js';
-import { mksobj, mksobj_at, remove_object } from '../js/obj.js';
+import { mksobj, mksobj_at, remove_object } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     COIN_CLASS,

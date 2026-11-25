@@ -7,7 +7,7 @@ import {game} from '../js/gstate.js';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {GameMap} from '../js/game.js';
 import {newMonster,place_monster} from '../js/monst.js';
-import {mksobj,weight} from '../js/obj.js';
+import {mksobj,weight} from '../js/mkobj.js';
 import {mpickobj} from '../js/steal.js';
 import {discover_object} from '../js/o_init.js';
 import {PM_HUMAN,NON_PM,AD_FIRE} from '../js/monsters.js';

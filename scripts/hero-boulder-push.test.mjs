@@ -32,7 +32,7 @@ import {
     test_move,
 } from '../js/hack.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { mksobj, place_object } from '../js/obj.js';
+import { mksobj, place_object } from '../js/mkobj.js';
 import { sobj_at } from '../js/invent.js';
 import { BOULDER, CORPSE } from '../js/objects.js';
 import {

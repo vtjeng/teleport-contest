@@ -48,7 +48,7 @@ function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
 }
 
-// The floor pile at <x,y>, head first, as js/obj.js place_object() links it.
+// The floor pile at <x,y>, head first, as js/mkobj.js place_object() links it.
 function pileAt(x, y) {
     const found = [];
     for (let obj = game.level.objects[x]?.[y]; obj; obj = obj.nexthere)

@@ -99,7 +99,7 @@ import {
     ART_VORPAL_BLADE,
     is_art,
     protects,
-} from './artifacts.js';
+} from './artifact.js';
 import { getyear, midnight, night, yyyymmdd } from './calendar.js';
 import {
     bot,
@@ -204,7 +204,7 @@ import * as M from './monsters.js';
 import { find_offensive_steps, use_offensive } from './muse.js';
 import { mon_reflects, ureflects } from './muse.js';
 import { makeplural } from './fruit.js';
-import { is_weptool, is_wet_towel, objectType } from './obj.js';
+import { is_weptool, is_wet_towel, objectType } from './mkobj.js';
 import {
     currency,
     freeinv,

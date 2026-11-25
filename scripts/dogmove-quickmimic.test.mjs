@@ -59,7 +59,7 @@ import {
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { parseNethackrc } from '../js/options.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import {
     CARROT,
     COIN_CLASS,

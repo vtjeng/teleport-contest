@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-import { ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_SUNSWORD } from '../js/artifact.js';
 import {
     remembered_glyph_presentation,
     tty_map_cell_at,
@@ -41,7 +41,7 @@ import {
     WATER,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
-import { bless } from '../js/obj.js';
+import { bless } from '../js/mkobj.js';
 import * as light from '../js/light.js';
 import { resetGame } from '../js/gstate.js';
 import { PM_HUMAN, monst_globals_init } from '../js/monsters.js';

@@ -30,7 +30,7 @@ import {
     PM_ROCK_PIERCER,
     PM_XORN,
 } from '../js/monsters.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { CORPSE, EGG } from '../js/objects.js';
 
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';

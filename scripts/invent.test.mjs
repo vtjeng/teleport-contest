@@ -323,9 +323,9 @@ test('obfree wires the apply.c o_unleash source owner', () => {
 
 test('doorganize awaits the canonical glob merge and preserves the survivor', () => {
     const fixturePath = '.cache/glob-organizer-main-reviewed-default-qualification-20261019/attempt.mjs';
-    const expectedFixtureSha = 'd7014275abdb9655b45d8dd4461c2ed32b6638cf11a20d5bf2695a0bb851bcbe';
+    const expectedFixtureSha = '25020d543fcac40b68d57bfd22fa8ee42c1200c5d18239cc4a495ea284426add';
     const fixture = readFileSync(fixturePath);
-    assert.equal(fixture.length, 18956);
+    assert.equal(fixture.length, 18958);
     assert.equal(createHash('sha256').update(fixture).digest('hex'), expectedFixtureSha);
 
     const captureRoot = '.cache/fix-glob-organizer-runtime-source-parity-20261019/regression-captures';

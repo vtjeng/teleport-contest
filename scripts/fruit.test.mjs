@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { createArtifactTable } from '../js/artifacts.js';
+import { createArtifactTable } from '../js/artifact.js';
 import {
     _fruitInternals,
     DEFAULT_FRUIT,

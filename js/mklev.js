@@ -146,7 +146,7 @@ import {
     mksobj_at,
     set_corpsenm,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import {
     ARMOR_CLASS,
     BOULDER,
@@ -8333,10 +8333,10 @@ const SUPPLY_ITEMS = [
     SPE_HEALING,
 ];
 
-// Built per call rather than at module scope. SPBOOK_NO_NOVEL is a js/obj.js
-// module-scope const, and js/obj.js imports js/eat.js, which since the #eat
+// Built per call rather than at module scope. SPBOOK_NO_NOVEL is a js/mkobj.js
+// module-scope const, and js/mkobj.js imports js/eat.js, which since the #eat
 // command landed reaches this file: a module-scope read here would run while
-// js/obj.js's own body is still in its temporal dead zone. The table is read
+// js/mkobj.js's own body is still in its temporal dead zone. The table is read
 // once per supply chest, so rebuilding it costs nothing a level pays.
 function supplyExtraClasses() {
     return [

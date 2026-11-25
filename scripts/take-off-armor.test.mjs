@@ -55,7 +55,7 @@ import {
     Dragon_mail_to_pm, Dragon_scales_to_pm,
     Is_dragon_armor, Is_dragon_mail, Is_dragon_scales,
     is_boots, is_gloves,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { monstunseesu } from '../js/mondata.js';
 import {
@@ -1442,7 +1442,7 @@ test('Armor_off awaits the source dragon-armor removal path', async () => {
 
 test('Is_dragon_armor() spans the two obj.h ranges and nothing else', () => {
     // obj.h:347-352 writes Is_dragon_armor() as Is_dragon_scales() OR
-    // Is_dragon_mail(), two range tests over otyp. js/obj.js merges them into
+    // Is_dragon_mail(), two range tests over otyp. js/mkobj.js merges them into
     // one range, which is equivalent only while objects.h leaves the ten scale
     // mails (101-110) and the ten scale heaps (111-120) back to back. obj.h
     // states neither range's neighbour, so the adjacency is a property of the

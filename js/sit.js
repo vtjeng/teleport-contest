@@ -82,7 +82,7 @@ import {
     PM_TRAPPER,
     S_DRAGON,
 } from './monsters.js';
-import { curse, isBox, mksobj, newObject, objectType, set_corpsenm, unbless, weight } from './obj.js';
+import { curse, isBox, mksobj, newObject, objectType, set_corpsenm, unbless, weight } from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { observe_object } from './o_init.js';
 import { makeplural } from './fruit.js';
@@ -112,7 +112,7 @@ import {
 import { Monnam, hcolor, hliquid, mon_nam } from './do_name.js';
 import { burn_away_slime } from './timeout.js';
 import { canspotmon, shieldeff } from './display.js';
-import { ART_MAGICBANE, SPFX_INTEL, is_art, spec_ability } from './artifacts.js';
+import { ART_MAGICBANE, SPFX_INTEL, is_art, spec_ability } from './artifact.js';
 import { update_inventory } from './invent.js';
 import { which_armor } from './worn.js';
 import {

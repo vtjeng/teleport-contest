@@ -116,7 +116,7 @@ function align_gtitle(alignment, state) {
 }
 
 // C ref: artifacts.c artiname().
-// Copies: artifact.c artiname() is also ported as artifacts.js artiname(). A
+// Copies: artifact.c artiname() is also ported as artifact.js artiname(). A
 // change to it must reach every copy.
 function artiname(state) {
     // Import avoided to prevent circular dependency; use the artifact

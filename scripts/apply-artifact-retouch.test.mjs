@@ -5,7 +5,7 @@ import test from 'node:test';
 import {
     ART_ORB_OF_DETECTION,
     artifact_exists,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import { doapply } from '../js/apply.js';
 import { ECMD_TIME } from '../js/const.js';
 import { game } from '../js/gstate.js';

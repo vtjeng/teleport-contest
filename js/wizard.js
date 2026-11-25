@@ -65,7 +65,7 @@ import {
     monsterClassSymbol,
 } from './monsters.js';
 import { NASTIES } from './nasties_data.js';
-import { ART_ORB_OF_DETECTION } from './artifacts.js';
+import { ART_ORB_OF_DETECTION } from './artifact.js';
 import {
     AMULET_OF_YENDOR, BELL_OF_OPENING, CANDELABRUM_OF_INVOCATION,
     FAKE_AMULET_OF_YENDOR, SPE_BOOK_OF_THE_DEAD,
@@ -79,7 +79,7 @@ import { makemon_runtime } from './makemon_create.js';
 import { cansee } from './vision.js';
 import { distant_name, donameFresh, Tobjnam } from './objnam.js';
 import { add_to_minv, obj_extract_self } from './invent.js';
-import { mksobj } from './obj.js';
+import { mksobj } from './mkobj.js';
 import {
     printQueued,
     ttyPline,

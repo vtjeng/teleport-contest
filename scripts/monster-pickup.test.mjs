@@ -103,9 +103,9 @@ test('canonical goblin floor glob pickup completes through mpickstuff', async ()
         import.meta.url,
     ));
     const fixtureBytes = readFileSync(fixture);
-    assert.equal(fixtureBytes.byteLength, 19191);
+    assert.equal(fixtureBytes.byteLength, 19193);
     assert.equal(createHash('sha256').update(fixtureBytes).digest('hex'),
-        'e0ebb02d3a4b736faf2c6a158ba5f061d1f2ed036092901666fd80aa8f70bcb2');
+        '77e8c2319b05df3fde7e915368708c2f69022e8d947d204382d0cbcdb1ade23a');
     const outputDir = mkdtempSync(join(dirname(fixture), 'regression-'));
     const oldOutputDir = process.env.QUALIFICATION_OUTPUT_DIR;
     const oldLog = console.log;

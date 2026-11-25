@@ -193,7 +193,7 @@ import {
     unstuck,
     m_into_limbo,
 } from './mon.js';
-import { carried, mksobj, place_object } from './obj.js';
+import { carried, mksobj, place_object } from './mkobj.js';
 import {
     AMULET_OF_YENDOR,
     BOULDER,

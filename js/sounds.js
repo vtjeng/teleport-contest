@@ -184,7 +184,7 @@ import {
 } from './monsters.js';
 import { accessible } from './monmove.js';
 import { m_at } from './monst.js';
-import { g_at, is_weptool } from './obj.js';
+import { g_at, is_weptool } from './mkobj.js';
 import { an, helm_simple_name, vtense } from './objnam.js';
 import { currency, money_cnt, u_have_novel } from './invent.js';
 import { Death_quote } from './files.js';

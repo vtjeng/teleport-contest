@@ -22,7 +22,7 @@ import {
     mksobj,
     mksobj_at,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import { BELL, GOLD_PIECE, RANDOM_CLASS } from './objects.js';
 import { coreRandom } from './rng.js';
 import { set_levltyp } from './terrain.js';

@@ -165,7 +165,7 @@ import {
 import {
     ART_MJOLLNIR, confers_luck, discover_artifact, set_artifact_intrinsic,
     touch_artifact,
-} from './artifacts.js';
+} from './artifact.js';
 import { obj_resists } from './bury.js';
 import {
     cmdq_add_int, cmdq_add_key, cmdq_clear, cmdq_key_char, cmdq_pop,
@@ -342,7 +342,7 @@ import {
     obj_no_longer_held,
     pudding_merge_message,
     hands_obj,
-} from './obj.js';
+} from './mkobj.js';
 import { get_obj_location, obj_merge_light_sources } from './light.js';
 import { maybe_reset_pick } from './lock.js';
 import {
@@ -530,7 +530,7 @@ export function free_invbuf() {
     return undefined;
 }
 
-// C ref: decl.c hands_obj, defined in js/obj.js. getobj() returns this
+// C ref: decl.c hands_obj, defined in js/mkobj.js. getobj() returns this
 // shared sentinel when the player deliberately selects hands/self; null
 // remains the cancellation and invalid-answer result.
 export { hands_obj };
@@ -4333,7 +4333,7 @@ export function carry_obj_effects(obj, env = {}, prepared = null) {
 
 // C ref: dothrow.c throwing_weapon().  obj.h is_blade() and is_sword() are
 // not ported, so their two terms stay inlined here; is_missile() and
-// is_spear() come from js/obj.js, which owns obj.h.
+// is_spear() come from js/mkobj.js, which owns obj.h.
 export function isThrowingWeapon(obj, state) {
     const type = objectType(obj, state);
     const skill = type.oc_subtyp;

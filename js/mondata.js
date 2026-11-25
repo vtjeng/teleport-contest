@@ -58,7 +58,7 @@ import {
     ART_EXCALIBUR,
     defends,
     defends_when_carried,
-} from './artifacts.js';
+} from './artifact.js';
 import { def_char_to_monclass } from './drawing.js';
 // pronoun_gender() below reads canspotmon(). js/display.js imports this file
 // too; both sides use the other's exports only inside function bodies.

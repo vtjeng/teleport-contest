@@ -1,7 +1,7 @@
 // Object initialization and unidentified-description shuffling.
 // C ref: src/o_init.c setgemprobs through oinit.
 
-import { disp_artifact_discoveries, dump_artifact_info, NROFARTIFACTS } from './artifacts.js';
+import { disp_artifact_discoveries, dump_artifact_info, NROFARTIFACTS } from './artifact.js';
 import { exercise_nonphysical } from './attrib.js';
 import { game } from './gstate.js';
 import {
@@ -1039,7 +1039,7 @@ export async function rename_disco(state = game) {
         });
         const dis = selected ?? STRANGE_OBJECT;
         if (dis !== STRANGE_OBJECT) {
-            const { newObject } = await import('./obj.js');
+            const { newObject } = await import('./mkobj.js');
             const odummy = newObject({
                 otyp: dis,
                 oclass: state.objects[dis].oc_class,

@@ -7,7 +7,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { mon_reflects } from '../js/muse.js';
 import { PM_HUMAN } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { SHIELD_OF_REFLECTION, AMULET_OF_REFLECTION } from '../js/objects.js';
 import { createCoreRandom } from '../js/rng.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';

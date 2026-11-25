@@ -122,7 +122,7 @@ import {
     makeArtifact as mkArtifactAdapter,
     nartifact_exist,
     permapoisoned,
-} from './artifacts.js';
+} from './artifact.js';
 // mkobj.c:curse() calls spell.c:book_cursed(). spell.js imports object helpers
 // from this module, so use this binding only inside curse(), after init.
 import { book_cursed } from './spell.js';
@@ -140,7 +140,7 @@ import {
 } from './light.js';
 // curse() needs the same hero equipment predicates and takeoff reset used by
 // wielding and armor removal. These modules already form function-body-only
-// cycles with obj.js.
+// cycles with mkobj.js.
 import { reset_remarm } from './do_wear.js';
 import { bimanual } from './worn.js';
 import { rndmonnum } from './makemon.js';

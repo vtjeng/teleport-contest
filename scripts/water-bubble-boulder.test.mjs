@@ -5,7 +5,7 @@ import {rn2,getRngLog} from '../js/rng.js';
 import assert from 'node:assert/strict';import test from 'node:test';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';import {game} from '../js/gstate.js';import {GameMap} from '../js/game.js';
 import {AIR,WATER,OBJ_FLOOR,OBJ_FREE,HALLUC,BLINDED} from '../js/const.js';import {BOULDER,FOOD_RATION} from '../js/objects.js';
-import {newObject,place_object} from '../js/obj.js';import {objectGenerationEnv} from '../js/object_generation.js';
+import {newObject,place_object} from '../js/mkobj.js';import {objectGenerationEnv} from '../js/object_generation.js';
 import {init_vision_globals,vision_reset,transparencyIndexViews} from '../js/vision.js';import {light_globals_init} from '../js/light.js';import {movebubbles} from '../js/mkmaze.js';
 async function setup(hallu,blind,count,dx,boulder=true){
  await runSegment({seed:8432252,datetime:'20270613100000',nethackrc:'OPTIONS=name:BubbleBoulder,role:Healer,race:human,gender:female,align:neutral,pettype:none,!legacy,!tutorial,!splash_screen,!tips\n',moves:' '});

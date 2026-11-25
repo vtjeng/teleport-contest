@@ -8,7 +8,7 @@ import { GameDisplay } from '../../js/game_display.js';
 import { game } from '../../js/gstate.js';
 import { NethackGame } from '../../js/jsmain.js';
 import { mergable } from '../../js/invent.js';
-import { mksobj_at } from '../../js/obj.js';
+import { mksobj_at } from '../../js/mkobj.js';
 import { objectGenerationEnv } from '../../js/object_generation.js';
 import { GLOB_OF_GRAY_OOZE } from '../../js/objects.js';
 import { bury_an_obj } from '../../js/bury.js';

@@ -14,7 +14,7 @@ import {
     fill_ordinary_room_supply_chest,
 } from '../js/mklev.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { weight } from '../js/obj.js';
+import { weight } from '../js/mkobj.js';
 import {
     CHEST,
     POT_EXTRA_HEALING,

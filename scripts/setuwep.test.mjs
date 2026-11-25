@@ -2,12 +2,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { ART_OGRESMASHER, ART_SNICKERSNEE, ART_SUNSWORD, init_artifacts } from '../js/artifacts.js';
+import { ART_OGRESMASHER, ART_SNICKERSNEE, ART_SUNSWORD, init_artifacts } from '../js/artifact.js';
 import { BLINDED, LAST_PROP, LS_OBJECT, OBJ_INVENT, W_ARM, W_WEP } from '../js/const.js';
 import { light_globals_init, new_light_source } from '../js/light.js';
 import { PM_WIZARD } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { DAGGER, GOLD_DRAGON_SCALE_MAIL, KATANA, LONG_SWORD, PARTISAN, TOWEL, WAR_HAMMER, objects_globals_init } from '../js/objects.js';
 import { setuwep } from '../js/wield.js';
 

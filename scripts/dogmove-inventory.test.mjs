@@ -20,7 +20,7 @@ import {
 import { dog_invent } from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import {
     AT_WEAP,
     PM_KITTEN,
@@ -173,7 +173,7 @@ function floorStack(state, otyp, quan) {
     return obj;
 }
 
-// obj.js requires the whole source random set even though the only draw the
+// mkobj.js requires the whole source random set even though the only draw the
 // pickup arm reaches through it is next_ident()'s rnd(2).
 function pickupRandom(bounds, values) {
     const unreached = (name) => () => {

@@ -7,7 +7,7 @@ import { create_drawbridge } from '../js/dbridge.js';
 import { game } from '../js/gstate.js';
 import { addinv } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { WAN_STRIKING } from '../js/objects.js';
 import { zap_updown } from '../js/zap.js';
 import { expectTerminated } from './expect-terminated.mjs';

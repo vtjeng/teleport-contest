@@ -72,7 +72,7 @@ import {
     PM_WOLF,
     PM_WEREWOLF,
 } from '../js/monsters.js';
-import { weight } from '../js/obj.js';
+import { weight } from '../js/mkobj.js';
 import { CORPSE } from '../js/objects.js';
 import { make_stoned } from '../js/potion.js';
 import { CORPSE_CASES, loadEatCorpseRecipe } from './run-eat-corpse.mjs';

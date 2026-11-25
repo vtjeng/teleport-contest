@@ -15,7 +15,7 @@ import {
     NOT_ON_ICE,
     SET_ON_ICE,
     BURIED_UNDER_ICE,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 
 // ICE terrain type from rm.h / const.js.
 const ICE = 33;

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { ART_CLEAVER } from '../js/artifacts.js';
+import { ART_CLEAVER } from '../js/artifact.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';

@@ -78,7 +78,7 @@ import {
     retouch_equipment,
     SPFX_LUCK,
     what_gives,
-} from './artifacts.js';
+} from './artifact.js';
 // js/display.js imports acurr() from this file; both sides use the other's
 // exports only inside function bodies, so the cycle resolves.
 import { see_monsters, shieldeff } from './display.js';
@@ -116,7 +116,7 @@ import {
     PM_WIZARD,
     S_NYMPH,
 } from './monsters.js';
-import { objectType } from './obj.js';
+import { objectType } from './mkobj.js';
 import {
     DUNCE_CAP, GAUNTLETS_OF_POWER, HELM_OF_OPPOSITE_ALIGNMENT, LUCKSTONE,
 } from './objects.js';

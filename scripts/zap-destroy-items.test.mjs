@@ -35,7 +35,7 @@ import { discover_object } from '../js/o_init.js';
 import {
     mksobj,
     weight,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import {
     GLOB_OF_GREEN_SLIME,
     POT_BOOZE,

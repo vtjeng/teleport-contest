@@ -138,7 +138,7 @@ import {
     uhis,
 } from './const.js';
 import { acurr, adjattrib, exercise, poisontell } from './attrib.js';
-import { permapoisoned, Sting_effects } from './artifacts.js';
+import { permapoisoned, Sting_effects } from './artifact.js';
 import {
     bot, glyph_buffer_at, newsym, newsym_async, see_monsters, see_monsters_async, see_objects, see_traps,
     set_mimic_blocking, swallowed, tmp_at,
@@ -185,7 +185,7 @@ import {
     dealloc_obj, is_weptool, isCorrodeable, isRustprone, mkobj, mksobj,
     newObject, objectType, splitobj,
     unbless, uncurse,
-} from './obj.js';
+} from './mkobj.js';
 import { obj_resists } from './bury.js';
 import { dist2, s_suffix, upstart } from './hacklib.js';
 import {
@@ -196,7 +196,7 @@ import {
 import {
     fingers_or_gloves, hard_helmet, inaccessible_equipment,
 } from './do_wear.js';
-import { is_boots, is_gloves } from './obj.js';
+import { is_boots, is_gloves } from './mkobj.js';
 import { discover_object, observe_object } from './o_init.js';
 import { encumber_msg } from './pickup.js';
 import { body_part, float_vs_flight, polyself } from './polyself.js';

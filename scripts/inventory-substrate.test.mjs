@@ -148,14 +148,14 @@ import {
     ART_EXCALIBUR, ART_EYE_OF_THE_AETHIOPICA, ART_GRAYSWANDIR,
     ART_MAGIC_MIRROR_OF_MERLIN, ART_ORB_OF_FATE,
     init_artifacts,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     newObject,
     place_object,
     remove_object,
     UnsupportedObjectOperationError,
     weight,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import {
     PM_COCKATRICE,
     PM_FOX,

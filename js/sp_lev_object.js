@@ -16,7 +16,7 @@ import {
     STONE_RES,
     W_SADDLE,
 } from './const.js';
-import { artifact_exists } from './artifacts.js';
+import { artifact_exists } from './artifact.js';
 import { bury_an_obj } from './bury.js';
 import { lookup_novel, oname } from './do_name.js';
 import { simpleonames } from './objnam.js';
@@ -48,7 +48,7 @@ import {
     remove_object,
     set_corpsenm,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import {
     BAG_OF_HOLDING,
     COIN_CLASS,

@@ -32,7 +32,7 @@ import {
     PM_WIZARD,
 } from './monsters.js';
 import { christen_monst, oname } from './do_name.js';
-import { set_corpsenm } from './obj.js';
+import { set_corpsenm } from './mkobj.js';
 import { playgroundReadFile, playgroundWriteFile } from './files.js';
 import { tty_raw_print, tty_raw_print_bold } from './tty_rawprint.js';
 import { displayTtyTextWindow } from './tty_menu.js';

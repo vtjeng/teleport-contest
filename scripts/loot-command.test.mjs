@@ -24,7 +24,7 @@ import {
     container_at,
     doloot,
 } from '../js/pickup.js';
-import { isContainer, mksobj } from '../js/obj.js';
+import { isContainer, mksobj } from '../js/mkobj.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';

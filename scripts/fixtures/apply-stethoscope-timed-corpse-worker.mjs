@@ -5,7 +5,7 @@ import { OBJ_FLOOR, REVIVE_MON, TIMER_OBJECT } from '../../js/const.js';
 import { game } from '../../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../../js/jsmain.js';
 import { PM_NEWT } from '../../js/monsters.js';
-import { newObject } from '../../js/obj.js';
+import { newObject } from '../../js/mkobj.js';
 import { CORPSE, ROCK } from '../../js/objects.js';
 import { start_timer } from '../../js/timeout.js';
 import { loadApplyStethoscopeRecipe } from '../run-apply-stethoscope.mjs';

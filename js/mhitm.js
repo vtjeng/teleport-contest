@@ -191,8 +191,8 @@ import {
     S_MIMIC,
     S_TROLL,
 } from './monsters.js';
-import { ART_SNICKERSNEE, ART_TROLLSBANE } from './artifacts.js';
-import { objectType } from './obj.js';
+import { ART_SNICKERSNEE, ART_TROLLSBANE } from './artifact.js';
+import { objectType } from './mkobj.js';
 import { IRON, METAL, SILVER, WAND_CLASS } from './objects.js';
 import { makeplural } from './fruit.js';
 import { impossible_printer, pline_mon, youFeel } from './pline.js';

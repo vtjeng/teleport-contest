@@ -1,20 +1,20 @@
 {
   "entries": {
-    "js/artifacts.js | dispose_of_orig_obj | obj_extract_self": {
+    "js/artifact.js | dispose_of_orig_obj | obj_extract_self": {
       "count": 1,
       "reason": "artifact.c mk_artifact() reaches dispose_of_orig_obj() (lines 271, 302) only with an alignment and a non-null otmp, and every caller passing an alignment (pray.c gcrownu() line 1798; js/pray.js) passes a null object, so this never runs; an object it got would be a fresh, uncarried one. obj_extract_self() returns a Promise only from its OBJ_INVENT arm (freeinv()); every other arm only unlinks the object."
     },
     "js/ball.js | moveObject | place_object": {
       "count": 1,
-      "reason": "js/ball.js move_bc() calls moveObject() only for the iron ball and its chain. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "js/ball.js move_bc() calls moveObject() only for the iron ball and its chain. js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/ball.js | move_bc | place_object": {
       "count": 4,
-      "reason": "ball.c move_bc() puts back only the iron ball and its chain. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "ball.c move_bc() puts back only the iron ball and its chain. js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/ball.js | set_bc | place_object": {
       "count": 6,
-      "reason": "The six calls place only the iron ball and its chain (ball.c placebc_core()). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "The six calls place only the iron ball and its chain (ball.c placebc_core()). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/bones.js | resetobjs | curse": {
       "count": 4,
@@ -62,7 +62,7 @@
     },
     "js/extralev.js | makerogueghost | curse": {
       "count": 6,
-      "reason": "extralev.c makerogueghost() (288-353) curses floor objects it has just made with mksobj_at(). mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "extralev.c makerogueghost() (288-353) curses floor objects it has just made with mksobj_at(). mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/extralev.js | roguecorr | dodoor": {
       "count": 4,
@@ -70,7 +70,7 @@
     },
     "js/hack.js | movobj | place_object": {
       "count": 1,
-      "reason": "hack.c movobj() (825-833) is called for a pushed boulder (moverock()) and for uchain (ball.c, trap.c float_down()). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "hack.c movobj() (825-833) is called for a pushed boulder (moverock()) and for uchain (ball.c, trap.c float_down()). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/insight.js | status_enlightenment | youhiding": {
       "count": 1,
@@ -106,11 +106,11 @@
     },
     "js/makemon_create.js | m_initinv_steps | curse": {
       "count": 2,
-      "reason": "makemon.c m_initinv() curses a tin whistle and a ring it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "makemon.c m_initinv() curses a tin whistle and a ring it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/makemon_create.js | m_initweap | curse": {
       "count": 1,
-      "reason": "makemon.c m_initweap() (161-572) curses a mace it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "makemon.c m_initweap() (161-572) curses a mace it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/makemon_create.js | makemon_steps | hideunder": {
       "count": 2,
@@ -118,7 +118,7 @@
     },
     "js/makemon_create.js | makemon_steps | mkobj_at": {
       "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/makemon_create.js | makemon_steps | mon_adjust_speed": {
       "count": 1,
@@ -126,15 +126,15 @@
     },
     "js/makemon_create.js | mongets | curse": {
       "count": 1,
-      "reason": "makemon.c mongets() (2181-2230) curses the object it has just made for a demon for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "makemon.c mongets() (2181-2230) curses the object it has just made for a demon for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/mineralize.js | mineralize | mksobj_at": {
       "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mineralize.js | mineralize | place_object": {
       "count": 2,
-      "reason": "mklev.c mineralize() (1449-1541) places gold and gems it has just made (when add_to_buried() is not taken). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "mklev.c mineralize() (1449-1541) places gold and gems it has just made (when add_to_buried() is not taken). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | create_trap | maketrap": {
       "count": 1,
@@ -142,7 +142,7 @@
     },
     "js/mklev.js | dig_corridor | mksobj_at": {
       "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | fake_delphi | run_room_descriptor": {
       "count": 1,
@@ -150,11 +150,11 @@
     },
     "js/mklev.js | fill_ordinary_room_steps | mkobj_at": {
       "count": 2,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | fill_ordinary_room_steps | mksobj_at": {
       "count": 2,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | fill_ordinary_room_supply_chest | add_to_container": {
       "count": 2,
@@ -162,7 +162,7 @@
     },
     "js/mklev.js | generate_way_out_method | mksobj_at": {
       "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mklev.js | huge_room_with_another_room_inside | run_room_descriptor": {
       "count": 1,
@@ -210,11 +210,11 @@
     },
     "js/mkroom.js | finishCell | mkobj_at": {
       "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mkroom.js | finishCell | mksobj_at": {
       "count": 3,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/mkroom.js | finishZoo | add_to_container": {
       "count": 1,
@@ -226,15 +226,15 @@
     },
     "js/mktrap.js | mktrap_victim | curse": {
       "count": 2,
-      "reason": "mklev.c mktrap_victim() (1815-1934) curses objects it has just made for a trap victim. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "mklev.c mktrap_victim() (1815-1934) curses objects it has just made for a trap victim. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/mktrap.js | mktrap_victim | place_object": {
       "count": 3,
-      "reason": "mklev.c mktrap_victim() places objects it has just made by type (a trap's ammunition, a victim's possessions and corpse), none a crysknife. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "mklev.c mktrap_victim() places objects it has just made by type (a trap's ammunition, a victim's possessions and corpse), none a crysknife. js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mon.js | apply_newcham_steps | place_object": {
       "count": 1,
-      "reason": "mon.c newcham() (5278-5535) drops only the boulders a former giant can no longer carry. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "mon.c newcham() (5278-5535) drops only the boulders a former giant can no longer carry. js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/mon.js | m_detach | m_unleash": {
       "count": 1,
@@ -258,31 +258,31 @@
     },
     "js/mplayer.js | mk_mplayer_armor | bless": {
       "count": 1,
-      "reason": "mplayer.c mk_mplayer_armor() (95-115) blesses armor it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "mplayer.c mk_mplayer_armor() (95-115) blesses armor it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/mplayer.js | mk_mplayer_armor | curse": {
       "count": 1,
-      "reason": "mplayer.c mk_mplayer_armor() (95-115) curses armor it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "mplayer.c mk_mplayer_armor() (95-115) curses armor it has just made for the monster. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
-    "js/obj.js | add_to_migration | finish_steps": {
+    "js/mkobj.js | add_to_migration | finish_steps": {
       "count": 1,
       "reason": "add_to_migration() is the synchronous form of add_to_migration_steps() (js/source_steps.js); with sync_impossible, which queues a report and returns nothing, its steps never yield a promise, so finish_steps() returns synchronously. add_to_migration_async() is the form for a caller that can wait; the synchronous caller is mksobj_migr_to_species(), whose new object is never unpaid."
     },
-    "js/obj.js | initializeTin | blessorcurse": {
+    "js/mkobj.js | initializeTin | blessorcurse": {
       "count": 1,
-      "reason": "mkobj.c mksobj_init() blesses or curses the tin it is making, which is still free and unlit. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "mkobj.c mksobj_init() blesses or curses the tin it is making, which is still free and unlit. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
-    "js/obj.js | mkbox_cnts | add_to_container": {
+    "js/mkobj.js | mkbox_cnts | add_to_container": {
       "count": 1,
       "reason": "mkobj.c mkbox_cnts() (304-384) fills a new box with objects from mkobj(), and objects.h gives the crysknife a generation probability of 0. js/invent.js add_to_container() returns a Promise only when the container is not carried and do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
-    "js/obj.js | mksobj_init | blessorcurse": {
+    "js/mkobj.js | mksobj_init | blessorcurse": {
       "count": 13,
-      "reason": "mkobj.c mksobj_init() blesses or curses the object it is making, which is still free; nothing is lit before mksobj_init() returns. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "mkobj.c mksobj_init() blesses or curses the object it is making, which is still free; nothing is lit before mksobj_init() returns. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
-    "js/obj.js | mksobj_init | curse": {
+    "js/mkobj.js | mksobj_init | curse": {
       "count": 6,
-      "reason": "mkobj.c mksobj_init() curses the object it is making, which is still free; nothing is lit before mksobj_init() returns. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "mkobj.c mksobj_init() curses the object it is making, which is still free; nothing is lit before mksobj_init() returns. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/objnam_readobjnam.js | readobjnam_typfnd_finish | obj_extract_self": {
       "count": 1,
@@ -290,7 +290,7 @@
     },
     "js/objnam_readobjnam.js | readobjnam_typfnd_finish | place_object": {
       "count": 1,
-      "reason": "objnam.c readobjnam() (4910-5400) places a wished light source on the hero's square for begin_burn() and extracts it again; the branch takes only an object that ignitable() accepts, never a crysknife. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "objnam.c readobjnam() (4910-5400) places a wished light source on the hero's square for begin_burn() and extracts it again; the branch takes only an object that ignitable() accepts, never a crysknife. js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/options.js | applyOption | optfn_fruit": {
       "count": 1,
@@ -322,7 +322,7 @@
     },
     "js/priest.js | finishPriest | curse": {
       "count": 1,
-      "reason": "priest.c priestini() (220-276) curses the robe the new priest wears, an object in a monster's inventory. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "priest.c priestini() (220-276) curses the robe the new priest wears, an object in a monster's inventory. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/read.js | unpunish | delobj": {
       "count": 1,
@@ -342,11 +342,11 @@
     },
     "js/room_features.js | mkgrave | curse": {
       "count": 1,
-      "reason": "mklev.c mkgrave() (2353-2397) curses an object it has just made for the grave. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "mklev.c mkgrave() (2353-2397) curses an object it has just made for the grave. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/room_features.js | mkgrave | mksobj_at": {
       "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/save.js | saveobjchn | setworn": {
       "count": 1,
@@ -362,15 +362,15 @@
     },
     "js/shknam.js | makeShopItem | mkobj_at": {
       "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/shknam.js | makeShopItem | mksobj_at": {
       "count": 1,
-      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
+      "reason": "The object is freshly made and is neither a crysknife nor a container holding one (objects.h gives the crysknife a generation probability of 0, and no caller here asks for one by type). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife whose change mkobj.c costly_alteration() bills."
     },
     "js/sp_lev_object.js | applyBuc | curseSpecialObject": {
       "count": 1,
-      "reason": "sp_lev.c create_object() (2193-2440) applies the curse state to the object it has just made, before its lit, name and container steps. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "sp_lev.c create_object() (2193-2440) applies the curse state to the object it has just made, before its lit, name and container steps. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/sp_lev_object.js | applyObjectFields | oname": {
       "count": 1,
@@ -378,7 +378,7 @@
     },
     "js/sp_lev_object.js | blessorcurseSpecialObject | curseSpecialObject": {
       "count": 1,
-      "reason": "sp_lev.c create_object() (2193-2440) applies the curse state to the object it has just made, before its lit, name and container steps. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "sp_lev.c create_object() (2193-2440) applies the curse state to the object it has just made, before its lit, name and container steps. mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/sp_lev_object.js | finishAccepted | add_to_container": {
       "count": 1,
@@ -426,7 +426,7 @@
     },
     "js/trap.js | mkroll_launch | place_object": {
       "count": 1,
-      "reason": "trap.c mkroll_launch() (3659-3692) places a boulder it has just made. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "trap.c mkroll_launch() (3659-3692) places a boulder it has just made. js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/trap.js | transfer | obj_extract_self": {
       "count": 1,
@@ -434,7 +434,7 @@
     },
     "js/trap_effects.js | force_launch_placement | place_object": {
       "count": 1,
-      "reason": "trap.c force_launch_placement() (3244-3250) places launch_obj()'s object, and every launch_obj() caller launches a BOULDER (hack.c:612, trap.c:2672 and 2695). js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "trap.c force_launch_placement() (3244-3250) places launch_obj()'s object, and every launch_obj() caller launches a BOULDER (hack.c:612, trap.c:2672 and 2695). js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/trap_effects.js | keep_saddle_with_steedcorpse | obj_extract_self": {
       "count": 1,
@@ -442,7 +442,7 @@
     },
     "js/trap_effects.js | keep_saddle_with_steedcorpse | place_object": {
       "count": 1,
-      "reason": "trap.c keep_saddle_with_steedcorpse() (939-967) places the dead steed's saddle. js/obj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
+      "reason": "trap.c keep_saddle_with_steedcorpse() (939-967) places the dead steed's saddle. js/mkobj.js place_object() returns a Promise only when do.c obj_no_longer_held() reverts a crysknife, or a container holding one, whose change mkobj.c costly_alteration() bills."
     },
     "js/tty_message.js | queuedVpline | vision_recalc": {
       "count": 1,
@@ -466,7 +466,7 @@
     },
     "js/worn.js | m_dowear_type_steps | curse": {
       "count": 1,
-      "reason": "worn.c m_dowear_type() (799-1002) curses a helm of opposite alignment or a dunce cap in a monster's inventory; this is the creation arm, and the runtime arm awaits curse(). mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/obj.js curse() and bless() return a Promise only from those arms."
+      "reason": "worn.c m_dowear_type() (799-1002) curses a helm of opposite alignment or a dunce cap in a monster's inventory; this is the creation arm, and the runtime arm awaits curse(). mkobj.c curse() (1783-1819) and bless() (1745-1765) print or wait only for a lit object whose light radius changes (maybe_adjust_light()), the spellbook the hero is studying (book_cursed()) and the two-weapon uswapwep (drop_uswapwep()); js/mkobj.js curse() and bless() return a Promise only from those arms."
     },
     "js/worn.js | m_dowear_type_steps | update_mon_extrinsics": {
       "count": 2,

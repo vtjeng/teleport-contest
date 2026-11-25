@@ -6,7 +6,7 @@ import test from 'node:test';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { potionbreathe } from '../js/potion.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { POT_SLEEPING, POT_CONFUSION, POT_BOOZE } from '../js/objects.js';
 import { FREE_ACTION, SLEEP_RES, CONFUSION, FAINTED, NOT_HUNGRY, A_DEX } from '../js/const.js';
 

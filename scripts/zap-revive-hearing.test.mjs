@@ -6,7 +6,7 @@ import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_HEALER, PM_NEWT } from '../js/monsters.js';
 import { m_at } from '../js/monst.js';
-import { mksobj, mksobj_at, set_corpsenm } from '../js/obj.js';
+import { mksobj, mksobj_at, set_corpsenm } from '../js/mkobj.js';
 import { CORPSE, WAN_UNDEAD_TURNING } from '../js/objects.js';
 import { d, rn1, rn2, rnd, rne, rnz } from '../js/rng.js';
 import { cansee } from '../js/vision.js';

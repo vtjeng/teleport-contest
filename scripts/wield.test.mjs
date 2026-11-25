@@ -22,7 +22,7 @@ import {
 import { cmdq_add_int, cmdq_add_key } from '../js/cmd.js';
 import { GameDisplay } from '../js/game_display.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import {
     BOW,
     ARROW,

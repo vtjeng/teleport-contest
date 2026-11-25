@@ -331,7 +331,7 @@ import {
     place_object,
     remove_object,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import { adjalign, exercise } from './attrib.js';
 import { wipeout_text } from './engrave.js';
 import {
@@ -382,7 +382,7 @@ import {
     ART_SUNSWORD,
     artifact_light,
     is_art,
-} from './artifacts.js';
+} from './artifact.js';
 import {
     arti_light_radius, snuff_light_source,
 } from './light.js';

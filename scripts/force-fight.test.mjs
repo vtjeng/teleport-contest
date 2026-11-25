@@ -52,7 +52,7 @@ import { emits_light } from '../js/mondata.js';
 import { PM_KITTEN, PM_YELLOW_LIGHT } from '../js/monsters.js';
 import { polymon } from '../js/polyself.js';
 import { place_monster } from '../js/monst.js';
-import { mksobj, mksobj_at } from '../js/obj.js';
+import { mksobj, mksobj_at } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { AXE, BOULDER, PICK_AXE, STATUE } from '../js/objects.js';
 import { MAXPCHARS, S_stone } from '../js/symbols.js';

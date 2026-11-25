@@ -20,7 +20,7 @@ import {
 import { is_ice } from './dbridge.js';
 import { isok } from './cmd_isok.js';
 import { game } from './gstate.js';
-import { obj_ice_effects } from './obj.js';
+import { obj_ice_effects } from './mkobj.js';
 import { spot_stop_timers } from './timeout.js';
 
 export function count_level_features(state = game) {

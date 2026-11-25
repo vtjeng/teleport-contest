@@ -15,7 +15,7 @@ import { game } from './gstate.js';
 // the other's exports only inside function bodies, so the cycle resolves.
 import { copy_mextra } from './mon.js';
 import { is_rider, monsndx } from './mondata.js';
-import { mksobj, mksobj_at, newomonst, weight } from './obj.js';
+import { mksobj, mksobj_at, newomonst, weight } from './mkobj.js';
 import { CORPSE, STATUE } from './objects.js';
 import { PM_LICHEN, PM_LIZARD, S_TROLL } from './monsters.js';
 import { obj_stop_timers, start_corpse_timeout } from './timeout.js';
@@ -75,7 +75,7 @@ function save_mtraits(obj, mtmp) {
     // member inside it is copied too. monst.h gives struct monst two of them:
     // the fixed-size `coord mtrack[MTSZ]` array (monst.h:143) and the `coord
     // mgoal` strategy target (monst.h:189). A JavaScript spread aliases both,
-    // so both are rebuilt here. js/obj.js copy_oextra() copies the same two
+    // so both are rebuilt here. js/mkobj.js copy_oextra() copies the same two
     // for the same reason. JS replaces the reference rather than copying into
     // the slot newomonst allocated.
     const mtmp2 = {

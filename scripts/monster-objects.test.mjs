@@ -23,7 +23,7 @@ import {
     mksobj,
     newObject,
     set_corpsenm,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import {
     G_NOCORPSE,
     PM_DEATH,

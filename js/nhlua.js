@@ -44,7 +44,7 @@ async function gamestateModules() {
     const [invent, obj, objectGeneration, ttyMessage, uInit, worn]
         = await Promise.all([
             import('./invent.js'),
-            import('./obj.js'),
+            import('./mkobj.js'),
             import('./object_generation.js'),
             import('./tty_message.js'),
             import('./u_init.js'),
@@ -219,7 +219,7 @@ async function tutorial_turn(state) {
         { newsym }, ttyMessage, { cmd_from_ecname }] = await Promise.all([
         import('./objnam_readobjnam.js'),
         import('./object_generation.js'),
-        import('./obj.js'),
+        import('./mkobj.js'),
         import('./display.js'),
         import('./tty_message.js'),
         import('./cmd.js'),

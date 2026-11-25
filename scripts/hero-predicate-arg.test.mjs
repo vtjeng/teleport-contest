@@ -5,7 +5,7 @@
 // the whole game state instead reads fields that do not exist there, so the
 // predicate silently answers false: Upolyd(state) compared two undefined
 // monster indexes. The scan found three such sites, all Upolyd(state):
-// trap.js trapname()'s role-trap gender (trap.c 7137) and artifacts.js
+// trap.js trapname()'s role-trap gender (trap.c 7137) and artifact.js
 // artifact_hit()'s Tsurugi and Vorpal Blade fatal damage (artifact.c 1590,
 // 1637).
 

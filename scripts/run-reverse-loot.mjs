@@ -10,7 +10,7 @@ import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {CHEST, COIN_CLASS} from '../js/objects.js';
 import {BLINDED, LEVITATION, T_LOOTED} from '../js/const.js';
 import {normal_obj_to_glyph} from '../js/display.js';
-import {weight} from '../js/obj.js';
+import {weight} from '../js/mkobj.js';
 import {compareSessionOutputs, validateCleanRecipe} from './diff-fresh.mjs';
 import {runFreshMatrix, runMatrixCli} from './fresh-matrix.mjs';
 

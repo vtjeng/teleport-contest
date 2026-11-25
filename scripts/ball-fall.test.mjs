@@ -5,7 +5,7 @@ import * as ballOwner from '../js/ball.js';
 import {game} from '../js/gstate.js';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {clearTtyMessageWindow} from '../js/tty_message.js';
-import {mksobj} from '../js/obj.js';
+import {mksobj} from '../js/mkobj.js';
 import {objectGenerationEnv} from '../js/object_generation.js';
 import {HEAVY_IRON_BALL,HELMET,FEDORA} from '../js/objects.js';
 import {PM_FLOATING_EYE} from '../js/monsters.js';

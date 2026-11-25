@@ -163,7 +163,7 @@ import {
     place_object,
     splitobj,
     objectType,
-} from './obj.js';
+} from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { next2u, flooreffects } from './do.js';
 import { closed_door } from './monmove.js';

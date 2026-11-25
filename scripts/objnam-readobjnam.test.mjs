@@ -167,7 +167,7 @@ import {
 import { hands_obj } from '../js/invent.js';
 import {
     ART_GRAYSWANDIR, ART_STING, ART_VORPAL_BLADE, init_artifacts,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import { name_to_monplus } from '../js/mondata.js';
 import {
     PM_GIANT_MIMIC, PM_GRAY_DRAGON, PM_GRAY_OOZE, PM_JACKAL, PM_RED_DRAGON,
@@ -176,7 +176,7 @@ import {
     monst_globals_init, reset_mvitals,
 } from '../js/monsters.js';
 import { tin_variety_txt } from '../js/eat.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { init_objects } from '../js/o_init.js';
 import { light_globals_init } from '../js/light.js';
 import { objectGenerationEnv } from '../js/object_generation.js';

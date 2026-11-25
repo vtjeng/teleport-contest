@@ -209,7 +209,7 @@ import {
     ART_MAGICBANE,
     defends_when_carried,
     is_art,
-} from './artifacts.js';
+} from './artifact.js';
 import { is_quest_artifact } from './questpgr.js';
 import { count_wsegs } from './worm.js';
 import { makemon_runtime } from './makemon_create.js';
@@ -309,7 +309,7 @@ import {
     splitobj,
     stone_missile,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { observe_object } from './o_init.js';
 import {
@@ -675,7 +675,7 @@ async function trapeffect_sqky_board(monster, trap, trflags, env) {
 // C ref: trap.c t_missile(). Make a single arrow/dart/rock for a trap to
 // shoot or drop. mksobj() draws mkobj.c's whole WEAPON_CLASS initialization
 // sequence, which is longer than it looks and is owned elsewhere: see
-// js/obj.js mksobj_init() for the quantity, enchantment, blessing and poison
+// js/mkobj.js mksobj_init() for the quantity, enchantment, blessing and poison
 // draws -- blessorcurse() spends its own rn2(10) and sometimes rn2(2) on the
 // common path -- and the erosion block for the rest. Do not enumerate it here;
 // an earlier version of this comment did and was wrong in both directions.
@@ -686,7 +686,7 @@ function t_missile(otyp, trap, env) {
 
     otmp.quan = 1;
     otmp.owt = weight(otmp, env.objectEnv);
-    // C assigns 0 to an unsigned bitfield; js/obj.js mksobj_init() keeps
+    // C assigns 0 to an unsigned bitfield; js/mkobj.js mksobj_init() keeps
     // opoisoned as a boolean, and this is the same value.
     otmp.opoisoned = false;
     otmp.ox = trap.tx;

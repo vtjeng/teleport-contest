@@ -14,7 +14,7 @@ import { before, test } from 'node:test';
 
 import { game } from '../js/gstate.js';
 import { monst_globals_init } from '../js/monsters.js';
-import { corpse_revive_type, obj_attach_mid } from '../js/obj.js';
+import { corpse_revive_type, obj_attach_mid } from '../js/mkobj.js';
 
 // get_mtraits (called by corpse_revive_type) reads state.mons[mnum].
 // Initialize the mons catalog so the lookup succeeds.

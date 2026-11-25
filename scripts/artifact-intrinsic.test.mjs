@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import {ARTILIST_TEMPLATE, ART_STING, ART_ORCRIST, ART_GRIMTOOTH,
     ART_ORB_OF_DETECTION, ART_MAGIC_MIRROR_OF_MERLIN, ART_EYES_OF_THE_OVERWORLD,
     ART_GRAYSWANDIR, ART_ORB_OF_FATE, init_artifacts, set_artifact_intrinsic, spec_m2}
-    from '../js/artifacts.js';
+    from '../js/artifact.js';
 import {see_monsters} from '../js/display.js';
 import {LAST_PROP, W_ART, W_WEP, W_TOOL, ANTIMAGIC, TELEPAT, HALF_SPDAM,
     WARN_OF_MON, WARNING, HALLUC, HALLUC_RES, MON_STILL_ARRIVING}

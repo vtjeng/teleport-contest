@@ -5,7 +5,7 @@ import test from 'node:test';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { money_cnt } from '../js/invent.js';
-import { g_at } from '../js/obj.js';
+import { g_at } from '../js/mkobj.js';
 import { findgd } from '../js/vault.js';
 
 const recipe = JSON.parse(readFileSync(new URL(

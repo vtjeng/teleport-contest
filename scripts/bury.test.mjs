@@ -25,7 +25,7 @@ import {
     W_BALL,
     W_CHAIN,
 } from '../js/const.js';
-import { ART_LONGBOW_OF_DIANA } from '../js/artifacts.js';
+import { ART_LONGBOW_OF_DIANA } from '../js/artifact.js';
 import {
     bury_an_obj,
     obj_resists,
@@ -34,7 +34,7 @@ import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { add_to_buried, add_to_minv } from '../js/invent.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import {
     APPLE,
     AMULET_OF_YENDOR,

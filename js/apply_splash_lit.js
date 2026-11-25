@@ -14,7 +14,7 @@ import {
 } from './mondata.js';
 import {
     isCandle,
-} from './obj.js';
+} from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     BRASS_LANTERN,

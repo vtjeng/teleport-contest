@@ -18,7 +18,7 @@ import {
     W_ARMS,
     voice_deity,
 } from './const.js';
-import { ART_DEMONBANE, ART_EXCALIBUR, is_art } from './artifacts.js';
+import { ART_DEMONBANE, ART_EXCALIBUR, is_art } from './artifact.js';
 import { Amonnam, Monnam, mon_nam, x_monnam } from './do_name.js';
 import { flush_screen, map_invisible, newsym, newsym_async } from './display.js';
 import { In_hell } from './dungeon.js';
@@ -67,7 +67,7 @@ import {
     SHIELD_OF_REFLECTION,
     SILVER_SABER,
 } from './objects.js';
-import { bless, mksobj } from './obj.js';
+import { bless, mksobj } from './mkobj.js';
 import { mpickobj } from './steal.js';
 import { Blind, Conflict, Deaf } from './youprop.js';
 import { impossible, impossible_printer } from './pline.js';

@@ -98,7 +98,7 @@
       "label": "Objects and inventory",
       "paths": [
         "js/apply_catch_lit.js",
-        "js/artifacts.js",
+        "js/artifact.js",
         "js/corpstat.js",
         "js/do_name.js",
         "js/do_wear.js",
@@ -110,7 +110,7 @@
         "js/mkobj_hornoplenty.js",
         "js/monster_object.js",
         "js/o_init.js",
-        "js/obj.js",
+        "js/mkobj.js",
         "js/objects.js",
         "js/objnam.js",
         "js/objnam_data.js",

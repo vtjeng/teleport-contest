@@ -7,7 +7,7 @@ import { newMonster, place_monster } from '../js/monst.js';
 import { PM_HUMAN } from '../js/monsters.js';
 import { BLINDED, HALLUC, DEAF, DETECT_MONSTERS, ROOM } from '../js/const.js';
 import { WAN_STRIKING } from '../js/objects.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { mbhitm } from '../js/muse.js';
 import { rn2_on_display_rng } from '../js/rng.js';
 import { vision_recalc } from '../js/vision.js';

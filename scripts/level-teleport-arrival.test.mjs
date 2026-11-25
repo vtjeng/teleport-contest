@@ -72,7 +72,7 @@ import {
 import { m_at } from '../js/monst.js';
 import { finish_steps } from '../js/source_steps.js';
 import { accessible } from '../js/monmove.js';
-import { mksobj_at } from '../js/obj.js';
+import { mksobj_at } from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     APPLE, CORPSE, DWARVISH_MATTOCK, ELVEN_DAGGER, PICK_AXE, TIN,

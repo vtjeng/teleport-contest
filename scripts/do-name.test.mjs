@@ -52,7 +52,7 @@ import {
     x_monnam,
     do_mgivenname,
 } from '../js/do_name.js';
-import { ART_EXCALIBUR, ART_STING, init_artifacts } from '../js/artifacts.js';
+import { ART_EXCALIBUR, ART_STING, init_artifacts } from '../js/artifact.js';
 import {
     ARTICLE_A,
     ARTICLE_NONE,

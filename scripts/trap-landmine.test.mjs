@@ -15,7 +15,7 @@ import { accessible } from '../js/monmove.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { PM_GIANT_ANT, PM_TITANOTHERE } from '../js/monsters.js';
 import { add_to_container } from '../js/invent.js';
-import { mksobj, mksobj_at, newomonst } from '../js/obj.js';
+import { mksobj, mksobj_at, newomonst } from '../js/mkobj.js';
 import { CORPSE, LARGE_BOX, ROCK, SADDLE } from '../js/objects.js';
 import {
     blow_up_landmine,

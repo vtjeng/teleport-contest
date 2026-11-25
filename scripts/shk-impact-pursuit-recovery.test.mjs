@@ -6,7 +6,7 @@ import { GameMap } from '../js/game.js';
 import { ROOM, ROOMOFFSET, SHOPBASE, DOOR, D_ISOPEN } from '../js/const.js';
 import { PM_SHOPKEEPER } from '../js/monsters.js';
 import { PICK_AXE } from '../js/objects.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { addinv } from '../js/invent.js';
 import { stock_room } from '../js/shknam.js';
 import { rloc_to } from '../js/teleport.js';
@@ -47,7 +47,7 @@ async function setup(carryPick) {
 // an already angry keeper while hero stays inside. Ordinary coins/daggers only.
 import {GOLD_PIECE, DAGGER} from '../js/objects.js';
 import {OBJ_MIGRATING} from '../js/const.js';
-import {place_object} from '../js/obj.js';
+import {place_object} from '../js/mkobj.js';
 import {setmangry} from '../js/mon.js';
 import {impact_drop} from '../js/dokick.js';
 import {obj_extract_self} from '../js/invent.js';

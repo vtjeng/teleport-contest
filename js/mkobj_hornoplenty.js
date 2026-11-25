@@ -27,7 +27,7 @@ import {
     objectType,
     rnd_class,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import { addtobill } from './shk.js';
 import { encumber_msg } from './pickup.js';
 import { discover_object } from './o_init.js';

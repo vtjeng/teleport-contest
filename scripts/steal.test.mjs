@@ -62,7 +62,7 @@ import {
     new_light_source,
     snuff_light_source,
 } from '../js/light.js';
-import { ART_SUNSWORD } from '../js/artifacts.js';
+import { ART_SUNSWORD } from '../js/artifact.js';
 import { init_objects } from '../js/o_init.js';
 import {
     APPLE,
@@ -169,7 +169,7 @@ function object(overrides = {}) {
         cursed: false,
         corpsenm: NON_PM,
         timed: 0,
-        // obj.js newObject() zeroes owornmask, and steal.c mdrop_obj() reads
+        // mkobj.js newObject() zeroes owornmask, and steal.c mdrop_obj() reads
         // it before extract_from_minvent() clears it.
         owornmask: 0,
         known: true,

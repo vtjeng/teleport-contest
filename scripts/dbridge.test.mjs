@@ -37,7 +37,7 @@ import { canseemon } from '../js/display.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { PM_GIANT_RAT, PM_NEWT } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { mksobj_at } from '../js/obj.js';
+import { mksobj_at } from '../js/mkobj.js';
 import { ROCK } from '../js/objects.js';
 import { d, rn1, rn2, rne, rnl, rnz } from '../js/rng.js';
 

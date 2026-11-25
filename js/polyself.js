@@ -194,8 +194,8 @@ import { setnotworn, setworn } from './worn.js';
 import {
     Is_dragon_armor, WrappingAllowed, is_flimsy, is_sword, maybe_adjust_light,
     mksobj,
-} from './obj.js';
-import { artifact_light, retouch_equipment } from './artifacts.js';
+} from './mkobj.js';
+import { artifact_light, retouch_equipment } from './artifact.js';
 import { makeplural } from './fruit.js';
 import { weapon_descr } from './weapon.js';
 import {

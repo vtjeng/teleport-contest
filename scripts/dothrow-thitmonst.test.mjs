@@ -10,7 +10,7 @@ import {
     thitmonst,
     throwit_mon_hit,
 } from '../js/dothrow.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import {
     AD_DGST,

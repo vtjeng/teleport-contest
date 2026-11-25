@@ -53,7 +53,7 @@ import { m_at } from './monst.js';
 import {
     place_object,
     remove_object,
-} from './obj.js';
+} from './mkobj.js';
 import {
     create_gas_cloud,
     m_in_out_region,

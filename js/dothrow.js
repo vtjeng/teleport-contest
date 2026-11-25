@@ -173,7 +173,7 @@ import {
 import { isok } from './cmd_isok.js';
 import {
     ART_MJOLLNIR, artifact_hit, is_art, spec_abon,
-} from './artifacts.js';
+} from './artifact.js';
 import { acurrstr, acurr, exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import {
@@ -314,7 +314,7 @@ import {
     stone_missile,
     uslinging,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import {
     ACID_VENOM,
     AKLYS,
@@ -477,7 +477,7 @@ import { move_bc_async, drag_ball, drop_ball } from './ball.js';
 import { cutworm } from './worm.js';
 import { snuff_candle } from './apply_splash_lit.js';
 import { make_blinded, potionbreathe, potionhit } from './potion.js';
-import { unsplitobj } from './obj.js';
+import { unsplitobj } from './mkobj.js';
 import { canseemon, canspotmon } from './display.js';
 import {
     Blind, Confusion, Deaf, EWwalking, Flying, Fumbling, HBlinded,

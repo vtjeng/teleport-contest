@@ -7,7 +7,7 @@ import {
     ZOMBIFY_MON,
 } from '../js/const.js';
 import { init_objects } from '../js/o_init.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj } from '../js/mkobj.js';
 import {
     PM_HUMAN,
     PM_JACKAL,

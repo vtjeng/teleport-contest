@@ -167,7 +167,7 @@ const ALLOWED = {
     'mon.js | * | newsym': 9,
     'monmove.js | * | newsym': 2,
     'nhlua.js | * | newsym': 1,
-    'obj.js | * | newsym': 2,
+    'mkobj.js | * | newsym': 2,
     'priest.js | * | newsym': 1,
     'region.js | * | newsym': 1,
     'shk.js | * | newsym': 1,

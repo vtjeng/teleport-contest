@@ -34,7 +34,7 @@ import {
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { init_dummyobj, newObject } from '../js/obj.js';
+import { init_dummyobj, newObject } from '../js/mkobj.js';
 import {
     PICKLOCK_DID_NOTHING,
     PICKLOCK_DID_SOMETHING,

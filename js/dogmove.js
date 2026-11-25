@@ -157,7 +157,7 @@ import { bee_eat_jelly } from './monmove.js';
 import { may_dig } from './hack.js';
 import {
     costly_alteration, is_mines_prize, is_soko_prize, splitobj,
-} from './obj.js';
+} from './mkobj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
     an, distant_name, donameFresh, vtense, xnameFresh,
@@ -779,7 +779,7 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
     // carry arm needs more, and asks for it there rather than here: requiring
     // the whole set eagerly would reject the many callers that never split a
     // stack, while requiring only rn2 let a caller honouring this contract
-    // fail later inside js/obj.js against a contract it had never seen.
+    // fail later inside js/mkobj.js against a contract it had never seen.
     if (typeof random.rn2 !== 'function')
         throw new TypeError('dog_invent random injection requires rn2');
     const operationEnv = { ...rawEnv, state, random };
@@ -837,11 +837,11 @@ export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
         && (random.rn2(heroDistance)
             || !random.rn2(edog.apport))) {
         // splitobj(), remove_object() and add_to_minv() each reach owners
-        // that obj.js expects the caller to supply.
+        // that mkobj.js expects the caller to supply.
         const objectEnv = objectGenerationEnv(operationEnv);
         // can_carry() caps a nohands pet at one item, so any stack of more
         // than one splits here and the pet takes the child. splitobj()
-        // normalizes through js/obj.js objectEnv(), which needs the whole
+        // normalizes through js/mkobj.js objectEnv(), which needs the whole
         // source random set because next_ident() draws rnd(2); state it here,
         // where it is true, rather than in the guard above, which every
         // non-splitting caller also passes.

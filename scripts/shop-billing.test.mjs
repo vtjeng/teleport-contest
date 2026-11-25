@@ -26,7 +26,7 @@ import {
 import { addinv_runtime, obfree, obj_extract_self, useupf } from '../js/invent.js';
 import {
     bill_dummy_object, mksobj_at, newObject, place_object,
-} from '../js/obj.js';
+} from '../js/mkobj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { donameFresh } from '../js/objnam.js';
 import {

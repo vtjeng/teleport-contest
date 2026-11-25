@@ -16,7 +16,7 @@ import {vision_reset,vision_recalc,init_vision_globals} from '../js/vision.js';
 import {canseemon} from '../js/display.js';
 import {rn2_on_display_rng} from '../js/rng.js';
 import {Monnam} from '../js/do_name.js';
-import {newObject} from '../js/obj.js';
+import {newObject} from '../js/mkobj.js';
 import {SHIELD_OF_REFLECTION} from '../js/objects.js';
 
 for(const kind of ['cube','eye'])for(const hallu of [false,true])for(const detected of [false,true])for(const invisible of [false,true]){

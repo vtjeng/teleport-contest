@@ -52,7 +52,7 @@ import {
     WEB,
 } from '../js/const.js';
 import { addtobill, shop_keeper } from '../js/shk.js';
-import { mksobj, place_object, remove_object } from '../js/obj.js';
+import { mksobj, place_object, remove_object } from '../js/mkobj.js';
 import {
     AMULET_OF_LIFE_SAVING,
     BOULDER,
@@ -1004,7 +1004,7 @@ test('mongone() puts out a wielded Sunsword before it frees it', async () => {
     // ends its light and, for a monster the hero can see, says so before
     // obfree() deletes the object and m_detach() runs.
     const { mongone } = await import('../js/mon.js');
-    const { ART_SUNSWORD, artifact_exists } = await import('../js/artifacts.js');
+    const { ART_SUNSWORD, artifact_exists } = await import('../js/artifact.js');
     const { LONG_SWORD } = await import('../js/objects.js');
     const { ONAME_NO_FLAGS, W_WEP } = await import('../js/const.js');
     const { begin_burn } = await import('../js/timeout.js');

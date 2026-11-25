@@ -33,7 +33,7 @@ const ALLOWED_USES = {
         'intrinsic(u, HALF_PHDAM)',
         'extrinsic(u, HALF_PHDAM)',
     ],
-    'artifacts.js': [
+    'artifact.js': [
         // artifact.c:2360 spfx table and its inverse, which map an artifact
         // power to the property it grants.
         '[SPFX_HPHDAM, HALF_PHDAM]',

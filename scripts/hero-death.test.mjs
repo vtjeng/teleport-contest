@@ -55,7 +55,7 @@ import { money_cnt } from '../js/invent.js';
 import { GameDisplay } from '../js/game_display.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { set_mon_data } from '../js/mondata.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { BOOMERANG } from '../js/objects.js';
 import { tty_raw_print, tty_wait_synch } from '../js/tty_rawprint.js';
 import { TOPLINE_NEED_MORE, ttyPline } from '../js/tty_message.js';

@@ -148,7 +148,7 @@ import {
     mksobj_at,
     set_corpsenm,
     weight,
-} from './obj.js';
+} from './mkobj.js';
 import { priestini } from './priest.js';
 import { coreRandom } from './rng.js';
 import { inside_room } from './room_coordinates.js';

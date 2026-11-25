@@ -5,7 +5,7 @@ import { COLNO, ROWNO, DB_DIR, DB_WEST, DB_EAST, DB_NORTH, DB_SOUTH,
     EGD, EPRI, ESHK, IS_DRAWBRIDGE, IS_WALL, SDOOR, SVALL,
     ROLLING_BOULDER_TRAP, OBJ_FREE, MELT_ICE_AWAY, is_pit } from './const.js';
 import { swapbits } from './hacklib.js';
-import { carried } from './obj.js';
+import { carried } from './mkobj.js';
 import { on_level } from './dungeon.js';
 import {
     back_to_glyph, glyph_is_cmap, set_wall_state, swap_levl_entries,

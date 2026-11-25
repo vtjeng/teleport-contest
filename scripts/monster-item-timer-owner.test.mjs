@@ -6,7 +6,7 @@ import test from 'node:test';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {game} from '../js/gstate.js';
 import {newMonster,place_monster} from '../js/monst.js';
-import {newObject} from '../js/obj.js';
+import {newObject} from '../js/mkobj.js';
 import {add_to_minv} from '../js/invent.js';
 import {PM_HUMAN} from '../js/monsters.js';
 import {GLOB_OF_GREEN_SLIME,FOOD_RATION} from '../js/objects.js';

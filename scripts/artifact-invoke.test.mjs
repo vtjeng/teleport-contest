@@ -23,7 +23,7 @@ import {
     glow_strength,
     glow_verb,
     init_artifacts,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     LAST_PROP,
     LEVITATION,
@@ -266,7 +266,7 @@ import {readFileSync} from 'node:fs';
 import {game} from '../js/gstate.js';
 import {runSegmentStrict as runSegment} from '../js/jsmain.js';
 import {cmdq_add_key} from '../js/cmd.js';
-import {invoke_blinding_ray} from '../js/artifacts.js';
+import {invoke_blinding_ray} from '../js/artifact.js';
 import {BLINDED,CQ_CANNED,ECMD_TIME,IN_SIGHT} from '../js/const.js';
 import {loadBlindingRayCases,verifyBlindingRaySegment} from './run-blinding-ray.mjs';
 
@@ -299,7 +299,7 @@ test('Sunsword self invocation consumes the flashburn artifact-resistance result
 });
 
 test('blinding-ray source order wires owners and captures gremlin form before damage',()=>{
-    const path=new URL('../js/artifacts.js',import.meta.url);
+    const path=new URL('../js/artifact.js',import.meta.url);
     const source=readFileSync(path,'utf8').split('export async function invoke_blinding_ray')[1]
         .split('// C ref: artifact.c arti_invoke_cost_pw')[0];
     assert.match(source,/await do_blinding_ray\(obj, state\)/u);
@@ -316,7 +316,7 @@ test('ENLIGHTENING invocation displays the source PICK_NONE window before return
     const c=readFileSync(new URL('../nethack-c/upstream/src/artifact.c',import.meta.url),'utf8');
     const source=c.slice(c.indexOf('case ENLIGHTENING:'),c.indexOf('case CREATE_AMMO:',c.indexOf('case ENLIGHTENING:')));
     assert.match(source,/enlightenment\(MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS\);\s*res = ECMD_TIME;/u);
-    const js=readFileSync(new URL('../js/artifacts.js',import.meta.url),'utf8');
+    const js=readFileSync(new URL('../js/artifact.js',import.meta.url),'utf8');
     const arm=js.slice(js.indexOf('case ENLIGHTENING:'),js.indexOf('case CREATE_AMMO:',js.indexOf('case ENLIGHTENING:')));
     assert.match(arm,/await select_menu\(state,/u);
     assert.ok(arm.indexOf('await select_menu') < arm.indexOf('res = ECMD_TIME'));

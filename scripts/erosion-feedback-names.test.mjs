@@ -9,7 +9,7 @@ import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { PM_GOBLIN } from '../js/monsters.js';
 import { ROBE, PLATE_MAIL } from '../js/objects.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { ERODE_BURN, ER_DAMAGED, ER_NOTHING, EF_NONE, EF_GREASE,
     OBJ_MINVENT, W_ARMC, W_ARM, NON_PM, HALLUC, BLINDED, DETECT_MONSTERS,
     SEE_INVIS, ROOM } from '../js/const.js';

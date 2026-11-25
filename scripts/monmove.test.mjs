@@ -5,7 +5,7 @@ import test from 'node:test';
 import {
     ART_MASTER_KEY_OF_THIEVERY,
     ART_SUNSWORD,
-} from '../js/artifacts.js';
+} from '../js/artifact.js';
 import {
     AGGRAVATE_MONSTER,
     ALLOW_BARS,
@@ -211,7 +211,7 @@ import {
 import { game } from '../js/gstate.js';
 import { finish_steps } from '../js/source_steps.js';
 import { newMonster } from '../js/monst.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { initUnported } from '../js/unported.js';
 import { init_objects } from '../js/o_init.js';
 import {
@@ -1346,7 +1346,7 @@ test('postmov lands a dart on its target and spends the missile', async () => {
 // nothing. mkobj gives a trap dart a nonzero spe on 2 firings in 11.
 test('postmov puts the dart miss and strike either side of fourteen',
     async () => {
-        // js/obj.js mksobj_init() takes the `!rn2(11)` arm and sets
+        // js/mkobj.js mksobj_init() takes the `!rn2(11)` arm and sets
         // spe = rne(3); pinning rne at 2 puts the boundary at 7 + 7 + 2 == 16.
         const enchanted = {
             rn2: (bound) => (bound === 11 ? 0 : 1),

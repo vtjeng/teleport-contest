@@ -181,7 +181,7 @@ test('morehungry fills hunger operations without changing supplied RNG or callba
 test('gethungry faint runs real corpse selftouch and stops the fatal status tail', async () => {
     const { runSegmentStrict: runSegment } = await import('../js/jsmain.js');
     const gstate = await import('../js/gstate.js');
-    const { mksobj, set_corpsenm, weight } = await import('../js/obj.js');
+    const { mksobj, set_corpsenm, weight } = await import('../js/mkobj.js');
     const { addinv_nomerge } = await import('../js/invent.js');
     const { ready_weapon } = await import('../js/wield.js');
     const { setworn } = await import('../js/worn.js');

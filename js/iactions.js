@@ -43,7 +43,7 @@ import {
     is_weptool,
     is_wet_towel,
     objectType,
-} from './obj.js';
+} from './mkobj.js';
 import {
     AMULET_CLASS,
     AMULET_OF_YENDOR,

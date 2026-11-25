@@ -51,7 +51,7 @@ import { accessible } from '../js/monmove.js';
 import { block_point } from '../js/vision.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
-import { newObject, place_object } from '../js/obj.js';
+import { newObject, place_object } from '../js/mkobj.js';
 import { init_objects } from '../js/o_init.js';
 import { objects_globals_init } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';

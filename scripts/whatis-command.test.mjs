@@ -112,7 +112,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { newMonster } from '../js/monst.js';
 import {
     do_screen_description,

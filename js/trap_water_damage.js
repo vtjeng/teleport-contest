@@ -32,7 +32,7 @@ import {
     carried,
     isContainer,
     objectType,
-} from './obj.js';
+} from './mkobj.js';
 import {
     cxname,
     donameFresh,
@@ -246,7 +246,7 @@ export async function fire_damage(obj, force, x, y, rawEnv = {}) {
             await message(`${Yname2(obj, state)} catches fire and burns.`, state);
         if (Has_contents(obj)) {
             if (visible) await message('Its contents fall out.', state);
-            const { place_object } = await import('./obj.js');
+            const { place_object } = await import('./mkobj.js');
             const { flooreffects } = await import('./do.js');
             for (let child = obj.cobj; child;) {
                 const next = child.nobj;

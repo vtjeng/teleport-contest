@@ -7,7 +7,7 @@ import { fully_identify_obj } from '../js/invent.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
 import { newMonster } from '../js/monst.js';
 import { PM_PONY } from '../js/monsters.js';
-import { newObject } from '../js/obj.js';
+import { newObject } from '../js/mkobj.js';
 import { SADDLE, TOOL_CLASS } from '../js/objects.js';
 import { getRngLog } from '../js/rng.js';
 import { put_saddle_on_mon } from '../js/steed.js';

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { decodeScreen } from '../frozen/screen-decode.mjs';
 
-import { createArtifactTable } from '../js/artifacts.js';
+import { createArtifactTable } from '../js/artifact.js';
 import { utf8Text } from '../js/hacklib.js';
 import {
     ALTAR,

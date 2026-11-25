@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { invoke_healing } from '../js/artifacts.js';
+import { invoke_healing } from '../js/artifact.js';
 import { BLINDED, FROMOUTSIDE, ECMD_TIME, W_TOOL, OBJ_INVENT, SICK, SLIMED, SICK_ALL } from '../js/const.js';
 import { PM_AIR_ELEMENTAL } from '../js/monsters.js';
 import { game } from '../js/gstate.js';
