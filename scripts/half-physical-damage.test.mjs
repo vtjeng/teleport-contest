@@ -23,7 +23,10 @@ const JS_DIR = join(ROOT, 'js');
 // has it. Each entry is the file and the exact text allowed there.
 const ALLOWED_USES = {
     'const.js': [
-        'export const HALF_PHDAM = 56;',
+        // prop.h's enum prop_types, each member written as the one before
+        // it plus one.
+        'export const HALF_PHDAM = HALF_SPDAM + 1;',
+        'export const REGENERATION = HALF_PHDAM + 1;',
     ],
     'youprop.js': [
         // The bodies of HHalf_physical_damage() and EHalf_physical_damage().
@@ -169,7 +172,7 @@ test('every allowed use is still present', () => {
 test('the allowed uses hold the pinned number of entries and sites', () => {
     // 9 texts matching 9 sites on 9f7e42e6 (8 November 2026). A text
     // masks every site it occurs at, so the sites are counted apart.
-    const PINS = { entries: 9, sites: 9 };
+    const PINS = { entries: 10, sites: 10 };
     const entries = Object.entries(ALLOWED_USES)
         .flatMap(([file, uses]) => uses.map((use) => [file, use]));
     assertExceptionCount(entries.length, PINS.entries, {

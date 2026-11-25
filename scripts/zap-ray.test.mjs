@@ -267,11 +267,14 @@ test('inventory resistance mapping matches its complete C source', () => {
     assert.match(cProperties, /#define W_ACCESSORY \(W_RING \| W_AMUL \| W_TOOL\)/u);
     assert.match(cObjects, /CLOAK\("dwarvish cloak", "hooded cloak",[\s\S]*?DWARVISH_CLOAK\)/u);
     // The JavaScript constants mirror the same source headers and object row.
-    for (const [property, value] of [
-        ['COLD_RES', 2], ['FIRE_RES', 1], ['SHOCK_RES', 5],
-        ['ACID_RES', 7], ['DISINT_RES', 4],
+    // const.js writes each prop.h member as the one before it plus one, so
+    // the value is checked on the imported constant.
+    for (const [property, actual, value] of [
+        ['COLD_RES', COLD_RES, 2], ['FIRE_RES', FIRE_RES, 1], ['SHOCK_RES', SHOCK_RES, 5],
+        ['ACID_RES', ACID_RES, 7], ['DISINT_RES', DISINT_RES, 4],
     ]) {
-        assert.match(jsConstants, new RegExp(`export const ${property} = ${value};`, 'u'));
+        assert.match(jsConstants, new RegExp(`^export const ${property} = `, 'mu'));
+        assert.equal(actual, value, property);
     }
     for (const [damage, value] of [
         ['AD_COLD', 3], ['AD_FIRE', 2], ['AD_ELEC', 6],

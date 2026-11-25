@@ -3881,10 +3881,10 @@ export async function loot_mon(mtmp, passedInfo = null, prevLoot = null,
 // -----------------------------------------------------------------------
 
 const TIPCHECK_OK = 0;
-const TIPCHECK_LOCKED = 1;
-const TIPCHECK_TRAPPED = 2;
-const TIPCHECK_CANNOT = 3;
-const TIPCHECK_EMPTY = 4;
+const TIPCHECK_LOCKED = TIPCHECK_OK + 1;
+const TIPCHECK_TRAPPED = TIPCHECK_LOCKED + 1;
+const TIPCHECK_CANNOT = TIPCHECK_TRAPPED + 1;
+const TIPCHECK_EMPTY = TIPCHECK_CANNOT + 1;
 
 // Sentinel returned by tipcontainer_gettarget() when the user chooses
 // "on the floor" in the target-selection menu.

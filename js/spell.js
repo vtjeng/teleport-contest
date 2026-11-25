@@ -1202,14 +1202,14 @@ export function spellretention(idx, state = game) {
 
 // C ref: spell.c spl_sort_types and spl_sortchoices (1840-1866).
 export const SORTBY_LETTER = 0;
-export const SORTBY_ALPHA = 1;
-export const SORTBY_LVL_LO = 2;
-export const SORTBY_LVL_HI = 3;
-export const SORTBY_SKL_AL = 4;
-export const SORTBY_SKL_LO = 5;
-export const SORTBY_SKL_HI = 6;
-export const SORTBY_CURRENT = 7;
-export const SORTRETAINORDER = 8;
+export const SORTBY_ALPHA = SORTBY_LETTER + 1;
+export const SORTBY_LVL_LO = SORTBY_ALPHA + 1;
+export const SORTBY_LVL_HI = SORTBY_LVL_LO + 1;
+export const SORTBY_SKL_AL = SORTBY_LVL_HI + 1;
+export const SORTBY_SKL_LO = SORTBY_SKL_AL + 1;
+export const SORTBY_SKL_HI = SORTBY_SKL_LO + 1;
+export const SORTBY_CURRENT = SORTBY_SKL_HI + 1;
+export const SORTRETAINORDER = SORTBY_CURRENT + 1;
 const spl_sortchoices = [
     'by casting letter',
     'alphabetically',

@@ -456,10 +456,10 @@ const T_L = 1;
 const T_U = 2;
 const T_R = 3;
 const T_STONE = 0;
-const T_TLCORN = 1;
-const T_TRCORN = 2;
-const T_HWALL = 3;
-const T_TDWALL = 4;
+const T_TLCORN = T_STONE + 1;
+const T_TRCORN = T_TLCORN + 1;
+const T_HWALL = T_TRCORN + 1;
+const T_TDWALL = T_HWALL + 1;
 const WALL_MATRIX = [
     [S_stone, S_tlcorn, S_trcorn, S_hwall, S_tdwall],
     [S_stone, S_trcorn, S_brcorn, S_vwall, S_tlwall],
@@ -472,11 +472,11 @@ const C_TL = 1;
 const C_TR = 2;
 const C_BR = 3;
 const C_TRCORN = 0;
-const C_BRCORN = 1;
-const C_BLCORN = 2;
-const C_TLWALL = 3;
-const C_TUWALL = 4;
-const C_CRWALL = 5;
+const C_BRCORN = C_TRCORN + 1;
+const C_BLCORN = C_BRCORN + 1;
+const C_TLWALL = C_BLCORN + 1;
+const C_TUWALL = C_TLWALL + 1;
+const C_CRWALL = C_TUWALL + 1;
 const CROSS_MATRIX = [
     [S_brcorn, S_blcorn, S_tlcorn, S_tuwall, S_trwall, S_crwall],
     [S_blcorn, S_tlcorn, S_trcorn, S_trwall, S_tdwall, S_crwall],

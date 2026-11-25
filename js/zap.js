@@ -4520,13 +4520,13 @@ export async function bhit(
 // C ref: zap.c:45-57. ZT_<element> is the damage type minus one, and the three
 // ZT_ macros shift it into the wand, spell and breath bands.
 const ZT_MAGIC_MISSILE = 0;
-const ZT_FIRE = 1;
-const ZT_COLD = 2;
-const ZT_SLEEP = 3;
-const ZT_DEATH = 4;
-const ZT_LIGHTNING = 5;
-const ZT_POISON_GAS = 6;
-const ZT_ACID = 7;
+const ZT_FIRE = ZT_MAGIC_MISSILE + 1;
+const ZT_COLD = ZT_FIRE + 1;
+const ZT_SLEEP = ZT_COLD + 1;
+const ZT_DEATH = ZT_SLEEP + 1;
+const ZT_LIGHTNING = ZT_DEATH + 1;
+const ZT_POISON_GAS = ZT_LIGHTNING + 1;
+const ZT_ACID = ZT_POISON_GAS + 1;
 
 // C ref: zap.c flash_types[] (71-85). "A positive index means zapped/cast/
 // breathed by hero. A negative index means zapped/cast/breathed by a monster,

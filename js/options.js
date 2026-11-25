@@ -299,21 +299,21 @@ const SET_WIZNOFUZ = 6; // global.h enum optset_restrictions
 // global.h:option_phases.  These are separate from set_in_* restrictions:
 // roleoptvals records the source that supplied each role-selection value.
 const PHASE_NOT_SET = 0;
-const BUILTIN_OPT = 1;
-const SYSCF_OPT = 2;
-const RC_FILE_OPT = 3;
-const ENVIRON_OPT = 4;
-const CMDLINE_OPT = 5;
-const PLAY_OPT = 6;
-const NUM_OPT_PHASES = 7;
+const BUILTIN_OPT = PHASE_NOT_SET + 1;
+const SYSCF_OPT = BUILTIN_OPT + 1;
+const RC_FILE_OPT = SYSCF_OPT + 1;
+const ENVIRON_OPT = RC_FILE_OPT + 1;
+const CMDLINE_OPT = ENVIRON_OPT + 1;
+const PLAY_OPT = CMDLINE_OPT + 1;
+const NUM_OPT_PHASES = PLAY_OPT + 1;
 
 // options.c's request values are local enum constants.  Keeping them here
 // makes the small handlers below mirror their C request switch explicitly.
 const DO_INIT = 1;
-const DO_SET = 2;
-const DO_HANDLER = 3;
-const GET_VAL = 4;
-const GET_CNF_VAL = 5;
+const DO_SET = DO_INIT + 1;
+const DO_HANDLER = DO_SET + 1;
+const GET_VAL = DO_HANDLER + 1;
+const GET_CNF_VAL = GET_VAL + 1;
 
 // C ref: options.c:allopt[] and determine_ambiguities().  Matching is
 // case-insensitive, so the generated catalog is folded once here.  The full
@@ -5716,10 +5716,10 @@ function pfxfn_cond_(target, negated, opts, result = null) {
 // wc_set_font_name() and pfxfn_font() exchange one of these rather than a
 // field name.
 const MESSAGE_OPTION = 1;
-const STATUS_OPTION = 2;
-const MAP_OPTION = 3;
-const MENU_OPTION = 4;
-const TEXT_OPTION = 5;
+const STATUS_OPTION = MESSAGE_OPTION + 1;
+const MAP_OPTION = STATUS_OPTION + 1;
+const MENU_OPTION = MAP_OPTION + 1;
+const TEXT_OPTION = MENU_OPTION + 1;
 
 // C ref: options.c wc_set_font_name().  JavaScript strings already own their
 // contents, so assigning the value supplies dupstr()'s independent lifetime.

@@ -22,24 +22,24 @@
 // include/_regex.h: regcomp() and regexec() results. Codes 1 to 13 equal
 // glibc's; 14 to 18 are BSD's.
 export const REG_OK = 0;
-export const REG_NOMATCH = 1;
-export const REG_BADPAT = 2;
-export const REG_ECOLLATE = 3;
-export const REG_ECTYPE = 4;
-export const REG_EESCAPE = 5;
-export const REG_ESUBREG = 6;
-export const REG_EBRACK = 7;
-export const REG_EPAREN = 8;
-export const REG_EBRACE = 9;
-export const REG_BADBR = 10;
-export const REG_ERANGE = 11;
-export const REG_ESPACE = 12;
-export const REG_BADRPT = 13;
-export const REG_EMPTY = 14;
-export const REG_ASSERT = 15;
-export const REG_INVARG = 16;
-export const REG_ILLSEQ = 17;
-export const REG_BADMAX = 18;
+export const REG_NOMATCH = REG_OK + 1;
+export const REG_BADPAT = REG_NOMATCH + 1;
+export const REG_ECOLLATE = REG_BADPAT + 1;
+export const REG_ECTYPE = REG_ECOLLATE + 1;
+export const REG_EESCAPE = REG_ECTYPE + 1;
+export const REG_ESUBREG = REG_EESCAPE + 1;
+export const REG_EBRACK = REG_ESUBREG + 1;
+export const REG_EPAREN = REG_EBRACK + 1;
+export const REG_EBRACE = REG_EPAREN + 1;
+export const REG_BADBR = REG_EBRACE + 1;
+export const REG_ERANGE = REG_BADBR + 1;
+export const REG_ESPACE = REG_ERANGE + 1;
+export const REG_BADRPT = REG_ESPACE + 1;
+export const REG_EMPTY = REG_BADRPT + 1;
+export const REG_ASSERT = REG_EMPTY + 1;
+export const REG_INVARG = REG_ASSERT + 1;
+export const REG_ILLSEQ = REG_INVARG + 1;
+export const REG_BADMAX = REG_ILLSEQ + 1;
 
 // include/_regex.h: the regcomp() flags posixregex.c passes, and
 // REG_ENHANCED, which it does not. tre-parse.c tests REG_ENHANCED at every
@@ -80,10 +80,10 @@ export const ASSERT_AT_EOW = 16;
 
 // tre-internal.h: tre_bracket_match_type_t and the negation flag.
 export const TRE_BRACKET_MATCH_TYPE_CHAR = 1;
-export const TRE_BRACKET_MATCH_TYPE_RANGE_BEGIN = 2;
-export const TRE_BRACKET_MATCH_TYPE_RANGE_END = 3;
-export const TRE_BRACKET_MATCH_TYPE_CLASS = 4;
-export const TRE_BRACKET_MATCH_TYPE_EQUIVALENCE = 5;
+export const TRE_BRACKET_MATCH_TYPE_RANGE_BEGIN = TRE_BRACKET_MATCH_TYPE_CHAR + 1;
+export const TRE_BRACKET_MATCH_TYPE_RANGE_END = TRE_BRACKET_MATCH_TYPE_RANGE_BEGIN + 1;
+export const TRE_BRACKET_MATCH_TYPE_CLASS = TRE_BRACKET_MATCH_TYPE_RANGE_END + 1;
+export const TRE_BRACKET_MATCH_TYPE_EQUIVALENCE = TRE_BRACKET_MATCH_TYPE_CLASS + 1;
 export const TRE_BRACKET_MATCH_FLAG_NEGATE = 1;
 
 // include/_ctype.h: the rune-type bits that wctype_l() returns.

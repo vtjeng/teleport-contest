@@ -389,10 +389,10 @@ const YLIM = 3;
 // sp_lev.c room alignment values are private to that loader. The source
 // names the vertical pair TOP and BOTTOM.
 const SPLEV_LEFT = 1;
-const SPLEV_H_LEFT = 2;
-const SPLEV_CENTER = 3;
-const SPLEV_H_RIGHT = 4;
-const SPLEV_RIGHT = 5;
+const SPLEV_H_LEFT = SPLEV_LEFT + 1;
+const SPLEV_CENTER = SPLEV_H_LEFT + 1;
+const SPLEV_H_RIGHT = SPLEV_CENTER + 1;
+const SPLEV_RIGHT = SPLEV_H_RIGHT + 1;
 const SPLEV_TOP = 1;
 const SPLEV_BOTTOM = 5;
 
