@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { splev_chr2typ } from '../js/mklev.js';
@@ -26,12 +27,20 @@ test('generated themeroom actions cover the pinned Lua table in source order', (
 
     const ids = THEMEROOM_DEFINITIONS.map((definition) => definition.id);
     assert.equal(new Set(ids).size, ids.length);
-    for (let index = 1; index < THEMEROOM_DEFINITIONS.length; ++index) {
-        assert.ok(
-            THEMEROOM_DEFINITIONS[index - 1].sourceLine
-                < THEMEROOM_DEFINITIONS[index].sourceLine,
-            'generated definitions must retain Lua source order',
-        );
+    // Each definition's name must appear in themerms.lua's themerooms table
+    // after the previous definition's name.
+    const lua = readFileSync(new URL(
+        '../nethack-c/upstream/dat/themerms.lua', import.meta.url,
+    ), 'utf8');
+    let cursor = lua.indexOf('themerooms = {');
+    assert.ok(cursor >= 0, 'themerms.lua has no themerooms table');
+    for (const definition of THEMEROOM_DEFINITIONS) {
+        const escaped = definition.name.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
+        const pattern = new RegExp(`\\bname\\s*=\\s*(["'])${escaped}\\1`, 'gu');
+        pattern.lastIndex = cursor;
+        const match = pattern.exec(lua);
+        assert.ok(match, `${definition.name} must follow the previous definition in Lua source order`);
+        cursor = match.index + match[0].length;
     }
 
     const counts = Object.groupBy(

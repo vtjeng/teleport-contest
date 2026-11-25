@@ -248,8 +248,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "11": 43
             },
             "utf8": {},
-            "glyphs": {},
-            "sourceLine": 43
+            "glyphs": {}
         },
         {
             "name": "Blank",
@@ -440,8 +439,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "192": 32
             },
             "utf8": {},
-            "glyphs": {},
-            "sourceLine": 57
+            "glyphs": {}
         },
         {
             "name": "IBMgraphics",
@@ -533,8 +531,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "G_tdwall_mines": "/brown",
                 "G_tlwall_mines": "/brown",
                 "G_trwall_mines": "/brown"
-            },
-            "sourceLine": 242
+            }
         },
         {
             "name": "IBMGraphics_1",
@@ -608,8 +605,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "G_tdwall_mines": "/brown",
                 "G_tlwall_mines": "/brown",
                 "G_trwall_mines": "/brown"
-            },
-            "sourceLine": 328
+            }
         },
         {
             "name": "IBMGraphics_2",
@@ -688,8 +684,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "G_tdwall_mines": "/brown",
                 "G_tlwall_mines": "/brown",
                 "G_trwall_mines": "/brown"
-            },
-            "sourceLine": 395
+            }
         },
         {
             "name": "RogueIBM",
@@ -731,8 +726,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "116": 231
             },
             "utf8": {},
-            "glyphs": {},
-            "sourceLine": 467
+            "glyphs": {}
         },
         {
             "name": "RogueEpyx",
@@ -807,8 +801,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "176": 1
             },
             "utf8": {},
-            "glyphs": {},
-            "sourceLine": 501
+            "glyphs": {}
         },
         {
             "name": "RogueWindows",
@@ -851,8 +844,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "116": 231
             },
             "utf8": {},
-            "glyphs": {},
-            "sourceLine": 576
+            "glyphs": {}
         },
         {
             "name": "curses",
@@ -937,8 +929,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "G_tdwall_mines": "/brown",
                 "G_tlwall_mines": "/brown",
                 "G_trwall_mines": "/brown"
-            },
-            "sourceLine": 611
+            }
         },
         {
             "name": "DECgraphics",
@@ -1035,8 +1026,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "G_tdwall_mines": "/brown",
                 "G_tlwall_mines": "/brown",
                 "G_trwall_mines": "/brown"
-            },
-            "sourceLine": 689
+            }
         },
         {
             "name": "MACgraphics",
@@ -1069,8 +1059,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "38": 224
             },
             "utf8": {},
-            "glyphs": {},
-            "sourceLine": 778
+            "glyphs": {}
         },
         {
             "name": "Enhanced1",
@@ -1173,8 +1162,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "G_tdwall_mines": "U+252C/190-126-0",
                 "G_tlwall_mines": "U+2524/190-126-0",
                 "G_trwall_mines": "U+251C/190-126-0"
-            },
-            "sourceLine": 826
+            }
         },
         {
             "name": "Enhanced2",
@@ -1279,8 +1267,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "G_tdwall_mines": "U+252C/190-126-0",
                 "G_tlwall_mines": "U+2524/190-126-0",
                 "G_trwall_mines": "U+251C/190-126-0"
-            },
-            "sourceLine": 921
+            }
         },
         {
             "name": "AmigaFont",
@@ -1362,8 +1349,7 @@ export const SYMBOL_SET_DEFINITIONS = Object.freeze(
                 "104": 233
             },
             "utf8": {},
-            "glyphs": {},
-            "sourceLine": 1024
+            "glyphs": {}
         }
     ].map(freezeDefinition),
 );
