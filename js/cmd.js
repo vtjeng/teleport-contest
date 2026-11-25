@@ -4418,8 +4418,7 @@ function objectAt(x, y, state) {
 }
 
 // Copies: you.h next2u() is also ported as do.js next2u(), dothrow.js
-// next2u(), explode.js next2u() and sounds.js next2u(). A change to it must
-// reach every copy.
+// next2u() and sounds.js next2u(). A change to it must reach every copy.
 function next2u(x, y, state) {
     return !u_at(x, y, state)
         && dist2(x, y, state.u.ux, state.u.uy) <= 2;

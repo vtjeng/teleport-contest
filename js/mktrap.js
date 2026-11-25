@@ -123,6 +123,9 @@ function levelTrapEnv(env = {}) {
     };
 }
 
+// Copies: the DRAWBRIDGE_UP arm of dbridge.c is_pool() and is_lava() is also
+// ported as room_coordinates.js raisedDrawbridgeOver(). A change to it must
+// reach every copy.
 function raisedDrawbridgeOver(location, terrain) {
     return location.typ === DRAWBRIDGE_UP
         && ((location.flags ?? 0) & DB_UNDER) === terrain;

@@ -27,11 +27,8 @@ function union(a, b) {
 }
 
 // Copies: nhlsel.c l_selection_fillrect() on frame-relative corners is also
-// ported as asmodeus_levels.js absoluteArea(), fakewiz2_level.js
-// absoluteArea(), hell_levels.js absoluteArea(), orcus_levels.js
-// absoluteArea(), wizard1_levels.js absoluteArea(), wizard2_levels.js
-// absoluteArea() and wizard3_levels.js absoluteArea(). A change to it must
-// reach every copy.
+// ported as asmodeus_levels.js absoluteArea(), hell_levels.js absoluteArea()
+// and wizard3_levels.js absoluteArea(). A change to it must reach every copy.
 function absoluteArea(x1, y1, x2, y2, frame) {
     const result = new ThemeroomSelection(null, true);
     for (let x = x1; x <= x2; ++x)

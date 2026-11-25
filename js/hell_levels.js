@@ -28,8 +28,8 @@ function mathRandom(first, second, random = rn2) {
 
 // Copies: nhlib.lua percent() is also ported as bigrm.js percent(),
 // knox_levels.js percent(), medusa_levels.js percent(), mines_levels.js
-// percent(), sokoban_levels.js percent() and valley_levels.js percent(). A
-// change to it must reach every copy.
+// percent() and sokoban_levels.js percent(). A change to it must reach every
+// copy.
 function percent(threshold, random = rn2) {
     return random(100) < threshold;
 }
@@ -44,9 +44,7 @@ function sourceShuffle(values, random = rn2) {
 }
 
 // Copies: nhlsel.c l_selection_fillrect() on frame-relative corners is also
-// ported as asmodeus_levels.js absoluteArea(), fakewiz2_level.js
-// absoluteArea(), fakewiz1_levels.js absoluteArea(), orcus_levels.js
-// absoluteArea(), wizard1_levels.js absoluteArea(), wizard2_levels.js
+// ported as asmodeus_levels.js absoluteArea(), fakewiz1_levels.js
 // absoluteArea() and wizard3_levels.js absoluteArea(). A change to it must
 // reach every copy.
 function absoluteArea(x1, y1, x2, y2, frame) {

@@ -288,10 +288,9 @@ function resists_fire(mon, state) {
 }
 
 // you.h:559 mdistu(mon), the squared distance from the hero to a monster.
-// Copies: hack.h mdistu() is also ported as mhitu.js mdistu(), monmove.js
-// mdistu(), mthrowu.js mdistu() and muse.js mdistu(). A change to it must
-// reach every copy.
-function mdistu(mon, state) {
+// Copies: hack.h mdistu() is also ported as mhitu.js mdistu(), mthrowu.js
+// mdistu() and muse.js mdistu(). A change to it must reach every copy.
+export function mdistu(mon, state) {
     return dist2(mon.mx, mon.my, state.u.ux, state.u.uy);
 }
 

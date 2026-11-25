@@ -1602,9 +1602,8 @@ export function responsive_mon_at(x, y, state = game) {
     return mtmp;
 }
 
-// Copies: you.h next2u() is also ported as cmd.js next2u(), do.js next2u(),
-// dothrow.js next2u() and explode.js next2u(). A change to it must reach
-// every copy.
+// Copies: you.h next2u() is also ported as cmd.js next2u(), do.js next2u()
+// and dothrow.js next2u(). A change to it must reach every copy.
 function next2u(x, y, state) {
     const dx = x - state.u.ux;
     const dy = y - state.u.uy;

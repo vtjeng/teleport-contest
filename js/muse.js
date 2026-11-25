@@ -296,9 +296,8 @@ function POTION_OCCUPANT_CHANCE(n) { return 13 + 2 * n; }
 
 // C ref: hack.h distu() and mdistu(). Distance-squared from the hero to a
 // monster's position.
-// Copies: hack.h mdistu() is also ported as mhitu.js mdistu(), monmove.js
-// mdistu(), mthrowu.js mdistu() and polyself.js mdistu(). A change to it must
-// reach every copy.
+// Copies: hack.h mdistu() is also ported as mhitu.js mdistu(), mthrowu.js
+// mdistu() and polyself.js mdistu(). A change to it must reach every copy.
 function mdistu(mon, state) {
     return dist2(mon.mx, mon.my, state.u?.ux ?? 0, state.u?.uy ?? 0);
 }

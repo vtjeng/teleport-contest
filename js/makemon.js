@@ -53,6 +53,7 @@ import { sgn } from './hacklib.js';
 import { game } from './gstate.js';
 import { new_light_source } from './light.js';
 import {
+    isRogueLevel,
     discard_minvent,
     makemon_runtime,
 } from './makemon_create.js';
@@ -203,13 +204,6 @@ function inEndgame(state) {
 
 function isAstralLevel(state) {
     return on_level(state.u?.uz, state.astral_level);
-}
-
-// Copies: dungeon.h Is_rogue_level() is also ported as const.js
-// Is_rogue_level(), makemon_create.js isRogueLevel() and obj.js
-// isRogueLevel(). A change to it must reach every copy.
-function isRogueLevel(state) {
-    return on_level(state.u?.uz, state.rogue_level);
 }
 
 function uncommon(index, state) {

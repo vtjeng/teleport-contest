@@ -290,7 +290,7 @@ import {
     sobj_at,
     useupf,
 } from './invent.js';
-import { doopen_indir } from './lock.js';
+import { doorMask, doopen_indir } from './lock.js';
 import {
     amorphous,
     attacktype,
@@ -1470,10 +1470,6 @@ export function requireSimpleHeroDestination(
 
     // shk.c:u_left_shop() handles both shop-boundary warnings and indebted
     // departures after the movement commits, through check_special_room().
-}
-
-function doorMask(location) {
-    return location?.flags ?? 0;
 }
 
 // C ref: hack.c doorless_door(). A doorway lacks its door when no mask bit

@@ -315,18 +315,15 @@ export function rnd_hallublast(random = coreRandom) {
 
 
 // C ref: mondata.h mdistu(). Distance-squared from the hero to a monster.
-// Copies: hack.h mdistu() is also ported as mhitu.js mdistu(), monmove.js
-// mdistu(), muse.js mdistu() and polyself.js mdistu(). A change to it must
-// reach every copy.
+// Copies: hack.h mdistu() is also ported as mhitu.js mdistu(), muse.js
+// mdistu() and polyself.js mdistu(). A change to it must reach every copy.
 function mdistu(mon, state) {
     return dist2(state.u.ux, state.u.uy, mon.mx, mon.my);
 }
 
 // C ref: mondata.h m_seenres(). Check whether the monster has seen a
 // particular resistance type.
-// Copies: monst.h m_seenres() is also ported as mcastu.js m_seenres(). A
-// change to it must reach every copy.
-function m_seenres(mtmp, mask) {
+export function m_seenres(mtmp, mask) {
     return (mtmp.seen_resistance & mask) !== 0;
 }
 

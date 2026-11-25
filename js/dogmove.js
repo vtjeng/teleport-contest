@@ -237,6 +237,8 @@ const TARGET_DIRECTIONS = Object.freeze([
     [-1, 1], [0, 1], [1, 1],
 ]);
 
+// Copies: rm.h doormask (struct rm flags) is also ported as lock.js
+// doorMask(). A change to it must reach every copy.
 function doorMask(location) {
     return location?.flags ?? 0;
 }

@@ -4,7 +4,7 @@
 // operations, and sp_lev.c's des.* handlers.
 
 import { selection_match } from './bigrm.js';
-import { hellTweaks } from './asmodeus_levels.js';
+import { absoluteArea, selectionUnion, hellTweaks } from './asmodeus_levels.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 
 // C ref: dat/wizard2.lua's des.map() literal. The trailing x on every row is
@@ -25,41 +25,8 @@ const WIZARD2_MAP = [
     '----------------------------x',
 ].join('\n');
 
-// Copies: nhlsel.c l_selection_or() (the Lua | operator) is also ported as
-// asmodeus_levels.js selectionUnion(), fakewiz2_level.js selectionUnion(),
-// orcus_levels.js selectionUnion(), wizard1_levels.js selectionUnion() and
-// wizard3_levels.js selectionUnion(). A change to it must reach every copy.
-function selectionUnion(a, b) {
-    const result = a.clone();
-    const bounds = b.bounds();
-    for (let x = bounds.lx; x <= bounds.hx; ++x) {
-        for (let y = bounds.ly; y <= bounds.hy; ++y) {
-            if (b.get(x, y)) result.set(x, y);
-        }
-    }
-    return result;
-}
-
-// Copies: nhlsel.c l_selection_fillrect() on frame-relative corners is also
-// ported as asmodeus_levels.js absoluteArea(), fakewiz2_level.js
-// absoluteArea(), hell_levels.js absoluteArea(), fakewiz1_levels.js
-// absoluteArea(), orcus_levels.js absoluteArea(), wizard1_levels.js
-// absoluteArea() and wizard3_levels.js absoluteArea(). A change to it must
-// reach every copy.
-function absoluteArea(x1, y1, x2, y2, frame) {
-    const result = new ThemeroomSelection(null, true);
-    // selection.fillrect() resolves Lua-relative coordinates through the
-    // active frame before the source computes its protected complement.
-    for (let x = x1; x <= x2; ++x) {
-        for (let y = y1; y <= y2; ++y)
-            result.set(frame.xstart + x, frame.ystart + y);
-    }
-    return result;
-}
-
 // Copies: the selection of a des.map() result's area is also ported as
-// asmodeus_levels.js mapSelection() and orcus_levels.js mapSelection(). A
-// change to it must reach every copy.
+// asmodeus_levels.js mapSelection(). A change to it must reach every copy.
 function mapSelection(placed) {
     const result = new ThemeroomSelection(null, true);
     const rows = WIZARD2_MAP.split('\n');

@@ -165,7 +165,7 @@ import {
     objectType,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { flooreffects } from './do.js';
+import { next2u, flooreffects } from './do.js';
 import { closed_door } from './monmove.js';
 import { in_rooms } from './rooms.js';
 import {
@@ -351,13 +351,6 @@ function targetAt(x, y, state) {
     if (!monster && u_at(x, y, state)) monster = state.u?.usteed;
     if (monster?.mhp <= 0) return null;
     return monster;
-}
-
-// Copies: you.h next2u() is also ported as cmd.js next2u(), do.js next2u(),
-// dothrow.js next2u() and sounds.js next2u(). A change to it must reach every
-// copy.
-function next2u(x, y, state) {
-    return dist2(x, y, state.u.ux, state.u.uy) <= 2;
 }
 
 function hallucinatoryExplosion(state, env) {

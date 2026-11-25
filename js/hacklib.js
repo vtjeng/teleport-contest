@@ -544,8 +544,6 @@ export function isqrt(val) {
 }
 
 // C ref: hacklib.c online2(). Orthogonal and 45-degree diagonal lines count.
-// Copies: hacklib.c online2() is also ported as priest.js online2(). A change
-// to it must reach every copy.
 export function online2(x0, y0, x1, y1) {
     const dx = x0 - x1;
     const dy = y0 - y1;

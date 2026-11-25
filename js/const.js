@@ -3130,9 +3130,9 @@ export function Is_botlevel(uz, state = game) {
     const dun = dungeon_at(lev.dnum, state);
     return !!dun && lev.dlevel === dun.num_dunlevs;
 }
-// Copies: dungeon.h Is_rogue_level() is also ported as makemon.js
-// isRogueLevel(), makemon_create.js isRogueLevel() and obj.js isRogueLevel().
-// A change to it must reach every copy.
+// Copies: dungeon.h Is_rogue_level() is also ported as makemon_create.js
+// isRogueLevel() and obj.js isRogueLevel(). A change to it must reach every
+// copy.
 export function Is_rogue_level(uz, state = game) { const g = state; return g?.rogue_level && (uz ?? g?.u?.uz)?.dnum === g.rogue_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.rogue_level.dlevel; }
 export function Is_oracle_level(uz, state = game) { const g = state; return g?.oracle_level && (uz ?? g?.u?.uz)?.dnum === g.oracle_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.oracle_level.dlevel; }
 export function Is_bigroom(uz, state = game) { const g = state; return g?.bigroom_level && (uz ?? g?.u?.uz)?.dnum === g.bigroom_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.bigroom_level.dlevel; }

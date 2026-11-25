@@ -14,8 +14,8 @@ function randomInclusive(random, low, high) {
 
 // Copies: nhlib.lua percent() is also ported as bigrm.js percent(),
 // hell_levels.js percent(), medusa_levels.js percent(), mines_levels.js
-// percent(), sokoban_levels.js percent() and valley_levels.js percent(). A
-// change to it must reach every copy.
+// percent() and sokoban_levels.js percent(). A change to it must reach every
+// copy.
 function percent(random, threshold) {
     return randomInclusive(random, 0, 99) < threshold;
 }

@@ -1,7 +1,7 @@
 // valley_levels.js — Valley of the Dead level definition.
 // C ref: dat/valley.lua.
 
-import { selection_line } from './bigrm.js';
+import { percent, selection_line } from './bigrm.js';
 import {
     PM_ARCHEOLOGIST,
     PM_BARBARIAN,
@@ -34,16 +34,7 @@ import {
     WAND_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
-import { rn2 } from './rng.js';
 import { selection_area } from './themerooms.js';
-
-// Copies: nhlib.lua percent() is also ported as bigrm.js percent(),
-// hell_levels.js percent(), knox_levels.js percent(), medusa_levels.js
-// percent(), mines_levels.js percent() and sokoban_levels.js percent(). A
-// change to it must reach every copy.
-function percent(threshold) {
-    return rn2(100) < threshold;
-}
 
 // C ref: dat/valley.lua. The Valley of the Dead — maze of corridors with
 // the shrine of Moloch, three morgues, corpses of former adventurers, and

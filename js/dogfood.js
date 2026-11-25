@@ -1,7 +1,7 @@
 // Pet food classification.
 // C ref: dog.c dogfood().
 
-import { obj_resists } from './bury.js';
+import { isOrganic, obj_resists } from './bury.js';
 import {
     ACCFOOD,
     ACID_RES,
@@ -82,7 +82,6 @@ import {
     SLIME_MOLD,
     TIN,
     TRIPE_RATION,
-    WOOD,
 } from './objects.js';
 import { coreRandom } from './rng.js';
 
@@ -111,13 +110,6 @@ function polymorphFood(obj, species) {
 function isQuestArtifact(obj, state) {
     return Boolean(obj.oartifact
         && obj.oartifact === state.urole?.questarti);
-}
-
-// Copies: objclass.h is_organic() is also ported as bury.js isOrganic(),
-// mon.js isOrganic(), monmove.js isOrganic() and trap.js isOrganic(). A
-// change to it must reach every copy.
-function isOrganic(obj, state) {
-    return objectType(obj, state).oc_material <= WOOD;
 }
 
 // Copies: objclass.h is_metallic() is also ported as obj.js isMetallic(). A

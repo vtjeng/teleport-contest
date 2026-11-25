@@ -205,7 +205,7 @@ import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { dist2, distmin } from './hacklib.js';
 import { delobj_async, money_cnt, sobj_at } from './invent.js';
-import { picking_lock } from './lock.js';
+import { doorMask, picking_lock } from './lock.js';
 import { grow_up, set_malign } from './makemon.js';
 import { m_in_air, mongone_async, newcham } from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
@@ -442,7 +442,7 @@ import { add_damage, after_shk_move, costly_spot, inhishop, shk_move } from './s
 import { findgold, mdrop_obj } from './steal.js';
 import { stairway_at, stairway_find_dir } from './stairs.js';
 import { collectMonsterMovementMessage, messageAt } from './startup_a11y.js';
-import { mbodypart } from './polyself.js';
+import { mdistu, mbodypart } from './polyself.js';
 import { S_poisoncloud } from './symbols.js';
 import { gettrack, hastrack } from './track.js';
 import {
@@ -516,22 +516,8 @@ function movementEnv(env = {}) {
 }
 
 
-function doorMask(location) {
-    // rm.h's doormask is struct rm's `flags`.
-    return location?.flags ?? 0;
-}
-
 function drawbridgeMask(location) {
     return location?.flags ?? 0;
-}
-
-// C ref: hack.h mdistu(). Squared distance from the hero to a monster.
-// Defined locally because mhitu.js and muse.js each have their own copy.
-// Copies: hack.h mdistu() is also ported as mhitu.js mdistu(), mthrowu.js
-// mdistu(), muse.js mdistu() and polyself.js mdistu(). A change to it must
-// reach every copy.
-function mdistu(mon, state) {
-    return dist2(mon.mx, mon.my, state.u.ux, state.u.uy);
 }
 
 // C ref: monmove.c msg_mon_movement() (33-49). Accessibility message for a
@@ -1993,10 +1979,9 @@ async function gelcube_digests(mtmp, env = {}) {
 }
 
 // C ref: objclass.h is_organic(). material <= WOOD.
-// Copies: objclass.h is_organic() is also ported as bury.js isOrganic(),
-// dogfood.js isOrganic(), mon.js isOrganic() and trap.js isOrganic(). A
-// change to it must reach every copy.
-function isOrganic(obj, state) {
+// Copies: objclass.h is_organic() is also ported as bury.js isOrganic() and
+// trap.js isOrganic(). A change to it must reach every copy.
+export function isOrganic(obj, state) {
     return (state.objects?.[obj.otyp]?.oc_material ?? 0) <= WOOD;
 }
 

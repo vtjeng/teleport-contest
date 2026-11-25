@@ -115,7 +115,7 @@ import { use_crystal_ball } from './detect.js';
 import { inside_shop } from './shk.js';
 import { getrumor } from './random_text.js';
 import { impossible, verbalize, youFeel } from './pline.js';
-import { bcsign } from './obj.js';
+import { isContainer as Is_container, bcsign } from './obj.js';
 import { HCOLORS } from './random_text_data.js';
 import {
     AT_MAGC,
@@ -156,7 +156,6 @@ import {
     AMULET_OF_ESP,
     ARROW,
     ATHAME,
-    BAG_OF_TRICKS,
     BATTLE_AXE,
     BELL_OF_OPENING,
     BLACK_DRAGON_SCALES,
@@ -176,7 +175,6 @@ import {
     GREEN_DRAGON_SCALES,
     HELM_OF_BRILLIANCE,
     KATANA,
-    LARGE_BOX,
     LEASH,
     LENSES,
     LONG_SWORD,
@@ -3108,13 +3106,6 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
         objp.obj = obj = null; /* no longer in inventory */
     }
     return 0;
-}
-
-// obj.h:337 Is_container(o): object type is between LARGE_BOX and BAG_OF_TRICKS.
-// Copies: obj.h Is_container() is also ported as obj.js isContainer(). A
-// change to it must reach every copy.
-function Is_container(obj) {
-    return obj.otyp >= LARGE_BOX && obj.otyp <= BAG_OF_TRICKS;
 }
 
 // C ref: artifact.c untouchable() (2598-2637). Test one worn/wielded item or

@@ -16,9 +16,9 @@ import { splev_chr2typ } from './mklev.js';
 // which is rn2(100).
 // Copies: nhlib.lua percent() is also ported as hell_levels.js percent(),
 // knox_levels.js percent(), medusa_levels.js percent(), mines_levels.js
-// percent(), sokoban_levels.js percent() and valley_levels.js percent(). A
-// change to it must reach every copy.
-function percent(threshold) {
+// percent() and sokoban_levels.js percent(). A change to it must reach every
+// copy.
+export function percent(threshold) {
     return rn2(100) < threshold;
 }
 

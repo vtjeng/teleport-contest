@@ -1722,9 +1722,8 @@ export async function breakobj(
     return 1;
 }
 
-// Copies: you.h next2u() is also ported as cmd.js next2u(), do.js next2u(),
-// explode.js next2u() and sounds.js next2u(). A change to it must reach every
-// copy.
+// Copies: you.h next2u() is also ported as cmd.js next2u(), do.js next2u()
+// and sounds.js next2u(). A change to it must reach every copy.
 export function next2u(x, y, state = game) {
     // you.h next2u(px,py) is distu((px),(py)) <= 2; distu is squared
     // Euclidean distance, so an orthogonal square two cells away is outside.

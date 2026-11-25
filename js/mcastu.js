@@ -80,7 +80,7 @@ import {
 } from './monsters.js';
 import { STRANGE_OBJECT } from './objects.js';
 import { body_part, rehumanize } from './polyself.js';
-import { lined_up } from './mthrowu.js';
+import { m_seenres, lined_up } from './mthrowu.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
 
 import { cansee, couldsee } from './vision.js';
@@ -408,14 +408,6 @@ async function cursetxt(mtmp, undirected, env = {}) {
             await norepMessage('You hear a mumbled curse.', state, env);
         }
     }
-}
-
-// C ref: mondata.c cvt_adtyp_to_mseenres() -- already exported from
-// js/mondata.js, but we also need m_seenres() which is a simple macro.
-// Copies: monst.h m_seenres() is also ported as mthrowu.js m_seenres(). A
-// change to it must reach every copy.
-function m_seenres(mtmp, mask) {
-    return (mtmp.seen_resistance & mask) !== 0;
 }
 
 // ---- castmu() ----

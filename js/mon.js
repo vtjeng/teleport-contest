@@ -575,6 +575,7 @@ import {
     monsterClassSymbol,
 } from './monsters.js';
 import {
+    isOrganic,
     accessible,
     m_can_break_boulder,
     can_hide_under_obj,
@@ -649,7 +650,6 @@ import {
     SPE_EXTRA_HEALING,
     SPE_HEALING,
     TIN,
-    WOOD,
     SADDLE,
     BOOMERANG,
     BULLWHIP,
@@ -1991,13 +1991,6 @@ export function mpickgold(mtmp, rawEnv = {}) {
         }
         newsym(mtmp.mx, mtmp.my, state);
     }
-}
-
-// Copies: objclass.h is_organic() is also ported as bury.js isOrganic(),
-// dogfood.js isOrganic(), monmove.js isOrganic() and trap.js isOrganic(). A
-// change to it must reach every copy.
-function isOrganic(obj, state) {
-    return (state.objects?.[obj.otyp]?.oc_material ?? 0) <= WOOD;
 }
 
 // C pline_mon(): the line records the monster's square for accessiblemsg.

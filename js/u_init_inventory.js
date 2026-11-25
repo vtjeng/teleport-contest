@@ -7,6 +7,7 @@ import { game } from './gstate.js';
 import { addinv } from './invent.js';
 import { PM_MONK, PM_ORC, PM_WIZARD } from './monsters.js';
 import {
+    is_graystone as isGraystone,
     dealloc_obj,
     isContainer,
     mkobj,
@@ -19,8 +20,6 @@ import {
     COIN_CLASS,
     FLINT,
     GEM_CLASS,
-    LOADSTONE,
-    LUCKSTONE,
     MAGIC_MARKER,
     PANCAKE,
     POT_ACID,
@@ -45,7 +44,6 @@ import {
     STATUE,
     STRANGE_OBJECT,
     TOOL_CLASS,
-    TOUCHSTONE,
     WAN_NOTHING,
     WAN_POLYMORPH,
     WAN_WISHING,
@@ -188,15 +186,6 @@ export function ini_inv_obj_substitution(trop, obj, state = game) {
         }
     }
     return obj.otyp;
-}
-
-// Copies: obj.h is_graystone() is also ported as obj.js is_graystone(). A
-// change to it must reach every copy.
-function isGraystone(obj) {
-    return obj.otyp === LUCKSTONE
-        || obj.otyp === LOADSTONE
-        || obj.otyp === FLINT
-        || obj.otyp === TOUCHSTONE;
 }
 
 // C ref: u_init.c ini_inv_adjust_obj(). Returns true when the descriptor

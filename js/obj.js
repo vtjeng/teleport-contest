@@ -1225,8 +1225,6 @@ export function isPudding(obj) {
         || obj.otyp === GLOB_OF_BLACK_PUDDING;
 }
 
-// Copies: obj.h Is_container() is also ported as artifacts.js Is_container().
-// A change to it must reach every copy.
 export function isContainer(obj) {
     return obj.otyp >= LARGE_BOX && obj.otyp <= BAG_OF_TRICKS;
 }
@@ -1486,8 +1484,6 @@ export function ARM_BONUS(obj, state = game) {
 }
 
 // C ref: obj.h is_graystone().
-// Copies: obj.h is_graystone() is also ported as u_init_inventory.js
-// isGraystone(). A change to it must reach every copy.
 export function is_graystone(obj) {
     return obj.otyp === LUCKSTONE || obj.otyp === LOADSTONE
         || obj.otyp === FLINT || obj.otyp === TOUCHSTONE;
@@ -1839,8 +1835,8 @@ function inQuest(state) {
 }
 
 // Copies: dungeon.h Is_rogue_level() is also ported as const.js
-// Is_rogue_level(), makemon.js isRogueLevel() and makemon_create.js
-// isRogueLevel(). A change to it must reach every copy.
+// Is_rogue_level() and makemon_create.js isRogueLevel(). A change to it must
+// reach every copy.
 function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);
 }

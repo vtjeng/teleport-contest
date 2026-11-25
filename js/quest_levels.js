@@ -176,9 +176,7 @@ export function selection_floodfill(x, y, state, frame) {
 }
 
 // Intersection of two selections (Lua's & operator).
-// Copies: nhlsel.c l_selection_and() (the Lua & operator) is also ported as
-// mines_levels.js selIntersect(). A change to it must reach every copy.
-function selIntersect(a, b) {
+export function selIntersect(a, b) {
     const result = new ThemeroomSelection();
     const boundsA = a.bounds();
     for (let x = boundsA.lx; x <= boundsA.hx; ++x) {
