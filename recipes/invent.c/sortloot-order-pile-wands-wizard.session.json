@@ -1,6 +1,7 @@
 {
   "version": 5,
   "_comment": "invent.c sortloot() and sortloot_cmp(): loot_classify() runs lazily inside the comparator and, when the hero can see, marks each object encountered (o_init.c observe_object()), so the order of discoveries within a class follows the order in which the C library's qsort() first compares the objects (nethack-c/patches/002-deterministic-qsort.patch). macOS and glibc call the comparator in different orders, so record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder; see docs/testing.md, \"The qsort() call order\". A blindfolded Wizard wishes for four wands, drops them and then her quarterstaff on one square, takes the blindfold off, opens the pick-up menu (pickup.c query_objlist(), five objects) and pages through her discoveries.",
+  "recordOn": "macos",
   "segments": [
     {
       "seed": 31827,

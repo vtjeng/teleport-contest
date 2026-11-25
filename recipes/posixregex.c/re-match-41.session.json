@@ -8,5 +8,6 @@
       "moves": "\u001b\ni\u001b"
     }
   ],
-  "comment": "posixregex.c regex_compile()/regex_match(), from the second host-parity sample (experiments/host-parity/sample2/, recipe re-match-41): MENUCOLOR \"b*+\" in nethackrc, then the inventory. macOS and glibc regex answer differently here. Recorded on macOS, the judge's host, by .github/workflows/macos-recorder.yml (run 44628090866), because regcomp(), regexec() and regerror() differ between macOS and glibc (docs/testing.md, \"The regex difference\")."
+  "comment": "posixregex.c regex_compile()/regex_match(), from the second host-parity sample (experiments/host-parity/sample2/, recipe re-match-41): MENUCOLOR \"b*+\" in nethackrc, then the inventory. macOS and glibc regex answer differently here. Recorded on macOS, the judge's host, by .github/workflows/macos-recorder.yml (run 44628090866), because regcomp(), regexec() and regerror() differ between macOS and glibc (docs/testing.md, \"The regex difference\").",
+  "recordOn": "macos"
 }

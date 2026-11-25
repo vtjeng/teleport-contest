@@ -1,6 +1,7 @@
 {
   "version": 5,
   "comment": "files.c set_savefile_name() and restore_saved_game() on the judge's case-insensitive APFS volume: a normal-mode Samurai named Kasumi saves (save/<uid>Kasumi); the next segment names the hero KASUMI, whose save/<uid>KASUMI opens the same file, so C prints \"Restoring save file...\" and restores Kasumi (restore.c dorecover() reads the saved name). On Linux the second segment finds no file and starts a new game for KASUMI, so this recording must come from macOS (scripts/playground-case.test.mjs). Debug mode cannot show this: set_playmode() names every debug hero 'wizard'. Seed, date, Samurai and names chosen independently.",
+  "recordOn": "macos",
   "segments": [
     {
       "seed": 9014452,

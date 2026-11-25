@@ -1,6 +1,7 @@
 {
   "version": 5,
   "comment": "files.c fopen_datafile() on the judge's case-insensitive APFS volume: #wizloaddes 'Knox' becomes 'Knox.lua' (wizcmds.c wiz_load_splua() appends .lua), which nhlua.c nhl_loadlua()'s dlb_fopen() -> fopen_datafile() -> fopen() opens as knox.lua, so load_special() builds Fort Ludios. 'MEDUSA-2.LUA' keeps its extension and opens medusa-2.lua. 'Knoxx' folds to no installed file and prints \"nhl_loadlua: Error opening (Knoxx.lua)\" on every host. On Linux the first two fail the same way, so this recording must come from macOS (scripts/playground-case.test.mjs). Seed, date, dwarven Archeologist and names chosen independently of any batch game.",
+  "recordOn": "macos",
   "segments": [
     {
       "seed": 7730416,

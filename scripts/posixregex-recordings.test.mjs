@@ -7,15 +7,20 @@
 // The port follows macOS (js/regcomp.js), so the committed recordings of
 // regex paths that differ between the hosts are macOS recordings, made by
 // .github/workflows/macos-recorder.yml (run 44628090866). Each recording
-// below must show the text that only the macOS host prints and must replay.
+// below must show the text that only the macOS host prints and must replay,
+// and is macOS-only (scripts/recipe-host.mjs) unless it is the control.
 // No recording under recordings/ may show glibc's regerror() text, which a
 // recording made on Linux would.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
+import { isMacosOnly } from './recipe-host.mjs';
 import { listRecordings, RECORDINGS_DIR } from './score-recordings.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
+
+// The game below with no MSGTYPE line, which records alike on both hosts.
+const CONTROL = 'posixregex.c/trial-greeting-unfiltered-control';
 
 // [recording under recordings/, what it shows only on macOS]
 const CASES = [
@@ -35,7 +40,7 @@ const CASES = [
     ['posixregex.c/trial-repeated-greeting', 'Hello RegexTrial, welcome to NetHack!'],
     ['posixregex.c/trial-simple-greeting-control', 'Hello RegexTrial, welcome to NetHack!'],
     // The same game with no MSGTYPE line, identical on both hosts.
-    ['posixregex.c/trial-greeting-unfiltered-control', 'Hello RegexTrial, welcome to NetHack!'],
+    [CONTROL, 'Hello RegexTrial, welcome to NetHack!'],
 ];
 
 function screens(recording) {
@@ -47,6 +52,8 @@ for (const [name, expected] of CASES) {
         const recording = JSON.parse(readFileSync(`${RECORDINGS_DIR}/${name}.session.json`, 'utf8'));
         assert.ok(screens(recording).some((screen) => screen.includes(expected)),
             `${name} must show ${JSON.stringify(expected)}`);
+        // The recording carries its recipe's field (scripts/recipe-host.test.mjs).
+        assert.equal(isMacosOnly(recording), name !== CONTROL, `${name}: macOS-only`);
         const root = createScoringWorkspace(process.cwd(), []);
         try {
             const result = compareSessionOutputs(recording, await runJsSession(recording, root));

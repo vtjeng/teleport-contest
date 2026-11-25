@@ -1,6 +1,7 @@
 {
   "version": 5,
   "_comment": "invent.c sortloot() and sortloot_cmp(): loot_classify() runs lazily inside the comparator and marks each object encountered (o_init.c observe_object()), so the order of discoveries within a class follows the order in which the C library's qsort() first compares objects (nethack-c/patches/002-deterministic-qsort.patch). The judge's macOS recorder sorts with Apple Libc's qsort(), an insertion sort for these seven objects, which compares them in inventory order; glibc's merge sort compares the second and third of the first three before the first. Record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder; see docs/testing.md, \"The qsort() call order\". A blindfolded Valkyrie wishes for two armor pieces that she cannot see, swaps them to letters a and c, takes the blindfold off, lists her inventory and then pages through her discoveries. Independent of the c-diff-b4 examples.",
+  "recordOn": "macos",
   "segments": [
     {
       "seed": 7264015,

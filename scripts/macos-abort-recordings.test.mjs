@@ -14,14 +14,17 @@
 //
 // This file fails if one of them stops replaying, if a segment the table
 // names does not end in SIGABRT at its last key or another segment does,
-// if the menu-search recording does not echo where macOS does, or if a
-// recipe that ends a segment on a signal is missing from the table.
+// if the menu-search recording does not echo where macOS does, if a recipe
+// that ends a segment on a signal is missing from the table, or if
+// scripts/recipe-host.mjs disagrees with the table about which recipes are
+// macOS-only.
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import test from 'node:test';
 import { decodeScreen } from '../frozen/screen-decode.mjs';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
+import { isMacosOnly } from './recipe-host.mjs';
 import { RECORDINGS_DIR } from './score-recordings.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
@@ -52,6 +55,10 @@ function readRecording(name) {
     return JSON.parse(readFileSync(`${RECORDINGS_DIR}/${name}.session.json`, 'utf8'));
 }
 
+function readRecipe(name) {
+    return JSON.parse(readFileSync(new URL(`${name}.session.json`, RECIPES_DIR), 'utf8'));
+}
+
 for (const [name, aborting] of CASES) {
     test(`macOS abort recording ${name}`, async () => {
         const recording = readRecording(name);
@@ -69,8 +76,7 @@ for (const [name, aborting] of CASES) {
                 assert.equal(segment.terminalSignal, undefined, `segment ${i}`);
             }
         });
-        const recipe = JSON.parse(readFileSync(new URL(`${name}.session.json`, RECIPES_DIR), 'utf8'));
-        assert.match(recipe.comment, /record this recipe on macOS/iu);
+        assert.equal(isMacosOnly(readRecipe(name)), true, `${name} must be macOS-only`);
         const root = createScoringWorkspace(process.cwd(), []);
         try {
             const result = compareSessionOutputs(recording, await runJsSession(recording, root));
@@ -94,6 +100,11 @@ test('the menu search echoes where the saved-games menu left the cursor', () => 
     assert.equal(rows[0], 'Search for:');
     assert.equal(rows[9], `${' '.repeat(23)}d`);
     assert.deepEqual(step.cursor.slice(0, 2), [0, 1]);
+});
+
+test('the host-independent panics record on any host', () => {
+    for (const name of HOST_INDEPENDENT)
+        assert.equal(isMacosOnly(readRecipe(name)), false, `${name} must not be macOS-only`);
 });
 
 test('every recipe that ends a segment on a signal is in a table above', () => {

@@ -22,6 +22,7 @@ import {
 import { game } from '../js/gstate.js';
 import { InMemoryStorage, setStorageForTesting, vfsListFiles } from '../js/storage.js';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
+import { isMacosOnly } from './recipe-host.mjs';
 import { listRecordings, RECORDINGS_DIR } from './score-recordings.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
@@ -204,7 +205,8 @@ function screens(recording) {
 // The recordings of these paths come from .github/workflows/macos-recorder.yml
 // (runs 44669396862 and 44670028619, on branches
 // integration-checkpoint/case-open-rec1 and -rec2), because a Linux recorder
-// fails each open. [recording under recordings/, text only
+// fails each open, so each is macOS-only (scripts/recipe-host.mjs).
+// [recording under recordings/, text only
 // the macOS recording shows, text only the Linux one shows]
 const MACOS_CASES = [
     // "Knox" builds Fort Ludios; "Knoxx" fails on both hosts.
@@ -229,6 +231,8 @@ const MACOS_CASES = [
 for (const [name, macos, linux] of MACOS_CASES) {
     test(`macOS recording ${name} shows the case-insensitive open`, async () => {
         const recording = JSON.parse(readFileSync(`${RECORDINGS_DIR}/${name}.session.json`, 'utf8'));
+        // The recording carries its recipe's field (scripts/recipe-host.test.mjs).
+        assert.equal(isMacosOnly(recording), true, `${name} must be macOS-only`);
         const shown = screens(recording);
         assert.ok(shown.some((screen) => screen.includes(macos)),
             `${name} must show ${JSON.stringify(macos)}`);

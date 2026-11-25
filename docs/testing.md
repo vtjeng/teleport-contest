@@ -194,6 +194,43 @@ paths on which macOS ends the process with `SIGABRT` where Linux does not.
 The port follows macOS in all four, so the regression recordings of those
 paths are made on macOS.
 
+### macOS-only recipes
+
+A recipe whose committed recording must come from the macOS recorder,
+because a Linux recorder records it differently or not at all, has the
+top-level field `"recordOn": "macos"` beside its comment. A recipe without
+the field records alike on every host. `scripts/recipe-host.mjs` defines
+the field; everything that asks whether a recipe is macOS-only calls its
+`isMacosOnly()`, or its command line from a shell script:
+
+```sh
+node scripts/recipe-host.mjs recipes/cmd.c/bind-new-key-live.session.json
+```
+
+It prints each named recipe that is macOS-only and exits 1 on a recipe it
+cannot read. `scripts/record-session.mjs` copies top-level recipe fields
+into the recording, so the recording carries the field too; the judge's
+scorer reads only each segment's `seed`, `datetime`, `nethackrc` and
+`moves`, so the field does not affect scoring. On a host other than macOS,
+`experiments/host-parity/check-changed-recordings.sh` lists the changed
+macOS-only recipes in `<out-dir>/macos-only.txt` and leaves them to the
+macOS recordings workflow instead of recording them, and
+`record-session.mjs` warns when it records one.
+
+Give a new recipe the field when its recording must come from macOS, and
+say why in its comment. `scripts/recipe-host.test.mjs` fails when a
+comment says to record the recipe on macOS and the field is missing, when
+a recipe and its recording disagree about the field, and when a
+macOS-only recipe falls under none of the host differences it names: the
+regex and `qsort()` recipes listed for the macOS recorder, the key
+binding, `SIGABRT`, and file names on APFS, which ignores case and
+refuses names that are not UTF-8 (`scripts/playground-case.test.mjs`).
+The tests
+that pin macOS recordings (`scripts/macos-abort-recordings.test.mjs`,
+`bind-keys-live.test.mjs`, `posixregex-recordings.test.mjs`,
+`sortloot-order-recordings.test.mjs` and `playground-case.test.mjs`) also
+fail when one of their recordings lacks the field or a control has it.
+
 ### Known differences
 
 These differ for host reasons. The first three are compile-time choices:
@@ -403,7 +440,8 @@ between the hosts. Two later additions,
 pre-message only under glibc, which reads `\s` and `\b` as operators; the
 screens are the same on both hosts and the random-number calls fall in
 different steps. Record all of these again on macOS, not with a Linux
-recorder; each recipe's comment says so, and
+recorder; each one that differs between the hosts has
+`"recordOn": "macos"` ("macOS-only recipes"), and
 `scripts/posixregex-recordings.test.mjs` fails when any recording under
 `recordings/` shows glibc's `regerror()` text. A new recipe whose pattern
 the two libraries read differently needs a macOS recording too: add it to
@@ -469,7 +507,8 @@ same file from tag `Libc-1272.250.1` to `Libc-1752.120.2`.
 differently on the two hosts, each in the order of one class on a
 discoveries page, and two controls recorded alike. Their committed
 recordings are the macOS ones. Record them again on macOS, not with a
-Linux recorder; each recipe's comment says so, and
+Linux recorder; the 15 that differ have `"recordOn": "macos"`
+("macOS-only recipes"), and
 `scripts/sortloot-order-recordings.test.mjs` fails when one of the
 recordings lists a pair of discoveries in the Linux order. A new recipe
 in which a sort is the first to observe two types of one class needs a

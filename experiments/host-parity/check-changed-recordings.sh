@@ -10,9 +10,12 @@
 # The macOS recordings workflow runs this on a macOS runner for every
 # candidate, so a recording that only a Linux recorder produces cannot become
 # regression evidence. A recipe counts when it or its recording differs from
-# <base-ref> and both files exist. Exits 1 when a recipe fails to record, a
-# recording differs, or a changed recording has no recipe at the same path,
-# and 0 when nothing changed.
+# <base-ref> and both files exist. On a host other than macOS, a recipe whose
+# committed recording must come from macOS (scripts/recipe-host.mjs,
+# "recordOn": "macos") is listed in <out-dir>/macos-only.txt and left to the
+# macOS recordings workflow instead of being recorded. Exits 1 when a recipe
+# fails to record, a recording differs, or a changed recording has no recipe
+# at the same path, and 0 when nothing changed.
 set -euo pipefail
 
 BASE="${1:?usage: check-changed-recordings.sh <base-ref> <out-dir> [--list-only]}"
@@ -48,12 +51,23 @@ if [ "$MODE" = "--list-only" ] || [ "$count" -eq 0 ]; then
     exit 0
 fi
 
+# A Linux recording of a macOS-only recipe cannot equal its committed macOS
+# recording, so only the macOS host records it. recipe-host.mjs exits 1 on a
+# recipe it cannot read, which stops this script.
+: > "$OUT/macos-only.txt"
+if [ "$(uname -s)" != Darwin ]; then
+    node scripts/recipe-host.mjs $(cat "$OUT/recipes.txt") > "$OUT/macos-only.txt"
+fi
+grep -vxF -f "$OUT/macos-only.txt" "$OUT/recipes.txt" > "$OUT/to-record.txt" || true
+macos_only=$(wc -l < "$OUT/macos-only.txt" | tr -d ' ')
+sed 's/^/macOS-only, left to the macOS recordings workflow: /' "$OUT/macos-only.txt"
+
 status=0
-for dir in $(cut -d/ -f2 "$OUT/recipes.txt" | sort -u); do
+for dir in $(cut -d/ -f2 "$OUT/to-record.txt" | sort -u); do
     # record-sample.sh names its output by the recipe's base name, so each
     # source-file directory is recorded into its own output directory.
     experiments/host-parity/record-sample.sh "$OUT/$dir" 3 \
-        $(grep "^recipes/$dir/" "$OUT/recipes.txt") || status=1
+        $(grep "^recipes/$dir/" "$OUT/to-record.txt") || status=1
 done
 
 : > "$OUT/differing.txt"
@@ -67,8 +81,10 @@ while IFS= read -r recipe; do
         echo "differs from the committed recording: $rel" | tee -a "$OUT/differing.txt"
         status=1
     fi
-done < "$OUT/recipes.txt"
+done < "$OUT/to-record.txt"
 
 differing=$(wc -l < "$OUT/differing.txt" | tr -d ' ')
-echo "$((count - differing)) of $count recordings equal the committed ones on $(uname -s)"
+checked=$((count - macos_only))
+echo "$((checked - differing)) of $checked recordings equal the committed ones on $(uname -s);" \
+    "$macos_only macOS-only recipes left to the macOS recordings workflow"
 exit "$status"

@@ -1,6 +1,7 @@
 {
   "version": 5,
   "_comment": "invent.c sortloot() and sortloot_cmp(): loot_classify() runs lazily inside the comparator and, when the hero can see, marks each object encountered (o_init.c observe_object()), so the order of discoveries within a class follows the order in which the C library's qsort() first compares the objects (nethack-c/patches/002-deterministic-qsort.patch). macOS and glibc call the comparator in different orders, so record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder; see docs/testing.md, \"The qsort() call order\". Armor and amulets are created with dknown set (mkobj.c clear_dknown()), so invent.c learn_unseen_invent() skips them when the blindfold comes off and the inventory sort is the first to observe them. A blindfolded Cavewoman wishes for five pieces of armor, takes the blindfold off, lists her inventory (invent.c display_pickinv(), eleven objects) and pages through her discoveries.",
+  "recordOn": "macos",
   "segments": [
     {
       "seed": 3141,

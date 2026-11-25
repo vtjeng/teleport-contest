@@ -13,13 +13,15 @@
 // every recipe in experiments/host-parity/qsort-oracle/recipes.txt.
 //
 // This file fails if one of them stops replaying, if one of them shows two
-// discoveries in the order a Linux recorder gives them, or if a
+// discoveries in the order a Linux recorder gives them, if a
 // sortloot-order recipe is missing from recipes.txt or from the table
-// below.
+// below, or if a recording with a pair is not macOS-only
+// (scripts/recipe-host.mjs) or a control is.
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
+import { isMacosOnly } from './recipe-host.mjs';
 import { RECORDINGS_DIR } from './score-recordings.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
@@ -64,6 +66,8 @@ for (const [name, pair] of CASES) {
     test(`macOS sort-order recording ${name}`, async () => {
         const recording = JSON.parse(readFileSync(
             `${RECORDINGS_DIR}/invent.c/${name}.session.json`, 'utf8'));
+        // The recording carries its recipe's field (scripts/recipe-host.test.mjs).
+        assert.equal(isMacosOnly(recording), pair !== null, `${name}: macOS-only`);
         if (pair) {
             // An encountered type that is not identified is listed as two
             // spaces and its description.

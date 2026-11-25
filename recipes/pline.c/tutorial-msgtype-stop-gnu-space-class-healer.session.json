@@ -8,5 +8,6 @@
       "moves": " y    hhhy    "
     }
   ],
-  "comment": "MSGTYPE=stop \"Entering\\sthe\\stutorial\" on the tutorial pre-message. glibc reads \\s as a space class and stops there, so the level change waits for the key; macOS TRE without REG_ENHANCED reads it as a literal s, matches nothing and the level change happens first. The port follows macOS (js/regcomp.js), and record this recipe on macOS (.github/workflows/macos-recorder.yml), not on Linux; this recording comes from the macOS recorder."
+  "comment": "MSGTYPE=stop \"Entering\\sthe\\stutorial\" on the tutorial pre-message. glibc reads \\s as a space class and stops there, so the level change waits for the key; macOS TRE without REG_ENHANCED reads it as a literal s, matches nothing and the level change happens first. The port follows macOS (js/regcomp.js), and record this recipe on macOS (.github/workflows/macos-recorder.yml), not on Linux; this recording comes from the macOS recorder.",
+  "recordOn": "macos"
 }

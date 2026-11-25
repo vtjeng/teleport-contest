@@ -12,13 +12,15 @@
 // macOS by .github/workflows/macos-recorder.yml (run 44607258217).
 //
 // This file fails if the port binds on any Strcat() path again, if it stops
-// binding on the parameter path, or if one of these recordings, or any
+// binding on the parameter path, if one of these recordings, or any
 // other recording under recordings/, shows a Strcat() bind succeeding, as a
-// Linux recording would.
+// Linux recording would, or if a recording below whose bind fails is not
+// macOS-only (scripts/recipe-host.mjs) or one whose bind succeeds is.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { compareSessionOutputs, formatReport, runJsSession } from './diff-fresh.mjs';
+import { isMacosOnly } from './recipe-host.mjs';
 import { listRecordings, RECORDINGS_DIR } from './score-recordings.mjs';
 import { createScoringWorkspace, removeScoringWorkspace } from './scoring-workspace.mjs';
 
@@ -53,6 +55,9 @@ for (const [name, path, expected] of CASES) {
             `../recordings/cmd.c/${name}.session.json`, import.meta.url), 'utf8'));
         assert.ok(screens(recording).some((screen) => screen.includes(expected)),
             `${name} must show ${JSON.stringify(expected)}`);
+        // Only a failing bind differs between the hosts. The recording
+        // carries its recipe's field (scripts/recipe-host.test.mjs).
+        assert.equal(isMacosOnly(recording), expected === FAILED, `${name}: macOS-only`);
         const root = createScoringWorkspace(process.cwd(), []);
         try {
             const result = compareSessionOutputs(recording, await runJsSession(recording, root));

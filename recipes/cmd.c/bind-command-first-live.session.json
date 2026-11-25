@@ -1,6 +1,7 @@
 {
   "version": 5,
   "comment": "Options menu, bind keys, command first: pray (cmd.c handler_rebind_keys_add(), Strcat() at line 2379), then \"Bind which key?\" (line 2384) and '@', bound to autopickup; '@' afterwards still toggles autopickup. Seed, character and inputs chosen independently. Recorded on macOS by .github/workflows/macos-recorder.yml, not on Linux: cmd.c handler_rebind_keys_add() appends with Strcat() to the uninitialized cmdstr (line 2356). On the judge's macOS build that buffer does not start with a zero byte, so bind_key() matches no command and line 2402 prints \"Key binding failed?!\"; a Linux recorder happens to bind the key (docs/testing.md, \"The key-binding difference\").",
+  "recordOn": "macos",
   "segments": [
     {
       "seed": 30917748,

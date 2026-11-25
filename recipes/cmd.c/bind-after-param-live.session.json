@@ -1,6 +1,7 @@
 {
   "version": 5,
   "comment": "Options menu, bind keys, key first, twice in one visit to the \"Do what?\" menu: '{' to toggle(autopickup) through Snprintf() (cmd.c line 2376), then '}' to pray through Strcat() (line 2379), which appends to the same uninitialized cmdstr (line 2356). Seed, character and inputs chosen independently. On the judge's macOS build the second bind fails as the others do (line 2402), so the earlier Snprintf() does not make it succeed; a Linux recorder binds it. Recorded on macOS by .github/workflows/macos-recorder.yml, not on Linux, for that reason (docs/testing.md, \"The key-binding difference\").",
+  "recordOn": "macos",
   "segments": [
     {
       "seed": 30917751,

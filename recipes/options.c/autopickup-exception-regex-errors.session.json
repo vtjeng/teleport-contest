@@ -1,6 +1,7 @@
 {
   "version": 5,
   "_comment": "options.c handler_autopickup_exception() add_autopickup_exception(): two patterns that regcomp rejects ('(' unmatched, '<*arrow' with a leading '*') report their config errors through cfgfiles.c config_error_add() pline()/wait_synch(), then a valid '<arrow' is added and listed. macOS regerror() reports them as 'parentheses not balanced' and 'repetition-operator operand invalid'; glibc's text differs. Recorded on macOS, the judge's host, by .github/workflows/macos-recorder.yml (run 44628090866), because regcomp() and regerror() differ between macOS and glibc (docs/testing.md, \"The regex difference\").",
+  "recordOn": "macos",
   "segments": [
     {
       "seed": 7310452,

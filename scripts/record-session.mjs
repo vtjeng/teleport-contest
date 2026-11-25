@@ -23,6 +23,7 @@ import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
 import {createPromptController, digest, validatePromptPlan} from './recorder-prompt-plan.mjs';
+import {isMacosOnly} from './recipe-host.mjs';
 import {RECORDER_HOME} from '../js/cfgfiles.js';
 import {JUDGE_RECORDER_IS_DST} from '../js/calendar.js';
 import {recorderArguments} from '../js/unixmain.js';
@@ -972,6 +973,12 @@ async function main() {
     }
 
     const session = await loadSession(inputPath);
+    // A macOS-only recipe (scripts/recipe-host.mjs) records here all the
+    // same, for comparison, but cannot reproduce its committed recording.
+    if (isMacosOnly(session) && process.platform !== 'darwin') {
+        console.error(`[warn] ${inputPath} is macOS-only ("recordOn": "macos"); `
+            + 'a recording made on this host will not equal its committed macOS recording');
+    }
     let prompt = null, onReceipt;
     const receiptPath = options['--prompt-receipt'];
     const emittedPath = options['--emitted-recipe'];

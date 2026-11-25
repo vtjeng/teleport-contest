@@ -1,6 +1,7 @@
 {
   "version": 5,
   "comment": "win/tty/getline.c hooked_tty_getlin(), reached from win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm (1700-1709) while restore.c restore_menu() shows the saved-games menu for tty_askname(). unixmain.c calls plnamesuffix() at 198, before init_sound_disp_gamewindows() at 217 creates WIN_MESSAGE (allmain.c:719), so WIN_MESSAGE is still WIN_ERR (-1) and `cw = wins[WIN_MESSAGE]` (getline.c:50) reads wins[-1], which is undefined behaviour: record this recipe on macOS (.github/workflows/macos-recorder.yml), not with a Linux recorder, which reads NULL there and dies at line 55 on the ':' key. The macOS recorder links the pointer ttyDisplay just below wins[], so cw is ttyDisplay's DisplayDesc and nothing faults: raw_print() puts \"Search for:\" on a blank shadow screen and leaves the recorded cursor at row 1, topl_putsym() echoes each character at ttyDisplay's cursor, where the menu left it after \"(end)\", and the first tty_clear_nhwindow(WIN_MESSAGE) calls ttywindowpanic(), whose panic() ends in NH_abort() (terminalSignal). Segment 0 saves a nameless-rc Archeologist. Segment 1 pages the menu, types a search, erases a character, types more and ends on Return. Segment 2 starts from the same menu (no getlock(), no panic save before the game exists), types 60 characters, so the echo wraps from the last column onto the next row, and ends on Escape over the text. Segment 3 picks the save and plays on. Seeds, clocks, character and keys chosen independently.",
+  "recordOn": "macos",
   "segments": [
     {
       "seed": 90417,
