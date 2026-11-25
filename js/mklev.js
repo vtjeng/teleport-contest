@@ -1712,15 +1712,6 @@ function walkfrom(x, y, typ, state, bounds) {
     }
 }
 
-// C ref: mkmaze.c move(). Opens the cell between the old and new
-// positions during maze walking.
-function maze_move(x, y, typ, state) {
-    if (!IS_DOOR(state.level.at(x, y).typ)) {
-        state.level.at(x, y).typ = typ;
-        state.level.at(x, y).flags = 0;
-    }
-}
-
 // C ref: mkmap.c flood_fill_rm(..., anyroom=TRUE), as used by
 // sp_lev.c:lspo_region() for an irregular themed-room region.
 function flood_fill_themeroom(sx, sy, roomno, lit, state) {

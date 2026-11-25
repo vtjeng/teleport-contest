@@ -511,16 +511,6 @@ export function str2align(value) {
     return randomToken(input) ? ROLE_RANDOM : ROLE_NONE;
 }
 
-export function findRole(value) {
-    const index = str2role(value);
-    return validrole(index) ? roles[index] : null;
-}
-
-export function findRace(value) {
-    const index = str2race(value);
-    return index >= 0 ? races[index] : null;
-}
-
 export function roleIndex(role) {
     if (Number.isInteger(role)) {
         if (validrole(role)) return role;

@@ -41,13 +41,6 @@ function percent(threshold) {
     return rn2(100) < threshold;
 }
 
-// Perseus statue contents callback shared by all four medusa variants.
-// C ref: dat/medusa-1.lua lines 62-75, etc. Each variant uses the same
-// percent-gated items with the same thresholds and order.
-function perseusContents() {
-    // C ref: medusa-1.lua line 63 — percent(75) for shield of reflection
-}
-
 // C ref: dat/medusa-1.lua. The first Medusa level variant.
 async function medusa1(des) {
     await des.level_init({ style: 'solidfill', fg: ' ' });

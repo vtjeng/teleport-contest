@@ -7,7 +7,7 @@
 // game.getScreens() / getRngLog() / getCursors() to compare with
 // C-recorded session data. Cross-segment state travels through input.storage.
 //
-// For browser play, see nethack.js (uses NethackGame directly).
+// For browser play, index.html constructs NethackGame directly.
 
 import {
     game,

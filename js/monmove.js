@@ -3148,14 +3148,6 @@ async function maybe_spin_web(mtmp, env) {
     }
 }
 
-// The door masks that leave postmov()'s door block with nothing to do.  Three
-// of the block's four arms test D_LOCKED or D_CLOSED and the fourth tests
-// whole-mask equality with D_CLOSED, so a monster standing on a doorless,
-// broken or open doorway falls through all four without touching the doormask,
-// the map or the message window.  The one arm above them that acts on any
-// other mask is the magic-key disarm at monmove.c:1539, which needs D_TRAPPED.
-export const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
-
 // C ref: monmove.c postmov() (1454-1705). Covers notice_mon(), the old and
 // new-square redraws, the complete door and iron-bars blocks, mintrap(), the
 // tunnel and engulfed-hero transitions, object handling, web/concealment

@@ -953,8 +953,6 @@ function* xname_flags_steps(obj, state, cxnFlags = CXN_NORMAL) {
     };
 }
 
-export const xnameFreshWithOffset = xname_flags;
-
 // C objnam.c xname() (575-578) selects CXN_NORMAL. The optional result form
 // carries the interior-buffer offset that C callers retain from its char *;
 // ordinary callers still receive the pointed-to string.

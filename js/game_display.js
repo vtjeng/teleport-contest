@@ -260,10 +260,6 @@ export class GameDisplay {
 
     // --- NetHack-specific methods ---
 
-    renderStatus(_player) {
-        // TODO: full status line rendering from player stats
-    }
-
     moveCursorTo(col, row = 0) {
         this.setCursor(col, row);
     }

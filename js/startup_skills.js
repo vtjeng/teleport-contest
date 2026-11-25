@@ -377,8 +377,3 @@ export function finalize_startup_skills(state = game, options = {}) {
     ensure_starting_spell_power(state);
     return state;
 }
-
-export const _startupSkillInternals = Object.freeze({
-    PAUPER_PREKNOWN_OBJECT,
-    spellbookKnowledgeLimit,
-});

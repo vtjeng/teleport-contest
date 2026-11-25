@@ -412,5 +412,3 @@ export function restrictedSpellDiscipline(otyp, state = game) {
         ({ skill }) => skill === spellSkill,
     );
 }
-
-export const _roleSkillInternals = Object.freeze({ roleFilecode });

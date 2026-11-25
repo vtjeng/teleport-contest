@@ -944,13 +944,6 @@ export async function namefloorobj(state = game) {
     }
 }
 
-function namingPropertyActive(state, property) {
-    const value = state.u?.uprops?.[property];
-    return Boolean(value?.intrinsic || value?.extrinsic)
-        && !value?.blocked;
-}
-
-
 // C ref: do_name.c x_monnam()'s do_it predicate (863-865). Six terms, and
 // each defeats "it" on its own: the hero can make the monster out; the caller
 // asked for "your <pet>"; the game is over and every monster is disclosed; the

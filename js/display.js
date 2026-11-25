@@ -6048,14 +6048,6 @@ function _vitalStatusFields(u) {
     return fields;
 }
 
-function _writeStatusFields(row, start, fields) {
-    let column = start;
-    for (const { owner, text } of fields) {
-        column = row.write(column, text, owner);
-    }
-    return column;
-}
-
 // C ref: wintty.c render_status() (5036-5062). Line the conditions up with
 // BL_HUNGER on the row above; where that leaves too little room, right justify
 // them; where even that does not fit, leave them at the column check_fields()

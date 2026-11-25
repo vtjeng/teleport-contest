@@ -109,9 +109,3 @@ export async function use_initial_inventory(env = {}) {
         await ini_inv_use_obj(obj, normalized);
     return normalized.state;
 }
-
-export const _uInitInventoryUseInternals = Object.freeze({
-    armorSlot,
-    initialArmor,
-    initialWeapon,
-});

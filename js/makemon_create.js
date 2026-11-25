@@ -233,14 +233,12 @@ import {
     PM_ETTIN,
     PM_FOREST_CENTAUR,
     PM_GHOST,
-    PM_GIANT,
     PM_GOBLIN,
     PM_GUIDE,
     PM_HIGH_CLERIC,
     PM_HOBBIT,
     PM_HORNED_DEVIL,
     PM_HOUSECAT,
-    PM_HUMAN,
     PM_HUNTER,
     PM_ASMODEUS,
     PM_ICE_DEVIL,
@@ -257,7 +255,6 @@ import {
     PM_CAPTAIN,
     PM_LIEUTENANT,
     PM_NINJA,
-    PM_ORC,
     PM_ORC_CAPTAIN,
     PM_ORC_SHAMAN,
     PM_ORCUS,
@@ -2143,11 +2140,6 @@ function initializeGender(monster, ptr, mmflags, random, state) {
 function pm_to_cham(mndx, state) {
     const species = state.mons?.[mndx];
     return species && (species.mflags2 & M2_SHAPESHIFTER) ? mndx : NON_PM;
-}
-
-function isPlaceholderForm(mndx) {
-    return mndx === PM_ORC || mndx === PM_GIANT
-        || mndx === PM_ELF || mndx === PM_HUMAN;
 }
 
 // Bounded explicit-target form of mon.c:newcham() for
