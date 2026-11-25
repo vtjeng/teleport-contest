@@ -68,6 +68,10 @@ import { rn2 } from './rng.js';
 import { selection_floodfill } from './quest_levels.js';
 import { selection_area, ThemeroomSelection } from './themerooms.js';
 
+// Copies: nhlib.lua percent() is also ported as bigrm.js percent(),
+// hell_levels.js percent(), knox_levels.js percent(), medusa_levels.js
+// percent(), sokoban_levels.js percent() and valley_levels.js percent(). A
+// change to it must reach every copy.
 function percent(threshold) {
     return rn2(100) < threshold;
 }
@@ -79,6 +83,8 @@ function monkfoodshop(state) {
 }
 
 // C ref: selvar.c selection intersection (Lua's & operator).
+// Copies: nhlsel.c l_selection_and() (the Lua & operator) is also ported as
+// quest_levels.js selIntersect(). A change to it must reach every copy.
 function selIntersect(a, b) {
     const result = new ThemeroomSelection();
     const boundsA = a.bounds();

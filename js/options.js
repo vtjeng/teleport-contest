@@ -815,12 +815,16 @@ function trimspacesIgnoredReturn(value) {
     return /^[ \t]*$/u.test(text) ? text : trimspacesTrailing(text);
 }
 
+// Copies: hacklib.c trimspaces() is also ported as hacklib.js trimspaces(). A
+// change to it must reach every copy.
 function trimspaces(value) {
     return trimspacesTrailing(value).replace(/^[ \t]+/u, '');
 }
 
 // C ref: hacklib.c:mungspaces().  Configuration statements other than
 // OPTIONS are dispatched from a copy normalized this way.
+// Copies: hacklib.c mungspaces() is also ported as hacklib.js mungspaces()
+// and fruit.js mungspaces(). A change to it must reach every copy.
 function mungspaces(value) {
     let normalized = '';
     let wasSpace = true;
@@ -1947,6 +1951,8 @@ const STATUS_HILITE_ATTRIBUTES = new Map([
 // of up to BUFSZ/2 bytes, so a value can exceed it while holding fewer than
 // fifty characters.  Cutting the UTF-8 encoding reproduces C's split of a
 // multi-byte character as well as its length.
+// Copies: coloratt.c match_str2attr() is also ported as coloratt.js
+// match_str2attr(). A change to it must reach every copy.
 function match_str2attr(result, str, complain) {
     const attr = sourceMatchStr2attr(str);
     if (attr === null && complain) {
@@ -1966,6 +1972,8 @@ function match_str2attr(result, str, complain) {
 //
 // C splits at the first '&' alone, so "red&bold&underline" asks
 // match_str2attr() about "bold&underline" rather than counting three parts.
+// Copies: coloratt.c color_attr_parse_str() is also ported as coloratt.js
+// color_attr_parse_str(). A change to it must reach every copy.
 function color_attr_parse_str(result, str) {
     return sourceColorAttrParseStr(str, message => configErrorAdd(result, message));
 }
@@ -2197,6 +2205,8 @@ function splitsubfields(str, maxsf = 0) {
 // This supplies the configuration report and turns its null back into C's
 // "none of the above" CLR_MAX, which every caller rejects a second time by
 // comparing against CLR_MAX.
+// Copies: coloratt.c match_str2clr() is also ported as coloratt.js
+// match_str2clr(). A change to it must reach every copy.
 function match_str2clr(result, str, suppress_msg) {
     return colorattMatchStr2clr(
         str, suppress_msg, (message) => configErrorAdd(result, message),
@@ -3350,6 +3360,8 @@ function bindingSeparator(bindings) {
 //    cmd.c dotoggleoption() (1376-1384) is the field's only reader, through
 //    the gc.cmd_bind that rhack() sets; `parameter` below is computed for the
 //    diagnostics only.
+// Copies: cmd.c bind_key() is also ported as cmd.js bind_key(). A change to
+// it must reach every copy.
 function bind_key(result, command) {
     if (lcase(command) === 'nothing') return true;
     // C truncates its copy at the '(' and points p past it only when a ')'
@@ -3475,6 +3487,8 @@ function applyMenuBinding(result, binding) {
 // comma, and always leaves room for the terminating NUL. The player name
 // handler below stores its result in `name` during startup and `plname` in a
 // live game; both are the same C svp.plname value.
+// Copies: options.c nmcpy() is also ported as fruit.js nmcpy(). A change to
+// it must reach every copy.
 function nmcpy(value, maxlen) {
     const bytes = textBytes(value);
     const copied = [];

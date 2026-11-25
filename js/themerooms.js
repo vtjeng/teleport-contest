@@ -332,6 +332,8 @@ function sel_flood_havepoint(x, y, xs, ys, n) {
 // with `diagonals`, diagonally too. `tmp` is the source's visited set; the
 // stack is bounded the way SEL_FLOOD_STACK bounds it. The points are map
 // coordinates, as every selection's are in C.
+// Copies: selvar.c selection_floodfill() is also ported as quest_levels.js
+// selection_floodfill(). A change to it must reach every copy.
 export function selection_floodfill(ov, x, y, diagonals) {
     const tmp = new ThemeroomSelection(null, ov.absolute, ov.origin);
     const SEL_FLOOD_STACK = COLNO * ROWNO;

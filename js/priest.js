@@ -608,6 +608,8 @@ export function mk_roamer(
 
 // C ref: hacklib.c online2(). True when (x0,y0) and (x1,y1) lie on a
 // cardinal or diagonal line through each other.
+// Copies: hacklib.c online2() is also ported as hacklib.js online2(). A
+// change to it must reach every copy.
 function online2(x0, y0, x1, y1) {
     const dx = x0 - x1;
     const dy = y0 - y1;

@@ -19,6 +19,10 @@ import { selection_area, ThemeroomSelection } from './themerooms.js';
 
 // C ref: dat/nhlib.lua percent(). math.random(0, 99) is nh.random(0, 100),
 // which is rn2(100).
+// Copies: nhlib.lua percent() is also ported as bigrm.js percent(),
+// hell_levels.js percent(), knox_levels.js percent(), medusa_levels.js
+// percent(), mines_levels.js percent() and valley_levels.js percent(). A
+// change to it must reach every copy.
 function percent(threshold) {
     return rn2(100) < threshold;
 }

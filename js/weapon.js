@@ -460,6 +460,8 @@ function isSpecies(monster, pmidx, state) {
         || monster.mnum === pmidx;
 }
 
+// Copies: mondata.h touch_petrifies() is also ported as mondata.js
+// touch_petrifies(). A change to it must reach every copy.
 function touchPetrifies(species) {
     return species?.pmidx === PM_COCKATRICE
         || species?.pmidx === PM_CHICKATRICE;

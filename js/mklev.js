@@ -428,6 +428,9 @@ function shuffle_core_values(values, random) {
 // C ref: bones.c getbones() (630-756). Checks whether a bones file exists
 // for the current level and, if found, loads it. In wizard mode, prompts
 // before loading ("Get bones?") and before deleting ("Unlink bones?").
+// Copies: bones.c getbones() is also ported as bones.js getbones() (mklev.js
+// holds the checks and prompts, bones.js the restore). A change to it must
+// reach every copy.
 async function getbones() {
     const state = game;
     if (state.discover) return false;
@@ -1602,6 +1605,9 @@ function set_door_orientation(x, y, state = game) {
 // vibrating square has its own picker; a room uses get_free_room_loc(); the
 // map retries up to 100 times to avoid stairs and ladders), then hands the
 // MKTRAP_ flags and the square to mktrap().
+// Copies: sp_lev.c create_trap() is also ported as themeroom_fill.js
+// createRoomTrap() and themeroom_fill.js createPostprocessTrap(). A change to
+// it must reach every copy.
 function create_trap(t, croom, frame, env) {
     const { state } = env;
     const tm = { x: -1, y: -1 };

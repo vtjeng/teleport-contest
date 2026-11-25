@@ -353,6 +353,9 @@ function targetAt(x, y, state) {
     return monster;
 }
 
+// Copies: you.h next2u() is also ported as cmd.js next2u(), do.js next2u(),
+// dothrow.js next2u() and sounds.js next2u(). A change to it must reach every
+// copy.
 function next2u(x, y, state) {
     return dist2(x, y, state.u.ux, state.u.uy) <= 2;
 }

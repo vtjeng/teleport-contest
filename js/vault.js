@@ -1385,6 +1385,8 @@ export async function paygd(silently, state = game, rawEnv = {}) {
 
 // C ref: vault.c hidden_gold(). `even_if_unknown` false counts only gold in
 // containers whose contents the hero already knows.
+// Copies: vault.c hidden_gold() is also ported as u_init_inventory_attrs.js
+// hidden_gold(). A change to it must reach every copy.
 export function hidden_gold(even_if_unknown, state = game) {
     let value = 0;
     for (let obj = state.invent; obj; obj = obj.nobj) {

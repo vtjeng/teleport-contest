@@ -701,6 +701,8 @@ export function on_ground(otyp, state = game) {
     return null;
 }
 
+// Same name, other source: this ports wizard.c you_have(); insight.js
+// you_have() ports insight.c you_have().
 export function you_have(mask, state = game) {
     const have = state.u?.uhave ?? {};
     switch (mask) {

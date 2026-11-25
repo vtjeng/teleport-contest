@@ -92,6 +92,8 @@ function ensureObjectGlobals(state) {
     return state.objects;
 }
 
+// Copies: dungeon.c maxledgerno() is also ported as dungeon.js maxledgerno().
+// A change to it must reach every copy.
 function maxledgerno(state) {
     const dungeons = state.dungeons;
     if (!Array.isArray(dungeons) || dungeons.length === 0)

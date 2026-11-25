@@ -163,6 +163,8 @@ import { sync_impossible } from './source_steps.js';
 
 // C ref: mkmaze.c iswall(). Wall-spine joins accept doors, lava walls,
 // water, secret doors, and iron bars in addition to ordinary wall types.
+// Copies: rm.h IS_WALL() is also ported as const.js IS_WALL(). A change to it
+// must reach every copy.
 export function iswall(x, y, state = game) {
     if (!isok(x, y)) return 0;
     const typ = state.level.at(x, y).typ;

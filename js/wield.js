@@ -725,6 +725,8 @@ async function finish_splitting(obj, state) {
 // C ref: obj.h pair_of(). These armor categories name one logical item as a
 // pair even when its quantity is one, so doquiver_core() uses "those" and
 // plural verb agreement in its confirmation path.
+// Copies: obj.h pair_of() is also ported as potion.js pair_of(). A change to
+// it must reach every copy.
 function pair_of(obj, state) {
     return obj.otyp === LENSES
         || is_gloves(obj, state)

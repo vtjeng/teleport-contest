@@ -116,6 +116,8 @@ function sanitizeBytes(bytes, stripEighthBit = true) {
     return bytesText(sanitized);
 }
 
+// Copies: options.c nmcpy() is also ported as options.js nmcpy(). A change to
+// it must reach every copy.
 function nmcpy(value, maxlen = PL_FSIZ) {
     return bytesText(bytesUntilTerminator(
         textBytes(value),
@@ -145,6 +147,8 @@ function mungspaceBytes(bytes) {
     return result;
 }
 
+// Copies: hacklib.c mungspaces() is also ported as hacklib.js mungspaces()
+// and options.js mungspaces(). A change to it must reach every copy.
 export function mungspaces(value) {
     const result = mungspaceBytes(textBytes(value));
     return bytesText(result);

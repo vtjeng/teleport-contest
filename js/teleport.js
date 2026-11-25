@@ -840,6 +840,9 @@ export async function mlevel_tele_trap(
     return 'moved';
 }
 
+// Copies: dungeon.h In_endgame() is also ported as const.js In_endgame(),
+// makemon.js inEndgame() and monmove.js inEndgame(). A change to it must
+// reach every copy.
 function inEndgame(state) {
     const uz = state.u?.uz;
     return Boolean(uz && state.astral_level

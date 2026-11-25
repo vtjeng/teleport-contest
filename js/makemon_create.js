@@ -600,6 +600,9 @@ export function creationEnv(env = {}) {
     return { ...env, state, random };
 }
 
+// Copies: dungeon.h Is_rogue_level() is also ported as const.js
+// Is_rogue_level(), makemon.js isRogueLevel() and obj.js isRogueLevel(). A
+// change to it must reach every copy.
 export function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);
 }
@@ -995,6 +998,8 @@ function makemon_rnd_goodpos(ptr, gpflags, normalized) {
 
 // C ref: makemon.c m_initgrp(). Runtime random generation can create a small
 // or large hostile group before the original monster receives inventory.
+// Copies: makemon.c m_initgrp() is also ported as m_initgrp_runtime() in this
+// file. A change to it must reach every copy.
 function m_initgrp(monster, countBound, mmflags, normalized) {
     const { random, state } = normalized;
     const divisor = state.u.ulevel < 3 ? 4 : state.u.ulevel < 5 ? 2 : 1;
@@ -1037,6 +1042,8 @@ function m_initgrp(monster, countBound, mmflags, normalized) {
 // Runtime m_initgrp() has to await each recursive makemon() tail before the
 // loop can advance: that tail can stop at a tty --More-- prompt.  C applies
 // the forced-hostile correction only after the recursive call returns.
+// Copies: makemon.c m_initgrp() is also ported as m_initgrp() in this file. A
+// change to it must reach every copy.
 async function m_initgrp_runtime(
     monster,
     countBound,
@@ -1602,6 +1609,8 @@ function isNonliving(species) {
         || species.mlet === S_VORTEX;
 }
 
+// Copies: mondata.h is_floater() is also ported as mondata.js is_floater(). A
+// change to it must reach every copy.
 function isFloater(species) {
     return species.mlet === S_EYE || species.mlet === S_LIGHT;
 }
@@ -2136,6 +2145,8 @@ function initializeGender(monster, ptr, mmflags, random, state) {
     }
 }
 
+// Copies: mon.c pm_to_cham() is also ported as mon.js pm_to_cham(). A change
+// to it must reach every copy.
 function pm_to_cham(mndx, state) {
     const species = state.mons?.[mndx];
     return species && (species.mflags2 & M2_SHAPESHIFTER) ? mndx : NON_PM;
@@ -2242,6 +2253,8 @@ async function makemonOccupationCheck(monster, normalized) {
 // no square is free, rndmonst() finds no candidate, or the species is
 // genocided. Outside level creation the synchronous body stops after
 // set_malign(); makemon_runtime() and makemon_revival() run the rest.
+// Copies: makemon.c makemon() is also ported as makemon_runtime() in this
+// file. A change to it must reach every copy.
 export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     const normalized = creationEnv(env);
     return finish_steps(
@@ -2612,6 +2625,8 @@ function* makemon_steps(ptr, x, y, mmflags, normalized) {
 // Async adapter for makemon.c's runtime suffix.  The synchronous constructor
 // stops immediately after set_malign(); this continuation then preserves C's
 // awaited recursive group tails, parent inventory, and final output order.
+// Copies: makemon.c makemon() is also ported as makemon() in this file. A
+// change to it must reach every copy.
 export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
     const message = env.message ?? ttyPline;
     const norepMessage = norep_printer(env);

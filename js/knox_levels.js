@@ -5,10 +5,17 @@ import { KNOX_LEVEL_MAP } from './knox_level_data.js';
 
 // `math.random(low, high)` in nhlib.lua delegates to nh.random(low,
 // high-low+1), which consumes rn2 once and includes both endpoints.
+// Copies: nhlib.lua math.random(), which calls nhlua.c nhl_random(), is also
+// ported as bigrm.js mathRandom() and hell_levels.js mathRandom(). A change
+// to it must reach every copy.
 function randomInclusive(random, low, high) {
     return low + random.rn2(high - low + 1);
 }
 
+// Copies: nhlib.lua percent() is also ported as bigrm.js percent(),
+// hell_levels.js percent(), medusa_levels.js percent(), mines_levels.js
+// percent(), sokoban_levels.js percent() and valley_levels.js percent(). A
+// change to it must reach every copy.
 function percent(random, threshold) {
     return randomInclusive(random, 0, 99) < threshold;
 }

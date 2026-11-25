@@ -268,6 +268,8 @@ export function reconstrain_map(state = game) {
     state.iflags.save_uswallow = 0;
 }
 
+// Copies: display.h glyph_is_swallow() is also ported as display.js
+// glyph_is_swallow(). A change to it must reach every copy.
 function glyphIsSwallow(glyph) {
     return Number.isInteger(glyph)
         && glyph >= GLYPH_SWALLOW_OFF
@@ -1601,6 +1603,8 @@ export async function reveal_terrain(whichSubset, state = game) {
     await map_redisplay(state);
 }
 
+// Copies: display.h glyph_is_trap() is also ported as display.js
+// glyph_is_trap(). A change to it must reach every copy.
 function glyphIsTrap(glyph) {
     if (!Number.isInteger(glyph)) return false;
     // display.h GLYPH_TRAP_OFF is cmap_to_glyph(S_arrow_trap).

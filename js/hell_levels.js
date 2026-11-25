@@ -18,11 +18,18 @@ import { hellTweaks } from './asmodeus_levels.js';
 // inclusive [first, second] range to nh.random(first, second + 1 - first).
 // The injected callback has the rn2 shape, so every local random call remains
 // independently testable without changing the RNG owner.
+// Copies: nhlib.lua math.random(), which calls nhlua.c nhl_random(), is also
+// ported as bigrm.js mathRandom() and knox_levels.js randomInclusive(). A
+// change to it must reach every copy.
 function mathRandom(first, second, random = rn2) {
     if (second === undefined) return 1 + random(first);
     return first + random(second - first + 1);
 }
 
+// Copies: nhlib.lua percent() is also ported as bigrm.js percent(),
+// knox_levels.js percent(), medusa_levels.js percent(), mines_levels.js
+// percent(), sokoban_levels.js percent() and valley_levels.js percent(). A
+// change to it must reach every copy.
 function percent(threshold, random = rn2) {
     return random(100) < threshold;
 }
@@ -36,6 +43,12 @@ function sourceShuffle(values, random = rn2) {
     return values;
 }
 
+// Copies: nhlsel.c l_selection_fillrect() on frame-relative corners is also
+// ported as asmodeus_levels.js absoluteArea(), fakewiz2_level.js
+// absoluteArea(), fakewiz1_levels.js absoluteArea(), orcus_levels.js
+// absoluteArea(), wizard1_levels.js absoluteArea(), wizard2_levels.js
+// absoluteArea() and wizard3_levels.js absoluteArea(). A change to it must
+// reach every copy.
 function absoluteArea(x1, y1, x2, y2, frame) {
     const result = new ThemeroomSelection(null, true);
     const xstart = Number.isInteger(frame?.xstart) ? frame.xstart : 1;

@@ -190,6 +190,8 @@ export function ini_inv_obj_substitution(trop, obj, state = game) {
     return obj.otyp;
 }
 
+// Copies: obj.h is_graystone() is also ported as obj.js is_graystone(). A
+// change to it must reach every copy.
 function isGraystone(obj) {
     return obj.otyp === LUCKSTONE
         || obj.otyp === LOADSTONE

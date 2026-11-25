@@ -225,6 +225,8 @@ export function upwords(s) {
 // C ref: hacklib.c mungspaces().  Collapses each run of spaces or tabs to one
 // space, drops a leading and a trailing one, and truncates at the first
 // newline.  C edits its buffer in place; this returns the shortened string.
+// Copies: hacklib.c mungspaces() is also ported as options.js mungspaces()
+// and fruit.js mungspaces(). A change to it must reach every copy.
 export function mungspaces(bp) {
     let out = '';
     let was_space = true;
@@ -239,6 +241,8 @@ export function mungspaces(bp) {
 }
 
 // C ref: hacklib.c trimspaces().  Drops leading and trailing spaces and tabs.
+// Copies: hacklib.c trimspaces() is also ported as options.js trimspaces(). A
+// change to it must reach every copy.
 export function trimspaces(txt) {
     let start = 0;
     while (start < txt.length
@@ -540,6 +544,8 @@ export function isqrt(val) {
 }
 
 // C ref: hacklib.c online2(). Orthogonal and 45-degree diagonal lines count.
+// Copies: hacklib.c online2() is also ported as priest.js online2(). A change
+// to it must reach every copy.
 export function online2(x0, y0, x1, y1) {
     const dx = x0 - x1;
     const dy = y0 - y1;
@@ -551,6 +557,8 @@ export function online2(x0, y0, x1, y1) {
 // strcmpi() passes -1, which keeps C's while(n--) running through NUL.
 // C orders the folded bytes as `char t1, t2`, so a high byte sorts before
 // every ASCII byte (o_init.c discovered_cmp() sorts named types this way).
+// Copies: hacklib.c strncmpi() is also ported as eat.js strncmpi(). A change
+// to it must reach every copy.
 export function strncmpi(s1, s2, n) {
     let remaining = Math.trunc(n);
     let index = 0;

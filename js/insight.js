@@ -508,6 +508,8 @@ function you_are(lines, final, attr, ps) {
     enl_msg(lines, final, You_, are, were, attr, ps);
 }
 
+// Same name, other source: this ports insight.c you_have(); wizard.js
+// you_have() ports wizard.c you_have().
 function you_have(lines, final, attr, ps) {
     enl_msg(lines, final, You_, have, had, attr, ps);
 }

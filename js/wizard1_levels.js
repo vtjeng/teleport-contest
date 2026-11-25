@@ -25,6 +25,10 @@ const WIZARD1_MAP = [
     '----------------------------x',
 ].join('\n');
 
+// Copies: nhlsel.c l_selection_or() (the Lua | operator) is also ported as
+// asmodeus_levels.js selectionUnion(), fakewiz2_level.js selectionUnion(),
+// orcus_levels.js selectionUnion(), wizard2_levels.js selectionUnion() and
+// wizard3_levels.js selectionUnion(). A change to it must reach every copy.
 function selectionUnion(a, b) {
     const result = a.clone();
     const bounds = b.bounds();
@@ -36,6 +40,12 @@ function selectionUnion(a, b) {
     return result;
 }
 
+// Copies: nhlsel.c l_selection_fillrect() on frame-relative corners is also
+// ported as asmodeus_levels.js absoluteArea(), fakewiz2_level.js
+// absoluteArea(), hell_levels.js absoluteArea(), fakewiz1_levels.js
+// absoluteArea(), orcus_levels.js absoluteArea(), wizard2_levels.js
+// absoluteArea() and wizard3_levels.js absoluteArea(). A change to it must
+// reach every copy.
 function absoluteArea(x1, y1, x2, y2, frame) {
     const result = new ThemeroomSelection(null, true);
     // selection.fillrect() resolves Lua-relative coordinates through the

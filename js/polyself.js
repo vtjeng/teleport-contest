@@ -288,6 +288,9 @@ function resists_fire(mon, state) {
 }
 
 // you.h:559 mdistu(mon), the squared distance from the hero to a monster.
+// Copies: hack.h mdistu() is also ported as mhitu.js mdistu(), monmove.js
+// mdistu(), mthrowu.js mdistu() and muse.js mdistu(). A change to it must
+// reach every copy.
 function mdistu(mon, state) {
     return dist2(mon.mx, mon.my, state.u.ux, state.u.uy);
 }
@@ -493,6 +496,8 @@ export function set_uasmon(state = game) {
 
 // haseyes — used by PROPSET; re-exported from mondata would create a cycle
 // so we inline it. C ref: mondata.h haseyes() — !M1_NOEYES.
+// Copies: mondata.h haseyes() is also ported as mondata.js haseyes(). A
+// change to it must reach every copy.
 function haseyes(mdat) {
     return !((mdat?.mflags1 ?? 0) & M.M1_NOEYES);
 }

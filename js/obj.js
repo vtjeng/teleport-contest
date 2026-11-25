@@ -1225,17 +1225,23 @@ export function isPudding(obj) {
         || obj.otyp === GLOB_OF_BLACK_PUDDING;
 }
 
+// Copies: obj.h Is_container() is also ported as artifacts.js Is_container().
+// A change to it must reach every copy.
 export function isContainer(obj) {
     return obj.otyp >= LARGE_BOX && obj.otyp <= BAG_OF_TRICKS;
 }
 
 // C ref: obj.h Is_box().
+// Copies: obj.h Is_box() is also ported as lock.js Is_box(). A change to it
+// must reach every copy.
 export function isBox(obj) {
     return obj.otyp === LARGE_BOX || obj.otyp === CHEST;
 }
 
 // C ref: obj.h Has_contents(). The commented-out class test in C is left out
 // there too, so any object with a contents chain answers true.
+// Copies: obj.h Has_contents() is also ported as const.js Has_contents(). A
+// change to it must reach every copy.
 export function hasContents(obj) {
     return Boolean(obj.cobj);
 }
@@ -1441,6 +1447,8 @@ export function Dragon_mail_to_pm(obj, state = game) {
 }
 
 // C ref: obj.h is_axe() (217-219). Reads the same field is_pick() below does.
+// Copies: obj.h is_axe() is also ported as monmove.js isAxe(). A change to it
+// must reach every copy.
 export function is_axe(obj, state = game) {
     return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
         && objectType(obj, state).oc_subtyp === P_AXE;
@@ -1448,6 +1456,8 @@ export function is_axe(obj, state = game) {
 
 // C ref: obj.h is_pick(). The objects[] field C calls oc_skill is stored under
 // its union alias oc_subtyp here, as is_ammo() above also reads it.
+// Copies: obj.h is_pick() is also ported as monmove.js isPick(). A change to
+// it must reach every copy.
 export function is_pick(obj, state = game) {
     return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
         && objectType(obj, state).oc_subtyp === P_PICK_AXE;
@@ -1476,6 +1486,8 @@ export function ARM_BONUS(obj, state = game) {
 }
 
 // C ref: obj.h is_graystone().
+// Copies: obj.h is_graystone() is also ported as u_init_inventory.js
+// isGraystone(). A change to it must reach every copy.
 export function is_graystone(obj) {
     return obj.otyp === LUCKSTONE || obj.otyp === LOADSTONE
         || obj.otyp === FLINT || obj.otyp === TOUCHSTONE;
@@ -1503,11 +1515,15 @@ export function is_rottable(obj, state = game) {
 }
 
 // C ref: objclass.h is_metallic().
+// Copies: objclass.h is_metallic() is also ported as dogfood.js isMetallic().
+// A change to it must reach every copy.
 export function isMetallic(obj, state = game) {
     const material = objectType(obj, state).oc_material;
     return material >= IRON && material <= MITHRIL;
 }
 
+// Copies: objclass.h is_rustprone() is also ported as dogfood.js
+// isRustprone(). A change to it must reach every copy.
 export function isRustprone(obj, state = game) {
     return objectType(obj, state).oc_material === IRON;
 }
@@ -1822,6 +1838,9 @@ function inQuest(state) {
     return Number.isInteger(dnum) && dnum === state.quest_dnum;
 }
 
+// Copies: dungeon.h Is_rogue_level() is also ported as const.js
+// Is_rogue_level(), makemon.js isRogueLevel() and makemon_create.js
+// isRogueLevel(). A change to it must reach every copy.
 function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);
 }

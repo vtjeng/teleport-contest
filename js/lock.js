@@ -937,6 +937,8 @@ export function u_have_forceable_weapon(state = game) {
 }
 
 // C ref: obj.h Is_box() (195-196). True for chests and large boxes.
+// Copies: obj.h Is_box() is also ported as obj.js isBox(). A change to it
+// must reach every copy.
 export function Is_box(obj) {
     return obj.otyp === CHEST || obj.otyp === LARGE_BOX;
 }
@@ -1247,6 +1249,8 @@ export async function stumble_on_door_mimic(x, y, state = game) {
 
 // C ref: monst.h is_door_mappear(): TRUE when the monster is mimicking a
 // closed door (horizontal or vertical).
+// Copies: monst.h is_door_mappear() is also ported as hack.js
+// is_door_mappear(). A change to it must reach every copy.
 function is_door_mappear(mtmp) {
     return M_AP_TYPE(mtmp) === M_AP_FURNITURE
         && (mtmp.mappearance === S_hcdoor || mtmp.mappearance === S_vcdoor);

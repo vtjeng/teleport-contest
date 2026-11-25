@@ -2127,6 +2127,8 @@ export const ROOMOFFSET = 3;
 export const quitchars = ' \r\n\x1B';
 
 // Check terrain type helpers (rm.h)
+// Copies: rm.h IS_WALL() is also ported as mkmaze.js iswall(). A change to it
+// must reach every copy.
 export function IS_WALL(typ) {
     // C ref: rm.h — IS_WALL(typ) ((typ) && (typ) <= DBWALL)
     return typ >= VWALL && typ <= DBWALL;
@@ -2147,14 +2149,20 @@ export function IS_ROOM(typ) {
 export function IS_FURNITURE(typ) {
     return typ >= STAIRS && typ <= ALTAR;
 }
+// Copies: rm.h ACCESSIBLE() is also ported as monmove.js accessible(). A
+// change to it must reach every copy.
 export function ACCESSIBLE(typ) {
     // C ref: rm.h -- #define ACCESSIBLE(typ) ((typ) >= DOOR)
     return typ >= DOOR;
 }
+// Copies: rm.h IS_POOL() is also ported as dbridge.js is_pool(). A change to
+// it must reach every copy.
 export function IS_POOL(typ) {
     // C ref: rm.h — IS_POOL(typ) ((typ) >= POOL && (typ) <= DRAWBRIDGE_UP)
     return typ >= POOL && typ <= DRAWBRIDGE_UP;
 }
+// Copies: rm.h IS_LAVA() is also ported as dbridge.js is_lava(). A change to
+// it must reach every copy.
 export function IS_LAVA(typ) {
     // C ref: rm.h — IS_LAVA(typ) ((typ) == LAVAPOOL || (typ) == LAVAWALL)
     return typ === LAVAPOOL || typ === LAVAWALL;
@@ -2169,6 +2177,8 @@ export function IS_DRAWBRIDGE(typ) {
     // C ref: rm.h — IS_DRAWBRIDGE(typ) ((typ) == DRAWBRIDGE_UP || (typ) == DRAWBRIDGE_DOWN)
     return typ === DRAWBRIDGE_UP || typ === DRAWBRIDGE_DOWN;
 }
+// Copies: rm.h IS_WATERWALL() is also ported as dbridge.js is_waterwall(). A
+// change to it must reach every copy.
 export function IS_WATERWALL(typ) {
     // C ref: rm.h — IS_WATERWALL(typ) ((typ) == WATER)
     return typ === WATER;
@@ -2977,6 +2987,8 @@ export function has_mcorpsenm(mtmp) {
 
 // Object extra accessors
 // C: ONAME(obj) → ((char *)(obj)->oextra->oname)
+// Copies: obj.h ONAME() is also ported as invent.js oname(). A change to it
+// must reach every copy.
 export function ONAME(obj) { return obj?.oextra?.oname || ''; }
 export function has_oname(obj) { return !!obj?.oextra?.oname; }
 export function OMONST(obj) { return obj?.oextra?.omonst; }
@@ -3044,6 +3056,8 @@ export function u_at(x, y, state = game) {
 export function OBJ_AT(x, y, state = game) {
     return Boolean(state?.level?.objects?.[x]?.[y]);
 }
+// Copies: obj.h Has_contents() is also ported as obj.js hasContents(). A
+// change to it must reach every copy.
 export function Has_contents(obj) { return obj?.cobj != null; }
 // C ref: hack.h:1538 `#define AC_VALUE(AC) ((AC) >= 0 ? (AC) : -rnd(-(AC)))`.
 // "very high armor protection does not achieve invulnerability": a negative
@@ -3077,6 +3091,8 @@ export function helpless(mon) {
 // generated data (u.ulycn, corpsenm, cham), and an index at or past NUMMONS
 // answers TRUE without the upper test and then indexes past the end of
 // state.mons.
+// Copies: monst.h ismnum() is also ported as eat.js ismnum(). A change to it
+// must reach every copy.
 export function ismnum(pm) {
     return Number.isInteger(pm) && pm >= LOW_PM && pm < NUMMONS;
 }
@@ -3085,12 +3101,17 @@ export function ismnum(pm) {
 // Each reads the dungeon topology (C's svd.dungeon_topology, fixed for a game)
 // from `state`.
 export function In_quest(uz, state = game) { return (uz ?? state?.u?.uz)?.dnum === state?.quest_dnum; }
+// Copies: dungeon.h In_endgame() is also ported as makemon.js inEndgame(),
+// monmove.js inEndgame() and teleport.js inEndgame(). A change to it must
+// reach every copy.
 export function In_endgame(uz, state = game) { const lev = uz ?? state?.u?.uz; const al = state?.astral_level; return !!lev && !!al && lev.dnum === al.dnum; }
 export function Is_astralevel(uz, state = game) { return In_endgame(uz, state) && (uz ?? state?.u?.uz)?.dlevel === 1; }
 // dungeon.h:142. C's tutorial_dnum is always a valid dungeon number; this port
 // leaves game.tutorial_dnum undefined when the topology holds no tutorial, so
 // the integer test keeps an undefined dnum from matching an undefined dnum.
 export function In_tutorial(uz, state = game) { const lev = uz ?? state?.u?.uz; return !!lev && Number.isInteger(state?.tutorial_dnum) && lev.dnum === state.tutorial_dnum; }
+// Copies: dungeon.h Is_waterlevel() is also ported as sit.js Is_waterlevel().
+// A change to it must reach every copy.
 export function Is_waterlevel(uz, state = game) { const lev = uz ?? state?.u?.uz; const wl = state?.water_level; return !!lev && !!wl && lev.dnum === wl.dnum && lev.dlevel === wl.dlevel; }
 export function Is_firelevel(uz, state = game) { const lev = uz ?? state?.u?.uz; const fl = state?.fire_level; return !!lev && !!fl && lev.dnum === fl.dnum && lev.dlevel === fl.dlevel; }
 export function Is_earthlevel(uz, state = game) { const lev = uz ?? state?.u?.uz; const el = state?.earth_level; return !!lev && !!el && lev.dnum === el.dnum && lev.dlevel === el.dlevel; }
@@ -3101,12 +3122,17 @@ export function In_V_tower(uz, state = game) { return (uz ?? state?.u?.uz)?.dnum
 export function Is_stronghold(uz, state = game) { const g = state; return g?.stronghold_level && (uz ?? g?.u?.uz)?.dnum === g.stronghold_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.stronghold_level.dlevel; }
 // C ref: dungeon.c:1637 — Is_botlevel checks if level is the deepest
 // in its dungeon branch. Each branch has its own num_dunlevs.
+// Copies: dungeon.c Is_botlevel() is also ported as dungeon.js Is_botlevel().
+// A change to it must reach every copy.
 export function Is_botlevel(uz, state = game) {
     const lev = uz ?? state?.u?.uz;
     if (!lev) return false;
     const dun = dungeon_at(lev.dnum, state);
     return !!dun && lev.dlevel === dun.num_dunlevs;
 }
+// Copies: dungeon.h Is_rogue_level() is also ported as makemon.js
+// isRogueLevel(), makemon_create.js isRogueLevel() and obj.js isRogueLevel().
+// A change to it must reach every copy.
 export function Is_rogue_level(uz, state = game) { const g = state; return g?.rogue_level && (uz ?? g?.u?.uz)?.dnum === g.rogue_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.rogue_level.dlevel; }
 export function Is_oracle_level(uz, state = game) { const g = state; return g?.oracle_level && (uz ?? g?.u?.uz)?.dnum === g.oracle_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.oracle_level.dlevel; }
 export function Is_bigroom(uz, state = game) { const g = state; return g?.bigroom_level && (uz ?? g?.u?.uz)?.dnum === g.bigroom_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.bigroom_level.dlevel; }

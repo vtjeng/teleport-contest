@@ -1399,6 +1399,8 @@ export function heroHatesSilver(state) {
     return state.u?.ulycn >= LOW_PM || hates_silver(state.youmonst?.data);
 }
 
+// Copies: mondata.h digests() is also ported as dothrow.js digests(). A
+// change to it must reach every copy.
 export function digests(species) {
     return Boolean(dmgtype_fromattack(species, AD_DGST, AT_ENGL));
 }

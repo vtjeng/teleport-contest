@@ -3826,6 +3826,8 @@ export async function get_changed_key_binds(sbuf = null, state = game) {
 // parser for configuration strings and records the same command operation.
 // `errors` collects the config_error_add() reports, which the interactive
 // caller prints as cfgfiles.c config_erradd() does outside an rc read.
+// Copies: cmd.c bind_key() is also ported as options.js bind_key(). A change
+// to it must reach every copy.
 export function bind_key(key, commandText, user = false, state = game, errors = []) {
     const text = String(commandText ?? '');
     if (lcase(text) === 'nothing') {
@@ -4415,6 +4417,9 @@ function objectAt(x, y, state) {
     return vobj_at(x, y, state);
 }
 
+// Copies: you.h next2u() is also ported as do.js next2u(), dothrow.js
+// next2u(), explode.js next2u() and sounds.js next2u(). A change to it must
+// reach every copy.
 function next2u(x, y, state) {
     return !u_at(x, y, state)
         && dist2(x, y, state.u.ux, state.u.uy) <= 2;

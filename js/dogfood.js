@@ -113,15 +113,22 @@ function isQuestArtifact(obj, state) {
         && obj.oartifact === state.urole?.questarti);
 }
 
+// Copies: objclass.h is_organic() is also ported as bury.js isOrganic(),
+// mon.js isOrganic(), monmove.js isOrganic() and trap.js isOrganic(). A
+// change to it must reach every copy.
 function isOrganic(obj, state) {
     return objectType(obj, state).oc_material <= WOOD;
 }
 
+// Copies: objclass.h is_metallic() is also ported as obj.js isMetallic(). A
+// change to it must reach every copy.
 function isMetallic(obj, state) {
     const material = objectType(obj, state).oc_material;
     return material >= IRON && material <= MITHRIL;
 }
 
+// Copies: objclass.h is_rustprone() is also ported as obj.js isRustprone(). A
+// change to it must reach every copy.
 function isRustprone(obj, state) {
     return objectType(obj, state).oc_material === IRON;
 }

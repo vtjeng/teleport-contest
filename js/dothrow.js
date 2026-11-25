@@ -490,6 +490,8 @@ import { impossible } from './pline.js';
 // C ref: dothrow.c walk_path() (656-735). The callback sees every map cell
 // after the starting coordinate. It can stop the traversal; in that case the
 // destination object is rewound to the last cell whose callback succeeded.
+// Copies: dothrow.c walk_path() is also ported as apply.js jumpWalkPath(). A
+// change to it must reach every copy.
 export async function walk_path(source, destination, checkProc, arg) {
     let dx = destination.x - source.x;
     let dy = destination.y - source.y;
@@ -608,6 +610,8 @@ function rangePointer(arg) {
     return { range: Number(arg ?? 0) };
 }
 
+// Copies: you.h noit_mhim() is also ported as mondata.js noit_mhim(). A
+// change to it must reach every copy.
 function noitMhim(monster, state, random) {
     const gender = pronoun_gender(
         monster,
@@ -1413,6 +1417,8 @@ export function multishot_class_bonus(pm, ammo, launcher, state = game) {
 // hit something hard is going to break. It is asked before anything breaks,
 // so its rn2(100) through obj_resists() is part of every landing missile's
 // stream even when the answer is no.
+// Copies: dothrow.c breaktest() is also ported as mktrap.js breaktest(). A
+// change to it must reach every copy.
 export function breaktest(obj, env = {}) {
     const state = env.state ?? game;
     let nonbreakchance = 1; /* chance for non-artifacts to resist */
@@ -1716,6 +1722,9 @@ export async function breakobj(
     return 1;
 }
 
+// Copies: you.h next2u() is also ported as cmd.js next2u(), do.js next2u(),
+// explode.js next2u() and sounds.js next2u(). A change to it must reach every
+// copy.
 export function next2u(x, y, state = game) {
     // you.h next2u(px,py) is distu((px),(py)) <= 2; distu is squared
     // Euclidean distance, so an orthogonal square two cells away is outside.
@@ -2283,6 +2292,8 @@ export function befriendWithObject(species, obj, state = game) {
 // C ref: mondata.h digests(). The macro recognizes an engulfing attack whose
 // damage type is AD_DGST; keep it local because the C macro has no callable
 // source function or separate state value.
+// Copies: mondata.h digests() is also ported as uhitm.js digests(). A change
+// to it must reach every copy.
 export function digests(species) {
     return Boolean(species?.mattk?.some((attack) =>
         attack.aatyp === AT_ENGL && attack.adtyp === AD_DGST));

@@ -412,6 +412,8 @@ async function cursetxt(mtmp, undirected, env = {}) {
 
 // C ref: mondata.c cvt_adtyp_to_mseenres() -- already exported from
 // js/mondata.js, but we also need m_seenres() which is a simple macro.
+// Copies: monst.h m_seenres() is also ported as mthrowu.js m_seenres(). A
+// change to it must reach every copy.
 function m_seenres(mtmp, mask) {
     return (mtmp.seen_resistance & mask) !== 0;
 }

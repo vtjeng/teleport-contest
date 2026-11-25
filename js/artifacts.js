@@ -950,6 +950,8 @@ function artifactTables(value) {
 }
 
 /** Port of artifact.c:artiname(). */
+// Copies: artifact.c artiname() is also ported as questpgr.js artiname(). A
+// change to it must reach every copy.
 export function artiname(artinum, state = game) {
     const normalized = artifactTables(state);
     if (artinum <= ART_NONARTIFACT || artinum > NROFARTIFACTS)
@@ -2931,6 +2933,8 @@ export function glow_color(arti_indx, state = game) {
 const hcolors = HCOLORS;
 
 // C ref: do_name.c hcolor() (1460-1466).
+// Copies: do_name.c hcolor() is also ported as do_name.js hcolor(). A change
+// to it must reach every copy.
 export function hcolor(colorpref, state) {
     const halluc = Hallucination(state.u);
     return (halluc || !colorpref)
@@ -3107,6 +3111,8 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
 }
 
 // obj.h:337 Is_container(o): object type is between LARGE_BOX and BAG_OF_TRICKS.
+// Copies: obj.h Is_container() is also ported as obj.js isContainer(). A
+// change to it must reach every copy.
 function Is_container(obj) {
     return obj.otyp >= LARGE_BOX && obj.otyp <= BAG_OF_TRICKS;
 }

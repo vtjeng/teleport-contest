@@ -4529,6 +4529,8 @@ export function NODIAG(monnum) {
 }
 
 // C ref: monst.h is_door_mappear().
+// Copies: monst.h is_door_mappear() is also ported as lock.js
+// is_door_mappear(). A change to it must reach every copy.
 function is_door_mappear(monster) {
     return ((monster.m_ap_type ?? 0) & M_AP_TYPMASK) === M_AP_FURNITURE
         && (monster.mappearance === S_hcdoor

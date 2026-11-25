@@ -223,6 +223,8 @@ function checkedPickupPlan(monster, obj, rawEnv, prepared) {
 // Returns true when add_to_minv() merged and freed obj, false when obj itself
 // became the monster's inventory head. The missing-object case follows C's
 // "already freed" return value.
+// Copies: steal.c mpickobj() is also ported as mpickobjRuntime() in this
+// file. A change to it must reach every copy.
 export function mpickobj(monster, obj, rawEnv = {}, prepared = null) {
     const plan = checkedPickupPlan(monster, obj, rawEnv, prepared);
     const { env } = plan;
@@ -296,6 +298,8 @@ async function reportObjectGoesOut(obj, env) {
 // pickup effects, prints mpickobj()'s own "goes out" message, and waits for a
 // runtime inventory merge before the post-transfer snuff and before returning
 // the source boolean.
+// Copies: steal.c mpickobj() is also ported as mpickobj() in this file. A
+// change to it must reach every copy.
 export async function mpickobjRuntime(
     monster, obj, rawEnv = {}, prepared = null,
 ) {

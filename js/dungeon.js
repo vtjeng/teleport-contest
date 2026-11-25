@@ -1105,6 +1105,8 @@ function level_info_in_spare_subroom(ledger, state) {
     return slot > roomSlots + (state.nsubroom ?? 0) && slot < 2 * roomSlots;
 }
 
+// Copies: dungeon.c maxledgerno() is also ported as o_init.js maxledgerno().
+// A change to it must reach every copy.
 export function maxledgerno(state = game) {
     const last = dungeon_at(state.n_dgns - 1, state);
     return last.ledger_start + last.num_dunlevs;
@@ -1509,6 +1511,8 @@ export function Is_branchlev(level, state = game) {
 
 // C ref: dungeon.c Is_botlevel() (1643-1647). Dungeon level numbers are
 // one-based, and num_dunlevs is the bottom level's number.
+// Copies: dungeon.c Is_botlevel() is also ported as const.js Is_botlevel(). A
+// change to it must reach every copy.
 export function Is_botlevel(level, state = game) {
     return level.dlevel === dungeon_at(level.dnum, state).num_dunlevs;
 }

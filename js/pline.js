@@ -99,6 +99,9 @@ export async function verbalize(line, state = game, { message = ttyPline } = {})
 // port does not write; iflags.debug_fuzzer is never set. The recorder's
 // sysconf sets neither SUPPORT nor CRASHREPORTURL, so sysopt.support is read
 // as unset and the CRASHREPORT "Report now?" query is never reached.
+// Copies: pline.c impossible() is also ported as sp_lev_object.js
+// impossible() and themeroom_fill.js impossible(). A change to it must reach
+// every copy.
 export async function impossible(text, state = game, env = {}) {
     const message = env.message ?? ttyPline;
     const urgentMessage = env.urgentMessage ?? ttyUrgentPline;

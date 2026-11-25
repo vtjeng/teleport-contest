@@ -831,6 +831,9 @@ async function familiar_level_msg(state) {
 }
 
 // C ref: you.h next2u(), which is `distu(px, py) <= 2`.
+// Copies: you.h next2u() is also ported as cmd.js next2u(), dothrow.js
+// next2u(), explode.js next2u() and sounds.js next2u(). A change to it must
+// reach every copy.
 function next2u(x, y, state) {
     return dist2(x, y, state.u.ux, state.u.uy) <= 2;
 }

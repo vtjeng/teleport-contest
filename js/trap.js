@@ -1131,6 +1131,9 @@ function heroLavaWalking(state) {
 // objclass.h is_organic(): material values through WOOD burn in lava.  Keep
 // this local to trap.c's owner; the same C predicate has separate owners in
 // dogfood and burial and should not become a second shared state value.
+// Copies: objclass.h is_organic() is also ported as bury.js isOrganic(),
+// dogfood.js isOrganic(), mon.js isOrganic() and monmove.js isOrganic(). A
+// change to it must reach every copy.
 function isOrganic(obj, state) {
     return objectType(obj, state).oc_material <= WOOD;
 }

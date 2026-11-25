@@ -31,6 +31,12 @@ const ORCUS_MAP = [
 // map, while the level frame still starts at column 1 and row 0. Constructing
 // an absolute selection keeps selection.fillrect()'s get_location_coord()
 // conversion visible after the JS selection API returns its relative points.
+// Copies: nhlsel.c l_selection_fillrect() on frame-relative corners is also
+// ported as asmodeus_levels.js absoluteArea(), fakewiz2_level.js
+// absoluteArea(), hell_levels.js absoluteArea(), fakewiz1_levels.js
+// absoluteArea(), wizard1_levels.js absoluteArea(), wizard2_levels.js
+// absoluteArea() and wizard3_levels.js absoluteArea(). A change to it must
+// reach every copy.
 function absoluteArea(x1, y1, x2, y2, frame) {
     const result = new ThemeroomSelection(null, true);
     for (let x = x1; x <= x2; ++x) {
@@ -40,6 +46,10 @@ function absoluteArea(x1, y1, x2, y2, frame) {
     return result;
 }
 
+// Copies: nhlsel.c l_selection_or() (the Lua | operator) is also ported as
+// asmodeus_levels.js selectionUnion(), fakewiz2_level.js selectionUnion(),
+// wizard1_levels.js selectionUnion(), wizard2_levels.js selectionUnion() and
+// wizard3_levels.js selectionUnion(). A change to it must reach every copy.
 function selectionUnion(a, b) {
     const result = a.clone();
     const bounds = b.bounds();
@@ -50,6 +60,9 @@ function selectionUnion(a, b) {
     return result;
 }
 
+// Copies: the selection of a des.map() result's area is also ported as
+// asmodeus_levels.js mapSelection() and wizard2_levels.js mapSelection(). A
+// change to it must reach every copy.
 function mapSelection(placed) {
     const result = new ThemeroomSelection(null, true);
     for (let x = placed.xstart; x < placed.xstart + placed.xsize; ++x) {
