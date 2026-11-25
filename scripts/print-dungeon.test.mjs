@@ -925,31 +925,13 @@ test('print_branch excludes a branch at the lower bound', async () => {
 // Mutant 1387:18 (> -> >=) would always use the plural form.
 // This is already covered by the "single-level dungeon" test above.
 
-// unreachable_level endgame test: when the hero is in the endgame, a level
+// unreachable_level endgame arm: when the hero is in the endgame, a level
 // outside the endgame dungeon is unreachable. Mutant 1296:70 (true->false)
-// would make it reachable. This test uses a one-dungeon endgame where the
-// oracle is the only special level and the hero is in the endgame.
-test('unreachable_level: endgame non-matching level is not selectable', async () => {
-    // Create a minimal state with one dungeon containing an oracle.
-    // The hero is in the endgame (uz.dnum === astral_level.dnum), and the
-    // In_endgame filter in print_dungeon skips dungeons with i != astral_level.dnum.
-    // To test unreachable_level's endgame check, the hero must be in the endgame
-    // AND there must be a level in the same dungeon whose dnum differs from
-    // astral_level.dnum.
-    //
-    // Actually: the In_endgame filter in print_dungeon already skips non-endgame
-    // dungeons entirely (the `continue` at line 1381), so unreachable_level's
-    // endgame check at line 1296 only fires for levels WITHIN the endgame dungeon.
-    // C's In_endgame test: `In_endgame(&u.uz) && !In_endgame(lvl_p)`. Since
-    // In_endgame checks `level.dnum === astral_level.dnum`, a level in the same
-    // dungeon always passes In_endgame, making the `!In_endgame(lvl_p)` false.
-    // So unreachable_level's endgame arm is dead code in the bymenu=TRUE path
-    // because print_dungeon already filters out non-endgame dungeons before
-    // reaching unreachable_level. The mutant survives correctly.
-    //
-    // (Skipping this test -- the endgame unreachable check is guarded by the
-    // outer loop's `continue`, so it is unreachable in the bymenu path.)
-});
+// would make it reachable, but no test can reach the arm through the menu.
+// print_dungeon's In_endgame filter skips every dungeon other than the
+// endgame's (the `continue` at line 1381) before it calls
+// unreachable_level, and In_endgame compares only dnum, so every level in
+// the endgame dungeon passes it. The arm cannot fire in the bymenu=TRUE path.
 
 // unreachable_level dummy test: when the dummy special level exists, a level
 // matching it is unreachable. Mutant 1298:56 (true->false) would make it
