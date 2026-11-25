@@ -277,6 +277,8 @@ import {
 } from './themerooms.js';
 import { create_gas_cloud, create_gas_cloud_selection } from './region.js';
 import {
+    XLIM,
+    YLIM,
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS, LADDER,
     NO_TRAP_FLAGS, TT_BURIEDBALL,
     COULD_SEE, IN_SIGHT,
@@ -383,8 +385,6 @@ import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { dungeon_at } from './dungeon_table.js';
 import { sync_impossible } from './source_steps.js';
 
-const XLIM = 4;
-const YLIM = 3;
 
 // sp_lev.c room alignment values are private to that loader. The source
 // names the vertical pair TOP and BOTTOM.

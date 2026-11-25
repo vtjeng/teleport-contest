@@ -5,6 +5,7 @@
 // is_quest_artifact().
 
 import {
+    BUFSZ,
     A_CHAOTIC,
     A_LAWFUL,
     A_ORIGINAL,
@@ -343,9 +344,6 @@ async function deliverByWindow(text, state, output) {
     }));
     await output.window(state, converted);
 }
-
-// C ref: global.h BUFSZ.
-const BUFSZ = 256;
 
 // C ref: questpgr.c:10.
 const QTEXT_FILE = 'quest.lua';

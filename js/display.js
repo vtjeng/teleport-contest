@@ -71,6 +71,7 @@ import {
     printQueued,
 } from './tty_message.js';
 import {
+    BOTL_NSIZ,
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BOLT_LIM, INTRINSIC,
@@ -5042,7 +5043,6 @@ export async function tmp_at(x, y, state = game) {
 }
 
 // ── Status lines ──
-const BOTL_NSIZ = 16; // include/botl.h
 const TTY_STATUS_WIDTH = COLNO - 1;
 const STATUS_HP_BAR_WIDTH = 30;
 

@@ -41,6 +41,7 @@ import {
     is_minion,
 } from './mondata.js';
 import {
+    M3_WANTSARTI,
     AT_MAGC,
     G_HELL,
     G_NOHELL,
@@ -113,7 +114,6 @@ const M3_WANTSAMUL = 0x0001;
 const M3_WANTSBELL = 0x0002;
 const M3_WANTSBOOK = 0x0004;
 const M3_WANTSCAND = 0x0008;
-const M3_WANTSARTI = 0x0010;
 
 // C ref: wizard.c amulet() (61-103). moveloop_core owns the uhave.amulet
 // guard; this helper handles portal feedback and the sleeping Wizard check.

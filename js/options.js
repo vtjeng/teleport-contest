@@ -3,6 +3,7 @@
 // nmcpy(); hacklib.c mungspaces(); bones.c sanitize_name(); role.c str2*().
 
 import {
+    MAXVALWIDTH,
     ANY_INT, ANY_LONG, ANY_STR,
     ALIGN_BOTTOM,
     ALIGN_LEFT,
@@ -2133,7 +2134,6 @@ const STATUS_CONDITION_ALIASES = Object.freeze({
 // hilite_status statement can hold; botl.h's MAXVALWIDTH, the fixed storage
 // for a text-match threshold; and splitsubfields()'s MAX_SUBFIELDS.
 const MAX_THRESH = 21;
-const MAXVALWIDTH = 80;
 const MAX_SUBFIELDS = 16;
 
 // C ref: botl.c fldname_to_bl_indx() (2219-2253).  Null is its BL_FLUSH, the

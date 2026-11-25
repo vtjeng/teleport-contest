@@ -8,6 +8,9 @@
 // their source case and damage order.
 
 import {
+    MCF_HOSTILE,
+    MCF_INDIRECT,
+    MCF_SIGHT,
     A_DEX,
     BZ_M_SPELL,
     BZ_OFS_AD,
@@ -217,12 +220,6 @@ const MCAST_AGGRAVATION = MCAST_GEYSER + 1;
 const MCAST_SUMMON_MONS = MCAST_AGGRAVATION + 1;
 const MCAST_CLONE_WIZ = MCAST_SUMMON_MONS + 1;
 const MCAST_DEATH_TOUCH = MCAST_CLONE_WIZ + 1;
-
-// ---- Spell flags (mcastu.h) ----
-const MCF_NONE = 0x0000;
-const MCF_INDIRECT = 0x0001;
-const MCF_SIGHT = 0x0002;
-const MCF_HOSTILE = 0x0004;
 
 // ---- Spell data table (mcastu.h MONSPELL definitions, indexed by enum) ----
 // Each entry: { level, flags }.

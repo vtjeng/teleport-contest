@@ -99,6 +99,7 @@ import {
     throws_rocks,
 } from './mondata.js';
 import {
+    MR_STONE,
     PM_BALROG,
     PM_CHICKATRICE,
     PM_COCKATRICE,
@@ -268,7 +269,6 @@ import { panic } from './end.js';
 import { finish_steps, sync_impossible } from './source_steps.js';
 import { impossible } from './pline.js';
 
-const MR_STONE = 0x80;
 
 // C ref: weapon.c finish_towel_change() (1018-1034). The source stores towel
 // wetness in spe, clamps it to 0..7, clears wield feedback only for a dry

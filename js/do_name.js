@@ -4,6 +4,7 @@
 // sir_Terry_novels[], noveltitle(), and lookup_novel().
 
 import {
+    CLR_MAX,
     ARTICLE_A,
     ARTICLE_NONE,
     ARTICLE_THE,
@@ -1070,7 +1071,6 @@ export const c_obj_colors = Object.freeze([
     'white',          /* CLR_WHITE  15 */
 ]);
 
-const CLR_MAX = 16;
 const NO_COLOR = 8;
 
 // C ref: do_name.c hcolors[] (1441-1458). Hallucination color names drawn

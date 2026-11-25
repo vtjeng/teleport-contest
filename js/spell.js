@@ -8,6 +8,7 @@
 // and spell_idx().
 
 import {
+    UNKNOWN_SPELL,
     A_INT,
     DISP_CHANGE, D_CLOSED, D_LOCKED, SPACE_POS, POOL, MOAT,
     DRAWBRIDGE_UP, LAVAPOOL, SHOCK_RES,
@@ -1449,7 +1450,6 @@ function spell_let_to_idx(ilet) {
 
 // C ref: spell.c spell_idx() (2379-2387). Scans spl_book[] for the spell whose
 // object type matches otyp and returns its index, or UNKNOWN_SPELL (-1).
-const UNKNOWN_SPELL = -1;
 function spell_idx(otyp, state = game) {
     for (let i = 0; i < MAXSPELL && spellid(i, state) !== NO_SPELL; ++i)
         if (spellid(i, state) === otyp)

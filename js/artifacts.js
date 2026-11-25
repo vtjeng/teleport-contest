@@ -118,6 +118,24 @@ import { impossible, verbalize, youFeel } from './pline.js';
 import { isContainer as Is_container, bcsign } from './obj.js';
 import { HCOLORS } from './random_text_data.js';
 import {
+    AD_ACID,
+    AD_BLND,
+    AD_COLD,
+    AD_DISE,
+    AD_DISN,
+    AD_DRLI,
+    AD_DRST,
+    AD_ELEC,
+    AD_FIRE,
+    AD_HALU,
+    AD_MAGM,
+    AD_PHYS,
+    AD_PLYS,
+    AD_SLEE,
+    AD_SLOW,
+    AD_STON,
+    AD_STUN,
+    AD_WERE,
     AT_MAGC,
     M2_DEMON,
     M2_ELF,
@@ -400,24 +418,6 @@ export const ART_EYE_OF_THE_AETHIOPICA = ART_ORB_OF_FATE + 1;
 export const AFTER_LAST_ARTIFACT = ART_EYE_OF_THE_AETHIOPICA + 1;
 export const NROFARTIFACTS = AFTER_LAST_ARTIFACT - 1;
 
-const AD_PHYS = 0;
-const AD_MAGM = AD_PHYS + 1;
-const AD_FIRE = AD_MAGM + 1;
-const AD_COLD = AD_FIRE + 1;
-const AD_SLEE = AD_COLD + 1;
-const AD_DISN = AD_SLEE + 1;
-const AD_ELEC = AD_DISN + 1;
-const AD_DRST = AD_ELEC + 1;
-const AD_ACID = AD_DRST + 1;
-const AD_BLND = 11;
-const AD_STUN = AD_BLND + 1;
-const AD_SLOW = AD_STUN + 1;
-const AD_PLYS = AD_SLOW + 1;
-const AD_DRLI = AD_PLYS + 1;
-const AD_STON = 18;
-const AD_WERE = 29;
-const AD_DISE = 33;
-const AD_HALU = 36;
 
 const NO_ATTK = Object.freeze({ aatyp: 0, adtyp: 0, damn: 0, damd: 0 });
 

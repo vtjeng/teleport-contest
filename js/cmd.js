@@ -17,6 +17,8 @@ import { zero_dig_info } from './context.js';
 import { isok } from './cmd_isok.js';
 import { runPetRangedAttack } from './unported_monster_actions.js';
 import {
+    DOMOVE_RUSH,
+    DOMOVE_WALK,
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
     ARTICLE_THE,
@@ -407,8 +409,6 @@ const MAX_EXT_CMD = 200;
 const ESC = 0x1B;
 const BACKSPACE = 0x08;
 const DELETE = 0x7F;
-const DOMOVE_WALK = 0x01;
-const DOMOVE_RUSH = 0x02;
 const ynchars = 'yn';
 const ynqchars = 'ynq';
 const ynaqchars = 'ynaq';

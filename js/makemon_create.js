@@ -185,6 +185,14 @@ export {
 } from './mon.js';
 export { set_mon_data } from './mondata.js';
 import {
+    AT_EXPL,
+    G_LGROUP,
+    G_SGROUP,
+    M1_WALLWALK,
+    M2_LORD,
+    M2_PRINCE,
+    M2_SHAPESHIFTER,
+    M2_STRONG,
     AT_WEAP,
     G_NOCORPSE,
     M1_AMORPHOUS,
@@ -528,20 +536,6 @@ import {
 } from './worn.js';
 import { canseemon, describe_level, sensemon } from './display.js';
 import { Blind, Protection_from_shape_changers, See_invisible } from './youprop.js';
-
-// include/monattk.h predicate used by muse.c's random-item selectors.
-const AT_EXPL = 13;
-// include/monflag.h creation-time predicates not yet exported by monsters.js.
-const M1_WALLWALK = 0x00000008;
-const M1_SLITHY = 0x00080000;
-const M2_NOPOLY = 0x00000001;
-const M2_LORD = 0x00000400;
-const M2_PRINCE = 0x00000800;
-const M2_SHAPESHIFTER = 0x00004000;
-const M2_STRONG = 0x04000000;
-// include/monflag.h random-generation group flags.
-const G_LGROUP = 0x0040;
-const G_SGROUP = 0x0080;
 
 // makemon.c set_mimic_sym() source tables. The first two entries deliberately
 // make furniture twice as likely as each ordinary object class.

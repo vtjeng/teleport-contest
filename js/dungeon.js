@@ -13,6 +13,24 @@ import { isok } from './cmd_isok.js';
 import { rn2, rnd } from './rng.js';
 import { DUNGEON_DATA } from './dungeon_data.js';
 import {
+    BRANCH_LIMIT,
+    D_ALIGN_CHAOTIC,
+    D_ALIGN_LAWFUL,
+    D_ALIGN_MASK,
+    D_ALIGN_NEUTRAL,
+    HELLISH,
+    LEV_LIMIT,
+    MAXDUNGEON,
+    MAXLEVEL,
+    MAXLINFO,
+    MAZELIKE,
+    ROGUELIKE,
+    TBR_NO_DOWN,
+    TBR_NO_UP,
+    TBR_PORTAL,
+    TBR_STAIR,
+    TOWN,
+    UNCONNECTED,
     ALTAR,
     AM_MASK,
     Amask2align,
@@ -136,26 +154,9 @@ export const BR_NO_END1 = 1;
 export const BR_NO_END2 = 2;
 export const BR_PORTAL = 3;
 
-const TBR_STAIR = 0;
-const TBR_NO_UP = 1;
-const TBR_NO_DOWN = 2;
-const TBR_PORTAL = 3;
 
-const TOWN = 0x01;
-const HELLISH = 0x02;
-const MAZELIKE = 0x04;
-const ROGUELIKE = 0x08;
-const UNCONNECTED = 0x10;
 
-const D_ALIGN_CHAOTIC = 0x10;
-const D_ALIGN_NEUTRAL = 0x20;
-const D_ALIGN_LAWFUL = 0x40;
-const D_ALIGN_MASK = 0x70;
 
-const MAXDUNGEON = 16;
-const MAXLEVEL = 32;
-const LEV_LIMIT = 50;
-const BRANCH_LIMIT = 32;
 
 const FLAG_VALUES = {
     town: TOWN,
@@ -1078,9 +1079,6 @@ export function level_info(ledgerNumber, state = game) {
     state.svl.level_info[ledger] ??= { flags: 0 };
     return state.svl.level_info[ledger];
 }
-
-// C's MAXLINFO (hack.h 425).
-const MAXLINFO = MAXDUNGEON * MAXLEVEL;
 
 // Where svl.level_info[ledger] lands in the recorder's Linux build once the
 // ledger passes MAXLINFO. `nm` puts svl at 0x542bc8 and svr at 0x54d8d8, and

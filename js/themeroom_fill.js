@@ -124,6 +124,8 @@ import {
 } from './objects.js';
 
 import {
+    M1_AMPHIBIOUS,
+    M1_WALLWALK,
     PM_ABBOT,
     PM_ACOLYTE,
     PM_ALIGNED_CLERIC,
@@ -233,11 +235,6 @@ const WHOLE_LEVEL_FRAME = Object.freeze({
     xsize: COLNO - 1,
     ysize: ROWNO,
 });
-
-// Generated monsters.js currently exposes the movement flags used elsewhere;
-// keep these two monflag.h values local until another subsystem needs them.
-const M1_WALLWALK = 0x00000008;
-const M1_AMPHIBIOUS = 0x00000200;
 
 export class UnsupportedThemeroomFillError extends Error {
     constructor(fill) {

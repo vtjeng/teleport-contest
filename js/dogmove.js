@@ -5,6 +5,7 @@
 // finish_meating(), quickmimic(), could_reach_item(), and can_reach_location().
 
 import {
+    SQSRCHRADIUS,
     A_NONE,
     ACCFOOD,
     ALLOW_M,
@@ -218,7 +219,6 @@ import { m_in_out_region } from './region.js';
 import { mon_reflects } from './muse.js';
 import { mon_wield_item } from './weapon.js';
 
-const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;
 
 // dogmove.c uses a static artifact dummy so unusable tools can never replace
