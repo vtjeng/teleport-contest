@@ -4,14 +4,68 @@
 // creation is in sp_lev_object.js; create_monster() is in themeroom_fill.js
 // and the get_location() family in room_coordinates.js.
 import { game } from './gstate.js';
-import {
-    swapbits,
-    lcase,
-    str_lines_maxlen,
-    stripdigits,
-    strstri,
-} from './hacklib.js';
 import { isok } from './cmd_isok.js';
+import {
+    on_level,
+    Can_dig_down,
+    Can_fall_thru,
+    In_hell,
+    In_W_tower_steps,
+    depth,
+    find_level,
+    mapseen_room,
+    ROOM_INDEX,
+} from './dungeon.js';
+import { fill_zoo, mk_tt_object } from './mkroom.js';
+import { mkcorpstat } from './corpstat.js';
+import { del_engr_at, engr_at, make_engr_at } from './engrave.js';
+import {
+    back_to_glyph,
+    glyph_is_cmap,
+    set_wall_state,
+    swap_levl_entries,
+} from './display.js';
+import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
+import { MAXMCLASSES } from './symbols.js';
+import { obj_extract_self, obfree, sobj_at } from './invent.js';
+import { makemon_by_context } from './makemon_create.js';
+import { mkclass, rndmonnum } from './makemon.js';
+import { mineralize } from './mineralize.js';
+import { make_grave } from './grave.js';
+import {
+    is_female,
+    is_male,
+    name_to_monplus,
+    pm_resistance,
+    poly_when_stoned,
+} from './mondata.js';
+import {
+    get_table_boolean_opt,
+    get_table_int,
+    get_table_int_opt,
+    get_table_option,
+    get_table_str,
+    get_table_str_opt,
+    lcheck_param_table,
+    lua_tointeger,
+    luaL_checkinteger,
+    luaL_checkoption,
+    luaL_checkstring,
+    luaL_typename,
+    nhl_call_field,
+    nhl_error,
+    nhl_loadlua,
+    nhl_pcall_handle,
+    nhlL_newstate,
+} from './nhlua.js';
+import {
+    get_level_extends,
+    create_maze,
+    fixup_special,
+    set_levltyp_lit,
+} from './mkmaze.js';
+import { coreRandom, rn2, rnd, rn1 } from './rng.js';
+import { l_selection_setpoint } from './nhlsel.js';
 import {
     COLNO,
     ROWNO,
@@ -216,114 +270,13 @@ import {
     TREE_SWARM,
 } from './const.js';
 import {
-    G_IGNORE,
-    G_NOGEN,
-    LOW_PM,
-    MR_STONE,
-    NUMMONS,
-    PM_MINOTAUR,
-} from './monsters.js';
-import { create_drawbridge } from './dbridge.js';
-import {
-    on_level,
-    Can_dig_down,
-    Can_fall_thru,
-    In_hell,
-    In_W_tower_steps,
-    depth,
-    find_level,
-    mapseen_room,
-    ROOM_INDEX,
-} from './dungeon.js';
-import { placebc, unplacebc_async } from './ball.js';
-import {
-    BOULDER,
-    CORPSE,
-    EGG,
-    FIGURINE,
-    TIN,
-    GEM_CLASS,
-    MAXOCLASSES,
-    NUM_OBJECTS,
-    OBJ_DESCR,
-    OBJ_NAME,
-    POTION_CLASS,
-    RANDOM_CLASS,
-    RIN_TELEPORTATION,
-    RING_CLASS,
-    SCROLL_CLASS,
-    SCR_TELEPORTATION,
-    SPBOOK_CLASS,
-    STATUE,
-    STRANGE_OBJECT,
-    WAN_DIGGING,
-    WAN_TELEPORTATION,
-    WAND_CLASS,
-    PICK_AXE,
-    DWARVISH_MATTOCK,
-    getObjects,
-} from './objects.js';
-import {
-    back_to_glyph,
-    glyph_is_cmap,
-    set_wall_state,
-    swap_levl_entries,
-} from './display.js';
-import { def_char_to_monclass, def_char_to_objclass } from './drawing.js';
-import { coreRandom, rn2, rnd, rn1 } from './rng.js';
-import { printQueued } from './tty_message.js';
-import { vision_reset } from './vision.js';
-import { impossible, impossible_printer } from './pline.js';
-import {
-    ImpossibleCall,
-    finish_steps,
-    sync_impossible,
-} from './source_steps.js';
-import { del_engr_at, engr_at, make_engr_at } from './engrave.js';
-import { create_gas_cloud, create_gas_cloud_selection } from './region.js';
-import {
-    is_female,
-    is_male,
-    name_to_monplus,
-    pm_resistance,
-    poly_when_stoned,
-} from './mondata.js';
-import { obj_extract_self, obfree, sobj_at } from './invent.js';
-import { makemon_by_context } from './makemon_create.js';
-import {
-    get_table_boolean_opt,
-    get_table_int,
-    get_table_int_opt,
-    get_table_option,
-    get_table_str,
-    get_table_str_opt,
-    lcheck_param_table,
-    lua_tointeger,
-    luaL_checkinteger,
-    luaL_checkoption,
-    luaL_checkstring,
-    luaL_typename,
-    nhl_call_field,
-    nhl_error,
-    nhl_loadlua,
-    nhl_pcall_handle,
-    nhlL_newstate,
-} from './nhlua.js';
-import {
-    objectGenerationEnv,
-    objectGenerationHooks,
-} from './object_generation.js';
-import { oinit } from './o_init.js';
-import { MAXMCLASSES } from './symbols.js';
+    swapbits,
+    lcase,
+    str_lines_maxlen,
+    stripdigits,
+    strstri,
+} from './hacklib.js';
 import { carried, mkgold, mkobj_at, mksobj_at, set_corpsenm } from './mkobj.js';
-import { mkcorpstat } from './corpstat.js';
-import { priestini } from './priest.js';
-import { mkclass, rndmonnum } from './makemon.js';
-import { goodpos } from './teleport.js';
-import { stairway_add } from './stairs.js';
-import { stock_room } from './shknam.js';
-import { in_rooms } from './rooms.js';
-import { fill_zoo, mk_tt_object } from './mkroom.js';
 import {
     fix_wall_spines,
     levelObjectEnv,
@@ -351,20 +304,59 @@ import {
     wallification,
     level_finalize_topology,
 } from './mklev.js';
-import { mineralize } from './mineralize.js';
-import { make_grave } from './grave.js';
-import { count_level_features, set_levltyp } from './terrain.js';
-import { deltrap, maketrap, t_at } from './trap.js';
+import { placebc, unplacebc_async } from './ball.js';
+import { vision_reset } from './vision.js';
 import { flip_worm_segs_horizontal, flip_worm_segs_vertical } from './worm.js';
-import {
-    get_level_extends,
-    create_maze,
-    fixup_special,
-    set_levltyp_lit,
-} from './mkmaze.js';
-import { mktrap as make_level_trap } from './mktrap.js';
 import { rnd_rect, get_rect, split_rects } from './rect.js';
-import { l_selection_setpoint } from './nhlsel.js';
+// room_features.js, objnam_readobjnam.js, random_engraving.js and
+// themeroom_data.js are imported for evaluation order only. mklev.js
+// imports sp_lev.js ahead of them, and these imports follow the order of
+// mklev.js's import list, so every module evaluates in the order that list
+// gives, whichever entry module loads first. Keep a new import in that
+// order.
+import './room_features.js';
+import { in_rooms } from './rooms.js';
+import { oinit } from './o_init.js';
+import {
+    objectGenerationEnv,
+    objectGenerationHooks,
+} from './object_generation.js';
+// Evaluation order only; see room_features.js above.
+import './objnam_readobjnam.js';
+import {
+    BOULDER,
+    CORPSE,
+    EGG,
+    FIGURINE,
+    TIN,
+    GEM_CLASS,
+    MAXOCLASSES,
+    NUM_OBJECTS,
+    OBJ_DESCR,
+    OBJ_NAME,
+    POTION_CLASS,
+    RANDOM_CLASS,
+    RIN_TELEPORTATION,
+    RING_CLASS,
+    SCROLL_CLASS,
+    SCR_TELEPORTATION,
+    SPBOOK_CLASS,
+    STATUE,
+    STRANGE_OBJECT,
+    WAN_DIGGING,
+    WAN_TELEPORTATION,
+    WAND_CLASS,
+    PICK_AXE,
+    DWARVISH_MATTOCK,
+    getObjects,
+} from './objects.js';
+import { goodpos } from './teleport.js';
+import { deltrap, maketrap, t_at } from './trap.js';
+import { create_drawbridge } from './dbridge.js';
+import { printQueued } from './tty_message.js';
+import { mktrap as make_level_trap } from './mktrap.js';
+// Evaluation order only; see room_features.js above.
+import './random_engraving.js';
 import {
     get_free_room_loc,
     get_location,
@@ -375,6 +367,25 @@ import {
     somex,
     somey,
 } from './room_coordinates.js';
+import { count_level_features, set_levltyp } from './terrain.js';
+import { stock_room } from './shknam.js';
+import { lspo_object, new_sp_lev_object_context } from './sp_lev_object.js';
+import {
+    create_monster,
+    sp_amask_to_amask,
+    spo_end_moninvent,
+} from './themeroom_fill.js';
+import {
+    G_IGNORE,
+    G_NOGEN,
+    LOW_PM,
+    MR_STONE,
+    NUMMONS,
+    PM_MINOTAUR,
+} from './monsters.js';
+import { stairway_add } from './stairs.js';
+// Evaluation order only; see room_features.js above.
+import './themeroom_data.js';
 import {
     selection_floodfill,
     selection_clear,
@@ -383,20 +394,15 @@ import {
     set_selection_floodfillchk,
     ThemeroomSelection,
 } from './themerooms.js';
-// room_features.js and themeroom_data.js are imported for evaluation
-// order only. mklev.js enters sp_lev.js before either of them, so
-// sp_lev.js loads them where mklev.js's import list places them, and
-// every module evaluates in the order that list gives.
-import './room_features.js';
-import { lspo_object, new_sp_lev_object_context } from './sp_lev_object.js';
-import {
-    create_monster,
-    sp_amask_to_amask,
-    spo_end_moninvent,
-} from './themeroom_fill.js';
-// Evaluation order only; see room_features.js above.
-import './themeroom_data.js';
+import { create_gas_cloud, create_gas_cloud_selection } from './region.js';
+import { priestini } from './priest.js';
 import { makeroguerooms } from './extralev.js';
+import { impossible, impossible_printer } from './pline.js';
+import {
+    ImpossibleCall,
+    finish_steps,
+    sync_impossible,
+} from './source_steps.js';
 
 // C ref: sp_lev.c flip_dbridge_horizontal(). A drawbridge facing west now
 // faces east, and the reverse.
