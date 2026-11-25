@@ -277,5 +277,3 @@ export function rollElfStartingInstrument(random = coreRandom) {
         trobj(instrument, 0, O.TOOL_CLASS, 1, 1, 0),
     ]);
 }
-
-export const _uInitInventoryDataInternals = Object.freeze({ table, trobj });

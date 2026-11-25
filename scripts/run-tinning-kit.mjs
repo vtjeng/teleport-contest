@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-import { Stone_resistance } from '../js/artifact.js';
+import { Stone_resistance } from '../js/youprop.js';
 import { HOMEMADE_TIN } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegmentStrict as runSegment } from '../js/jsmain.js';
@@ -32,7 +32,7 @@ async function verifySegment(segment) {
     if (segment.moves.includes('#polyself')) {
         // trap.c instapetrify consumes polymon(PM_STONE_GOLEM) success.
         assert.equal(game.u.umonnum, PM_STONE_GOLEM);
-        assert.equal(Stone_resistance(game), true);
+        assert.equal(Stone_resistance(game.u), true);
     } else if (segment.moves.includes('leather gloves')) {
         assert.ok(game.uarmg); // gloves exclude the source petrification arm
     }

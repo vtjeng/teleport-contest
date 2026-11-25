@@ -1211,6 +1211,7 @@ export function howmonseen(mon, state = game) {
     return seen;
 }
 
+// C ref: vision.c vision_init().
 export function init_vision_globals() {
     // A runSegment() call is a new NetHack process.  C's file-static vision
     // buffers therefore begin zeroed for every segment; clear the module

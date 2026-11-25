@@ -2452,7 +2452,6 @@ test('a giant smashes a locked door', async () => {
     assert.deepEqual([target.monster.mx, target.monster.my],
         [target.destinationX, target.heroY]);
     assert.ok([D_NODOOR, D_BROKEN].includes(location.flags));
-    assert.equal(location.flags, location.flags);
     assert.equal(doorLetsLightThrough(target), 1);
     assert.deepEqual(messages, ['The hill giant smashes down a door.']);
 });

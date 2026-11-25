@@ -14,7 +14,6 @@ import {
     ONAME_NO_FLAGS,
     SP_COORD_IS_RANDOM,
     STONE_RES,
-    W_SADDLE,
 } from './const.js';
 import { artifact_exists } from './artifact.js';
 import { bury_an_obj } from './bury.js';
@@ -475,14 +474,6 @@ function heroCanSeeCarrier(monster, env) {
         return Boolean(canSeeMonster(monster, env));
     if (env.state.in_mklev) return false;
     return canseemon(monster, env.state);
-}
-
-function saddleRejectedBeforePickup(obj, monster) {
-    if (obj.otyp !== SADDLE || !can_saddle(monster)) return false;
-    for (let carried = monster.minvent; carried; carried = carried.nobj) {
-        if (carried.owornmask & W_SADDLE) return true;
-    }
-    return false;
 }
 
 function putInCurrentMonster(obj, monster, env) {

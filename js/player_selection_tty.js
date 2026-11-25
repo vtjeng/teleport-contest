@@ -64,6 +64,7 @@ function selectionFilter(state) {
     return state.roleFilter ?? state.rfilter ?? {};
 }
 
+// C ref: role.c gotrolefilter(); js/tty_menu.js holds a second copy.
 function gotRoleFilter(state) {
     const filter = selectionFilter(state);
     return Boolean(filter.mask || filter.roles?.some(Boolean));
@@ -105,6 +106,8 @@ function indefiniteArticle(text) {
     return /^[aeiouAEIOU]/u.test(text) ? `an ${text}` : `a ${text}`;
 }
 
+// C ref: role.c setup_rolemenu(), its filtering arm; js/tty_menu.js
+// roleFilterItems() holds the other arm.
 function roleCandidates(state) {
     const { flags } = state;
     const filter = selectionFilter(state);
@@ -138,6 +141,8 @@ function roleCandidates(state) {
     return candidates;
 }
 
+// C ref: role.c setup_racemenu(), its filtering arm; js/tty_menu.js
+// raceFilterItems() holds the other arm.
 function raceCandidates(state) {
     const { flags } = state;
     const filter = selectionFilter(state);
@@ -160,6 +165,8 @@ function raceCandidates(state) {
     return candidates;
 }
 
+// C ref: role.c setup_gendmenu(), its filtering arm; js/tty_menu.js
+// genderFilterItems() holds the other arm.
 function genderCandidates(state) {
     const { flags } = state;
     const filter = selectionFilter(state);
@@ -182,6 +189,8 @@ function genderCandidates(state) {
     return candidates;
 }
 
+// C ref: role.c setup_algnmenu(), its filtering arm; js/tty_menu.js
+// alignmentFilterItems() holds the other arm.
 function alignmentCandidates(state) {
     const { flags } = state;
     const filter = selectionFilter(state);

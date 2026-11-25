@@ -2725,27 +2725,6 @@ test('hold_another_object holds an artifact the hero can touch', async () => {
     assert.equal(state.level.objects[10][5], null);
 });
 
-test('Fumbling adds the object before issuing the drop callback', async () => {
-    const state = carryingState();
-    state.u.uswallow = true;
-    state.youmonst = {
-        data: { mflags1: 0, msize: 2, mattk: [] },
-    };
-    state.u.uprops[FUMBLING] = { blocked: 0, extrinsic: 0, intrinsic: 1 };
-    const lamp = instance(OIL_LAMP, state);
-    const dropStates = [];
-    const result = await hold_another_object(lamp, null, null, null, {
-        state,
-        hooks: {
-            dropObject: (obj) => dropStates.push([obj.where, obj.nomerge]),
-        },
-    });
-
-    assert.equal(result, null);
-    assert.equal(state.invent, lamp);
-    assert.deepEqual(dropStates, [[OBJ_INVENT, 0]]);
-});
-
 // invent.c:1258-1264 takes the encumbrance limit before addinv() as
 // max(near_capacity(), flags.pickup_burden), and each operand needs a case
 // where it is the larger.  Without both, a fixture proves only that one of

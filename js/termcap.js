@@ -35,6 +35,7 @@ export function nomux_g_putch_byte(byte) {
 // unless the symset is DECgraphics and the low bits are 0x60 or above; of
 // the rest, only a byte with its high bit set switches the character set.
 // `handling` is the active symset's (sym.h SYMHANDLING()).
+// C ref: termcap.c graph_on(), whose DECgraphics switch this function decides.
 export function g_putch_graphics(byte, handling, eightBit) {
     if (handling === H_UTF8) return false;
     if (handling === H_IBM

@@ -281,6 +281,7 @@ function normalizePetMoveEnv(rawEnv) {
     };
 }
 
+// C ref: dogmove.c wantdoor().
 async function nearestVisibleGoal(monster, state, clearArea) {
     let distance = FARAWAY * FARAWAY;
     let goal = null;

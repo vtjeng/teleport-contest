@@ -2232,7 +2232,7 @@ export async function throw_obj(obj, shotlimit, state = game) {
             otmp = obj;
             if ((otmp.owornmask & W_QUIVER)
                 && otmp === state.uquiver) {
-                // dothrow.c remove_worn_item() reaches uqwepgone() for the
+                // steal.c remove_worn_item() reaches uqwepgone() for the
                 // quiver slot; clear that slot before freeinv() consumes the
                 // singleton, and refresh the inventory as uqwepgone() does.
                 await setuqwep(null, setwornEnv(state));

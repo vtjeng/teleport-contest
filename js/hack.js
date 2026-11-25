@@ -639,6 +639,8 @@ export const GETPOS_TIP_LINES = Object.freeze([
 
 // C ref: hack.c handle_tip() (1852-1880). The bit is set before the selected
 // message or Lua callback runs.
+// C ref: nhlua.c l_nhcore_call(), its getpos_tip arm; js/nhlua.js tutorial()
+// calls the enter_tutorial and leave_tutorial arms.
 export async function handle_tip(tip, state = game, env = {}) {
     if (!state.flags?.tips) return false;
     state.context ??= {};
@@ -4476,6 +4478,7 @@ async function domove_core(state = game) {
 // display.c show_glyph() prints a mention_map notice through pline_xy() at
 // once; the port queues it. Every notice queued before this delay was on the
 // screen when C captured the frame, so drain the queue first.
+// C ref: termcap.c tty_delay_output(), the output delay.
 export async function nh_delay_output(state = game) {
     await emitGlyphUpdateNotices(state, { pline: ttyPline });
     await state._animationFrameHook?.();

@@ -4498,6 +4498,8 @@ export function createSpecialLevelApi(state, lua) {
             return lspo_teleport_region(args, env);
         },
 
+        // C ref: cfgfiles.c parse_conf_str(), reduced to setting state.flags
+        // for the option lines that tut-1.lua passes to nh.parse_config().
         parse_config(name, enabled) {
             state.flags ??= {};
             state.flags[name] = Boolean(enabled);

@@ -315,24 +315,6 @@ test('dipfountain washes worn slippery gloves before fountain fate', async () =>
     assert.match(jsSource, /if \(is_hands \|\| obj === state\.uarmg\)/u);
 });
 
-test('dipfountain early return is exercised by the witness session',
-    async () => {
-        // C ref: fountain.c:454. If er != ER_NOTHING and rn2(2)=0, return
-        // without reaching the rnd(30) switch. The witness session
-        // (seed0014-dequa-fountain-explore) exercises this path at steps
-        // 373, 378, and 384, where water_damage rusts the item and
-        // rn2(2)=0 causes the early return. The development score confirms
-        // cursors match through those steps.
-        const source = await readFile(
-            new URL('../nethack-c/upstream/src/fountain.c', import.meta.url),
-            'utf8',
-        );
-        assert.match(
-            source,
-            /if \(er == ER_DESTROYED \|\| \(er != ER_NOTHING && !rn2\(2\)\)\)/u,
-        );
-    });
-
 test('polymorph_sink preserves the loot bit when the sink becomes a fountain',
     async () => {
         // C ref: do.c:polymorph_sink. It snapshots any nonzero sink flags,

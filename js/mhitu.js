@@ -2298,7 +2298,7 @@ async function gulpmu(mtmp, mattk, rawEnv = {}) {
         if (!flaming(mtmp.data)) {
             for (let object = state.invent; object;) {
                 const next = object.nobj;
-                // apply.c gulpmu() discards snuff_lit's boolean result.
+                // mhitu.c gulpmu() discards snuff_lit's boolean result.
                 await snuff_lit(object, { ...rawEnv, state, message });
                 object = next;
             }

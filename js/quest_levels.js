@@ -145,6 +145,9 @@ import {
 // stone.
 // Copies: selvar.c selection_floodfill() is also ported as themerooms.js
 // selection_floodfill(). A change to it must reach every copy.
+// C ref: nhlsel.c l_selection_flood(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function
+// directly.
 export function selection_floodfill(x, y, state, frame) {
     const ox = frame?.xstart ?? 0;
     const oy = frame?.ystart ?? 0;
@@ -176,6 +179,9 @@ export function selection_floodfill(x, y, state, frame) {
 }
 
 // Intersection of two selections (Lua's & operator).
+// C ref: nhlsel.c l_selection_and(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function directly
+// (the & operator).
 export function selIntersect(a, b) {
     const result = new ThemeroomSelection();
     const boundsA = a.bounds();
@@ -1880,6 +1886,9 @@ async function monGoal(des) {
 }
 
 // C ref: dat/tower1.lua — Upper stage of Vlad's tower.
+// C ref: nhlua.c nhl_is_genocided(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function directly
+// (nh.is_genocided() in tower1.lua).
 async function tower1(des, state) {
     await des.level_init({ style: 'solidfill', fg: ' ' });
     await des.level_flags('mazelevel', 'noteleport', 'hardfloor', 'solidify');

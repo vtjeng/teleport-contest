@@ -6,7 +6,7 @@
       "seed": 58010536,
       "datetime": "20640301091718",
       "nethackrc": "OPTIONS=name:BhitDrawbridge,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,pettype:none,!legacy,!tutorial,!splash_screen,!autopickup,!debug_mongen,!acoustics\n",
-      "moves": "     #levelchange\n20\n                    \u0017uncursed wooden flute\n                    #wizlevelport\n?\nj                                        #wizmap\nwand of opening\nzol"
+      "moves": "     #levelchange\n20\n                    \u0017uncursed wooden flute\n                    #wizlevelport\n?\nj                                        #wizmap\n\u0017wand of opening\nzol"
     }
   ]
 }

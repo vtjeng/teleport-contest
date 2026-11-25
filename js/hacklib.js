@@ -65,6 +65,8 @@ export function atoi(str) {
 // and as wintty.c prints a Unicode glyph. Only the nethackrc reader and the
 // glyph writers call it; text already held as bytes goes through
 // textBytes() instead.
+// C ref: hacklib.c unicodeval_to_utf8str(): the UTF-8 encoding. js/glyphs.js
+// unicodeCharacter() makes the range test that callers read from its result.
 export function encodeUtf8Text(value) {
     return Array.from(utf8Encoder.encode(String(value)));
 }

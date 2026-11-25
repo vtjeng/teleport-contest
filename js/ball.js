@@ -200,7 +200,7 @@ function moveObject(object, x, y, state) {
 // The reverse of memoryGlyph(): u.bglyph or u.cglyph going back into map
 // memory. GLYPH_UNEXPLORED goes back as undefined, the one form the port
 // gives unexplored memory, which display.js magic_map_background_steps()
-// and js/startup_a11y.js test for.
+// tests for.
 function rememberedGlyph(glyph) {
     if (glyph === GLYPH_UNEXPLORED_OFF) return undefined;
     return remembered_glyph_from_presentation({ glyph });

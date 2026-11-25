@@ -877,6 +877,7 @@ async function kick_ouch(x, y, kickobjnam, state) {
 
 // C ref: dokick.c kick_door() (910-970). Door changes precede redraw,
 // vision recalculation, shop billing and town-watch callbacks.
+// C refs: dokick.c watchman_thief_arrest(), watchman_door_damage().
 export async function kick_door(x, y, avrg_attrib, state = game) {
     const maploc = state.level.at(x, y);
     const mask = maploc.flags;

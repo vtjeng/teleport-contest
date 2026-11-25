@@ -1697,8 +1697,3 @@ export async function poisoned(
     }
     await encumberMessage(state);
 }
-
-export const _attribInternals = Object.freeze({
-    rnd_attr,
-    init_attr_role_redist,
-});

@@ -26,9 +26,11 @@ import { requireCompiler } from './recorder-headers.mjs';
 // collectLookaroundMessages(), whose comment now names its C function
 // (branch small-gaps, 23 November 2026). 281 since hack.c notice_mon()'s
 // You("%s %s.") pairs with js/hack.js notice_mon() (branch
-// small-leftovers-2, 24 November 2026).
+// small-leftovers-2, 24 November 2026). 278 since read.c
+// seffect_blank_paper()'s two lines pair with js/read.js seffects(), whose
+// comment now names it (branch cleanup-low-risk, 25 November 2026).
 const UNPAIRED_STATUSES = ['no JS text', 'too little text', 'format not a literal', 'no JS function'];
-const UNPAIRED_CEILING = 280;
+const UNPAIRED_CEILING = 278;
 
 test('every paired JS message makes its C site\'s location choice', async () => {
     requireCompiler('the scan needs the C preprocessor');

@@ -142,6 +142,8 @@ export function initialNomuxMap() {
 
 export let game = initialGameState();
 
+// C ref: decl.c program_state_init(): initialGameState() creates program_state
+// from the generated zero_sinfo().
 export function resetGame() {
     game = initialGameState();
     return game;

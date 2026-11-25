@@ -2126,6 +2126,7 @@ export async function zap_dig(
 // C ref: dig.c adj_pit_checks() (1763-1838). The caller supplies the mutable
 // coordinate and receives both the boolean permission and the exact refusal
 // message. C clears the struct-rm flags before inspecting the surface.
+// C ref: stairs.c On_ladder().
 export function adj_pit_checks(coordinate, state = game) {
     if (!coordinate || !isok(coordinate.x, coordinate.y))
         return { allowed: false, message: '' };
@@ -2364,7 +2365,7 @@ export async function wiz_debug_cmd_bury(state = game, env = {}) {
 }
 
 // The environment dig.c's rotting hands its callees. `state` and `hooks` are
-// what invent.c obj_extract_self() and obfree() read; the caller supplies
+// what mkobj.c obj_extract_self() and shk.c obfree() read; the caller supplies
 // hooks.newsym.
 function rotEnv(env) {
     return { ...env, state: env.state ?? game, hooks: env.hooks ?? {} };

@@ -79,7 +79,6 @@ import {
 import { acurr, exercise } from './attrib.js';
 import { cmdSafetyPrevention, yn_function } from './cmd.js';
 import {
-    back_to_glyph,
     back_to_glyph_steps,
     cmap_to_glyph,
     cls,
@@ -108,7 +107,6 @@ import {
     map_object_async,
     newsym,
     newsym_steps,
-    object_glyph_info,
     remembered_glyph_from_presentation,
     show_glyph_cell,
     trap_glyph_info,
@@ -1839,20 +1837,6 @@ async function defaultDisplayPendingTtyMessageWindow(env) {
     await displayPendingTtyMessageWindow(env.state);
 }
 
-// C ref: display.c _map_location().  Every location admitted by this
-// automatic-search owner is a converted adjacent door/corridor or an ordinary
-// floor trap, so the reachable layer order is object, seen trap, terrain.
-// The trap identity that used to travel beside the presentation is gone with
-// the presentation: display.h trap_to_glyph() gives each trap type its own
-// glyph number, so the number map memory stores names the trap on its own.
-function mappedSearchLayer(x, y, state) {
-    const object = state.level.objects?.[x]?.[y] ?? null;
-    if (object) return object_glyph_info(object, state);
-    const trap = t_at(x, y, state);
-    if (trap?.tseen) return trap_glyph_info(trap, state);
-    return map_glyphinfo(back_to_glyph(x, y, state), state);
-}
-
 // C ref: display.c feel_location(), as called by detect.c's explicit-search
 // blind/visible-region arm. Keep the canonical display owner here rather than
 // maintaining a second tactile map implementation in detect.js.
@@ -2093,7 +2077,7 @@ async function mfind0(monster, via_warning, env) {
 
     let foundSomething = false;
     if (M_AP_TYPE(monster)) {
-        // display.c seemimic() has a discarded return in C, but its map and
+        // mon.c seemimic() has a discarded return in C, but its map and
         // monster state changes are observable, so pass the search seams into
         // the existing complete owner rather than replacing them with a gap.
         await printQueued(env.seemimic(monster, {

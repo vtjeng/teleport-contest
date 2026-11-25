@@ -252,6 +252,8 @@ export function save_level_relative_times(state) {
 // restore it when the hero returns. C writes each piece to a binary level
 // file; the port keeps the live objects in memory and captures a snapshot
 // before teardown removes them.
+// C ref: region.c save_regions(), part of the level snapshot.
+// C refs: save.c savelevl(), savecemetery().
 export function savelev(ledger, state = game, options = {}) {
     const freeing = options === 'FREEING' || options?.mode === 'FREEING';
 
@@ -539,6 +541,10 @@ export async function dosave0(state = game) {
 // hero struct, flags, moves, context, inventory, level data, dungeon state,
 // and related subsystems. Non-serializable values (functions, display
 // handles) are excluded by serializeSnapshot().
+// C ref: o_init.c savenames(); the port replaces the save format.
+// C ref: save.c store_plname_in_file(), the snapshot holds every value the
+// header encodes (plname, urole, urace, flags.female, u.ualign, wizard,
+// discover); js/files.js plname_from_file() rebuilds the header from them.
 function serializeGameState(state) {
     const snapshot = {
         // C ref: savegamestate() fields in save.c:265-333 order
@@ -742,6 +748,7 @@ function save_other_levels(state) {
 
 // Serialize the special-level chain as the JS array representation. Restore
 // rebuilds its `.next` overlay after the JSON snapshot is read.
+// C ref: save.c savelevchn(); the port replaces the save format.
 function serializeSpecialLevels(levels) {
     if (!levels) return null;
     return levels.map((entry) => {

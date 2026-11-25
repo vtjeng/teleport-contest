@@ -642,7 +642,7 @@ async function consume_offering(otmp, state) {
     }
 
     // pray.c consume_offering() reaches invent.c useup()/useupf(), then
-    // shk.c obfree() for an inventory corpse or mkobj.c delobj() for a floor
+    // shk.c obfree() for an inventory corpse or invent.c delobj() for a floor
     // corpse. The latter removes the object from the floor list before
     // freeing it.
     const env = {
@@ -2874,6 +2874,8 @@ export async function altar_wrath(x, y, state = game) {
         change_luck(rn2(20) ? -1 : -2, state);
 }
 
+// C ref: pray.c gods_angry(), inlined at each of its three calls here as
+// godvoice(resp_god, 'Thou hast angered me.').
 export async function angrygods(resp_god, state = game) {
     let maxanger;
     const { u } = state;

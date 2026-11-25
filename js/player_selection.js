@@ -58,6 +58,7 @@ function selectionFilter(state) {
     return state.roleFilter ?? state.rfilter ?? {};
 }
 
+// C ref: role.c role_gendercount().
 function roleGenderCount(rolenum) {
     if (!validrole(rolenum)) return 0;
     const allow = roles[rolenum].allow;
@@ -66,6 +67,7 @@ function roleGenderCount(rolenum) {
         + Number(Boolean(allow & ROLE_NEUTER));
 }
 
+// C ref: role.c race_alignmentcount().
 function raceAlignmentCount(racenum) {
     if (!Number.isInteger(racenum) || racenum < 0
         || racenum >= races.length) return 0;
@@ -147,6 +149,7 @@ function possessive(text) {
     return text.endsWith('s') ? `${text}'` : `${text}'s`;
 }
 
+// C ref: role.c promptsep().
 function appendPostAttributes(prompt, post) {
     const ordered = [BP_RACE, BP_ROLE, BP_GEND, BP_ALIGN]
         .filter((attribute) => post.has(attribute));

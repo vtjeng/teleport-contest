@@ -62,7 +62,6 @@ export function rnd_rect(random = rn2) {
     if (game.rect_cnt <= 0) return null;
     return game.nhrect[random(game.rect_cnt)];
 }
-export function get_rect_cnt() { return game.rect_cnt; }
 
 // C: within_bounded_area(x, y, lx, ly, hx, hy) — check if point is within bounds
 export function within_bounded_area(x, y, lx, ly, hx, hy) {
@@ -156,10 +155,4 @@ export function split_rects(r1, r2) {
         r.lx = r2.hx + 2;
         add_rect(r);
     }
-}
-
-export function init_rect_globals() {
-    game.nhrect = null;
-    game.n_rects = 0;
-    game.rect_cnt = 0;
 }

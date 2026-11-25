@@ -1262,6 +1262,9 @@ export function artifact_score(list, counting, state, textLines = null) {
 // finalization through disclosure, score calculation, the final display, and
 // the score-file display path. Bones creation and post-score-file persistence
 // remain outside this port.
+// C ref: windows.c dump_forward_putstr(): really_done() calls it outside
+// DUMPLOG for each farewell line; with no dumplog file it is putstr() unless
+// done_stopprint, and really_done() pushes the same lines.
 async function really_done(how, state) {
     const programState = state.program_state;
     const haveWindows = Boolean(state.iflags?.window_inited);

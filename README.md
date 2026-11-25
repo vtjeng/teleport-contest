@@ -53,7 +53,7 @@ gh repo fork davidbau/teleport-contest --clone --remote
 cd teleport-contest
 git submodule update --init    # pulls in nethack-c/upstream
 
-# Play the skeleton in your browser
+# Play the port in your browser
 python3 -m http.server 8000
 # then open http://localhost:8000/
 ```
@@ -77,44 +77,37 @@ node scripts/score-development.mjs
 npm run checkpoint
 ```
 
-Out of the box, the skeleton scores partial credit on
-`seed8000-tourist-starter` — its `fastforward.js` replay nails most
-of the early-game PRNG and the first dozen-or-so screens. That's
-your hello world: getting it from "partial" to "full pass," and
-then taking on the other 43 fixed-workload sessions.
+`score-development.mjs` scores all 44 fixed-workload sessions with the
+judge's runner, `frozen/ps_test_runner.mjs`. `npm run checkpoint` also
+replays every recording under `recordings/` and fails when one stops
+matching.
 
 ## What's in this repo
 
 Three things, layered like the Dungeons of Doom themselves.
 
-### 1. A skeleton port of NetHack 5.0
+### 1. A JavaScript port of NetHack 5.0
 
-A minimal JavaScript implementation runs through the first short tourist game
-(`seed8000-tourist-starter`) far enough to render recognizable screens and earn
-partial credit. Chargen is pending, and the skeleton "fakes" the early game by
-replaying a hardcoded sequence of PRNG draws read out of the recorded session
-(see `js/fastforward.js`). It provides a visible surface while the source-backed
-engine grows: gentle, well-mapped, populated almost entirely with grid bugs.
+`js/` holds the port: 296 ES modules that run unchanged in Node and in the
+browser. Each module ported from C takes the name of its C file, so
+`src/monmove.c` becomes `js/monmove.js`. Ported functions keep their C names
+where they can; elsewhere a `C ref:` comment names the C function. The Lua
+programs in the C tree's `dat/` directory, such as the special levels, are
+ported to JavaScript as well.
 
 **Where the code lives:**
 
 ```
 js/
 ├── jsmain.js          ← contest entry point; exports runSegment
+├── allmain.js         ← the move loop (moveloop_core)
 ├── isaac64.js         ← FROZEN: canonical PRNG engine. Don't touch.
 ├── terminal.js        ← FROZEN: 24×80 grid + serialize(). Don't touch.
 ├── storage.js         ← FROZEN: VFS for save/restore + bones. Don't touch.
-├── rng.js             ← PRNG wrappers (rn2, rnd, d, …). Edit freely.
-├── fastforward.js     ← Hardcoded RNG-replay scaffolding for seed8000.
-│                        A trap to escape — see below.
-├── nethack.js         ← top-level NetHack class. Mostly a stub.
-├── const.js           ← 2,000+ constants imported from upstream headers.
-├── allmain.js         ← the move loop. Currently very polite.
-├── cmd.js             ← command dispatch. Knows about ~5 commands.
-├── display.js         ← screen rendering. Renders some things.
-├── mklev.js           ← level generation. Almost entirely unwritten.
-├── input.js           ← input handling. Partially wired.
-└── …
+├── game_display.js    ← the screen, and GameDisplay.serialize() for capture
+├── rng.js             ← PRNG wrappers (rn2, rnd, d, …)
+├── cmd.js, mklev.js, mon.js, …   ← one module per C source file
+└── unported.js        ← note_unported(), which records each skipped C call
 ```
 
 **Run it locally:**
@@ -124,27 +117,12 @@ python3 -m http.server 8000   # any static server works
 open http://localhost:8000/
 ```
 
-There's no chargen prompt yet — the skeleton skips straight into the
-game with a hardcoded character because `js/fastforward.js` replays
-the PRNG calls that real chargen would produce. You'll see a small
-room and a tourist. Move around a few squares. Watch your
-`js/jsmain.js` get exercised in real time.
+`index.html` loads the modules directly, with no build step, and starts at
+character creation.
 
-**A brief tour:** start in `js/jsmain.js` to see the contest API
-entry point, then follow the call chain into `js/nethack.js` →
-`js/allmain.js` → `js/cmd.js`. The actual game logic to fill in is
-mostly under `js/mklev.js`, `js/cmd.js`, and a long list of files that
-don't exist yet but need to (`js/mon.js`, `js/dog.js`, `js/spell.js`,
-etc. — a complete NetHack port has on the order of 80 source files).
-
-**About `fastforward.js`:** it's a hardcoded list of `rn2(N)` calls
-that fakes the RNG sequence for `seed8000` only. It will not generalize
-to other fixed-workload sessions. The path
-forward is to delete its entries one at a time, replacing each with
-the real C function port that produces those calls naturally.
-
-The skeleton is "what works without porting much." Everything beyond
-is yours to build. *Be careful, ahead.*
+**A brief tour:** start in `js/jsmain.js` to see the contest API entry point,
+then follow the call chain into `js/allmain.js` → `js/cmd.js`. To find the
+port of a C function, search `js/` for its name.
 
 ### 2. Patches to make C NetHack deterministic
 

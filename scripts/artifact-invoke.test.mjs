@@ -12,7 +12,6 @@ import {
     ART_ORCRIST,
     ART_STING,
     ART_SUNSWORD,
-    ARTILIST_TEMPLATE,
     HEALING,
     TAMING,
     FLING_POISON,
@@ -180,26 +179,17 @@ test('arti_cost returns artilist cost when set', () => {
 });
 
 test('arti_cost returns 100x base cost when artilist cost is 0', () => {
-    // Check whether any artifact has cost = 0 in the template.
-    // If Excalibur has cost 4000, and Grimtooth has 300, both are nonzero.
-    // Let's find one with cost 0 by checking the template.
-    let found = false;
-    for (let i = 1; i < ARTILIST_TEMPLATE.length; i++) {
-        const entry = ARTILIST_TEMPLATE[i];
-        if (entry && entry.name && !entry.cost && entry.otyp !== undefined) {
-            // This artifact has cost = 0; arti_cost should return 100 * base
-            const result = arti_cost({ oartifact: i, otyp: entry.otyp }, state);
-            const baseCost = 100 * (result / 100); // verify it's a multiple of 100
-            assert.equal(result % 100, 0,
-                `artifact ${entry.name} cost should be 100x base`);
-            found = true;
-            break;
-        }
-    }
-    // If no artifact has cost 0, this arm is unreachable in vanilla
-    if (!found) {
-        assert.ok(true, 'all vanilla artifacts have nonzero artilist cost');
-    }
+    // C ref: artifact.c arti_cost() returns 100L * objects[otyp].oc_cost when
+    // the artilist entry's cost is 0. No artilist.h entry has cost 0, so this
+    // copies the list and zeroes Excalibur's cost to reach that arm. The long
+    // sword's cost is 15 (objects.h WEAPON("long sword", ..., 50, 40, 15, ...)),
+    // so the expected result is 1500.
+    const artilist = state.artilist.slice();
+    artilist[ART_EXCALIBUR] = { ...artilist[ART_EXCALIBUR], cost: 0 };
+    assert.equal(
+        arti_cost({ oartifact: ART_EXCALIBUR, otyp: LONG_SWORD }, { ...state, artilist }),
+        1500,
+    );
 });
 
 // --- finesse_ahriman ---

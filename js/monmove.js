@@ -1155,7 +1155,7 @@ function monsterPoisonGasSafe(monster, state) {
 
 // C ref: trap.c m_harmless_trap()'s SLP_GAS_TRAP, FIRE_TRAP and ANTI_MAGIC
 // arms: resists_sleep(), resists_fire() or resists_magm(), or an
-// artifact.c defended() against that damage type. A caller may replace it.
+// mondata.c defended() against that damage type. A caller may replace it.
 function trapResistance(monster, trap, env) {
     if (typeof env.resistsTrapEffect === 'function')
         return Boolean(env.resistsTrapEffect(monster, trap.ttyp, env));
@@ -1230,6 +1230,7 @@ export function m_harmless_trap(monster, trap, env = {}) {
     }
 }
 
+// C ref: worm.c worm_cross(), used by mfndpos and test_move.
 export function wormCross(x1, y1, x2, y2, state) {
     if (Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) !== 1
         || x1 === x2 || y1 === y2) {
@@ -3147,14 +3148,6 @@ async function maybe_spin_web(mtmp, env) {
         }
     }
 }
-
-// The door masks that leave postmov()'s door block with nothing to do.  Three
-// of the block's four arms test D_LOCKED or D_CLOSED and the fourth tests
-// whole-mask equality with D_CLOSED, so a monster standing on a doorless,
-// broken or open doorway falls through all four without touching the doormask,
-// the map or the message window.  The one arm above them that acts on any
-// other mask is the magic-key disarm at monmove.c:1539, which needs D_TRAPPED.
-export const INERT_DOOR_MASKS = new Set([D_NODOOR, D_BROKEN, D_ISOPEN]);
 
 // C ref: monmove.c postmov() (1454-1705). Covers notice_mon(), the old and
 // new-square redraws, the complete door and iron-bars blocks, mintrap(), the

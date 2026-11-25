@@ -273,6 +273,7 @@ export function plname_from_file(filename, state = game) {
 // save/ whose name sscanf("%d%63s") splits into this process's uid and a rest
 // contributes the buffer plname_from_file() reads from it; the buffers are
 // then sorted with strcmp(), which stops at the first NUL.
+// C ref: files.c strcmp_wrap(), the strcmp() order of the saved-game names.
 export function get_saved_games(state = game) {
     const result = [];
     for (const path of vfsListFiles('save/')) {

@@ -3633,6 +3633,8 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
 }
 
 // C ref: uhitm.c hmon_hitmon_msg_silver() (1663-1700); obj is unused.
+// C ref: hacklib.c nh_snprintf(), a C string helper; the callers use
+// JavaScript string operations.
 export async function hmon_hitmon_msg_silver(hmd, mon, state = game, env = {}) {
     let whom = mon_nam(mon, state, env);
     let format;

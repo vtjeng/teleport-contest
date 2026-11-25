@@ -429,5 +429,3 @@ export function rndexp(gaining, state = game) {
     }
     return result;
 }
-
-export const _experInternals = Object.freeze({ enermod });

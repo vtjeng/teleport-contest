@@ -752,7 +752,7 @@ function optionError(lineNumber, message) {
     throw new Error(`nethackrc line ${lineNumber}: ${message}`);
 }
 
-// C ref: pline.c config_error_add(), reached from an option handler.
+// C ref: cfgfiles.c config_error_add(), reached from an option handler.
 // parseoptions() carries on with the rest of the statement and the rest of the
 // file afterwards, and js/jsmain.js prints what accumulated.  During a
 // configuration read `result` is the parser's result and carries its error
@@ -6470,6 +6470,9 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     }
 }
 
+// C refs: cfgfiles.c cnf_line_NAME(), cnf_line_dogname(), cnf_line_catname(),
+// a config statement that parseNethackrc() dispatches through
+// CONFIG_STATEMENT_HANDLERS.
 function applyDirectOption(result, key, value) {
     const normalized = lcase(key);
     if (normalized === 'name') {
@@ -6691,6 +6694,10 @@ export function hide_unhide_msgtypes(hide, hide_mask, state = game) {
     }
 }
 
+// C refs: cfgfiles.c cnf_line_OPTIONS(), cnf_line_AUTOPICKUP_EXCEPTION(),
+// cnf_line_BINDINGS(), cnf_line_AUTOCOMPLETE(), cnf_line_MSGTYPE(), a config
+// statement that parseNethackrc() dispatches through
+// CONFIG_STATEMENT_HANDLERS.
 export function parseNethackrc(rc, random = rn2) {
     const result = defaultResult();
     if (!rc) return result;
@@ -7855,8 +7862,8 @@ function VIA_WINDOWPORT() {
 // C ref: windows.c adjust_menu_promptstyle().  It relays iflags.menu_headings
 // to the window port, and tty stores it in tty_menu_promptstyle
 // (wintty.c:2905).  This port reads iflags.menu_headings afresh every time it
-// opens a menu -- js/cmd.js menuTitleStyle() -- so the cached copy has no
-// counterpart and the flag reset is all that survives.
+// opens a menu -- js/tty_menu.js menuTitleStyle() -- so the cached copy has
+// no counterpart and the flag reset is all that survives.
 function adjust_menu_promptstyle(state) {
     state.go.opt_need_promptstyle = false;
 }
@@ -9138,6 +9145,9 @@ export function optfn_o_menu_colors(state, request, opts = '', helpers) {
 
 // C ref: options.c handler_msgtype(), query_msgtype(), free_one_msgtype().
 // The live editor shares its list with startup MSGTYPE declarations.
+// C ref: options.c msgtype2name(), inside the MSGTYPE menu.
+// C ref: options.c optfn_o_message_types(), an option handler that the port
+// splits among option-table entries.
 export async function handler_msgtype(state, helpers) {
     for (;;) {
         const action = await handle_add_list_remove(state, 'message type', msgtype_count(state), helpers);
@@ -9194,6 +9204,10 @@ export async function handler_msgtype(state, helpers) {
 
 // C ref: options.c handler_autopickup_exception(). The startup parser and
 // live editor share ga.apelist, with the newest exception at its head.
+// C ref: options.c optfn_o_autopickup_exceptions(), its handler arm;
+// OPTION_VALUE_HANDLERS.o_autopickup_exceptions holds the value arm.
+// C ref: options.c remove_autopickup_exception(), inside the autopickup
+// exception menu.
 export async function handler_autopickup_exception(state, helpers) {
     for (;;) {
         const action = await handle_add_list_remove(
@@ -9255,6 +9269,7 @@ const CONDITION_RANKS = Object.freeze([
     6, 4, 10, 15, 6, 20, 20, 20, 20, 20,
 ]);
 
+// C ref: botl.c menualpha_cmp().
 export async function handler_status_conditions(state, helpers) {
     const conditions = state.iflags.status_conditions;
     for (;;) {

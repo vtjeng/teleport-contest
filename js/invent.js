@@ -3661,6 +3661,7 @@ function comparisonWillDiscover(otmp, obj, state) {
 
 // C ref: shk.c obfree(). The bill-entry branch lives in shk.js; ownership
 // cleanup uses the same lifecycle operations as ordinary inventory objects.
+// C ref: spell.c book_disappears().
 export function obfree(obj, merge = null, rawEnv = {}) {
     const env = inventoryEnv(rawEnv);
     if (obj.otyp === LEASH && obj.leashmon)

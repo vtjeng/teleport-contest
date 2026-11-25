@@ -1015,7 +1015,7 @@ async function advanceElapsedTurn(state) {
 }
 
 // The entry point every driver calls once per input: playSegment() in
-// js/jsmain.js, js/nethack.js, the test drivers and the judge's frozen
+// js/jsmain.js, index.html, the test drivers and the judge's frozen
 // drivers. Once the segment has terminated (js/end.js nh_terminate()) it runs
 // no game code; it reads one raw key from the display's queue, outside
 // nhgetch() and its capture hook, so a driver that stops only when its keys

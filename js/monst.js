@@ -176,7 +176,7 @@ export function mon_track_clear(monster) {
     }
 }
 
-// C refs: teleport.c rloc_to_core(); mon.c mon_track_clear(). This is the
+// C refs: teleport.c rloc_to_core(); monmove.c mon_track_clear(). This is the
 // placement-state core shared by source-faithful relocation callers. It owns
 // the source-mandated region-cache update; display, trap, and shop effects
 // remain with the higher-level callers.

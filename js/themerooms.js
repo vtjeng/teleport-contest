@@ -92,18 +92,30 @@ export class ThemeroomSelection {
         return new ThemeroomSelection(null, this.absolute, this.origin);
     }
 
+    // C ref: nhlsel.c l_selection_push_copy(), on the ThemeroomSelection that
+    // holds the selection: a copy of the selection that later changes do not
+    // alter.
+    // C ref: nhlsel.c l_selection_clone(), a Lua binding. The port runs the
+    // Lua program from dat/ as JavaScript, which calls the wrapped C function
+    // directly.
+    // C ref: selvar.c selection_clone(), on the ThemeroomSelection that holds
+    // the selection.
     clone() {
         const result = this.#derived();
         result.points.set(this.points);
         return result;
     }
 
+    // C ref: selvar.c selection_getpoint(), on the ThemeroomSelection that
+    // holds the selection.
     get(x, y) {
         return inSelectionBounds(x, y)
             ? this.points[this.#index(x, y)] - 1 !== 0
             : false;
     }
 
+    // C ref: selvar.c selection_setpoint(), on the ThemeroomSelection that
+    // holds the selection.
     set(x, y, value = true) {
         if (inSelectionBounds(x, y)) {
             const pointValue = Number.isInteger(value) ? value : (value ? 1 : 0);
@@ -113,6 +125,11 @@ export class ThemeroomSelection {
     }
 
     // selvar.c returns the whole-map rectangle for an empty selection.
+    // C ref: nhlsel.c l_selection_getbounds(), a Lua binding. The port runs
+    // the Lua program from dat/ as JavaScript, which calls the wrapped C
+    // function directly.
+    // C refs: selvar.c selection_getbounds(), selection_recalc_bounds(), on
+    // the ThemeroomSelection that holds the selection.
     bounds() {
         let lx = COLNO;
         let ly = ROWNO;
@@ -132,6 +149,9 @@ export class ThemeroomSelection {
             : { lx, ly, hx, hy };
     }
 
+    // C ref: nhlsel.c l_selection_numpoints(), a Lua binding. The port runs
+    // the Lua program from dat/ as JavaScript, which calls the wrapped C
+    // function directly.
     numpoints() {
         const { lx, ly, hx, hy } = this.bounds();
         let result = 0;
@@ -144,6 +164,11 @@ export class ThemeroomSelection {
     }
 
     // C's percentage filter consumes RNG in x-major order.
+    // C ref: nhlsel.c l_selection_filter_percent(), a Lua binding. The port
+    // runs the Lua program from dat/ as JavaScript, which calls the wrapped C
+    // function directly.
+    // C ref: selvar.c selection_filter_percent(), on the ThemeroomSelection
+    // that holds the selection.
     percentage(percent, random = rn2) {
         const result = this.#derived();
         const { lx, ly, hx, hy } = this.bounds();
@@ -158,6 +183,9 @@ export class ThemeroomSelection {
 
     // selection_rndcoord() counts and chooses points in x-major order.
     // nhlsel.c converts its result to the active room/map coordinate frame.
+    // C ref: nhlsel.c l_selection_rndcoord(), a Lua binding. The port runs the
+    // Lua program from dat/ as JavaScript, which calls the wrapped C function
+    // directly.
     rndcoord(remove = false, random = rn2, origin = null) {
         const { lx, ly, hx, hy } = this.bounds();
         let count = 0;
@@ -182,6 +210,9 @@ export class ThemeroomSelection {
 
     // selvar.c selection_filter_mapchar() reads the live map (levl[x][y]),
     // the default here; locationAt lets a caller read another level's map.
+    // C ref: nhlsel.c l_selection_filter_mapchar(), a Lua binding. The port
+    // runs the Lua program from dat/ as JavaScript, which calls the wrapped C
+    // function directly.
     filter_mapchar(wanted, locationAt = (x, y) => game.level.at(x, y),
         options = {}) {
         const lit = options.lit ?? -2;
@@ -208,6 +239,11 @@ export class ThemeroomSelection {
         return result;
     }
 
+    // C ref: nhlsel.c l_selection_not(), a Lua binding. The port runs the Lua
+    // program from dat/ as JavaScript, which calls the wrapped C function
+    // directly.
+    // C ref: selvar.c selection_not(), on the ThemeroomSelection that holds
+    // the selection.
     negate() {
         const source = selection_map_frame(this);
         const result = new ThemeroomSelection(null, true);
@@ -219,6 +255,8 @@ export class ThemeroomSelection {
     }
 
     // l_selection_grow() clones before growing, so the receiver is unchanged.
+    // C ref: selvar.c selection_do_grow(), on the ThemeroomSelection that
+    // holds the selection.
     grow(direction = W_ANY, random = rn2) {
         if (direction === W_RANDOM) {
             // C: random_wdir(), ported in sp_lev.js, which imports this
@@ -277,6 +315,11 @@ export function selection_area(x1, y1, x2, y2) {
 
 // C ref: selvar.c selection_new(). A fresh selection over the whole map,
 // in map coordinates as every C selection is; its points are clear.
+// C ref: nhlsel.c l_selection_push_new(), on the ThemeroomSelection that holds
+// the selection: a fresh, empty selection where the Lua code makes one.
+// C ref: nhlsel.c l_selection_new(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function
+// directly.
 export function selection_new() {
     return new ThemeroomSelection(null, true);
 }
@@ -386,6 +429,9 @@ export function selection_negate(selection = null) {
 
 // selvar.c selection_from_mkroom() reads the live map (levl[x][y]), the
 // default here; locationAt lets a caller read another level's map.
+// C ref: nhlsel.c l_selection_room(), a Lua binding. The port runs the Lua
+// program from dat/ as JavaScript, which calls the wrapped C function
+// directly.
 export function selection_room(room, locationAt = (x, y) => game.level.at(x, y)) {
     // The room's bounds are map coordinates, so the selection is built in the
     // absolute frame, as selection_match() in bigrm.js is.

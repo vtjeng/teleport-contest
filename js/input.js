@@ -15,6 +15,7 @@ import { KEY_BINDINGS } from './terminal.js';
 // C ref: tty_nhgetch — read one key.
 // In replay mode, reads from the input queue.
 // In browser mode, waits for a real keypress.
+// C ref: wintty.c tty_nh_poskey(), the key read.
 export async function nhgetch(state = game) {
     // After nh_terminate() no key is read and no boundary is captured: a
     // capture would duplicate the final screen and shift every later

@@ -52,7 +52,7 @@ export const VERDICT_CATEGORIES = Object.freeze([
 // C_FUNCTION_RULE_OVERRIDES together. Change these in the same commit as the
 // entries; the test fails in either direction.
 export const VERDICT_TOTALS = Object.freeze({
-    otherName: 265,
+    otherName: 118,
     unreachable: 174,
     noVisibleEffect: 213,
     unportedVisible: 2,
@@ -93,10 +93,8 @@ const MAILBOX = 'polls the host mailbox, which nothing changes during a recorded
 const MAIL_DELIVERY = 'runs only when the host mailbox changes during play, which no recorded game makes happen';
 const OPTION_HANDLERS = 'an option handler; js/options.js splits it among OPTION_VALUE_HANDLERS, OPTION_SET_HANDLERS and OPTION_HANDLERS';
 const CRASH_REPORT = 'crash-report set-up or a panic backtrace, which a correct game never shows';
-const RNG_SETUP = 'random-number set-up; js/rng.js seeds the generator as the patched build does';
 const PLAYER_SELECTION = 'the tty player-selection menus';
 const SELECTION_CLASS = 'a selection operation; ThemeroomSelection in js/themerooms.js holds the selection';
-const SYMBOL_TABLES = 'the symbol tables';
 const CURSOR = 'cursor movement, which the shadow buffer records as a position';
 const ATTRIBUTES = 'the attribute and colour of each cell';
 const MENU_TEXT = 'a menu line with no selector';
@@ -130,14 +128,12 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'botl.c do_statusline1': unreachable('bot() calls it only for a window port without '
         + 'WC2_STATUS; tty takes the field-by-field status path'),
     'botl.c cond_cmp': ported('js/display.js _statusConditionEntries'),
-    'botl.c menualpha_cmp': ported('js/options.js handler_status_conditions'),
     'botl.c cond_menu': ported('js/options.js handler_status_conditions'),
     'botl.c opt_next_cond': noEffect('#saveoptions RC-file writer; JS stops at '
         + 'note_unported(\'cfgfiles.c fopen\') js/cfgfiles.js:100'),
     'botl.c anything_to_s': ported('js/display.js _statusLine1Layout'),
     'botl.c percentage': ported('js/display.js _statusPercentage'),
     'botl.c exp_percentage': ported('js/display.js _statusExperiencePercentage'),
-    'botl.c stat_cap_indx': ported('js/display.js _capacityStatus'),
     'botl.c stat_hunger_indx': unreachable('no tty caller'),
     'botl.c bl_idx_to_fldname': unreachable('X11 only'),
     'botl.c hilite_reset_needed': ported('js/display.js _statusFieldNotice',
@@ -150,11 +146,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     // cfgfiles.c
     'cfgfiles.c fopen_config_file': ported('js/cfgfiles.js get_configfile',
         'the recorder\'s $HOME/.nethackrc lookup'),
-    'cfgfiles.c cnf_line_OPTIONS': ported('js/options.js parseNethackrc', CONFIG_STATEMENT),
-    'cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION': ported('js/options.js parseNethackrc', CONFIG_STATEMENT),
-    'cfgfiles.c cnf_line_BINDINGS': ported('js/options.js parseNethackrc', CONFIG_STATEMENT),
-    'cfgfiles.c cnf_line_AUTOCOMPLETE': ported('js/options.js parseNethackrc', CONFIG_STATEMENT),
-    'cfgfiles.c cnf_line_MSGTYPE': ported('js/options.js parseNethackrc', CONFIG_STATEMENT),
     'cfgfiles.c cnf_line_HACKDIR': noEffect(NOCWD),
     'cfgfiles.c cnf_line_LEVELDIR': noEffect(NOCWD),
     'cfgfiles.c cnf_line_SAVEDIR': noEffect(NOCWD),
@@ -164,17 +155,12 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'cfgfiles.c cnf_line_LOCKDIR': noEffect(NOCWD),
     'cfgfiles.c cnf_line_CONFIGDIR': noEffect(NOCWD),
     'cfgfiles.c cnf_line_TROUBLEDIR': noEffect(NOCWD),
-    'cfgfiles.c cnf_line_NAME': ported('js/options.js parseNethackrc', CONFIG_STATEMENT),
     'cfgfiles.c cnf_line_ROLE': ported('js/options.js applyDirectOption', CONFIG_STATEMENT),
-    'cfgfiles.c cnf_line_dogname': ported('js/options.js applyDirectOption', CONFIG_STATEMENT),
-    'cfgfiles.c cnf_line_catname': ported('js/options.js applyDirectOption', CONFIG_STATEMENT),
     'cfgfiles.c cnf_line_WIZARDS': ported('js/jsmain.js set_playmode', SYSCF_FIXED),
     'cfgfiles.c cnf_line_SHELLERS': unreachable(SYSCF_ONLY),
     'cfgfiles.c cnf_line_MSGHANDLER': unreachable(SYSCF_ONLY),
-    'cfgfiles.c cnf_line_EXPLORERS': ported('js/jsmain.js set_playmode', SYSCF_FIXED),
     'cfgfiles.c cnf_line_DEBUGFILES': unreachable(SYSCF_ONLY),
     'cfgfiles.c cnf_line_DUMPLOGFILE': unreachable(SYSCF_ONLY),
-    'cfgfiles.c cnf_line_GENERICUSERS': ported('js/jsmain.js set_playmode', SYSCF_FIXED),
     'cfgfiles.c cnf_line_BONES_POOLS': unreachable(SYSCF_ONLY),
     'cfgfiles.c cnf_line_SUPPORT': unreachable(SYSCF_ONLY),
     'cfgfiles.c cnf_line_RECOVER': unreachable(SYSCF_ONLY),
@@ -205,13 +191,8 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         'the statement match and dispatch'),
     'cfgfiles.c l_get_config_errors': unreachable(LUA_UNUSED),
     'cfgfiles.c read_config_file': ported('js/options.js parseNethackrc', 'the rc read'),
-    'cfgfiles.c cnf_parser_init': ported('js/cfgfiles.js parse_conf_file',
-        'the parser state that parse_conf_file() threads through'),
     'cfgfiles.c cnf_parser_done': noEffect('only frees parser->inbuf and parser->buf '
         + '(cfgfiles.c:1677-1684)'),
-    'cfgfiles.c parse_conf_str': ported('js/tutorial_level.js loadTutorialLevel',
-        'nh.parse_config() from tut-1.lua, reduced to the three fixed lines that program '
-        + 'passes'),
     'cfgfiles.c rcfile_interface_options': unreachable(WINDOWS_RC),
     'cfgfiles.c heed_all_config_statements': unreachable(WINDOWS_RC),
     'cfgfiles.c disregard_all_config_statements': unreachable(WINDOWS_RC),
@@ -227,8 +208,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
 
     // coloratt.c
     'coloratt.c free_menu_coloring': noEffect(MEMORY),
-    'coloratt.c set_map_customcolor': ported('js/display.js glyphPresentation',
-        'the glyph colour customisation'),
     'coloratt.c color_distance': noEffect(EXTRACOLOR),
     'coloratt.c closest_color': noEffect(EXTRACOLOR),
     'coloratt.c get_nhcolor_from_256_index': unreachable(NO_CALLER),
@@ -238,15 +217,10 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'date.c free_nomakedefs': noEffect(MEMORY),
 
     // decl.c
-    'decl.c program_state_init': ported('js/gstate.js resetGame',
-        'initialGameState() creates program_state from the generated zero_sinfo()'),
     'decl.c decl_globals_init': ported('js/gstate.js resetGame',
         'initialGameState() and _startGame() build each game\'s globals from decl.c\'s '
         + 'initial values'),
     'decl.c sa_victual': noEffect('empty function for a static analyser'),
-
-    // detect.c
-    'detect.c skip_premap_detect': ported('js/mklev.js premap_detect'),
 
     // display.c
     'display.c mon_warning': ported('js/display.js monsterWarnsHero'),
@@ -269,14 +243,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     // dog.c
     'dog.c free_edog': unreachable('no caller in the compiled build'),
 
-    // dogmove.c
-    'dogmove.c wantdoor': ported('js/dogmove.js nearestVisibleGoal'),
-    'dogmove.c mnum_leashable': ported('js/apply.js leashable'),
-
-    // dokick.c
-    'dokick.c watchman_thief_arrest': ported('js/dokick.js kick_door'),
-    'dokick.c watchman_door_damage': ported('js/dokick.js kick_door'),
-
     // dungeon.c
     'dungeon.c dumpit': noEffect('init_dungeons() calls it under the DEBUG that '
         + 'include/patchlevel.h:36 defines, but it returns at once unless explicitdebug(), '
@@ -291,14 +257,9 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'end.c done_intr': unreachable('signal handler'),
     'end.c done_hangup': unreachable('SIGHUP handler'),
     'end.c dump_everything': noEffect(DUMPLOG),
-    'end.c wordcount': ported('js/jsmain.js buildEnglishList'),
-    'end.c bel_copy1': ported('js/jsmain.js buildEnglishList'),
-    'end.c build_english_list': ported('js/jsmain.js buildEnglishList'),
 
     // engrave.c
     'engrave.c forget_engravings': ported('js/bones.js savebones', 'merged into bones save'),
-    'engrave.c del_engr': ported('js/engrave.js del_engr_at',
-        'one engraving per square makes it equivalent'),
     'engrave.c see_engraving': unreachable('no callers'),
     'engrave.c feel_engraving': unreachable('no callers'),
 
@@ -322,8 +283,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         'setting LFILE_EXISTS for the level, without the file'),
     'files.c open_levelfile': noEffect(FILE_IO),
     'files.c clearlocks': noEffect(FILE_IO),
-    'files.c strcmp_wrap': ported('js/files.js get_saved_games',
-        'the strcmp() order of the saved-game names'),
     'files.c set_bonestemp_name': noEffect(FILE_IO),
     'files.c compress_bonesfile': noEffect(COMPRESS),
     'files.c save_savefile_name': noEffect(FILE_IO),
@@ -366,10 +325,8 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'glyphs.c glyph_find_core': ported('js/glyphs.js glyph_find'),
     'glyphs.c match_glyph': ported('js/glyph_ids.js sourceGlyphName'),
     'glyphs.c glyphrep': ported('js/symbols.js applySymbolAssignments'),
-    'glyphs.c add_custom_nhcolor_entry': ported('js/glyphs.js addDetail'),
     'glyphs.c shuffle_customizations': ported('js/glyphs.js maybe_shuffle_customizations',
         'second definition (646); the first (591) is #if 0'),
-    'glyphs.c find_matching_customization': ported('js/glyphs.js addDetail'),
     'glyphs.c purge_all_custom_entries': noEffect('exit-time memory'),
     'glyphs.c dump_all_glyphids': unreachable('only earlyarg.c dump_glyphids() calls it, '
         + 'for the --dumpglyphids option; ' + CMDLINE),
@@ -378,14 +335,10 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'hacklib.c c_eos': ported('js/hacklib.js eos', C_STRING),
     'hacklib.c strkitten': ported('js/hacklib.js eos', C_STRING),
     'hacklib.c strNsubst': ported('js/uhitm.js hmon_hitmon_msg_silver', C_STRING),
-    'hacklib.c nh_snprintf': ported('js/uhitm.js hmon_hitmon_msg_silver', C_STRING),
-    'hacklib.c unicodeval_to_utf8str': ported('js/hacklib.js encodeUtf8Text',
-        'UTF-8 encoding of a symbol customisation'),
     'hacklib.c case_insensitive_comp': noEffect('its one compiled caller, date.c '
         + 'populate_nomakedefs(), matches the __DATE__ month for nomakedefs.build_time, which '
         + 'only MICRO comp_times() reads; the mdlib.c calls are WIN32-only'),
     'hacklib.c copy_bytes': unreachable(NO_CALLER),
-    'hacklib.c datamodel': ported('js/mdlib.js build_options', BUILD_CONST),
     'hacklib.c what_datamodel_is_this': unreachable('compare_critical_bytes() calls it only '
         + 'when a save file\'s critical sizes differ from the binary\'s (version.c:784-786); '
         + 'every save a session restores was written by the same recorder build'),
@@ -403,7 +356,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
 
     // light.c
     'light.c new_light_core': ported('js/light.js new_light_source'),
-    'light.c delete_ls': ported('js/light.js del_light_source'),
     'light.c obj_move_light_source': unreachable('no callers'),
 
     // mail.c
@@ -426,8 +378,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'mdlib.c make_version': noEffect('fills the version struct that save headers and '
         + 'check_version() use; the visible version text comes from mdlib_version_string()'),
     'mdlib.c build_savebones_compat_string': ported('js/mdlib.js build_options', BUILD_CONST),
-    'mdlib.c count_and_validate_winopts': ported('js/mdlib.js build_options', BUILD_CONST),
-    'mdlib.c count_and_validate_soundlibopts': ported('js/mdlib.js build_options', BUILD_CONST),
     'mdlib.c opt_out_words': ported('js/mdlib.js build_options', BUILD_CONST),
     'mdlib.c release_runtime_info': noEffect(MEMORY),
 
@@ -435,10 +385,7 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'mhitu.c mon_avoiding_this_attack': unreachable('no callers'),
 
     // mklev.c
-    'mklev.c mkroom_cmp': ported('js/mklev.js sort_rooms',
-        'stable sort on both sides (patch 002)'),
     'mklev.c alloc_doors': noEffect('memory'),
-    'mklev.c makevtele': ported('js/mklev.js makeniche'),
     'mklev.c pos_to_room': noEffect('place_branch discards the result'),
 
     // mkmap.c
@@ -455,14 +402,10 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'nhlobj.c l_obj_push': noEffect(LUA_PLUMBING),
     'nhlobj.c nhl_push_obj': noEffect(LUA_PLUMBING),
     'nhlobj.c l_obj_getcontents': unreachable(LUA_UNUSED),
-    'nhlobj.c l_obj_add_to_container': ported('js/mklev.js water_surrounded_vault_contents', LUA_DIRECT +
-        '; obj:addcontent() in themerms.lua'),
     'nhlobj.c nhl_obj_u_giveobj': unreachable(LUA_UNUSED),
     'nhlobj.c l_obj_objects_to_table': noEffect('obj:class() in themerms.lua builds a '
         + 'read-only table whose material only chooses an olocked field, which lspo_object() '
         + 'never reads (sp_lev.c reads locked), so both arms make the same chest'),
-    'nhlobj.c l_obj_to_table': ported('js/themeroom_fill.js fillBuriedTreasure', LUA_DIRECT +
-        '; obj:totable() in themerms.lua'),
     'nhlobj.c l_obj_at': unreachable(LUA_UNUSED),
     'nhlobj.c l_obj_placeobj': ported('js/nhlua.js tutorial_turn', LUA_DIRECT +
         '; o:placeobj() in nhlib.lua'),
@@ -471,8 +414,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'nhlobj.c l_obj_isnull': unreachable(LUA_UNUSED),
     'nhlobj.c l_obj_timer_has': unreachable(LUA_UNUSED),
     'nhlobj.c l_obj_timer_peek': unreachable(LUA_UNUSED),
-    'nhlobj.c l_obj_timer_stop': ported('js/themeroom_fill.js fillBuriedZombies', LUA_DIRECT +
-        '; o:stop_timer() in themerms.lua'),
     'nhlobj.c l_obj_timer_start': ported('js/themeroom_fill.js fillBuriedZombies', LUA_DIRECT +
         '; o:start_timer() in themerms.lua'),
     'nhlobj.c l_obj_bury': unreachable(LUA_UNUSED),
@@ -480,28 +421,10 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
 
     // nhlsel.c
     'nhlsel.c l_selection_gc': noEffect(LUA_PLUMBING),
-    'nhlsel.c l_selection_push_new': ported('js/themerooms.js selection_new',
-        SELECTION_CLASS + '; a fresh, empty selection where the Lua code makes one'),
-    'nhlsel.c l_selection_push_copy': ported('js/themerooms.js clone',
-        SELECTION_CLASS + '; a copy of the selection that later changes do not alter'),
-    'nhlsel.c l_selection_new': ported('js/themerooms.js selection_new', LUA_DIRECT),
-    'nhlsel.c l_selection_clone': ported('js/themerooms.js clone', LUA_DIRECT),
-    'nhlsel.c l_selection_numpoints': ported('js/themerooms.js numpoints', LUA_DIRECT),
     'nhlsel.c l_selection_getpoint': unreachable(LUA_UNUSED),
-    'nhlsel.c l_selection_not': ported('js/themerooms.js negate', LUA_DIRECT),
-    'nhlsel.c l_selection_and': ported('js/quest_levels.js selIntersect', LUA_DIRECT +
-        '; the & operator'),
     'nhlsel.c l_selection_xor': unreachable(LUA_UNUSED),
-    'nhlsel.c l_selection_filter_percent': ported('js/themerooms.js percentage', LUA_DIRECT),
-    'nhlsel.c l_selection_rndcoord': ported('js/themerooms.js rndcoord', LUA_DIRECT),
-    'nhlsel.c l_selection_room': ported('js/themerooms.js selection_room', LUA_DIRECT),
-    'nhlsel.c l_selection_getbounds': ported('js/themerooms.js bounds', LUA_DIRECT),
-    'nhlsel.c params_sel_2coords': ported('js/bigrm.js selection_line', LUA_DIRECT +
-        '; the argument parsing of line(), rect() and fillrect()'),
     'nhlsel.c l_selection_grow': ported('js/themerooms.js grow', LUA_DIRECT),
-    'nhlsel.c l_selection_filter_mapchar': ported('js/themerooms.js filter_mapchar', LUA_DIRECT),
     'nhlsel.c l_selection_match': ported('js/bigrm.js selection_match', LUA_DIRECT),
-    'nhlsel.c l_selection_flood': ported('js/themerooms.js selection_floodfill', LUA_DIRECT),
     'nhlsel.c l_selection_circle': unreachable(LUA_UNUSED),
     'nhlsel.c l_selection_ellipse': unreachable(LUA_UNUSED),
     'nhlsel.c l_selection_gradient': unreachable(LUA_UNUSED),
@@ -510,9 +433,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
 
     // nhlua.c
     'nhlua.c l_nhcore_done': noEffect(LUA_PLUMBING),
-    'nhlua.c l_nhcore_call': ported('js/hack.js handle_tip',
-        'the nhcore.lua callbacks a game reaches (getpos_tip, enter_tutorial, '
-        + 'leave_tutorial) are called directly; nhcore.lua comments out the others'),
     'nhlua.c splev_typ2chr': unreachable('its only caller, nhl_getmap(), is a binding no '
         + 'shipped program calls'),
     'nhlua.c nhl_gettrap': unreachable(LUA_UNUSED),
@@ -523,8 +443,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'nhlua.c nhl_pline': ported('js/nhlua.js tutorial_turn', LUA_DIRECT +
         '; nh.pline() in nhlib.lua'),
     'nhlua.c nhl_verbalize': unreachable(LUA_UNUSED),
-    'nhlua.c nhl_parse_config': ported('js/tutorial_level.js loadTutorialLevel', LUA_DIRECT +
-        '; nh.parse_config() in tut-1.lua'),
     'nhlua.c nhl_get_config': unreachable(LUA_UNUSED),
     'nhlua.c nhl_getlin': unreachable(LUA_UNUSED),
     'nhlua.c nhl_menu': unreachable(LUA_UNUSED),
@@ -535,14 +453,8 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'nhlua.c nhl_s_suffix': unreachable(LUA_UNUSED),
     'nhlua.c nhl_ing_suffix': unreachable(LUA_UNUSED),
     'nhlua.c nhl_an': unreachable(LUA_UNUSED),
-    'nhlua.c nhl_rn2': ported('js/mklev.js makerooms', LUA_DIRECT +
-        '; nh.rn2() in themerms.lua and other programs'),
     'nhlua.c nhl_random': ported('js/hell_levels.js mathRandom', LUA_DIRECT +
         '; nh.random() through nhlib.lua\'s math.random shim'),
-    'nhlua.c nhl_level_difficulty': ported('js/mklev.js makerooms', LUA_DIRECT +
-        '; nh.level_difficulty() in themerms.lua'),
-    'nhlua.c nhl_is_genocided': ported('js/quest_levels.js tower1', LUA_DIRECT +
-        '; nh.is_genocided() in tower1.lua'),
     'nhlua.c nhl_get_debug_themerm_name': noEffect('reads $THEMERM or $THEMERMFILL only in '
         + 'wizard mode, and a session cannot set an environment variable'),
     'nhlua.c nhl_dnum_name': unreachable('its only call is in nhcore.lua mk_dgl_extrainfo(), '
@@ -565,19 +477,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'nhlua.c nhl_timer_has_at': unreachable(LUA_UNUSED),
     'nhlua.c nhl_timer_peek_at': unreachable(LUA_UNUSED),
     'nhlua.c nhl_timer_stop_at': unreachable(LUA_UNUSED),
-    'nhlua.c nhl_timer_start_at': ported('js/themeroom_fill.js startMeltTimer', LUA_DIRECT +
-        '; nh.start_timer_at() in themerms.lua'),
-    'nhlua.c nhl_get_cmd_key': ported('js/tutorial_level.js tutorialCommandKey', LUA_DIRECT +
-        '; nh.eckey() in nhlib.lua and the tutorial programs'),
-    'nhlua.c nhl_callback': ported('js/nhlua.js tutorial_enter', LUA_DIRECT +
-        '; nh.callback() in nhlib.lua and tut-1.lua'),
-    'nhlua.c init_nhc_data': ported('js/asmodeus_levels.js hellTweaks', LUA_DIRECT
-        + '; the one reachable nhc read, nhlib.lua hell_tweaks() nhc.COLNO * nhc.ROWNO, is '
-        + '80 * 21 there'),
-    'nhlua.c nhl_push_anything': ported('js/nhlua.js tutorial_turn', LUA_DIRECT
-        + '; the u fields nhl_meta_u_index() pushes through it are read from state.u'),
-    'nhlua.c nhl_meta_u_index': ported('js/nhlua.js tutorial_turn', LUA_DIRECT +
-        '; reads of the u table read the hero\'s state'),
     'nhlua.c nhl_meta_u_newindex': unreachable(LUA_UNUSED +
         '; no shipped program assigns to the u table'),
     'nhlua.c nhl_u_clear_inventory': unreachable(LUA_UNUSED),
@@ -598,8 +497,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'nhlua.c nhl_hookfn': noEffect(LUA_PLUMBING),
 
     // o_init.c
-    'o_init.c savenames': ported('js/save.js dosave0', 'save format replaced'),
-    'o_init.c restnames': ported('js/restore.js dorestore', 'save format replaced'),
     'o_init.c get_sortdisco': ported('js/options.js defaultResult',
         'cnf=FALSE arm only; cnf=TRUE serves #saveoptions'),
 
@@ -624,18 +521,11 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'options.c nh_getenv': ported('js/mklev.js makelevel', 'the recorder\'s fixed environment'),
     'options.c allopt_array_init': ported('js/options.js defaultResult',
         'the option defaults and each compound do_init arm'),
-    'options.c msgtype2name': ported('js/options.js handler_msgtype',
-        'inside the MSGTYPE menu'),
     'options.c msgtype_free': noEffect(MEMORY),
     'options.c collect_menu_keys': unreachable(NO_CALLER),
-    'options.c optfn_o_autopickup_exceptions': ported('js/options.js parseNethackrc', OPTION_HANDLERS),
     'options.c optfn_o_bind_keys': ported('js/cmd.js optionCommandHelpers', OPTION_HANDLERS),
-    'options.c optfn_o_autocomplete': ported('js/cmd.js optionCommandHelpers', OPTION_HANDLERS),
-    'options.c optfn_o_message_types': ported('js/options.js handler_msgtype', OPTION_HANDLERS),
     'options.c optfn_o_status_cond': ported('js/options.js handler_status_conditions', OPTION_HANDLERS),
     'options.c get_option_value': noEffect(SAVEOPTIONS),
-    'options.c remove_autopickup_exception': ported('js/options.js handler_autopickup_exception',
-        'inside the autopickup exception menu'),
     'options.c free_autopickup_exceptions': noEffect(MEMORY),
     'options.c all_options_conds': noEffect(SAVEOPTIONS),
     'options.c all_options_menucolors': noEffect(SAVEOPTIONS),
@@ -658,10 +548,7 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'options.c disregard_this_option': unreachable(WINDOWS_RC),
 
     // pager.c
-    'pager.c is_swallow_sym': ported('js/pager.js do_screen_description'),
     'pager.c monhealthdescr': noEffect('body #if 0, returns ""'),
-    'pager.c hmenu_doextversion': ported('js/pager.js dohelp'),
-    'pager.c hmenu_doextlist': ported('js/pager.js dohelp'),
 
     // pline.c
     'pline.c dumplogmsg': noEffect('feeds DUMPLOG saved_plines (dump log/crash report only; '
@@ -669,17 +556,15 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'pline.c dumplogfreemessages': noEffect('memory'),
     'pline.c putmesg': ported('js/tty_message.js ttyPline', 'merged into message pipeline'),
     'pline.c set_msg_dir': ported('js/zap.js dobuzz', 'message direction for a11y'),
-    'pline.c pline_xy': ported('js/pline.js set_msg_xy'),
+    'pline.c pline_xy': ported('js/startup_a11y.js messageAt', 'set_msg_xy() then vpline(); '
+        + 'each caller passes the location to messageAt() and delivers the message itself'),
     'pline.c custompline': ported('js/tty_message.js ttyCustomPline'),
-    'pline.c You_buf': ported('js/tty_message.js ttyPlineCore',
-        'state.gy.you_buf is the shared buffer, including a nested You() overwriting it'),
     'pline.c free_youbuf': noEffect('memory'),
     'pline.c You': ported('js/tty_message.js ttyPline'),
     'pline.c Your': ported('js/tty_message.js ttyPline'),
     'pline.c You_cant': ported('js/tty_message.js ttyPline'),
     'pline.c pline_The': ported('js/tty_message.js ttyPline'),
     'pline.c There': ported('js/tty_message.js ttyPline'),
-    'pline.c You_hear': ported('js/pline.js youHear'),
     'pline.c vraw_printf': ported('js/files.js wizkit_raw_printf'),
     'pline.c execplinehandler': noEffect('runs an external MSGHANDLER program; none '
         + 'configured'),
@@ -687,19 +572,9 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         + 'invariant is false, which no valid input is known to cause; if one did, its '
         + 'impossible() message would show'),
 
-    // pray.c
-    'pray.c gods_angry': ported('js/pray.js godvoice'),
-
-    // read.c
-    'read.c assign_candy_wrapper': ported('js/mkobj.js mksobj_init',
-        'rn2(12) hard-coded rather than derived from the table'),
-    'read.c seffect_blank_paper': ported('js/read.js seffects'),
-
     // region.c
     'region.c free_region': noEffect('memory'),
     'region.c clear_regions': ported('js/game.js constructor'),
-    'region.c save_regions': ported('js/save.js savelev', 'level snapshot'),
-    'region.c is_hero_inside_gas_cloud': ported('js/region.js heroInsideGasCloud'),
     'region.c make_gas_cloud': ported('js/region.js makeGasCloud'),
 
     // report.c
@@ -720,12 +595,9 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'report.c panictrace_setsignals': noEffect(CRASH_REPORT),
 
     // restore.c
-    'restore.c restlevchn': ported('js/restore.js dorestore', 'save format replaced'),
     'restore.c freefruitchn': noEffect('memory'),
     'restore.c restlevelstate': noEffect('its body is a bare return (restore.c:742-749)'),
     'restore.c restlevelfile': ported('js/restore.js dorestore'),
-    'restore.c restcemetery': ported('js/restore.js getlev', 'save format replaced'),
-    'restore.c rest_levl': ported('js/restore.js getlev', 'save format replaced'),
     'restore.c trickery': unreachable('prints only when a level file is corrupt; JS has no '
         + 'level files'),
     'restore.c moves_to_relative_time': ported('js/save.js shift_level_edog_times'),
@@ -735,25 +607,13 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         + 'plname_from_file() makes the full read'),
     'restore.c rest_bubbles': ported('js/restore.js dorestore'),
     'restore.c restore_gamelog': ported('js/restore.js dorestore'),
-    'restore.c clear_id_mapping': ported('js/bones.js restoreBonesLevel'),
     'restore.c add_id_mapping': ported('js/bones.js restobjchn_ghostly'),
-    'restore.c lookup_id_mapping': ported('js/bones.js restoreBonesLevel'),
 
     // rnd.c
-    'rnd.c whichrng': ported('js/rng.js initRng', RNG_SETUP),
-    'rnd.c init_isaac64': ported('js/rng.js initRng', RNG_SETUP),
-    'rnd.c set_random': ported('js/rng.js initRng', RNG_SETUP),
-    'rnd.c init_random': ported('js/rng.js initRng', RNG_SETUP),
     'rnd.c reseed_random': noEffect('a no-op in the patched build (js/do.js goto_level says '
         + 'why)'),
 
     // role.c
-    'role.c gotrolefilter': ported('js/player_selection_tty.js gotRoleFilter',
-        'duplicated at js/tty_menu.js:1742'),
-    'role.c clearrolefilter': ported('js/tty_menu.js applyRoleFilterSelection'),
-    'role.c promptsep': ported('js/player_selection.js appendPostAttributes'),
-    'role.c role_gendercount': ported('js/player_selection.js roleGenderCount'),
-    'role.c race_alignmentcount': ported('js/player_selection.js raceAlignmentCount'),
     'role.c role_selection_prolog': unreachable(NO_CALLER),
     'role.c genl_player_selection': unreachable('tty installs tty_player_selection() as its '
         + 'player_selection procedure'),
@@ -762,13 +622,8 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'role.c maybe_skip_seps': ported('js/player_selection_tty.js roleMenuExcess',
         'C calls it twice; equivalent with stock tables'),
     'role.c plsel_startmenu': ported('js/player_selection_tty.js facetMenuSpec', PLAYER_SELECTION),
-    'role.c setup_rolemenu': ported('js/player_selection_tty.js facetMenuSpec', PLAYER_SELECTION),
-    'role.c setup_racemenu': ported('js/player_selection_tty.js facetMenuSpec', PLAYER_SELECTION),
-    'role.c setup_gendmenu': ported('js/player_selection_tty.js facetMenuSpec', PLAYER_SELECTION),
-    'role.c setup_algnmenu': ported('js/player_selection_tty.js facetMenuSpec', PLAYER_SELECTION),
 
     // rumors.c
-    'rumors.c unpadline': ported('js/random_text.js get_rnd_line'),
     'rumors.c couldnt_open_file': unreachable('data files bundled; open never fails'),
     'rumors.c free_CapMons': noEffect('memory'),
 
@@ -782,41 +637,21 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         + 'under in_checkpoint; the restore-time call (restore.c:829) and '
         + 'forget_temple_entry() on migrating priests have none, and neither is known to '
         + 'change the screen'),
-    'save.c savelevl': ported('js/save.js savelev'),
     'save.c save_bubbles': ported('js/save.js savelev'),
-    'save.c savecemetery': ported('js/save.js savelev'),
     'save.c saveobj': ported('js/save.js saveobjchn'),
-    'save.c savelevchn': ported('js/save.js dosave0'),
-    'save.c store_plname_in_file': ported('js/save.js serializeGameState',
-        'the snapshot holds every value the header encodes (plname, urole, urace, '
-        + 'flags.female, u.ualign, wizard, discover); js/files.js plname_from_file() '
-        + 'rebuilds the header from them'),
     'save.c free_dungeons': noEffect('memory'),
     'save.c freedynamicdata': noEffect('exit-time memory release'),
 
     // selvar.c
     'selvar.c selection_free': noEffect(MEMORY),
-    'selvar.c selection_clone': ported('js/themerooms.js clone', SELECTION_CLASS),
-    'selvar.c selection_getbounds': ported('js/themerooms.js bounds', SELECTION_CLASS),
-    'selvar.c selection_recalc_bounds': ported('js/themerooms.js bounds', SELECTION_CLASS),
-    'selvar.c selection_getpoint': ported('js/themerooms.js get', SELECTION_CLASS),
-    'selvar.c selection_setpoint': ported('js/themerooms.js set', SELECTION_CLASS),
-    'selvar.c selection_not': ported('js/themerooms.js negate', SELECTION_CLASS),
-    'selvar.c selection_filter_percent': ported('js/themerooms.js percentage', SELECTION_CLASS),
     'selvar.c selection_filter_mapchar': ported('js/themerooms.js filter_mapchar', SELECTION_CLASS),
     'selvar.c selection_rndcoord': ported('js/themerooms.js rndcoord', SELECTION_CLASS),
-    'selvar.c selection_do_grow': ported('js/themerooms.js grow', SELECTION_CLASS),
     'selvar.c selection_do_ellipse': unreachable('its only callers, l_selection_circle() and '
         + 'l_selection_ellipse(), are bindings no shipped program calls'),
     'selvar.c line_dist_coord': unreachable('its only caller, selection_do_gradient(), serves '
         + 'a binding no shipped program calls'),
     'selvar.c selection_do_gradient': unreachable('its only caller, l_selection_gradient(), '
         + 'is a binding no shipped program calls'),
-    'selvar.c selection_do_line': ported('js/bigrm.js selection_line', SELECTION_CLASS),
-    'selvar.c selection_is_irregular': ported('js/cmd.js selectionSizeDescription',
-        'the travel-room size description'),
-    'selvar.c selection_size_description': ported('js/cmd.js selectionSizeDescription',
-        'the travel-room size description'),
     'selvar.c selection_from_mkroom': ported('js/themerooms.js selection_room', SELECTION_CLASS),
     'selvar.c selection_force_newsyms': ported('js/getpos.js getpos_sethilite',
         'inline in the getpos highlight'),
@@ -825,13 +660,7 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'shknam.c free_eshk': unreachable('no caller in the compiled build'),
 
     // spell.c
-    'spell.c book_disappears': ported('js/invent.js obfree'),
     'spell.c book_substitution': unreachable('no callers'),
-
-    // stairs.c
-    'stairs.c On_ladder': ported('js/dig.js adj_pit_checks'),
-    'stairs.c On_stairs_up': ported('js/cmd.js domouseaction'),
-    'stairs.c On_stairs_dn': ported('js/cmd.js domouseaction'),
 
     // strutil.c
     'strutil.c strbuf_init': noEffect(SAVEOPTIONS),
@@ -841,14 +670,7 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'strutil.c strbuf_nl_to_crlf': unreachable(NO_CALLER),
 
     // symbols.c
-    'symbols.c init_showsyms': ported('js/symbols.js init_symbols', SYMBOL_TABLES),
-    'symbols.c init_ov_rogue_symbols': ported('js/symbols.js init_symbols', SYMBOL_TABLES),
-    'symbols.c init_ov_primary_symbols': ported('js/symbols.js init_symbols', SYMBOL_TABLES),
-    'symbols.c update_ov_primary_symset': ported('js/symbols.js applySymbolAssignments', SYMBOL_TABLES),
-    'symbols.c update_ov_rogue_symset': ported('js/symbols.js applySymbolAssignments', SYMBOL_TABLES),
     'symbols.c symset_is_compatible': unreachable(NO_CALLER),
-    'symbols.c proc_symset_line': ported('js/symbols.js readSymbolSetFile',
-        'the symbol-set file read, from embedded data'),
     'symbols.c parse_sym_line': ported('js/symbols.js readSymbolSetFile',
         'the symbol-set file read, from embedded data'),
     'symbols.c load_symset': unreachable('its callers are initoptions_init()\'s TERM "AT" '
@@ -871,9 +693,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'sys.c sysopt_seduce_set': noEffect('its compiled body only returns; the #if 0 arm '
         + '(sys.c:165-177) held the attack substitution that mhitu.c getmattk() now makes'),
 
-    // teleport.c
-    'teleport.c enexto_gpflags': ported('js/makemon_create.js m_initgrp'),
-
     // termcap.c
     'termcap.c term_shutdown': noEffect(ESCAPE),
     'termcap.c tty_number_pad': noEffect(ESCAPE),
@@ -894,16 +713,8 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'termcap.c backsp': noEffect('only xputs(BC); its callers adjust curx themselves '
         + '(topl.c:316-318)'),
     'termcap.c tty_nhbell': noEffect('writes a BEL byte, which changes no screen cell'),
-    'termcap.c graph_on': ported('js/display.js glyphPresentation',
-        'the DECgraphics flag carried on each symbol'),
-    'termcap.c graph_off': ported('js/display.js glyphPresentation',
-        'the DECgraphics flag carried on each symbol'),
-    'termcap.c tty_delay_output': ported('js/hack.js nh_delay_output', 'the output delay'),
     'termcap.c cl_eos': ported('js/tty_menu.js displayTtyTextWindow',
         'the erase to the end of the screen'),
-    'termcap.c init_hilite': ported('js/display.js glyphPresentation',
-        'for TERM=xterm-256color it sets iflags.colorcount to 256 and every hilites[] entry, '
-        + 'which the port assumes'),
     'termcap.c kill_hilite': noEffect(ESCAPE),
     'termcap.c s_atr2str': noEffect(ESCAPE),
     'termcap.c e_atr2str': noEffect(ESCAPE),
@@ -913,7 +724,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'termcap.c term_end_attr': ported('js/display.js _recorderStatusAttribute', ATTRIBUTES),
     'termcap.c term_start_raw_bold': noEffect(ESCAPE),
     'termcap.c term_end_raw_bold': noEffect(ESCAPE),
-    'termcap.c term_end_color': ported('js/display.js glyphPresentation', ATTRIBUTES),
     'termcap.c term_start_color': ported('js/display.js glyphPresentation', ATTRIBUTES),
     'termcap.c term_start_bgcolor': noEffect(ESCAPE),
     'termcap.c term_curs_set': noEffect(ESCAPE),
@@ -922,12 +732,10 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
 
     // timeout.c
     'timeout.c obj_move_timers': unreachable('no callers'),
-    'timeout.c remove_timer': ported('js/timeout.js stop_timer'),
     'timeout.c write_timer': ported('js/bones.js serializeBonesLevel'),
     'timeout.c relink_timers': ported('js/bones.js getbones'),
 
     // topten.c
-    'topten.c discardexcess': ported('js/topten.js readentry', 'record-line parsing'),
     'topten.c writexlentry': noEffect('writes xlogfile; never displayed'),
     'topten.c encodexlogflags': noEffect('xlogfile field'),
     'topten.c encodeconduct': noEffect('xlogfile field'),
@@ -942,12 +750,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     // track.c
     'track.c save_track': ported('js/bones.js serializeBonesLevel'),
     'track.c rest_track': ported('js/bones.js restoreBonesLevel'),
-
-    // utf8map.c
-    'utf8map.c set_map_u': ported('js/glyphs.js apply_customizations',
-        'the UTF-8 glyph customisation'),
-    'utf8map.c add_custom_urep_entry': ported('js/glyphs.js glyphrep_to_custom_map_entries',
-        'the UTF-8 glyph customisation'),
 
     // vault.c
     'vault.c free_egd': unreachable('no caller in the compiled build'),
@@ -970,7 +772,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'version.c validate': noEffect(SAVE_COMPAT),
 
     // vision.c
-    'vision.c vision_init': ported('js/vision.js init_vision_globals'),
     'vision.c get_unused_cs': ported('js/vision.js recalc_steps'),
     'vision.c view_init': noEffect('empty body'),
 
@@ -1016,14 +817,9 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         'the status window\'s set-up'),
     'windows.c genl_status_finish': noEffect('only frees the status_vals[] strings; '
         + 'genl_status_init() then allocates them blank (windows.c:893-920)'),
-    'windows.c genl_status_enablefield': ported('js/display.js _statusFieldEnabled',
-        'the status field table'),
     'windows.c genl_status_update': unreachable(GENL),
     'windows.c dump_open_log': noEffect(DUMPLOG),
     'windows.c dump_close_log': noEffect(DUMPLOG),
-    'windows.c dump_forward_putstr': ported('js/end.js really_done',
-        'really_done() calls it outside DUMPLOG for each farewell line; with no dumplog file it '
-        + 'is putstr() unless done_stopprint, and really_done() pushes the same lines'),
     'windows.c dump_putstr': unreachable(DUMP_INSTALLED),
     'windows.c dump_create_nhwindow': unreachable(DUMP_INSTALLED),
     'windows.c dump_clear_nhwindow': unreachable(DUMP_INSTALLED),
@@ -1035,8 +831,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'windows.c dump_select_menu': unreachable(DUMP_INSTALLED),
     'windows.c dump_redirect': unreachable('every call (end.c:549, 611, 1402, 1405, 1484, 1487) '
         + 'is inside #ifdef DUMPLOG, which include/config.h:669 leaves undefined'),
-    'windows.c has_color': ported('js/display.js glyphPresentation',
-        'the colour test of the glyph map'),
     'windows.c glyph2ttychar': unreachable(NO_CALLER),
     'windows.c glyph2symidx': unreachable(NO_CALLER),
     'windows.c genl_putmixed': unreachable(GENL),
@@ -1056,36 +850,21 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         + 'port lacks with readmail(); the shell escape and suspend that also reach it are '
         + 'refused without sysconf SHELLERS'),
     'wintty.c free_window_info': noEffect(MEMORY),
-    'wintty.c toggle_menu_curr': ported('js/tty_menu.js setItems', TTY_MENU),
     'wintty.c set_item_state': ported('js/tty_menu.js selectionMarker', TTY_MENU),
-    'wintty.c toggle_menu_attr': ported('js/tty_menu.js selectionMarker', TTY_MENU),
     'wintty.c tty_dismiss_nhwindow': ported('js/tty_menu.js erase_menu_or_text', TTY_MENU),
     'wintty.c tty_destroy_nhwindow': ported('js/tty_menu.js erase_menu_or_text', TTY_MENU),
     'wintty.c tty_display_file': ported('js/pager.js display_file', 'the text file display'),
-    'wintty.c tty_start_menu': ported('js/tty_menu.js selectTtyMenu',
-        'without TTY_PERM_INVENT it only empties the menu with tty_clear_nhwindow(); the port '
-        + 'builds every menu from a new item list'),
     'wintty.c reverse': ported('js/tty_menu.js assignMenuAccelerators', TTY_MENU),
     'wintty.c tty_select_menu': ported('js/tty_menu.js visiblePickOneChoice', TTY_MENU),
-    'wintty.c tty_ctrl_nhwindow': ported('js/tty_menu.js menuTitleStyle',
-        'without TTY_PERM_INVENT only its set_menu_promptstyle arm acts, storing '
-        + 'menu_headings for end_menu() prompts; menuTitleStyle() reads the same option, which '
-        + 'every change relays (allmain.c:728, options.c:5790, 9003-9004)'),
     'wintty.c tty_mark_synch': noEffect('an fflush() of the output, which changes no screen '
         + 'cell'),
-    'wintty.c end_glyphout': ported('js/display.js glyphPresentation',
-        'it turns off the DECgraphics flag and colour after a glyph; the port carries both on '
-        + 'each cell, so text written later is never DEC or coloured'),
     'wintty.c g_putch': ported('js/display.js glyphPresentation',
         'the symbol byte written to the shadow buffer'),
     'wintty.c g_pututf8': ported('js/display.js glyphPresentation',
         'the UTF-8 customisation written to the shadow buffer'),
-    'wintty.c tty_nh_poskey': ported('js/input.js nhgetch', 'the key read'),
     'wintty.c win_tty_init': noEffect('its body is empty on Unix'),
     'wintty.c tty_status_init': ported('js/wintty.js new_status_window',
         'the status window\'s set-up'),
-    'wintty.c tty_status_enablefield': ported('js/display.js _statusFieldEnabled',
-        'the status field table'),
     'wintty.c make_things_fit': ported('js/display.js _statusLine2Configuration', TTY_STATUS),
     'wintty.c shrink_enc': ported('js/display.js _statusLine2Configuration', TTY_STATUS),
     'wintty.c shrink_dlvl': ported('js/display.js _statusLevelDescription', TTY_STATUS),
@@ -1093,9 +872,6 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
         + 'is missing, and on its first call clears the status rows, which are still blank '
         + 'before the first status line is drawn; the botlx it sets matches the port\'s full '
         + 'first status draw'),
-
-    // worm.c
-    'worm.c worm_cross': ported('js/monmove.js wormCross', 'used by mfndpos and test_move'),
 
     // worn.c
     'worn.c allunworn': noEffect('clears worn bits on objects being freed at save'),

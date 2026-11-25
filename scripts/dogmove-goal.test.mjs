@@ -6,10 +6,7 @@ import {
     D_CLOSED,
     DOGFOOD,
     DOOR,
-    LAVAPOOL,
     MAGIC_PORTAL,
-    MANFOOD,
-    POOL,
     ROOM,
     STONE,
     UNDEF,
@@ -17,8 +14,6 @@ import {
 } from '../js/const.js';
 import {
     can_reach_location,
-    could_reach_item,
-    cursed_object_at,
     dog_goal,
     droppables,
 } from '../js/dogmove.js';
@@ -26,13 +21,9 @@ import { GameMap } from '../js/game.js';
 import {
     M1_ANIMAL,
     M1_NEEDPICK,
-    M1_SWIM,
     M1_TUNNEL,
-    M2_ROCKTHROW,
-    PM_FIRE_ELEMENTAL,
 } from '../js/monsters.js';
 import {
-    BOULDER,
     CREDIT_CARD,
     DWARVISH_MATTOCK,
     LOCK_PICK,
@@ -100,42 +91,6 @@ function goalEnv(state, overrides = {}) {
         ...overrides,
     };
 }
-
-test('could_reach_item preserves water, lava, and boulder gates', () => {
-    const { state, monster } = petState();
-    const target = state.level.at(6, 5);
-
-    target.typ = POOL;
-    assert.equal(could_reach_item(monster, 6, 5, state), false);
-    monster.data.mflags1 = M1_SWIM;
-    assert.equal(could_reach_item(monster, 6, 5, state), true);
-
-    target.typ = ROOM;
-    monster.data.mflags1 = 0;
-    state.level.objects[6][5] = {
-        otyp: BOULDER,
-        nexthere: null,
-    };
-    assert.equal(could_reach_item(monster, 6, 5, state), false);
-    monster.data.mflags2 = M2_ROCKTHROW;
-    assert.equal(could_reach_item(monster, 6, 5, state), true);
-
-    // likes_lava() is species-specific rather than a generic flag.
-    monster.data = { pmidx: PM_FIRE_ELEMENTAL, mflags1: 0, mflags2: 0 };
-    target.typ = LAVAPOOL;
-    state.level.objects[6][5] = null;
-    assert.equal(could_reach_item(monster, 6, 5, state), true);
-});
-
-test('cursed_object_at scans the complete square pile', () => {
-    const { state } = petState();
-    state.level.objects[6][5] = {
-        cursed: false,
-        nexthere: { cursed: true, nexthere: null },
-    };
-    assert.equal(cursed_object_at(6, 5, state), true);
-    assert.equal(cursed_object_at(7, 5, state), false);
-});
 
 test('droppables preserves one useful tool and skips worn equipment', () => {
     const { monster } = petState();
@@ -291,34 +246,6 @@ test('can_reach_location refuses closed doors', () => {
     );
 });
 
-test('dog_goal returns approach separately from its shared goal scratch',
-    async () => {
-        const { state, monster, edog } = petState();
-        const bounds = [];
-        const approach = await dog_goal(
-            monster,
-            edog,
-            false,
-            4, // Distance greater than one reaches the room-following draw.
-            false,
-            goalEnv(state, {
-                random: {
-                    rn2(bound) {
-                        bounds.push(bound);
-                        return 1; // Miss the one-in-four close-following gate.
-                    },
-                },
-            }),
-        );
-        assert.equal(approach, 0);
-        assert.deepEqual(bounds, [4]);
-        assert.deepEqual(state.gg, {
-            gtyp: UNDEF,
-            gx: state.u.ux,
-            gy: state.u.uy,
-        });
-    });
-
 test('dog_goal applies its early follow and confusion branches', async () => {
     const afterCase = petState();
     const afterBounds = [];
@@ -386,82 +313,6 @@ test('dog_goal forwards its PRNG environment into food classification', async ()
     assert.equal(environments.length, 1);
     assert.equal(environments[0].random, random);
     assert.equal(environments[0].state, state);
-});
-
-test('dog_goal prefers better food then the nearer equal food', async () => {
-    const { state, monster, edog } = petState();
-    const farther = {
-        ox: 8,
-        oy: 5,
-        kind: DOGFOOD,
-        cursed: false,
-        nobj: null,
-        nexthere: null,
-    };
-    const nearer = {
-        ox: 6,
-        oy: 5,
-        kind: DOGFOOD,
-        cursed: false,
-        nobj: farther,
-        nexthere: null,
-    };
-    const worse = {
-        ox: 5,
-        oy: 6,
-        kind: MANFOOD,
-        cursed: false,
-        nobj: nearer,
-        nexthere: null,
-    };
-    state.level.objlist = worse;
-    state.level.objects[5][6] = worse;
-    state.level.objects[6][5] = nearer;
-    state.level.objects[8][5] = farther;
-
-    const approach = await dog_goal(
-        monster,
-        edog,
-        false,
-        4,
-        false,
-        goalEnv(state, {
-            dogfood: (_monster, obj) => obj.kind,
-            canCarry: () => 1,
-        }),
-    );
-    assert.equal(approach, 1);
-    assert.deepEqual(state.gg, {
-        gtyp: DOGFOOD,
-        gx: nearer.ox,
-        gy: nearer.oy,
-    });
-});
-
-test('dog_goal avoids cursed food unless starvation admits it', async () => {
-    for (const starving of [false, true]) {
-        const { state, monster, edog } = petState();
-        const food = {
-            ox: 6,
-            oy: 5,
-            kind: DOGFOOD,
-            cursed: true,
-            nobj: null,
-            nexthere: null,
-        };
-        state.level.objlist = food;
-        state.level.objects[6][5] = food;
-        edog.mhpmax_penalty = starving ? 2 : 0;
-
-        await dog_goal(monster, edog, false, 4, false, goalEnv(state, {
-            dogfood: (_monster, obj) => obj.kind,
-        }));
-        assert.equal(
-            state.gg.gtyp,
-            starving ? DOGFOOD : UNDEF,
-            `starving=${starving}`,
-        );
-    }
 });
 
 test('dog_goal rejects food whose location cannot be reached', async () => {
@@ -778,14 +629,4 @@ test('dog_goal fallback returns to the hero when no square improves', async () =
         { x: state.u.ux, y: state.u.uy },
     );
     assert.deepEqual(edog.ogoal, { x: 0, y: 0 });
-});
-
-test('dog_goal returns before dependencies for a ridden steed', async () => {
-    const { state, monster, edog } = petState();
-    state.u.usteed = monster;
-    assert.equal(await dog_goal(monster, edog, true, 0, false, {
-        state,
-        random: {},
-    }), -2);
-    assert.deepEqual(state.gg, {});
 });

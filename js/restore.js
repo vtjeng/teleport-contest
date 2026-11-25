@@ -328,6 +328,8 @@ function restoreLevelAt(level) {
 // C ref: restore.c dorecover() (789-951). Reads the saved game state from
 // VFS storage, applies it to the game object, and reconstructs computed
 // state. Returns true on success; false if no save file exists.
+// C ref: o_init.c restnames(); the port replaces the save format.
+// C ref: restore.c restlevchn(); the port replaces the save format.
 export async function dorestore(state = game) {
     // C ref: files.c restore_saved_game() names the file from the current
     // svp.plname; dorecover() then reads the saved name over it.
@@ -1105,6 +1107,8 @@ function restoredRegionVisuals(state) {
     };
 }
 
+// C refs: restore.c restcemetery(), rest_levl(); the port replaces the save
+// format.
 export async function getlev(ledger, state = game) {
     const snapshot = state._savedLevels?.[ledger];
     if (!snapshot) {
@@ -1223,7 +1227,7 @@ export async function getlev(ledger, state = game) {
     // C ref: restore.c getlev():1227 load_exclusions(), after rest_bubbles().
     load_exclusions(snapshot.exclusion_zones, state);
 
-    // C restore.c rest_track() restores the track ring after the elapsed-time
+    // C track.c rest_track() restores the track ring after the elapsed-time
     // catch-up. A missing ring is the equivalent of a freshly initialized
     // level, which is also what initrack() establishes for new arrivals.
     if (snapshot.track) {

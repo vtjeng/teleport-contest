@@ -2688,8 +2688,6 @@ export const decgraphics = [
     't',  // S_trwall (11) - T right
 ];
 
-// getSymbolChar: canonical version is pchar_sym() in drawing.js
-
 // def_char_to_objclass — moved to drawing.js (depends on MAXOCLASSES, def_oc_syms)
 
 // def_char_is_furniture: canonical version in drawing.js
@@ -3137,4 +3135,3 @@ export function Is_oracle_level(uz, state = game) { const g = state; return g?.o
 export function Is_bigroom(uz, state = game) { const g = state; return g?.bigroom_level && (uz ?? g?.u?.uz)?.dnum === g.bigroom_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.bigroom_level.dlevel; }
 export function Is_knox_level(uz, state = game) { const g = state; return g?.knox_level && (uz ?? g?.u?.uz)?.dnum === g.knox_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.knox_level.dlevel; }
 export function Is_medusa_level(uz, state = game) { const g = state; return g?.medusa_level && (uz ?? g?.u?.uz)?.dnum === g.medusa_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.medusa_level.dlevel; }
-export function Is_juiblex_level(uz) { return false; /* TODO */ }

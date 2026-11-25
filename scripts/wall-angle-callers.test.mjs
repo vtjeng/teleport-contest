@@ -91,9 +91,6 @@ const STEP_FORMS = new Set([
 // or, for a form in PER_FILE_FORMS, "<file> | * | <form>": count, under
 // PER_FILE_REASON below.
 const ALLOWED = {
-    'detect.js | mappedSearchLayer | back_to_glyph': [1,
-        'automatic search maps only a door or corridor it converted, or a '
-        + 'trap square'],
     'getpos.js | gloc_filter_floodfill_matcharea | back_to_glyph': [1,
         'the getpos area filter (getloc_filter=area) floods through a '
         + 'synchronous selection callback; a known gap'],
