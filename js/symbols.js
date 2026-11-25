@@ -315,6 +315,8 @@ function loadSymbolSet(name, set, state) {
 // customizations: symbols.c do_symset() calls read_sym_file() directly and
 // applies only its own set's customizations afterward, so a menu choice for
 // the rogue set leaves the primary set's colors cleared.
+// C ref: symbols.c proc_symset_line(), the symbol-set file read, from embedded
+// data.
 function readSymbolSetFile(name, set, state) {
     if (set === ROGUESET && isDefaultSymsetName(name)) {
         const arrays = slotArrays(set, state);
@@ -527,6 +529,8 @@ export async function do_symset(
 
 // C ref: symbols.c:init_symbols(), init_primary_symbols(),
 // init_rogue_symbols(), and the two override initializers.
+// C refs: symbols.c init_showsyms(), init_ov_rogue_symbols(),
+// init_ov_primary_symbols(), the symbol tables.
 export function init_symbols(state = game) {
     graphicsState(state);
     state.go.ov_primary_syms = Array(SYM_MAX).fill(0);
@@ -574,6 +578,8 @@ function symbolIndex(name) {
     return SYMBOL_INDEX_BY_NAME[name];
 }
 
+// C refs: symbols.c update_ov_primary_symset(), update_ov_rogue_symset(), the
+// symbol tables.
 function applySymbolAssignments(operation, state) {
     const set = operation.set === 'rogue' ? ROGUESET : PRIMARYSET;
     const arrays = slotArrays(set, state);

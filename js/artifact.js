@@ -3002,7 +3002,7 @@ export function permapoisoned(obj) {
     return Boolean(obj && obj.oartifact === ART_GRIMTOOTH);
 }
 
-/** Hook adapter for mkobj.js isPermanentlyPoisoned(). */
+/** Adapter for mkobj.js's isPermanentlyPoisoned hook. */
 export function isPermanentlyPoisoned(obj) {
     return permapoisoned(obj);
 }

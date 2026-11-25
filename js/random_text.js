@@ -102,6 +102,7 @@ export function CapitalMon(word, state = game, env = {}) {
 // C ref: rumors.c get_rnd_line(). Offsets and the opened file's cursor
 // retain LP64 precision; only an in-file string index or the bounded RNG
 // argument becomes a Number. Failed stdio seeks/reads retain cursor/buffer.
+// C ref: rumors.c unpadline().
 export function get_rnd_line(
     data,
     random,

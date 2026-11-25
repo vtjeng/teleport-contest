@@ -990,6 +990,7 @@ function makemon_rnd_goodpos(ptr, gpflags, normalized) {
 // or large hostile group before the original monster receives inventory.
 // Copies: makemon.c m_initgrp() is also ported as m_initgrp_runtime() in this
 // file. A change to it must reach every copy.
+// C ref: teleport.c enexto_gpflags().
 function m_initgrp(monster, countBound, mmflags, normalized) {
     const { random, state } = normalized;
     const divisor = state.u.ulevel < 3 ? 4 : state.u.ulevel < 5 ? 2 : 1;
@@ -2049,7 +2050,7 @@ export function discard_minvent(monster, uncreateArtifacts, env = {}) {
                 normalized.state,
             );
         }
-        // mkobj.c obfree() stops the object's timers and deletes its light
+        // shk.c obfree() stops the object's timers and deletes its light
         // source through timeout.c and light.c directly; supply those owners
         // unless the caller brought its own.
         obfree(obj, null, objectGenerationEnv(normalized));

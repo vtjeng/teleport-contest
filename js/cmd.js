@@ -2572,6 +2572,8 @@ export function dolookaround_floodfill_findroom(x, y, state = game) {
         || typ === SCORR || typ === SDOOR || typ === DRAWBRIDGE_UP);
 }
 
+// C refs: selvar.c selection_is_irregular(), selection_size_description(), the
+// travel-room size description.
 function selectionSizeDescription(selection) {
     const bounds = selection.bounds();
     let irregular = false;
@@ -3638,6 +3640,8 @@ async function runOptionsCommand(key, state, handler = doset_simple) {
 // The window-port and cmd.c seams js/options.js reaches through `helpers`:
 // doset() and doset_simple() above, and toggle_bool_option() for
 // dotoggleoption(), all hand them on to parseoptions().
+// C ref: options.c optfn_o_autocomplete(), an option handler that the port
+// splits among option-table entries.
 function optionCommandHelpers(state) {
     return {
         // add_menu_heading() draws each section heading with
@@ -4763,6 +4767,7 @@ export function click_to_cmd(x, y, mod, state = game) {
 // C ref: cmd.c domouseaction() (4922-5015). Travel clicks choose the nearest
 // cardinal/diagonal direction only when the click is within one square; a
 // farther click stores the absolute travel target.
+// C refs: stairs.c On_stairs_up(), On_stairs_dn().
 export async function domouseaction(state = game) {
     const click = state.clicklook_cc ?? { x: -1, y: -1 };
     let x = click.x - state.u.ux;
@@ -4883,7 +4888,7 @@ function boundExtcmd(binding) {
     return EXTCMD_BY_NAME.get(binding.command) ?? null;
 }
 
-// C ref: cmd.c ext_func_tab_from_func() (cmd.c:5766-5777), which cmdq_add_ec()
+// C ref: cmd.c ext_func_tab_from_func() (cmd.c:3015-3025), which cmdq_add_ec()
 // applies to the function pointer its caller names. This port names the row by
 // its ef_txt instead, because that is what commandForKey() answers and what
 // rhack() dispatches on.

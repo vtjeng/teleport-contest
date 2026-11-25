@@ -2384,6 +2384,8 @@ export async function maybe_adjust_light(obj, old_range, env = {}) {
 // C ref: mkobj.c mksobj_init(). Implemented branches stay local; artifacts,
 // nonempty containers, statues, and figurines enter explicit subsystem seams
 // rather than consuming guessed RNG.
+// C ref: read.c assign_candy_wrapper(); the port hard-codes rn2(12) rather
+// than deriving it from the table.
 function mksobj_init(obj, artif = false, env = {}) {
     let normalized = objectEnv(env);
     const { random, state } = normalized;

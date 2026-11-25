@@ -177,6 +177,7 @@ export function new_light_source(x, y, range, type, id, state = game) {
 // form, which queues the report for the next message;
 // scripts/level-difficulty-steps.test.mjs lists the callers that use it.
 // del_light_source_async() is the form for a caller that can wait.
+// C ref: light.c delete_ls(), inlined in this function's unlink.
 export function* del_light_source_steps(type, id, state = game) {
     const globals = lightGlobals(state);
     if (type === LS_NONE) {

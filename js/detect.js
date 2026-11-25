@@ -2077,7 +2077,7 @@ async function mfind0(monster, via_warning, env) {
 
     let foundSomething = false;
     if (M_AP_TYPE(monster)) {
-        // display.c seemimic() has a discarded return in C, but its map and
+        // mon.c seemimic() has a discarded return in C, but its map and
         // monster state changes are observable, so pass the search seams into
         // the existing complete owner rather than replacing them with a gap.
         await printQueued(env.seemimic(monster, {

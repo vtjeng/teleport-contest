@@ -484,6 +484,8 @@ export function printQueued(result) {
 // Answers whether the message reached the window port, through putmesg() or
 // vplineRawPrint()'s raw_print(): false when vpline() returned before either
 // (an empty format, or MSGTYPE hide or norep).
+// C ref: pline.c You_buf(): state.gy.you_buf is the shared buffer, including a
+// nested You() overwriting it.
 async function ttyPlineCore(
     message, state, pflags, mixedFirstCell = null, viaVpline = true,
 ) {
@@ -695,7 +697,7 @@ function vplineMsgtype(line, pflags, prevmsg, state) {
 // up to date before the line prints (display.js
 // queued_flush_screen_status()); that step does not wait either, because
 // the code after the line can change what the status shows. `recalc` is
-// false for vision.c notice_all_mons()'s lines, which the recalculation
+// false for hack.c notice_all_mons()'s lines, which the recalculation
 // itself raises, and `status` is false for a line queued while the queue
 // drains, whose flush runs when it prints. Answers whether the status step
 // ran.

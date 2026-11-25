@@ -154,6 +154,8 @@ export function sengr_at(text, x, y, strict, state = game) {
     return matches ? engraving : null;
 }
 
+// C ref: engrave.c del_engr(); with one engraving per square, del_engr_at() is
+// equivalent.
 export function del_engr_at(x, y, state = game) {
     let previous = null;
     for (let engraving = state.head_engr ?? null;

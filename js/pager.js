@@ -1334,6 +1334,7 @@ export function lookat(x, y, state = game) {
 
 // C ref: pager.c do_screen_description() and lookat(). The generic list is
 // built in defsym.h order before lookat() refines an ambiguous map symbol.
+// C ref: pager.c is_swallow_sym().
 export function do_screen_description(cc, looked, sym, state = game) {
     // pager.c accepts both a screen glyph (`looked`) and a typed symbol.  The
     // latter uses the default defsym tables and has no location glyph to
@@ -2444,6 +2445,7 @@ export function helpMenuItems(state = game) {
 // C ref: pager.c hmenu_dowhatis() and dohelp() (2802-2805, 2860-2898).
 // Menu rows are filtered before creation, while each selected value remains
 // the original help_menu_items[] source index for post-menu dispatch.
+// C refs: pager.c hmenu_doextversion(), hmenu_doextlist().
 export async function dohelp(state = game) {
     const choice = await select_menu(state, {
         how: PICK_ONE,

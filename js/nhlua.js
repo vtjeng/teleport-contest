@@ -190,6 +190,9 @@ export async function nhl_gamestate(reststate, state = game) {
 
 // C ref: dat/nhlib.lua tutorial_enter(). It registers the tutorial's
 // cmd_before and end_turn callbacks, then saves state with nh.gamestate().
+// C ref: nhlua.c nhl_callback(), a Lua binding. The port runs the dat/*.lua
+// program as JavaScript, which calls the wrapped C function directly
+// (nh.callback() in nhlib.lua, whose remove form is in tutorial_leave()).
 async function tutorial_enter(state) {
     state.tutorialCallbacks = {
         cmd_before: true,
@@ -212,6 +215,12 @@ async function tutorial_leave(state) {
 // food under the hero, and each nh.pline(..., true) (nhlua.c nhl_pline())
 // is a pline followed by display_nhwindow(WIN_MESSAGE, TRUE). Returning true
 // removes the event.
+// C ref: nhlua.c nhl_push_anything(), a Lua binding. The port runs the
+// dat/*.lua program as JavaScript, which calls the wrapped C function directly
+// (the u fields nhl_meta_u_index() pushes through it are read from state.u).
+// C ref: nhlua.c nhl_meta_u_index(), a Lua binding. The port runs the
+// dat/*.lua program as JavaScript, which calls the wrapped C function directly
+// (reads of the u table read the hero's state).
 async function tutorial_turn(state) {
     const events = state.tutorial_events;
     if (!events?.hunger || !(state.u.uhunger < 148)) return;

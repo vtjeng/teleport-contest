@@ -1155,7 +1155,7 @@ function monsterPoisonGasSafe(monster, state) {
 
 // C ref: trap.c m_harmless_trap()'s SLP_GAS_TRAP, FIRE_TRAP and ANTI_MAGIC
 // arms: resists_sleep(), resists_fire() or resists_magm(), or an
-// artifact.c defended() against that damage type. A caller may replace it.
+// mondata.c defended() against that damage type. A caller may replace it.
 function trapResistance(monster, trap, env) {
     if (typeof env.resistsTrapEffect === 'function')
         return Boolean(env.resistsTrapEffect(monster, trap.ttyp, env));
@@ -1230,6 +1230,7 @@ export function m_harmless_trap(monster, trap, env = {}) {
     }
 }
 
+// C ref: worm.c worm_cross(), used by mfndpos and test_move.
 export function wormCross(x1, y1, x2, y2, state) {
     if (Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2)) !== 1
         || x1 === x2 || y1 === y2) {

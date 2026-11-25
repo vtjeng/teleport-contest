@@ -223,7 +223,8 @@ export function can_make_bones(state = game, rawEnv = {}) {
 //
 // C reads and writes binary level files through files.c open_bonesfile(),
 // create_bonesfile(), commit_bonesfile() and delete_bonesfile(). The port
-// keeps a JSON snapshot under the name files.js set_bonesfile_name() gives.
+// keeps a JSON snapshot under the name that files_bones.js
+// set_bonesfile_name() gives.
 
 // ── Bones helper functions ──
 
@@ -1210,6 +1211,7 @@ export async function getbones(state = game) {
 }
 
 // Restore a bones level from a serialized snapshot into the game state.
+// C refs: restore.c clear_id_mapping(), lookup_id_mapping().
 async function restoreBonesLevel(bonesData, state) {
     if (!bonesData?.locations) return;
 
@@ -1443,7 +1445,7 @@ async function restoreBonesLevel(bonesData, state) {
     // its monster loop.
     restdamage(bonesData.damage ?? [], level, state.moves - omoves);
 
-    // C restore.c rest_track() restores this after the level's other
+    // C track.c rest_track() restores this after the level's other
     // level-local structures and before ghostly arrival.  initrack() first
     // establishes the full zero-filled ring; rest_track() then overwrites
     // only the saved populated prefix.

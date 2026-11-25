@@ -130,6 +130,10 @@ async function selectionIterateRelative(selection, frame, callback) {
 
 // C ref: dat/nhlib.lua hell_tweaks(). The helper is kept here because every
 // Asmodeus-level call to it changes terrain, objects, and the RNG stream.
+// C ref: nhlua.c init_nhc_data(), a Lua binding. The port runs the dat/*.lua
+// program as JavaScript, which calls the wrapped C function directly (the one
+// reachable nhc read, nhlib.lua hell_tweaks() nhc.COLNO * nhc.ROWNO, is 80 *
+// 21 there).
 export async function hellTweaks(des, protectedArea, state, random = rn2) {
     const liquid = 'L';
     const ground = '.';

@@ -22,6 +22,7 @@ import { Blind, Deaf, Unaware } from './youprop.js';
 // C builds the prefix before vpline() formats the caller's variadic suffix.
 // JS callers pass the already-formatted suffix and deliver the resulting line
 // through their ordinary pline callback, preserving its wait/boundary order.
+// C ref: pline.c You_hear().
 export function youHear(line, state = game) {
     if ((Deaf(state.u) && !Unaware(state)) || !state.flags?.acoustics)
         return null;

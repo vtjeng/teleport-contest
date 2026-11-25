@@ -1,7 +1,7 @@
 // cfgfiles.js -- Configuration-file error reporting.
 // C refs: cfgfiles.c set_configfile_name(), get_configfile(),
-// config_error_init(), config_error_nextline(), config_erradd() and
-// config_error_done(); pline.c config_error_add().
+// config_error_init(), config_error_nextline(), config_erradd(),
+// config_error_done() and config_error_add().
 
 import { game } from './gstate.js';
 import {
@@ -362,6 +362,8 @@ export function matchesConfigName(name, canonical, minLength) {
 // between reading a line and handing a completed statement to its proc.  An
 // error the proc reports is stamped with the line and text the frame is
 // holding at that moment, and both move on the next physical line.
+// C ref: cfgfiles.c cnf_parser_init(), the parser state, which this generator
+// keeps in local variables.
 function* logicalConfigLines(rc, frame) {
     const input = encodeUtf8Text(rc);
     let buffered = null;

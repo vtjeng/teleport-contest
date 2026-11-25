@@ -363,6 +363,8 @@ export function glyph_find(id, state = game) {
     ));
 }
 
+// C refs: glyphs.c add_custom_nhcolor_entry(), find_matching_customization().
+// C ref: utf8map.c add_custom_urep_entry(), for the unicode bucket.
 function addDetail(bucket, name, glyph, value) {
     if (bucket.name === null) bucket.name = name;
     if (bucket.name === name) {
@@ -497,6 +499,10 @@ export function clear_all_glyphmap_unicode(state) {
 }
 
 /** glyphs.c apply_customizations(); reset_glyphmap itself preserves these. */
+// C ref: coloratt.c set_map_customcolor(): this function stores the custom
+// colour. The port keeps no color256idx, so closest_color() has no
+// counterpart.
+// C ref: utf8map.c set_map_u(), the UTF-8 glyph customisation.
 export function apply_customizations(
     whichSet,
     state,

@@ -590,7 +590,7 @@ function shrinkGlobCallback(arg, timeout, env) {
 }
 
 // C ref: timeout.c timeout_funcs[FIG_TRANSFORM]. Importing apply.js only when
-// the timer fires keeps its doapply.js -> timeout.js dependency acyclic.
+// the timer fires keeps its apply.js -> timeout.js dependency acyclic.
 async function figTransformCallback(arg, timeout, env) {
     const { fig_transform } = await import('./apply.js');
     const hooks = {
@@ -608,7 +608,7 @@ async function meltIceAwayCallback(arg, timeout, env) {
 }
 
 // The environment run_timers() hands a timeout function. dig.c rot_corpse()
-// reaches invent.c obfree() and mkobj.c remove_object(), which take their
+// reaches shk.c obfree() and mkobj.c remove_object(), which take their
 // integration seams under `hooks`, while nh_timeout()'s own callees take theirs
 // flat. Lift the one seam the table passes down rather than making either
 // convention follow the other.
@@ -1798,6 +1798,7 @@ export function spot_stop_timers(x, y, funcIndex, state = game) {
     }
 }
 
+// C ref: timeout.c remove_timer().
 export function stop_timer(funcIndex, arg, state = game, env = {}) {
     timerGlobals(state);
     // C assumes each (function, argument) pair is unique, so matching
@@ -1960,7 +1961,7 @@ export function obj_has_timer(obj, funcIndex, state = game) {
 //
 // light.c defines a *different* mon_is_local, the macro `(mon)->mx > 0` at
 // light.c:373. The two agree for every monster this port creates, because
-// dog.c relmon() zeroes mx as it moves a monster onto either list, but they
+// mon.c relmon() zeroes mx as it moves a monster onto either list, but they
 // are separate source definitions and js/light.js keeps its own.
 export function mon_is_local(monster, state = game) {
     for (let mtmp = state.gm?.migrating_mons; mtmp; mtmp = mtmp.nmon)

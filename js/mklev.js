@@ -449,7 +449,7 @@ async function getbones() {
     return delete_bonesfile(state.u.uz, state) ? ok : false;
 }
 
-// C ref: allmain.c l_nhcore_init()
+// C ref: nhlua.c l_nhcore_init()
 export function l_nhcore_init(state = game, random = rn2) {
     nhlL_newstate(state);
     const align = [A_LAWFUL, A_NEUTRAL, A_CHAOTIC];
@@ -596,6 +596,7 @@ function themerooms_post_level_generate(state = game) {
 }
 
 // C ref: mklev.c makelevel()
+// C ref: mklev.c makevtele(), inlined here as makeniche(TELEP_TRAP).
 async function makelevel(specialLevelLoader = null) {
     const g = game;
     // mklev.c:1414–1418: every generation branch reaches this room-fill
@@ -868,6 +869,9 @@ async function mk_knox_portal(x, y) {
 }
 
 // C ref: mklev.c makerooms()
+// C ref: nhlua.c nhl_level_difficulty(), a Lua binding. The port runs the
+// dat/*.lua program as JavaScript, which calls the wrapped C function directly
+// (nh.level_difficulty() in themerms.lua).
 async function makerooms() {
     const g = game;
     let tried_vault = false;
@@ -911,6 +915,9 @@ function is_themeroom_eligible(room, difficulty) {
 }
 
 // C ref: themerms.lua themerooms_generate().
+// C ref: nhlua.c nhl_rn2(), a Lua binding. The port runs the dat/*.lua program
+// as JavaScript, which calls the wrapped C function directly (nh.rn2() in
+// themerms.lua and other programs).
 export function select_themeroom(difficulty, random = rn2) {
     let pick = null;
     let total_frequency = 0;
@@ -2403,6 +2410,9 @@ function new_water_vault_escape_object(name, env) {
 }
 
 // C ref: themerms.lua "Water-surrounded vault" map callback.
+// C ref: nhlobj.c l_obj_add_to_container(), a Lua binding. The port runs the
+// dat/*.lua program as JavaScript, which calls the wrapped C function directly
+// (obj:addcontent() in themerms.lua).
 function water_surrounded_vault_contents(
     origin,
     context,
@@ -2702,6 +2712,7 @@ function do_room_or_subroom(croom, lowx, lowy, hix, hiy, lit, _rtype, special, i
 }
 
 // C ref: mklev.c sort_rooms()
+// C ref: mklev.c mkroom_cmp(), a stable sort on both sides (patch 002).
 export function sort_rooms() {
     const g = game;
     const n = g.level.nroom;
@@ -3447,6 +3458,7 @@ async function place_branch(branchp, x = 0, y = 0, frame = undefined) {
 // C ref: detect.c premap_detect() (2134-2159). Reveals the full map for
 // premapped levels (Sokoban). Called after fixup_special so branch stairs
 // are included.
+// C ref: detect.c skip_premap_detect().
 export function premap_detect(state) {
     for (let x = 1; x < COLNO; x++) {
         for (let y = 0; y < ROWNO; y++) {

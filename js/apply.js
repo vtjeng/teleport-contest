@@ -1224,6 +1224,7 @@ export function m_unleash(monster, feedback, rawEnv = {}) {
 
 // C ref: apply.c leashable() (761-766). The source reads mnum and the
 // monster's current data; newcham() calls this after installing its new form.
+// C ref: dogmove.c mnum_leashable().
 export function leashable(monster) {
     return monster?.mnum !== PM_LONG_WORM
         && !unsolid(monster?.data)

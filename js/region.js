@@ -954,6 +954,7 @@ export function valid_cloud_pos(x, y, state = game) {
     return ACCESSIBLE(terrain) || pool || lava;
 }
 
+// C ref: region.c is_hero_inside_gas_cloud().
 function heroInsideGasCloud(state) {
     return (state.level?.regions ?? []).some((region) => (
         region.hero_inside

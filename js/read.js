@@ -3211,6 +3211,7 @@ async function seffect_mail(scroll, state = game, env = {}) {
     }
 }
 
+// C ref: read.c seffect_blank_paper().
 export async function seffects(scroll, state = game, env = {}) {
     state.gk ??= {};
     const random = env.random ?? coreRandom;

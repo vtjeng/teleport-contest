@@ -3367,7 +3367,7 @@ export async function edibility_prompts(otmp, state = game, env = {}) {
 // The operations eat.c's own code reaches through globals. doeat() and
 // eatfood() both build this, so a meal behaves the same whether the turn came
 // from the command or from the occupation. Only statusRefresh differs, because
-// display.c bot() would close an import cycle with this file and arrives from
+// botl.c bot() would close an import cycle with this file and arrives from
 // the caller instead.
 function eatOperations(state, statusRefresh, message = ttyPline) {
     return {

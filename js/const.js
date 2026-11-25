@@ -2688,8 +2688,6 @@ export const decgraphics = [
     't',  // S_trwall (11) - T right
 ];
 
-// getSymbolChar: canonical version is pchar_sym() in drawing.js
-
 // def_char_to_objclass — moved to drawing.js (depends on MAXOCLASSES, def_oc_syms)
 
 // def_char_is_furniture: canonical version in drawing.js

@@ -864,6 +864,7 @@ export function wall_angle(loc) {
 // has_rogue_color. The symset's nocolor field is read only inside
 // has_rogue_color: a roguesymset that failed to load, or "default", leaves
 // it 0 through clear_symsetentry(), and the Rogue level is still colourless.
+// C ref: windows.c has_color(), the colour test.
 function mapColorEnabled(state) {
     return glyphmap_use_color(state)
         && !(isRogueLevelForState(state) && !hasRogueColor(state));
@@ -959,6 +960,13 @@ function withCmapAccessibility(glyph, cmap, customizationName) {
     );
 }
 
+// C ref: termcap.c graph_off(), the DECgraphics flag carried on each symbol.
+// C ref: termcap.c init_hilite(): for TERM=xterm-256color it sets
+// iflags.colorcount to 256 and every hilites[] entry, which the port assumes.
+// C ref: termcap.c term_end_color(), the colour of each cell.
+// C ref: wintty.c end_glyphout(): it turns off the DECgraphics flag and colour
+// after a glyph; the port carries both on each cell, so text written later is
+// never DEC or coloured.
 function glyphPresentation(symbol, color, state, customization = null) {
     // wintty.c tty_print_glyph() prints a glyph's gm.u sequence only while
     // SYMHANDLING(H_UTF8), the handling of gs.symset[gc.currentgraphics].
@@ -5552,19 +5560,8 @@ export function statusConditionActive(option, u) {
     case 'conf': return Boolean(Confusion(u));
     case 'deaf': return Deaf(u);
     // youprop.h:253's Flying counts a flying steed as carrying the hero, and
-    // botl.c:1194 reads the whole macro. No steed this port can reach flies,
-    // so the steed term is dormant; it is written out because the other five
-    // copies of the macro carry it too and one that did not would be a silent
-    // divergence the moment a steed does fly. Those five are hack.js
-    // heroIsFlying(), engrave.js heroFlying(), trap.js Flying(), steed.js
-    // Flying() and polyself.js Flying() -- one per C file that expands the
-    // macro. engrave.js spells the steed term `usteed?.data?.mflags1 & M1_FLY`
-    // rather than is_flyer(), so a grep for this line's spelling finds only
-    // four of the five. scripts/dismount-steed.test.mjs, "a flying steed
-    // carries the hero through every copy of Flying", pins this copy and three
-    // of the five against one flying steed; engrave.js's and steed.js's are
-    // module-private, reachable only through can_reach_floor() and
-    // mount_steed().
+    // botl.c:1194 reads the whole macro. js/youprop.js Flying() ports it,
+    // steed term included, for every caller.
     case 'fly':
         return Flying(u);
     case 'foodpois':
@@ -6443,6 +6440,8 @@ export function status_window_rows() {
 
 // `deliverCapacity` marks bot()'s pass, the one in which botl.c can send
 // BL_CAP to the window port (see _deliverStatusCapacity()).
+// C ref: botl.c stat_cap_indx(), the capacity index, which this function reads
+// from near_capacity().
 function statusLayouts({ deliverCapacity = false } = {}) {
     const count = status_window_rows();
     if (game.iflags?.status_updates === false) {
@@ -6773,6 +6772,10 @@ function statusPercentBanks(gb) {
 
 // C ref: botl.c status_initialize(). Full initialization owns the one-time
 // banks; reassessment only requests a fresh delivered pass and repaint.
+// C ref: windows.c genl_status_enablefield(): the store into
+// gb.status_hilite_enabled below.
+// C ref: wintty.c tty_status_enablefield(): the store into
+// gb.status_hilite_enabled below.
 export function status_initialize(state = game, reassessOnly = true) {
     state.disp ??= {};
     state.gu ??= {};

@@ -102,6 +102,10 @@ export function menuOverlay(state) {
     return state.iflags?.menu_overlay !== false;
 }
 
+// C ref: wintty.c tty_ctrl_nhwindow(): without TTY_PERM_INVENT only its
+// set_menu_promptstyle arm acts, storing menu_headings for end_menu() prompts;
+// menuTitleStyle() reads the same option, which every change relays
+// (allmain.c:728, options.c:5790, 9003-9004).
 export function menuTitleStyle(state = game) {
     const style = state.iflags?.menu_headings;
     return {
@@ -759,6 +763,8 @@ export function ttyMenuLayout(state, spec, pageIndex = 0) {
 // process_menu_window() produces when it turns a page. C turns a page inside
 // the window it already opened, so the base window it will repair on dismissal
 // is the one the first page covered; only the first render may measure it.
+// C ref: wintty.c toggle_menu_attr(): here the second writeStyledText() call
+// gives a line's styled part its attribute.
 export function renderTtyMenu(state = game, spec, pageIndex = 0,
     previous = null) {
     const display = state.nhDisplay;
@@ -1527,6 +1533,7 @@ function refreshVisibleSelections(state, rendered, changedItems = null) {
     }
 }
 
+// C ref: wintty.c toggle_menu_curr().
 function toggleItem(item, pendingCount = null) {
     if (item.selected) {
         if (pendingCount !== null && pendingCount > 0) {
@@ -1782,6 +1789,9 @@ async function selectAnyTtyMenu(state, spec) {
 // commit, and cancelValue (null by default) for Esc. PICK_NONE shares the
 // PICK_ONE loop, which refuses every selection and so always answers
 // cancelValue (or an empty array when returnSelections is requested).
+// C ref: wintty.c tty_start_menu(): without TTY_PERM_INVENT it only empties
+// the menu with tty_clear_nhwindow(); the port builds every menu from a new
+// item list.
 export async function selectTtyMenu(state = game, spec) {
     await emitQueuedNotices(state);
     // wintty.c tty_display_nhwindow() clears rawprint before the menu arm.
@@ -1982,6 +1992,8 @@ function setRoleFilterValue(filter, value) {
 
 // Apply a PICK_ANY result. null denotes cancellation; [] is an intentional
 // empty commit which clears the filter and resets all pending facets.
+// C ref: role.c clearrolefilter(), its RS_filter arm; js/options.js
+// clearRoleFilter() holds the other arms.
 export function applyRoleFilterSelection(state = game, selected) {
     if (!Array.isArray(selected)) return false;
     const filter = installRoleFilter(state);

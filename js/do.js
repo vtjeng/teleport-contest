@@ -2977,8 +2977,8 @@ export async function goto_level(
     vision_reset(state);
     // do.c:1838 reset_glyphmap(gm_levelchange) recomputes the glyph-to-symbol
     // table and its per-level Rogue flag. The port maps each glyph as it draws
-    // it rather than keeping the table; display.js reset_glyphmap() keeps the
-    // one input a rebuild fixes.
+    // it rather than keeping the table; display_glyphmap.js reset_glyphmap()
+    // keeps the one input a rebuild fixes.
     reset_glyphmap(state);
     notice_mon_off(state);
     // do.c:1837 calls docrt() alone. display.c docrt_flags() brackets the

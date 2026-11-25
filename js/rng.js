@@ -7,6 +7,9 @@ import { game } from './gstate.js';
 let _rngLog = [];
 let _rngLogEnabled = false;
 
+// C refs: rnd.c whichrng(), init_isaac64(), set_random(), init_random(), the
+// random-number set-up; this function seeds the generator as the patched build
+// does.
 export function initRng(seed) {
     game.currentSeed = seed;
     // Convert seed to 8 little-endian bytes
@@ -134,7 +137,7 @@ export function terminationViolations() {
 //
 // C prints every line where it is raised, and waits at its --More-- there.
 // Synchronous port code cannot wait, so a line it raises (display.c
-// show_glyph()'s mention_map notice, vision.c notice_all_mons(), pline.c
+// show_glyph()'s mention_map notice, hack.c notice_all_mons(), pline.c
 // impossible()) joins the notice queue (js/startup_a11y.js
 // queueNoticeLine()), which keeps the map and status rows of that moment and
 // prints over them at the next drain. That gives C's screens, and C's order,

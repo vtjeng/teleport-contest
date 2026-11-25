@@ -96,6 +96,11 @@ function punctuatedBuildOptions() {
 
 // C ref: mdlib.c build_options(). Blank entries are retained because
 // version.c uses the following outdented header to insert each separator.
+// C ref: hacklib.c datamodel(), which computes a build constant; js/mdlib.js
+// holds the recorder's value.
+// C refs: mdlib.c count_and_validate_winopts(),
+// count_and_validate_soundlibopts(), which compute build constants; this
+// function holds the recorder's values.
 export function build_options() {
     return [
         '',

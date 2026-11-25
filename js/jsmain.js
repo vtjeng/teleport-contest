@@ -149,6 +149,7 @@ const RECORDER_SYSTEM_OPTIONS = Object.freeze({
 // calls.
 const RECORDER_ACCOUNT = 'root';
 
+// C refs: end.c wordcount(), bel_copy1(), build_english_list().
 function buildEnglishList(value) {
     const words = String(value).trim().split(/\s+/u).filter(Boolean);
     if (words.length < 2) return words[0] ?? '';
@@ -163,6 +164,9 @@ function buildEnglishList(value) {
 // exercises the denied branch, and passing '' stands for check_user_string()
 // finding an empty pw_name (unixmain.c:709), which it rejects before scanning
 // the option string.
+// C refs: cfgfiles.c cnf_line_EXPLORERS(), cnf_line_GENERICUSERS(), a sysconf
+// statement that the recorder's fixed sysconf sets; RECORDER_SYSTEM_OPTIONS in
+// js/jsmain.js holds the result.
 export function set_playmode(state = game, { loginName } = {}) {
     const flags = state.flags ??= {};
     const iflags = state.iflags ??= {};
@@ -504,7 +508,8 @@ export class NethackGame {
         // cancelled the count of a counted first command) and turns into NaN
         // under `++` (spell.c's chain lightning raises forcefight around
         // wakeup()). A restored game replaces this object with the saved one
-        // in restore.js restgamestate(), which the same factory created.
+        // in js/restore.js dorestore()'s port of restore.c restgamestate(),
+        // which the same factory created.
         // scripts/svc-context-state.test.mjs fails when js/ names a context
         // field the header does not declare or replaces a struct with a
         // partial object.

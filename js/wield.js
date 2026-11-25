@@ -749,7 +749,7 @@ async function quiver_ynq(query, state) {
     return ynq(query, state);
 }
 
-// C ref: wield.c Shk_Your(). The ordinary carried-object owner prefix is
+// C ref: shk.c Shk_Your(). The ordinary carried-object owner prefix is
 // already source-backed by shk.js; capitalize it exactly as Shk_Your does.
 async function shk_your_prefix(obj, state) {
     const { shk_your } = await import('./shk.js');

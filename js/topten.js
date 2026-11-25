@@ -148,6 +148,7 @@ export function observable_depth(lev, state = game) {
 // C ref: topten.c:219-298 readentry(). Parses one record line in the format
 // produced by writeentry(). Returns a populated toptenentry or one with
 // points == 0 on failure.
+// C ref: topten.c discardexcess(), the record-line parsing.
 function readentry(line) {
     const tt = newttentry();
     if (!line) return tt;
