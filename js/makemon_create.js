@@ -595,8 +595,7 @@ export function creationEnv(env = {}) {
 }
 
 // Copies: dungeon.h Is_rogue_level() is also ported as const.js
-// Is_rogue_level() and mkobj.js isRogueLevel(). A change to it must reach every
-// copy.
+// Is_rogue_level(). A change to it must reach every copy.
 export function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);
 }

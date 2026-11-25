@@ -96,7 +96,7 @@ import { isok } from './cmd_isok.js';
 // inside function bodies, so the cycle resolves.
 import { get_mtraits } from './corpstat.js';
 import { Mgender, mon_pmname, noveltitle, pmname, x_monnam } from './do_name.js';
-import { depth, level_difficulty, on_level } from './dungeon.js';
+import { depth, level_difficulty } from './dungeon.js';
 // shrink_glob() and shrinking_glob_gone() use stop_occupation(). allmain.js
 // imports from this file; both sides use the other's exports only inside
 // function bodies.
@@ -408,6 +408,7 @@ import {
 import { dungeon_at } from './dungeon_table.js';
 import { sync_impossible } from './source_steps.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
+import { isRogueLevel } from './makemon_create.js';
 
 export const SPBOOK_NO_NOVEL = -SPBOOK_CLASS;
 
@@ -1832,13 +1833,6 @@ function isInitialInventoryPhase(state) {
 function inQuest(state) {
     const dnum = state.u?.uz?.dnum;
     return Number.isInteger(dnum) && dnum === state.quest_dnum;
-}
-
-// Copies: dungeon.h Is_rogue_level() is also ported as const.js
-// Is_rogue_level() and makemon_create.js isRogueLevel(). A change to it must
-// reach every copy.
-function isRogueLevel(state) {
-    return on_level(state.u?.uz, state.rogue_level);
 }
 
 function inHell(state) {

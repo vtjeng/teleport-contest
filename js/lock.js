@@ -683,8 +683,6 @@ export function autokey(opening, state = game) {
 }
 
 // rm.h's doormask is struct rm's `flags`.
-// Copies: rm.h doormask (struct rm flags) is also ported as dogmove.js
-// doorMask(). A change to it must reach every copy.
 export function doorMask(location) {
     return location?.flags ?? 0;
 }

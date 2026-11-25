@@ -9,8 +9,6 @@ import {
     COLNO,
     DB_LAVA,
     DB_MOAT,
-    DB_UNDER,
-    DRAWBRIDGE_UP,
     DRY,
     HOT,
     IS_OBSTRUCTED,
@@ -40,6 +38,7 @@ import { sobj_at } from './invent.js';
 import { BOULDER } from './objects.js';
 import { rn1, rn2 } from './rng.js';
 import { sync_impossible } from './source_steps.js';
+import { raisedDrawbridgeOver } from './mktrap.js';
 
 function coordinateEnvironment(rawEnv = {}) {
     return {
@@ -119,14 +118,6 @@ export function somexy(croom, c, rawEnv = {}) {
         break;
     }
     return tryCnt < 100;
-}
-
-// Copies: the DRAWBRIDGE_UP arm of dbridge.c is_pool() and is_lava() is also
-// ported as mktrap.js raisedDrawbridgeOver(). A change to it must reach every
-// copy.
-function raisedDrawbridgeOver(location, terrain) {
-    return location.typ === DRAWBRIDGE_UP
-        && ((location.flags ?? 0) & DB_UNDER) === terrain;
 }
 
 function isPoolAt(x, y, state) {

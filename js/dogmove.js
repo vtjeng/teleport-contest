@@ -218,6 +218,7 @@ import {
 import { m_in_out_region } from './region.js';
 import { mon_reflects } from './muse.js';
 import { mon_wield_item } from './weapon.js';
+import { doorMask } from './lock.js';
 
 const FARAWAY = COLNO + 2;
 
@@ -236,12 +237,6 @@ const TARGET_DIRECTIONS = Object.freeze([
     [-1, 0], [1, 0],
     [-1, 1], [0, 1], [1, 1],
 ]);
-
-// Copies: rm.h doormask (struct rm flags) is also ported as lock.js
-// doorMask(). A change to it must reach every copy.
-function doorMask(location) {
-    return location?.flags ?? 0;
-}
 
 function cannotFetch(obj, state) {
     return obj.oclass === BALL_CLASS
