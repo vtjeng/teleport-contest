@@ -293,7 +293,7 @@ test('inventory resistance mapping matches its complete C source', () => {
     }
     assert.match(jsConstants, /export const W_RING = W_RINGL \| W_RINGR;/u);
     assert.match(jsConstants, /export const W_ACCESSORY = W_RING \| W_AMUL \| W_TOOL;/u);
-    assert.match(jsObjects, /export const DWARVISH_CLOAK = \d+;/u);
+    assert.match(jsObjects, /^export const DWARVISH_CLOAK = /mu);
 
     const cMapStart = cSource.indexOf('\nadtyp_to_prop(int dmgtyp)\n{');
     const cProtectionStart = cSource.indexOf(

@@ -347,21 +347,101 @@ main(void)
 }
 `;
 
+// The generated file names every index rather than writing its number, so
+// that inserting one monster or monster class into the C headers changes only
+// the lines next to it: each PM_* and S_* constant is its predecessor plus
+// one, the counts that follow the last monster are written as C writes them
+// in permonst.h, and the rows name their pmidx, mlet, aatyp and adtyp. msound
+// stays a number because js/monsters.js declares only six MS_* names; the C
+// enum numbers every member explicitly.
+
+// permonst.h's enum monnums members that follow the monster list, in an order
+// that declares each name before it is read. The generator checks each
+// expression against the value C printed.
+const DERIVED_ENUMS = (lastMonster) => [
+    ['NUMMONS', `${lastMonster} + 1`],
+    ['HIGH_PM', 'NUMMONS - 1'],
+    ['SPECIAL_PM', 'PM_LONG_WORM_TAIL'],
+];
+
+// `export const` lines for a run of [name, value] pairs, each written as its
+// predecessor plus one where C's values are consecutive.
+function chainLines(entries) {
+    return entries.map(([name, value], index) => {
+        const previous = entries[index - 1];
+        return previous && value === previous[1] + 1
+            ? `export const ${name} = ${previous[0]} + 1;`
+            : `export const ${name} = ${value};`;
+    });
+}
+
+// The value of `expression`, an arithmetic expression over `values`' names.
+function evaluate(expression, values) {
+    return Function(...Object.keys(values), `return (${expression});`)(...Object.values(values));
+}
+
+// A map from value to the one name among `names` that has it.
+function namesByValue(enums, names) {
+    const byValue = new Map();
+    for (const name of names) {
+        const value = enums[name];
+        if (byValue.has(value))
+            throw new Error(`${byValue.get(value)} and ${name} share the value ${value}`);
+        byValue.set(value, name);
+    }
+    return byValue;
+}
+
+// The row text for `value`: its name from `byValue`, or the number when no
+// name has it (the terminator row's mlet 0, for example).
+const named = (byValue, value) => byValue.get(value) ?? JSON.stringify(value);
+
 function formatModule(catalog) {
-    const enumLines = Object.entries(catalog.enums)
-        .map(([name, value]) => `export const ${name} = ${value};`)
-        .join('\n');
+    const { enums } = catalog;
+    const names = Object.keys(enums);
+    const classNames = catalog.classes.map((entry) => entry.name);
+    const monsterNames = names.filter((name) => name.startsWith('PM_'));
+    const derived = DERIVED_ENUMS(monsterNames.at(-1));
+    const derivedNames = new Set(derived.map(([name]) => name));
+    for (const [name, expression] of derived) {
+        if (evaluate(expression, enums) !== enums[name])
+            throw new Error(`${name} = ${expression} does not give C's value ${enums[name]}`);
+    }
+    const sequential = new Set([...classNames, ...monsterNames]);
+    const enumLines = [
+        ...names
+            .filter((name) => !derivedNames.has(name) && !sequential.has(name))
+            .map((name) => `export const ${name} = ${enums[name]};`),
+        ...chainLines(classNames.map((name) => [name, enums[name]])),
+        ...chainLines(monsterNames.map((name) => [name, enums[name]])),
+        ...derived.map(([name, expression]) => `export const ${name} = ${expression};`),
+    ].join('\n');
+    const classByValue = namesByValue(enums, classNames);
+    const monsterByValue = namesByValue(enums, [...monsterNames, 'NON_PM']);
+    const attackByValue = namesByValue(enums, names.filter((name) => name.startsWith('AT_')));
+    const damageByValue = namesByValue(enums, names.filter((name) => name.startsWith('AD_')));
     const classes = catalog.classes
-        .map((entry) => `    Object.freeze(${JSON.stringify(entry)}),`)
+        .map(({ index, ...entry }) => `    Object.freeze({"index":${named(classByValue, index)},${
+            JSON.stringify(entry).slice(1)}),`)
         .join('\n');
+    const rowValue = (key, value) => {
+        if (key === 'pmidx') return named(monsterByValue, value);
+        if (key === 'mlet') return named(classByValue, value);
+        return JSON.stringify(value);
+    };
     const monsters = catalog.monsters
-        .map((monster) => {
+        .map((monster, index) => {
+            const expectedIndex = index === catalog.numMonsters ? enums.NON_PM : index;
+            if (monster.pmidx !== expectedIndex)
+                throw new Error(`mons[${index}].pmidx is ${monster.pmidx}, not ${expectedIndex}`);
             const attacks = monster.mattk
-                .map((attack) => `Object.freeze(${JSON.stringify(attack)})`)
+                .map((attack) => `Object.freeze({"aatyp":${named(attackByValue, attack.aatyp)},`
+                    + `"adtyp":${named(damageByValue, attack.adtyp)},`
+                    + `"damn":${attack.damn},"damd":${attack.damd}})`)
                 .join(',');
             return `    Object.freeze({${Object.entries(monster)
                 .filter(([key]) => key !== 'pmnames' && key !== 'mattk')
-                .map(([key, value]) => `${JSON.stringify(key)}:${JSON.stringify(value)}`)
+                .map(([key, value]) => `${JSON.stringify(key)}:${rowValue(key, value)}`)
                 .join(',')},"pmnames":Object.freeze(${JSON.stringify(monster.pmnames)}),"mattk":Object.freeze([${attacks}])}),`;
         })
         .join('\n');
