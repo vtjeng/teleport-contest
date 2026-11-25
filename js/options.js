@@ -3,6 +3,7 @@
 // nmcpy(); hacklib.c mungspaces(); bones.c sanitize_name(); role.c str2*().
 
 import {
+    MAXVALWIDTH,
     ANY_INT, ANY_LONG, ANY_STR,
     ALIGN_BOTTOM,
     ALIGN_LEFT,
@@ -299,21 +300,21 @@ const SET_WIZNOFUZ = 6; // global.h enum optset_restrictions
 // global.h:option_phases.  These are separate from set_in_* restrictions:
 // roleoptvals records the source that supplied each role-selection value.
 const PHASE_NOT_SET = 0;
-const BUILTIN_OPT = 1;
-const SYSCF_OPT = 2;
-const RC_FILE_OPT = 3;
-const ENVIRON_OPT = 4;
-const CMDLINE_OPT = 5;
-const PLAY_OPT = 6;
-const NUM_OPT_PHASES = 7;
+const BUILTIN_OPT = PHASE_NOT_SET + 1;
+const SYSCF_OPT = BUILTIN_OPT + 1;
+const RC_FILE_OPT = SYSCF_OPT + 1;
+const ENVIRON_OPT = RC_FILE_OPT + 1;
+const CMDLINE_OPT = ENVIRON_OPT + 1;
+const PLAY_OPT = CMDLINE_OPT + 1;
+const NUM_OPT_PHASES = PLAY_OPT + 1;
 
 // options.c's request values are local enum constants.  Keeping them here
 // makes the small handlers below mirror their C request switch explicitly.
 const DO_INIT = 1;
-const DO_SET = 2;
-const DO_HANDLER = 3;
-const GET_VAL = 4;
-const GET_CNF_VAL = 5;
+const DO_SET = DO_INIT + 1;
+const DO_HANDLER = DO_SET + 1;
+const GET_VAL = DO_HANDLER + 1;
+const GET_CNF_VAL = GET_VAL + 1;
 
 // C ref: options.c:allopt[] and determine_ambiguities().  Matching is
 // case-insensitive, so the generated catalog is folded once here.  The full
@@ -815,12 +816,16 @@ function trimspacesIgnoredReturn(value) {
     return /^[ \t]*$/u.test(text) ? text : trimspacesTrailing(text);
 }
 
+// Copies: hacklib.c trimspaces() is also ported as hacklib.js trimspaces(). A
+// change to it must reach every copy.
 function trimspaces(value) {
     return trimspacesTrailing(value).replace(/^[ \t]+/u, '');
 }
 
 // C ref: hacklib.c:mungspaces().  Configuration statements other than
 // OPTIONS are dispatched from a copy normalized this way.
+// Copies: hacklib.c mungspaces() is also ported as hacklib.js mungspaces()
+// and fruit.js mungspaces(). A change to it must reach every copy.
 function mungspaces(value) {
     let normalized = '';
     let wasSpace = true;
@@ -1947,6 +1952,8 @@ const STATUS_HILITE_ATTRIBUTES = new Map([
 // of up to BUFSZ/2 bytes, so a value can exceed it while holding fewer than
 // fifty characters.  Cutting the UTF-8 encoding reproduces C's split of a
 // multi-byte character as well as its length.
+// Copies: coloratt.c match_str2attr() is also ported as coloratt.js
+// match_str2attr(). A change to it must reach every copy.
 function match_str2attr(result, str, complain) {
     const attr = sourceMatchStr2attr(str);
     if (attr === null && complain) {
@@ -1966,6 +1973,8 @@ function match_str2attr(result, str, complain) {
 //
 // C splits at the first '&' alone, so "red&bold&underline" asks
 // match_str2attr() about "bold&underline" rather than counting three parts.
+// Copies: coloratt.c color_attr_parse_str() is also ported as coloratt.js
+// color_attr_parse_str(). A change to it must reach every copy.
 function color_attr_parse_str(result, str) {
     return sourceColorAttrParseStr(str, message => configErrorAdd(result, message));
 }
@@ -2125,7 +2134,6 @@ const STATUS_CONDITION_ALIASES = Object.freeze({
 // hilite_status statement can hold; botl.h's MAXVALWIDTH, the fixed storage
 // for a text-match threshold; and splitsubfields()'s MAX_SUBFIELDS.
 const MAX_THRESH = 21;
-const MAXVALWIDTH = 80;
 const MAX_SUBFIELDS = 16;
 
 // C ref: botl.c fldname_to_bl_indx() (2219-2253).  Null is its BL_FLUSH, the
@@ -2197,6 +2205,8 @@ function splitsubfields(str, maxsf = 0) {
 // This supplies the configuration report and turns its null back into C's
 // "none of the above" CLR_MAX, which every caller rejects a second time by
 // comparing against CLR_MAX.
+// Copies: coloratt.c match_str2clr() is also ported as coloratt.js
+// match_str2clr(). A change to it must reach every copy.
 function match_str2clr(result, str, suppress_msg) {
     return colorattMatchStr2clr(
         str, suppress_msg, (message) => configErrorAdd(result, message),
@@ -3350,6 +3360,8 @@ function bindingSeparator(bindings) {
 //    cmd.c dotoggleoption() (1376-1384) is the field's only reader, through
 //    the gc.cmd_bind that rhack() sets; `parameter` below is computed for the
 //    diagnostics only.
+// Copies: cmd.c bind_key() is also ported as cmd.js bind_key(). A change to
+// it must reach every copy.
 function bind_key(result, command) {
     if (lcase(command) === 'nothing') return true;
     // C truncates its copy at the '(' and points p past it only when a ')'
@@ -3475,6 +3487,8 @@ function applyMenuBinding(result, binding) {
 // comma, and always leaves room for the terminating NUL. The player name
 // handler below stores its result in `name` during startup and `plname` in a
 // live game; both are the same C svp.plname value.
+// Copies: options.c nmcpy() is also ported as fruit.js nmcpy(). A change to
+// it must reach every copy.
 function nmcpy(value, maxlen) {
     const bytes = textBytes(value);
     const copied = [];
@@ -5716,10 +5730,10 @@ function pfxfn_cond_(target, negated, opts, result = null) {
 // wc_set_font_name() and pfxfn_font() exchange one of these rather than a
 // field name.
 const MESSAGE_OPTION = 1;
-const STATUS_OPTION = 2;
-const MAP_OPTION = 3;
-const MENU_OPTION = 4;
-const TEXT_OPTION = 5;
+const STATUS_OPTION = MESSAGE_OPTION + 1;
+const MAP_OPTION = STATUS_OPTION + 1;
+const MENU_OPTION = MAP_OPTION + 1;
+const TEXT_OPTION = MENU_OPTION + 1;
 
 // C ref: options.c wc_set_font_name().  JavaScript strings already own their
 // contents, so assigning the value supplies dupstr()'s independent lifetime.

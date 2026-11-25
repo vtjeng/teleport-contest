@@ -165,6 +165,9 @@ import {
 } from './monst.js';
 import { place_worm_tail_randomly_async, remove_worm } from './worm.js';
 import {
+    M1_NOEYES,
+    M1_WALLWALK,
+    M2_ROCKTHROW,
     G_UNIQ,
     M1_AMORPHOUS,
     M1_SWIM,
@@ -249,12 +252,6 @@ import {
     Teleportation, Wwalking,
 } from './youprop.js';
 import { dungeon_at } from './dungeon_table.js';
-
-// These generated-monster masks are source data which monsters.js does not
-// currently export. Keep their names and values traceable to monflag.h.
-const M1_WALLWALK = 0x00000008;
-const M1_NOEYES = 0x00001000;
-const M2_ROCKTHROW = 0x08000000;
 
 function teleportEnv(env = {}) {
     const random = env.random ?? coreRandom;
@@ -840,6 +837,9 @@ export async function mlevel_tele_trap(
     return 'moved';
 }
 
+// Copies: dungeon.h In_endgame() is also ported as const.js In_endgame(),
+// makemon.js inEndgame() and monmove.js inEndgame(). A change to it must
+// reach every copy.
 function inEndgame(state) {
     const uz = state.u?.uz;
     return Boolean(uz && state.astral_level

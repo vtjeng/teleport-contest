@@ -115,9 +115,27 @@ import { use_crystal_ball } from './detect.js';
 import { inside_shop } from './shk.js';
 import { getrumor } from './random_text.js';
 import { impossible, verbalize, youFeel } from './pline.js';
-import { bcsign } from './obj.js';
+import { isContainer as Is_container, bcsign } from './obj.js';
 import { HCOLORS } from './random_text_data.js';
 import {
+    AD_ACID,
+    AD_BLND,
+    AD_COLD,
+    AD_DISE,
+    AD_DISN,
+    AD_DRLI,
+    AD_DRST,
+    AD_ELEC,
+    AD_FIRE,
+    AD_HALU,
+    AD_MAGM,
+    AD_PHYS,
+    AD_PLYS,
+    AD_SLEE,
+    AD_SLOW,
+    AD_STON,
+    AD_STUN,
+    AD_WERE,
     AT_MAGC,
     M2_DEMON,
     M2_ELF,
@@ -156,7 +174,6 @@ import {
     AMULET_OF_ESP,
     ARROW,
     ATHAME,
-    BAG_OF_TRICKS,
     BATTLE_AXE,
     BELL_OF_OPENING,
     BLACK_DRAGON_SCALES,
@@ -176,7 +193,6 @@ import {
     GREEN_DRAGON_SCALES,
     HELM_OF_BRILLIANCE,
     KATANA,
-    LARGE_BOX,
     LEASH,
     LENSES,
     LONG_SWORD,
@@ -366,60 +382,42 @@ export const SNOWSTORM = FIRESTORM + 1;
 export const BLINDING_RAY = SNOWSTORM + 1;
 
 export const ART_NONARTIFACT = 0;
-export const ART_EXCALIBUR = 1;
-export const ART_STORMBRINGER = 2;
-export const ART_MJOLLNIR = 3;
-export const ART_CLEAVER = 4;
-export const ART_GRIMTOOTH = 5;
-export const ART_ORCRIST = 6;
-export const ART_STING = 7;
-export const ART_MAGICBANE = 8;
-export const ART_FROST_BRAND = 9;
-export const ART_FIRE_BRAND = 10;
-export const ART_DRAGONBANE = 11;
-export const ART_DEMONBANE = 12;
-export const ART_WEREBANE = 13;
-export const ART_GRAYSWANDIR = 14;
-export const ART_GIANTSLAYER = 15;
-export const ART_OGRESMASHER = 16;
-export const ART_TROLLSBANE = 17;
-export const ART_VORPAL_BLADE = 18;
-export const ART_SNICKERSNEE = 19;
-export const ART_SUNSWORD = 20;
-export const ART_ORB_OF_DETECTION = 21;
-export const ART_HEART_OF_AHRIMAN = 22;
-export const ART_SCEPTRE_OF_MIGHT = 23;
-export const ART_STAFF_OF_AESCULAPIUS = 24;
-export const ART_MAGIC_MIRROR_OF_MERLIN = 25;
-export const ART_EYES_OF_THE_OVERWORLD = 26;
-export const ART_MITRE_OF_HOLINESS = 27;
-export const ART_LONGBOW_OF_DIANA = 28;
-export const ART_MASTER_KEY_OF_THIEVERY = 29;
-export const ART_TSURUGI_OF_MURAMASA = 30;
-export const ART_YENDORIAN_EXPRESS_CARD = 31;
-export const ART_ORB_OF_FATE = 32;
-export const ART_EYE_OF_THE_AETHIOPICA = 33;
-export const AFTER_LAST_ARTIFACT = 34;
+export const ART_EXCALIBUR = ART_NONARTIFACT + 1;
+export const ART_STORMBRINGER = ART_EXCALIBUR + 1;
+export const ART_MJOLLNIR = ART_STORMBRINGER + 1;
+export const ART_CLEAVER = ART_MJOLLNIR + 1;
+export const ART_GRIMTOOTH = ART_CLEAVER + 1;
+export const ART_ORCRIST = ART_GRIMTOOTH + 1;
+export const ART_STING = ART_ORCRIST + 1;
+export const ART_MAGICBANE = ART_STING + 1;
+export const ART_FROST_BRAND = ART_MAGICBANE + 1;
+export const ART_FIRE_BRAND = ART_FROST_BRAND + 1;
+export const ART_DRAGONBANE = ART_FIRE_BRAND + 1;
+export const ART_DEMONBANE = ART_DRAGONBANE + 1;
+export const ART_WEREBANE = ART_DEMONBANE + 1;
+export const ART_GRAYSWANDIR = ART_WEREBANE + 1;
+export const ART_GIANTSLAYER = ART_GRAYSWANDIR + 1;
+export const ART_OGRESMASHER = ART_GIANTSLAYER + 1;
+export const ART_TROLLSBANE = ART_OGRESMASHER + 1;
+export const ART_VORPAL_BLADE = ART_TROLLSBANE + 1;
+export const ART_SNICKERSNEE = ART_VORPAL_BLADE + 1;
+export const ART_SUNSWORD = ART_SNICKERSNEE + 1;
+export const ART_ORB_OF_DETECTION = ART_SUNSWORD + 1;
+export const ART_HEART_OF_AHRIMAN = ART_ORB_OF_DETECTION + 1;
+export const ART_SCEPTRE_OF_MIGHT = ART_HEART_OF_AHRIMAN + 1;
+export const ART_STAFF_OF_AESCULAPIUS = ART_SCEPTRE_OF_MIGHT + 1;
+export const ART_MAGIC_MIRROR_OF_MERLIN = ART_STAFF_OF_AESCULAPIUS + 1;
+export const ART_EYES_OF_THE_OVERWORLD = ART_MAGIC_MIRROR_OF_MERLIN + 1;
+export const ART_MITRE_OF_HOLINESS = ART_EYES_OF_THE_OVERWORLD + 1;
+export const ART_LONGBOW_OF_DIANA = ART_MITRE_OF_HOLINESS + 1;
+export const ART_MASTER_KEY_OF_THIEVERY = ART_LONGBOW_OF_DIANA + 1;
+export const ART_TSURUGI_OF_MURAMASA = ART_MASTER_KEY_OF_THIEVERY + 1;
+export const ART_YENDORIAN_EXPRESS_CARD = ART_TSURUGI_OF_MURAMASA + 1;
+export const ART_ORB_OF_FATE = ART_YENDORIAN_EXPRESS_CARD + 1;
+export const ART_EYE_OF_THE_AETHIOPICA = ART_ORB_OF_FATE + 1;
+export const AFTER_LAST_ARTIFACT = ART_EYE_OF_THE_AETHIOPICA + 1;
 export const NROFARTIFACTS = AFTER_LAST_ARTIFACT - 1;
 
-const AD_PHYS = 0;
-const AD_MAGM = 1;
-const AD_FIRE = 2;
-const AD_COLD = 3;
-const AD_SLEE = 4;
-const AD_DISN = 5;
-const AD_ELEC = 6;
-const AD_DRST = 7;
-const AD_ACID = 8;
-const AD_BLND = 11;
-const AD_STUN = 12;
-const AD_SLOW = 13;
-const AD_PLYS = 14;
-const AD_DRLI = 15;
-const AD_STON = 18;
-const AD_WERE = 29;
-const AD_DISE = 33;
-const AD_HALU = 36;
 
 const NO_ATTK = Object.freeze({ aatyp: 0, adtyp: 0, damn: 0, damd: 0 });
 
@@ -950,6 +948,8 @@ function artifactTables(value) {
 }
 
 /** Port of artifact.c:artiname(). */
+// Copies: artifact.c artiname() is also ported as questpgr.js artiname(). A
+// change to it must reach every copy.
 export function artiname(artinum, state = game) {
     const normalized = artifactTables(state);
     if (artinum <= ART_NONARTIFACT || artinum > NROFARTIFACTS)
@@ -2931,6 +2931,8 @@ export function glow_color(arti_indx, state = game) {
 const hcolors = HCOLORS;
 
 // C ref: do_name.c hcolor() (1460-1466).
+// Copies: do_name.c hcolor() is also ported as do_name.js hcolor(). A change
+// to it must reach every copy.
 export function hcolor(colorpref, state) {
     const halluc = Hallucination(state.u);
     return (halluc || !colorpref)
@@ -3104,11 +3106,6 @@ export async function retouch_object(objp, loseit, state = game, rawEnv = {}) {
         objp.obj = obj = null; /* no longer in inventory */
     }
     return 0;
-}
-
-// obj.h:337 Is_container(o): object type is between LARGE_BOX and BAG_OF_TRICKS.
-function Is_container(obj) {
-    return obj.otyp >= LARGE_BOX && obj.otyp <= BAG_OF_TRICKS;
 }
 
 // C ref: artifact.c untouchable() (2598-2637). Test one worn/wielded item or

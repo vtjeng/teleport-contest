@@ -123,6 +123,9 @@ function levelTrapEnv(env = {}) {
     };
 }
 
+// Copies: the DRAWBRIDGE_UP arm of dbridge.c is_pool() and is_lava() is also
+// ported as room_coordinates.js raisedDrawbridgeOver(). A change to it must
+// reach every copy.
 function raisedDrawbridgeOver(location, terrain) {
     return location.typ === DRAWBRIDGE_UP
         && ((location.flags ?? 0) & DB_UNDER) === terrain;
@@ -250,6 +253,8 @@ function protectedFromBreakage(obj, state) {
 // C ref: zap.c obj_resists() and dothrow.c breaktest(). This is reached only
 // for possessions scattered by an exploded land mine, but its resistance draw
 // remains part of mktrap_victim()'s observable PRNG order.
+// Copies: dothrow.c breaktest() is also ported as dothrow.js breaktest(). A
+// change to it must reach every copy.
 function breaktest(obj, env) {
     const { random, state } = env;
     const type = state.objects[obj.otyp];

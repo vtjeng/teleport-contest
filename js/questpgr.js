@@ -5,6 +5,7 @@
 // is_quest_artifact().
 
 import {
+    BUFSZ,
     A_CHAOTIC,
     A_LAWFUL,
     A_ORIGINAL,
@@ -115,6 +116,8 @@ function align_gtitle(alignment, state) {
 }
 
 // C ref: artifacts.c artiname().
+// Copies: artifact.c artiname() is also ported as artifacts.js artiname(). A
+// change to it must reach every copy.
 function artiname(state) {
     // Import avoided to prevent circular dependency; use the artifact
     // list directly if available.
@@ -341,9 +344,6 @@ async function deliverByWindow(text, state, output) {
     }));
     await output.window(state, converted);
 }
-
-// C ref: global.h BUFSZ.
-const BUFSZ = 256;
 
 // C ref: questpgr.c:10.
 const QTEXT_FILE = 'quest.lua';

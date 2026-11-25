@@ -216,15 +216,103 @@ main(void)
 }
 `;
 
+// The generated file names every index rather than writing its number, so
+// that inserting one object or object class into the C headers changes only
+// the lines next to it: each object and class constant is its predecessor
+// plus one, the markers are written as objects.h and objclass.h define them,
+// and the rows name their oc_class and oc_material.
+
+// The objects.h MARKER() and objclass.h enum members that the exporter
+// prints, in an order that declares each name before it is read. The
+// generator checks each expression against the value C printed.
+const DERIVED_ENUMS = (lastObject) => [
+    ['LAST_GENERIC', 'GENERIC_VENOM'],
+    ['FIRST_OBJECT', 'LAST_GENERIC + 1'],
+    ['OBJCLASS_HACK', 'FIRST_OBJECT - 1'],
+    ['FIRST_AMULET', 'AMULET_OF_ESP'],
+    ['LAST_AMULET', 'AMULET_OF_YENDOR'],
+    ['FIRST_SPELL', 'SPE_DIG'],
+    ['LAST_SPELL', 'SPE_BLANK_PAPER'],
+    ['MAXSPELL', '(LAST_SPELL - FIRST_SPELL + 1)'],
+    ['FIRST_REAL_GEM', 'DILITHIUM_CRYSTAL'],
+    ['LAST_REAL_GEM', 'JADE'],
+    ['FIRST_GLASS_GEM', 'WORTHLESS_WHITE_GLASS'],
+    ['LAST_GLASS_GEM', 'WORTHLESS_VIOLET_GLASS'],
+    ['NUM_REAL_GEMS', '(LAST_REAL_GEM - FIRST_REAL_GEM + 1)'],
+    ['NUM_GLASS_GEMS', '(LAST_GLASS_GEM - FIRST_GLASS_GEM + 1)'],
+    ['NUM_OBJECTS', `${lastObject} + 1`],
+];
+
+// `export const` lines for a run of [name, value] pairs, each written as its
+// predecessor plus one where C's values are consecutive.
+function chainLines(entries) {
+    return entries.map(([name, value], index) => {
+        const previous = entries[index - 1];
+        return previous && value === previous[1] + 1
+            ? `export const ${name} = ${previous[0]} + 1;`
+            : `export const ${name} = ${value};`;
+    });
+}
+
+// The value of `expression`, an arithmetic expression over `values`' names.
+function evaluate(expression, values) {
+    return Function(...Object.keys(values), `return (${expression});`)(...Object.values(values));
+}
+
+// A map from value to the one name among `names` that has it.
+function namesByValue(enums, names) {
+    const byValue = new Map();
+    for (const name of names) {
+        const value = enums[name];
+        if (byValue.has(value))
+            throw new Error(`${byValue.get(value)} and ${name} share the value ${value}`);
+        byValue.set(value, name);
+    }
+    return byValue;
+}
+
+// The row text for `value`: its name from `byValue`, or the number when no
+// name has it.
+const named = (byValue, value) => byValue.get(value) ?? JSON.stringify(value);
+
 function formatModule(catalog) {
-    const enumLines = Object.entries(catalog.enums)
-        .map(([name, value]) => `export const ${name} = ${value};`)
-        .join('\n');
+    const { enums } = catalog;
+    const names = Object.keys(enums);
+    // The exporter prints RANDOM_CLASS and the defsym.h classes through
+    // MAXOCLASSES first, and the objects.h enum last, before NUM_OBJECTS.
+    const classNames = names.slice(0, names.indexOf('MAXOCLASSES') + 1);
+    const objectNames = names.slice(names.indexOf('STRANGE_OBJECT'), names.indexOf('NUM_OBJECTS'));
+    const materialNames = names.slice(
+        names.indexOf('NO_MATERIAL'), names.indexOf('MINERAL') + 1,
+    );
+    const derived = DERIVED_ENUMS(objectNames.at(-1));
+    const derivedNames = new Set(derived.map(([name]) => name));
+    for (const [name, expression] of derived) {
+        if (evaluate(expression, enums) !== enums[name])
+            throw new Error(`${name} = ${expression} does not give C's value ${enums[name]}`);
+    }
+    const unlisted = names.filter((name) => !derivedNames.has(name)
+        && !classNames.includes(name) && !objectNames.includes(name));
+    const enumLines = [
+        ...chainLines(classNames.map((name) => [name, enums[name]])),
+        ...unlisted.map((name) => `export const ${name} = ${enums[name]};`),
+        ...chainLines(objectNames.map((name) => [name, enums[name]])),
+        ...derived.map(([name, expression]) => `export const ${name} = ${expression};`),
+    ].join('\n');
+    const classByValue = namesByValue(enums, classNames.filter((name) => name !== 'MAXOCLASSES'));
+    const materialByValue = namesByValue(enums, materialNames);
     const descriptions = catalog.descriptions
         .map((description) => `    Object.freeze(${JSON.stringify(description)}),`)
         .join('\n');
+    const rowValue = (key, value) => {
+        if (key === 'oc_class') return named(classByValue, value);
+        if (key === 'oc_material') return named(materialByValue, value);
+        return JSON.stringify(value);
+    };
     const objects = catalog.objects
-        .map((object) => `    Object.freeze(${JSON.stringify(object)}),`)
+        .map((object) => `    Object.freeze({${Object.entries(object)
+            .map(([key, value]) => `${JSON.stringify(key)}:${rowValue(key, value)}`)
+            .join(',')}}),`)
         .join('\n');
 
     return `// Generated by scripts/generate-objects.mjs from NetHack 5.0.

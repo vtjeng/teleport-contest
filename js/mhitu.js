@@ -545,6 +545,8 @@ export async function cloneu(rawState = game, rawEnv = {}) {
 
 // C ref: hack.h distu() and mdistu(). mdistu() is distu() applied to a
 // monster's own square, with no long-worm handling of its own.
+// Copies: hack.h mdistu() is also ported as mthrowu.js mdistu(), muse.js
+// mdistu() and polyself.js mdistu(). A change to it must reach every copy.
 function mdistu(monster, state) {
     return dist2(monster.mx, monster.my, state.u.ux, state.u.uy);
 }

@@ -77,6 +77,8 @@ export function is_moat(x, y, state = game) {
             && drawbridgeUnder(location) === DB_MOAT);
 }
 
+// Copies: rm.h IS_POOL() is also ported as const.js IS_POOL(). A change to it
+// must reach every copy.
 export function is_pool(x, y, state = game) {
     if (!isok(x, y)) return false;
     const location = state.level?.at?.(x, y);
@@ -87,11 +89,15 @@ export function is_pool(x, y, state = game) {
 }
 
 // C ref: dbridge.c is_waterwall() (36-42).
+// Copies: rm.h IS_WATERWALL() is also ported as const.js IS_WATERWALL(). A
+// change to it must reach every copy.
 export function is_waterwall(x, y, state = game) {
     return isok(x, y) && IS_WATERWALL(state.level?.at?.(x, y)?.typ);
 }
 
 // C ref: dbridge.c is_lava() (62-73), including lava under a raised bridge.
+// Copies: rm.h IS_LAVA() is also ported as const.js IS_LAVA(). A change to it
+// must reach every copy.
 export function is_lava(x, y, state = game) {
     if (!isok(x, y)) return false;
     const location = state.level?.at?.(x, y);

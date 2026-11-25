@@ -2759,6 +2759,8 @@ const JUMP_DIAG = 3;
 
 
 // C ref: dothrow.c walk_path() (656-753).
+// Copies: dothrow.c walk_path() is also ported as dothrow.js walk_path(). A
+// change to it must reach every copy.
 function jumpWalkPath(source, destination, callback, argument, state) {
     let dx = destination.x - source.x;
     let dy = destination.y - source.y;

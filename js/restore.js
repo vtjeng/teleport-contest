@@ -780,6 +780,8 @@ export function loadfruitchn(saved) {
 // On the hero's level (`heroLevel`; restore.c:101 tests u.uz.dlevel, which
 // is 0 while dorecover() reads the other levels), a ball or chain on the
 // floor gets its uball or uchain pointer back through setworn() (102-104).
+// Copies: restore.c find_lev_obj() is also ported as bones.js find_lev_obj().
+// A change to it must reach every copy.
 function find_lev_obj(objlist, state, heroLevel) {
     for (let otmp = objlist; otmp; otmp = otmp.nobj) {
         if (otmp.no_charge) otmp.no_charge = 0;

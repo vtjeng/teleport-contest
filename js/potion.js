@@ -2989,6 +2989,8 @@ export function dip_hands_ok(obj, state = game) {
     return dip_ok(obj, state);
 }
 
+// Copies: obj.h pair_of() is also ported as wield.js pair_of(). A change to
+// it must reach every copy.
 function pair_of(obj, state = game) {
     return obj.otyp === LENSES || is_gloves(obj, state) || is_boots(obj, state);
 }

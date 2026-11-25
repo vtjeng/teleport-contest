@@ -9,6 +9,8 @@
 //        drinksink() (595-712).
 
 import {
+    F_LOOTED,
+    F_WARNED,
     ARM,
     A_MAX,
     A_LAWFUL,
@@ -566,10 +568,6 @@ export async function dryup(x, y, isyou, state = game, env = {}) {
         }
     }
 }
-
-// Fountain flag bits from rm.h.
-const F_LOOTED = 1;
-const F_WARNED = 2;
 
 // ── drinkfountain ──
 // C ref: fountain.c drinkfountain() (243-390). Called from dodrink() when

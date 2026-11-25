@@ -310,6 +310,8 @@ export function tin_variety_txt(text, varietyRef = null) {
     return 0;
 }
 
+// Copies: hacklib.c strncmpi() is also ported as hacklib.js strncmpi(). A
+// change to it must reach every copy.
 function strncmpi(text, prefix) {
     return text.length >= prefix.length
         && lcase(text.slice(0, prefix.length)) === lcase(prefix);
@@ -321,6 +323,8 @@ function tinEnv(env = {}) {
     return { state: env.state ?? game, random };
 }
 
+// Copies: monst.h ismnum() is also ported as const.js ismnum(). A change to
+// it must reach every copy.
 function ismnum(index) {
     return Number.isInteger(index) && index >= 0 && index < NUMMONS;
 }
@@ -604,6 +608,8 @@ export function nonrotting_corpse(mnum, state = game) {
         || is_rider(state.mons?.[mnum]);
 }
 
+// Copies: mondata.h vegan() is also ported as mondata.js vegan(). A change to
+// it must reach every copy.
 function vegan(monster) {
     return monster.mlet === S_BLOB
         || monster.mlet === S_JELLY

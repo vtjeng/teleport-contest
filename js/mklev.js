@@ -277,6 +277,8 @@ import {
 } from './themerooms.js';
 import { create_gas_cloud, create_gas_cloud_selection } from './region.js';
 import {
+    XLIM,
+    YLIM,
     COLNO, ROWNO, STONE, ROOM, CORR, DOOR, STAIRS, LADDER,
     NO_TRAP_FLAGS, TT_BURIEDBALL,
     COULD_SEE, IN_SIGHT,
@@ -383,16 +385,14 @@ import { ImpossibleCall, finish_steps } from './source_steps.js';
 import { dungeon_at } from './dungeon_table.js';
 import { sync_impossible } from './source_steps.js';
 
-const XLIM = 4;
-const YLIM = 3;
 
 // sp_lev.c room alignment values are private to that loader. The source
 // names the vertical pair TOP and BOTTOM.
 const SPLEV_LEFT = 1;
-const SPLEV_H_LEFT = 2;
-const SPLEV_CENTER = 3;
-const SPLEV_H_RIGHT = 4;
-const SPLEV_RIGHT = 5;
+const SPLEV_H_LEFT = SPLEV_LEFT + 1;
+const SPLEV_CENTER = SPLEV_H_LEFT + 1;
+const SPLEV_H_RIGHT = SPLEV_CENTER + 1;
+const SPLEV_RIGHT = SPLEV_H_RIGHT + 1;
 const SPLEV_TOP = 1;
 const SPLEV_BOTTOM = 5;
 
@@ -428,6 +428,9 @@ function shuffle_core_values(values, random) {
 // C ref: bones.c getbones() (630-756). Checks whether a bones file exists
 // for the current level and, if found, loads it. In wizard mode, prompts
 // before loading ("Get bones?") and before deleting ("Unlink bones?").
+// Copies: bones.c getbones() is also ported as bones.js getbones() (mklev.js
+// holds the checks and prompts, bones.js the restore). A change to it must
+// reach every copy.
 async function getbones() {
     const state = game;
     if (state.discover) return false;
@@ -1602,6 +1605,9 @@ function set_door_orientation(x, y, state = game) {
 // vibrating square has its own picker; a room uses get_free_room_loc(); the
 // map retries up to 100 times to avoid stairs and ladders), then hands the
 // MKTRAP_ flags and the square to mktrap().
+// Copies: sp_lev.c create_trap() is also ported as themeroom_fill.js
+// createRoomTrap() and themeroom_fill.js createPostprocessTrap(). A change to
+// it must reach every copy.
 function create_trap(t, croom, frame, env) {
     const { state } = env;
     const tm = { x: -1, y: -1 };

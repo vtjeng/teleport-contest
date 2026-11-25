@@ -64,6 +64,8 @@ export function clr2colorname(clr) {
 // C ref: coloratt.c match_str2clr(). Null is C's CLR_MAX sentinel. The
 // caller supplies config_error_add() because coloratt.c reports through the
 // active configuration frame without owning that frame.
+// Copies: coloratt.c match_str2clr() is also ported as options.js
+// match_str2clr(). A change to it must reach every copy.
 export function match_str2clr(value, suppressMessage = false, report = null) {
     const color = basicColor(String(value));
     if (color !== null) return color;
@@ -74,6 +76,8 @@ export function match_str2clr(value, suppressMessage = false, report = null) {
 }
 
 // C ref: coloratt.c match_str2attr(). Null is C's -1 sentinel.
+// Copies: coloratt.c match_str2attr() is also ported as options.js
+// match_str2attr(). A change to it must reach every copy.
 export function match_str2attr(value, complain = false, report = null) {
     const text = String(value);
     const row = MENU_COLOR_ATTRIBUTES.find(({ name }) => (
@@ -286,6 +290,8 @@ export function color_attr_to_str(ca) {
 
 // C ref: coloratt.c color_attr_parse_str(). Null is FALSE; the caller owns
 // configuration feedback, while the returned pair holds C's ATR enum.
+// Copies: coloratt.c color_attr_parse_str() is also ported as options.js
+// color_attr_parse_str(). A change to it must reach every copy.
 export function color_attr_parse_str(str, report = null) {
     const buf = truncateByteString(str, BUFSZ - 1);
     const amp = buf.indexOf('&');

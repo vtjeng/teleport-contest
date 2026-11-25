@@ -143,6 +143,8 @@ import {
 // rejects column 0. This fill accepts column 0, which no map frame covers
 // and which stays stone, so the two differ only for a fill that starts on
 // stone.
+// Copies: selvar.c selection_floodfill() is also ported as themerooms.js
+// selection_floodfill(). A change to it must reach every copy.
 export function selection_floodfill(x, y, state, frame) {
     const ox = frame?.xstart ?? 0;
     const oy = frame?.ystart ?? 0;
@@ -174,7 +176,7 @@ export function selection_floodfill(x, y, state, frame) {
 }
 
 // Intersection of two selections (Lua's & operator).
-function selIntersect(a, b) {
+export function selIntersect(a, b) {
     const result = new ThemeroomSelection();
     const boundsA = a.bounds();
     for (let x = boundsA.lx; x <= boundsA.hx; ++x) {

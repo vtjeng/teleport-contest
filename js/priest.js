@@ -66,7 +66,7 @@ import {
 } from './dungeon.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
-import { dist2, s_suffix, sgn, lcase } from './hacklib.js';
+import { online2, dist2, s_suffix, sgn, lcase } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { makemon_by_context, makemon_runtime, mongets } from './makemon_create.js';
 import { set_malign } from './makemon.js';
@@ -604,14 +604,6 @@ export function mk_roamer(
     };
     return maybeRoamer && typeof maybeRoamer.then === 'function'
         ? maybeRoamer.then(finish) : finish(maybeRoamer);
-}
-
-// C ref: hacklib.c online2(). True when (x0,y0) and (x1,y1) lie on a
-// cardinal or diagonal line through each other.
-function online2(x0, y0, x1, y1) {
-    const dx = x0 - x1;
-    const dy = y0 - y1;
-    return !dy || !dx || dy === dx || dy === -dx;
 }
 
 // C ref: hack.h onlineu().

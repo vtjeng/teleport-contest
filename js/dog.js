@@ -872,6 +872,8 @@ function mon_leave(monster, state) {
 // C refs: mon.c relmon() (2558-2594) and mon_leaving_level() (2695-2730),
 // which relmon() runs first. `listName` names the gm list the monster joins:
 // 'mydogs', 'migrating_mons', or dog.c losedogs()'s temporary failed list.
+// Copies: mon.c relmon() is also ported as mon.js relmon(). A change to it
+// must reach every copy.
 async function relmon(monster, listName, state, env) {
     const leavingEnv = typeof env.newsym === 'function'
         ? { ...env, hooks: { ...env.hooks, newsym: env.newsym } }

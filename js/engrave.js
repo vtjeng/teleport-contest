@@ -1118,6 +1118,8 @@ function hasAttackType(species, attackType) {
     ));
 }
 
+// Copies: mondata.h ceiling_hider() is also ported as mondata.js
+// ceiling_hider(). A change to it must reach every copy.
 function ceilingHider(species) {
     return Boolean(species?.mflags1 & M1_HIDE)
         && ((Boolean(species.mflags1 & M1_CLING)

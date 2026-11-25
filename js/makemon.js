@@ -53,6 +53,7 @@ import { sgn } from './hacklib.js';
 import { game } from './gstate.js';
 import { new_light_source } from './light.js';
 import {
+    isRogueLevel,
     discard_minvent,
     makemon_runtime,
 } from './makemon_create.js';
@@ -191,6 +192,9 @@ function inHell(state) {
         && Boolean(dungeon_at(dnum, state)?.flags?.hellish);
 }
 
+// Copies: dungeon.h In_endgame() is also ported as const.js In_endgame(),
+// monmove.js inEndgame() and teleport.js inEndgame(). A change to it must
+// reach every copy.
 function inEndgame(state) {
     const astral = state.astral_level;
     return Number.isInteger(astral?.dlevel)
@@ -200,10 +204,6 @@ function inEndgame(state) {
 
 function isAstralLevel(state) {
     return on_level(state.u?.uz, state.astral_level);
-}
-
-function isRogueLevel(state) {
-    return on_level(state.u?.uz, state.rogue_level);
 }
 
 function uncommon(index, state) {
@@ -785,6 +785,8 @@ export function monhp_per_lvl(mon, env = {}) {
     return hp;
 }
 
+// Copies: mondata.h is_rider() is also ported as mondata.js is_rider(). A
+// change to it must reach every copy.
 function isRider(mndx) {
     return mndx === PM_DEATH || mndx === PM_PESTILENCE || mndx === PM_FAMINE;
 }

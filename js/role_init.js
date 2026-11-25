@@ -5,6 +5,11 @@
 import { A_CURRENT, A_ORIGINAL, P_CLERIC_SPELL,
     Upolyd } from './const.js';
 import {
+    PM_CLERIC,
+    PM_KNIGHT,
+    PM_SAMURAI,
+    PM_TOURIST,
+    PM_VALKYRIE,
     M2_FEMALE,
     M2_HOSTILE,
     M2_MALE,
@@ -57,11 +62,6 @@ import { Hallucination,
 } from './youprop.js';
 import { tty_askname } from './wintty.js';
 
-const PM_CLERIC = 337;
-const PM_KNIGHT = 335;
-const PM_SAMURAI = 340;
-const PM_TOURIST = 341;
-const PM_VALKYRIE = 342;
 
 // Every quest leader has a fixed gender in monsters.h. Two quest nemeses
 // lack male, female, and neuter flags and therefore consume rn2(100).

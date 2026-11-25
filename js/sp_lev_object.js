@@ -374,6 +374,8 @@ function applyObjectFields(obj, specification, env) {
 // env (js/mklev.js createSpecialLevelApi()) prints and returns the promise,
 // which a caller that can wait settles before it goes on, as C's
 // create_object() does; a hook may also just record the text.
+// Copies: pline.c impossible() is also ported as pline.js impossible() and
+// themeroom_fill.js impossible(). A change to it must reach every copy.
 function impossible(message, env) {
     if (typeof env.hooks.impossible === 'function')
         return env.hooks.impossible(message, env);

@@ -185,6 +185,14 @@ export {
 } from './mon.js';
 export { set_mon_data } from './mondata.js';
 import {
+    AT_EXPL,
+    G_LGROUP,
+    G_SGROUP,
+    M1_WALLWALK,
+    M2_LORD,
+    M2_PRINCE,
+    M2_SHAPESHIFTER,
+    M2_STRONG,
     AT_WEAP,
     G_NOCORPSE,
     M1_AMORPHOUS,
@@ -529,20 +537,6 @@ import {
 import { canseemon, describe_level, sensemon } from './display.js';
 import { Blind, Protection_from_shape_changers, See_invisible } from './youprop.js';
 
-// include/monattk.h predicate used by muse.c's random-item selectors.
-const AT_EXPL = 13;
-// include/monflag.h creation-time predicates not yet exported by monsters.js.
-const M1_WALLWALK = 0x00000008;
-const M1_SLITHY = 0x00080000;
-const M2_NOPOLY = 0x00000001;
-const M2_LORD = 0x00000400;
-const M2_PRINCE = 0x00000800;
-const M2_SHAPESHIFTER = 0x00004000;
-const M2_STRONG = 0x04000000;
-// include/monflag.h random-generation group flags.
-const G_LGROUP = 0x0040;
-const G_SGROUP = 0x0080;
-
 // makemon.c set_mimic_sym() source tables. The first two entries deliberately
 // make furniture twice as likely as each ordinary object class.
 const MIMIC_SYMBOLS = Object.freeze([
@@ -600,6 +594,9 @@ export function creationEnv(env = {}) {
     return { ...env, state, random };
 }
 
+// Copies: dungeon.h Is_rogue_level() is also ported as const.js
+// Is_rogue_level() and obj.js isRogueLevel(). A change to it must reach every
+// copy.
 export function isRogueLevel(state) {
     return on_level(state.u?.uz, state.rogue_level);
 }
@@ -995,6 +992,8 @@ function makemon_rnd_goodpos(ptr, gpflags, normalized) {
 
 // C ref: makemon.c m_initgrp(). Runtime random generation can create a small
 // or large hostile group before the original monster receives inventory.
+// Copies: makemon.c m_initgrp() is also ported as m_initgrp_runtime() in this
+// file. A change to it must reach every copy.
 function m_initgrp(monster, countBound, mmflags, normalized) {
     const { random, state } = normalized;
     const divisor = state.u.ulevel < 3 ? 4 : state.u.ulevel < 5 ? 2 : 1;
@@ -1037,6 +1036,8 @@ function m_initgrp(monster, countBound, mmflags, normalized) {
 // Runtime m_initgrp() has to await each recursive makemon() tail before the
 // loop can advance: that tail can stop at a tty --More-- prompt.  C applies
 // the forced-hostile correction only after the recursive call returns.
+// Copies: makemon.c m_initgrp() is also ported as m_initgrp() in this file. A
+// change to it must reach every copy.
 async function m_initgrp_runtime(
     monster,
     countBound,
@@ -1602,6 +1603,8 @@ function isNonliving(species) {
         || species.mlet === S_VORTEX;
 }
 
+// Copies: mondata.h is_floater() is also ported as mondata.js is_floater(). A
+// change to it must reach every copy.
 function isFloater(species) {
     return species.mlet === S_EYE || species.mlet === S_LIGHT;
 }
@@ -2136,6 +2139,8 @@ function initializeGender(monster, ptr, mmflags, random, state) {
     }
 }
 
+// Copies: mon.c pm_to_cham() is also ported as mon.js pm_to_cham(). A change
+// to it must reach every copy.
 function pm_to_cham(mndx, state) {
     const species = state.mons?.[mndx];
     return species && (species.mflags2 & M2_SHAPESHIFTER) ? mndx : NON_PM;
@@ -2242,6 +2247,8 @@ async function makemonOccupationCheck(monster, normalized) {
 // no square is free, rndmonst() finds no candidate, or the species is
 // genocided. Outside level creation the synchronous body stops after
 // set_malign(); makemon_runtime() and makemon_revival() run the rest.
+// Copies: makemon.c makemon() is also ported as makemon_runtime() in this
+// file. A change to it must reach every copy.
 export function makemon(ptr, x, y, mmflags = 0, env = {}) {
     const normalized = creationEnv(env);
     return finish_steps(
@@ -2612,6 +2619,8 @@ function* makemon_steps(ptr, x, y, mmflags, normalized) {
 // Async adapter for makemon.c's runtime suffix.  The synchronous constructor
 // stops immediately after set_malign(); this continuation then preserves C's
 // awaited recursive group tails, parent inventory, and final output order.
+// Copies: makemon.c makemon() is also ported as makemon() in this file. A
+// change to it must reach every copy.
 export async function makemon_runtime(ptr, x, y, mmflags = 0, env = {}) {
     const message = env.message ?? ttyPline;
     const norepMessage = norep_printer(env);

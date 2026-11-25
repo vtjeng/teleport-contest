@@ -1088,6 +1088,8 @@ function restobjchn_ghostly(ochain, frozen, ghost, state) {
 // comes later in getlev()), so place_object() clears every no_charge and
 // costly_alteration() finds no shopkeeper. The ball and chain fixup applies
 // only to the hero's own level in a saved game, never to bones.
+// Copies: restore.c find_lev_obj() is also ported as restore.js
+// find_lev_obj(). A change to it must reach every copy.
 async function find_lev_obj(state) {
     let fobjtmp = null;
     let otmp;
@@ -1155,6 +1157,9 @@ export async function ghostly_getlev_monsters(state) {
 // restores the level, and deletes the bones file. The caller (mklev.js)
 // handles the preliminary eligibility checks (discover, flags.bones, rn2(3),
 // no_bones_level) and the wizard-mode "Get bones?" prompt before calling.
+// Copies: bones.c getbones() is also ported as mklev.js getbones() (mklev.js
+// holds the checks and prompts, bones.js the restore). A change to it must
+// reach every copy.
 export async function getbones(state = game) {
     const bonesFile = open_bonesfile(state.u.uz, state);
     if (!bonesFile) return false;

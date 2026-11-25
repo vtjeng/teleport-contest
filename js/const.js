@@ -63,43 +63,43 @@ export const ROWNO = 21;
 
 // Level location types — cf. rm.h enum levl_typ_types
 export const STONE = 0;
-export const VWALL = 1;
-export const HWALL = 2;
-export const TLCORNER = 3;
-export const TRCORNER = 4;
-export const BLCORNER = 5;
-export const BRCORNER = 6;
-export const CROSSWALL = 7;
-export const TUWALL = 8;
-export const TDWALL = 9;
-export const TLWALL = 10;
-export const TRWALL = 11;
-export const DBWALL = 12;
-export const TREE = 13;
-export const SDOOR = 14;
-export const SCORR = 15;
-export const POOL = 16;
-export const MOAT = 17;
-export const WATER = 18;
-export const DRAWBRIDGE_UP = 19;
-export const LAVAPOOL = 20;
-export const LAVAWALL = 21;
-export const IRONBARS = 22;
-export const DOOR = 23;
-export const CORR = 24;
-export const ROOM = 25;
-export const STAIRS = 26;
-export const LADDER = 27;
-export const FOUNTAIN = 28;
-export const THRONE = 29;
-export const SINK = 30;
-export const GRAVE = 31;
-export const ALTAR = 32;
-export const ICE = 33;
-export const DRAWBRIDGE_DOWN = 34;
-export const AIR = 35;
-export const CLOUD = 36;
-export const MAX_TYPE = 37;
+export const VWALL = STONE + 1;
+export const HWALL = VWALL + 1;
+export const TLCORNER = HWALL + 1;
+export const TRCORNER = TLCORNER + 1;
+export const BLCORNER = TRCORNER + 1;
+export const BRCORNER = BLCORNER + 1;
+export const CROSSWALL = BRCORNER + 1;
+export const TUWALL = CROSSWALL + 1;
+export const TDWALL = TUWALL + 1;
+export const TLWALL = TDWALL + 1;
+export const TRWALL = TLWALL + 1;
+export const DBWALL = TRWALL + 1;
+export const TREE = DBWALL + 1;
+export const SDOOR = TREE + 1;
+export const SCORR = SDOOR + 1;
+export const POOL = SCORR + 1;
+export const MOAT = POOL + 1;
+export const WATER = MOAT + 1;
+export const DRAWBRIDGE_UP = WATER + 1;
+export const LAVAPOOL = DRAWBRIDGE_UP + 1;
+export const LAVAWALL = LAVAPOOL + 1;
+export const IRONBARS = LAVAWALL + 1;
+export const DOOR = IRONBARS + 1;
+export const CORR = DOOR + 1;
+export const ROOM = CORR + 1;
+export const STAIRS = ROOM + 1;
+export const LADDER = STAIRS + 1;
+export const FOUNTAIN = LADDER + 1;
+export const THRONE = FOUNTAIN + 1;
+export const SINK = THRONE + 1;
+export const GRAVE = SINK + 1;
+export const ALTAR = GRAVE + 1;
+export const ICE = ALTAR + 1;
+export const DRAWBRIDGE_DOWN = ICE + 1;
+export const AIR = DRAWBRIDGE_DOWN + 1;
+export const CLOUD = AIR + 1;
+export const MAX_TYPE = CLOUD + 1;
 
 // Door states — cf. rm.h
 export const D_NODOOR = 0x00;
@@ -123,28 +123,28 @@ export const dirs_ord = [0, 2, 4, 6, 1, 3, 5, 7];
 
 // Direction constants
 export const DIR_W = 0;
-export const DIR_NW = 1;
-export const DIR_N = 2;
-export const DIR_NE = 3;
-export const DIR_E = 4;
-export const DIR_SE = 5;
-export const DIR_S = 6;
-export const DIR_SW = 7;
+export const DIR_NW = DIR_W + 1;
+export const DIR_N = DIR_NW + 1;
+export const DIR_NE = DIR_N + 1;
+export const DIR_E = DIR_NE + 1;
+export const DIR_SE = DIR_E + 1;
+export const DIR_S = DIR_SE + 1;
+export const DIR_SW = DIR_S + 1;
 // hack.h:640-652 lists DIR_DOWN before DIR_UP, which is what pairs each name
 // with its zdir[] entry above: zdir[DIR_DOWN] is +1 and zdir[DIR_UP] is -1.
-export const DIR_DOWN = 8;
-export const DIR_UP = 9;
+export const DIR_DOWN = DIR_SW + 1;
+export const DIR_UP = DIR_DOWN + 1;
 export const N_DIRS = 8;
 export const N_DIRS_Z = 10;
 export function DIR_180(dir) { return (dir + 4) % N_DIRS; }
 
 // Encumbrance levels (hack.h)
 export const UNENCUMBERED = 0;
-export const SLT_ENCUMBER = 1;
-export const MOD_ENCUMBER = 2;
-export const HVY_ENCUMBER = 3;
-export const EXT_ENCUMBER = 4;
-export const OVERLOADED = 5;
+export const SLT_ENCUMBER = UNENCUMBERED + 1;
+export const MOD_ENCUMBER = SLT_ENCUMBER + 1;
+export const HVY_ENCUMBER = MOD_ENCUMBER + 1;
+export const EXT_ENCUMBER = HVY_ENCUMBER + 1;
+export const OVERLOADED = EXT_ENCUMBER + 1;
 
 // Alignment (align.h)
 export const A_NONE = -128;
@@ -185,46 +185,46 @@ export const FEMALE = 1;
 
 // Achievements enum (include/you.h, used by src/insight.c)
 export const ACH_BELL = 1;
-export const ACH_HELL = 2;
-export const ACH_CNDL = 3;
-export const ACH_BOOK = 4;
-export const ACH_INVK = 5;
-export const ACH_AMUL = 6;
-export const ACH_ENDG = 7;
-export const ACH_ASTR = 8;
-export const ACH_UWIN = 9;
-export const ACH_MINE_PRIZE = 10;
-export const ACH_SOKO_PRIZE = 11;
-export const ACH_MEDU = 12;
-export const ACH_BLND = 13;
-export const ACH_NUDE = 14;
-export const ACH_MINE = 15;
-export const ACH_TOWN = 16;
-export const ACH_SHOP = 17;
-export const ACH_TMPL = 18;
-export const ACH_ORCL = 19;
-export const ACH_NOVL = 20;
-export const ACH_SOKO = 21;
-export const ACH_BGRM = 22;
-export const ACH_RNK1 = 23;
-export const ACH_RNK2 = 24;
-export const ACH_RNK3 = 25;
-export const ACH_RNK4 = 26;
-export const ACH_RNK5 = 27;
-export const ACH_RNK6 = 28;
-export const ACH_RNK7 = 29;
-export const ACH_RNK8 = 30;
-export const ACH_TUNE = 31;
-export const N_ACH = 32;
+export const ACH_HELL = ACH_BELL + 1;
+export const ACH_CNDL = ACH_HELL + 1;
+export const ACH_BOOK = ACH_CNDL + 1;
+export const ACH_INVK = ACH_BOOK + 1;
+export const ACH_AMUL = ACH_INVK + 1;
+export const ACH_ENDG = ACH_AMUL + 1;
+export const ACH_ASTR = ACH_ENDG + 1;
+export const ACH_UWIN = ACH_ASTR + 1;
+export const ACH_MINE_PRIZE = ACH_UWIN + 1;
+export const ACH_SOKO_PRIZE = ACH_MINE_PRIZE + 1;
+export const ACH_MEDU = ACH_SOKO_PRIZE + 1;
+export const ACH_BLND = ACH_MEDU + 1;
+export const ACH_NUDE = ACH_BLND + 1;
+export const ACH_MINE = ACH_NUDE + 1;
+export const ACH_TOWN = ACH_MINE + 1;
+export const ACH_SHOP = ACH_TOWN + 1;
+export const ACH_TMPL = ACH_SHOP + 1;
+export const ACH_ORCL = ACH_TMPL + 1;
+export const ACH_NOVL = ACH_ORCL + 1;
+export const ACH_SOKO = ACH_NOVL + 1;
+export const ACH_BGRM = ACH_SOKO + 1;
+export const ACH_RNK1 = ACH_BGRM + 1;
+export const ACH_RNK2 = ACH_RNK1 + 1;
+export const ACH_RNK3 = ACH_RNK2 + 1;
+export const ACH_RNK4 = ACH_RNK3 + 1;
+export const ACH_RNK5 = ACH_RNK4 + 1;
+export const ACH_RNK6 = ACH_RNK5 + 1;
+export const ACH_RNK7 = ACH_RNK6 + 1;
+export const ACH_RNK8 = ACH_RNK7 + 1;
+export const ACH_TUNE = ACH_RNK8 + 1;
+export const N_ACH = ACH_TUNE + 1;
 
 // Attributes (attrib.h)
 export const A_STR = 0;
-export const A_INT = 1;
-export const A_WIS = 2;
-export const A_DEX = 3;
-export const A_CON = 4;
-export const A_CHA = 5;
-export const NUM_ATTRS = 6;
+export const A_INT = A_STR + 1;
+export const A_WIS = A_INT + 1;
+export const A_DEX = A_WIS + 1;
+export const A_CON = A_DEX + 1;
+export const A_CHA = A_CON + 1;
+export const NUM_ATTRS = A_CHA + 1;
 
 // C ref: attrib.h — strength encoding helpers
 export function STR18(x) { return 18 + x; }  // 18/xx
@@ -256,31 +256,31 @@ export function BZ_OFS_WAN(otyp) { return Math.abs(otyp - 429) % 10; }
 
 // Room types (mkroom.h)
 export const OROOM = 0;
-export const THEMEROOM = 1;
-export const COURT = 2;
-export const SWAMP = 3;
-export const VAULT = 4;
-export const BEEHIVE = 5;
-export const MORGUE = 6;
-export const BARRACKS = 7;
-export const ZOO = 8;
-export const DELPHI = 9;
-export const TEMPLE = 10;
-export const LEPREHALL = 11;
-export const COCKNEST = 12;
-export const ANTHOLE = 13;
-export const SHOPBASE = 14;
+export const THEMEROOM = OROOM + 1;
+export const COURT = THEMEROOM + 1;
+export const SWAMP = COURT + 1;
+export const VAULT = SWAMP + 1;
+export const BEEHIVE = VAULT + 1;
+export const MORGUE = BEEHIVE + 1;
+export const BARRACKS = MORGUE + 1;
+export const ZOO = BARRACKS + 1;
+export const DELPHI = ZOO + 1;
+export const TEMPLE = DELPHI + 1;
+export const LEPREHALL = TEMPLE + 1;
+export const COCKNEST = LEPREHALL + 1;
+export const ANTHOLE = COCKNEST + 1;
+export const SHOPBASE = ANTHOLE + 1;
 
 // Window/UI constants (wintype.h, winprocs.h, color.h)
 // Runtime fields:
 // - windows.WinDesc.type / .how / .mbehavior
 // - windows.putstr attr bitmask (ATR_*)
 export const NHW_MESSAGE = 1;
-export const NHW_STATUS = 2;
-export const NHW_MAP = 3;
-export const NHW_MENU = 4;
-export const NHW_TEXT = 5;
-export const NHW_PERMINVENT = 6;
+export const NHW_STATUS = NHW_MESSAGE + 1;
+export const NHW_MAP = NHW_STATUS + 1;
+export const NHW_MENU = NHW_MAP + 1;
+export const NHW_TEXT = NHW_MENU + 1;
+export const NHW_PERMINVENT = NHW_TEXT + 1;
 export const PICK_NONE = 0;
 export const PICK_ONE = 1;
 export const PICK_ANY = 2;
@@ -314,21 +314,21 @@ export const EXACT_NAME = (SUPPRESS_IT | SUPPRESS_INVISIBLE
 // - end.done(how) / end.really_done(how) `how` values
 // - death cause checks for game-over handling
 export const DIED = 0;
-export const CHOKING = 1;
-export const POISONING = 2;
-export const STARVING = 3;
-export const DROWNING = 4;
-export const BURNING = 5;
-export const DISSOLVED = 6;
-export const CRUSHING = 7;
-export const STONING = 8;
-export const TURNED_SLIME = 9;
-export const GENOCIDED = 10;
-export const PANICKED = 11;
-export const TRICKED = 12;
-export const QUIT = 13;
-export const ESCAPED = 14;
-export const ASCENDED = 15;
+export const CHOKING = DIED + 1;
+export const POISONING = CHOKING + 1;
+export const STARVING = POISONING + 1;
+export const DROWNING = STARVING + 1;
+export const BURNING = DROWNING + 1;
+export const DISSOLVED = BURNING + 1;
+export const CRUSHING = DISSOLVED + 1;
+export const STONING = CRUSHING + 1;
+export const TURNED_SLIME = STONING + 1;
+export const GENOCIDED = TURNED_SLIME + 1;
+export const PANICKED = GENOCIDED + 1;
+export const TRICKED = PANICKED + 1;
+export const QUIT = TRICKED + 1;
+export const ESCAPED = QUIT + 1;
+export const ASCENDED = ESCAPED + 1;
 
 // Killer name prefix selectors (include/hack.h; src/end.c killer.format)
 // Runtime fields: end.killer.format and delayed killer records.
@@ -366,10 +366,10 @@ export const vision_clears = "vision quickly clears.";
 // - input cmdq node fields: node.typ/node.key/node.dir*/node.intval
 // - queue selector passed to cmdq_* helpers (CQ_CANNED/CQ_REPEAT)
 export const CMDQ_KEY = 0;
-export const CMDQ_EXTCMD = 1;
-export const CMDQ_DIR = 2;
-export const CMDQ_USER_INPUT = 3;
-export const CMDQ_INT = 4;
+export const CMDQ_EXTCMD = CMDQ_KEY + 1;
+export const CMDQ_DIR = CMDQ_EXTCMD + 1;
+export const CMDQ_USER_INPUT = CMDQ_DIR + 1;
+export const CMDQ_INT = CMDQ_USER_INPUT + 1;
 export const CQ_CANNED = 0;
 export const CQ_REPEAT = 1;
 
@@ -392,24 +392,24 @@ export const BACKTRACK = -1;
 // - body_part(partId) and mbodypart(mon, partId) selector args
 // - message formatting for anatomy-dependent text
 export const ARM = 0;
-export const EYE = 1;
-export const FACE = 2;
-export const FINGER = 3;
-export const FINGERTIP = 4;
-export const FOOT = 5;
-export const HAND = 6;
-export const HANDED = 7;
-export const HEAD = 8;
-export const LEG = 9;
-export const LIGHT_HEADED = 10;
-export const NECK = 11;
-export const SPINE = 12;
-export const TOE = 13;
-export const HAIR = 14;
-export const BLOOD = 15;
-export const LUNG = 16;
-export const NOSE = 17;
-export const STOMACH = 18;
+export const EYE = ARM + 1;
+export const FACE = EYE + 1;
+export const FINGER = FACE + 1;
+export const FINGERTIP = FINGER + 1;
+export const FOOT = FINGERTIP + 1;
+export const HAND = FOOT + 1;
+export const HANDED = HAND + 1;
+export const HEAD = HANDED + 1;
+export const LEG = HEAD + 1;
+export const LIGHT_HEADED = LEG + 1;
+export const NECK = LIGHT_HEADED + 1;
+export const SPINE = NECK + 1;
+export const TOE = SPINE + 1;
+export const HAIR = TOE + 1;
+export const BLOOD = HAIR + 1;
+export const LUNG = BLOOD + 1;
+export const NOSE = LUNG + 1;
+export const STOMACH = NOSE + 1;
 
 // RANDOM_CLASS is exported from objects.js (canonical home for _CLASS constants)
 
@@ -519,50 +519,50 @@ export const AMII_LOUDER_VOLUME = 80;
 // enums of this header arrive here by hand. MS_ANIMAL is the last animal
 // noise, which is why shk.c muteshk() compares against it with `<=`.
 export const MS_SILENT = 0;
-export const MS_BARK = 1;
-export const MS_MEW = 2;
-export const MS_ROAR = 3;
-export const MS_BELLOW = 4;
-export const MS_GROWL = 5;
-export const MS_SQEEK = 6;
-export const MS_SQAWK = 7;
-export const MS_CHIRP = 8;
-export const MS_HISS = 9;
-export const MS_BUZZ = 10;
-export const MS_GRUNT = 11;
-export const MS_NEIGH = 12;
-export const MS_MOO = 13;
-export const MS_WAIL = 14;
-export const MS_GURGLE = 15;
-export const MS_BURBLE = 16;
-export const MS_ANIMAL = 17;
-export const MS_SHRIEK = 18;
-export const MS_BONES = 19;
-export const MS_LAUGH = 20;
-export const MS_MUMBLE = 21;
-export const MS_IMITATE = 22;
-export const MS_WERE = 23;
-export const MS_ORC = 24;
-export const MS_HUMANOID = 25;
-export const MS_ARREST = 26;
-export const MS_SOLDIER = 27;
-export const MS_GUARD = 28;
-export const MS_DJINNI = 29;
-export const MS_NURSE = 30;
-export const MS_SEDUCE = 31;
-export const MS_VAMPIRE = 32;
-export const MS_BRIBE = 33;
-export const MS_CUSS = 34;
-export const MS_RIDER = 35;
-export const MS_LEADER = 36;
-export const MS_NEMESIS = 37;
-export const MS_GUARDIAN = 38;
-export const MS_SELL = 39;
-export const MS_ORACLE = 40;
-export const MS_PRIEST = 41;
-export const MS_SPELL = 42;
-export const MS_BOAST = 43;
-export const MS_GROAN = 44;
+export const MS_BARK = MS_SILENT + 1;
+export const MS_MEW = MS_BARK + 1;
+export const MS_ROAR = MS_MEW + 1;
+export const MS_BELLOW = MS_ROAR + 1;
+export const MS_GROWL = MS_BELLOW + 1;
+export const MS_SQEEK = MS_GROWL + 1;
+export const MS_SQAWK = MS_SQEEK + 1;
+export const MS_CHIRP = MS_SQAWK + 1;
+export const MS_HISS = MS_CHIRP + 1;
+export const MS_BUZZ = MS_HISS + 1;
+export const MS_GRUNT = MS_BUZZ + 1;
+export const MS_NEIGH = MS_GRUNT + 1;
+export const MS_MOO = MS_NEIGH + 1;
+export const MS_WAIL = MS_MOO + 1;
+export const MS_GURGLE = MS_WAIL + 1;
+export const MS_BURBLE = MS_GURGLE + 1;
+export const MS_ANIMAL = MS_BURBLE + 1;
+export const MS_SHRIEK = MS_ANIMAL + 1;
+export const MS_BONES = MS_SHRIEK + 1;
+export const MS_LAUGH = MS_BONES + 1;
+export const MS_MUMBLE = MS_LAUGH + 1;
+export const MS_IMITATE = MS_MUMBLE + 1;
+export const MS_WERE = MS_IMITATE + 1;
+export const MS_ORC = MS_WERE + 1;
+export const MS_HUMANOID = MS_ORC + 1;
+export const MS_ARREST = MS_HUMANOID + 1;
+export const MS_SOLDIER = MS_ARREST + 1;
+export const MS_GUARD = MS_SOLDIER + 1;
+export const MS_DJINNI = MS_GUARD + 1;
+export const MS_NURSE = MS_DJINNI + 1;
+export const MS_SEDUCE = MS_NURSE + 1;
+export const MS_VAMPIRE = MS_SEDUCE + 1;
+export const MS_BRIBE = MS_VAMPIRE + 1;
+export const MS_CUSS = MS_BRIBE + 1;
+export const MS_RIDER = MS_CUSS + 1;
+export const MS_LEADER = MS_RIDER + 1;
+export const MS_NEMESIS = MS_LEADER + 1;
+export const MS_GUARDIAN = MS_NEMESIS + 1;
+export const MS_SELL = MS_GUARDIAN + 1;
+export const MS_ORACLE = MS_SELL + 1;
+export const MS_PRIEST = MS_ORACLE + 1;
+export const MS_SPELL = MS_PRIEST + 1;
+export const MS_BOAST = MS_SPELL + 1;
+export const MS_GROAN = MS_BOAST + 1;
 export const NEUTRAL = (FEMALE + 1);
 export const NUM_MGENDERS = (NEUTRAL + 1);
 export const G_KNOWN = 0x04;
@@ -671,12 +671,12 @@ export const BL_HILITE_BLINK = -6;
 export const BL_HILITE_INVERSE = -7;
 export const BL_TH_NONE = 0;
 export const BL_TH_VAL_PERCENTAGE = 100;
-export const BL_TH_VAL_ABSOLUTE = 101;
-export const BL_TH_UPDOWN = 102;
-export const BL_TH_CONDITION = 103;
-export const BL_TH_TEXTMATCH = 104;
-export const BL_TH_ALWAYS_HILITE = 105;
-export const BL_TH_CRITICALHP = 106;
+export const BL_TH_VAL_ABSOLUTE = BL_TH_VAL_PERCENTAGE + 1;
+export const BL_TH_UPDOWN = BL_TH_VAL_ABSOLUTE + 1;
+export const BL_TH_CONDITION = BL_TH_UPDOWN + 1;
+export const BL_TH_TEXTMATCH = BL_TH_CONDITION + 1;
+export const BL_TH_ALWAYS_HILITE = BL_TH_TEXTMATCH + 1;
+export const BL_TH_CRITICALHP = BL_TH_ALWAYS_HILITE + 1;
 export const MAXVALWIDTH = 80;
 
 // ===== color.h =====
@@ -911,15 +911,15 @@ export const BR_NO_END2 = 2;
 export const BR_PORTAL = 3;
 export const MIGR_NOWHERE = (-1);
 export const MIGR_RANDOM = 0;
-export const MIGR_APPROX_XY = 1;
-export const MIGR_EXACT_XY = 2;
-export const MIGR_STAIRS_UP = 3;
-export const MIGR_STAIRS_DOWN = 4;
-export const MIGR_LADDER_UP = 5;
-export const MIGR_LADDER_DOWN = 6;
-export const MIGR_SSTAIRS = 7;
-export const MIGR_PORTAL = 8;
-export const MIGR_WITH_HERO = 9;
+export const MIGR_APPROX_XY = MIGR_RANDOM + 1;
+export const MIGR_EXACT_XY = MIGR_APPROX_XY + 1;
+export const MIGR_STAIRS_UP = MIGR_EXACT_XY + 1;
+export const MIGR_STAIRS_DOWN = MIGR_STAIRS_UP + 1;
+export const MIGR_LADDER_UP = MIGR_STAIRS_DOWN + 1;
+export const MIGR_LADDER_DOWN = MIGR_LADDER_UP + 1;
+export const MIGR_SSTAIRS = MIGR_LADDER_DOWN + 1;
+export const MIGR_PORTAL = MIGR_SSTAIRS + 1;
+export const MIGR_WITH_HERO = MIGR_PORTAL + 1;
 export const MIGR_NOBREAK = 1024;
 export const MIGR_NOSCATTER = 2048;
 export const MIGR_TO_SPECIES = 4096;
@@ -929,11 +929,11 @@ export const LFILE_EXISTS = 0x04;
 
 // ===== engrave.h =====
 export const DUST = 1;
-export const ENGRAVE = 2;
-export const BURN = 3;
-export const MARK = 4;
-export const ENGR_BLOOD = 5;
-export const HEADSTONE = 6;
+export const ENGRAVE = DUST + 1;
+export const BURN = ENGRAVE + 1;
+export const MARK = BURN + 1;
+export const ENGR_BLOOD = MARK + 1;
+export const HEADSTONE = ENGR_BLOOD + 1;
 export const N_ENGRAVE = 6;
 
 // ===== flag.h =====
@@ -1110,11 +1110,11 @@ export const MENU_ITEMFLAGS_SKIPMENUCOLORS = 0x0000004;
 
 // ===== sym.h =====
 export const H_UNK = 0;
-export const H_IBM = 1;
-export const H_DEC = 2;
-export const H_CURS = 3;
-export const H_MAC = 4;
-export const H_UTF8 = 5;
+export const H_IBM = H_UNK + 1;
+export const H_DEC = H_IBM + 1;
+export const H_CURS = H_DEC + 1;
+export const H_MAC = H_CURS + 1;
+export const H_UTF8 = H_MAC + 1;
 export const PRIMARYSET = 0;
 export const ROGUESET = 1;
 export const NUM_GRAPHICS = (ROGUESET + 1);
@@ -1134,16 +1134,16 @@ export const AS_MON_IS_UNIQUE = 2;
 
 // ===== mkroom.h =====
 export const ARMORSHOP = 15;
-export const SCROLLSHOP = 16;
-export const POTIONSHOP = 17;
-export const WEAPONSHOP = 18;
-export const FOODSHOP = 19;
-export const RINGSHOP = 20;
-export const WANDSHOP = 21;
-export const TOOLSHOP = 22;
-export const BOOKSHOP = 23;
-export const FODDERSHOP = 24;
-export const CANDLESHOP = 25;
+export const SCROLLSHOP = ARMORSHOP + 1;
+export const POTIONSHOP = SCROLLSHOP + 1;
+export const WEAPONSHOP = POTIONSHOP + 1;
+export const FOODSHOP = WEAPONSHOP + 1;
+export const RINGSHOP = FOODSHOP + 1;
+export const WANDSHOP = RINGSHOP + 1;
+export const TOOLSHOP = WANDSHOP + 1;
+export const BOOKSHOP = TOOLSHOP + 1;
+export const FODDERSHOP = BOOKSHOP + 1;
+export const CANDLESHOP = FODDERSHOP + 1;
 export const D_SCATTER = 0;
 export const D_SHOP = 1;
 export const D_TEMPLE = 2;
@@ -1159,16 +1159,16 @@ export const FILL_LVFLAGS = 2;
 // ===== obj.h =====
 export const SPE_LIM = 99;
 export const OBJ_FREE = 0;
-export const OBJ_FLOOR = 1;
-export const OBJ_CONTAINED = 2;
-export const OBJ_INVENT = 3;
-export const OBJ_MINVENT = 4;
-export const OBJ_MIGRATING = 5;
-export const OBJ_BURIED = 6;
-export const OBJ_ONBILL = 7;
-export const OBJ_LUAFREE = 8;
-export const OBJ_DELETED = 9;
-export const NOBJ_STATES = 10;
+export const OBJ_FLOOR = OBJ_FREE + 1;
+export const OBJ_CONTAINED = OBJ_FLOOR + 1;
+export const OBJ_INVENT = OBJ_CONTAINED + 1;
+export const OBJ_MINVENT = OBJ_INVENT + 1;
+export const OBJ_MIGRATING = OBJ_MINVENT + 1;
+export const OBJ_BURIED = OBJ_MIGRATING + 1;
+export const OBJ_ONBILL = OBJ_BURIED + 1;
+export const OBJ_LUAFREE = OBJ_ONBILL + 1;
+export const OBJ_DELETED = OBJ_LUAFREE + 1;
+export const NOBJ_STATES = OBJ_DELETED + 1;
 export const MAX_ERODE = 3;
 export const MAX_EGG_HATCH_TIME = 200;
 export const MAX_OIL_IN_FLASK = 400;
@@ -1176,9 +1176,9 @@ export const CONTAINED_TOO = 0x1;
 export const BURIED_TOO = 0x2;
 export const ERODE_NONE = -1;
 export const POTHIT_HERO_BASH = 0;
-export const POTHIT_HERO_THROW = 1;
-export const POTHIT_MONST_THROW = 2;
-export const POTHIT_OTHER_THROW = 3;
+export const POTHIT_HERO_THROW = POTHIT_HERO_BASH + 1;
+export const POTHIT_MONST_THROW = POTHIT_HERO_THROW + 1;
+export const POTHIT_OTHER_THROW = POTHIT_MONST_THROW + 1;
 export const LOST_NONE = 0;
 export const LOST_THROWN = 1;
 export const LOST_DROPPED = 2;
@@ -1223,11 +1223,11 @@ export const WM_T_LONG = 1;
 export const WM_T_BL = 2;
 export const WM_T_BR = 3;
 export const WM_X_TL = 1;
-export const WM_X_TR = 2;
-export const WM_X_BL = 3;
-export const WM_X_BR = 4;
-export const WM_X_TLBR = 5;
-export const WM_X_BLTR = 6;
+export const WM_X_TR = WM_X_TL + 1;
+export const WM_X_BL = WM_X_TR + 1;
+export const WM_X_BR = WM_X_BL + 1;
+export const WM_X_TLBR = WM_X_BR + 1;
+export const WM_X_BLTR = WM_X_TLBR + 1;
 export const SVALL = (0xFF);
 
 // ===== sndprocs.h =====
@@ -1258,10 +1258,10 @@ export const ALL_SPELLS = 0x2;
 
 // ===== timeout.h =====
 export const TIMER_NONE = 0;
-export const TIMER_LEVEL = 1;
-export const TIMER_GLOBAL = 2;
-export const TIMER_OBJECT = 3;
-export const TIMER_MONSTER = 4;
+export const TIMER_LEVEL = TIMER_NONE + 1;
+export const TIMER_GLOBAL = TIMER_LEVEL + 1;
+export const TIMER_OBJECT = TIMER_GLOBAL + 1;
+export const TIMER_MONSTER = TIMER_OBJECT + 1;
 export const NUM_TIMER_KINDS = (TIMER_MONSTER + 1);
 export const ROT_ORGANIC = 0;
 export const ROT_CORPSE = (ROT_ORGANIC + 1);
@@ -1346,10 +1346,10 @@ export const MAP_MODE_ASCII10x18 = 9;
 export const MAP_MODE_ASCII_FIT_TO_SCREEN = 10;
 export const MAP_MODE_TILES_FIT_TO_SCREEN = 11;
 export const RS_NAME = 0;
-export const RS_ROLE = 1;
-export const RS_RACE = 2;
-export const RS_GENDER = 3;
-export const RS_ALGNMNT = 4;
+export const RS_ROLE = RS_NAME + 1;
+export const RS_RACE = RS_ROLE + 1;
+export const RS_GENDER = RS_RACE + 1;
+export const RS_ALGNMNT = RS_GENDER + 1;
 export const WININIT = 0;
 export const WININIT_UNDO = 1;
 export const WINCHAIN_ALLOC = 0;
@@ -1444,11 +1444,11 @@ export const AC_MAX = 99;
 // C ref: hack.h plur(). The plural suffix for a count.
 export function plur(x) { return x === 1 ? '' : 's'; }
 export const ZAPPED_WAND = 0;
-export const THROWN_WEAPON = 1;
-export const THROWN_TETHERED_WEAPON = 2;
-export const KICKED_WEAPON = 3;
-export const FLASHED_LIGHT = 4;
-export const INVIS_BEAM = 5;
+export const THROWN_WEAPON = ZAPPED_WAND + 1;
+export const THROWN_TETHERED_WEAPON = THROWN_WEAPON + 1;
+export const KICKED_WEAPON = THROWN_TETHERED_WEAPON + 1;
+export const FLASHED_LIGHT = KICKED_WEAPON + 1;
+export const INVIS_BEAM = FLASHED_LIGHT + 1;
 export const NO_PART = -1;
 export const CONS_OBJ = 0;
 export const CONS_MON = (CONS_OBJ + 1);
@@ -1486,25 +1486,25 @@ export const NHKF_GETPOS_LIMITVIEW = (NHKF_GETPOS_MENU + 1);
 export const NHKF_GETPOS_MOVESKIP = (NHKF_GETPOS_LIMITVIEW + 1);
 export const NUM_NHKF = (NHKF_GETPOS_MOVESKIP + 1);
 export const COST_CANCEL = 0;
-export const COST_DRAIN = 1;
-export const COST_UNCHRG = 2;
-export const COST_UNBLSS = 3;
-export const COST_UNCURS = 4;
-export const COST_DECHNT = 5;
-export const COST_DEGRD = 6;
-export const COST_DILUTE = 7;
-export const COST_ERASE = 8;
-export const COST_BURN = 9;
-export const COST_NUTRLZ = 10;
-export const COST_DSTROY = 11;
-export const COST_SPLAT = 12;
-export const COST_BITE = 13;
-export const COST_OPEN = 14;
-export const COST_BRKLCK = 15;
-export const COST_RUST = 16;
-export const COST_ROT = 17;
-export const COST_CORRODE = 18;
-export const COST_CRACK = 19;
+export const COST_DRAIN = COST_CANCEL + 1;
+export const COST_UNCHRG = COST_DRAIN + 1;
+export const COST_UNBLSS = COST_UNCHRG + 1;
+export const COST_UNCURS = COST_UNBLSS + 1;
+export const COST_DECHNT = COST_UNCURS + 1;
+export const COST_DEGRD = COST_DECHNT + 1;
+export const COST_DILUTE = COST_DEGRD + 1;
+export const COST_ERASE = COST_DILUTE + 1;
+export const COST_BURN = COST_ERASE + 1;
+export const COST_NUTRLZ = COST_BURN + 1;
+export const COST_DSTROY = COST_NUTRLZ + 1;
+export const COST_SPLAT = COST_DSTROY + 1;
+export const COST_BITE = COST_SPLAT + 1;
+export const COST_OPEN = COST_BITE + 1;
+export const COST_BRKLCK = COST_OPEN + 1;
+export const COST_RUST = COST_BRKLCK + 1;
+export const COST_ROT = COST_RUST + 1;
+export const COST_CORRODE = COST_ROT + 1;
+export const COST_CRACK = COST_CORRODE + 1;
 export const COST_NOCONTENTS = 0;
 export const COST_CONTENTS = 1;
 export const COST_SINGLEOBJ = 2;
@@ -1520,17 +1520,17 @@ export const LOOK_QUICK = 1;
 export const LOOK_ONCE = 2;
 export const LOOK_VERBOSE = 3;
 export const HMON_MELEE = 0;
-export const HMON_THROWN = 1;
-export const HMON_KICKED = 2;
-export const HMON_APPLIED = 3;
-export const HMON_DRAGGED = 4;
+export const HMON_THROWN = HMON_MELEE + 1;
+export const HMON_KICKED = HMON_THROWN + 1;
+export const HMON_APPLIED = HMON_KICKED + 1;
+export const HMON_DRAGGED = HMON_APPLIED + 1;
 export const SATIATED = 0;
-export const NOT_HUNGRY = 1;
-export const HUNGRY = 2;
-export const WEAK = 3;
-export const FAINTING = 4;
-export const FAINTED = 5;
-export const STARVED = 6;
+export const NOT_HUNGRY = SATIATED + 1;
+export const HUNGRY = NOT_HUNGRY + 1;
+export const WEAK = HUNGRY + 1;
+export const FAINTING = WEAK + 1;
+export const FAINTED = FAINTING + 1;
+export const STARVED = FAINTED + 1;
 export const MV_ANY = -1;
 export const MV_WALK = (MV_ANY + 1);
 export const MV_RUN = (MV_WALK + 1);
@@ -1622,15 +1622,15 @@ export const UTD_SKIP_SAVEFILEINFO = 0x08;
 export const UTD_WITHOUT_WAITSYNCH_PERFILE = 0x10;
 export const UTD_QUIETLY = 0x20;
 export const SF_UPTODATE = 0;
-export const SF_OUTDATED = 1;
-export const SF_CRITICAL_BYTE_COUNT_MISMATCH = 2;
-export const SF_DM_IL32LLP64_ON_ILP32LL64 = 3;
-export const SF_DM_I32LP64_ON_ILP32LL64 = 4;
-export const SF_DM_ILP32LL64_ON_I32LP64 = 5;
-export const SF_DM_ILP32LL64_ON_IL32LLP64 = 6;
-export const SF_DM_I32LP64_ON_IL32LLP64 = 7;
-export const SF_DM_IL32LLP64_ON_I32LP64 = 8;
-export const SF_DM_MISMATCH = 9;
+export const SF_OUTDATED = SF_UPTODATE + 1;
+export const SF_CRITICAL_BYTE_COUNT_MISMATCH = SF_OUTDATED + 1;
+export const SF_DM_IL32LLP64_ON_ILP32LL64 = SF_CRITICAL_BYTE_COUNT_MISMATCH + 1;
+export const SF_DM_I32LP64_ON_ILP32LL64 = SF_DM_IL32LLP64_ON_ILP32LL64 + 1;
+export const SF_DM_ILP32LL64_ON_I32LP64 = SF_DM_I32LP64_ON_ILP32LL64 + 1;
+export const SF_DM_ILP32LL64_ON_IL32LLP64 = SF_DM_ILP32LL64_ON_I32LP64 + 1;
+export const SF_DM_I32LP64_ON_IL32LLP64 = SF_DM_ILP32LL64_ON_IL32LLP64 + 1;
+export const SF_DM_IL32LLP64_ON_I32LP64 = SF_DM_I32LP64_ON_IL32LLP64 + 1;
+export const SF_DM_MISMATCH = SF_DM_IL32LLP64_ON_I32LP64 + 1;
 export const ENTITIES = 2;
 export const NHF_LEVELFILE = 1;
 export const NHF_SAVEFILE = 2;
@@ -1642,23 +1642,23 @@ export const FREEING = 0x04;
 export const CONVERTING = 0x08;
 export const UNCONVERTING = 0x10;
 export const HACKPREFIX = 0;
-export const LEVELPREFIX = 1;
-export const SAVEPREFIX = 2;
-export const BONESPREFIX = 3;
-export const DATAPREFIX = 4;
-export const SCOREPREFIX = 5;
-export const LOCKPREFIX = 6;
-export const SYSCONFPREFIX = 7;
-export const CONFIGPREFIX = 8;
-export const TROUBLEPREFIX = 9;
-export const PREFIX_COUNT = 10;
+export const LEVELPREFIX = HACKPREFIX + 1;
+export const SAVEPREFIX = LEVELPREFIX + 1;
+export const BONESPREFIX = SAVEPREFIX + 1;
+export const DATAPREFIX = BONESPREFIX + 1;
+export const SCOREPREFIX = DATAPREFIX + 1;
+export const LOCKPREFIX = SCOREPREFIX + 1;
+export const SYSCONFPREFIX = LOCKPREFIX + 1;
+export const CONFIGPREFIX = SYSCONFPREFIX + 1;
+export const TROUBLEPREFIX = CONFIGPREFIX + 1;
+export const PREFIX_COUNT = TROUBLEPREFIX + 1;
 export const FQN_MAX_FILENAME = 512;
 export const MAX_MENU_MAPPED_CMDS = 32;
 export const BP_ALIGN = 0;
-export const BP_GEND = 1;
-export const BP_RACE = 2;
-export const BP_ROLE = 3;
-export const NUM_BP = 4;
+export const BP_GEND = BP_ALIGN + 1;
+export const BP_RACE = BP_GEND + 1;
+export const BP_ROLE = BP_RACE + 1;
+export const NUM_BP = BP_ROLE + 1;
 export const WIZKIT_MAX = 128;
 export const CVT_BUF_SIZE = 64;
 export const LUA_VER_BUFSIZ = 20;
@@ -1736,10 +1736,10 @@ export const PICK_RIGID = 1;
 export const NO_TRAP_FLAGS = 0x00;
 export const HURTLING = 0x80;
 export const MMOVE_NOTHING = 0;
-export const MMOVE_MOVED = 1;
-export const MMOVE_DIED = 2;
-export const MMOVE_DONE = 3;
-export const MMOVE_NOMOVES = 4;
+export const MMOVE_MOVED = MMOVE_NOTHING + 1;
+export const MMOVE_DIED = MMOVE_MOVED + 1;
+export const MMOVE_DONE = MMOVE_DIED + 1;
+export const MMOVE_NOMOVES = MMOVE_DONE + 1;
 export const VIS_EFFECTS = 0x01;
 export const ROLL = 0x01;
 export const FLING = 0x02;
@@ -1944,12 +1944,12 @@ export const NHW_END = 19;
 export const NONE = -1;
 export const KEY_ESC = 0x1b;
 export const MESSAGE_WIN = 1;
-export const STATUS_WIN = 2;
-export const MAP_WIN = 3;
-export const INV_WIN = 4;
-export const TEXT_WIN = 5;
-export const MENU_WIN = 6;
-export const NHWIN_MAX = 7;
+export const STATUS_WIN = MESSAGE_WIN + 1;
+export const MAP_WIN = STATUS_WIN + 1;
+export const INV_WIN = MAP_WIN + 1;
+export const TEXT_WIN = INV_WIN + 1;
+export const MENU_WIN = TEXT_WIN + 1;
+export const NHWIN_MAX = MENU_WIN + 1;
 export const CURSES_DARK_GRAY = 17;
 
 // ===== wintty.h =====
@@ -1974,11 +1974,11 @@ export const LOCKNAMESIZE = (PL_NSIZ + 14);
 // - dig target classification from dig_typ()
 // - dig viability/error code from dig_check()
 export const DIGTYP_UNDIGGABLE = 0;
-export const DIGTYP_ROCK = 1;
-export const DIGTYP_STATUE = 2;
-export const DIGTYP_BOULDER = 3;
-export const DIGTYP_DOOR = 4;
-export const DIGTYP_TREE = 5;
+export const DIGTYP_ROCK = DIGTYP_UNDIGGABLE + 1;
+export const DIGTYP_STATUE = DIGTYP_ROCK + 1;
+export const DIGTYP_BOULDER = DIGTYP_STATUE + 1;
+export const DIGTYP_DOOR = DIGTYP_BOULDER + 1;
+export const DIGTYP_TREE = DIGTYP_DOOR + 1;
 // C ref: hack.h enum digcheck_result. Keep the aliases and enum ordering
 // source-valued because callers compare results across DIGCHECK_FAILED.
 export const DIGCHECK_PASSED = 1;
@@ -1987,28 +1987,28 @@ export const DIGCHECK_PASSED_PITONLY = 3;
 export const DIGCHECK_FAILED = 4;
 export const DIGCHECK_FAIL_ONSTAIRS = DIGCHECK_FAILED;
 export const DIGCHECK_FAIL_ONLADDER = 5;
-export const DIGCHECK_FAIL_THRONE = 6;
-export const DIGCHECK_FAIL_ALTAR = 7;
-export const DIGCHECK_FAIL_AIRLEVEL = 8;
-export const DIGCHECK_FAIL_WATERLEVEL = 9;
-export const DIGCHECK_FAIL_TOOHARD = 10;
-export const DIGCHECK_FAIL_UNDESTROYABLETRAP = 11;
-export const DIGCHECK_FAIL_CANTDIG = 12;
-export const DIGCHECK_FAIL_BOULDER = 13;
-export const DIGCHECK_FAIL_OBJ_POOL_OR_TRAP = 14;
+export const DIGCHECK_FAIL_THRONE = DIGCHECK_FAIL_ONLADDER + 1;
+export const DIGCHECK_FAIL_ALTAR = DIGCHECK_FAIL_THRONE + 1;
+export const DIGCHECK_FAIL_AIRLEVEL = DIGCHECK_FAIL_ALTAR + 1;
+export const DIGCHECK_FAIL_WATERLEVEL = DIGCHECK_FAIL_AIRLEVEL + 1;
+export const DIGCHECK_FAIL_TOOHARD = DIGCHECK_FAIL_WATERLEVEL + 1;
+export const DIGCHECK_FAIL_UNDESTROYABLETRAP = DIGCHECK_FAIL_TOOHARD + 1;
+export const DIGCHECK_FAIL_CANTDIG = DIGCHECK_FAIL_UNDESTROYABLETRAP + 1;
+export const DIGCHECK_FAIL_BOULDER = DIGCHECK_FAIL_CANTDIG + 1;
+export const DIGCHECK_FAIL_OBJ_POOL_OR_TRAP = DIGCHECK_FAIL_BOULDER + 1;
 
 // Explosion type/source/flag constants (src/explode.c)
 // Runtime fields:
 // - explode(..., expltype/olet) rendering and source class
 // - scatter/explosion hit+destroy flag masks
 export const EXPL_DARK = 0;
-export const EXPL_NOXIOUS = 1;
-export const EXPL_MUDDY = 2;
-export const EXPL_WET = 3;
-export const EXPL_MAGICAL = 4;
-export const EXPL_FIERY = 5;
-export const EXPL_FROSTY = 6;
-export const EXPL_MAX = 7;
+export const EXPL_NOXIOUS = EXPL_DARK + 1;
+export const EXPL_MUDDY = EXPL_NOXIOUS + 1;
+export const EXPL_WET = EXPL_MUDDY + 1;
+export const EXPL_MAGICAL = EXPL_WET + 1;
+export const EXPL_FIERY = EXPL_MAGICAL + 1;
+export const EXPL_FROSTY = EXPL_FIERY + 1;
+export const EXPL_MAX = EXPL_FROSTY + 1;
 // objclass.h defines these as MAXOCLASSES + 1, + 2 and + 3. MAXOCLASSES (18)
 // lives in objects.js, which const.js cannot import, so the values are
 // written out; scripts/check-c-constants.mjs compares them with the C.
@@ -2028,13 +2028,13 @@ export const MAY_FRACTURE = 0x10;
 // DISMOUNT_BYCHOICE, so the numbering has to match the enum rather than merely
 // be distinct.
 export const DISMOUNT_GENERIC = 0;
-export const DISMOUNT_FELL = 1;
-export const DISMOUNT_THROWN = 2;
-export const DISMOUNT_KNOCKED = 3;
-export const DISMOUNT_POLY = 4;
-export const DISMOUNT_ENGULFED = 5;
-export const DISMOUNT_BONES = 6;
-export const DISMOUNT_BYCHOICE = 7;
+export const DISMOUNT_FELL = DISMOUNT_GENERIC + 1;
+export const DISMOUNT_THROWN = DISMOUNT_FELL + 1;
+export const DISMOUNT_KNOCKED = DISMOUNT_THROWN + 1;
+export const DISMOUNT_POLY = DISMOUNT_KNOCKED + 1;
+export const DISMOUNT_ENGULFED = DISMOUNT_POLY + 1;
+export const DISMOUNT_BONES = DISMOUNT_ENGULFED + 1;
+export const DISMOUNT_BYCHOICE = DISMOUNT_BONES + 1;
 
 // Vault guard constants (src/vault.c)
 // Runtime fields: guard timers and guard activity/witness bits.
@@ -2068,11 +2068,11 @@ export const BUC_UNKNOWN = 0x0800;
 // getobj() writes `obj_ok(otmp) <= GETOBJ_EXCLUDE` at invent.c:2011, which
 // relies on GETOBJ_EXCLUDE being the smallest of them.
 export const GETOBJ_EXCLUDE = -3;
-export const GETOBJ_EXCLUDE_NONINVENT = -2;
-export const GETOBJ_EXCLUDE_INACCESS = -1;
-export const GETOBJ_EXCLUDE_SELECTABLE = 0;
-export const GETOBJ_DOWNPLAY = 1;
-export const GETOBJ_SUGGEST = 2;
+export const GETOBJ_EXCLUDE_NONINVENT = GETOBJ_EXCLUDE + 1;
+export const GETOBJ_EXCLUDE_INACCESS = GETOBJ_EXCLUDE_NONINVENT + 1;
+export const GETOBJ_EXCLUDE_SELECTABLE = GETOBJ_EXCLUDE_INACCESS + 1;
+export const GETOBJ_DOWNPLAY = GETOBJ_EXCLUDE_SELECTABLE + 1;
+export const GETOBJ_SUGGEST = GETOBJ_DOWNPLAY + 1;
 export const GETOBJ_ALLOWCNT = 0x01;
 export const GETOBJ_PROMPT = 0x02;
 export const GETOBJ_NOFLAGS = 0;
@@ -2127,6 +2127,8 @@ export const ROOMOFFSET = 3;
 export const quitchars = ' \r\n\x1B';
 
 // Check terrain type helpers (rm.h)
+// Copies: rm.h IS_WALL() is also ported as mkmaze.js iswall(). A change to it
+// must reach every copy.
 export function IS_WALL(typ) {
     // C ref: rm.h — IS_WALL(typ) ((typ) && (typ) <= DBWALL)
     return typ >= VWALL && typ <= DBWALL;
@@ -2147,14 +2149,20 @@ export function IS_ROOM(typ) {
 export function IS_FURNITURE(typ) {
     return typ >= STAIRS && typ <= ALTAR;
 }
+// Copies: rm.h ACCESSIBLE() is also ported as monmove.js accessible(). A
+// change to it must reach every copy.
 export function ACCESSIBLE(typ) {
     // C ref: rm.h -- #define ACCESSIBLE(typ) ((typ) >= DOOR)
     return typ >= DOOR;
 }
+// Copies: rm.h IS_POOL() is also ported as dbridge.js is_pool(). A change to
+// it must reach every copy.
 export function IS_POOL(typ) {
     // C ref: rm.h — IS_POOL(typ) ((typ) >= POOL && (typ) <= DRAWBRIDGE_UP)
     return typ >= POOL && typ <= DRAWBRIDGE_UP;
 }
+// Copies: rm.h IS_LAVA() is also ported as dbridge.js is_lava(). A change to
+// it must reach every copy.
 export function IS_LAVA(typ) {
     // C ref: rm.h — IS_LAVA(typ) ((typ) == LAVAPOOL || (typ) == LAVAWALL)
     return typ === LAVAPOOL || typ === LAVAWALL;
@@ -2169,6 +2177,8 @@ export function IS_DRAWBRIDGE(typ) {
     // C ref: rm.h — IS_DRAWBRIDGE(typ) ((typ) == DRAWBRIDGE_UP || (typ) == DRAWBRIDGE_DOWN)
     return typ === DRAWBRIDGE_UP || typ === DRAWBRIDGE_DOWN;
 }
+// Copies: rm.h IS_WATERWALL() is also ported as dbridge.js is_waterwall(). A
+// change to it must reach every copy.
 export function IS_WATERWALL(typ) {
     // C ref: rm.h — IS_WATERWALL(typ) ((typ) == WATER)
     return typ === WATER;
@@ -2255,13 +2265,13 @@ export const TELEDS_TELEPORT = 2;
 
 // Dogfood classification enum (include/mextra.h dogfood_types; used by src/dog.c/dogmove.c)
 export const DOGFOOD = 0;
-export const CADAVER = 1;
-export const ACCFOOD = 2;
-export const MANFOOD = 3;
-export const APPORT = 4;
-export const POISON = 5;
-export const UNDEF = 6;
-export const TABU = 7;
+export const CADAVER = DOGFOOD + 1;
+export const ACCFOOD = CADAVER + 1;
+export const MANFOOD = ACCFOOD + 1;
+export const APPORT = MANFOOD + 1;
+export const POISON = APPORT + 1;
+export const UNDEF = POISON + 1;
+export const TABU = UNDEF + 1;
 
 // Hero-kill/xkilled flag bits (include/hack.h; used by src/mon.c xkilled())
 export const XKILL_GIVEMSG = 0x0;
@@ -2307,12 +2317,12 @@ export const W_CHAIN = 0x00400000;
 // Hero trap state enum (include/you.h enum utraptype)
 // Runtime field: player.utraptype
 export const TT_NONE = 0;
-export const TT_BEARTRAP = 1;
-export const TT_PIT = 2;
-export const TT_WEB = 3;
-export const TT_LAVA = 4;
-export const TT_INFLOOR = 5;
-export const TT_BURIEDBALL = 6;
+export const TT_BEARTRAP = TT_NONE + 1;
+export const TT_PIT = TT_BEARTRAP + 1;
+export const TT_WEB = TT_PIT + 1;
+export const TT_LAVA = TT_WEB + 1;
+export const TT_INFLOOR = TT_LAVA + 1;
+export const TT_BURIEDBALL = TT_INFLOOR + 1;
 
 // Trap trigger flags (include/hack.h; src/trap.c trigger_trap())
 // Runtime field: trigger_trap(...) tflags argument
@@ -2329,10 +2339,10 @@ export const FAILEDUNTRAP = 0x40;
 // - erode_obj / erode_obj_player type/result/ef_flags arguments
 // - object erosion counters (oeroded/oeroded2) driven by these enums
 export const ERODE_BURN = 0;
-export const ERODE_RUST = 1;
-export const ERODE_ROT = 2;
-export const ERODE_CORRODE = 3;
-export const ERODE_CRACK = 4;
+export const ERODE_RUST = ERODE_BURN + 1;
+export const ERODE_ROT = ERODE_RUST + 1;
+export const ERODE_CORRODE = ERODE_ROT + 1;
+export const ERODE_CRACK = ERODE_CORRODE + 1;
 export const ER_NOTHING = 0;
 export const ER_GREASED = 1;
 export const ER_DAMAGED = 2;
@@ -2345,33 +2355,33 @@ export const EF_PAY = 0x08;
 
 // Trap types (trap.h)
 export const ALL_TRAPS = -1;
-export const NO_TRAP = 0;
-export const ARROW_TRAP = 1;
-export const DART_TRAP = 2;
-export const ROCKTRAP = 3;
-export const SQKY_BOARD = 4;
-export const BEAR_TRAP = 5;
-export const LANDMINE = 6;
-export const ROLLING_BOULDER_TRAP = 7;
-export const SLP_GAS_TRAP = 8;
-export const RUST_TRAP = 9;
-export const FIRE_TRAP = 10;
-export const PIT = 11;
-export const SPIKED_PIT = 12;
-export const HOLE = 13;
-export const TRAPDOOR = 14;
-export const TELEP_TRAP = 15;
-export const LEVEL_TELEP = 16;
-export const MAGIC_PORTAL = 17;
-export const WEB = 18;
-export const STATUE_TRAP = 19;
-export const MAGIC_TRAP = 20;
-export const ANTI_MAGIC = 21;
-export const POLY_TRAP = 22;
-export const VIBRATING_SQUARE = 23;
-export const TRAPPED_DOOR = 24;
-export const TRAPPED_CHEST = 25;
-export const TRAPNUM = 26;
+export const NO_TRAP = ALL_TRAPS + 1;
+export const ARROW_TRAP = NO_TRAP + 1;
+export const DART_TRAP = ARROW_TRAP + 1;
+export const ROCKTRAP = DART_TRAP + 1;
+export const SQKY_BOARD = ROCKTRAP + 1;
+export const BEAR_TRAP = SQKY_BOARD + 1;
+export const LANDMINE = BEAR_TRAP + 1;
+export const ROLLING_BOULDER_TRAP = LANDMINE + 1;
+export const SLP_GAS_TRAP = ROLLING_BOULDER_TRAP + 1;
+export const RUST_TRAP = SLP_GAS_TRAP + 1;
+export const FIRE_TRAP = RUST_TRAP + 1;
+export const PIT = FIRE_TRAP + 1;
+export const SPIKED_PIT = PIT + 1;
+export const HOLE = SPIKED_PIT + 1;
+export const TRAPDOOR = HOLE + 1;
+export const TELEP_TRAP = TRAPDOOR + 1;
+export const LEVEL_TELEP = TELEP_TRAP + 1;
+export const MAGIC_PORTAL = LEVEL_TELEP + 1;
+export const WEB = MAGIC_PORTAL + 1;
+export const STATUE_TRAP = WEB + 1;
+export const MAGIC_TRAP = STATUE_TRAP + 1;
+export const ANTI_MAGIC = MAGIC_TRAP + 1;
+export const POLY_TRAP = ANTI_MAGIC + 1;
+export const VIBRATING_SQUARE = POLY_TRAP + 1;
+export const TRAPPED_DOOR = VIBRATING_SQUARE + 1;
+export const TRAPPED_CHEST = TRAPPED_DOOR + 1;
+export const TRAPNUM = TRAPPED_CHEST + 1;
 
 // Trap function results (trap.h enum trap_result)
 export const Trap_Effect_Finished = 0;
@@ -2397,73 +2407,73 @@ export const MKTRAP_NOVICTIM = 0x08;
 // Intrinsic property indices (prop.h)
 // C ref: include/prop.h — enum prop_types (Property #0 unused)
 export const FIRE_RES = 1;
-export const COLD_RES = 2;
-export const SLEEP_RES = 3;
-export const DISINT_RES = 4;
-export const SHOCK_RES = 5;
-export const POISON_RES = 6;
-export const ACID_RES = 7;
-export const STONE_RES = 8;
-export const DRAIN_RES = 9;
-export const SICK_RES = 10;
-export const INVULNERABLE = 11;
-export const ANTIMAGIC = 12;
-export const STUNNED = 13;
-export const CONFUSION = 14;
-export const BLINDED = 15;
-export const DEAF = 16;
-export const SICK = 17;
-export const STONED = 18;
-export const STRANGLED = 19;
-export const VOMITING = 20;
-export const GLIB = 21;
-export const SLIMED = 22;
-export const HALLUC = 23;
-export const HALLUC_RES = 24;
-export const FUMBLING = 25;
-export const WOUNDED_LEGS = 26;
-export const SLEEPY = 27;
-export const HUNGER = 28;
-export const SEE_INVIS = 29;
-export const TELEPAT = 30;
-export const WARNING = 31;
-export const WARN_OF_MON = 32;
-export const WARN_UNDEAD = 33;
-export const SEARCHING = 34;
-export const CLAIRVOYANT = 35;
-export const INFRAVISION = 36;
-export const DETECT_MONSTERS = 37;
-export const BLND_RES = 38;
-export const ADORNED = 39;
-export const INVIS = 40;
-export const DISPLACED = 41;
-export const STEALTH = 42;
-export const AGGRAVATE_MONSTER = 43;
-export const CONFLICT = 44;
-export const JUMPING = 45;
-export const TELEPORT = 46;
-export const TELEPORT_CONTROL = 47;
-export const LEVITATION = 48;
-export const FLYING = 49;
-export const WWALKING = 50;
-export const SWIMMING = 51;
-export const MAGICAL_BREATHING = 52;
-export const PASSES_WALLS = 53;
-export const SLOW_DIGESTION = 54;
-export const HALF_SPDAM = 55;
-export const HALF_PHDAM = 56;
-export const REGENERATION = 57;
-export const ENERGY_REGENERATION = 58;
-export const PROTECTION = 59;
-export const PROT_FROM_SHAPE_CHANGERS = 60;
-export const POLYMORPH = 61;
-export const POLYMORPH_CONTROL = 62;
-export const UNCHANGING = 63;
-export const FAST = 64;
-export const REFLECTING = 65;
-export const FREE_ACTION = 66;
-export const FIXED_ABIL = 67;
-export const LIFESAVED = 68;
+export const COLD_RES = FIRE_RES + 1;
+export const SLEEP_RES = COLD_RES + 1;
+export const DISINT_RES = SLEEP_RES + 1;
+export const SHOCK_RES = DISINT_RES + 1;
+export const POISON_RES = SHOCK_RES + 1;
+export const ACID_RES = POISON_RES + 1;
+export const STONE_RES = ACID_RES + 1;
+export const DRAIN_RES = STONE_RES + 1;
+export const SICK_RES = DRAIN_RES + 1;
+export const INVULNERABLE = SICK_RES + 1;
+export const ANTIMAGIC = INVULNERABLE + 1;
+export const STUNNED = ANTIMAGIC + 1;
+export const CONFUSION = STUNNED + 1;
+export const BLINDED = CONFUSION + 1;
+export const DEAF = BLINDED + 1;
+export const SICK = DEAF + 1;
+export const STONED = SICK + 1;
+export const STRANGLED = STONED + 1;
+export const VOMITING = STRANGLED + 1;
+export const GLIB = VOMITING + 1;
+export const SLIMED = GLIB + 1;
+export const HALLUC = SLIMED + 1;
+export const HALLUC_RES = HALLUC + 1;
+export const FUMBLING = HALLUC_RES + 1;
+export const WOUNDED_LEGS = FUMBLING + 1;
+export const SLEEPY = WOUNDED_LEGS + 1;
+export const HUNGER = SLEEPY + 1;
+export const SEE_INVIS = HUNGER + 1;
+export const TELEPAT = SEE_INVIS + 1;
+export const WARNING = TELEPAT + 1;
+export const WARN_OF_MON = WARNING + 1;
+export const WARN_UNDEAD = WARN_OF_MON + 1;
+export const SEARCHING = WARN_UNDEAD + 1;
+export const CLAIRVOYANT = SEARCHING + 1;
+export const INFRAVISION = CLAIRVOYANT + 1;
+export const DETECT_MONSTERS = INFRAVISION + 1;
+export const BLND_RES = DETECT_MONSTERS + 1;
+export const ADORNED = BLND_RES + 1;
+export const INVIS = ADORNED + 1;
+export const DISPLACED = INVIS + 1;
+export const STEALTH = DISPLACED + 1;
+export const AGGRAVATE_MONSTER = STEALTH + 1;
+export const CONFLICT = AGGRAVATE_MONSTER + 1;
+export const JUMPING = CONFLICT + 1;
+export const TELEPORT = JUMPING + 1;
+export const TELEPORT_CONTROL = TELEPORT + 1;
+export const LEVITATION = TELEPORT_CONTROL + 1;
+export const FLYING = LEVITATION + 1;
+export const WWALKING = FLYING + 1;
+export const SWIMMING = WWALKING + 1;
+export const MAGICAL_BREATHING = SWIMMING + 1;
+export const PASSES_WALLS = MAGICAL_BREATHING + 1;
+export const SLOW_DIGESTION = PASSES_WALLS + 1;
+export const HALF_SPDAM = SLOW_DIGESTION + 1;
+export const HALF_PHDAM = HALF_SPDAM + 1;
+export const REGENERATION = HALF_PHDAM + 1;
+export const ENERGY_REGENERATION = REGENERATION + 1;
+export const PROTECTION = ENERGY_REGENERATION + 1;
+export const PROT_FROM_SHAPE_CHANGERS = PROTECTION + 1;
+export const POLYMORPH = PROT_FROM_SHAPE_CHANGERS + 1;
+export const POLYMORPH_CONTROL = POLYMORPH + 1;
+export const UNCHANGING = POLYMORPH_CONTROL + 1;
+export const FAST = UNCHANGING + 1;
+export const REFLECTING = FAST + 1;
+export const FREE_ACTION = REFLECTING + 1;
+export const FIXED_ABIL = FREE_ACTION + 1;
+export const LIFESAVED = FIXED_ABIL + 1;
 export const LAST_PROP = LIFESAVED;
 
 // Intrinsic bitmask constants (prop.h)
@@ -2728,44 +2738,44 @@ export function set_symhandling(handling, which_set) {
 
 // Skill constants — cf. skills.h enum p_skills
 export const P_NONE = 0;
-export const P_DAGGER = 1;
-export const P_KNIFE = 2;
-export const P_AXE = 3;
-export const P_PICK_AXE = 4;
-export const P_SHORT_SWORD = 5;
-export const P_BROAD_SWORD = 6;
-export const P_LONG_SWORD = 7;
-export const P_TWO_HANDED_SWORD = 8;
-export const P_SABER = 9;
-export const P_CLUB = 10;
-export const P_MACE = 11;
-export const P_MORNING_STAR = 12;
-export const P_FLAIL = 13;
-export const P_HAMMER = 14;
-export const P_QUARTERSTAFF = 15;
-export const P_POLEARMS = 16;
-export const P_SPEAR = 17;
-export const P_TRIDENT = 18;
-export const P_LANCE = 19;
-export const P_BOW = 20;
-export const P_SLING = 21;
-export const P_CROSSBOW = 22;
-export const P_DART = 23;
-export const P_SHURIKEN = 24;
-export const P_BOOMERANG = 25;
-export const P_WHIP = 26;
-export const P_UNICORN_HORN = 27;
-export const P_ATTACK_SPELL = 28;
-export const P_HEALING_SPELL = 29;
-export const P_DIVINATION_SPELL = 30;
-export const P_ENCHANTMENT_SPELL = 31;
-export const P_CLERIC_SPELL = 32;
-export const P_ESCAPE_SPELL = 33;
-export const P_MATTER_SPELL = 34;
-export const P_BARE_HANDED_COMBAT = 35;
-export const P_TWO_WEAPON_COMBAT = 36;
-export const P_RIDING = 37;
-export const P_NUM_SKILLS = 38;
+export const P_DAGGER = P_NONE + 1;
+export const P_KNIFE = P_DAGGER + 1;
+export const P_AXE = P_KNIFE + 1;
+export const P_PICK_AXE = P_AXE + 1;
+export const P_SHORT_SWORD = P_PICK_AXE + 1;
+export const P_BROAD_SWORD = P_SHORT_SWORD + 1;
+export const P_LONG_SWORD = P_BROAD_SWORD + 1;
+export const P_TWO_HANDED_SWORD = P_LONG_SWORD + 1;
+export const P_SABER = P_TWO_HANDED_SWORD + 1;
+export const P_CLUB = P_SABER + 1;
+export const P_MACE = P_CLUB + 1;
+export const P_MORNING_STAR = P_MACE + 1;
+export const P_FLAIL = P_MORNING_STAR + 1;
+export const P_HAMMER = P_FLAIL + 1;
+export const P_QUARTERSTAFF = P_HAMMER + 1;
+export const P_POLEARMS = P_QUARTERSTAFF + 1;
+export const P_SPEAR = P_POLEARMS + 1;
+export const P_TRIDENT = P_SPEAR + 1;
+export const P_LANCE = P_TRIDENT + 1;
+export const P_BOW = P_LANCE + 1;
+export const P_SLING = P_BOW + 1;
+export const P_CROSSBOW = P_SLING + 1;
+export const P_DART = P_CROSSBOW + 1;
+export const P_SHURIKEN = P_DART + 1;
+export const P_BOOMERANG = P_SHURIKEN + 1;
+export const P_WHIP = P_BOOMERANG + 1;
+export const P_UNICORN_HORN = P_WHIP + 1;
+export const P_ATTACK_SPELL = P_UNICORN_HORN + 1;
+export const P_HEALING_SPELL = P_ATTACK_SPELL + 1;
+export const P_DIVINATION_SPELL = P_HEALING_SPELL + 1;
+export const P_ENCHANTMENT_SPELL = P_DIVINATION_SPELL + 1;
+export const P_CLERIC_SPELL = P_ENCHANTMENT_SPELL + 1;
+export const P_ESCAPE_SPELL = P_CLERIC_SPELL + 1;
+export const P_MATTER_SPELL = P_ESCAPE_SPELL + 1;
+export const P_BARE_HANDED_COMBAT = P_MATTER_SPELL + 1;
+export const P_TWO_WEAPON_COMBAT = P_BARE_HANDED_COMBAT + 1;
+export const P_RIDING = P_TWO_WEAPON_COMBAT + 1;
+export const P_NUM_SKILLS = P_RIDING + 1;
 
 export const P_FIRST_WEAPON = P_DAGGER;
 export const P_LAST_WEAPON = P_UNICORN_HORN;
@@ -2778,21 +2788,21 @@ export const P_SKILL_LIMIT = 60;
 
 // Skill levels — cf. skills.h enum skill_levels
 export const P_ISRESTRICTED = 0;
-export const P_UNSKILLED = 1;
-export const P_BASIC = 2;
-export const P_SKILLED = 3;
-export const P_EXPERT = 4;
-export const P_MASTER = 5;
-export const P_GRAND_MASTER = 6;
+export const P_UNSKILLED = P_ISRESTRICTED + 1;
+export const P_BASIC = P_UNSKILLED + 1;
+export const P_SKILLED = P_BASIC + 1;
+export const P_EXPERT = P_SKILLED + 1;
+export const P_MASTER = P_EXPERT + 1;
+export const P_GRAND_MASTER = P_MASTER + 1;
 
 // Monster weapon_check states — cf. monst.h enum wpn_chk_flags
 export const NO_WEAPON_WANTED = 0;
-export const NEED_WEAPON = 1;
-export const NEED_RANGED_WEAPON = 2;
-export const NEED_HTH_WEAPON = 3;
-export const NEED_PICK_AXE = 4;
-export const NEED_AXE = 5;
-export const NEED_PICK_OR_AXE = 6;
+export const NEED_WEAPON = NO_WEAPON_WANTED + 1;
+export const NEED_RANGED_WEAPON = NEED_WEAPON + 1;
+export const NEED_HTH_WEAPON = NEED_RANGED_WEAPON + 1;
+export const NEED_PICK_AXE = NEED_HTH_WEAPON + 1;
+export const NEED_AXE = NEED_PICK_AXE + 1;
+export const NEED_PICK_OR_AXE = NEED_AXE + 1;
 
 // Distance limits (hack.h)
 export const BOLT_LIM = 8;
@@ -2977,6 +2987,8 @@ export function has_mcorpsenm(mtmp) {
 
 // Object extra accessors
 // C: ONAME(obj) → ((char *)(obj)->oextra->oname)
+// Copies: obj.h ONAME() is also ported as invent.js oname(). A change to it
+// must reach every copy.
 export function ONAME(obj) { return obj?.oextra?.oname || ''; }
 export function has_oname(obj) { return !!obj?.oextra?.oname; }
 export function OMONST(obj) { return obj?.oextra?.omonst; }
@@ -3044,6 +3056,8 @@ export function u_at(x, y, state = game) {
 export function OBJ_AT(x, y, state = game) {
     return Boolean(state?.level?.objects?.[x]?.[y]);
 }
+// Copies: obj.h Has_contents() is also ported as obj.js hasContents(). A
+// change to it must reach every copy.
 export function Has_contents(obj) { return obj?.cobj != null; }
 // C ref: hack.h:1538 `#define AC_VALUE(AC) ((AC) >= 0 ? (AC) : -rnd(-(AC)))`.
 // "very high armor protection does not achieve invulnerability": a negative
@@ -3077,6 +3091,8 @@ export function helpless(mon) {
 // generated data (u.ulycn, corpsenm, cham), and an index at or past NUMMONS
 // answers TRUE without the upper test and then indexes past the end of
 // state.mons.
+// Copies: monst.h ismnum() is also ported as eat.js ismnum(). A change to it
+// must reach every copy.
 export function ismnum(pm) {
     return Number.isInteger(pm) && pm >= LOW_PM && pm < NUMMONS;
 }
@@ -3085,12 +3101,17 @@ export function ismnum(pm) {
 // Each reads the dungeon topology (C's svd.dungeon_topology, fixed for a game)
 // from `state`.
 export function In_quest(uz, state = game) { return (uz ?? state?.u?.uz)?.dnum === state?.quest_dnum; }
+// Copies: dungeon.h In_endgame() is also ported as makemon.js inEndgame(),
+// monmove.js inEndgame() and teleport.js inEndgame(). A change to it must
+// reach every copy.
 export function In_endgame(uz, state = game) { const lev = uz ?? state?.u?.uz; const al = state?.astral_level; return !!lev && !!al && lev.dnum === al.dnum; }
 export function Is_astralevel(uz, state = game) { return In_endgame(uz, state) && (uz ?? state?.u?.uz)?.dlevel === 1; }
 // dungeon.h:142. C's tutorial_dnum is always a valid dungeon number; this port
 // leaves game.tutorial_dnum undefined when the topology holds no tutorial, so
 // the integer test keeps an undefined dnum from matching an undefined dnum.
 export function In_tutorial(uz, state = game) { const lev = uz ?? state?.u?.uz; return !!lev && Number.isInteger(state?.tutorial_dnum) && lev.dnum === state.tutorial_dnum; }
+// Copies: dungeon.h Is_waterlevel() is also ported as sit.js Is_waterlevel().
+// A change to it must reach every copy.
 export function Is_waterlevel(uz, state = game) { const lev = uz ?? state?.u?.uz; const wl = state?.water_level; return !!lev && !!wl && lev.dnum === wl.dnum && lev.dlevel === wl.dlevel; }
 export function Is_firelevel(uz, state = game) { const lev = uz ?? state?.u?.uz; const fl = state?.fire_level; return !!lev && !!fl && lev.dnum === fl.dnum && lev.dlevel === fl.dlevel; }
 export function Is_earthlevel(uz, state = game) { const lev = uz ?? state?.u?.uz; const el = state?.earth_level; return !!lev && !!el && lev.dnum === el.dnum && lev.dlevel === el.dlevel; }
@@ -3101,12 +3122,17 @@ export function In_V_tower(uz, state = game) { return (uz ?? state?.u?.uz)?.dnum
 export function Is_stronghold(uz, state = game) { const g = state; return g?.stronghold_level && (uz ?? g?.u?.uz)?.dnum === g.stronghold_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.stronghold_level.dlevel; }
 // C ref: dungeon.c:1637 — Is_botlevel checks if level is the deepest
 // in its dungeon branch. Each branch has its own num_dunlevs.
+// Copies: dungeon.c Is_botlevel() is also ported as dungeon.js Is_botlevel().
+// A change to it must reach every copy.
 export function Is_botlevel(uz, state = game) {
     const lev = uz ?? state?.u?.uz;
     if (!lev) return false;
     const dun = dungeon_at(lev.dnum, state);
     return !!dun && lev.dlevel === dun.num_dunlevs;
 }
+// Copies: dungeon.h Is_rogue_level() is also ported as makemon_create.js
+// isRogueLevel() and obj.js isRogueLevel(). A change to it must reach every
+// copy.
 export function Is_rogue_level(uz, state = game) { const g = state; return g?.rogue_level && (uz ?? g?.u?.uz)?.dnum === g.rogue_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.rogue_level.dlevel; }
 export function Is_oracle_level(uz, state = game) { const g = state; return g?.oracle_level && (uz ?? g?.u?.uz)?.dnum === g.oracle_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.oracle_level.dlevel; }
 export function Is_bigroom(uz, state = game) { const g = state; return g?.bigroom_level && (uz ?? g?.u?.uz)?.dnum === g.bigroom_level.dnum && (uz ?? g?.u?.uz)?.dlevel === g.bigroom_level.dlevel; }

@@ -14,12 +14,19 @@ import { splev_chr2typ } from './mklev.js';
 
 // C ref: dat/nhlib.lua percent(). math.random(0, 99) is nh.random(0, 100),
 // which is rn2(100).
-function percent(threshold) {
+// Copies: nhlib.lua percent() is also ported as hell_levels.js percent(),
+// knox_levels.js percent(), medusa_levels.js percent(), mines_levels.js
+// percent() and sokoban_levels.js percent(). A change to it must reach every
+// copy.
+export function percent(threshold) {
     return rn2(100) < threshold;
 }
 
 // C ref: dat/nhlib.lua math.random(a, b). Returns a + rn2(b - a + 1).
 // The one-argument form math.random(n) returns 1 + rn2(n).
+// Copies: nhlib.lua math.random(), which calls nhlua.c nhl_random(), is also
+// ported as hell_levels.js mathRandom() and knox_levels.js randomInclusive().
+// A change to it must reach every copy.
 function mathRandom(a, b) {
     if (b === undefined) return 1 + rn2(a);
     return a + rn2(b - a + 1);

@@ -71,6 +71,7 @@ import {
     printQueued,
 } from './tty_message.js';
 import {
+    BOTL_NSIZ,
     A_CHA, A_CON, A_DEX, A_INT, A_STR, A_WIS, ECMD_OK,
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BOLT_LIM, INTRINSIC,
@@ -456,10 +457,10 @@ const T_L = 1;
 const T_U = 2;
 const T_R = 3;
 const T_STONE = 0;
-const T_TLCORN = 1;
-const T_TRCORN = 2;
-const T_HWALL = 3;
-const T_TDWALL = 4;
+const T_TLCORN = T_STONE + 1;
+const T_TRCORN = T_TLCORN + 1;
+const T_HWALL = T_TRCORN + 1;
+const T_TDWALL = T_HWALL + 1;
 const WALL_MATRIX = [
     [S_stone, S_tlcorn, S_trcorn, S_hwall, S_tdwall],
     [S_stone, S_trcorn, S_brcorn, S_vwall, S_tlwall],
@@ -472,11 +473,11 @@ const C_TL = 1;
 const C_TR = 2;
 const C_BR = 3;
 const C_TRCORN = 0;
-const C_BRCORN = 1;
-const C_BLCORN = 2;
-const C_TLWALL = 3;
-const C_TUWALL = 4;
-const C_CRWALL = 5;
+const C_BRCORN = C_TRCORN + 1;
+const C_BLCORN = C_BRCORN + 1;
+const C_TLWALL = C_BLCORN + 1;
+const C_TUWALL = C_TLWALL + 1;
+const C_CRWALL = C_TUWALL + 1;
 const CROSS_MATRIX = [
     [S_brcorn, S_blcorn, S_tlcorn, S_tuwall, S_trwall, S_crwall],
     [S_blcorn, S_tlcorn, S_trcorn, S_trwall, S_tdwall, S_crwall],
@@ -1195,6 +1196,8 @@ export function map_monster_glyph_info(monster, state = game) {
 // which always uses the ordinary monster range even when the monster is tame.
 // Hallucination still replaces the species with one display-RNG draw, while
 // mon->female continues to choose the glyph half.
+// Copies: display.h mon_to_glyph() is also ported as pager.js mon_to_glyph().
+// A change to it must reach every copy.
 export function mon_to_glyph(
     monster, state = game, displayRandom = rn2_on_display_rng,
 ) {
@@ -1863,6 +1866,8 @@ export function glyph_is_cmap(glyph) {
 
 // C ref: display.h glyph_is_swallow() (705-707). Swallow graphics occupy
 // eight positions for every monster in the same glyph space as map cells.
+// Copies: display.h glyph_is_swallow() is also ported as detect.js
+// glyphIsSwallow(). A change to it must reach every copy.
 export function glyph_is_swallow(glyph) {
     return glyph >= GLYPH_SWALLOW_OFF
         && glyph < GLYPH_SWALLOW_OFF + (NUMMONS << 3);
@@ -1890,6 +1895,8 @@ function trapGlyphOffset() {
     return GLYPH_CMAP_B_OFF + (S_arrow_trap - S_grave);
 }
 
+// Copies: display.h glyph_is_trap() is also ported as detect.js
+// glyphIsTrap(). A change to it must reach every copy.
 export function glyph_is_trap(glyph) {
     const offset = trapGlyphOffset();
     return glyph >= offset && glyph < offset + MAXTCHARS;
@@ -5036,7 +5043,6 @@ export async function tmp_at(x, y, state = game) {
 }
 
 // ── Status lines ──
-const BOTL_NSIZ = 16; // include/botl.h
 const TTY_STATUS_WIDTH = COLNO - 1;
 const STATUS_HP_BAR_WIDTH = 30;
 

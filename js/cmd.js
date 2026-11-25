@@ -17,6 +17,8 @@ import { zero_dig_info } from './context.js';
 import { isok } from './cmd_isok.js';
 import { runPetRangedAttack } from './unported_monster_actions.js';
 import {
+    DOMOVE_RUSH,
+    DOMOVE_WALK,
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
     ARTICLE_THE,
@@ -407,8 +409,6 @@ const MAX_EXT_CMD = 200;
 const ESC = 0x1B;
 const BACKSPACE = 0x08;
 const DELETE = 0x7F;
-const DOMOVE_WALK = 0x01;
-const DOMOVE_RUSH = 0x02;
 const ynchars = 'yn';
 const ynqchars = 'ynq';
 const ynaqchars = 'ynaq';
@@ -3826,6 +3826,8 @@ export async function get_changed_key_binds(sbuf = null, state = game) {
 // parser for configuration strings and records the same command operation.
 // `errors` collects the config_error_add() reports, which the interactive
 // caller prints as cfgfiles.c config_erradd() does outside an rc read.
+// Copies: cmd.c bind_key() is also ported as options.js bind_key(). A change
+// to it must reach every copy.
 export function bind_key(key, commandText, user = false, state = game, errors = []) {
     const text = String(commandText ?? '');
     if (lcase(text) === 'nothing') {
@@ -4415,6 +4417,8 @@ function objectAt(x, y, state) {
     return vobj_at(x, y, state);
 }
 
+// Copies: you.h next2u() is also ported as do.js next2u(), dothrow.js
+// next2u() and sounds.js next2u(). A change to it must reach every copy.
 function next2u(x, y, state) {
     return !u_at(x, y, state)
         && dist2(x, y, state.u.ux, state.u.uy) <= 2;

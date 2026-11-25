@@ -132,6 +132,8 @@ import { dungeon_at } from './dungeon_table.js';
 import { impossible } from './pline.js';
 
 
+// Copies: dungeon.h Is_waterlevel() is also ported as const.js
+// Is_waterlevel(). A change to it must reach every copy.
 function Is_waterlevel(state) {
     const level = state.water_level;
     const here = state.u?.uz;

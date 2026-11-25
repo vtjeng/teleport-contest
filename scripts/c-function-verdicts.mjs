@@ -489,7 +489,7 @@ export const C_FUNCTION_VERDICTS = Object.freeze({
     'nhlsel.c l_selection_numpoints': ported('js/themerooms.js numpoints', LUA_DIRECT),
     'nhlsel.c l_selection_getpoint': unreachable(LUA_UNUSED),
     'nhlsel.c l_selection_not': ported('js/themerooms.js negate', LUA_DIRECT),
-    'nhlsel.c l_selection_and': ported('js/mines_levels.js selIntersect', LUA_DIRECT +
+    'nhlsel.c l_selection_and': ported('js/quest_levels.js selIntersect', LUA_DIRECT +
         '; the & operator'),
     'nhlsel.c l_selection_xor': unreachable(LUA_UNUSED),
     'nhlsel.c l_selection_filter_percent': ported('js/themerooms.js percentage', LUA_DIRECT),

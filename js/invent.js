@@ -3467,6 +3467,10 @@ function hasTextExtra(obj, field) {
     return obj.oextra?.[field] != null && obj.oextra[field] !== '';
 }
 
+// Copies: obj.h ONAME() is also ported as const.js ONAME(). A change to it
+// must reach every copy.
+// Same name, other source: this ports obj.h ONAME(); do_name.js oname() ports
+// do_name.c oname().
 function oname(obj) {
     return hasTextExtra(obj, 'oname') ? String(obj.oextra.oname) : '';
 }
@@ -3847,6 +3851,8 @@ function isThenable(value) {
 // A glob never reaches this form: merged() prints pudding_merge_message()
 // before obj_absorb() (invent.c:928-930), which only mergedRuntime() can wait
 // for, so preflightMerged() rejects a glob before anything changes.
+// Copies: invent.c merged() is also ported as mergedRuntime() in this file. A
+// change to it must reach every copy.
 export function merged(otmp, obj, env = {}) {
     const plan = beginMerged(otmp, obj, env);
     if (!plan) return false;
@@ -3864,6 +3870,8 @@ export function merged(otmp, obj, env = {}) {
 // does not execute obfree() until that wait has finished.  Non-waiting merges
 // still complete synchronously so merely scanning incompatible stacks cannot
 // introduce an observable scheduling boundary.
+// Copies: invent.c merged() is also ported as merged() in this file. A change
+// to it must reach every copy.
 export function mergedRuntime(otmp, obj, env = {}) {
     const normalized = inventoryEnv(env);
     const plan = beginMerged(otmp, obj, normalized, 'runtime');
@@ -3957,6 +3965,8 @@ function floorPileForStacking(obj, normalized) {
 
 // C ref: invent.c stackobj(). Preserve the newly placed object by merging an
 // older compatible pile member into it, which is the pointer order used by C.
+// Copies: invent.c stackobj() is also ported as stackobjRuntime() in this
+// file. A change to it must reach every copy.
 export function stackobj(obj, env = {}) {
     const normalized = inventoryEnv(env);
     const pile = floorPileForStacking(obj, normalized);
@@ -3973,6 +3983,8 @@ export function stackobj(obj, env = {}) {
 // continuing. C stackobj stops at the first successful merge, so a pending
 // pudding message is awaited before either returning or scanning the next pile
 // member. The synchronous stackobj contract remains available to other callers.
+// Copies: invent.c stackobj() is also ported as stackobj() in this file. A
+// change to it must reach every copy.
 export function stackobjRuntime(obj, env = {}) {
     const normalized = inventoryEnv(env);
     const pile = floorPileForStacking(obj, normalized);
@@ -4645,6 +4657,8 @@ function finishAddinvCore0(context, initialObj, updatePermInvent, otherObj) {
 }
 
 // C ref: invent.c addinv().
+// Copies: invent.c addinv() is also ported as addinv_runtime() in this file.
+// A change to it must reach every copy.
 export function addinv(obj, env = {}, prepared = null) {
     return addinv_core0(obj, env, prepared, true);
 }
@@ -4720,6 +4734,8 @@ async function addinvCore0Runtime(
 }
 
 // C ref: invent.c addinv(), which is addinv_core0(obj, NULL, TRUE).
+// Copies: invent.c addinv() is also ported as addinv() in this file. A change
+// to it must reach every copy.
 export async function addinv_runtime(obj, env = {}, prepared = null) {
     return addinvCore0Runtime(obj, env, prepared, true);
 }

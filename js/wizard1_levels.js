@@ -4,8 +4,8 @@
 // operations, and sp_lev.c's des.* handlers.
 
 import { selection_match } from './bigrm.js';
-import { hellTweaks } from './asmodeus_levels.js';
-import { selection_area, ThemeroomSelection } from './themerooms.js';
+import { absoluteArea, selectionUnion, hellTweaks } from './asmodeus_levels.js';
+import { selection_area } from './themerooms.js';
 
 // C ref: dat/wizard1.lua's des.map() literal. The trailing x on every row is
 // transparent and therefore deliberately remains part of the source map.
@@ -24,28 +24,6 @@ const WIZARD1_MAP = [
     '|..|.......S...............|x',
     '----------------------------x',
 ].join('\n');
-
-function selectionUnion(a, b) {
-    const result = a.clone();
-    const bounds = b.bounds();
-    for (let x = bounds.lx; x <= bounds.hx; ++x) {
-        for (let y = bounds.ly; y <= bounds.hy; ++y) {
-            if (b.get(x, y)) result.set(x, y);
-        }
-    }
-    return result;
-}
-
-function absoluteArea(x1, y1, x2, y2, frame) {
-    const result = new ThemeroomSelection(null, true);
-    // selection.fillrect() resolves Lua-relative coordinates through the
-    // active frame before the source computes its protected complement.
-    for (let x = x1; x <= x2; ++x) {
-        for (let y = y1; y <= y2; ++y)
-            result.set(frame.xstart + x, frame.ystart + y);
-    }
-    return result;
-}
 
 // C ref: dat/wizard1.lua, including the room callback and final
 // hell_tweaks(protected) call. Descriptor order is significant because the

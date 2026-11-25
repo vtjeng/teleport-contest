@@ -317,6 +317,8 @@ function invisibleGlyphDescription(state) {
 // uses this macro's display RNG, including its Hallucination draw; a resolved
 // monster presentation is not interchangeable because it would skip that
 // source draw.
+// Copies: display.h mon_to_glyph() is also ported as display.js
+// mon_to_glyph(). A change to it must reach every copy.
 function mon_to_glyph(monster, state) {
     const mnum = Hallucination(state.u)
         ? rn2_on_display_rng(NUMMONS, state)

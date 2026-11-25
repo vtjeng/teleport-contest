@@ -65,9 +65,13 @@ import {
     WORTHLESS_WHITE_GLASS,
 } from './objects.js';
 import { rn2 } from './rng.js';
-import { selection_floodfill } from './quest_levels.js';
-import { selection_area, ThemeroomSelection } from './themerooms.js';
+import { selIntersect, selection_floodfill } from './quest_levels.js';
+import { selection_area } from './themerooms.js';
 
+// Copies: nhlib.lua percent() is also ported as bigrm.js percent(),
+// hell_levels.js percent(), knox_levels.js percent(), medusa_levels.js
+// percent() and sokoban_levels.js percent(). A change to it must reach every
+// copy.
 function percent(threshold) {
     return rn2(100) < threshold;
 }
@@ -76,18 +80,6 @@ function percent(threshold) {
 // "food shop" for all other roles.
 function monkfoodshop(state) {
     return state.urole?.mnum === PM_MONK ? 'health food shop' : 'food shop';
-}
-
-// C ref: selvar.c selection intersection (Lua's & operator).
-function selIntersect(a, b) {
-    const result = new ThemeroomSelection();
-    const boundsA = a.bounds();
-    for (let x = boundsA.lx; x <= boundsA.hx; ++x) {
-        for (let y = boundsA.ly; y <= boundsA.hy; ++y) {
-            if (a.get(x, y) && b.get(x, y)) result.set(x, y);
-        }
-    }
-    return result;
 }
 
 // C ref: dat/minefill.lua. Mines filler level: cellular-automata cavern

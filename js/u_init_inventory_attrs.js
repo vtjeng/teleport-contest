@@ -396,6 +396,8 @@ function containedGold(container, evenIfUnknown) {
     return amount;
 }
 
+// Copies: vault.c hidden_gold() is also ported as vault.js hidden_gold(). A
+// change to it must reach every copy.
 export function hidden_gold(evenIfUnknown, state = game) {
     let amount = 0;
     for (let object = state.invent; object; object = object.nobj) {

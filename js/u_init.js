@@ -3,6 +3,7 @@
 // birthday through calendar.c getnow().
 
 import {
+    NO_SPELL,
     BLINDED,
     COLD_RES,
     FROMOUTSIDE,
@@ -32,7 +33,6 @@ import { aligns } from './roles.js';
 export const RIGHT_HANDED = 0;
 export const LEFT_HANDED = 1;
 
-const NO_SPELL = 0;
 
 // The initial player monster records with a natural resistance. All other
 // role records have mresists == 0. C ref: include/monsters.h character

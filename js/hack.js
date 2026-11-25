@@ -290,7 +290,7 @@ import {
     sobj_at,
     useupf,
 } from './invent.js';
-import { doopen_indir } from './lock.js';
+import { doorMask, doopen_indir } from './lock.js';
 import {
     amorphous,
     attacktype,
@@ -1470,10 +1470,6 @@ export function requireSimpleHeroDestination(
 
     // shk.c:u_left_shop() handles both shop-boundary warnings and indebted
     // departures after the movement commits, through check_special_room().
-}
-
-function doorMask(location) {
-    return location?.flags ?? 0;
 }
 
 // C ref: hack.c doorless_door(). A doorway lacks its door when no mask bit
@@ -4529,6 +4525,8 @@ export function NODIAG(monnum) {
 }
 
 // C ref: monst.h is_door_mappear().
+// Copies: monst.h is_door_mappear() is also ported as lock.js
+// is_door_mappear(). A change to it must reach every copy.
 function is_door_mappear(monster) {
     return ((monster.m_ap_type ?? 0) & M_AP_TYPMASK) === M_AP_FURNITURE
         && (monster.mappearance === S_hcdoor

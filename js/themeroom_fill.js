@@ -124,6 +124,8 @@ import {
 } from './objects.js';
 
 import {
+    M1_AMPHIBIOUS,
+    M1_WALLWALK,
     PM_ABBOT,
     PM_ACOLYTE,
     PM_ALIGNED_CLERIC,
@@ -234,11 +236,6 @@ const WHOLE_LEVEL_FRAME = Object.freeze({
     ysize: ROWNO,
 });
 
-// Generated monsters.js currently exposes the movement flags used elsewhere;
-// keep these two monflag.h values local until another subsystem needs them.
-const M1_WALLWALK = 0x00000008;
-const M1_AMPHIBIOUS = 0x00000200;
-
 export class UnsupportedThemeroomFillError extends Error {
     constructor(fill) {
         super(`unported themed-room fill: ${fill?.name ?? fill?.id ?? 'unknown'}`);
@@ -332,6 +329,8 @@ function createTrap(type, flags, x, y, env) {
 
 // sp_lev.c create_trap(). Resolve either an SP_COORD_PACK() value or the
 // random-coordinate sentinel before handing the fixed point to mktrap().
+// Copies: sp_lev.c create_trap() is also ported as mklev.js create_trap() and
+// createPostprocessTrap() in this file. A change to it must reach every copy.
 function createRoomTrap(type, flags, packedCoordinate, room, env) {
     const absolute = { x: -1, y: -1 };
     get_free_room_loc(absolute, room, packedCoordinate, env);
@@ -500,6 +499,8 @@ function createPostprocessEngraving(coordinate, text, env) {
 // sp_lev.c create_trap() retries a special-level coordinate while it resolves
 // to stairs or a ladder.  Fixed coordinates repeat without RNG and are
 // abandoned after the source's 101st check.
+// Copies: sp_lev.c create_trap() is also ported as mklev.js create_trap() and
+// createRoomTrap() in this file. A change to it must reach every copy.
 function createPostprocessTrap(specification, env) {
     const state = env.state;
     state.launchplace ??= {};
@@ -529,6 +530,8 @@ function createPostprocessTrap(specification, env) {
 }
 
 
+// Copies: pline.c impossible() is also ported as pline.js impossible() and
+// sp_lev_object.js impossible(). A change to it must reach every copy.
 function impossible(message, env) {
     if (typeof env.hooks.impossible === 'function')
         env.hooks.impossible(message, env);

@@ -205,7 +205,7 @@ import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { dist2, distmin } from './hacklib.js';
 import { delobj_async, money_cnt, sobj_at } from './invent.js';
-import { picking_lock } from './lock.js';
+import { doorMask, picking_lock } from './lock.js';
 import { grow_up, set_malign } from './makemon.js';
 import { m_in_air, mongone_async, newcham } from './mon.js';
 import { mattackm, mdisplacem } from './mhitm.js';
@@ -442,7 +442,7 @@ import { add_damage, after_shk_move, costly_spot, inhishop, shk_move } from './s
 import { findgold, mdrop_obj } from './steal.js';
 import { stairway_at, stairway_find_dir } from './stairs.js';
 import { collectMonsterMovementMessage, messageAt } from './startup_a11y.js';
-import { mbodypart } from './polyself.js';
+import { mdistu, mbodypart } from './polyself.js';
 import { S_poisoncloud } from './symbols.js';
 import { gettrack, hastrack } from './track.js';
 import {
@@ -516,19 +516,8 @@ function movementEnv(env = {}) {
 }
 
 
-function doorMask(location) {
-    // rm.h's doormask is struct rm's `flags`.
-    return location?.flags ?? 0;
-}
-
 function drawbridgeMask(location) {
     return location?.flags ?? 0;
-}
-
-// C ref: hack.h mdistu(). Squared distance from the hero to a monster.
-// Defined locally because mhitu.js and muse.js each have their own copy.
-function mdistu(mon, state) {
-    return dist2(mon.mx, mon.my, state.u.ux, state.u.uy);
 }
 
 // C ref: monmove.c msg_mon_movement() (33-49). Accessibility message for a
@@ -966,6 +955,8 @@ function surfaceAt(x, y, state) {
 
 // C ref: monmove.c accessible(). Closed drawbridges use their underlying
 // terrain through rm.h's SURFACE_AT macro.
+// Copies: rm.h ACCESSIBLE() is also ported as const.js ACCESSIBLE(). A change
+// to it must reach every copy.
 export function accessible(x, y, state = game) {
     return ACCESSIBLE(surfaceAt(x, y, state)) && !closed_door(x, y, state);
 }
@@ -1133,10 +1124,14 @@ async function watch_on_duty(mtmp, rawEnv = {}) {
     }
 }
 
+// Copies: obj.h is_pick() is also ported as obj.js is_pick(). A change to it
+// must reach every copy.
 function isPick(obj, state) {
     return Boolean(obj && objectType(obj, state).oc_skill === P_PICK_AXE);
 }
 
+// Copies: obj.h is_axe() is also ported as obj.js is_axe(). A change to it
+// must reach every copy.
 function isAxe(obj, state) {
     return Boolean(obj && objectType(obj, state).oc_skill === P_AXE);
 }
@@ -1803,6 +1798,9 @@ function inHell(state) {
     return Boolean(dungeon_at(dnum, state)?.flags?.hellish);
 }
 
+// Copies: dungeon.h In_endgame() is also ported as const.js In_endgame(),
+// makemon.js inEndgame() and teleport.js inEndgame(). A change to it must
+// reach every copy.
 function inEndgame(state) {
     return state.u?.uz?.dnum != null
         && state.u.uz.dnum === state.astral_level?.dnum;
@@ -1981,7 +1979,9 @@ async function gelcube_digests(mtmp, env = {}) {
 }
 
 // C ref: objclass.h is_organic(). material <= WOOD.
-function isOrganic(obj, state) {
+// Copies: objclass.h is_organic() is also ported as bury.js isOrganic() and
+// trap.js isOrganic(). A change to it must reach every copy.
+export function isOrganic(obj, state) {
     return (state.objects?.[obj.otyp]?.oc_material ?? 0) <= WOOD;
 }
 
@@ -2754,6 +2754,8 @@ const CORPSE_EATERS = new Set([
     M.PM_PIRANHA,
 ]);
 
+// Copies: mondata.h is_mercenary() is also ported as mondata.js
+// is_mercenary(). A change to it must reach every copy.
 function isMercenary(species) {
     return Boolean((species?.mflags2 ?? 0) & M.M2_MERC);
 }

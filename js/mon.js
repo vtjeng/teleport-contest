@@ -575,6 +575,7 @@ import {
     monsterClassSymbol,
 } from './monsters.js';
 import {
+    isOrganic,
     accessible,
     m_can_break_boulder,
     can_hide_under_obj,
@@ -649,7 +650,6 @@ import {
     SPE_EXTRA_HEALING,
     SPE_HEALING,
     TIN,
-    WOOD,
     SADDLE,
     BOOMERANG,
     BULLWHIP,
@@ -1346,6 +1346,8 @@ export function genus(mndx, mode, state = game) {
 // C ref: mon.c pm_to_cham(). Answers the shape a monster of species `mndx`
 // reverts to, which is that species itself for a shapeshifter and NON_PM for
 // everything else.
+// Copies: mon.c pm_to_cham() is also ported as makemon_create.js
+// pm_to_cham(). A change to it must reach every copy.
 export function pm_to_cham(mndx, state = game) {
     const species = state.mons?.[mndx];
     return species && is_shapeshifter(species) ? mndx : NON_PM;
@@ -1989,10 +1991,6 @@ export function mpickgold(mtmp, rawEnv = {}) {
         }
         newsym(mtmp.mx, mtmp.my, state);
     }
-}
-
-function isOrganic(obj, state) {
-    return (state.objects?.[obj.otyp]?.oc_material ?? 0) <= WOOD;
 }
 
 // C pline_mon(): the line records the monster's square for accessiblemsg.
@@ -4580,6 +4578,8 @@ export function unstuck(mtmp, state = game, env = {}) {
 // C ref: mon.c relmon() (2558-2594), the replacement path used by replmon().
 // dog.c owns the migration variant of this same C helper; this copy keeps the
 // null-list arm that removes an old monster permanently from the live list.
+// Copies: mon.c relmon() is also ported as dog.js relmon(). A change to it
+// must reach every copy.
 async function relmon(mon, state = game) {
     if (!state.level?.monlist)
         await panic('relmon: no fmon available.', state);
@@ -5570,6 +5570,8 @@ function KEEPTRAITS(mon, state) {
 
 // C ref: do_name.c safe_oname() (94-100). "" for an unnamed object, which is
 // the only value the caller below can hand artifact_exists().
+// Copies: do_name.c safe_oname() is also ported as do_name.js safe_oname(). A
+// change to it must reach every copy.
 function safe_oname(obj) {
     return has_oname(obj) ? obj.oextra.oname : '';
 }

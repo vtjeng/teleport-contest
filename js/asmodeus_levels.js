@@ -38,7 +38,10 @@ const ASMODEUS_AUXILIARY_MAP = [
     '---------------------------------',
 ].join('\n');
 
-function selectionUnion(a, b) {
+// Copies: nhlsel.c l_selection_or() (the Lua | operator) is also ported as
+// fakewiz2_level.js selectionUnion(), orcus_levels.js selectionUnion() and
+// wizard3_levels.js selectionUnion(). A change to it must reach every copy.
+export function selectionUnion(a, b) {
     const result = a.clone();
     const bounds = b.bounds();
     for (let x = bounds.lx; x <= bounds.hx; ++x) {
@@ -65,7 +68,10 @@ function selectionIntersection(a, b) {
     return result;
 }
 
-function absoluteArea(x1, y1, x2, y2, frame) {
+// Copies: nhlsel.c l_selection_fillrect() on frame-relative corners is also
+// ported as hell_levels.js absoluteArea(), fakewiz1_levels.js absoluteArea()
+// and wizard3_levels.js absoluteArea(). A change to it must reach every copy.
+export function absoluteArea(x1, y1, x2, y2, frame) {
     const result = new ThemeroomSelection(null, true);
     // selection.fillrect() resolves its Lua-relative corners through the
     // active whole-level frame before returning an absolute selection.
@@ -76,7 +82,9 @@ function absoluteArea(x1, y1, x2, y2, frame) {
     return result;
 }
 
-function mapSelection(placed) {
+// Copies: the selection of a des.map() result's area is also ported as
+// wizard2_levels.js mapSelection(). A change to it must reach every copy.
+export function mapSelection(placed) {
     const result = new ThemeroomSelection(null, true);
     for (let x = placed.xstart; x < placed.xstart + placed.xsize; ++x) {
         for (let y = placed.ystart; y < placed.ystart + placed.ysize; ++y)

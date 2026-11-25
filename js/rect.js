@@ -4,12 +4,10 @@
 // Only RNG call: rn2(rect_cnt) in rnd_rect().
 
 import { game } from './gstate.js';
-import { COLNO, ROWNO } from './const.js';
+import { XLIM, YLIM, COLNO, ROWNO } from './const.js';
 import { rn2 } from './rng.js';
 import { sync_impossible } from './source_steps.js';
 
-const XLIM = 4;
-const YLIM = 3;
 
 // C ref: rect.c:28 init_rect()
 export function init_rect() {

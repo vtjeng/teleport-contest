@@ -116,7 +116,9 @@ function validateBuriedChain(state) {
     }
 }
 
-function isOrganic(obj, state) {
+// Copies: objclass.h is_organic() is also ported as monmove.js isOrganic()
+// and trap.js isOrganic(). A change to it must reach every copy.
+export function isOrganic(obj, state) {
     return objectType(obj, state).oc_material <= WOOD;
 }
 

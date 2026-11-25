@@ -474,15 +474,15 @@ function tre_parse_bound(ctx, result) {
 
 // The parser's stack symbols.
 const PARSE_RE = 0;
-const PARSE_ATOM = 1;
-const PARSE_MARK_FOR_SUBMATCH = 2;
-const PARSE_BRANCH = 3;
-const PARSE_PIECE = 4;
-const PARSE_CATENATION = 5;
-const PARSE_POST_CATENATION = 6;
-const PARSE_UNION = 7;
-const PARSE_POST_UNION = 8;
-const PARSE_POSTFIX = 9;
+const PARSE_ATOM = PARSE_RE + 1;
+const PARSE_MARK_FOR_SUBMATCH = PARSE_ATOM + 1;
+const PARSE_BRANCH = PARSE_MARK_FOR_SUBMATCH + 1;
+const PARSE_PIECE = PARSE_BRANCH + 1;
+const PARSE_CATENATION = PARSE_PIECE + 1;
+const PARSE_POST_CATENATION = PARSE_CATENATION + 1;
+const PARSE_UNION = PARSE_POST_CATENATION + 1;
+const PARSE_POST_UNION = PARSE_UNION + 1;
+const PARSE_POSTFIX = PARSE_POST_UNION + 1;
 
 function isRawAssertion(node) {
     return node.type === LITERAL && node.submatch_id < 0

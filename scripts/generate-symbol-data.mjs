@@ -339,7 +339,6 @@ export function extractSymbolSets(defsymSource, symbolsSource) {
                 bytes: {},
                 utf8: {},
                 glyphs: {},
-                sourceLine: lineIndex + 1,
             };
             continue;
         }

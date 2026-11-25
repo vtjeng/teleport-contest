@@ -121,6 +121,9 @@ export function somexy(croom, c, rawEnv = {}) {
     return tryCnt < 100;
 }
 
+// Copies: the DRAWBRIDGE_UP arm of dbridge.c is_pool() and is_lava() is also
+// ported as mktrap.js raisedDrawbridgeOver(). A change to it must reach every
+// copy.
 function raisedDrawbridgeOver(location, terrain) {
     return location.typ === DRAWBRIDGE_UP
         && ((location.flags ?? 0) & DB_UNDER) === terrain;

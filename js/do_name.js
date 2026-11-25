@@ -4,6 +4,7 @@
 // sir_Terry_novels[], noveltitle(), and lookup_novel().
 
 import {
+    CLR_MAX,
     ARTICLE_A,
     ARTICLE_NONE,
     ARTICLE_THE,
@@ -251,6 +252,8 @@ export function free_oname(obj) {
 }
 
 // C ref: do_name.c safe_oname() (95-100).
+// Copies: do_name.c safe_oname() is also ported as mon.js safe_oname(). A
+// change to it must reach every copy.
 export function safe_oname(obj) {
     return obj?.oextra?.oname ?? obj?.oname ?? '';
 }
@@ -260,6 +263,8 @@ export function safe_oname(obj) {
 // object into that artifact through artifact_exists(). Unported side effects
 // retain their source order through note_unported() while gameplay state that
 // the JavaScript port owns is updated here.
+// Same name, other source: this ports do_name.c oname(); invent.js oname()
+// ports obj.h ONAME().
 export function oname(obj, name, oflgs, env = {}) {
     const steps = oname_steps(obj, name, oflgs, env);
     const advance = (value, failed = false) => {
@@ -1066,7 +1071,6 @@ export const c_obj_colors = Object.freeze([
     'white',          /* CLR_WHITE  15 */
 ]);
 
-const CLR_MAX = 16;
 const NO_COLOR = 8;
 
 // C ref: do_name.c hcolors[] (1441-1458). Hallucination color names drawn
@@ -1089,6 +1093,8 @@ export function rndcolor(state = game, env = {}) {
 // none. env.displayRandom keeps deterministic tests on the same seam used by
 // x_monnam() without changing the C-shaped state argument. env.random is the
 // gameplay stream in callers' environments, so it is never consulted here.
+// Copies: do_name.c hcolor() is also ported as artifacts.js hcolor(). A
+// change to it must reach every copy.
 export function hcolor(colorpref, state = game, env = {}) {
     const hallucinating = Hallucination(state.u);
     if (!hallucinating && colorpref) return colorpref;

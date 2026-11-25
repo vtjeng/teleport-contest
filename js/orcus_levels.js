@@ -4,8 +4,8 @@
 // operations, and sp_lev.c's des.* handlers.
 
 import { selection_match } from './bigrm.js';
-import { hellTweaks } from './asmodeus_levels.js';
-import { selection_area, ThemeroomSelection } from './themerooms.js';
+import { mapSelection, absoluteArea, hellTweaks } from './asmodeus_levels.js';
+import { selection_area } from './themerooms.js';
 
 const ORCUS_MAP = [
     '.|....|....|....|..............|....|........',
@@ -27,34 +27,15 @@ const ORCUS_MAP = [
     '.|....|.......|......|....|....|.............',
 ].join('\n');
 
-// C ref: dat/orcus.lua. The source computes this selection before placing the
-// map, while the level frame still starts at column 1 and row 0. Constructing
-// an absolute selection keeps selection.fillrect()'s get_location_coord()
-// conversion visible after the JS selection API returns its relative points.
-function absoluteArea(x1, y1, x2, y2, frame) {
-    const result = new ThemeroomSelection(null, true);
-    for (let x = x1; x <= x2; ++x) {
-        for (let y = y1; y <= y2; ++y)
-            result.set(frame.xstart + x, frame.ystart + y);
-    }
-    return result;
-}
-
+// Copies: nhlsel.c l_selection_or() (the Lua | operator) is also ported as
+// asmodeus_levels.js selectionUnion(), fakewiz2_level.js selectionUnion() and
+// wizard3_levels.js selectionUnion(). A change to it must reach every copy.
 function selectionUnion(a, b) {
     const result = a.clone();
     const bounds = b.bounds();
     for (let x = bounds.lx; x <= bounds.hx; ++x) {
         for (let y = bounds.ly; y <= bounds.hy; ++y)
             if (b.get(x, y)) result.set(x, y);
-    }
-    return result;
-}
-
-function mapSelection(placed) {
-    const result = new ThemeroomSelection(null, true);
-    for (let x = placed.xstart; x < placed.xstart + placed.xsize; ++x) {
-        for (let y = placed.ystart; y < placed.ystart + placed.ysize; ++y)
-            result.set(x, y);
     }
     return result;
 }

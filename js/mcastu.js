@@ -8,6 +8,9 @@
 // their source case and damage order.
 
 import {
+    MCF_HOSTILE,
+    MCF_INDIRECT,
+    MCF_SIGHT,
     A_DEX,
     BZ_M_SPELL,
     BZ_OFS_AD,
@@ -80,7 +83,7 @@ import {
 } from './monsters.js';
 import { STRANGE_OBJECT } from './objects.js';
 import { body_part, rehumanize } from './polyself.js';
-import { lined_up } from './mthrowu.js';
+import { m_seenres, lined_up } from './mthrowu.js';
 import { coreRandom, rn2_on_display_rng } from './rng.js';
 
 import { cansee, couldsee } from './vision.js';
@@ -198,31 +201,25 @@ export async function mcast_death_touch(mtmp, env = {}) {
 // ---- Spell enum (mcastu.h MONSPELL order) ----
 // These must match the C enum values (0-based, order from mcastu.h).
 const MCAST_PSI_BOLT = 0;
-const MCAST_OPEN_WOUNDS = 1;
-const MCAST_CURE_SELF = 2;
-const MCAST_HASTE_SELF = 3;
-const MCAST_CONFUSE_YOU = 4;
-const MCAST_STUN_YOU = 5;
-const MCAST_DISAPPEAR = 6;
-const MCAST_PARALYZE = 7;
-const MCAST_BLIND_YOU = 8;
-const MCAST_WEAKEN_YOU = 9;
-const MCAST_DESTRY_ARMR = 10;
-const MCAST_INSECTS = 11;
-const MCAST_CURSE_ITEMS = 12;
-const MCAST_LIGHTNING = 13;
-const MCAST_FIRE_PILLAR = 14;
-const MCAST_GEYSER = 15;
-const MCAST_AGGRAVATION = 16;
-const MCAST_SUMMON_MONS = 17;
-const MCAST_CLONE_WIZ = 18;
-const MCAST_DEATH_TOUCH = 19;
-
-// ---- Spell flags (mcastu.h) ----
-const MCF_NONE = 0x0000;
-const MCF_INDIRECT = 0x0001;
-const MCF_SIGHT = 0x0002;
-const MCF_HOSTILE = 0x0004;
+const MCAST_OPEN_WOUNDS = MCAST_PSI_BOLT + 1;
+const MCAST_CURE_SELF = MCAST_OPEN_WOUNDS + 1;
+const MCAST_HASTE_SELF = MCAST_CURE_SELF + 1;
+const MCAST_CONFUSE_YOU = MCAST_HASTE_SELF + 1;
+const MCAST_STUN_YOU = MCAST_CONFUSE_YOU + 1;
+const MCAST_DISAPPEAR = MCAST_STUN_YOU + 1;
+const MCAST_PARALYZE = MCAST_DISAPPEAR + 1;
+const MCAST_BLIND_YOU = MCAST_PARALYZE + 1;
+const MCAST_WEAKEN_YOU = MCAST_BLIND_YOU + 1;
+const MCAST_DESTRY_ARMR = MCAST_WEAKEN_YOU + 1;
+const MCAST_INSECTS = MCAST_DESTRY_ARMR + 1;
+const MCAST_CURSE_ITEMS = MCAST_INSECTS + 1;
+const MCAST_LIGHTNING = MCAST_CURSE_ITEMS + 1;
+const MCAST_FIRE_PILLAR = MCAST_LIGHTNING + 1;
+const MCAST_GEYSER = MCAST_FIRE_PILLAR + 1;
+const MCAST_AGGRAVATION = MCAST_GEYSER + 1;
+const MCAST_SUMMON_MONS = MCAST_AGGRAVATION + 1;
+const MCAST_CLONE_WIZ = MCAST_SUMMON_MONS + 1;
+const MCAST_DEATH_TOUCH = MCAST_CLONE_WIZ + 1;
 
 // ---- Spell data table (mcastu.h MONSPELL definitions, indexed by enum) ----
 // Each entry: { level, flags }.
@@ -408,12 +405,6 @@ async function cursetxt(mtmp, undirected, env = {}) {
             await norepMessage('You hear a mumbled curse.', state, env);
         }
     }
-}
-
-// C ref: mondata.c cvt_adtyp_to_mseenres() -- already exported from
-// js/mondata.js, but we also need m_seenres() which is a simple macro.
-function m_seenres(mtmp, mask) {
-    return (mtmp.seen_resistance & mask) !== 0;
 }
 
 // ---- castmu() ----

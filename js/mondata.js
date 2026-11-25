@@ -196,6 +196,8 @@ export function bigmonst(species) {
 }
 
 export function is_flyer(species) { return flag1(species, M.M1_FLY); }
+// Copies: mondata.h is_floater() is also ported as makemon_create.js
+// isFloater(). A change to it must reach every copy.
 export function is_floater(species) {
     return species?.mlet === M.S_EYE || species?.mlet === M.S_LIGHT;
 }
@@ -226,11 +228,15 @@ export function is_hider(species) { return flag1(species, M.M1_HIDE); }
 // species: the piercers pass on M1_CLING, the lurker above passes on M1_FLY
 // alone, the large and giant mimics carry M1_CLING and are removed by the mlet
 // test, and the small mimic and the trapper carry neither flag.
+// Copies: mondata.h ceiling_hider() is also ported as engrave.js
+// ceilingHider(). A change to it must reach every copy.
 export function ceiling_hider(species) {
     return is_hider(species)
         && ((is_clinger(species) && species.mlet !== M.S_MIMIC)
             || is_flyer(species));
 }
+// Copies: mondata.h haseyes() is also ported as polyself.js haseyes(). A
+// change to it must reach every copy.
 export function haseyes(species) { return !flag1(species, M.M1_NOEYES); }
 // C ref: mondata.h eyecount() (48-51).
 export function eyecount(species) {
@@ -449,6 +455,8 @@ export function metallivorous(species) {
 export function is_undead(species) { return flag2(species, M.M2_UNDEAD); }
 export function is_were(species) { return flag2(species, M.M2_WERE); }
 export function is_demon(species) { return flag2(species, M.M2_DEMON); }
+// Copies: mondata.h is_mercenary() is also ported as monmove.js
+// isMercenary(). A change to it must reach every copy.
 export function is_mercenary(species) { return flag2(species, M.M2_MERC); }
 export function is_elf(species) { return flag2(species, M.M2_ELF); }
 export function is_dwarf(species) { return flag2(species, M.M2_DWARF); }
@@ -575,6 +583,8 @@ export function likes_fire(species) {
         || likes_lava(species);
 }
 
+// Copies: mondata.h touch_petrifies() is also ported as weapon.js
+// touchPetrifies(). A change to it must reach every copy.
 export function touch_petrifies(species) {
     return species?.pmidx === M.PM_COCKATRICE
         || species?.pmidx === M.PM_CHICKATRICE;
@@ -593,6 +603,8 @@ export function slimeproof(species) {
 
 // C ref: mondata.h vegan(). This is a species diet predicate; hero conduct
 // code layers vegetarian() on top of it.
+// Copies: mondata.h vegan() is also ported as eat.js vegan(). A change to it
+// must reach every copy.
 export function vegan(species) {
     return species?.mlet === M.S_BLOB
         || species?.mlet === M.S_JELLY
@@ -1268,6 +1280,8 @@ export function is_neuter(ptr) {
         && (ptr.mflags2 & M.M2_NEUTER));
 }
 
+// Copies: mondata.h is_rider() is also ported as makemon.js isRider(). A
+// change to it must reach every copy.
 export function is_rider(ptr) {
     const index = ptr?.pmidx;
     return index === M.PM_DEATH
@@ -1902,6 +1916,8 @@ export function mhim(mtmp, env = {}) {
 
 // C ref: you.h noit_mhim(). A death settlement can name a shopkeeper even
 // when the hero cannot see her; visibility alone must not turn her into "it".
+// Copies: you.h noit_mhim() is also ported as dothrow.js noitMhim(). A change
+// to it must reach every copy.
 export function noit_mhim(mtmp, env = {}) {
     return genders[pronoun_gender(mtmp, PRONOUN_NO_IT | PRONOUN_HALLU, env)].him;
 }
