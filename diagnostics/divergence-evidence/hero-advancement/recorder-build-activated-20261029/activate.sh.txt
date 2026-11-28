@@ -1,0 +1,6 @@
+export PATH=/workspace/.setup/bin:/workspace/.setup/toolchain/usr/bin:$PATH
+export LD_LIBRARY_PATH=/workspace/.setup/toolchain/usr/lib/x86_64-linux-gnu:/workspace/.setup/toolchain/usr/lib/llvm-19/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+export BISON_PKGDATADIR=/workspace/.setup/toolchain/usr/share/bison
+export M4=/workspace/.setup/toolchain/usr/bin/m4
+export CPATH=/workspace/.setup/toolchain/usr/include${CPATH:+:$CPATH}
+export LIBRARY_PATH=/workspace/.setup/toolchain/usr/lib/x86_64-linux-gnu${LIBRARY_PATH:+:$LIBRARY_PATH}

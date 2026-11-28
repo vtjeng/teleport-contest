@@ -1,0 +1,471 @@
+{
+  "schemaVersion": 1,
+  "caseId": "hero-advancement-xp-percent-floor-20261029",
+  "shard": "hero-advancement",
+  "status": "explained_negative",
+  "readiness": "review_ready",
+  "rootCause": null,
+  "relatedCases": [
+    "hero-advancement-recorder-build-gap-20261029"
+  ],
+  "provenance": {
+    "jsSha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2",
+    "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4"
+  },
+  "source_locations": [
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/exper.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/botl.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "C",
+      "path": "nethack-c/upstream/src/do.c",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "16ff59115315917b93185d026aeefea06db9b0f4"
+    },
+    {
+      "side": "JS",
+      "path": "js/exper.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2"
+    },
+    {
+      "side": "JS",
+      "path": "js/display.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2"
+    },
+    {
+      "side": "JS",
+      "path": "js/options.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2"
+    },
+    {
+      "side": "JS",
+      "path": "js/do.js",
+      "symbol": null,
+      "start_line": null,
+      "end_line": null,
+      "commit_sha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2"
+    }
+  ],
+  "hypothesis": "Nonzero high-level XP progress must floor to1% rather than display0%.",
+  "expectedBehavior": "Level10 XP5120 stays red;5122 selects >=1% green; visible companions pin both C totals.",
+  "observedBehavior": "Four fresh-binary C/JS recordings match; parsed/selected rules and XP5120/5122 asserted; preinstalled control/target steps equal fresh recordings.",
+  "witness": {
+    "kind": "public_recording",
+    "scope": "Public wizard levelchange10, supported Tourist travel2, parsed1% highlight rules; visible/hidden XP companions.",
+    "limitations": [
+      "Wizard-assisted rather than natural level10 history.",
+      "No complete full-game C internal-state trace; selected rule inferred from unique rendered color.",
+      "Historical preinstalled binary origin remains unattested; fresh build origin is separately recorded."
+    ]
+  },
+  "exposure": {
+    "route": "shipped",
+    "attribution": "attributed",
+    "evidence": [
+      "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-control/result.json",
+      "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-target/result.json"
+    ],
+    "reason": "Public wizard levelchange10, supported Tourist travel2, parsed1% highlight rules; visible/hidden XP companions."
+  },
+  "origin": {
+    "kind": "manual",
+    "reason": "Next qualified frontier in the ongoing permitted hero advancement audit.",
+    "keys": [],
+    "projection": null,
+    "manifest": null,
+    "decisions": null
+  },
+  "commands": [
+    {
+      "id": "control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/run.mjs",
+        "control",
+        "/tmp/hero-fresh-floor-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/recipes/control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/control-receipt.json"
+    },
+    {
+      "id": "target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/run.mjs",
+        "target",
+        "/tmp/hero-fresh-floor-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/recipes/target.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target-receipt.json"
+    },
+    {
+      "id": "visible-control",
+      "role": "control",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/run.mjs",
+        "visible-control",
+        "/tmp/hero-fresh-floor-visible-control-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/recipes/visible-control.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-control-receipt.json"
+    },
+    {
+      "id": "visible-target",
+      "role": "target",
+      "argv": [
+        "node",
+        "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/run.mjs",
+        "visible-target",
+        "/tmp/hero-fresh-floor-visible-target-20261029"
+      ],
+      "cwd": ".",
+      "runner": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/run.mjs",
+      "ci": "manual",
+      "inputs": [
+        "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/recipes/visible-target.json",
+        "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json"
+      ],
+      "expectedExit": 0,
+      "receipt": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-target-receipt.json"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/README.md",
+      "sha256": "04dc261de02f178870d2db1154008200587ff2c13d2ae1e0d94a5be859f30829",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/control/js-output.json.gz",
+      "sha256": "7b107c8fa5c88ea4d43d1a507da379b949b2a62f0761d07b1e76ea463ca18f48",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/control/recipe.session.json",
+      "sha256": "02b2f47dc265e702257b142968e441b1dc337281acd42cc3b42fe90c01b5673e",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/control/recorded.session.json.gz",
+      "sha256": "496241bb8991bb4b285db658bd5d2497162577f3ff9d27822e004193215d11cd",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/control/recorder.json",
+      "sha256": "724c5f3f940cfaebd41a21ebcf56e51948aa8264bb5f7565e3ede5de9ebf8e20",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/control/result.json",
+      "sha256": "3cc5b86cec10fbcc103041f7106faffafe3d6fd6ec86586005188dbc212027da",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/control/worker.json",
+      "sha256": "7f0c061ddae3334cd6500022b5112b1dee40c24391491b06617e9ef78e9f6b2a",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/control-receipt.json",
+      "sha256": "c03228adbb8500ae5e12396197ea0c6df7f7e6d6840faa4279a166c2e24cbabf",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/preinstalled-control/recorded.session.json.gz",
+      "sha256": "496241bb8991bb4b285db658bd5d2497162577f3ff9d27822e004193215d11cd",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/preinstalled-control/result.json",
+      "sha256": "3cc5b86cec10fbcc103041f7106faffafe3d6fd6ec86586005188dbc212027da",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/preinstalled-target/recorded.session.json.gz",
+      "sha256": "31e25862145929e19dd4607712745b6213ff835d730b91f9905d515526308bda",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/preinstalled-target/result.json",
+      "sha256": "d9a56180f5d5ca52e53ed56088da45bc42744eef6729fe6b46a76508e89fa59f",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/recipes/control.json",
+      "sha256": "ea6f5518f2d53affed17c4097697a3b989328a23bde480df5d42004011459cf4",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/recipes/target.json",
+      "sha256": "9abc06924dbf07ce04d9d4ac32d38d1266d1ccbae7f600534d03078f9bc8c6cf",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/recipes/visible-control.json",
+      "sha256": "3becd44081ccad9544afdc5db9d60f5efafc8f1d0dc3925424730c6f7261836d",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/recipes/visible-target.json",
+      "sha256": "c1d38608a8a3638d7a864bb780db0b5d592a5f3cf1a93b283b4ee4e479108599",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/run.mjs",
+      "sha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/js-output.json.gz",
+      "sha256": "2e9e723de5b8821491190c3fcb1cc1c6f8d2a54f83b6d4ff03eab0f5e0185077",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/recipe.session.json",
+      "sha256": "d06c1e70e5bad6df4dc94e3218637424c2abc9f6dd1d993d01f7e1575aac5621",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/recorded.session.json.gz",
+      "sha256": "31e25862145929e19dd4607712745b6213ff835d730b91f9905d515526308bda",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/recorder.json",
+      "sha256": "9c7ab5f9e5ea428b929d07530965f68dfcb210b4ec899fc34f0449eb746e3619",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/result.json",
+      "sha256": "d9a56180f5d5ca52e53ed56088da45bc42744eef6729fe6b46a76508e89fa59f",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target/worker.json",
+      "sha256": "d9e68be708cda3821fddd914508458c8df13023d5d094e51602e2d5ee142ddde",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/target-receipt.json",
+      "sha256": "b9d997fbc6c065bd2e5aadb30b0132ac5480cff50945f129d977def06d8e40a5",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/verification.txt",
+      "sha256": "1666de1b1466786bce563c264776a9819c613a7d607a2de045cdfac4905f855b",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/verify.mjs",
+      "sha256": "6219637ef6091b2fe17334cec8e556a51ebf50c73ea13f2551d19742df586125",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-control/js-output.json.gz",
+      "sha256": "7ea11db6cfb92048d0345aa29ca6b30d9440502f43242149b9aa2c011572c038",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-control/recipe.session.json",
+      "sha256": "a6d3b45d33f17c0702dc5fa6ae714286c44650688a1768c9bfd4f37a2211bcb0",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-control/recorded.session.json.gz",
+      "sha256": "3603f594e6a0953f813fabe438390d7c3f384967a482eb315fa9db7c7592dd13",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-control/recorder.json",
+      "sha256": "824847eebe0ad18168ddaed49d1666570c1e91f0769ac84f2170bf0fbfb329af",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-control/result.json",
+      "sha256": "3cc5b86cec10fbcc103041f7106faffafe3d6fd6ec86586005188dbc212027da",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-control/worker.json",
+      "sha256": "7f0c061ddae3334cd6500022b5112b1dee40c24391491b06617e9ef78e9f6b2a",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-control-receipt.json",
+      "sha256": "82503bffdad91e88e1762968999bbc05b86623e85efc673e5ffb2329a106d680",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-target/js-output.json.gz",
+      "sha256": "a07502092fa36dfac95ab6ea3d62abfaf340ffc2659055da8d7718047ffee602",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-target/recipe.session.json",
+      "sha256": "75a8ea12ca968a9924f7bc94a4cd3abad499affb4956f610aaa2f0716118e4c4",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-target/recorded.session.json.gz",
+      "sha256": "bfba687ef73ea2a804d9bed5258a79c1a9649fb73d159a4b896bce8ff5ccc3c9",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-target/recorder.json",
+      "sha256": "b3212d2050c23836f1e71756d31700374ed1371c9dd2cf786de343a723db5d46",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-target/result.json",
+      "sha256": "d9a56180f5d5ca52e53ed56088da45bc42744eef6729fe6b46a76508e89fa59f",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-target/worker.json",
+      "sha256": "d9e68be708cda3821fddd914508458c8df13023d5d094e51602e2d5ee142ddde",
+      "role": "audit or build artifact"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-percent-floor-20261029/visible-target-receipt.json",
+      "sha256": "1b02c68ea1624ce6727a67fa0014965cfc4720c4843f6be699d329f4786b8bf1",
+      "role": "audit or build artifact"
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json",
+      "sha256": "5c399553b696eb435e61045c99d92e5dd8a5cd8396f0649b880ea6efbfd3ffa8",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "diagnostics/divergence-evidence/hero-advancement/xp-highlight-20261029/focused-tests.txt",
+      "sha256": "3f46819f3b0e1733f8c7acef6c4660ed7a6eee00f6465b07993636b2efe3c7de",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "docs/evidence-package.md",
+      "sha256": "04e2509de6d0b5652771005dd626dd71839fccbc5e22de1dac7e6c5aa5cfcf99",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "frozen/screen-decode.mjs",
+      "sha256": "cb4a0fbfed3dda28c14736e6ae9c8b9eb8c87d75916c50d6df80f40eb0368cbe",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "js/display.js",
+      "sha256": "985814e50ce84c95837948b805d0bb60748864d2215133d66da6707d5d6ed783",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "js/do.js",
+      "sha256": "7e87c976d9b1dfa1f92c784ab8cb9be64334a06cac7b311831ba30893ab40c0a",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "js/exper.js",
+      "sha256": "c1d690cf8646eeff050b8a665a4802a2664caf6da118c766f34ecee7673873d7",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "js/gstate.js",
+      "sha256": "9ecba828ae7bc7e4393441924514e392ecd6e99d9028fe3c9ad459d2e3098605",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "js/jsmain.js",
+      "sha256": "18bccaa57113f2f1b014ad04714a9fb0c7091692ce4baa045f8cfb0ff190bbf0",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "js/options.js",
+      "sha256": "ebaea358250181d35c2aa1f44e3056d8df19d2274a434a5ac987e3987f5cd618",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/upstream/src/botl.c",
+      "sha256": "765fe13d7ee604c606c6920bce9bcb2a8a82299dbd56073b2b90101409409360",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/upstream/src/do.c",
+      "sha256": "e2fe19b83f22dcf496d2ced54f8d727433ef29aa4c3a3151a64e66350cae985f",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "nethack-c/upstream/src/exper.c",
+      "sha256": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "scripts/checkpoint-preflight.mjs",
+      "sha256": "f2c07dda0c7e7675f003f630f2c9d275e5d63cec4fd7a640d8994678aea54b7c",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "scripts/diff-fresh.mjs",
+      "sha256": "2c06c6d684e58ca2b8b10afe112747a7f9340454712bd94b582d68395c7d650e",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "scripts/discovery-project.mjs",
+      "sha256": "e736044ee8e53021ade30d2455c58aae39029048c8feb6a2e7757731b379287f",
+      "role": "pinned source, tool, or build evidence"
+    },
+    {
+      "path": "scripts/evidence-package.mjs",
+      "sha256": "ad8bc4f702b9626254ca0747090e4b7caa700de28d9d1edf786ccac841d1cb7e",
+      "role": "pinned source, tool, or build evidence"
+    }
+  ]
+}

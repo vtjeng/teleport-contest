@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';import{readFileSync}from'node:fs';import{gunzipSync}from'node:zlib';
+import{decodeScreen}from'../../../../frozen/screen-decode.mjs';import{compareSessionOutputs}from'../../../../scripts/diff-fresh.mjs';import{runSegment}from'../../../../js/jsmain.js';import{game}from'../../../../js/gstate.js';
+const rolls=[25,14,66,71,9,35,82,33,71,5,11];
+for(const name of ['control','practice-control','target']){
+ const read=f=>JSON.parse(gunzipSync(readFileSync(new URL(`${name}/${f}.gz`,import.meta.url))));const c=read('recorded.session.json'),js=read('js-output.json');assert.equal(compareSessionOutputs(c,js).passed,true);
+ const screens=c.segments[0].steps.map(s=>decodeScreen(s.screen).map(r=>r.map(x=>x.ch).join('')));const tops=screens.map(s=>s[0].trim()).filter((v,i,a)=>v!==a[i-1]);const successes=tops.filter(s=>s.includes('You are not ill.')).length;assert.equal(successes,name==='control'?6:7);assert.equal(tops.filter(s=>s.includes('You fail to cast')).length,4);
+ const specific=tops.findIndex(s=>s.includes('more confident in your spell casting skills'));const general=tops.findIndex(s=>s.includes('more confident in your skills.'));assert.equal(specific>=0,name!=='control');assert.equal(general>=0,name==='target');if(name==='target')assert.ok(general>specific);
+ const draws=c.segments[0].steps.flatMap(s=>s.rng).filter(s=>s.includes('spelleffects_check')).map(s=>Number(s.match(/=(\d+)/)[1]));assert.deepEqual(draws,name==='control'?rolls.slice(0,10):rolls);
+ const segment=JSON.parse(readFileSync(new URL(`recipes/${name}.json`,import.meta.url))).segments[0];await runSegment(segment,{onBoundary:e=>{throw e}});const skill=game.u.weapon_skills[29];assert.equal(skill.advance,name==='control'?18:21);assert.equal(skill.skill,1);assert.equal(game.u.weapon_slots,name==='target'?1:19);for(const i of[17,22])assert.deepEqual([game.u.uprops[i].intrinsic,game.u.uprops[i].extrinsic],[0,0]);assert.equal(game.u.uhp,game.u.uhpmax);
+ console.log(JSON.stringify({name,successes,failedCasts:4,jsPractice:skill.advance,jsSlots:game.u.weapon_slots,specificNotification:specific,generalNotification:general,finalHP:game.u.uhp,finalEnergy:game.u.uen,fullParity:true}));
+}

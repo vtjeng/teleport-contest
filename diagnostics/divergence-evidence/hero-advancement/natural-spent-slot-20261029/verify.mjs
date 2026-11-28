@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict';import{readFileSync}from'node:fs';import{gunzipSync}from'node:zlib';
+import{decodeScreen}from'../../../../frozen/screen-decode.mjs';import{compareSessionOutputs}from'../../../../scripts/diff-fresh.mjs';import{runSegment}from'../../../../js/jsmain.js';import{game}from'../../../../js/gstate.js';
+for(const[name,slots,level]of[['earned-control',19,1],['spent-control',18,2],['refund-target',0,1],['regain-target',1,1]]){
+ const read=f=>JSON.parse(gunzipSync(readFileSync(new URL(`${name}/${f}.gz`,import.meta.url))));const c=read('recorded.session.json'),js=read('js-output.json');assert.equal(compareSessionOutputs(c,js).passed,true);
+ const final=decodeScreen(c.segments[0].steps.at(-1).screen).map(r=>r.map(x=>x.ch).join('')).join('\n');assert.match(final,new RegExp(`\\(${slots} slots? available\\)`));if(name!=='refund-target')assert.match(final,new RegExp(`healing spells\\s+${level===2?'Basic':'Unskilled'}\\s+21\\(\\s+${level===2?80:20}\\)`));
+ const segment=JSON.parse(readFileSync(new URL(`recipes/${name}.json`,import.meta.url))).segments[0];assert.ok(segment.moves.includes('#enhance\nn'));assert.ok(!segment.moves.includes('#enhance\ny'));await runSegment(segment,{onBoundary:e=>{throw e}});assert.deepEqual([game.u.weapon_slots,game.u.weapon_skills[29].skill,game.u.weapon_skills[29].advance],[slots,level,21]);assert.equal(game.u.skills_advanced,level===2?1:0);
+ console.log(JSON.stringify({name,publicSlots:slots,publicHealingRow:name==='refund-target'?'below first page; regained target observes it':level===2?'Basic21/80':'Unskilled21/20',jsSkill:level,jsPractice:21,debugPracticeBypass:false,fullParity:true}));
+}

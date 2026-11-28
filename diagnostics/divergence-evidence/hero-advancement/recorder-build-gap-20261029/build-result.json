@@ -1,0 +1,23 @@
+{
+  "commands": {
+    "clang": null,
+    "make": "/usr/bin/make",
+    "bison": null,
+    "flex": null,
+    "rsync": null,
+    "git": "/usr/local/bin/git",
+    "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "gcc": "/usr/bin/gcc"
+  },
+  "sourceScriptSha256": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38",
+  "copiedScriptSha256": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38",
+  "argv": [
+    "bash",
+    "/tmp/hero-recorder-build-preflight-zbyk4hdn/nethack-c/build-recorder.sh"
+  ],
+  "exitCode": 1,
+  "stdout": "",
+  "stderr": "[FAIL] clang required (deterministic argument evaluation order)\n",
+  "isolatedDirectory": "/tmp/hero-recorder-build-preflight-zbyk4hdn",
+  "recorderDirectoryCreated": false
+}

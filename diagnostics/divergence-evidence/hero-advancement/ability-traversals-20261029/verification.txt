@@ -1,0 +1,22 @@
+{"name":"archeologist","traversal":"1->30->1","expectedMessages":["You feel stealthy!","You feel less stealthy!","You feel quick!","You feel slow!"]}
+{"name":"barbarian","traversal":"1->30->1","expectedMessages":["You feel quick!","You feel slow!","You feel stealthy!","You feel less stealthy!"]}
+{"name":"caveman","traversal":"1->30->1","expectedMessages":["You feel quick!","You feel slow!","You feel sensitive!","You feel less sensitive!"]}
+{"name":"dwarf-archeologist","traversal":"1->30->1","expectedMessages":["You feel stealthy!","You feel less stealthy!","You feel quick!","You feel slow!"]}
+{"name":"elf-wizard","traversal":"1->30->1","expectedMessages":["You feel sensitive!","You feel less sensitive!","You feel controlled!","You feel uncontrolled!","You feel awake!","You feel tired!"]}
+{"name":"gnome-wizard","traversal":"1->30->1","expectedMessages":["You feel sensitive!","You feel less sensitive!","You feel controlled!","You feel uncontrolled!"]}
+{"name":"healer","traversal":"1->30->1","expectedMessages":["You feel sensitive!","You feel less sensitive!"]}
+{"name":"knight","traversal":"1->30->1","expectedMessages":["You feel quick!","You feel slow!"]}
+{"name":"martial-control","slots":[0],"ranks":["Master"]}
+{"name":"martial-refund","slots":[0,1,1,0],"ranks":["Master","Expert","Skilled","Basic"]}
+{"name":"monk","traversal":"1->30->1","expectedMessages":["You feel healthy!","You feel less healthy!","You feel stealthy!","You feel less stealthy!","You feel sensitive!","You feel less sensitive!","You feel perceptive!","You feel unaware!","You feel cool!","You feel warmer!","You feel warm!","You feel cooler!","You feel insulated!","You feel conductive!","You feel controlled!","You feel uncontrolled!"]}
+{"name":"orc-barbarian","traversal":"1->30->1","expectedMessages":["You feel quick!","You feel slow!","You feel stealthy!","You feel less stealthy!"]}
+{"name":"priest","traversal":"1->30->1","expectedMessages":["You feel sensitive!","You feel less sensitive!","You feel cool!","You feel warmer!"]}
+{"name":"ranger","traversal":"1->30->1","expectedMessages":["You feel stealthy!","You feel less stealthy!"]}
+{"name":"rogue","traversal":"1->30->1","expectedMessages":["You feel perceptive!","You feel less perceptive!"]}
+{"name":"samurai","traversal":"1->30->1","expectedMessages":["You feel stealthy!","You feel less stealthy!"]}
+{"name":"silent-control","experienceSeeInvisibleByView":[false]}
+{"name":"silent-roundtrip","experienceSeeInvisibleByView":[false,true,false]}
+{"name":"tourist","traversal":"1->30->1","expectedMessages":["You feel perceptive!","You feel less perceptive!","You feel hardy!","You feel less hardy!"]}
+{"name":"valkyrie","traversal":"1->30->1","expectedMessages":["You feel stealthy!","You feel less stealthy!","You feel quick!","You feel slow!"]}
+{"name":"wizard","traversal":"1->30->1","expectedMessages":["You feel sensitive!","You feel less sensitive!","You feel controlled!","You feel uncontrolled!"]}
+All 22 recordings and reached-state assertions pass.

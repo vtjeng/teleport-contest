@@ -1,0 +1,634 @@
+[
+  {
+    "path": "Arc-fila.lua",
+    "sha256": "58d7d29051af95ddab6c4ea5080bd58f963d2815246c1c300d0cf43e50e9268e"
+  },
+  {
+    "path": "Arc-filb.lua",
+    "sha256": "1debc556623715f5e06658ad82fce8bc36ab35adbda90227911795d92fabf940"
+  },
+  {
+    "path": "Arc-goal.lua",
+    "sha256": "bec6902c063bb12de4e333e57e14d39fdcc3e821997aac40771f515dccfc1541"
+  },
+  {
+    "path": "Arc-loca.lua",
+    "sha256": "b268c92c9d4ba3c5bfa3ea8dfb1ccab2e887c5f00082a37d05467d3505392632"
+  },
+  {
+    "path": "Arc-strt.lua",
+    "sha256": "2e1de605574a4c0f93a99f061bc847b23f9f76772fb62c8734745765998dbc89"
+  },
+  {
+    "path": "Bar-fila.lua",
+    "sha256": "81ff33031a55389e782afe6d736f1779dc9fe7c92ccf7eb2b615480c5c3a2bd5"
+  },
+  {
+    "path": "Bar-filb.lua",
+    "sha256": "913447f9dbb106740cefe01222ca0510d5bb5a19fb835bdfec82e3ccbb462b16"
+  },
+  {
+    "path": "Bar-goal.lua",
+    "sha256": "1e02abf566612c35247604acbc3752fa8c64755c3f075016cdd48f0f38505bec"
+  },
+  {
+    "path": "Bar-loca.lua",
+    "sha256": "b9b784d56f43f7d40363d699f2f70453e735f451cd05b13cca184c1dc68dafe1"
+  },
+  {
+    "path": "Bar-strt.lua",
+    "sha256": "922f5de0ce375557ffb5ef31b9865a1c8f547e093ae06120f1bec0959ab82adc"
+  },
+  {
+    "path": "Cav-fila.lua",
+    "sha256": "23fe3827eb020cbad4e4534fa3537725b67f164119132ce12ffe9d18803767d9"
+  },
+  {
+    "path": "Cav-filb.lua",
+    "sha256": "d557114811cafb00fdf3541807570596853d83d02928d463b32d2e05c3bc92c0"
+  },
+  {
+    "path": "Cav-goal.lua",
+    "sha256": "d5938ec7d34e0ecbbe39f177b33943eed326d66d6759b0c8cf442bb30d3fa109"
+  },
+  {
+    "path": "Cav-loca.lua",
+    "sha256": "bf51ca0c62904245dea2379cbbf346cb3f34d2cb089a6bd6881cf155b9ba16bd"
+  },
+  {
+    "path": "Cav-strt.lua",
+    "sha256": "9d2fbf1141c3d15268622c0d40949464c234d0ee22a8f278e9645950d154123d"
+  },
+  {
+    "path": "Hea-fila.lua",
+    "sha256": "766875a4d4310ebc9918cf6a846deb1f89273ef59bb15cafdba1a26cbeff6690"
+  },
+  {
+    "path": "Hea-filb.lua",
+    "sha256": "1235f2d38638b3ffd515bcabc4e88a30769cb38e11d4585f4d9a3902c3e1f452"
+  },
+  {
+    "path": "Hea-goal.lua",
+    "sha256": "a62f7653b43a20b3e7230447ef7abca80371eaf77e2e4df80506d1884fd12add"
+  },
+  {
+    "path": "Hea-loca.lua",
+    "sha256": "21c7e32e2959fe5819e02d4625ad21873680e7cac781b0b1bbf84e1ec56ea228"
+  },
+  {
+    "path": "Hea-strt.lua",
+    "sha256": "d78fbdb7b62e0a22e8068f63e18586e17c40a95cfe9866d7c45b231facb1e5bb"
+  },
+  {
+    "path": "Kni-fila.lua",
+    "sha256": "f16989e032bd00737a5b3b726f5ce44251fe3def69d1ff2dc48de796616b3b0d"
+  },
+  {
+    "path": "Kni-filb.lua",
+    "sha256": "becd1be90664510abeb5ed2249273ba42940e0751613fddd1ed22453da207b5a"
+  },
+  {
+    "path": "Kni-goal.lua",
+    "sha256": "25b864c94a4169374bab39af0dc3cad452e2dfbed4c5bddf894774447429eb39"
+  },
+  {
+    "path": "Kni-loca.lua",
+    "sha256": "c863d9c364c7a6165f4044fd4c2cf02464ee9074335f8753a1c8d0a6fd1d6575"
+  },
+  {
+    "path": "Kni-strt.lua",
+    "sha256": "f479d2e428541fad72f97df4c115571dc1d017c266f8653b278047c5e8648315"
+  },
+  {
+    "path": "Mon-fila.lua",
+    "sha256": "865e84924d905def9ee5f3498185b697fafe59c704e7e1e23afe9b83fe12cbff"
+  },
+  {
+    "path": "Mon-filb.lua",
+    "sha256": "7b8f56c27bd1fa12300d46786f08bc8c959acea5a857e11bef2dbc4f1a8856b0"
+  },
+  {
+    "path": "Mon-goal.lua",
+    "sha256": "a4cf13498bf6c4698e708059249aaa6133cc13c0db8a370cf151f621af6b8ae7"
+  },
+  {
+    "path": "Mon-loca.lua",
+    "sha256": "3dbeb40cd45fe4b28c7c0d36bc8e6b182eebde70dfa6008a1b89a81293aaf140"
+  },
+  {
+    "path": "Mon-strt.lua",
+    "sha256": "3a61403d6d1888d918ea2a0bf67f1a1a2b45a5c5f043faa72960136e13993964"
+  },
+  {
+    "path": "Pri-fila.lua",
+    "sha256": "ee36c94a33b169bdf86735bd6ab2abc9da8f74369523bb003644d21bf22dea69"
+  },
+  {
+    "path": "Pri-filb.lua",
+    "sha256": "ff26deef4e79b8df03d64270a4188271b6c109f04bb06c2f4ee9e146005fd421"
+  },
+  {
+    "path": "Pri-goal.lua",
+    "sha256": "c8b291647285e946983fdbd0eb244f723b7e555272a596f6576ceaafeccab548"
+  },
+  {
+    "path": "Pri-loca.lua",
+    "sha256": "23c943fcdb1caa3b42c99c97f84af7d02558485c9429c7f0b8ed92d5c1310b39"
+  },
+  {
+    "path": "Pri-strt.lua",
+    "sha256": "e448cf864996150862c9cd20ac919e25a59557d4f016ed6b9e7e71e3877a1049"
+  },
+  {
+    "path": "Ran-fila.lua",
+    "sha256": "c857c0434874f68d99d0757ba9028488a225a474c3e152c349197855709059b2"
+  },
+  {
+    "path": "Ran-filb.lua",
+    "sha256": "2c5bfd088c67cc11354be3e54477204801549c0961c8bf9e0dfdebc92eef5d5e"
+  },
+  {
+    "path": "Ran-goal.lua",
+    "sha256": "cbe9d0f03ad0ba49e6a31611d03d382601ba9fcb7053aa84787522fe2226bfe5"
+  },
+  {
+    "path": "Ran-loca.lua",
+    "sha256": "a9889a80852b543a43919c969c4dac2351286d60fbb35457a2b665a2e6fdbea6"
+  },
+  {
+    "path": "Ran-strt.lua",
+    "sha256": "f0d5791b4e57ca98a480b66f6299c15d77a60fd245fb392f929675983ac3fe20"
+  },
+  {
+    "path": "Rog-fila.lua",
+    "sha256": "98f524626e34698e1835ef8124049826a7fc12310be0de440ed4beda4b4b90ad"
+  },
+  {
+    "path": "Rog-filb.lua",
+    "sha256": "8751097b7c8f14e94c32a376771bcec0b9b7997295988d839e7f8149a46bd240"
+  },
+  {
+    "path": "Rog-goal.lua",
+    "sha256": "4a9526d60f6802525e9964e428a5a15afef9d334441dd6c7e9ed8d1bad24d83e"
+  },
+  {
+    "path": "Rog-loca.lua",
+    "sha256": "99e9dd598190694ac55792355b8f875d746bfceeb6b994e0d77ce21011ce5014"
+  },
+  {
+    "path": "Rog-strt.lua",
+    "sha256": "e375e02db567addd2d087af7c5803d60e140bb3fdbb491810dd7a140cda8e55f"
+  },
+  {
+    "path": "Sam-fila.lua",
+    "sha256": "94a9c1812bbaf41429e84c9cb81f5ae1d74f62483a05aeae0cd9de3c534c97e5"
+  },
+  {
+    "path": "Sam-filb.lua",
+    "sha256": "0d6c4eb4158a18666f7463579d0377049a829279eebe40eaabb836bcc7de6db8"
+  },
+  {
+    "path": "Sam-goal.lua",
+    "sha256": "8f52c33c35ca8ad7a86bdaed246be52deaaef186638fff31d8501f735de58157"
+  },
+  {
+    "path": "Sam-loca.lua",
+    "sha256": "72e49c14e481b14aa81ef5c18d4d91ca07426a6a55e13589d91d6bb6c99a6528"
+  },
+  {
+    "path": "Sam-strt.lua",
+    "sha256": "f05faeb1c4718cf9b8d5f9a4799bf894693410f27271e459e24d80feda58c7c0"
+  },
+  {
+    "path": "Tou-fila.lua",
+    "sha256": "7961d770c6bcfbb0032ba92d3fc208427e9510741a409d481beabc1fa108c766"
+  },
+  {
+    "path": "Tou-filb.lua",
+    "sha256": "1737abb4d7db3549c85cb8dfd2bf9a8d141d0e6229648a0e70d68e2dfff1ff01"
+  },
+  {
+    "path": "Tou-goal.lua",
+    "sha256": "573f5e8352af99d50e42895b4248b482e23806b2211813bf894f4279bebbd787"
+  },
+  {
+    "path": "Tou-loca.lua",
+    "sha256": "595f7f6265dd3346624aa6de81e7093b05705e67f8c73ed39e75b54caf213d82"
+  },
+  {
+    "path": "Tou-strt.lua",
+    "sha256": "ed2ad657aba1789bda47e02c2bfbffe5390b5d30a9f12f9de37feb9d1eda760a"
+  },
+  {
+    "path": "Val-fila.lua",
+    "sha256": "c10f655144b6f905d214567f609e7f1b78eb116747a9ead74850e633da3456fa"
+  },
+  {
+    "path": "Val-filb.lua",
+    "sha256": "0bd4b051bd0804ad93801a071fec681bbcfb8c35449cd19b46c19000bc5e91b2"
+  },
+  {
+    "path": "Val-goal.lua",
+    "sha256": "b9954f089233af5a4566def70b20cb4fd58e38125ec7ee5469d0ba116ae78f92"
+  },
+  {
+    "path": "Val-loca.lua",
+    "sha256": "4c40d86532b96efef8f82b7841238d4b0fbee3503a6611d7f1e20b925a997b00"
+  },
+  {
+    "path": "Val-strt.lua",
+    "sha256": "33bc072378baf232f08fe3ca819ffdfe7e55d8c52fa0ac291a6d2512054b608e"
+  },
+  {
+    "path": "Wiz-fila.lua",
+    "sha256": "ee7358984fb240bfd4914ee3dee9d51ca2f3c16d36e0c6fc95b185b9acb6c5d0"
+  },
+  {
+    "path": "Wiz-filb.lua",
+    "sha256": "0ceb07e3bf391097c6819e28c32f7757eb6c40c7f294b4231387493312c06a44"
+  },
+  {
+    "path": "Wiz-goal.lua",
+    "sha256": "4967f339888b32b96373533622c210bbd6330105e64c32920eb080178ceadd8a"
+  },
+  {
+    "path": "Wiz-loca.lua",
+    "sha256": "48d62500fd9b9714fa101bb9855ceb4a54b7e075037d37d9ea2324f4c4e16530"
+  },
+  {
+    "path": "Wiz-strt.lua",
+    "sha256": "bc6a881ed21ef5e62dd7ab5ca9432a2351ecbf9019a602f41d599c912efa1aba"
+  },
+  {
+    "path": "air.lua",
+    "sha256": "730b7ecbcc1b801107edf1dcf10191371861acae9793a710f3101af15b4281bc"
+  },
+  {
+    "path": "asmodeus.lua",
+    "sha256": "1adc8a0ced1427be77b69d893d21ce7aaa96ea6ac21c6268e59e140297838325"
+  },
+  {
+    "path": "astral.lua",
+    "sha256": "1f0c0b15589c114df66e200b3520f685367df35d86cf50b172666c8eac8e4a8a"
+  },
+  {
+    "path": "baalz.lua",
+    "sha256": "875388847bd4fe951707d8916e026d7207811cfb2a7e8eca911b29bbc3c7b54b"
+  },
+  {
+    "path": "bigrm-1.lua",
+    "sha256": "2c6daa28df566b9855721c8e66508f31d31b575f98b4d67112b90a138924d503"
+  },
+  {
+    "path": "bigrm-10.lua",
+    "sha256": "5d6aaccd980ed322897984a2be9381c567e5cb753b97bf5c6674751c472f7ee7"
+  },
+  {
+    "path": "bigrm-11.lua",
+    "sha256": "c224dd821c79b75d2b746041aed6b78e3a78fcb2b4557c29aa32829a5e462b89"
+  },
+  {
+    "path": "bigrm-12.lua",
+    "sha256": "bba29f1cc3460bce2d7e3e08d5cc2b135f85b170e8f98e1f68c95c6c88319051"
+  },
+  {
+    "path": "bigrm-13.lua",
+    "sha256": "827b11309ed858b02523c6f325f2ba4145c6fd9aa0082b6f56b310cb64bf0868"
+  },
+  {
+    "path": "bigrm-2.lua",
+    "sha256": "ebdea03e5352271a57fe761537a9653b833db6debacb6e93fe2613ba38ebed2a"
+  },
+  {
+    "path": "bigrm-3.lua",
+    "sha256": "5afbc50d012d2cc66edf7a5325f5f79202958d29e2555df07247ee289f00b5b2"
+  },
+  {
+    "path": "bigrm-4.lua",
+    "sha256": "de5e84e557dd54de54f4da6593445d7099644efa44255c63680aac7b6389869b"
+  },
+  {
+    "path": "bigrm-5.lua",
+    "sha256": "eda606945c17fec84cd2309787d51cb676c933f6d07551b4c150f470413d1331"
+  },
+  {
+    "path": "bigrm-6.lua",
+    "sha256": "adc5c3494aafa770b0d711f5481173cb24291d83ad268c0ecaff1a9204b49c79"
+  },
+  {
+    "path": "bigrm-7.lua",
+    "sha256": "66d3aac60316cc71544b64b0b90bd45b1fc2d3326a2499f77836facc421913a4"
+  },
+  {
+    "path": "bigrm-8.lua",
+    "sha256": "395186e682b787af236889bb401be084e30c696c2c36ba9da30213909ea04b02"
+  },
+  {
+    "path": "bigrm-9.lua",
+    "sha256": "fb68f66e782a98e85ac7b4ffc83b22ae38139df86718b16365abcdb5f6518548"
+  },
+  {
+    "path": "bogusmon",
+    "sha256": "889f9966974ad5d714d7bdd33619b4636bb751004459655d6d7c0a450b3e0681"
+  },
+  {
+    "path": "castle.lua",
+    "sha256": "c5f81b626d24881379015235578583cc867ec86eaf588ccb50171b5d6354703c"
+  },
+  {
+    "path": "cmdhelp",
+    "sha256": "30a591fc3ced71e5857b48894b1d57063334ce4acd1fc8b3cfaa7be0a3736144"
+  },
+  {
+    "path": "data",
+    "sha256": "a2f419019ba4e8b83b2b8409980dd0a1b9395b5454315337a293513b96f6c4c5"
+  },
+  {
+    "path": "dungeon.lua",
+    "sha256": "5bbc7d7a1882b6ee0809c40efbdc7b01fd149fcebe574a49e05df4ccb6053830"
+  },
+  {
+    "path": "earth.lua",
+    "sha256": "657bc181ba07eea494f97241426f2e5b2beaf708dcbe7cfa3c0a5ec36cd46fb3"
+  },
+  {
+    "path": "engrave",
+    "sha256": "997a0b2ecc90a46f58e8c9df0682710fa3aaaacbe3464f12d0300d234159849d"
+  },
+  {
+    "path": "epitaph",
+    "sha256": "a5325ff6040e99103a245b90521dee0f47b0f64e4c628f75765e837ffcd56318"
+  },
+  {
+    "path": "fakewiz1.lua",
+    "sha256": "2725e584c7d7a66e47b3bf9dd9a3001100ac15068a541340ec739eb98138bd37"
+  },
+  {
+    "path": "fakewiz2.lua",
+    "sha256": "7c760bcb672aee8f3f1e613c7cce265e1be670655cd6dcde194824e5c2a358e3"
+  },
+  {
+    "path": "fire.lua",
+    "sha256": "d4b032a76cc87d8abd171f8f9ddff5ccde7a601966798b91dfb869e00eb655e7"
+  },
+  {
+    "path": "hellfill.lua",
+    "sha256": "9c33d346bb8288fe71bc7e753215b4fbb4188b5617671de5aeb359702a70b777"
+  },
+  {
+    "path": "help",
+    "sha256": "3d4fb64efc31a3ad05c5ea850d74ee59094028dcab6ce234027c6d38c57bc836"
+  },
+  {
+    "path": "hh",
+    "sha256": "17fdf371fdeba0eeadec3c97c860518b43c40b4f56aa91b3fc67e2ce4b297b9c"
+  },
+  {
+    "path": "history",
+    "sha256": "f1dbd5d61b8782c15250794fc9a0571f544d86d6f45f2206e3ed9de8716b34f9"
+  },
+  {
+    "path": "juiblex.lua",
+    "sha256": "8bbf3b210808032e3ea62644f79601490846ca839dd4e6138f1e62733dfa506c"
+  },
+  {
+    "path": "keyhelp",
+    "sha256": "c0f649ecafc20859f6d54134b8f7b776060e960f4cd9ea47eb1bbbeebdf82038"
+  },
+  {
+    "path": "knox.lua",
+    "sha256": "7ce25a67ea55484a10d5893be5e0abe1d01f2a36f675a6521c0937b36766a4d5"
+  },
+  {
+    "path": "license",
+    "sha256": "93a3ae2cb8dee482daddfaebe53bcffe5b114b603def19b4dca21621cbc5a747"
+  },
+  {
+    "path": "livelog",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "logfile",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "medusa-1.lua",
+    "sha256": "bf0b7ae4538e172cbdd2d1b76764c67b42167de0f2a76773d86b96c2a9a36b75"
+  },
+  {
+    "path": "medusa-2.lua",
+    "sha256": "a7f123a87bedadb0691ebe30c2a58170c6da2ca9b37b19ebf4b6362d12a7b17a"
+  },
+  {
+    "path": "medusa-3.lua",
+    "sha256": "4cc4ed29ac880d81b6cf409a2f92f3fbb8bc5997e63706697b6be4579f4feebe"
+  },
+  {
+    "path": "medusa-4.lua",
+    "sha256": "7cf27c45b0bf6b6d86e2688fa4fb901ebc90b8c6cb484b7751d27fe5323b72d5"
+  },
+  {
+    "path": "minefill.lua",
+    "sha256": "a07a88ed952fd4aca2084555a7669d04a2210746c4254bab4dbd996a609e761d"
+  },
+  {
+    "path": "minend-1.lua",
+    "sha256": "7688e6b89bfdb12ba92d842711d76ab90a9a8597c61c8e87a4c972c61efb58de"
+  },
+  {
+    "path": "minend-2.lua",
+    "sha256": "9942bf498e701babf6dda6a3aed618b4dd539662bda79c2f25ebbfbbff7722a9"
+  },
+  {
+    "path": "minend-3.lua",
+    "sha256": "01294b985257ea36ccf5dcc235215ad60aa7b6a4ba7750a759b03afdcb425c0a"
+  },
+  {
+    "path": "minetn-1.lua",
+    "sha256": "91b7ef0e3b25471a38726e58be1c85c4aa531d2f93ef79a7af9cc94759c93906"
+  },
+  {
+    "path": "minetn-2.lua",
+    "sha256": "b9b59745689a882606e2f417dfb47770143b0a6a307cbea0d15bbb6c153067a9"
+  },
+  {
+    "path": "minetn-3.lua",
+    "sha256": "0d7b852cf92b6e21d2075fb9f82db899c22593853e2f12f676ca29db4dbbe62b"
+  },
+  {
+    "path": "minetn-4.lua",
+    "sha256": "01060802b617cf5be0223d25c1d0f0ff74c59fbeba84c5ad63c7c9078e5415d9"
+  },
+  {
+    "path": "minetn-5.lua",
+    "sha256": "01e4af2c4ed385b87c5c29ff6e4d6a776cdddd2f1a9a88ab98765a15dd90b7ce"
+  },
+  {
+    "path": "minetn-6.lua",
+    "sha256": "c9e08eedd8251ebf88c7a96ae52c8a1f3e2a67cc2d99f10ae4f61c239cdca42b"
+  },
+  {
+    "path": "minetn-7.lua",
+    "sha256": "39a26038286cea66d48bfe516c6e2400d26a0b9f18b6fa89c0609f75d2a65a1f"
+  },
+  {
+    "path": "nethack",
+    "sha256": "cb8a2a847d3c4f1c52213757abdbedd2e74c872339691cd5bef5489c64b891ad"
+  },
+  {
+    "path": "nhcore.lua",
+    "sha256": "45c42ace2fe61acea1d4202bf1fc040937275d5d9b20d1898358b4a95d6afd94"
+  },
+  {
+    "path": "nhlib.lua",
+    "sha256": "5ea21df2d77e0fbde7e5e96167c907986b332458326a0568be87b33929e5daf0"
+  },
+  {
+    "path": "opthelp",
+    "sha256": "7a3b869c0c4880a5ed67be470da21e431c043d614e29f91d4e16e35290d20bd9"
+  },
+  {
+    "path": "options",
+    "sha256": "a8c43762a5886ffbbd660b70e6b30dd363cb696c302cc78e5177731a2adfd147"
+  },
+  {
+    "path": "optmenu",
+    "sha256": "5304773c5c9ccd827160a7d4bcf34420c280be2a19b3353785c2362290730e13"
+  },
+  {
+    "path": "oracle.lua",
+    "sha256": "fe4b99a7c207e5568c01c44c5b5a51c7d5e93c853a52b1f947de10a57510fdec"
+  },
+  {
+    "path": "oracles",
+    "sha256": "18e87ce1f921617678027a34d52b3228e2d63312f4d37ca9bd8756add7b41891"
+  },
+  {
+    "path": "orcus.lua",
+    "sha256": "7b23aec71e663c772a6c66a97c8fbf975eb74b10ae3d31d2277d50f1b5e08aa9"
+  },
+  {
+    "path": "perm",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "quest.lua",
+    "sha256": "93258f0b61014269d718b3e26cc4e5384680083d5ff1ee0312c7f4065da2e9d2"
+  },
+  {
+    "path": "record",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "recover",
+    "sha256": "b45f2b2326f10e1daeb1fb7bd46ac57f26252e53df9f0f9d62cec4ed2fd983be"
+  },
+  {
+    "path": "rumors",
+    "sha256": "1e5958f52212d0792a5e62953f7a5f530dedd0f192bb4077d8faf2b848c94c30"
+  },
+  {
+    "path": "sanctum.lua",
+    "sha256": "f7171e56ce3ba8858065ee886acc78962430121f3a3c487b35cd7315e76d6e32"
+  },
+  {
+    "path": "soko1-1.lua",
+    "sha256": "33c2ef6ae9b982edd25b2b82f54c5ad57cf932bfb4c24f96afd8b2d291f894ff"
+  },
+  {
+    "path": "soko1-2.lua",
+    "sha256": "5c68cbd3fb5999c8ad4c2d5ca4b7f9d06e458fb7157d6e84d4d0f3492d88d909"
+  },
+  {
+    "path": "soko2-1.lua",
+    "sha256": "ceb95a1b2fe4f21a6d0710f191e7e78bcc7d180c9f09b0510924a6bf22939877"
+  },
+  {
+    "path": "soko2-2.lua",
+    "sha256": "70888648b5f4cebf0ba5743c3949aef3bc6a5fbb54e66d156af4c3274c0ebf27"
+  },
+  {
+    "path": "soko3-1.lua",
+    "sha256": "486616fbdbd2e5cf0460b58b931b8bdcf7e08945079b6e0554b77f3c0cc96163"
+  },
+  {
+    "path": "soko3-2.lua",
+    "sha256": "28a94d8cb38266316e86eb735d2d0649316f0fde98de47c767ebad0e3266c014"
+  },
+  {
+    "path": "soko4-1.lua",
+    "sha256": "6f3afc7c2c6998171f0db072548e19dd64bcd816fd6566af6b6adc41f1ff7687"
+  },
+  {
+    "path": "soko4-2.lua",
+    "sha256": "80b8a02c8a7576f8f89796aa508cd42db44fac8f14438f1fa65fcef687ae5941"
+  },
+  {
+    "path": "symbols",
+    "sha256": "782316043be994ad1178c1da80a3f5587b8e97ed2afad20b1dede7dd3cd99c40"
+  },
+  {
+    "path": "sysconf",
+    "sha256": "8cfa7b1b0a7955d137c0f2c8210aa48b77cd70866739aead5b1a950cfd4320b2"
+  },
+  {
+    "path": "themerms.lua",
+    "sha256": "bcd213626a0d773c2149abe53eb0623caa944cde7e89d42f2f7446a486945fbb"
+  },
+  {
+    "path": "tower1.lua",
+    "sha256": "20bad22be0dfe9a1c7dba0b2ef7b05bf91a6953b487aec6b916f8b296bb9a141"
+  },
+  {
+    "path": "tower2.lua",
+    "sha256": "a03a8943ec47b0867137ab40c3972bf6dd8a02e69c100fad8c0ba966326aa89b"
+  },
+  {
+    "path": "tower3.lua",
+    "sha256": "c303a0d4373b409357ab8e63d5754173d283a41448444178a58fbc31cc2571a5"
+  },
+  {
+    "path": "tribute",
+    "sha256": "a60ca28ff3ccd71b7f0c6b082a67a03550a55a874de9ab2bb841c8b4ca93a3b0"
+  },
+  {
+    "path": "tut-1.lua",
+    "sha256": "1e97aeb8d9e393db218353f21b4b4ae898d3581ede842998db76dabf5230c681"
+  },
+  {
+    "path": "tut-2.lua",
+    "sha256": "c34e40ca9f02d768a727721606d6adabc68ba958ed2e6af98b255e6ad2e99f21"
+  },
+  {
+    "path": "usagehlp",
+    "sha256": "8228338c4817f6b0661b2cc98e84e660a365ce24170a02a381fca04ebb1ad5b3"
+  },
+  {
+    "path": "valley.lua",
+    "sha256": "d33846c70338e4c26e367a1e2546a5645d64da6967321bc748e1517a3db651d8"
+  },
+  {
+    "path": "water.lua",
+    "sha256": "7db9a2dbac9b24c4e667e66258371a3bb3a88f8d8ace42cb4471736150a808d1"
+  },
+  {
+    "path": "wizard1.lua",
+    "sha256": "6b069c03311f8d637d45a501b9ea0c362829c811dba845c771b8cd588aff2371"
+  },
+  {
+    "path": "wizard2.lua",
+    "sha256": "76c95bc094fe785bf4f8e57e06fd190f79a3459548c729a96584f7590c6fe689"
+  },
+  {
+    "path": "wizard3.lua",
+    "sha256": "4a6c22dafa44a77525640f79f178a309eb1524902dae436c7fbb8c40e8b9927f"
+  },
+  {
+    "path": "wizhelp",
+    "sha256": "31a106c909a1cdd8a74deb324f93ae26788116490e4e6fd3e2cae8b329068bde"
+  },
+  {
+    "path": "xlogfile",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

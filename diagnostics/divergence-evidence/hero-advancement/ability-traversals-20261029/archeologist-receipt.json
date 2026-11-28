@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "archeologist",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+    "archeologist",
+    "/tmp/hero-ability-archeologist-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "3f0abcf1846d55999c260505a257647b12e570b8",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:17:39.084982+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/archeologist.json": "4548b159ca1ede8701f15ed54d030a366780c58db2304b0f4e1b88138518494e"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/archeologist/worker.json"
+  ]
+}

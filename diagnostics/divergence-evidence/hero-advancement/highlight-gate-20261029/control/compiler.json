@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "gcc",
+    "-std=c11",
+    "-O0",
+    "-Wall",
+    "-Wextra",
+    "-I.",
+    "/tmp/hero-hilite-gate-ob7VYV/oracle.c",
+    "-o",
+    "/tmp/hero-hilite-gate-ob7VYV/oracle"
+  ],
+  "status": 0,
+  "stdout": "",
+  "stderr": ""
+}

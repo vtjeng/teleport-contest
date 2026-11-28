@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "barbarian",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+    "barbarian",
+    "/tmp/hero-ability-barbarian-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "3f0abcf1846d55999c260505a257647b12e570b8",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:17:42.806930+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/barbarian.json": "ab8f5e576d3ddcb5bd9c8a4cb2e1237c08b1e7689b9c27b773bc6883cd923b9a"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/barbarian/worker.json"
+  ]
+}

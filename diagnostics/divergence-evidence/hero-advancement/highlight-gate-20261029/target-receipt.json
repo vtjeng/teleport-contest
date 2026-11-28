@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/run.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "270f005cc1c9f7e37a43eddc17a6323264cfd4e5",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:24:22.956553+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "gcc": "gcc (Debian 14.2.0-19) 14.2.0"
+  },
+  "runnerSha256": "e8bd65dde0c35e1bf9016027b735625257a6b317434cf30f0ce4d13bb0374f73",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/shim.h": "2fe0cb08a2787e396236f7b9c8e4225b5c894d4793d346d5475d8d09bb9ba4cf",
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/driver.c": "0084b73e07610dd1177e44b774f9470e03b39cdb4f8275eed9bd096cc55586e6",
+    "nethack-c/upstream/src/exper.c": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+    "nethack-c/upstream/src/botl.c": "765fe13d7ee604c606c6920bce9bcb2a8a82299dbd56073b2b90101409409360",
+    "nethack-c/upstream/include/botl.h": "c26c637bcb8b2615e82fbc0804175cd8c87f63a3caf35c742e0a6fa410a31009",
+    "nethack-c/upstream/include/wintype.h": "e5bfd60534831210bdace1ba6eaef62f65d16dab8d8ac0fcddadebd000d53698",
+    "nethack-c/upstream/include/color.h": "f7ab4cdf5113898bf58ba85217f5d693b8564c232ff706ee894fdf070a3a105b"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/c-output.jsonl.gz",
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/compiler.json",
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/input.txt.gz",
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/js-output.jsonl.gz",
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/matrix.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/mismatches.json",
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/oracle.c",
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/source-bindings.json",
+    "diagnostics/divergence-evidence/hero-advancement/highlight-gate-20261029/target/summary.json"
+  ]
+}

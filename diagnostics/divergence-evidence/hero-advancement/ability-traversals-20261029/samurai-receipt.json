@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "samurai",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/run.mjs",
+    "samurai",
+    "/tmp/hero-ability-samurai-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "3f0abcf1846d55999c260505a257647b12e570b8",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:18:09.822788+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/recipes/samurai.json": "84e085ee86cf7cf7882ec83817b14d4922c0f61ad2dec73238d461dc48f5452a"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/ability-traversals-20261029/samurai/worker.json"
+  ]
+}

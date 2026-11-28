@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73160371,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:EnergyAudit,role:Wizard,race:human,gender:male,align:neutral,playmode:debug,!legacy,!tutorial,!splash_screen,pettype:none,!autopickup,!debug_mongen,!acoustics,showexp\n",
+      "moves": "#levelchange\n20\n                                   Zb            Zb            Zb            Zb            Zb            Zb            Zb            Zb            Zb            Zb            Zb            #levelchange\n1\n                                   #levelchange\n2\n                                   "
+    }
+  ]
+}

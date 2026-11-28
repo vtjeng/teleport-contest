@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "commandId": "target",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/run.mjs",
+    "target"
+  ],
+  "cwd": ".",
+  "jsSha": "fdaa960271b2eab9d9e2314d413f80258122b577",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:40:14.093643+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0",
+    "gcc": "gcc (Debian 14.2.0-19) 14.2.0"
+  },
+  "runnerSha256": "348129764750a44d2e487636f880e82c1b9a3e1723ce3b9a269120bde2532dcb",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/parse-c.mjs": "0dde714d7c80e7f361f67be4bdd366ca88df99ab44b3c58e604192ba706b119d",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/shim.h": "31b2885d320112d0a9627e20956a9d0f3c4528e246884d3bc147013079c53926",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/driver.c": "3269b911ce01eaf6f56242ed28b18dd877c495f52368059d908f00c6c98d6ba6",
+    "nethack-c/upstream/src/role.c": "d6f9341da2a6dff5197442f78cb322c8b22437c95646c44350810fbc058f25a8",
+    "nethack-c/upstream/src/exper.c": "b2348ce804db130fb84d832c60d3c454eb8e52c5e6debe9e173ef3d3ec226a12",
+    "nethack-c/upstream/src/attrib.c": "4dfbf91f63855512406571d431e59ce1395a73bb5dc0050ca3710bf5c740ba79"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/c-output.jsonl.gz",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/c-progression.json",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/compiler.json",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/input.txt.gz",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/js-output.jsonl.gz",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/matrix.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/mismatches.json",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/oracle.c",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/source-bindings.json",
+    "diagnostics/divergence-evidence/hero-advancement/attribute-boundaries-20261029/target/summary.json"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "commandId": "build",
+  "argv": [
+    "bash",
+    "nethack-c/build-recorder.sh"
+  ],
+  "cwd": ".",
+  "executionRoot": "/tmp/hero-recorder-build-activated-20261029",
+  "activation": "/workspace/.setup/activate.sh",
+  "jsSha": "83d4b6209b326c38fd75d02c64719f0aba04e0c2",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T05:33:14.860009+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "clang": "Debian clang19.1.7",
+    "bison": "3.8.2",
+    "flex": "2.6.4",
+    "rsync": "3.4.1",
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38",
+  "inputHashes": {
+    "nethack-c/build-recorder.sh": "c37c6942e0563c4dc807b5c32ca6a43b9532519346658e1dfc7680567c0f6a38",
+    "nethack-c/upstream/sys/unix/hints/linux-minimal": "ba958b4e6f4e7f2dceb0d4911d1ca52e3b253405f2a3053036ea242a9dbe0a5a",
+    "scripts/smoke-recorder.mjs": "97488f3d2f61478495e4b5a2936885433b5728dede3ef9deab6149102b370b10",
+    "nethack-c/patches/001-deterministic-runtime.patch": "7965f2a845bd5c573b90e7de239f4ec9d1991463d72362295508d96a106fda58",
+    "nethack-c/patches/002-deterministic-qsort.patch": "92ab310201565704a2c9658e699d9bef4c79ccb2764f3b1135ad03e783ece425",
+    "nethack-c/patches/003-rng-log-core.patch": "9882d7fedaa4d7515a0a26fe7e9f092aa2ec1b1cd2d21069105fbe70216b3bc9",
+    "nethack-c/patches/004-rng-log-lua-context.patch": "60b61c8a5dd669b9206562752d09ff82e13b682aa1c06ec10d8dddea0117cc36",
+    "nethack-c/patches/005-rng-display-logging.patch": "4e0a21c990aaa6959020966d2725a7b5d38afe935ed5e3b901826424ba627966",
+    "nethack-c/patches/006-nomux-capture.patch": "ee0c19362009189bd4901308cfc9c972b56123328cdd315ba991f1603a085f95",
+    "nethack-c/patches/007-stable-pointer-format.patch": "d588427fc84d34383cee77ac18add59e3c1dcdf1ec10d8bfa464392525217033",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/activate.sh.txt": "9c017d9f25ffa832ef13d84e5f336a841a9371c98e02549d08b7a1835b9636c6",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/cached-lua-source.tar.gz": "7f9ae5bdc2b3f7cf151bded17e00cb26294bb699d9d5e52267de34fd8971c4c3",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/activated-tools.json": "713342d483b63144db3e73f322f0b28bb8d44c1f5b3a97d68cd49a66b3ef77a4"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build.log",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-result.json",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/build-provenance.json",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/built-source-hashes.json",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/installed-file-hashes.json",
+    "diagnostics/divergence-evidence/hero-advancement/recorder-build-activated-20261029/nethack-binary.gz"
+  ]
+}

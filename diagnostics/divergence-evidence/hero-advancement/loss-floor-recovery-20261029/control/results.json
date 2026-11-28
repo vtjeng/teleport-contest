@@ -1,0 +1,60 @@
+[
+  {
+    "id": "level-one-zero",
+    "input": {
+      "id": "level-one-zero",
+      "mode": "loss",
+      "level": 1,
+      "xp": 0,
+      "hp": 12,
+      "hpmax": 12,
+      "en": 6,
+      "enmax": 6,
+      "hi": 12,
+      "ei": 6,
+      "upper": 0,
+      "expected": {
+        "ulevel": 1,
+        "uexp": 0,
+        "uhp": 12,
+        "uen": 6,
+        "messages": ""
+      }
+    },
+    "c": {
+      "ulevel": 1,
+      "ulevelmax": 1,
+      "ulevelpeak": 1,
+      "uexp": 0,
+      "uhp": 12,
+      "uhpmax": 12,
+      "uhppeak": 12,
+      "uen": 6,
+      "uenmax": 6,
+      "uenpeak": 6,
+      "hpinc": 12,
+      "eninc": 6,
+      "botl": true,
+      "rng": "",
+      "messages": ""
+    },
+    "js": {
+      "ulevel": 1,
+      "ulevelmax": 1,
+      "ulevelpeak": 1,
+      "uexp": 0,
+      "uhp": 12,
+      "uhpmax": 12,
+      "uhppeak": 12,
+      "uen": 6,
+      "uenmax": 6,
+      "uenpeak": 6,
+      "hpinc": 12,
+      "eninc": 6,
+      "botl": true,
+      "rng": "",
+      "messages": ""
+    },
+    "match": true
+  }
+]

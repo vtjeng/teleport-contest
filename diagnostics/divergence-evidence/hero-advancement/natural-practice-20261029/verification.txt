@@ -1,0 +1,3 @@
+{"name":"control","successes":6,"failedCasts":4,"jsPractice":18,"jsSlots":19,"specificNotification":-1,"generalNotification":-1,"finalHP":98,"finalEnergy":86,"fullParity":true}
+{"name":"practice-control","successes":7,"failedCasts":4,"jsPractice":21,"jsSlots":19,"specificNotification":60,"generalNotification":-1,"finalHP":98,"finalEnergy":71,"fullParity":true}
+{"name":"target","successes":7,"failedCasts":4,"jsPractice":21,"jsSlots":1,"specificNotification":60,"generalNotification":82,"finalHP":21,"finalEnergy":8,"fullParity":true}

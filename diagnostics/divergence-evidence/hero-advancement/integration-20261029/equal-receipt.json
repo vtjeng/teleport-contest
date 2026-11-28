@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "commandId": "equal",
+  "argv": [
+    "node",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/run.mjs",
+    "equal",
+    "/tmp/hero-integration-final-equal-20261029"
+  ],
+  "cwd": ".",
+  "jsSha": "9cd25dd87fe2df24bbf04ea3897aaa725b9758ea",
+  "cGitlink": "16ff59115315917b93185d026aeefea06db9b0f4",
+  "recordedAt": "2026-10-29T04:12:52.457185+00:00",
+  "exitCode": 0,
+  "toolVersions": {
+    "node": "v24.19.0"
+  },
+  "runnerSha256": "ea929f8fd3ca29aa1463f27b1ccc44157998a6bb8d13de0e0b4950a2b9e5f4d9",
+  "inputHashes": {
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/recipes/equal.json": "a37084144b50dbfd20b05a31f49d3faf4ff1667933663c8998fd23a77e8f3428"
+  },
+  "outputs": [
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/js-output.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/recipe.session.json",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/recorded.session.json.gz",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/recorder.json",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/result.json",
+    "diagnostics/divergence-evidence/hero-advancement/integration-20261029/equal/worker.json"
+  ]
+}

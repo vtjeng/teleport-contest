@@ -1,0 +1,11 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 73160300,
+      "datetime": "20310203040506",
+      "nethackrc": "OPTIONS=name:AbilityAudit,role:Archeologist,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:debug,pettype:none,!acoustics,!autopickup,showexp\n",
+      "moves": "#levelchange\n30\n                                                                                          #levelchange\n1\n                                                                                          "
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+{"name":"earned-control","publicSlots":19,"publicHealingRow":"Unskilled21/20","jsSkill":1,"jsPractice":21,"debugPracticeBypass":false,"fullParity":true}
+{"name":"spent-control","publicSlots":18,"publicHealingRow":"Basic21/80","jsSkill":2,"jsPractice":21,"debugPracticeBypass":false,"fullParity":true}
+{"name":"refund-target","publicSlots":0,"publicHealingRow":"below first page; regained target observes it","jsSkill":1,"jsPractice":21,"debugPracticeBypass":false,"fullParity":true}
+{"name":"regain-target","publicSlots":1,"publicHealingRow":"Unskilled21/20","jsSkill":1,"jsPractice":21,"debugPracticeBypass":false,"fullParity":true}
