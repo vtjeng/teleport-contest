@@ -732,7 +732,17 @@ import {
 import { getlin } from './windows.js';
 import { tt_doppel } from './topten.js';
 import { mwepgone, possibly_unwield } from './weapon.js';
-import { block_point, cansee, couldsee, does_block, is_lightblocker_mappear, m_canseeu, recalc_block_point, unblock_point, vision_recalc_async } from './vision.js';
+import {
+    block_point,
+    cansee,
+    couldsee,
+    does_block,
+    is_lightblocker_mappear,
+    m_canseeu,
+    recalc_block_point,
+    unblock_point,
+    vision_recalc_async,
+} from './vision.js';
 import { bypass_obj, mon_break_armor, which_armor } from './worn.js';
 import { body_part } from './polyself.js';
 import { mon_explodes } from './explode.js';

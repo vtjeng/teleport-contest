@@ -21,7 +21,21 @@ import { makemon_by_context, mkmonmoney, mongets, rnd_defensive_item, rnd_misc_i
 import { is_female, is_mplayer, monsndx, set_mon_data } from './mondata.js';
 import { mkobj, mksobj, rnd_class, is_spear, weight } from './mkobj.js';
 import { curse, bless } from './mkobj.js';
-import { PM_ARCHEOLOGIST, PM_BARBARIAN, PM_CAVE_DWELLER, PM_CLERIC, PM_HEALER, PM_KNIGHT, PM_MONK, PM_RANGER, PM_ROGUE, PM_SAMURAI, PM_TOURIST, PM_VALKYRIE, PM_WIZARD } from './monsters.js';
+import {
+    PM_ARCHEOLOGIST,
+    PM_BARBARIAN,
+    PM_CAVE_DWELLER,
+    PM_CLERIC,
+    PM_HEALER,
+    PM_KNIGHT,
+    PM_MONK,
+    PM_RANGER,
+    PM_ROGUE,
+    PM_SAMURAI,
+    PM_TOURIST,
+    PM_VALKYRIE,
+    PM_WIZARD,
+} from './monsters.js';
 import { coreRandom } from './rng.js';
 import { mpickobj } from './steal.js';
 import { set_malign } from './makemon.js';

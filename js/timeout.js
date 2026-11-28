@@ -151,7 +151,19 @@ import {
     highc, ing_suffix, s_suffix, strstri, strsubst, upstart,
 } from './hacklib.js';
 import {
-    incr_itimeout, make_blinded, make_confused, make_deaf, make_glib, make_hallucinated, make_sick, make_slimed, make_stoned, make_stunned, make_vomiting, set_itimeout, } from './potion.js';
+    incr_itimeout,
+    make_blinded,
+    make_confused,
+    make_deaf,
+    make_glib,
+    make_hallucinated,
+    make_sick,
+    make_slimed,
+    make_stoned,
+    make_stunned,
+    make_vomiting,
+    set_itimeout,
+} from './potion.js';
 import { deferred_decor, encumber_msg } from './pickup.js';
 import { stuck_in_wall } from './pray.js';
 import { region_danger } from './region.js';

@@ -27,7 +27,20 @@ import { NUMMONS } from './monsters.js';
 // role.c genders[], read by the you.h pronoun macro below. roles.js imports
 // nothing, so this edge cannot close a cycle.
 import { genders } from './roles.js';
-import { CLR_BLACK, CLR_BRIGHT_BLUE, CLR_BRIGHT_CYAN, CLR_BRIGHT_MAGENTA, CLR_BROWN, CLR_CYAN, CLR_GRAY, CLR_MAGENTA, CLR_ORANGE, CLR_RED, CLR_WHITE, CLR_YELLOW } from './terminal.js';
+import {
+    CLR_BLACK,
+    CLR_BRIGHT_BLUE,
+    CLR_BRIGHT_CYAN,
+    CLR_BRIGHT_MAGENTA,
+    CLR_BROWN,
+    CLR_CYAN,
+    CLR_GRAY,
+    CLR_MAGENTA,
+    CLR_ORANGE,
+    CLR_RED,
+    CLR_WHITE,
+    CLR_YELLOW,
+} from './terminal.js';
 import { dungeon_at } from './dungeon_table.js';
 import { lcase } from './hacklib.js';
 

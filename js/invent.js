@@ -248,7 +248,17 @@ import { surface } from './dungeon.js';
 import { ice_descr, self_lookat } from './pager.js';
 import { digests } from './dothrow.js';
 import { can_reach_floor, read_engr_at } from './engrave.js';
-import { add_valid_menu_class, allow_all, allow_category, encumber_msg, force_decor, query_objlist, query_objlist_selector, query_objlist_sortflags, u_safe_from_fatal_corpse } from './pickup.js';
+import {
+    add_valid_menu_class,
+    allow_all,
+    allow_category,
+    encumber_msg,
+    force_decor,
+    query_objlist,
+    query_objlist_selector,
+    query_objlist_sortflags,
+    u_safe_from_fatal_corpse,
+} from './pickup.js';
 import { hide_unhide_msgtypes } from './options.js';
 import { displayTtyMenuTextWindow } from './tty_menu.js';
 import { add_menu_heading, getlin, select_menu } from './windows.js';
