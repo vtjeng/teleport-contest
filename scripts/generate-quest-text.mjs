@@ -8,6 +8,8 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+import { valueLiteral } from './js-source-literal.mjs';
+
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const UPSTREAM_ROOT = join(PROJECT_ROOT, 'nethack-c', 'upstream');
 const SOURCE_PATH = join(UPSTREAM_ROOT, 'dat', 'quest.lua');
@@ -209,7 +211,7 @@ function renderModule(questtext) {
         '// Keep array values in Lua order; the pager chooses a variant when',
         '// the selected message has no text field.',
         '',
-        `export const QUEST_TEXT_DATA = ${JSON.stringify(questtext, null, 4)};`,
+        `export const QUEST_TEXT_DATA = ${valueLiteral(questtext)};`,
         '',
         '// Role-section view for existing quest callers; entries reference',
         '// the one generated table above rather than copying its messages.',

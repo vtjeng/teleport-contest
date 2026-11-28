@@ -6,13 +6,15 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
+import { stringLiteral } from './js-source-literal.mjs';
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const sourcePath = resolve(root, 'nethack-c/upstream/dat/tribute');
 const outputPath = resolve(root, 'js/tribute_data.js');
 const source = await readFile(sourcePath, 'utf8');
 const generated = `// Generated from nethack-c/upstream/dat/tribute by\n`
     + `// scripts/generate-tribute-data.mjs. Do not edit by hand.\n`
-    + `export const TRIBUTE_DATA = ${JSON.stringify(source)};\n`;
+    + `export const TRIBUTE_DATA = ${stringLiteral(source)};\n`;
 
 if (process.argv.includes('--check')) {
     const current = await readFile(outputPath, 'utf8').catch(() => '');

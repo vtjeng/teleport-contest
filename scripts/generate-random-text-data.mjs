@@ -11,6 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { xcrypt } from '../js/hacklib.js';
+import { valueLiteral } from './js-source-literal.mjs';
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const UPSTREAM_ROOT = join(PROJECT_ROOT, 'nethack-c', 'upstream');
@@ -268,7 +269,7 @@ export function renderRandomTextData(files, tables) {
         + `// projected with util/makedefs.c padding, encryption, and layout.\n`
         + `// HCOLORS and HLIQUIDS: extracted directly from src/do_name.c at that revision.\n\n`
         + `export const RANDOM_TEXT_FILE_HASHES = Object.freeze(${JSON.stringify(hashes, null, 4)});\n\n`
-        + `export const RANDOM_TEXT_FILES = Object.freeze(${JSON.stringify(files, null, 4)});\n\n`
+        + `export const RANDOM_TEXT_FILES = Object.freeze(${valueLiteral(files)});\n\n`
         + `export const HCOLORS = Object.freeze(${JSON.stringify(tables.hcolors, null, 4)});\n\n`
         + `export const HLIQUIDS = Object.freeze(${JSON.stringify(tables.hliquids, null, 4)});\n`;
 }
